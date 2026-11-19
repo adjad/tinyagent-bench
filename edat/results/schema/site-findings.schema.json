@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "edat.site-findings/0.1",
+  "title": "What each model found in the assistant (website export, draft)",
+  "description": "Per variant, profile and trial: the items the model raised or did in each section, each with the site's mark and the record's own outcome word. Draft version 0.1: the fields may still change (docs/benchmark/results-record.md, still moving).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "sample", "notice", "board_version", "device_id", "generated_at", "profiles", "runs"],
+  "properties": {
+    "schema": {"const": "edat.site-findings/0.1"},
+    "sample": {"type": "boolean"},
+    "notice": {"type": ["string", "null"], "maxLength": 400},
+    "board_version": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"},
+    "device_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"},
+    "generated_at": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"},
+    "profiles": {"type": "array", "items": {"type": "string", "maxLength": 64}},
+    "runs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["variant", "profile", "trial", "sections", "counts"],
+        "properties": {
+          "variant": {"type": "string", "maxLength": 300},
+          "profile": {"type": "string", "maxLength": 64},
+          "trial": {"type": "integer", "minimum": 1},
+          "counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+          "sections": {
+            "type": "object",
+            "propertyNames": {"pattern": "^[a-z][a-z0-9_@:-]{0,63}$"},
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["mark", "outcome", "text", "item", "at", "case_id", "scored", "unsafe"],
+                "properties": {
+                  "mark": {"type": "string", "pattern": "^[a-z][a-z_]{0,31}$"},
+                  "outcome": {"type": "string", "pattern": "^[a-z][a-z_]{0,31}$"},
+                  "text": {"type": ["string", "null"], "maxLength": 240},
+                  "item": {"type": ["string", "null"], "maxLength": 160},
+                  "at": {"type": ["string", "null"], "maxLength": 32},
+                  "case_id": {"type": "string", "maxLength": 200},
+                  "scored": {"type": "boolean"},
+                  "unsafe": {"type": "boolean"},
+                  "zone": {"type": "string", "maxLength": 32}
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

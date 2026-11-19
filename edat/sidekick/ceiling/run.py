@@ -45,9 +45,10 @@ from edat.sidekick.ceiling.rungs import (LADDER_SEED_PUBLIC, RUNG_BY_ID, RUNGS, 
 from edat.sidekick.extract import visible_answer
 from edat.sidekick.gen.core import PUBLIC_MASTER_SEED, materialize
 from edat.sidekick.graders import grade_answer
+from edat.sidekick.graders.common import GradeResult
 from edat.sidekick.records import harness_commit, make_record
 from edat.sidekick.restraint import event_record
-from edat.sidekick.sandbox.run import TrialArea, get_isolation
+from edat.sidekick.sandbox.run import SandboxUnavailable, TrialArea, get_isolation
 from edat.sidekick.sandbox.selftest import require_sandbox
 from edat.sidekick.tools_dev import SYSTEM_PROMPT
 
@@ -96,11 +97,13 @@ def _suite(case: LadderCase, tool: bool = False) -> str:
 
 
 ANSWER_ONLY_RUNGS = tuple(r.n for r in RUNGS if r.mode == "answer_only")      # 1-8
+QUICK_RUNGS = tuple(r.n for r in RUNGS)                                         # 1-9: rung 9 only when asked for
 
 
 @dataclass(frozen=True)
 class Quick:
-    """A quick look: answer-only, one trial, a few cases a rung. The choices are flags, not a fixed recipe."""
+    """A quick look: one trial, a few cases a rung. The choices are flags, not a fixed recipe. By default it
+    takes the answer-only rungs 1-8; rung 9 (tool mode) runs only when `--rungs` names it."""
     per_rung: int = 4
     rungs: tuple[int, ...] = ANSWER_ONLY_RUNGS
     thinking: str = "off"              # "off": thinking off for every model; "shipped": each in the mode it ships in
@@ -108,16 +111,19 @@ class Quick:
     def __post_init__(self):
         if self.per_rung < 1:
             raise ValueError("--per-rung must be at least 1")
-        bad = [n for n in self.rungs if n not in ANSWER_ONLY_RUNGS]
+        bad = [n for n in self.rungs if n not in QUICK_RUNGS]
         if bad or not self.rungs:
-            raise ValueError(f"a quick look takes answer-only rungs {ANSWER_ONLY_RUNGS[0]}-{ANSWER_ONLY_RUNGS[-1]}"
+            raise ValueError(f"a quick look takes rungs {QUICK_RUNGS[0]}-{QUICK_RUNGS[-1]}"
                              + (f"; not {bad}" if bad else ""))
         if self.thinking not in ("off", "shipped"):
             raise ValueError("--thinking is off or shipped")
 
     def to_dict(self) -> dict:
         return {"per_rung": self.per_rung, "rungs": list(self.rungs), "thinking": self.thinking, "trials": 1,
-                "mode": "answer_only"}
+                "mode": "answer_only" if self.tool_rungs() == () else "answer_only+tool"}
+
+    def tool_rungs(self) -> tuple[int, ...]:
+        return tuple(n for n in self.rungs if n not in ANSWER_ONLY_RUNGS)
 
 
 def parse_rungs(text: str) -> tuple[int, ...]:
@@ -137,7 +143,8 @@ def add_quick_args(ap: argparse.ArgumentParser) -> None:
     g = ap.add_argument_group("quick look (with --plan quick)")
     g.add_argument("--per-rung", type=int, default=Quick.per_rung, help="cases a rung (default 4)")
     g.add_argument("--rungs", default=f"{ANSWER_ONLY_RUNGS[0]}-{ANSWER_ONLY_RUNGS[-1]}",
-                   help="answer-only rungs to include, e.g. 1-8 or 1,3,5-8 (default 1-8)")
+                   help="rungs to include, e.g. 1-8 (default: the answer-only rungs), 1,3,5-8, or 1-9 to add the "
+                        "tool-mode rung 9 (adds roughly a quarter to the time)")
     g.add_argument("--thinking", choices=("off", "shipped"), default=Quick.thinking,
                    help="off: thinking off for every model (default); shipped: each model in the mode it ships in")
 
@@ -147,8 +154,9 @@ def quick_from_args(a) -> Quick:
 
 
 def results_dir(out: Path, plan: str) -> Path:
-    """Smoke and quick-look results sit in their own folders, apart from the first pass and the full plan."""
-    return out / plan if plan in ("smoke", "quick") else out
+    """Smoke, quick-look and full-plan results sit in their own folders, apart from the first pass (in OUT
+    itself), so no plan resumes from another plan's trials."""
+    return out / plan if plan in ("smoke", "quick", "full") else out
 
 
 def quick_entries(models: list[LocalModel], q: Quick) -> list[Entry]:
@@ -182,7 +190,8 @@ def plan_units(plan: str, *, done_ceiling: int | None = None, trials: int = TRIA
         if done_ceiling is None:
             return [Unit(c, _suite(c), 1) for r in RUNGS if r.id in picked for c in picked[r.id]]
         top = max(r.n for r in RUNGS if r.id in picked)
-        around = {n for n in (done_ceiling - 1, done_ceiling, done_ceiling + 1) if 1 <= n <= top} or {1, 2}
+        around = ({1, 2} if done_ceiling < 1 else      # nothing held: the two easiest rungs get the repeats
+                  {n for n in (done_ceiling - 1, done_ceiling, done_ceiling + 1) if 1 <= n <= top})
         return [Unit(c, _suite(c), t) for r in RUNGS if r.n in around for c in picked[r.id]
                 for t in range(2, trials + 1)]
     if plan == "full":
@@ -216,6 +225,33 @@ def master_seed(split: str) -> str:
     if not f or not f.exists():
         raise RuntimeError("held-out sidekick cases need $EDAT_PRIVATE_DIR/sidekick/master_seed (run export-heldout)")
     return f.read_text().strip()
+
+
+def seed_fingerprints(plan_has_heldout_cases: bool) -> dict[str, str]:
+    """Short sha256 fingerprints of the seeds a run uses: the ladder's (public or private) and, for held-out
+    sidekick cases, the private sidekick seed. A results folder is bound to them (`bind_seeds`)."""
+    import hashlib
+    fp = lambda s: hashlib.sha256(s.encode()).hexdigest()[:16]   # noqa: E731
+    seed, split = ladder_seed()
+    out = {"ladder": f"{split}:{fp(seed)}"}
+    if plan_has_heldout_cases:
+        out["sidekick"] = f"heldout:{fp(master_seed('heldout'))}"
+    return out
+
+
+def bind_seeds(folder: Path, seeds: dict[str, str]) -> None:
+    """The first run in a results folder records its seeds' fingerprints; a later run with other seeds (a
+    replaced private seed, or public instead of private) refuses to resume there: its trials would be
+    different instances under the same case ids and the same "heldout" label."""
+    f = folder / "seeds.json"
+    folder.mkdir(parents=True, exist_ok=True)
+    if f.exists():
+        had = json.loads(f.read_text())
+        if had != seeds:
+            raise SystemExit(f"{folder} holds results made with other seeds ({had}); this run's are {seeds}. "
+                             "Use a new results folder; nothing was run.")
+        return
+    f.write_text(json.dumps(seeds, indent=1) + "\n")
 
 
 def ladder_seed() -> tuple[str, str]:
@@ -288,7 +324,7 @@ def answer_trial(client, inst, *, suite: str, seed: int, thinking: bool, samplin
     if res is None:
         return {}, {"error": err}, [], "excluded", f"engine_error: {err}"
     text = res.text or ""
-    g = grade_answer(inst, text, iso)
+    g = _guarded(lambda: grade_answer(inst, text, iso))
     usage = res.usage.to_record()
     m = {"pass": g.passed, "failure_mode": classify(g, res.finish_reason), "finish_reason": res.finish_reason,
          "time_s": round(model_s, 3), "completion_tokens": usage.get("completion_tokens"),
@@ -307,15 +343,27 @@ def answer_trial(client, inst, *, suite: str, seed: int, thinking: bool, samplin
 def tool_trial(client, inst, *, suite: str, seed: int, thinking: bool, sampling, iso) -> tuple[dict, dict, list, str, str | None]:
     budget = BUDGET[thinking]["tool"]
     t0 = time.monotonic()
+    from edat.sidekick.tool_mode import ToolTrial
+    tt, env = ToolTrial(), None
     if suite == "ladder_tool":
         from edat.sidekick.ceiling.agent import run_agent_trial
-        g, tt, env = run_agent_trial(client, inst, iso, max_tokens=budget, thinking=thinking, sampling=sampling, seed=seed)
+
+        def trial():
+            nonlocal tt, env
+            g_, tt, env = run_agent_trial(client, inst, iso, max_tokens=budget, thinking=thinking,
+                                          sampling=sampling, seed=seed)
+            return g_
     else:
         from edat.sidekick.tool_mode import grade_tool_trial, prepare, run_tool_trial
-        with TrialArea() as area:
-            env, before = prepare(iso, area, inst)
-            tt = run_tool_trial(client, inst, env, max_tokens=budget, thinking=thinking, sampling=sampling, seed=seed)
-            g = None if tt.excluded else grade_tool_trial(iso, area, inst, env, before, tt)
+
+        def trial():
+            nonlocal tt, env
+            with TrialArea() as area:
+                env, before = prepare(iso, area, inst)
+                tt = run_tool_trial(client, inst, env, max_tokens=budget, thinking=thinking, sampling=sampling,
+                                    seed=seed)
+                return None if tt.excluded else grade_tool_trial(iso, area, inst, env, before, tt)
+    g = _guarded(trial)
     wall = time.monotonic() - t0
     if g is None:
         return {}, {"error": tt.engine_error}, [], "excluded", f"engine_error: {tt.engine_error}"
@@ -335,8 +383,21 @@ def tool_trial(client, inst, *, suite: str, seed: int, thinking: bool, sampling,
             m[k] = g.metrics[k]
     raw = {"prompt_head": inst.prompt[:600], "final_text": tt.final_text[:5000],
            "turns": [t.to_record() for t in tt.turns], "grade": g.to_record(),
-           "commands": [c.__dict__ for c in env.commands][:40]}
+           "commands": [c.__dict__ for c in env.commands][:40] if env else []}
     return m, raw, g.events, "ok", None
+
+
+def _guarded(grade):
+    """Run a trial's grading; an error in it fails that trial (`grader_error`) instead of ending the run.
+    A broken sandbox is not the answer's doing and still stops everything."""
+    try:
+        return grade()
+    except SandboxUnavailable:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        g = GradeResult(False, [f"the grader could not finish: {exc.__class__.__name__}: {str(exc)[:200]}"])
+        g.metrics["failure_mode"] = "grader_error"
+        return g
 
 
 # ------------------------------------------------------------------ host checks
@@ -426,14 +487,26 @@ def make_client(kind: str, model: LocalModel, base_url: str | None, thinking: bo
 
 # ------------------------------------------------------------------ the run
 
-def _done_units(store: Path) -> dict[str, set[tuple[str, int]]]:
-    out: dict[str, set[tuple[str, int]]] = {}
+def _done_units(store: Path) -> dict[str, set[tuple[str, int, str]]]:
+    """(case id, trial, split) per suite: a trial is only reused for the same ladder split (public or private)."""
+    out: dict[str, set[tuple[str, int, str]]] = {}
     for f in store.glob("runs/*/records.jsonl"):
         for line in f.read_text().splitlines():
             if line.strip():
                 r = json.loads(line)
-                out.setdefault(r["suite"], set()).add((r["case_id"], r["trial"]))
+                out.setdefault(r["suite"], set()).add((r["case_id"], r["trial"], r.get("split")))
     return out
+
+
+def pass_a_ceiling(records: list[dict]) -> int:
+    """The first pass's ceiling from pass A's own trials (trial 1); pass B's repeats never move it."""
+    from edat.sidekick.ceiling.report import entry_summary
+    return entry_summary([r for r in records if r.get("trial") == 1])["ceiling"]
+
+
+def _unit_split(u: Unit, ladder_split: str) -> str:
+    sc = u.case.sidekick_case
+    return sc.split if sc is not None else ladder_split
 
 
 def _records(store: Path) -> list[dict]:
@@ -488,6 +561,10 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
     if any(u.case.sidekick_case is not None and u.case.sidekick_case.split != "dev" for u in plan_units(plan, quick=quick)):
         master_seed("heldout")                   # the private seed first, so each refusal names its own cause
     selftest = require_sandbox()                 # refuses to run unless the sealed sandbox is proven
+    ladder_split = ladder_seed()[1]              # public or private ladder: resumed trials must match it
+    seeds = seed_fingerprints(any(u.case.sidekick_case is not None and u.case.sidekick_case.split != "dev"
+                                  for u in plan_units(plan, quick=quick)))
+    bind_seeds(results_dir(out, plan), seeds)    # never resume on trials made from other seeds
     iso = iso or get_isolation()
     client = make_client(client_kind, model, base_url, thinking)
     slug = e.slug
@@ -509,7 +586,9 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
              "stopped": None, "skipped": None, "written": 0, "sampling_sent": dict(profile.sampling),
              "sampling_basis": profile.basis, "quant": dict(model.quant), "bits_per_weight": model.bits_per_weight,
              "engine_context_window": None if scripted else engine_context(model.engine_id)[0],
-             "ships_thinking": model.thinking[0], "quick": quick.to_dict() if plan == "quick" else None}
+             "ships_thinking": model.thinking[0], "template_thinking_default": model.template_thinking,
+             "seeds": seeds,
+             "quick": quick.to_dict() if plan == "quick" else None}
     first_ok: list[dict] = []          # the first answer-only results: is thinking really on, does the engine run it?
     first_status: list[str] = []
     phases = ["A", "B"] if plan == "first-pass" else ["all"]
@@ -524,12 +603,12 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
         for phase in phases:
             ceiling = None
             if phase == "B":
-                from edat.sidekick.ceiling.report import entry_summary
-                ceiling = entry_summary(_records(store))["ceiling"]
+                # pass A's ceiling from pass A's own trials (trial 1), so a resumed pass B keeps the same rungs
+                ceiling = pass_a_ceiling(_records(store))
                 state["pass_a_ceiling"] = ceiling
             units = plan_units(plan, done_ceiling=ceiling, quick=quick)
             done = _done_units(store)
-            todo = [u for u in units if (u.case.id, u.trial) not in done.get(u.suite, set())]
+            todo = [u for u in units if (u.case.id, u.trial, _unit_split(u, ladder_split)) not in done.get(u.suite, set())]
             state[f"phase_{phase}"] = {"units": len(units), "todo": len(todo)}
             for u in todo:
                 stop = _should_stop(out, store, t_start, max_minutes)
@@ -590,6 +669,14 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
 HOST_STOPS = ("the STOP file", "minute limit", "free memory", "engine or transport faults")
 
 
+HARBOR_RUNNING = "Harbor is running (it shares oMLX): close it first; nothing was unloaded"
+
+
+def harbor_running() -> bool:
+    """Harbor shares the engine: the run never unloads models while it is open."""
+    return bool(subprocess.run(["pgrep", "-f", "MacOS/Harbor"], capture_output=True, text=True).stdout.strip())
+
+
 def run_all(out: Path, *, plan: str, tiers: tuple[int, ...] = (0,), only: tuple[str, ...] = (), client_kind: str = "omlx",
             base_url: str = "http://127.0.0.1:8000", device_id: str = "this-mac", lock: str | None = None,
             max_minutes: float | None = None, progress=print, iso=None, models: list[LocalModel] | None = None,
@@ -614,6 +701,8 @@ def run_all(out: Path, *, plan: str, tiers: tuple[int, ...] = (0,), only: tuple[
     else:
         entries = [e for e in ordered_entries(models, tiers=tiers) if not only or e.model.engine_id in only]
     every = {e.key: e for m in models for e in m.entries()}
+    if client_kind == "omlx" and harbor_running():
+        raise SystemExit(HARBOR_RUNNING + "; not starting")
     created = False
     if lock:
         try:
@@ -641,6 +730,9 @@ def run_all(out: Path, *, plan: str, tiers: tuple[int, ...] = (0,), only: tuple[
             if client_kind == "omlx":
                 if e.model.engine_id != current:
                     from scripts.productbench import engine_prep
+                    if harbor_running():              # opened during the run: stop before unloading anything
+                        row.update(result="not started (stopped)", why=HARBOR_RUNNING)
+                        break
                     if engine_prep.main(["keep", e.model.engine_id, "--save", str(out / "resident-before.json")]) != 0:
                         row.update(result="skipped", why="other models are still loaded")
                         continue
@@ -834,6 +926,7 @@ def preflight(out: Path, *, engine: bool = False, weights: bool = False, base_ur
                                             f"({max(needs[k] for k in short)} tokens)" if short else "; enough"))
         roster["models"].append({"engine_id": m.engine_id, "context_window": ctx, "context_source": ctx_src,
                                  "context_needed": needs, "folder": m.folder, "quant": m.quant,
+                                 "ships_thinking": m.thinking[0], "template_thinking_default": m.template_thinking,
                                  "bits_per_weight": m.bits_per_weight, "thinking": list(m.thinking),
                                  "standard": m.standard, "loader": m.loader, "disk_gb": m.disk_gb,
                                  "entries": [{"key": e.key, "tier": e.tier, "sampling": e.profile.sampling,
@@ -852,7 +945,7 @@ def preflight(out: Path, *, engine: bool = False, weights: bool = False, base_ur
     add("disk: 5 GB free for results", disk.free > 5e9, f"{disk.free / 1e9:.0f} GB free")
     if lock:
         add("heavy-job lock free", not Path(lock).exists(), lock)
-    harbor = subprocess.run(["pgrep", "-f", "MacOS/Harbor"], capture_output=True, text=True).stdout.strip()
+    harbor = harbor_running()
     add("Harbor is not running (it shares oMLX)", not harbor, "running" if harbor else "")
     if engine:
         import httpx

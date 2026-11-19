@@ -29,6 +29,7 @@ FAILURE_WORDS = {
     "tool_loop": "went round in circles with the tools until it ran out of calls",
     "tool_format": "could not use the tools properly (broken or made-up tool calls)",
     "instruction": "left placeholders instead of the names it was given",
+    "grader_error": "left the grading unable to finish (counted as a fail)",
 }
 
 
@@ -70,7 +71,7 @@ def entry_summary(records: list[dict]) -> dict:
         trials = sum(len(v) for v in cases.values())
         passes = sum(sum(v) for v in cases.values())
         held = sum(1 for v in cases.values() if 2 * sum(v) > len(v))
-        rungs[rg.id] = {"n": rg.n, "cases": len(cases), "trials": trials, "pass_rate": passes / trials,
+        rungs[rg.id] = {"n": rg.n, "cases": len(cases), "trials": trials, "passes": passes, "pass_rate": passes / trials,
                         "cases_held": held, "holds": 2 * held >= len(cases), "failures": dict(modes[rg.id])}
     held = [rungs[r.id]["n"] for r in RUNGS if rungs[r.id]["holds"]]
     ceiling = max(held) if held else 0
@@ -179,14 +180,45 @@ def _setup_line(store: Path | None) -> str | None:
             + (f". Sampling sent: {samp} ({pg.get('sampling_basis')})." if samp else "."))
 
 
+def _quick_of(entries: dict) -> dict | None:
+    """The quick-look settings when this results folder is a quick look, else None."""
+    return next((pg["quick"] for pg in (_progress(e["store"]) for e in entries.values()) if pg.get("quick")), None)
+
+
+def _ceiling_words(ceiling: int, solid: int, top_run: int | None) -> str:
+    """'rung 5'; at the top rung a quick look ran, below rung 9: 'rung 8 or higher (rung 9 not run)'."""
+    notes = []
+    capped = top_run is not None and ceiling == top_run and top_run < RUNGS[-1].n
+    if capped:
+        above = [r.n for r in RUNGS if r.n > top_run]
+        notes.append((f"rung {above[0]}" if len(above) == 1 else f"rungs {above[0]}-{above[-1]}") + " not run")
+    if ceiling > solid:
+        notes.append("a pass higher up than its solid range")
+    return f"rung {ceiling}" + (" or higher" if capped else "") + (f" ({'; '.join(notes)})" if notes else "")
+
+
+def _cell(x: dict, quick: bool) -> str:
+    if x["pass_rate"] is None:
+        return "–"
+    shown = f"{x['passes']}/{x['trials']}" if quick else _pct(x["pass_rate"])
+    return shown + (" ✓" if x["holds"] else "")
+
+
 def build_report(out: Path) -> tuple[str, str]:
     entries = load_entries(out)
     summaries = {name: entry_summary(e["records"]) for name, e in entries.items()}
-    md = ["# Where each small model's coding stops", "",
-          "Private. Each model climbed a ladder of coding tasks, easiest first. A rung **holds** when the model "
-          "solves at least half of its tasks on most tries. The **ceiling** is the highest rung that holds; "
-          "**solid up to** is how far it holds with no gap below. Every answer was checked by hidden tests in a "
-          "sealed sandbox.", "", "## The rungs", ""]
+    q = _quick_of(entries)
+    top_run = max(q["rungs"]) if q else None
+    md = ["# Where each small model's coding stops", ""]
+    if q:
+        md += ["**A quick look with wide error bars, not a ranking.** Each model tried "
+               f"{q['per_rung']} tasks a rung, one try each; read what follows as a first sketch.", ""]
+    md += ["Private. Each model climbed a ladder of coding tasks, easiest first. A rung **holds** when the model "
+           + ("solves at least half of its tasks (here on a single try each). " if q else
+              "solves at least half of its tasks on most tries. ")
+           + "The **ceiling** is the highest rung that holds; "
+           "**solid up to** is how far it holds with no gap below. Every answer was checked by hidden tests in a "
+           "sealed sandbox.", "", "## The rungs", ""]
     md += [f"{r.n}. {r.title}" for r in RUNGS]
     md += _quick_limits(entries)
     for name, e in entries.items():
@@ -198,18 +230,25 @@ def build_report(out: Path) -> tuple[str, str]:
         setup = _setup_line(e["store"])
         if setup:
             md += [setup, ""]
+        does = "**Passed in this look**" if q else "**Reliably does**"
         if s["solid"]:
-            md.append(f"**Reliably does** rungs 1 to {s['solid']}: {', '.join(can)}.")
+            md.append(f"{does} rungs 1 to {s['solid']}: {', '.join(can)}.")
+        elif q:
+            md.append(f"{does} none of the rungs: it solved fewer than half of the simplest tasks.")
         else:
-            md.append("**Reliably does** none of the rungs: even the simplest tasks fail more often than not.")
+            md.append(f"{does} none of the rungs: even the simplest tasks fail more often than not.")
         if first_bad:
-            fails = rows[first_bad.id]["failures"]
+            x = rows[first_bad.id]
+            fails = x["failures"]
             total = sum(fails.values()) or 1
-            how = "; ".join(f"{FAILURE_WORDS.get(m, m)} ({round(100 * n / total)}% of its misses)"
+            how = "; ".join(f"{FAILURE_WORDS.get(m, m)} " + (f"({n} of its {total} misses)" if q else
+                                                            f"({round(100 * n / total)}% of its misses)")
                             for m, n in Counter(fails).most_common(3))
+            solved = (f"{x['passes']} of {x['trials']} tasks, one try each" if q else
+                      f"{_pct(x['pass_rate'])} of tries")
             md.append(f"**Starts failing at** rung {first_bad.n} ({first_bad.title.lower()}): it solves "
-                      f"{_pct(rows[first_bad.id]['pass_rate'])} of tries. Mostly it {how}.")
-        md.append(f"**Ceiling:** rung {s['ceiling']}" + (f" (a pass higher up than its solid range)" if s["ceiling"] > s["solid"] else "") + ".")
+                      f"{solved}. Mostly it {how}.")
+        md.append(f"**Ceiling:** {_ceiling_words(s['ceiling'], s['solid'], top_run)}.")
         if s["unsafe_trials"]:
             md.append(f"**Safety:** {s['unsafe_trials']} answers proposed something unsafe or destructive (blocked).")
         if s["excluded"]:
@@ -221,16 +260,23 @@ def build_report(out: Path) -> tuple[str, str]:
                 md += ["", f"- Rung {RUNG_BY_ID[x['rung']].n if x['rung'] in RUNG_BY_ID else '?'}: {FAILURE_WORDS.get(x['mode'], x['mode'])}. "
                        + (f"Checker: {x['why']}" if x["why"] else ""), "", "  ```", *("  " + ln for ln in x["answer"].splitlines()), "  ```"]
     names = list(entries)
-    md += ["", "## Rung by model (share of tries solved; ✓ = the rung holds)", ""]
+    md += ["", "## Rung by model (" + ("tasks solved, one try each" if q else "share of tries solved")
+           + "; ✓ = the rung holds)", ""]
+    if q:
+        md += ["Columns are in alphabetical order, not ranked. With one try per task, a difference of a "
+               "task or two between models, or a rung, is within the noise.", ""]
     md.append("| Rung | " + " | ".join(_label(n, entries[n]["store"]) for n in names) + " |")
     md.append("|---|" + "---|" * len(names))
     for r in RUNGS:
         cells = []
         for n in names:
             x = summaries[n]["rungs"][r.id]
-            cells.append("–" if x["pass_rate"] is None else f"{_pct(x['pass_rate'])}{' ✓' if x['holds'] else ''}")
+            cells.append(_cell(x, bool(q)))
         md.append(f"| {r.n}. {r.title.split(':')[0]} | " + " | ".join(cells) + " |")
-    md.append("| **Ceiling** | " + " | ".join(str(summaries[n]["ceiling"]) for n in names) + " |")
+    capped = lambda c: f"{c}+" if top_run is not None and c == top_run and top_run < RUNGS[-1].n else str(c)  # noqa: E731
+    md.append("| **Ceiling** | " + " | ".join(capped(summaries[n]["ceiling"]) for n in names) + " |"
+              + (f"\n\n{top_run}+ means at least rung {top_run}: nothing higher was run." if q and top_run < RUNGS[-1].n
+                 and any(summaries[n]["ceiling"] == top_run for n in names) else ""))
     md.append("| Solid up to | " + " | ".join(str(summaries[n]["solid"]) for n in names) + " |")
     skipped = _skipped(out)
     if skipped:
@@ -251,7 +297,8 @@ def _quick_limits(entries: dict) -> list[str]:
                           if pg.get("ships_thinking") and pg["quick"]["thinking"] == "off"})
     left = [r for r in RUNGS if r.mode == "answer_only" and r.n not in rungs]
     out = ["", "## What this quick look cannot tell", "",
-           f"This was a quick look: {per} tasks a rung, one try each, answers only. Read it as a first sketch.", "",
+           f"This was a quick look: {per} tasks a rung, one try each"
+           + (", answers only" if 9 not in rungs else "") + ". It has wide error bars and is not a ranking.", "",
            f"- **No repeat tries.** Each task was tried once, so a lucky or unlucky answer counts fully, and a rung "
            f"holds on {(per + 1) // 2} of {per} tasks. A ceiling here is good to about one rung either way.",
            "- **Thinking.** " + (
@@ -259,8 +306,11 @@ def _quick_limits(entries: dict) -> list[str]:
                + ", ".join(understated) + "." if understated else
                "Each model ran in the mode it ships in." if q["thinking"] == "shipped" else
                "Every model ran with thinking off; none of these ships with thinking on."),
-           "- **No tool mode.** Rung 9 (read, edit, run the tests, fix) was not run, so nothing here says how a "
-           "model does with tools.",
+           ("- **Tool mode on a single try.** Rung 9 (read, edit, run the tests, fix) ran with one try per task."
+            if 9 in rungs else
+            "- **No tool mode, and the top rung was not run.** Rung 9 (read, edit, run the tests, fix) was left "
+            "out, so nothing here says how a model does with tools, and a model whose ceiling shows as "
+            f"{max(rungs)} or higher may go further."),
            "- **No safety set.** The Restraint cases were not run, so nothing here says whether a model refuses "
            "or flags unsafe requests.",
            ]

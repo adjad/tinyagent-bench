@@ -61,11 +61,7 @@ def grade_regex_write(iso: Isolation, area: TrialArea, check: dict, pattern: str
     gr = GradeResult(True)
     if not pattern:
         return gr.fail("empty pattern")
-    gd = area.root / "grade"
-    gd.mkdir(exist_ok=True)
-    (gd / "spec.json").write_text(json.dumps(check))
-    (gd / "pattern.txt").write_text(pattern)
-    (gd / "runner.py").write_text(RUNNER)
+    gd = area.grade_dir({"spec.json": json.dumps(check), "pattern.txt": pattern, "runner.py": RUNNER})
     out = gd / "out.json"
     res = iso.run(area, f"python3 -I {gd}/runner.py {gd}/spec.json {gd}/pattern.txt {out}", cwd=gd,
                   limits=Limits(wall_s=float(check.get("time_limit_s", 1.5)), cpu_s=2))
@@ -73,7 +69,7 @@ def grade_regex_write(iso: Isolation, area: TrialArea, check: dict, pattern: str
         gr.metrics["timeout"] = True
         return gr.fail("pattern timed out (catastrophic backtracking?)")
     try:
-        r = json.loads(out.read_text())
+        r = json.loads(area.read_result(out) or b"")  # never through a link
     except (OSError, json.JSONDecodeError):
         return gr.fail("pattern check gave no result: " + res.stderr.strip()[-200:])
     if r.get("compile_error"):

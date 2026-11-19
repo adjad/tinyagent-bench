@@ -222,20 +222,14 @@ async function check(src, t) {
 
 def run_code_tests(iso: Isolation, area: TrialArea, check: dict, candidate_src: str) -> dict:
     """Run visible + hidden tests and the differential check; returns the runner's JSON."""
-    gd = area.root / "grade"
-    gd.mkdir(exist_ok=True)
     lang = check["lang"]
-    (gd / "spec.json").write_text(json.dumps(check))
-    out = gd / "result.json"
-    if out.exists():
-        out.unlink()
     if lang == "python":
-        (gd / "solution.py").write_text(candidate_src)
-        (gd / "runner.py").write_text(PY_RUNNER)
+        gd = area.grade_dir({"spec.json": json.dumps(check), "solution.py": candidate_src, "runner.py": PY_RUNNER})
+        out = gd / "result.json"
         script = f"python3 -I {gd}/runner.py {gd}/spec.json {gd}/solution.py {out}"
     elif lang == "javascript":
-        (gd / "solution.js").write_text(candidate_src)
-        (gd / "runner.js").write_text(JS_RUNNER)
+        gd = area.grade_dir({"spec.json": json.dumps(check), "solution.js": candidate_src, "runner.js": JS_RUNNER})
+        out = gd / "result.json"
         script = f"node {gd}/runner.js {gd}/spec.json {gd}/solution.js {out}"
     else:
         raise ValueError(f"unknown language {lang}")
@@ -243,7 +237,7 @@ def run_code_tests(iso: Isolation, area: TrialArea, check: dict, candidate_src: 
     if res.killed:
         return {"load_error": f"stopped: {res.killed}", "visible": [], "hidden": [], "diff": {}}
     try:
-        return json.loads(out.read_text())
+        return json.loads(area.read_result(out) or b"")  # never through a link
     except (OSError, json.JSONDecodeError):
         return {"load_error": "runner gave no result: " + res.stderr.strip()[-300:], "visible": [], "hidden": [], "diff": {}}
 

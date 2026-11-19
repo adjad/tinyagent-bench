@@ -155,7 +155,7 @@ def main(argv: list[str] | None = None) -> int:
         rows = table(ents, "quick", factor, toks, quick=quick)
         q = quick.to_dict()
         _print_plan(f"quick look: {q['per_rung']} cases a rung, rungs {','.join(map(str, q['rungs']))}, 1 trial, "
-                    f"answer only, thinking {'off for every model' if q['thinking'] == 'off' else 'as each model ships'}",
+                    f"{'answer only' if q['mode'] == 'answer_only' else 'rung 9 in tool mode'}, thinking {'off for every model' if q['thinking'] == 'off' else 'as each model ships'}",
                     rows, sittings_of=None)
         sm = table(ents[:1], "smoke", factor, toks)
         print(f"\nplus the smoke step: about {sm[0][1] * 60:.0f} minutes" if sm else "")

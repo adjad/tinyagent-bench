@@ -177,7 +177,7 @@ def test_quick_plan_takes_its_choices_as_flags():
     assert sorted({u.case.rung.n for u in plan_units("quick", quick=q)}) == [1, 2, 3, 5]
     assert len(plan_units("quick", quick=q)) == 12
     assert parse_rungs("4-6,8,1") == (1, 4, 5, 6, 8)
-    for bad in (dict(rungs=(9,)), dict(rungs=()), dict(per_rung=0), dict(thinking="on")):
+    for bad in (dict(rungs=(10,)), dict(rungs=()), dict(per_rung=0), dict(thinking="on")):
         with pytest.raises(ValueError):
             Quick(**bad)
 
@@ -418,6 +418,14 @@ def test_quick_look_runs_apart_and_its_report_says_what_it_cannot_tell(tmp_path,
     assert "What this quick look cannot tell" in md and "good to about one rung" in md
     assert "likely understated: LFM3 1.7B" in md and "No tool mode" in md and "No safety set" in md
     assert "Rungs left out:** 2 (" in md and "9 (" not in md.split("Rungs left out")[1].split("\n")[0]
+    # quick-look wording: plain about its limits, counts not shares, a capped ceiling
+    assert md.split("\n")[2].startswith("**A quick look with wide error bars, not a ranking.**")
+    assert "Passed in this look** rungs 1 to 1" in md and "Reliably does" not in md
+    assert "**Ceiling:** rung 4 or higher (rungs 5-9 not run; a pass higher up than its solid range)." in md
+    assert "the top rung was not run" in md
+    table_part = md.split("## Rung by model")[1].split("## Not run")[0]
+    assert "tasks solved, one try each" in table_part and "not ranked" in table_part
+    assert "1/1 ✓" in table_part and "%" not in table_part and "| **Ceiling** | 4+ | 4+ |" in table_part
     rows = estimate.table(quick_entries([_model(), lfm], q), "quick", quick=q)
     assert len(rows) == 2 and all(0 < h < 0.2 for _, h in rows)
 
@@ -433,3 +441,227 @@ def test_report_from_records(tmp_path):
     assert "Starts failing at** rung 4" in md
     assert "| **Ceiling** | 1 | 0 |" in md or "| **Ceiling** | 0 | 1 |" in md
     assert page.startswith("<!doctype html>") and "<script" not in page
+
+
+def test_quick_takes_rung_9_only_when_asked():
+    assert Quick().rungs == tuple(range(1, 9)) and Quick().to_dict()["mode"] == "answer_only"
+    q = Quick(rungs=parse_rungs("1-9"))
+    assert q.rungs == tuple(range(1, 10)) and q.to_dict()["mode"] == "answer_only+tool" and q.tool_rungs() == (9,)
+    tool = [u for u in plan_units("quick", quick=Quick(per_rung=3, rungs=parse_rungs("1-9"))) if u.case.rung.n == 9]
+    assert len(tool) == 3 and {u.suite for u in tool} == {"ladder_tool"} and {u.trial for u in tool} == {1}
+    with pytest.raises(ValueError):
+        Quick(rungs=(10,))
+    from edat.sidekick.ceiling import estimate
+    m = _model()
+    with_9 = estimate.seconds(m, False, "quick", quick=Quick(rungs=parse_rungs("1-9")))
+    assert with_9 > estimate.seconds(m, False, "quick", quick=Quick())
+
+
+def test_quick_look_with_rung_9_runs_tool_mode_and_says_so(tmp_path, iso, private):
+    q = Quick(per_rung=1, rungs=(1, 9), thinking="off")
+    log = run_all(tmp_path / "out", plan="quick", quick=q, client_kind="oracle", progress=None, iso=iso,
+                  models=[_model()])
+    assert [r["result"] for r in log["entries"]] == ["done"]
+    md, _ = build_report(tmp_path / "out" / "quick")
+    assert "Tool mode on a single try" in md and "the top rung was not run" not in md
+    assert "**Ceiling:** rung 9 (a pass higher up than its solid range)." in md and "or higher" not in md
+
+
+class _Unservable:
+    """Every request fails the way an engine without a loader for the model does."""
+
+    def chat(self, messages, **kw):
+        from edat.models import EngineError
+        raise EngineError("server", "no loader for model type", status=500, retryable=False)
+
+
+def test_run_all_skips_a_model_the_engine_cannot_serve_and_goes_on(tmp_path, iso, private, monkeypatch):
+    from edat.sidekick.ceiling import run as run_mod
+    real = run_mod.make_client
+    bad = "SenseNova-Loop-9B-MLX-4bit"
+    monkeypatch.setattr(run_mod, "make_client",
+                        lambda kind, model, base_url, thinking: _Unservable() if model.engine_id == bad
+                        else real(kind, model, base_url, thinking))
+    sense = _model(bad, "sensenova", thinking=(False,), label="SenseNova-Loop 9B", role="candidate")
+    q = Quick(per_rung=1, rungs=(1, 2, 3), thinking="shipped")
+    log = run_all(tmp_path / "out", plan="quick", quick=q, client_kind="oracle", progress=None, iso=iso,
+                  models=[sense, _model()], lock=str(tmp_path / "lock"))
+    rows = {r["entry"].split("|")[0]: r for r in log["entries"]}
+    assert rows[bad]["result"] == "skipped" and "engine could not run this model" in rows[bad]["why"]
+    assert rows["gemma-4-E4B-it-oQ4e-mtp"]["result"] == "done"
+    assert not (tmp_path / "lock").exists()
+    recs = [json.loads(l) for f in (tmp_path / "out" / "quick").glob(f"{bad}.*/runs/*/records.jsonl")
+            for l in f.read_text().splitlines() if l.strip()]
+    assert len(recs) == 3 and all(r["status"] == "excluded" for r in recs)   # 3 faults, then it is skipped
+    md, _ = build_report(tmp_path / "out" / "quick")
+    assert "## Not run" in md and "engine could not run this model" in md.split("## Not run")[1]
+
+
+def test_a_card_default_that_differs_from_the_template_is_recorded(tmp_path, iso, private):
+    _model_folder(tmp_path, "org/NVIDIA-Nemotron-3.5-Bolt-E4B-MLX-oQ4e-mtp",
+                  template="{%- set enable_thinking = enable_thinking | default(false) -%}{{ enable_thinking }}")
+    _model_folder(tmp_path, "org/gemma-4-E2B-it-oQ4e-mtp",
+                  template="{%- set enable_thinking = enable_thinking | default(false) -%}")
+    found, _ = models.scan(tmp_path)
+    by = {m.engine_id: m for m in found}
+    nem = by["NVIDIA-Nemotron-3.5-Bolt-E4B-MLX-oQ4e-mtp"]
+    assert nem.thinking == (True, False) and nem.template_thinking is False
+    assert "ships with thinking on per its model card; its chat template defaults to off" in nem.notes
+    gem = by["gemma-4-E2B-it-oQ4e-mtp"]
+    assert gem.thinking == (False, True) and gem.template_thinking is False and "chat template" not in gem.notes
+    run_all(tmp_path / "out", plan="quick", quick=Quick(per_rung=1, rungs=(1,), thinking="shipped"),
+            client_kind="oracle", progress=None, iso=iso, models=[nem])
+    pg = json.loads(next((tmp_path / "out" / "quick").glob("NVIDIA-*/progress.json")).read_text())
+    assert pg["ships_thinking"] is True and pg["template_thinking_default"] is False
+
+
+def test_rung_9_grading_never_reads_through_a_planted_link(tmp_path, iso, monkeypatch):
+    from edat.sidekick.ceiling import agent
+    from edat.sidekick.ceiling.rungs import LADDER_SEED_PUBLIC, ladder_cases, materialize_probe
+    from edat.sidekick.tool_mode import ToolTrial
+    inst = materialize_probe(ladder_cases(("agent",))[0], 1, LADDER_SEED_PUBLIC)
+    secret = tmp_path / "host-secret.py"
+    secret.write_text("EDATHOSTSECRET = 1\n")
+
+    def planted(client, inst, env, **kw):                  # the session ends with every target a link out
+        for t in inst.check["targets"]:
+            p = env.area.work / t
+            p.unlink(missing_ok=True)
+            p.symlink_to(secret)
+        return ToolTrial(final_text="Done.")
+
+    seen = []
+    real_probe = agent.run_probe
+    monkeypatch.setattr(agent, "run_tool_trial", planted)
+    monkeypatch.setattr(agent, "run_probe", lambda iso_, area, check, final: seen.append(dict(final))
+                        or real_probe(iso_, area, check, final))
+    g, _, _ = agent.run_agent_trial(None, inst, iso)
+    assert seen == [{}] and not g.passed                   # nothing read through the links
+    assert "EDATHOSTSECRET" not in json.dumps(g.to_record(), default=str)
+    assert g.metrics["edited"] is False and g.metrics["failure_mode"] == "unsafe"
+    assert {(e.kind, e.rule) for e in g.events} == {("unsafe_action", "planted_link")}
+
+
+def test_run_all_never_unloads_while_harbor_is_open(tmp_path, monkeypatch):
+    from edat.sidekick.ceiling import run as run_mod
+    from scripts.productbench import engine_prep
+    keeps = []
+    monkeypatch.setattr(engine_prep, "main", lambda argv: keeps.append(argv[1]) or 0)
+    monkeypatch.setattr(run_mod, "weights_for", lambda out, mdir, m: "0" * 64)
+    monkeypatch.setattr(run_mod, "_run_entry", lambda e, out, **kw: {"skipped": None, "stopped": None,
+                                                                      "summary": {"ceiling": 1, "solid": 1}})
+    two = [_model(), _model("gemma-4-E2B-it-oQ4e-mtp", label="Gemma 4 E2B", role="candidate", gb=3.9)]
+    monkeypatch.setattr(run_mod, "harbor_running", lambda: True)
+    with pytest.raises(SystemExit, match="Harbor is running"):
+        run_all(tmp_path / "out", plan="quick", client_kind="omlx", progress=None, models=two,
+                lock=str(tmp_path / "lock"))
+    assert keeps == [] and not (tmp_path / "lock").exists()
+    seen = iter([False, False, True])                      # closed at the start and for the first model only
+    monkeypatch.setattr(run_mod, "harbor_running", lambda: next(seen))
+    log = run_all(tmp_path / "out", plan="quick", client_kind="omlx", progress=None, models=two,
+                  lock=str(tmp_path / "lock"))
+    assert keeps == ["gemma-4-E4B-it-oQ4e-mtp"]
+    assert [r["result"] for r in log["entries"]] == ["done", "not started (stopped)"]
+    assert "Harbor is running" in log["entries"][1]["why"] and not (tmp_path / "lock").exists()
+
+
+def test_first_pass_repeats_stay_on_pass_a_rungs():
+    from edat.sidekick.ceiling.run import pass_a_ceiling
+    assert sorted({u.case.rung.n for u in plan_units("first-pass", done_ceiling=0)}) == [1, 2]
+    assert sorted({u.case.rung.n for u in plan_units("first-pass", done_ceiling=3)}) == [2, 3, 4]
+    recs = (_rung_records("sk-l1", 3, 3, trials=1) + _rung_records("sk-l2", 3, 3, trials=1)
+            + _rung_records("sk-l3", 3, 0, trials=1))
+    repeats = [dict(r, trial=t) for r in _rung_records("sk-l3", 3, 3, trials=1) for t in (2, 3)]
+    assert entry_summary(recs + repeats)["ceiling"] == 3            # all trials together would move it
+    assert pass_a_ceiling(recs + repeats) == pass_a_ceiling(recs) == 2
+
+
+def test_resume_reuses_a_trial_only_from_the_same_plan_and_ladder_split(tmp_path):
+    from edat.sidekick.ceiling.run import _done_units, _unit_split, results_dir
+    assert {results_dir(tmp_path, p) for p in ("smoke", "quick", "full")} == \
+        {tmp_path / "smoke", tmp_path / "quick", tmp_path / "full"} and results_dir(tmp_path, "first-pass") == tmp_path
+    d = tmp_path / "e" / "runs" / "r1"
+    d.mkdir(parents=True)
+    u = next(u for u in plan_units("quick") if u.case.sidekick_case is None)
+    d.joinpath("records.jsonl").write_text(json.dumps({"suite": u.suite, "case_id": u.case.id, "trial": 1,
+                                                        "split": "dev"}) + "\n")
+    done = _done_units(tmp_path / "e")
+    assert (u.case.id, 1, _unit_split(u, "dev")) in done[u.suite]
+    assert (u.case.id, 1, _unit_split(u, "heldout")) not in done[u.suite]   # a private-seed run redoes it
+
+
+def test_omlx_profile_stops_on_a_refusal_and_still_reads_back(tmp_path, monkeypatch, capsys):
+    from edat.sidekick.ceiling import omlx_profile as op
+    from scripts.productbench import engine_prep
+    f = tmp_path / "model_settings.json"
+    f.write_text(json.dumps({"version": 1, "models": {"gemma-4-E4B-it-oQ4e-mtp": {"temperature": 1.0}}}))
+    order = list(op.payloads())
+
+    class Engine:                                          # merges sent fields like oMLX; refuses the second model
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def get(self, url):
+            return type("R", (), {"json": lambda self: {"data": [{"id": m} for m in order]}})()
+
+        def put(self, url, json):
+            mid = url.split("/models/")[1].split("/")[0]
+            if mid == order[1]:
+                return type("R", (), {"status_code": 500, "text": "no"})()
+            data = __import__("json").loads(f.read_text())
+            data["models"].setdefault(mid, {}).update(json)
+            f.write_text(__import__("json").dumps(data))
+            return type("R", (), {"status_code": 200, "text": ""})()
+
+    monkeypatch.setattr(engine_prep, "_client", lambda: Engine())
+    assert op.main(["--apply", "--settings", str(f)]) == 2
+    err = capsys.readouterr()
+    assert f"stopped after 1 of {len(order)} models" in err.err and f"already written: {order[0]}" in err.err
+    assert "nothing else changed" in err.out and list(tmp_path.glob("model_settings.json.bak-sampling-*"))
+
+
+def test_an_error_in_grading_fails_the_trial_and_the_run_goes_on(monkeypatch):
+    from edat.models import NullClient
+    from edat.sidekick.ceiling import run as run_mod
+    from edat.sidekick.sandbox.run import SandboxUnavailable
+    inst = materialize_probe_inst()
+
+    def broken(*a, **k):
+        raise ValueError("cwd must be inside the trial folder")
+    monkeypatch.setattr(run_mod, "grade_answer", broken)
+    m, raw, events, status, _ = run_mod.answer_trial(NullClient(), inst, suite="ladder", seed=1, thinking=False,
+                                                     sampling=None, iso=None)
+    assert status == "ok" and m["pass"] is False and m["failure_mode"] == "grader_error"
+    assert "could not finish" in raw["grade"]["reasons"][0]
+
+    def no_sandbox(*a, **k):
+        raise SandboxUnavailable("gone")
+    monkeypatch.setattr(run_mod, "grade_answer", no_sandbox)
+    with pytest.raises(SandboxUnavailable):                     # a broken sandbox still stops everything
+        run_mod.answer_trial(NullClient(), inst, suite="ladder", seed=1, thinking=False, sampling=None, iso=None)
+
+
+def materialize_probe_inst():
+    from edat.sidekick.ceiling.rungs import LADDER_SEED_PUBLIC, ladder_cases, materialize_probe
+    return materialize_probe(ladder_cases(("rules",))[0], 1, LADDER_SEED_PUBLIC)
+
+
+def test_a_replaced_private_seed_never_resumes_an_old_results_folder(tmp_path, iso, private):
+    from edat.sidekick.ceiling.run import bind_seeds
+    bind_seeds(tmp_path / "f", {"ladder": "heldout:aaa"})
+    bind_seeds(tmp_path / "f", {"ladder": "heldout:aaa"})                       # the same seeds resume
+    with pytest.raises(SystemExit, match="other seeds"):
+        bind_seeds(tmp_path / "f", {"ladder": "heldout:bbb"})
+    q = Quick(per_rung=1, rungs=(4,), thinking="off")
+    run_all(tmp_path / "out", plan="quick", quick=q, client_kind="oracle", progress=None, iso=iso, models=[_model()])
+    seeds = json.loads((tmp_path / "out" / "quick" / "seeds.json").read_text())
+    assert seeds["ladder"].startswith("heldout:")
+    n = len(list((tmp_path / "out" / "quick").rglob("records.jsonl")))
+    (private / "sidekick" / "ceiling_seed").write_text("a-replaced-seed\n")
+    with pytest.raises(SystemExit, match="other seeds"):
+        run_all(tmp_path / "out", plan="quick", quick=q, client_kind="oracle", progress=None, iso=iso,
+                models=[_model()], lock=str(tmp_path / "lock"))
+    assert len(list((tmp_path / "out" / "quick").rglob("records.jsonl"))) == n and not (tmp_path / "lock").exists()

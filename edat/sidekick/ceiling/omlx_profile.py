@@ -7,7 +7,7 @@ This is a one-off step that needs its own go-ahead; the run never calls it. The 
 each entry's sampling with every request, so results do not depend on these settings. They only make
 the engine's own defaults match the authors' advice for everyday use.
 
-How it writes: through oMLX's own per-model settings endpoint (`PUT /api/models/<id>/settings`), one
+How it writes: through oMLX's own per-model settings endpoint (`PUT /admin/api/models/<id>/settings`), one
 model at a time, sending only the listed fields. oMLX merges them into the model's entry and saves its
 settings file itself. A hand edit of the file is not used: oMLX keeps the settings in memory, does not
 see a changed file until it reloads (which also preloads pinned models), and rewrites the whole file
@@ -16,7 +16,8 @@ from memory whenever any setting is saved, so a hand edit can be lost.
 Before writing, the settings file is copied to `model_settings.json.bak-sampling-<date>`. After
 writing, the file is read back: every listed field must hold its new value, and every other model and
 every other field must be exactly as in the backup. A model the engine does not list (not downloaded,
-or not servable) is reported and left alone.
+or not servable) is reported and left alone. If the engine refuses a write, the step stops there, reads
+the file back all the same, and names the models already written and the backup.
 """
 from __future__ import annotations
 
@@ -118,16 +119,22 @@ def main(argv: list[str] | None = None) -> int:
     backup = path.with_name(f"{path.name}.bak-sampling-{time.strftime('%Y%m%d-%H%M%S')}")
     shutil.copy2(path, backup)
     print(f"backup: {backup}")
+    written: dict[str, dict] = {}
+    refused = None
     with engine_prep._client() as c:
         for mid, fields in todo.items():
             r = c.put(f"/admin/api/models/{mid}/settings", json=fields)
             if r.status_code >= 400:
-                print(f"{mid}: refused ({r.status_code}): {r.text[:200]}; stopping", file=sys.stderr)
-                return 2
+                refused = f"{mid}: refused ({r.status_code}): {r.text[:200]}"
+                break
+            written[mid] = fields
     after = json.loads(path.read_text())
-    bad = check_after(before, after, todo)
+    bad = check_after(before, after, written)       # what was written must hold; nothing else may change
     for b in bad:
         print(f"CHECK FAILED: {b}", file=sys.stderr)
+    if refused:
+        print(f"{refused}; stopped after {len(written)} of {len(todo)} models", file=sys.stderr)
+        print(f"already written: {', '.join(written) or 'none'}; the backup is {backup}", file=sys.stderr)
     print("read back: every written field holds its value; nothing else changed" if not bad else
           f"read back: {len(bad)} problems; the backup is {backup}")
-    return 1 if bad else 0
+    return 2 if refused else (1 if bad else 0)

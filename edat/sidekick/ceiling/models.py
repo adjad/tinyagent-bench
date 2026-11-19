@@ -84,6 +84,8 @@ SAMPLING: dict[str, dict[bool, list[Profile]]] = {
 KNOWN = {
     "gemma-4-E4B-it-oQ4e-mtp": ("Gemma 4 E4B (base reference)", "reference", False),
     "gemma-4-E4B-it-r5-step-01800-oQ4e-mtp": ("Gemma-Wisp r5 (tuned reference)", "baseline", False),
+    # Nemotron: its model card says thinking is on by default; the chat template it ships with defaults to off.
+    # The card is followed, and the difference is recorded with every result (template_thinking_default).
     "NVIDIA-Nemotron-3.5-Bolt-E4B-MLX-oQ4e-mtp": ("Nemotron 3.5 Bolt E4B", "candidate", True),
     "NVIDIA-Nemotron-3.5-Bolt-E4B-MLX-oQ4e": ("Nemotron 3.5 Bolt E4B (no MTP head)", "candidate", True),
     "Ornith-1.5-9B-oQ8e-mtp": ("Ornith 1.5 9B (upper bound)", "candidate", True),
@@ -121,6 +123,7 @@ class LocalModel:
     group: str                        # same model at other quantisations shares this
     decode_tok_s: float
     notes: str = ""
+    template_thinking: bool | None = None   # the chat template's own default, where it has both modes
 
     def profiles(self, thinking: bool) -> list[Profile]:
         fam = SAMPLING.get(self.family) or {}
@@ -223,6 +226,19 @@ def thinking_modes(template: str, ships: bool | None) -> tuple[bool, ...]:
         else:
             ships = "<think>" in template
     return (ships, not ships)
+
+
+def template_default(template: str) -> bool | None:
+    """The thinking mode the chat template itself defaults to; None when it has only one mode."""
+    modes = thinking_modes(template, None)
+    return modes[0] if len(modes) == 2 else None
+
+
+def _mode_note(ships: bool, template: bool | None) -> str | None:
+    if template is None or template == ships:
+        return None
+    on = lambda b: "on" if b else "off"   # noqa: E731
+    return f"ships with thinking {on(ships)} per its model card; its chat template defaults to {on(template)}"
 
 
 def _loader(model_type: str, cfg: dict, folder: Path) -> str:
@@ -381,14 +397,18 @@ def scan(model_dir: Path) -> tuple[list[LocalModel], list[tuple[str, str]]]:
         notes = []
         if loader == "unverified":
             notes.append("no loader for this model type in the installed oMLX" + (" (it needs remote code)" if cfg.get("auto_map") else ""))
+        modes = thinking_modes(tmpl, known[2] if known else None)
+        tdef = template_default(tmpl)
+        if len(modes) == 2 and _mode_note(modes[0], tdef):
+            notes.append(_mode_note(modes[0], tdef))
         mtp = (folder / "model-mtp.safetensors").exists()
         rate = max(12.0, min(150.0, 200.0 / max(gb, 0.5))) * (1.3 if mtp else 1.0)
         found.append(LocalModel(
             engine_id=folder.name, folder=rel, label=known[0] if known else folder.name,
             role=known[1] if known else "candidate", model_type=mt, family=_family(mt, folder.name), loader=loader,
             disk_gb=round(gb, 2), quant=quant, bits_per_weight=bpw,
-            thinking=thinking_modes(tmpl, known[2] if known else None), standard=True, group=_group(folder.name),
-            decode_tok_s=round(rate, 1), notes="; ".join(notes)))
+            thinking=modes, standard=True, group=_group(folder.name),
+            decode_tok_s=round(rate, 1), notes="; ".join(notes), template_thinking=tdef))
     # The same model at several quantisations: the one closest to 4 bits per weight is the standard entry.
     by_group: dict[str, list[LocalModel]] = {}
     for m in found:

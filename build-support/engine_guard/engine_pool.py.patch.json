@@ -1,0 +1,127 @@
+{
+  "path": "omlx/engine_pool.py",
+  "input_sha256": "cc1eae35aeda92c946a779cae327c06ea9d8b2082cb7f5406496833c79330a0a",
+  "output_sha256": "ff29f1086b08c43c5b44961688217fce6848952d55764272809b2cd41a31ece5",
+  "edits": [
+    {
+      "old": "logger = logging.getLogger(__name__)",
+      "new": "# Modified by Harbor: pinned memory-guard evidence/admission overlay.\nfrom . import harbor_guard as _harbor_guard\n\nlogger = logging.getLogger(__name__)",
+      "count": 1
+    },
+    {
+      "old": "        ready = self._acquire_loaded_engine(\n",
+      "new": "        _harbor_guard.require_admission(self._process_memory_enforcer)\n        ready = self._acquire_loaded_engine(\n",
+      "count": 1
+    },
+    {
+      "old": "        async with self._lock:\n            entry = self._entries.get(model_id)\n            if not entry:",
+      "new": "        async with self._lock:\n            _harbor_guard.require_admission(self._process_memory_enforcer)\n            if model_id in self._unloading_models:\n                raise _harbor_guard.GuardEvidenceUnavailable()\n            entry = self._entries.get(model_id)\n            if not entry:",
+      "count": 1
+    },
+    {
+      "old": "            # Now load the model\n            await self._load_engine(\n                model_id,\n                force_lm=force_lm,\n                runtime_settings=runtime_load_settings,\n            )",
+      "new": "            # Now load the model; retain the exact existing size/baseline policy.\n            await self._load_engine(\n                model_id,\n                force_lm=force_lm,\n                runtime_settings=runtime_load_settings,\n                _harbor_budget=(admission_size, evicted_any if ceiling > 0 else False),\n            )",
+      "count": 1
+    },
+    {
+      "old": "    async def _load_engine(\n        self,\n        model_id: str,\n        force_lm: bool = False,\n        runtime_settings: object | None = None,\n    ) -> None:",
+      "new": "    async def _load_engine(\n        self,\n        model_id: str,\n        force_lm: bool = False,\n        runtime_settings: object | None = None,\n        _harbor_budget: tuple[int, bool] | None = None,\n    ) -> None:",
+      "count": 1
+    },
+    {
+      "old": "        entry.is_loading = True\n        entry.loading_started_at = time.monotonic()",
+      "new": "        # Backstop for direct admin loads and all later lazy starts. The normal\n        # path passes its existing runtime/shard/eviction estimate; direct loads\n        # use the same pool estimators without changing any user settings.\n        _harbor_size = (self._entry_runtime_resident_size(\n            entry, runtime_settings, base_size=self._entry_resident_size(entry)\n        ) if _harbor_budget is None else _harbor_budget[0])\n        _harbor_committed = _harbor_budget is not None and _harbor_budget[1] is True\n\n        def _harbor_check_load(which=None, force_allocation=False):\n            if model_id in self._unloading_models:\n                raise _harbor_guard.GuardEvidenceUnavailable()\n            if self._entries.get(model_id) is not entry:\n                raise _harbor_guard.GuardEvidenceUnavailable()\n            if which is not None:\n                _harbor_guard.require_usable(which)\n                if getattr(entry, \"_harbor_active_engine\", None) is not which:\n                    raise _harbor_guard.GuardEvidenceUnavailable()\n                if entry.engine is not which and not entry.is_loading:\n                    raise _harbor_guard.GuardEvidenceUnavailable()\n            required = 0 if which is not None and not force_allocation and _harbor_guard.loaded_state(which) is True else _harbor_size\n            if required and isinstance(which, VLMBatchedEngine):\n                required = max(required, self._entry_resident_size(entry))\n            current = max(mx.get_active_memory(), self._current_model_memory,\n                          0 if _harbor_committed else _settled_phys_footprint())\n            _harbor_guard.require_admission(self._process_memory_enforcer, required, current)\n\n        _harbor_check_load()\n        entry.is_loading = True\n        entry.loading_started_at = time.monotonic()",
+      "count": 1
+    },
+    {
+      "old": "            if isinstance(engine, SplashEngine):\n                self._starting_external[model_id] = engine\n            try:\n                await self._start_engine(engine)\n",
+      "new": "            if isinstance(engine, SplashEngine):\n                self._starting_external[model_id] = engine\n            entry._harbor_active_engine = engine\n            _harbor_guard.bind_start(engine, _harbor_check_load)\n            try:\n                await self._start_engine(engine)\n",
+      "count": 1
+    },
+    {
+      "old": "                    try:\n                        await self._start_engine(engine)\n",
+      "new": "                    entry._harbor_active_engine = engine\n                    _harbor_guard.bind_start(engine, _harbor_check_load)\n                    try:\n                        await self._start_engine(engine)\n",
+      "count": 2
+    },
+    {
+      "old": "            except Exception as start_error:\n                if isinstance(engine, SplashEngine):\n",
+      "new": "            except Exception as start_error:\n                if isinstance(start_error, _harbor_guard.GuardEvidenceUnavailable):\n                    raise\n                if isinstance(engine, SplashEngine):\n",
+      "count": 1
+    },
+    {
+      "old": "                    except Exception as fallback_error:\n                        raise RuntimeError(",
+      "new": "                    except Exception as fallback_error:\n                        if isinstance(fallback_error, _harbor_guard.GuardEvidenceUnavailable):\n                            raise\n                        raise RuntimeError(",
+      "count": 2
+    },
+    {
+      "old": "        except Exception as exc:\n            # A failed load",
+      "new": "        except Exception as exc:\n            if isinstance(exc, _harbor_guard.GuardEvidenceUnavailable):\n                raise\n            # A failed load",
+      "count": 1
+    },
+    {
+      "old": "    def _validate_llm_engine_ready(self, model_id: str, engine: object | None) -> None:\n        if engine is None:",
+      "new": "    def _validate_llm_engine_ready(self, model_id: str, engine: object | None) -> None:\n        _harbor_guard.require_usable(engine)\n        if engine is None:",
+      "count": 1
+    },
+    {
+      "old": "            logger.info(\n                f\"Loaded model: {model_id} \"",
+      "new": "            # Propagation above can return normally while marking an unresolved\n            # scheduler unqualified. Refuse this SAME first request before any\n            # engine/lease escapes; do not wait for the next pool acquisition.\n            async def _harbor_cleanup_rejected_load():\n                nonlocal load_completed\n                load_completed = False\n                # The selected owner survives registry clear/re-discovery.\n                await self._unload_engine(model_id, _harbor_expected=(entry, engine))\n\n            await _harbor_guard.accept_loaded(engine, _harbor_check_load, _harbor_cleanup_rejected_load)\n\n            logger.info(\n                f\"Loaded model: {model_id} \"",
+      "count": 1
+    },
+    {
+      "old": "    async def _unload_engine(self, model_id: str, *, local_only: bool = False) -> None:\n        if model_id in self._unloading_models:\n            raise ModelBusyError(model_id, \"unload while teardown is in progress\")\n        self._unloading_models.add(model_id)\n        task = asyncio.create_task(\n            self._stop_and_unload_engine(\n                model_id, **({\"local_only\": True} if local_only else {})\n            )\n        )\n        cancelled = False\n        try:\n            while not task.done():\n                try:\n                    await asyncio.shield(task)\n                except asyncio.CancelledError:\n                    cancelled = True\n            task.result()\n        finally:\n            self._unloading_models.discard(model_id)\n        if cancelled:\n            raise asyncio.CancelledError\n",
+      "new": "    async def _unload_engine(\n        self, model_id: str, *, local_only: bool = False, _harbor_expected=None\n    ) -> None:\n        await _harbor_guard.unload_bound(\n            self, model_id, ModelBusyError, _harbor_expected, local_only=local_only\n        )\n",
+      "count": 1
+    },
+    {
+      "old": "    async def _stop_and_unload_engine(\n        self, model_id: str, *, local_only: bool = False\n    ) -> None:\n",
+      "new": "    async def _stop_and_unload_engine(\n        self, model_id: str, *, local_only: bool = False, _harbor_expected=None\n    ) -> None:\n",
+      "count": 1
+    },
+    {
+      "old": "        entry = self._entries.get(model_id)\n        if not entry or entry.engine is None:\n            return\n\n        logger.info(f\"Unloading model: {model_id} (immediate abort)\")",
+      "new": "        # Capture the exact instance before any deferred task/stop wait. A\n        # runtime directory reload may have already cleared the registry.\n        if _harbor_expected is None:\n            entry = self._entries.get(model_id)\n            engine = entry.engine if entry is not None else None\n        else:\n            entry, engine = _harbor_expected\n        if engine is None:\n            return\n\n        logger.info(f\"Unloading model: {model_id} (immediate abort)\")",
+      "count": 1
+    },
+    {
+      "old": "        external = distributed or isinstance(entry.engine, SplashEngine)\n",
+      "new": "        external = distributed or isinstance(engine, SplashEngine)\n",
+      "count": 1
+    },
+    {
+      "old": "            await entry.engine.stop(\n                **({\"local_only\": True} if local_only and distributed else {})\n            )\n",
+      "new": "            await engine.stop(\n                **({\"local_only\": True} if local_only and distributed else {})\n            )\n",
+      "count": 1
+    },
+    {
+      "old": "        reset = getattr(entry.engine, \"_reset_activity_tracking\", None)",
+      "new": "        reset = getattr(engine, \"_reset_activity_tracking\", None)",
+      "count": 1
+    },
+    {
+      "old": "        # Clear engine reference before settle barrier\n        entry.engine = None",
+      "new": "        # Never clear a different engine attached while stop yielded.\n        if entry.engine is not engine:\n            self._wake_process_memory_enforcer()\n            return\n        # Clear the captured entry only; a replacement registry entry is intact.\n        # The original settlement policy below still runs for its stopped owner.\n        entry.engine = None",
+      "count": 1
+    },
+    {
+      "old": "            self._current_model_memory = max(\n                0,\n                self._current_model_memory - resident_size,\n            )",
+      "new": "            # A directory reload resets the global counter with its registry.\n            # Unknown ownership conservatively retains the old charge.\n            if self._entries.get(model_id) is entry and entry.engine is None:\n                self._current_model_memory = max(\n                    0,\n                    self._current_model_memory - resident_size,\n                )",
+      "count": 1
+    },
+    {
+      "old": "        # Release memory tracking AFTER barrier\n        self._current_model_memory = max(0, self._current_model_memory - resident_size)",
+      "new": "        # Release only a charge still owned by this entry after the barrier.\n        # Registry reset/replacement must not subtract from the new owner's budget.\n        if self._entries.get(model_id) is entry and entry.engine is None:\n            self._current_model_memory = max(0, self._current_model_memory - resident_size)",
+      "count": 1
+    },
+    {
+      "old": "                existing.engine is not None or existing.is_loading\n",
+      "new": "                existing.engine is not None or existing.is_loading\n                or model_id in self._unloading_models\n",
+      "count": 1
+    },
+    {
+      "old": "            and not self._entries[mid].is_loading\n",
+      "new": "            and not self._entries[mid].is_loading\n            and mid not in self._unloading_models\n",
+      "count": 1
+    }
+  ]
+}

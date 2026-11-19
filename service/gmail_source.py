@@ -1,0 +1,2430 @@
+"""Read-only Gmail API source: mail without Mail.app having to be open.
+
+Mail.app's local index only moves while Mail runs and fetches, so "newer
+messages may be missing; open Mail" was the best the Swift reader could do.
+This module reads the inbox straight from Google instead, over the Gmail REST
+API with the read-only scope, and feeds the SAME three caches the Swift
+MailReader fills (`_headers`, `_history`, `_raw_emails`) through
+`email_tools.cache_external_emails`, so every downstream tool is unchanged.
+
+Which OAuth client signs in (`resolve_client`): the user's own Desktop-type
+client, saved from Settings ▸ Google (or the Workspace setup), comes first.
+Otherwise the release build's built-in client is used: a Testing-mode app the
+project owner controls, which only Google accounts on its tester list can use.
+The build writes it from HARBOR_GOOGLE_OAUTH_CLIENT into the bundle as
+BUILTIN_CLIENT_PATH (gitignored, never in the public repo); source checkouts
+and builds without it have none. Like the user's own client, its secret is
+kept only where token calls need it (gmail.json, 0600, and the Workspace
+server's per-account credential files); status reports only its source.
+Consent happens in the browser over a loopback redirect with PKCE. Only
+read-only scopes are requested (`gmail.readonly`, and optionally
+`calendar.readonly`): nothing here can send, delete, or modify mail or events,
+and data only flows Google -> this Mac.
+
+A Testing-mode app's refresh tokens for restricted scopes expire after 7 days;
+the refresh then returns invalid_grant. The account is marked "sign-in
+expired" (persisted `auth_expired`), status says so, and one durable
+`google_signin_expired` event per expiry lets the app post one notification.
+A reconnect (a new sign-in with that account as login_hint) clears it.
+
+What is fetched, per connected account, in the background (`run`):
+- headers of the newest HEADERS_LIMIT inbox messages, every HEADERS_EVERY s;
+- header history back HISTORY_DAYS, every HISTORY_EVERY s;
+- full bodies of the newest RAW_LIMIT messages, every RAW_EVERY s (15 min,
+  the cadence MailReader.swift uses for Mail.app), and once right after a
+  sign-in. The proactive engine reads these bodies to find what people asked;
+  they live in the same expiring raw-body cache as Mail.app's. A message's
+  content never changes under its id, so each body is fetched once (`_raw`);
+  later syncs list the ids and re-read only which of them are unread.
+
+Consent also asks for `calendar.readonly` (google_calendar_source.py reads the
+next week of events into the same calendar store EventKit fills). Google lets
+the user untick it, and older tokens predate it, so the scopes Google actually
+granted are recorded per account and Calendar is fetched only when granted;
+mail never depends on it.
+
+Disconnecting an account also erases everything Harbor derived from it: its
+mail caches, its Google Calendar events, the mail overviews written from the
+combined inbox, and its proactive cards/to-dos (`erase_account_data`).
+
+The refresh token lives in ~/.moe/gmail.json (0600), same trust model as the
+other personal caches under ~/.moe.
+"""
+from __future__ import annotations
+
+import asyncio
+import base64
+import contextlib
+import hashlib
+import html
+import inspect
+import json
+import os
+import re
+import secrets
+import sys
+import threading
+import time
+import weakref
+import math
+from dataclasses import asdict, dataclass, field, replace
+from contextvars import ContextVar
+from email.header import decode_header, make_header
+from email.utils import parseaddr
+from pathlib import Path
+from urllib.parse import parse_qs, urlencode, urlparse
+
+import httpx
+
+from service.paths import MOE_DIR
+from service.publication_authority import Authority, Witness, mutating, revocation
+
+SCOPE = "https://www.googleapis.com/auth/gmail.readonly"
+CALENDAR_SCOPE = "https://www.googleapis.com/auth/calendar.readonly"
+# Requested together at consent, with the read-only Workspace scopes
+# (google_workspace.WORKSPACE_SCOPES, see _consent_scopes): one sign-in per
+# account serves Brief's sync and the Workspace tools. Only SCOPE is required.
+CONSENT_SCOPES = (SCOPE, CALENDAR_SCOPE)
+AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
+TOKEN_URL = "https://oauth2.googleapis.com/token"
+API = "https://gmail.googleapis.com/gmail/v1/users/me"
+
+CONFIG_PATH = MOE_DIR / "gmail.json"
+# Written by build-support/pipeline.py into the packaged backend; gitignored.
+BUILTIN_CLIENT_PATH = Path(__file__).with_name("google_oauth_client.json")
+
+# User-facing copy for the Testing-mode realities of the built-in client.
+UNVERIFIED_NOTICE = "Google will warn that Harbor isn't verified yet. Choose Continue."
+# access_denied comes back both for a cancel and for an account that isn't on
+# a Testing-mode app's tester list; only Harbor's built-in app has such a list
+# the user can't see, so only its sign-ins mention it.
+CANCELLED_OR_NOT_TESTER = "Sign-in was cancelled, or this Google account isn't on Harbor's tester list yet."
+CANCELLED = "Sign-in was cancelled."
+SIGNIN_EXPIRED = "Google sign-in expired. Reconnect in Settings ▸ Google."
+
+HEADERS_LIMIT = 200          # per account, same depth as MailReader
+RAW_LIMIT = 50
+# Plus every message from the past week (up to WEEK_RAW_LIMIT), so the Brief reads
+# a whole week of a newly linked inbox, not only its newest 50.
+WEEK_RAW_DAYS = 7
+WEEK_RAW_LIMIT = 150
+HISTORY_LIMIT = 2000         # ~2y cap; first walk is the only expensive one
+HISTORY_DAYS = 730
+BODY_CAP = 20000
+FETCH_CONCURRENCY = 4        # metadata get = 5 quota units; the cap is 250/s
+# Cloud-everything (remote_policy.cloud_everything_active): deeper bodies and
+# history for the 1M window, history at 10000 per account (about 50k quota units
+# for the first walk).
+CLOUD_RAW_LIMIT = 200
+CLOUD_WEEK_RAW_DAYS = 30
+CLOUD_WEEK_RAW_LIMIT = 600
+CLOUD_HISTORY_LIMIT = 10_000
+CLOUD_HISTORY_DAYS = 3650
+CLOUD_BODY_CAP = 200_000
+# Fetches one cloud pass makes, newest first, so it ends inside run()'s 30-second
+# part timeout; a pass that leaves some behind publishes what it has and the next
+# one (a minute later) carries on. Fetched bodies are kept as they land, so a
+# timeout or cancel loses none. History resumes from the header lines already
+# cached (they carry each message's Gmail id), so a restart fetches only new mail.
+CLOUD_RAW_FETCHES_PER_PASS = 150
+CLOUD_HISTORY_FETCHES_PER_PASS = 200
+
+
+def _cloud() -> bool:
+    from service.inference.remote_policy import cloud_everything_active
+    return cloud_everything_active()
+
+HEADERS_EVERY = 300
+# The user's own sent mail (headers only), so a thread they answered from
+# Gmail, Mail or a phone reads as answered (service/proactive/handled.py).
+SENT_LIMIT = 200
+SENT_DAYS = 8
+SENT_EVERY = 120
+HISTORY_EVERY = 1800
+# Recent bodies (RAW_LIMIT) on the same 15-minute cadence MailReader.swift uses
+# for Mail.app, so the background proactive engine can read what people asked.
+RAW_EVERY = 900
+
+_FS = "\x01"
+_RS = "\x02"
+
+_meta: dict[tuple[str, str], dict] = {}
+_last: dict[str, dict[str, float]] = {}
+_errors: dict[str, str] = {}
+# account -> the user's sent messages: {ts, to, subject, message_id, in_reply_to}.
+_sent: dict[str, list[dict]] = {}
+# account -> {Gmail message id: its raw record}, only the ids the last raw sync
+# listed. Dropped with the account's other caches on reconnect, disconnect and erase.
+_raw: dict[str, dict[str, str]] = {}
+# (account, bare casefolded RFC Message-ID) -> {gmail_id, sender_address, auth_results} for
+# every message this process fetched, or None when two different Gmail messages share that
+# Message-ID (a sender chooses its own Message-ID, so it could copy an authenticated one's).
+# In memory only, never persisted: after a restart a message has no evidence until the next
+# sync fetches it again (no evidence = no proof). Dropped with _meta on reconnect, disconnect
+# and erase. See auth_results_for / authenticated_for and service/mail_auth.py.
+_auth: dict[tuple[str, str], dict | None] = {}
+_access: dict[str, dict] = {}
+_epochs: dict[str, int] = {}
+_locks: dict[tuple[str, str], asyncio.Lock] = {}
+_context: ContextVar[tuple[str, dict, int] | None] = ContextVar("gmail_account", default=None)
+_pending_flow: dict | None = None
+_flow_generation = 0
+_authorization: dict = {"state": "idle", "generation": 0, "error": ""}
+_behavior_history_sources: weakref.WeakSet = weakref.WeakSet()
+_background: set = set()   # strong refs so fire-and-forget tasks are not collected
+_history_config_lock = threading.RLock()
+
+
+def new_behavior_history(*, admission, limits, clock=time.time, monotonic=time.monotonic):
+    """Explicit disabled provider core; trusted admission/transport wiring is caller-owned.
+
+    No production caller starts this provider. It never borrows the interactive
+    recent-body cache or weakens native raw_email_snapshot completeness.
+    """
+    from service.gmail_behavior_history import HistoryProvider
+    source = HistoryProvider(admission=admission, limits=limits, clock=clock, monotonic=monotonic)
+    with _history_guard():
+        _behavior_history_sources.add(source)
+    return source
+
+
+def invalidate_behavior_history(reason="invalidated") -> None:
+    """Synchronous withdrawal for consent/Forget/account-set lifecycle adapters.
+
+    Account-set revisions bind every job, so changing even one connection
+    conservatively withdraws all registered history leases before any await.
+    Native Mail fallback and interactive caches follow their existing lifecycle.
+    """
+    with _history_guard():
+        for source in list(_behavior_history_sources):
+            # A later config observation must not erase the user's withdrawal
+            # reason. Read only source-owned memory, never admission callbacks.
+            state = getattr(getattr(source, "_provider", source), "_state", "")
+            keep = state if reason == "invalidated" and state in (
+                "paused", "cancelled", "revoked", "forgotten", "disconnected") else reason
+            source.invalidate(keep)
+
+
+# --- config / token -----------------------------------------------------------
+
+@mutating
+def load_config() -> dict:
+    with _history_config_lock:
+        try:
+            data = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+            data = data if isinstance(data, dict) else {}
+        except Exception:  # noqa: BLE001 — absent/corrupt means "not connected"
+            data = {}
+        _observe_history_config(data)
+        return data
+
+
+@mutating
+def _save_config(cfg: dict) -> None:
+    with _history_config_lock:
+        _withdraw_history_configuration()
+        MOE_DIR.mkdir(parents=True, exist_ok=True)
+        tmp = CONFIG_PATH.with_suffix(".tmp")
+        fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_NOFOLLOW, 0o600)
+        os.fchmod(fd, 0o600)
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            json.dump(cfg, handle)
+        tmp.replace(CONFIG_PATH)
+        _observe_history_config(cfg)
+
+
+def builtin_client() -> tuple[str, str]:
+    """(client_id, client_secret) of the client the build shipped, or ("", "").
+
+    Never logged, never returned by a route: callers that report it say only
+    that it exists (`resolve_client`'s source)."""
+    try:
+        data = json.loads(BUILTIN_CLIENT_PATH.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001 — absent or unreadable means "no built-in client"
+        return "", ""
+    if not isinstance(data, dict):
+        return "", ""
+    client_id, secret = data.get("client_id"), data.get("client_secret")
+    if not (isinstance(client_id, str) and isinstance(secret, str)
+            and client_id.strip() and secret.strip()):
+        return "", ""
+    return client_id.strip(), secret.strip()
+
+
+def resolve_client(cfg: dict | None = None, client_id: str = "",
+                   client_secret: str = "") -> tuple[str, str, str]:
+    """(client_id, client_secret, source) for the next sign-in.
+
+    source is "user" (an id given now, the one saved in gmail.json, or the
+    Workspace setup's), "builtin" (the shipped client) or "none". The user's
+    own client always wins over the built-in one.
+    """
+    cfg = load_config() if cfg is None else cfg
+    try:
+        from service import google_workspace
+        saved_id, saved_secret = google_workspace.saved_credentials()
+    except Exception:  # noqa: BLE001 — Workspace setup unreadable: ignore it
+        saved_id, saved_secret = "", ""
+    shipped_id, shipped_secret = builtin_client()
+    if shipped_id and saved_id == shipped_id:
+        saved_id, saved_secret = "", ""   # the Workspace server was set up with the built-in client
+    client_id = str(client_id or "").strip()
+    client_secret = str(client_secret or "").strip()
+    chosen = client_id or str(cfg.get("client_id") or "") or saved_id
+    if chosen:
+        secret = (client_secret or
+                  (str(cfg.get("client_secret") or "") if chosen == cfg.get("client_id") else "") or
+                  (saved_secret if chosen == saved_id else ""))
+        if shipped_id and chosen == shipped_id:
+            return shipped_id, shipped_secret, "builtin"
+        return chosen, secret, "user"
+    if shipped_id:
+        return shipped_id, shipped_secret, "builtin"
+    return "", "", "none"
+
+
+def can_connect(cfg: dict | None = None) -> bool:
+    """Whether this build can start a Google sign-in at all: the user's own
+    client or the built-in one (resolve_client). Source checkouts and builds
+    shipped without HARBOR_GOOGLE_OAUTH_CLIENT have neither, so nothing should
+    offer "connect Google" there. The app's rule is the same
+    (GoogleStatus.canConnect, from status()'s client_source)."""
+    return resolve_client(cfg)[2] != "none"
+
+
+def connected_accounts(cfg: dict | None = None) -> dict[str, dict]:
+    cfg = load_config() if cfg is None else cfg
+    accounts = cfg.get("accounts")
+    if not isinstance(accounts, dict):
+        accounts = {str(cfg.get("email") or "").lower(): cfg} if cfg.get("email") else {}
+    return {email.lower(): {"client_id": cfg.get("client_id", ""),
+                            "client_secret": cfg.get("client_secret", ""), **item}
+            for email, item in accounts.items() if isinstance(item, dict) and
+            item.get("refresh_token") and (item.get("client_id") or cfg.get("client_id"))}
+
+
+def is_connected() -> bool:
+    return bool(connected_accounts())
+
+
+def granted_scopes(account: str, item: dict | None = None) -> set[str]:
+    """Scopes Google granted this account at consent.
+
+    A token saved before Calendar was requested has no record: it was granted
+    exactly the Gmail read scope, which is what it keeps doing.
+    """
+    item = connected_accounts().get(account.lower()) if item is None else item
+    scopes = (item or {}).get("scopes")
+    if not isinstance(scopes, list):
+        return {SCOPE} if item else set()
+    return {str(scope) for scope in scopes}
+
+
+def has_calendar(account: str, item: dict | None = None) -> bool:
+    return CALENDAR_SCOPE in granted_scopes(account, item)
+
+
+@contextlib.contextmanager
+def bound_account(account: str):
+    """Run Google API calls as `account`, with the same disconnect fencing the
+    Gmail fetches use: `still_connected()` turns False the moment the account
+    is disconnected or reconnected, and `access_token()` refuses after that."""
+    account = account.lower()
+    cfg = connected_accounts().get(account)
+    if cfg is None:
+        raise GmailError("That Google account is not connected")
+    token = _context.set((account, dict(cfg), _epochs.get(account, 0)))
+    try:
+        yield
+    finally:
+        _context.reset(token)
+
+
+def still_connected() -> bool:
+    return _still_connected()
+
+
+async def access_token(http: httpx.AsyncClient) -> str:
+    return await _access_token(http)
+
+
+def status() -> dict:
+    from service.tools import email_tools as E
+    cfg = load_config()
+    accounts = connected_accounts(cfg)
+    sources = {row["account"]: row for row in E.email_source_details() if row["source"] == "gmail"}
+    from service import google_calendar_source as C
+    from service import google_workspace as W
+    workspace = W.status()
+    rows = []
+    for email, item in accounts.items():
+        expired = bool(item.get("auth_expired"))
+        error = (SIGNIN_EXPIRED if expired else
+                 _errors.get(email) or sources.get(email, {}).get("error", ""))
+        granted = granted_scopes(email, item)
+        row = {"email": email, "workspace": bool(item.get("workspace")),
+               "workspace_full": W.has_full_scopes(email, item),
+               "workspace_requested": bool(item.get("workspace_requested")),
+               "workspace_declined": [scope for scope in W.WORKSPACE_SCOPES if scope not in granted],
+               "last_headers_sync": sources.get(email, {}).get("last_success"),
+               "fresh": sources.get(email, {}).get("fresh", False) and not expired,
+               "last_error": error,
+               "expired": expired, "expired_at": item.get("auth_expired") or None,
+               "client_source": "builtin" if item.get("client_source") == "builtin" else "user",
+               "mail_account_id": item.get("mail_account_id", ""),
+               "calendar": has_calendar(email, item), **C.account_status(email)}
+        rows.append({**row, **account_state(row, workspace), "note": account_note(row)})
+    first = rows[0] if rows else {}
+    _, _, source = resolve_client(cfg)
+    return {"connected": bool(rows), "email": first.get("email", ""), "accounts": rows,
+            # client_id is only ever the user's own client; the built-in one is
+            # reported by its source alone, and no secret is ever returned.
+            "client_id": cfg.get("client_id", ""), "has_secret": bool(cfg.get("client_secret")),
+            "client_source": source, "builtin_client": bool(builtin_client()[0]),
+            # Workspace server trouble, once for the section (only with accounts).
+            "workspace_note": workspace_note(workspace) if rows else {"message": "", "detail": ""},
+            "consent_notice": UNVERIFIED_NOTICE if source == "builtin" else "",
+            "last_headers_sync": first.get("last_headers_sync"), "last_error": first.get("last_error", ""),
+            "authorizing": _pending_flow is not None, "authorization": dict(_authorization),
+            # Accounts whose next sign-in also asks for the Workspace scopes.
+            "workspace_consent": [r["email"] for r in rows if r["workspace"] and not r["workspace_full"]],
+            "mail_accounts": E.native_email_accounts(), "workspace": workspace}
+
+
+# The one status line per account. Brief's sync (mail, calendar) and the
+# Workspace server are plumbing behind one sign-in, so their problems merge
+# into one state and one plain sentence. `detail` keeps the raw reason for
+# Advanced; an account on the user's own OAuth client (a developer) sees it
+# as the message itself.
+_SETTING_UP = "New sign-in is waiting for its first refresh"
+
+
+def _plain_mail_error(reason: str) -> str:
+    low = reason.lower()
+    if "read access is missing" in low:
+        return "Mail access wasn't granted. Reconnect and allow Gmail."
+    if "gmail api" in low or "cloud project" in low:
+        return "Mail isn't available for this account yet."
+    if "couldn't" in low or "could not be reached" in low or "timed out" in low or "offline" in low:
+        return "Google couldn't be reached. Harbor will try again."
+    return "Mail isn't syncing right now. Harbor will try again."
+
+
+def _plain_calendar_error(reason: str) -> str:
+    low = reason.lower()
+    if "google calendar api" in low or "cloud project" in low:
+        return "Calendar isn't available for this account yet."
+    if "wasn't granted" in low or "allow calendar" in low:
+        return "Calendar wasn't shared. Reconnect and allow Calendar."
+    if "timed out" in low:
+        return "Google Calendar couldn't be reached. Harbor will try again."
+    return "Calendar isn't syncing right now. Harbor will try again."
+
+
+def _workspace_problem(workspace: dict) -> tuple[str, str]:
+    """(plain message, raw detail) when the Workspace server can't serve the
+    Google tools, else ("", "")."""
+    workspace = workspace if isinstance(workspace, dict) else {}
+    prepare = workspace.get("prepare") if isinstance(workspace.get("prepare"), dict) else {}
+    if prepare.get("state") == "preparing":
+        return "", ""
+    if not workspace.get("uvx", True):
+        return ("Google tools need the uv helper. Install it with: brew install uv",
+                "uvx was not found on this Mac")
+    if prepare.get("state") == "failed":
+        return ("Google tools couldn't be set up. Check that this Mac is online, then choose Update settings.",
+                str(prepare.get("detail") or ""))
+    if not workspace.get("configured"):
+        return ("Google tools aren't set up yet. Choose Update settings.",
+                "The Workspace server has no entry in mcp.json")
+    if workspace.get("error"):
+        return "Google tools aren't running right now.", str(workspace["error"])
+    return "", ""
+
+
+def workspace_note(workspace: dict) -> dict:
+    """The one section-level note about the Workspace server, or empty
+    strings: {"message": plain sentence, "detail": raw reason}."""
+    plain, detail = _workspace_problem(workspace)
+    return {"message": plain, "detail": detail}
+
+
+def account_note(row: dict) -> str:
+    """A secondary line for an account that declined some optional Workspace
+    scopes at a consent that asked for them, else "". Settings shows it once
+    (the user can dismiss it); it never changes the account's state."""
+    if row.get("workspace") and row.get("workspace_requested") and row.get("workspace_declined"):
+        return "Some Google tools (Drive, Docs, Chat…) weren't shared. Reconnect to add them."
+    return ""
+
+
+def account_state(row: dict, workspace: dict | None = None) -> dict:
+    """{state, message, detail} for one account row of status().
+
+    state: connected | expired | needs_reconnect | attention. Precedence:
+    expired, then the first problem of mail (required), then calendar, then
+    needs_reconnect for a sign-in that never asked for the Workspace scopes
+    (one from before every consent did, or an account switched off). Workspace
+    scopes the user declined at a consent that asked for them are optional:
+    they are a note (account_note), never a state. `workspace` is accepted for
+    callers but never changes the state."""
+    developer = row.get("client_source") == "user"
+    def attention(plain: str, detail: str) -> dict:
+        return {"state": "attention", "message": detail if developer and detail else plain, "detail": detail}
+    if row.get("expired"):
+        return {"state": "expired", "message": "Sign-in expired. Reconnect to keep this account up to date.",
+                "detail": SIGNIN_EXPIRED}
+    mail = str(row.get("last_error") or "")
+    if mail and mail != _SETTING_UP:
+        return attention(_plain_mail_error(mail), mail)
+    calendar = str(row.get("calendar_error") or "")
+    if calendar:
+        return attention(_plain_calendar_error(calendar), calendar)
+    if not row.get("workspace") or (not row.get("workspace_full") and not row.get("workspace_requested")):
+        return {"state": "needs_reconnect", "message": "Reconnect to finish setup.",
+                "detail": "This sign-in predates the Google Workspace scopes"}
+    # Workspace server trouble is one section-level note (status()
+    # "workspace_note"), never a per-account state: an account whose mail and
+    # calendar work is connected.
+    return {"state": "connected", "message": "Connected", "detail": ""}
+
+
+def _current() -> tuple[str, dict, int]:
+    value = _context.get()
+    if value is None:
+        raise GmailError("No Gmail account selected")
+    return value
+
+
+def _still_connected() -> bool:
+    email, cfg, epoch = _current()
+    actual = connected_accounts().get(email)
+    return bool(actual and actual.get("refresh_token") == cfg.get("refresh_token") and
+                _epochs.get(email, 0) == epoch)
+
+
+async def _access_token(http: httpx.AsyncClient) -> str:
+    email, cfg, _ = _current()
+    if not _still_connected():
+        raise GmailError("Gmail connection changed during refresh")
+    cached = _access.get(email, {})
+    if cached.get("token") and time.time() < cached.get("expires", 0) - 60:
+        return cached["token"]
+    if not _still_connected():
+        raise GmailError("Gmail connection changed during refresh")
+    response = await http.post(TOKEN_URL, data={
+        "client_id": cfg.get("client_id", ""), "client_secret": cfg.get("client_secret", ""),
+        "refresh_token": cfg.get("refresh_token", ""), "grant_type": "refresh_token"})
+    try:
+        body = response.json() if response.content else {}
+    except ValueError:
+        body = {}
+    body = body if isinstance(body, dict) else {}
+    if response.status_code != 200 or "access_token" not in body:
+        if body.get("error") == "invalid_grant":
+            # Testing-mode tokens for restricted scopes end after 7 days.
+            _mark_expired(email, cfg)
+            raise GmailError("Google sign-in expired; reconnect this account in Settings ▸ Google")
+        raise GmailError("Google token refresh failed")
+    if body.get("scope") and SCOPE not in str(body["scope"]).split():
+        raise GmailError("Gmail read access is missing; reconnect this account in Settings ▸ Google")
+    if not _still_connected():
+        raise GmailError("Gmail connection changed during refresh")
+    _access[email] = {"token": body["access_token"], "expires": time.time() + float(body.get("expires_in", 3600))}
+    return body["access_token"]
+
+
+class GmailError(RuntimeError):
+    pass
+
+
+def _mark_expired(email: str, snapshot: dict) -> None:
+    """Record that this sign-in expired (invalid_grant) and announce it once.
+
+    Only the exact sign-in that failed is marked: a disconnect or a newer
+    sign-in in between leaves the account alone. An account already marked
+    is not announced again; a reconnect writes a fresh record without it."""
+    try:
+        with revocation():
+            cfg = load_config()
+            accounts = connected_accounts(cfg)
+            item = accounts.get(email)
+            if (not item or item.get("auth_expired")
+                    or item.get("refresh_token") != snapshot.get("refresh_token")):
+                return
+            stamp = int(time.time())
+            accounts[email] = {**item, "auth_expired": stamp}
+            _save_config({"client_id": cfg.get("client_id", ""),
+                          "client_secret": cfg.get("client_secret", ""), "accounts": accounts})
+    except Exception as exc:  # noqa: BLE001 — the refresh error is still reported
+        print(f"[gmail] could not record the expired sign-in: {type(exc).__name__}", flush=True)
+        return
+    _announce_expired(email, stamp)
+
+
+def _announce_expired(email: str, stamp: int) -> None:
+    """One durable event per expiry; the app posts one notification for it
+    (OverlayModel handles `google_signin_expired`)."""
+    try:
+        from service.assistant.hub import hub
+        from service.assistant.store import signin_expired_key
+        hub.publish_sync({"type": "google_signin_expired", "account": email,
+                          "expired_at": stamp, "title": "Google sign-in expired",
+                          "body": "Reconnect in Settings ▸ Google."},
+                         dedupe_key=signin_expired_key(email, stamp))
+    except Exception as exc:  # noqa: BLE001 — Settings still shows Reconnect
+        print(f"[gmail] expired sign-in notice failed: {type(exc).__name__}", flush=True)
+
+
+_RATE_LIMIT_REASONS = {"ratelimitexceeded", "userratelimitexceeded", "dailylimitexceeded"}
+
+
+def _api_reasons(response: httpx.Response) -> tuple[set[str], str]:
+    """(lower-cased error reasons, error message) from a Google API error body."""
+    try:
+        body = response.json()
+    except ValueError:
+        return set(), ""
+    error = body.get("error") if isinstance(body, dict) else None
+    error = error if isinstance(error, dict) else {}
+    reasons = {str(item.get("reason", "")).lower()
+               for key in ("errors", "details") for item in (error.get(key) or [])
+               if isinstance(item, dict)}
+    return reasons, str(error.get("message", ""))
+
+
+async def _get(http: httpx.AsyncClient, path: str, params: dict | list | None = None) -> dict:
+    for attempt in range(4):
+        if not _still_connected():
+            raise GmailError("Gmail connection changed during refresh")
+        token = await _access_token(http)
+        if not _still_connected():
+            raise GmailError("Gmail connection changed during refresh")
+        response = await http.get(f"{API}/{path}", params=params,
+                                  headers={"Authorization": f"Bearer {token}"})
+        if not _still_connected():
+            raise GmailError("Gmail connection changed during refresh")
+        if response.status_code == 401:
+            _access.pop(_current()[0], None)
+            continue
+        if response.status_code == 403:
+            reasons, message = _api_reasons(response)
+            if {"accessnotconfigured", "service_disabled"} & reasons or "has not been used" in message:
+                raise GmailError("Turn on the Gmail API in your Google Cloud project "
+                                 "(APIs & Services ▸ Library), then wait a minute")
+            if reasons & _RATE_LIMIT_REASONS and attempt < 3:
+                await asyncio.sleep(1.5 * (attempt + 1))
+                continue
+            # Any other 403 will not clear by waiting.
+        elif response.status_code in (429, 500, 503) and attempt < 3:
+            await asyncio.sleep(1.5 * (attempt + 1))
+            continue
+        if response.status_code != 200:
+            raise GmailError(f"{path}: HTTP {response.status_code}")
+        return response.json()
+    raise GmailError(f"{path}: unauthorized")
+
+
+# --- message parsing ----------------------------------------------------------
+
+def _clean(value: str) -> str:
+    return re.sub(r"[\x01\x02\r\n]+", " ", value or "").strip()
+
+
+def _decode(value: str) -> str:
+    try:
+        return str(make_header(decode_header(value or "")))
+    except Exception:  # noqa: BLE001 — malformed encoded-words fall back to raw
+        return value or ""
+
+
+def _header(payload: dict, name: str) -> str:
+    for item in (payload or {}).get("headers", []):
+        if isinstance(item, dict) and str(item.get("name", "")).lower() == name.lower():
+            value = item.get("value", "")
+            return value if isinstance(value, str) else ""
+    return ""
+
+
+_AUTH_HEADER = "authentication-results"
+_AUTH_KEEP = 16
+# One character past service/mail_auth.MAX_HEADER_CHARS (a test pins them together); mail_auth
+# itself is imported only where a verdict is asked for, so loading this module stays light.
+_AUTH_VALUE_CAP = 8193
+
+
+def _auth_results(payload: dict) -> list[str]:
+    """Every Authentication-Results value, in the order the API lists them, unaltered.
+
+    A value that is not a string is kept as "" in its place, so it still counts (and
+    service/mail_auth.py refuses the set) instead of silently vanishing. At most
+    _AUTH_KEEP values, each cut one character past mail_auth's cap so an oversized
+    one still reads as oversized."""
+    headers = (payload or {}).get("headers") if isinstance(payload, dict) else None
+    out: list[str] = []
+    for item in headers if isinstance(headers, list) else []:
+        if isinstance(item, dict) and str(item.get("name", "")).lower() == _AUTH_HEADER:
+            value = item.get("value")
+            out.append(value[:_AUTH_VALUE_CAP] if isinstance(value, str) else "")
+    if len(out) > _AUTH_KEEP:
+        return out[:_AUTH_KEEP] + [""]   # "" makes mail_auth refuse a set it cannot see whole
+    return out
+
+
+def _sender_address(raw_from: str) -> str:
+    """The address `parseaddr` reads from the raw From header, casefolded ("" if none).
+
+    Parsed BEFORE encoded words are decoded: a name that decodes to "<", "@" or ","
+    cannot move it. Carried on every row as `sender_address`, so readers never take
+    an address back out of the display name (see service/mail_sender.py)."""
+    address = _clean(parseaddr(raw_from or "")[1]).casefold()
+    return address if "@" in address and not any(c.isspace() for c in address) else ""
+
+
+def parse_metadata(message: dict) -> dict:
+    payload = message.get("payload") or {}
+    raw_from = _header(payload, "From")
+    name, address = parseaddr(_decode(raw_from))
+    return {"id": message.get("id", ""),
+            "ts": int(message.get("internalDate", 0)) / 1000.0,
+            "name": _clean(name), "address": _clean(address),
+            "sender_address": _sender_address(raw_from),
+            "to": _clean(_decode(_header(payload, "To"))),
+            "subject": _clean(_decode(_header(payload, "Subject"))),
+            "message_id": _clean(_header(payload, "Message-ID")),
+            "in_reply_to": _clean(_header(payload, "In-Reply-To")),
+            "auth_results": _auth_results(payload),
+            "unread": "UNREAD" in (message.get("labelIds") or [])}
+
+
+def _sender_field(meta: dict) -> str:
+    """The full From for rows that carry NO separate address: "Name <address>", using the
+    address read from the RAW header (never one decoded out of an encoded word), or the
+    address alone, or the name alone when there is no clean address."""
+    address = meta.get("sender_address") or ""
+    if meta["name"] and address:
+        return f"{meta['name']} <{address}>"
+    if address:
+        return address
+    # No clean address: the name alone, unless the name itself reads like an address or a
+    # bracket, which would then pass for one. Such a sender has nothing to show.
+    name = str(meta["name"] or "")
+    return "" if any(mark in name for mark in "@<>") else name
+
+
+def _mid_key(message_id) -> str:
+    return str(message_id or "").strip().strip("<>").strip().casefold()
+
+
+def _remember_auth(account: str, gmail_id: str, meta: dict) -> None:
+    key = (str(account or "").casefold(), _mid_key(meta.get("message_id")))
+    if not key[0] or not key[1] or not gmail_id:
+        return
+    if key in _auth:
+        known = _auth[key]
+        if known is None or known["gmail_id"] != gmail_id:
+            _auth[key] = None          # two messages, one Message-ID: neither has evidence
+            return
+    _auth[key] = {"gmail_id": gmail_id, "sender_address": meta.get("sender_address") or "",
+                  "auth_results": list(meta.get("auth_results") or [])}
+
+
+def _forget_auth(account: str) -> None:
+    account = str(account or "").casefold()
+    for key in list(_auth):
+        if key[0] == account:
+            _auth.pop(key, None)
+
+
+def auth_results_for(account: str, message_id: str) -> list[str] | None:
+    """The Authentication-Results values Gmail returned for this account's message with
+    this RFC Message-ID, in API order; None when unknown (not fetched by this process,
+    disconnected, or the Message-ID is shared by two messages). None is no proof."""
+    entry = _auth.get((str(account or "").casefold(), _mid_key(message_id)))
+    return list(entry["auth_results"]) if entry else None
+
+
+def authenticated_for(account: str, message_id: str, from_address: str) -> tuple[bool, str] | None:
+    """mail_auth's verdict for that message, or None when there is no evidence (as above).
+
+    `from_address` is the row's real sender (mail_sender.real_address). It must equal the
+    address this process read from the fetched message's own From, so a row cannot borrow
+    another message's evidence by repeating its Message-ID."""
+    entry = _auth.get((str(account or "").casefold(), _mid_key(message_id)))
+    if not entry:
+        return None
+    if not entry["sender_address"] or str(from_address or "").strip().casefold() != entry["sender_address"]:
+        return False, "sender differs from the fetched message"
+    from service import mail_auth
+    return mail_auth.authenticated(entry["auth_results"], from_address=entry["sender_address"],
+                                   provider="gmail")
+
+
+def header_line(meta: dict, account: str, unread: bool) -> str:
+    # Same H2 record MailReader.swift emits (10 fields). The address field is the
+    # one parsed from the raw From header, so header rows' sender_address matches it.
+    return _FS.join(["H2", str(int(meta["ts"])), "U" if unread else "R", account,
+                     account, meta["name"], meta.get("sender_address") or "", meta["message_id"],
+                     meta["subject"], meta["id"]])
+
+
+def _b64(data: str) -> str:
+    try:
+        return base64.urlsafe_b64decode(data + "=" * (-len(data) % 4)).decode("utf-8", "replace")
+    except Exception:  # noqa: BLE001
+        return ""
+
+
+def extract_body(payload: dict) -> str:
+    plain: list[str] = []
+    markup: list[str] = []
+
+    def walk(part: dict) -> None:
+        mime = part.get("mimeType", "")
+        data = (part.get("body") or {}).get("data")
+        if data and mime == "text/plain":
+            plain.append(_b64(data))
+        elif data and mime == "text/html":
+            markup.append(_b64(data))
+        for child in part.get("parts") or []:
+            walk(child)
+
+    walk(payload or {})
+    if plain:
+        text = "\n".join(plain)
+    else:
+        text = re.sub(r"(?is)<(script|style).*?</\1>", " ", "\n".join(markup))
+        text = html.unescape(re.sub(r"(?s)<[^>]+>", " ", text))
+    text = re.sub(r"[ \t]+", " ", text.replace("\x01", " ").replace("\x02", " "))
+    return re.sub(r"\n\s*\n+", "\n\n", text).strip()[:CLOUD_BODY_CAP if _cloud() else BODY_CAP]
+
+
+MAX_ATTACHMENT_BYTES = 32 * 1024 * 1024
+# Tiny inline pictures (logos, signature icons) are not worth showing as attachments.
+_TINY_IMAGE_BYTES = 20 * 1024
+_ATTACHED_SHOWN = 10
+_SAFE_ID = re.compile(r"^[0-9A-Za-z_\-.=]{1,2000}$")
+
+
+def _file_name(value: str) -> str:
+    """A file name from a message, cleaned of control and direction-changing characters."""
+    text = "".join(c if c.isprintable() else " " for c in _decode(value or ""))
+    text = re.sub("[‪-‮⁦-⁩‎‏]", "", text)
+    return " ".join(text.split())[:200]
+
+
+def _size_text(size: int) -> str:
+    if size >= 1024 * 1024:
+        return f"{size / (1024 * 1024):.1f} MB"
+    if size >= 1024:
+        return f"{round(size / 1024)} KB"
+    return f"{max(0, size)} B"
+
+
+def attached_line(items: list[tuple[str, int]]) -> str:
+    """`[Attached: name (size), ...]` for (name, size) pairs, or "" for none."""
+    if not items:
+        return ""
+    shown = ", ".join(f"{_clean(_file_name(name))} ({_size_text(int(size or 0))})"
+                      for name, size in items[:_ATTACHED_SHOWN])
+    more = f", +{len(items) - _ATTACHED_SHOWN} more" if len(items) > _ATTACHED_SHOWN else ""
+    return f"[Attached: {shown}{more}]"
+
+
+def attachment_parts(payload: dict) -> list[dict]:
+    """The files a message carries: {name, mime, size, attachment_id, inline, data}.
+
+    `data` is the file's bytes when Gmail put them inline in the message, else None."""
+    out: list[dict] = []
+
+    def walk(part: dict) -> None:
+        name = _file_name(part.get("filename") or "")
+        body = part.get("body") or {}
+        attachment_id = str(body.get("attachmentId") or "")
+        inline_data = body.get("data")
+        if name and (attachment_id or inline_data):
+            disposition = _header(part, "Content-Disposition").strip().lower()
+            inline = disposition.startswith("inline") or bool(_header(part, "Content-ID").strip())
+            try:
+                size = int(body.get("size") or 0)
+            except (TypeError, ValueError):
+                size = 0
+            data = None
+            if inline_data and not attachment_id and size <= MAX_ATTACHMENT_BYTES:
+                try:
+                    data = base64.urlsafe_b64decode(str(inline_data) + "=" * (-len(str(inline_data)) % 4))
+                    size = size or len(data)
+                except (ValueError, TypeError):
+                    data = None
+            out.append({"name": name, "mime": str(part.get("mimeType") or "")[:100], "size": size,
+                        "attachment_id": attachment_id, "inline": inline, "data": data})
+        for child in part.get("parts") or []:
+            walk(child)
+
+    walk(payload or {})
+    return out
+
+
+def _worth_listing(item: dict) -> bool:
+    tiny_picture = (item["mime"].startswith("image/") and item["inline"]
+                    and 0 < item["size"] < _TINY_IMAGE_BYTES)
+    return not tiny_picture
+
+
+def raw_record(message: dict, account: str) -> str:
+    meta = parse_metadata(message)
+    sender = _sender_field(meta)
+    body = extract_body(message.get("payload") or {})
+    line = attached_line([(a["name"], a["size"]) for a in attachment_parts(message.get("payload") or {})
+                          if _worth_listing(a)])
+    if line:
+        body = f"{line}\n{body}".strip()
+    return _FS.join([str(int(meta["ts"])), "U" if meta["unread"] else "R", account, account,
+                     sender, meta["to"], meta["subject"], meta["message_id"], body])
+
+
+# --- attachments (read-only) ---------------------------------------------------
+
+_HIDDEN_LABELS = frozenset({"SPAM", "TRASH", "DRAFT"})
+
+
+def _search_word(term: str) -> str:
+    """One search term made safe for Gmail's q syntax: no operators, quotes or braces."""
+    word = re.sub(r"[^\w@.\- ]", " ", str(term or ""), flags=re.UNICODE)
+    word = " ".join(word.split())[:80]
+    return f'"{word}"' if " " in word else word
+
+
+def _attachment_message(account: str, message: dict) -> dict | None:
+    if _HIDDEN_LABELS & set(message.get("labelIds") or []):
+        return None
+    meta = parse_metadata(message)
+    # Full "Name <address>" and NO separate sender_address: mail_attachments shows this
+    # string and merges it with Apple Mail's "Name <address>" form, and attachment_save
+    # compares it exactly. A row never carries both a full From and a separate address.
+    return {"account": account, "message_id": meta["id"], "rfc_message_id": meta["message_id"],
+            "ts": meta["ts"], "sender": _sender_field(meta),
+            "subject": meta["subject"], "attachments": attachment_parts(message.get("payload") or {})}
+
+
+async def search_attachments(account: str, terms: list[str], start: float | None, end: float | None,
+                             limit: int = 15) -> list[dict]:
+    """Messages with attachments matching every term, newest first, in all mail except
+    spam and trash: [{account, message_id, rfc_message_id, ts, sender, subject,
+    attachments: [{name, mime, size, attachment_id, inline, data}]}]."""
+    query = ["has:attachment", *(w for w in (_search_word(t) for t in terms or []) if w)]
+    if start and math.isfinite(start) and start > 0:
+        query.append(f"after:{int(start)}")
+    if end and math.isfinite(end) and end > 0:
+        query.append(f"before:{int(end)}")
+    limit = max(1, min(int(limit), 50))
+    with bound_account(account):
+        async with httpx.AsyncClient(timeout=20.0) as http:
+            listing = await _get(http, "messages", [("q", " ".join(query)), ("maxResults", str(limit)),
+                                                    ("includeSpamTrash", "false")])
+            ids = [str(item["id"]) for item in listing.get("messages", []) if item.get("id")][:limit]
+            gate = asyncio.Semaphore(FETCH_CONCURRENCY)
+
+            async def one(message_id: str) -> dict:
+                async with gate:
+                    return await _get(http, f"messages/{message_id}", [("format", "full")])
+
+            messages = await asyncio.gather(*(one(i) for i in ids))
+    found = [m for m in (_attachment_message(account.lower(), message) for message in messages) if m]
+    return sorted(found, key=lambda m: m["ts"], reverse=True)
+
+
+async def find_by_rfc_id(account: str, rfc_id: str) -> dict | None:
+    """The message with this RFC Message-ID (same shape as search_attachments), or None."""
+    bare = re.sub(r"[^\w@.\-+=!#$%&'*/?^`{|}~]", "", str(rfc_id or "").strip().strip("<>"))
+    if not bare:
+        return None
+    with bound_account(account):
+        async with httpx.AsyncClient(timeout=20.0) as http:
+            listing = await _get(http, "messages", [("q", f"rfc822msgid:{bare}"), ("maxResults", "3"),
+                                                    ("includeSpamTrash", "false")])
+            ids = [str(item["id"]) for item in listing.get("messages", []) if item.get("id")]
+            for message_id in ids[:1]:
+                message = await _get(http, f"messages/{message_id}", [("format", "full")])
+                return _attachment_message(account.lower(), message)
+    return None
+
+
+async def attachment_bytes(account: str, message_id: str, attachment_id: str) -> bytes:
+    """One attachment's bytes. GmailError when it is missing, too large or unreadable."""
+    if not _SAFE_ID.match(str(message_id or "")) or not _SAFE_ID.match(str(attachment_id or "")):
+        raise GmailError("That attachment reference is not valid")
+    with bound_account(account):
+        async with httpx.AsyncClient(timeout=60.0) as http:
+            data = await _get(http, f"messages/{message_id}/attachments/{attachment_id}")
+    try:
+        text = str(data.get("data") or "")
+        raw = base64.urlsafe_b64decode(text + "=" * (-len(text) % 4))
+    except (ValueError, TypeError):
+        raise GmailError("That attachment could not be decoded") from None
+    if len(raw) > MAX_ATTACHMENT_BYTES:
+        raise GmailError("That attachment is too large to read")
+    return raw
+
+
+# --- syncing ------------------------------------------------------------------
+
+async def _list_ids(http, limit: int, *, query: str = "", unread: bool = False,
+                    label: str = "INBOX") -> list[str]:
+    ids: list[str] = []
+    page = ""
+    while len(ids) < limit:
+        params: list[tuple[str, str]] = [("labelIds", label),
+                                         ("maxResults", str(min(500, limit - len(ids))))]
+        if unread:
+            params.append(("labelIds", "UNREAD"))
+        if query:
+            params.append(("q", query))
+        if page:
+            params.append(("pageToken", page))
+        data = await _get(http, "messages", params)
+        ids.extend(item["id"] for item in data.get("messages", []))
+        page = data.get("nextPageToken", "")
+        if not page:
+            break
+    return ids[:limit]
+
+
+async def _ensure_meta(http, ids: list[str]) -> None:
+    account = _current()[0]
+    missing = [i for i in ids if (account, i) not in _meta]
+    gate = asyncio.Semaphore(FETCH_CONCURRENCY)
+
+    async def one(message_id: str) -> None:
+        async with gate:
+            data = await _get(http, f"messages/{message_id}", [
+                ("format", "metadata"), ("metadataHeaders", "From"),
+                ("metadataHeaders", "To"), ("metadataHeaders", "Subject"),
+                ("metadataHeaders", "Message-ID"), ("metadataHeaders", "In-Reply-To"),
+                # Read by service/mail_auth.py; same gmail.readonly scope, no new consent.
+                ("metadataHeaders", "Authentication-Results")])
+            meta = parse_metadata(data)
+            _meta[(account, message_id)] = meta
+            _remember_auth(account, message_id, meta)
+
+    await asyncio.gather(*(one(i) for i in missing))
+
+
+async def tab_message_ids(days: int, tabs: tuple[str, ...] = ("promotions", "social", "forums"),
+                          limit: int = 2000) -> set[str] | None:
+    """RFC Message-IDs of inbox mail Gmail filed under `tabs` in the last `days`, across
+    every connected account. None when no account is connected or any read failed:
+    unknown, never an empty set that would read as "nothing to exclude"."""
+    accounts = connected_accounts()
+    if not accounts:
+        return None
+    query = f"newer_than:{int(days)}d {{" + " ".join(f"category:{t}" for t in tabs) + "}"
+    found: set[str] = set()
+    for account, cfg in accounts.items():
+        token = _context.set((account, dict(cfg), _epochs.get(account, 0)))
+        try:
+            async with httpx.AsyncClient(timeout=10) as http:
+                ids = await _list_ids(http, limit, query=query)
+                if len(ids) >= limit:
+                    return None   # more than we listed: a partial set would let the rest through
+                await _ensure_meta(http, ids)
+                for i in ids:
+                    mid = _meta.get((account, i), {}).get("message_id", "").strip()
+                    if mid:   # Mail's index keeps the angle brackets; match its form
+                        found.add(mid if mid.startswith("<") else f"<{mid}>")
+        except Exception:  # noqa: BLE001 — a partial answer would wrongly include promotions
+            return None
+        finally:
+            _context.reset(token)
+    return found
+
+
+def _lines(ids: list[str], unread_ids: set[str], account: str) -> str:
+    rows = [header_line(_meta[(account, i)], account, i in unread_ids)
+            for i in ids if (account, i) in _meta]
+    return "\n".join(rows)
+
+
+async def _sync_headers(http, account: str) -> None:
+    from service.tools import email_tools
+    ids = await _list_ids(http, HEADERS_LIMIT)
+    unread = set(await _list_ids(http, HEADERS_LIMIT, unread=True))
+    await _ensure_meta(http, ids)
+    if not _still_connected():
+        return
+    cap = int(len(ids) >= HEADERS_LIMIT)
+    headers = _lines(ids, unread, account) + f"\nC2\x01{account}\x01{account}\x01{len(ids)}\x010\x01{cap}"
+    email_tools.cache_external_emails(account=account, headers=headers)
+    _last.setdefault(account, {})["headers"] = time.time()
+
+
+async def _sync_sent(http, account: str) -> None:
+    """The last week of the user's own sent mail, headers only, kept in memory."""
+    ids = await _list_ids(http, SENT_LIMIT, query=f"newer_than:{SENT_DAYS}d", label="SENT")
+    await _ensure_meta(http, ids)
+    if not _still_connected():
+        return
+    _sent[account] = [{k: _meta[(account, i)].get(k, "") for k in ("ts", "to", "subject", "message_id", "in_reply_to")}
+                      for i in ids if (account, i) in _meta]
+    _last.setdefault(account, {})["sent"] = time.time()
+
+
+def sent_rows() -> list[dict]:
+    """Every connected account's recent sent mail, each row naming its account."""
+    accounts = connected_accounts()
+    return [{**row, "account": account} for account, rows in list(_sent.items()) if account in accounts
+            for row in rows]
+
+
+def _with_read_state(record: str, unread: bool) -> str:
+    """A cached raw record with its read state brought up to date (field 2)."""
+    stamp, _state, rest = record.split(_FS, 2)
+    return _FS.join([stamp, "U" if unread else "R", rest])
+
+
+async def _sync_raw(http, account: str) -> None:
+    from service.tools import email_tools
+    cloud = _cloud()
+    raw_limit = CLOUD_RAW_LIMIT if cloud else RAW_LIMIT
+    week_limit = CLOUD_WEEK_RAW_LIMIT if cloud else WEEK_RAW_LIMIT
+    week_days = CLOUD_WEEK_RAW_DAYS if cloud else WEEK_RAW_DAYS
+    newest = await _list_ids(http, raw_limit)
+    week = await _list_ids(http, week_limit, query=f"newer_than:{week_days}d")
+    ids = list(dict.fromkeys(newest + week))
+    known = _raw.setdefault(account, {}) if cloud else _raw.get(account, {})
+    missing = [i for i in ids if i not in known]
+    # Every listed id is among the newest RAW_LIMIT + WEEK_RAW_LIMIT unread inbox
+    # messages if it is unread at all, so one list call re-reads the read state of
+    # the cached ones instead of a full fetch each.
+    unread = set(await _list_ids(http, raw_limit + week_limit, unread=True)) if len(missing) < len(ids) else set()
+    if cloud:
+        await _sync_raw_pass(http, account, ids, known, missing, unread)
+        return
+    gate = asyncio.Semaphore(FETCH_CONCURRENCY)
+
+    async def one(message_id: str) -> dict:
+        async with gate:
+            return await _get(http, f"messages/{message_id}", [("format", "full")])
+
+    messages = await asyncio.gather(*(one(i) for i in missing))
+    if not _still_connected():
+        return
+    fetched = {i: raw_record(m, account) for i, m in zip(missing, messages)}
+    for i, m in zip(missing, messages):
+        _remember_auth(account, i, parse_metadata(m))
+    records = {i: fetched[i] if i in fetched else _with_read_state(known[i], i in unread) for i in ids}
+    _raw[account] = records
+    email_tools.cache_external_emails(account=account, raw=_RS.join(records[i] for i in ids))
+    _last.setdefault(account, {})["raw"] = time.time()
+
+
+async def _sync_raw_pass(http, account: str, ids: list[str], store: dict[str, str],
+                         missing: list[str], unread: set[str]) -> None:
+    """Cloud-everything raw sync: at most CLOUD_RAW_FETCHES_PER_PASS of the newest
+    missing bodies, each kept in `store` (`_raw[account]`) the moment it lands, then
+    every listed body held so far published newest first. Done (`_last`) only once
+    nothing is missing, so the next run continues a busy inbox where this one stopped."""
+    from service.tools import email_tools
+    batch = missing[:CLOUD_RAW_FETCHES_PER_PASS]        # `ids` lists newest first
+    fresh: set[str] = set()
+    gate = asyncio.Semaphore(FETCH_CONCURRENCY)
+
+    async def one(message_id: str) -> None:
+        async with gate:
+            message = await _get(http, f"messages/{message_id}", [("format", "full")])
+        if _still_connected():
+            store[message_id] = raw_record(message, account)
+            fresh.add(message_id)
+            _remember_auth(account, message_id, parse_metadata(message))
+
+    await asyncio.gather(*(one(i) for i in batch))
+    if not _still_connected():
+        return
+    records = {i: store[i] if i in fresh else _with_read_state(store[i], i in unread)
+               for i in ids if i in store}
+    _raw[account] = records
+    email_tools.cache_external_emails(account=account, raw=_RS.join(records.values()))
+    if len(records) == len(ids):
+        _last.setdefault(account, {})["raw"] = time.time()
+
+
+def _cached_history_lines(account: str) -> dict[str, str]:
+    """This account's published history header lines by Gmail id (the H2 record's
+    last field), from the cache restored at launch: a header never changes under
+    its id, so a resumed walk fetches only the ids it has not seen."""
+    from service.tools import email_tools
+    text = (email_tools._external_accounts.get(account) or {}).get("history") or ""
+    lines: dict[str, str] = {}
+    for line in str(text).splitlines():
+        parts = line.split(_FS)
+        if len(parts) == 10 and parts[0] == "H2" and parts[3] == account and parts[9]:
+            lines[parts[9]] = line
+    return lines
+
+
+def _with_header_read_state(line: str, unread: bool) -> str:
+    parts = line.split(_FS)
+    parts[2] = "U" if unread else "R"
+    return _FS.join(parts)
+
+
+async def _sync_history(http, account: str) -> None:
+    from service.tools import email_tools
+    cloud = _cloud()
+    limit = CLOUD_HISTORY_LIMIT if cloud else HISTORY_LIMIT
+    days = CLOUD_HISTORY_DAYS if cloud else HISTORY_DAYS
+    ids = await _list_ids(http, limit, query=f"newer_than:{days}d")
+    unread = set(await _list_ids(http, limit, unread=True))
+    if cloud:
+        await _sync_history_pass(http, account, ids, unread, limit)
+        return
+    await _ensure_meta(http, ids)
+    if not _still_connected():
+        return
+    cap = int(len(ids) >= limit)
+    history = _lines(ids, unread, account) + f"\nC2\x01{account}\x01{account}\x01{len(ids)}\x010\x01{cap}"
+    email_tools.cache_external_emails(account=account, history=history)
+    _last.setdefault(account, {})["history"] = time.time()
+
+
+async def _sync_history_pass(http, account: str, ids: list[str], unread: set[str], limit: int) -> None:
+    """Cloud-everything history: resume from the cached header lines, fetch at most
+    CLOUD_HISTORY_FETCHES_PER_PASS unseen headers (newest first), and publish every
+    line held so far. A partial walk carries the cap flag, so coverage says there is
+    more; it is done (`_last`) only once every listed id has a line."""
+    from service.tools import email_tools
+    prior = _cached_history_lines(account)
+    unseen = [i for i in ids if (account, i) not in _meta and i not in prior]
+    await _ensure_meta(http, unseen[:CLOUD_HISTORY_FETCHES_PER_PASS])
+    if not _still_connected():
+        return
+    rows = []
+    for i in ids:
+        if (account, i) in _meta:
+            rows.append(header_line(_meta[(account, i)], account, i in unread))
+        elif i in prior:
+            rows.append(_with_header_read_state(prior[i], i in unread))
+    done = len(rows) == len(ids)
+    cap = int(len(ids) >= limit or not done)
+    history = "\n".join(rows) + f"\nC2\x01{account}\x01{account}\x01{len(rows)}\x010\x01{cap}"
+    email_tools.cache_external_emails(account=account, history=history)
+    if done:
+        _last.setdefault(account, {})["history"] = time.time()
+
+
+async def _sync_account(account: str, parts: tuple[str, ...]) -> bool:
+    from service.tools import email_tools as E
+    # Capture config INSIDE the per-account lock. Disconnect/reconnect increments
+    # an epoch and invalidates every in-flight publication and token write.
+    if len(parts) > 1:
+        return all(await asyncio.gather(*(_sync_account(account, (part,)) for part in parts)))
+    lock = _locks.setdefault((account, parts[0]), asyncio.Lock())
+    async with lock:
+        cfg = connected_accounts().get(account)
+        if cfg is None:
+            return False
+        if cfg.get("auth_expired"):
+            # The refresh token is dead. Retrying only POSTs it to Google again
+            # and re-persists the mail cache; a reconnect writes a fresh record.
+            return False
+        token = _context.set((account, dict(cfg), _epochs.get(account, 0)))
+        part = parts[0]
+        try:
+            async with httpx.AsyncClient(timeout=10) as http:
+                for part in parts:
+                    await {"headers": _sync_headers, "raw": _sync_raw, "sent": _sync_sent,
+                           "history": _sync_history}[part](http, account)
+            if not _still_connected():
+                return False
+            if part == "headers":
+                _errors.pop(account, None)
+            return True
+        except asyncio.CancelledError:
+            if _still_connected():
+                reason = "Google refresh timed out; showing the last available cache"
+                if part == "headers":
+                    _errors[account] = reason
+                E.external_email_error(account, part, reason)
+            raise
+        except Exception as exc:
+            if _still_connected():
+                # Never expose HTTP payloads, query strings, tokens, or PII in errors.
+                reason = str(exc) if isinstance(exc, GmailError) else "Google could not be reached; try again when online"
+                if part == "headers":
+                    _errors[account] = reason
+                E.external_email_error(account, part, reason)
+            return False
+        finally:
+            _context.reset(token)
+
+
+async def sync(parts: tuple[str, ...] = ("headers",)) -> bool:
+    from service.tools import email_tools as E
+    accounts = connected_accounts()
+    E.configure_external_accounts(accounts)
+    if not accounts:
+        return False
+    results = await asyncio.gather(*(_sync_account(account, parts) for account in accounts))
+    return all(results)
+
+
+async def refresh_if_stale(max_age: float = 60.0, timeout: float = 12.0,
+                           parts: tuple[str, ...] = ("headers",)) -> None:
+    """Bounded on-demand refresh. Checking headers never fetches bodies."""
+    from service.tools import email_tools as E
+    accounts = connected_accounts()
+    if not accounts:
+        return
+    E.configure_external_accounts(accounts)
+
+    async def refresh(account):
+        needed = tuple(part for part in parts if not _last.get(account, {}).get(part) or
+                       not 0 <= time.time() - _last[account][part] <= max_age)
+        if not needed:
+            return
+        try:
+            await asyncio.wait_for(_sync_account(account, needed), timeout)
+        except asyncio.TimeoutError:
+            for part in needed:
+                E.external_email_error(account, part, "Google refresh timed out; showing the last available cache")
+
+    await asyncio.gather(*(refresh(account) for account in accounts))
+
+
+async def run() -> None:
+    """Fetch providers independently; a slow history walk cannot block new mail."""
+    from service.tools import email_tools as E
+    E.configure_external_accounts(connected_accounts())
+    while True:
+        accounts = connected_accounts()
+        E.configure_external_accounts(accounts)
+        async def update(account, part):
+            try:
+                await asyncio.wait_for(_sync_account(account, (part,)), 30)
+            except asyncio.TimeoutError:
+                pass
+        now = time.time()
+        await asyncio.gather(*(update(account, part) for account in accounts
+                               for part, every in (("headers", HEADERS_EVERY), ("history", HISTORY_EVERY),
+                                                   ("raw", RAW_EVERY),
+                                                   ("sent", SENT_EVERY))
+                               if now - _last.get(account, {}).get(part, 0) >= every))
+        # Google Calendar for accounts that granted it (every CALENDAR_EVERY).
+        from service import google_calendar_source as C
+        try:
+            await C.refresh_due(accounts)
+        except Exception as exc:  # noqa: BLE001 — the mail loop must keep running
+            print(f"[google_calendar] refresh failed: {type(exc).__name__}", flush=True)
+        await asyncio.sleep(60)
+
+
+# --- OAuth (installed-app loopback + PKCE) -----------------------------------
+
+async def begin_authorization(client_id: str, client_secret: str = "",
+                              timeout: float = 300.0, mail_account_id: str = "", *,
+                              include_receipt: bool = False, client_source: str = "user",
+                              login_hint: str = "") -> str | dict:
+    """Start the loopback listener and return the Google consent URL.
+
+    `client_source` "builtin" signs in with the shipped client (it is not
+    saved as the user's own); `login_hint` names the account a Reconnect is
+    for."""
+    global _pending_flow, _flow_generation
+    _withdraw_history_configuration()
+    _flow_generation += 1
+    generation = _flow_generation
+    _authorization.update(state="authorizing", generation=generation, error="", email="",
+                          phase="", phase_email="", analyze="")
+    if _pending_flow:
+        _pending_flow["server"].close()
+        _pending_flow = None
+    verifier = secrets.token_urlsafe(64)
+    challenge = base64.urlsafe_b64encode(
+        hashlib.sha256(verifier.encode()).digest()).rstrip(b"=").decode()
+    state = secrets.token_urlsafe(24)
+    done = asyncio.Event()
+
+    async def handle(reader, writer):
+        global _pending_flow, _flow_generation
+        message = "Harbor could not connect Gmail."
+        try:
+            line = (await asyncio.wait_for(reader.readline(), 10)).decode("latin-1")
+            query = parse_qs(urlparse(line.split(" ")[1]).query) if " " in line else {}
+            if query.get("state", [""])[0] != state or generation != _flow_generation:
+                return writer.close()  # Unrelated/stale callbacks cannot consume the active flow.
+            if query.get("code"):
+                email = await _finish(client_id, client_secret, query["code"][0], verifier, redirect,
+                                      generation=generation, mail_account_id=mail_account_id,
+                                      client_source=client_source)
+                if generation != _flow_generation:
+                    return writer.close()
+                _authorization.update(state="connected", email=email, error="")
+                _flow_generation += 1
+                message = "Google connected. You can close this tab and return to Harbor."
+            elif query:
+                if query.get("error", [""])[0] == "access_denied":
+                    message = CANCELLED_OR_NOT_TESTER if client_source == "builtin" else CANCELLED
+                else:
+                    message = "Google sign-in was declined or cancelled. Your existing accounts were kept."
+                _authorization.update(state="failed", error=message)
+                _flow_generation += 1
+            else:
+                return writer.close()
+        except Exception as exc:  # noqa: BLE001
+            message = f"Harbor could not connect Gmail: {str(exc)[:120]}"
+            if generation == _flow_generation:
+                _authorization.update(state="failed", error=message)
+                _flow_generation += 1
+        body = f"<html><body style='font-family:system-ui;padding:3em'>{html.escape(message)}</body></html>".encode()
+        writer.write(b"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: close\r\n"
+                     b"Content-Length: " + str(len(body)).encode() + b"\r\n\r\n" + body)
+        await writer.drain()
+        writer.close()
+        done.set()
+
+    try:
+        server = await asyncio.start_server(handle, "127.0.0.1", 0)
+    except Exception as exc:
+        if generation == _flow_generation:
+            _authorization.update(state="failed", error="Couldn’t start Google sign-in. Try again.")
+            _flow_generation += 1
+        raise GmailError("Couldn’t start Google sign-in. Try again.") from exc
+    if generation != _flow_generation:
+        server.close()
+        raise GmailError("This sign-in attempt was replaced by another attempt. Try again.")
+    port = server.sockets[0].getsockname()[1]
+    redirect = f"http://127.0.0.1:{port}"
+    _pending_flow = {"server": server}
+
+    async def expire() -> None:
+        global _pending_flow, _flow_generation
+        try:
+            await asyncio.wait_for(done.wait(), timeout)
+        except asyncio.TimeoutError:
+            if generation == _flow_generation:
+                # Google may block a non-tester before redirecting back at all.
+                _authorization.update(state="failed", error=(
+                    "Google sign-in timed out. If Google blocked access, this Google account "
+                    "may not be on Harbor's tester list yet." if client_source == "builtin"
+                    else "Google sign-in timed out. Try again."))
+                _flow_generation += 1
+        server.close()
+        if _pending_flow and _pending_flow["server"] is server:
+            _pending_flow = None
+
+    asyncio.create_task(expire())
+    query = {
+        "client_id": client_id, "redirect_uri": redirect, "response_type": "code",
+        "scope": " ".join(_consent_scopes()),
+        "code_challenge": challenge, "code_challenge_method": "S256",
+        "state": state, "access_type": "offline", "prompt": "consent"}
+    if login_hint:
+        query["login_hint"] = login_hint      # Reconnect: the account this sign-in is for
+    url = AUTH_URL + "?" + urlencode(query)
+    return {"auth_url": url, "generation": generation} if include_receipt else url
+
+
+async def _finish(client_id, client_secret, code, verifier, redirect, *,
+                  generation: int, mail_account_id: str = "", client_source: str = "user") -> str | None:
+    if generation != _flow_generation:
+        return None
+    async with httpx.AsyncClient(timeout=30) as http:
+        response = await http.post(TOKEN_URL, data={
+            "client_id": client_id, "client_secret": client_secret, "code": code,
+            "code_verifier": verifier, "redirect_uri": redirect,
+            "grant_type": "authorization_code"})
+        if generation != _flow_generation:
+            return None
+        body = response.json()
+        if response.status_code != 200 or not body.get("refresh_token"):
+            why = body.get("error_description") or body.get("error") or response.status_code
+            hint = (" — paste your OAuth client secret in Settings ▸ Google and try again"
+                    if "secret" in str(why).lower() or body.get("error") == "invalid_request"
+                    and not client_secret else "")
+            raise GmailError(f"token exchange failed: {why}{hint}")
+        granted = sorted(set(str(body.get("scope", "")).split()))
+        if SCOPE not in granted:
+            raise GmailError("Gmail read access wasn't granted — on Google's consent screen, "
+                             "tick the box to view your email messages, then try again")
+        profile = await http.get(f"{API}/profile",
+                                 headers={"Authorization": f"Bearer {body['access_token']}"})
+        data = profile.json() if profile.content else {}
+        email = data.get("emailAddress", "")
+    if profile.status_code != 200 or not email:
+        detail = (data.get("error") or {}) if isinstance(data.get("error"), dict) else {}
+        reason = detail.get("message") or f"HTTP {profile.status_code}"
+        raise GmailError(f"Google refused the Gmail profile request: {reason[:160]}")
+    if generation != _flow_generation:
+        return
+    email = email.strip().lower()
+    with revocation():
+        cfg = load_config()
+        accounts = connected_accounts(cfg)
+        if mail_account_id and any(item.get("mail_account_id") == mail_account_id and other != email
+                                   for other, item in accounts.items()):
+            raise GmailError("That Mail account is already linked to a different Google account")
+        if not mail_account_id:
+            # A sign-in again (the 7-day reconnect) keeps the Mail account the
+            # user chose for this Google account; inference never replaces it.
+            mail_account_id = str((accounts.get(email) or {}).get("mail_account_id") or "")
+        invalidate_behavior_history()
+        _epochs[email] = _epochs.get(email, 0) + 1
+        _access.pop(email, None)
+        _last.pop(email, None)
+        _sent.pop(email, None)
+        _raw.pop(email, None)
+        _forget_auth(email)
+        _errors.pop(email, None)       # e.g. the expired sign-in this replaces
+        # Every sign-in serves the Workspace tools too: its refresh token is
+        # copied for the Workspace server (sync_credentials below). An older
+        # account switched off is switched on again by its reconnect.
+        workspace = True
+        builtin = client_source == "builtin"
+        accounts[email] = {"client_id": client_id, "client_secret": client_secret,
+                           "refresh_token": body["refresh_token"], "mail_account_id": mail_account_id,
+                           "scopes": granted, "workspace": workspace,
+                           # This consent asked for the Workspace scopes; any
+                           # missing from `granted` were declined, not unasked.
+                           "workspace_requested": True,
+                           **({"client_source": "builtin"} if builtin else {})}
+        # The built-in client is never saved as the user's own: the top-level
+        # client stays whatever the user configured (possibly none).
+        _save_config({"client_id": cfg.get("client_id", "") if builtin else client_id,
+                      "client_secret": cfg.get("client_secret", "") if builtin else client_secret,
+                      "accounts": accounts})
+        try:
+            from service import google_workspace
+            google_workspace.sync_credentials(accounts, refresh=(email,))
+        except Exception as exc:  # noqa: BLE001 — Brief still works without the tools
+            print(f"[google_workspace] credential sync failed: {type(exc).__name__}", flush=True)
+        from service.tools import email_tools as E
+        E.configure_external_accounts(accounts)
+        E.external_email_error(email, "headers", "New sign-in is waiting for its first refresh")
+    if CALENDAR_SCOPE not in granted:
+        # A reconnect that unticked Calendar: the events read before must go.
+        try:
+            from service import google_calendar_source as C
+            C.erase_if_present(email)
+        except Exception as exc:  # noqa: BLE001
+            print(f"[google_calendar] scope-drop erase failed: {type(exc).__name__}", flush=True)
+    _authorization.update(phase="reading", phase_email=email, analyze="")
+    _spawn(_ensure_workspace(client_id, client_secret, email, client_source))
+    _spawn(_after_connect(email))
+    return email
+
+
+async def _ensure_workspace(client_id: str, client_secret: str, email: str,
+                            client_source: str = "user") -> str:
+    """Set the Workspace server up with this sign-in's client the first time
+    an account connects: there is no separate enable step. An existing setup
+    is left alone (it may be the user's own, with a chosen tool tier).
+    Returns enabled | existing | failed."""
+    try:
+        from service import google_workspace
+        if google_workspace.status().get("configured"):
+            return "existing"
+        result = await google_workspace.enable(client_id, client_secret, email,
+                                               client_source="builtin" if client_source == "builtin" else "user")
+    except Exception as exc:  # noqa: BLE001 — Brief still works; status shows the problem
+        print(f"[google_workspace] automatic setup failed: {type(exc).__name__}", flush=True)
+        return "failed"
+    if not result.get("ok"):
+        print("[google_workspace] automatic setup did not complete", flush=True)
+        return "failed"
+    return "enabled"
+
+
+def reconnect_client(account: str) -> tuple[str, str, str] | None:
+    """(client_id, client_secret, source) to sign a connected account in
+    again with, or None when it isn't connected. A built-in sign-in uses the
+    client this build ships."""
+    item = connected_accounts().get(account.strip().lower())
+    if item is None:
+        return None
+    if item.get("client_source") == "builtin":
+        shipped_id, shipped_secret = builtin_client()
+        if shipped_id:
+            return shipped_id, shipped_secret, "builtin"
+        return resolve_client()
+    return item.get("client_id", ""), item.get("client_secret", ""), "user"
+
+
+def _consent_scopes() -> tuple[str, ...]:
+    """Every sign-in asks for Gmail (required) and Calendar plus the
+    read-only Workspace scopes, in one consent. Writes (sending, editing
+    files) stay with the Workspace server's own on-demand sign-in, and each
+    of those tools still asks before it runs (service.mcp._category_for)."""
+    from service import google_workspace
+    return CONSENT_SCOPES + google_workspace.WORKSPACE_SCOPES
+
+
+def _workspace_consent() -> list[str]:
+    """Accounts with Workspace tools switched on whose sign-in still lacks the
+    Workspace scopes: a sign-in from before every consent asked for them.
+    Their row says "Reconnect to finish setup"."""
+    try:
+        from service import google_workspace
+        return sorted(email for email, item in connected_accounts().items()
+                      if item.get("workspace") and not google_workspace.has_full_scopes(email, item))
+    except Exception:  # noqa: BLE001 — unknown: the narrow consent
+        return []
+
+
+def set_workspace(account: str, enabled: bool) -> dict:
+    """Switch one connected account's Workspace tools on or off. On, for an
+    account whose sign-in lacks the Workspace scopes, the answer says to
+    reconnect: Google grants them only at the next sign-in."""
+    from service import google_workspace
+    account = account.strip().lower()
+    with revocation():
+        cfg = load_config()
+        accounts = connected_accounts(cfg)
+        if account not in accounts:
+            return {"ok": False, "error": "That Google account isn't connected"}
+        accounts[account] = {**accounts[account], "workspace": bool(enabled)}
+        _save_config({"client_id": cfg.get("client_id", ""),
+                      "client_secret": cfg.get("client_secret", ""), "accounts": accounts})
+    google_workspace.sync_credentials(accounts)
+    if enabled and not google_workspace.has_full_scopes(account, accounts[account]):
+        return {"ok": True, "reconnect": True,
+                "message": "Reconnect this account to grant read-only Drive, Docs, Sheets, Slides, "
+                           "Chat, Tasks and Contacts access."}
+    return {"ok": True}
+
+
+def _spawn(coro) -> asyncio.Task:
+    task = asyncio.ensure_future(coro)
+    _background.add(task)
+    task.add_done_callback(_background.discard)
+    return task
+
+
+def _set_phase(email: str, phase: str, **extra) -> None:
+    """Progress for the sign-in the UI is watching; a newer sign-in or a
+    disconnect clears phase_email, so a late step never overwrites it."""
+    if _authorization.get("phase_email") == email:
+        _authorization.update(phase=phase, **extra)
+
+
+async def _after_connect(email: str) -> None:
+    """First refresh of a new sign-in, then one proactive analyze for it.
+
+    Phases (status()["authorization"]["phase"]): reading -> analyzing -> ready.
+    Each step is bounded and independent: a slow body fetch or a Calendar API
+    that isn't enabled never keeps the account's headers or to-dos from coming.
+    """
+    from service import google_calendar_source as C
+    for part, limit in (("headers", 30.0), ("raw", 45.0)):
+        try:
+            await asyncio.wait_for(_sync_account(email, (part,)), limit)
+        except asyncio.TimeoutError:
+            pass
+        if email not in connected_accounts():
+            return
+    if has_calendar(email):
+        try:
+            await asyncio.wait_for(C.refresh_account(email), 30.0)
+        except asyncio.TimeoutError:
+            C.record_error(email, "Google Calendar timed out; it will retry in a few minutes")
+        except Exception as exc:  # noqa: BLE001
+            print(f"[google_calendar] first refresh failed: {type(exc).__name__}", flush=True)
+    if email not in connected_accounts():
+        return
+    _set_phase(email, "analyzing")
+    # A fresh start: whatever an earlier sign-in of this account left in the
+    # Brief goes first, then every account is judged again from scratch.
+    try:
+        from service.proactive.store import erase_account as reset_brief
+        reset_brief(email)
+    except Exception as exc:  # noqa: BLE001 — a stale card is better than no analyze
+        print(f"[gmail] proactive reset failed: {type(exc).__name__}", flush=True)
+    outcome = request_proactive_analyze(email)
+    _set_phase(email, "ready", analyze=outcome)
+
+
+def request_proactive_analyze(account: str) -> str:
+    """Ask the proactive engine to build this account's cards and to-dos now.
+
+    Calls `service.proactive.cycle.request_analyze(account=account)` (W1's
+    engine; the same work as POST /assistant/proactive/analyze {account}). It is
+    imported lazily so this module works without the engine. A coroutine
+    result is scheduled, never awaited here: progress is the engine's own
+    `workspace.proactive.progress`. Returns requested | unavailable | failed.
+    """
+    try:
+        from service.proactive.cycle import request_analyze
+    except Exception as exc:  # noqa: BLE001 — engine absent in this build
+        print(f"[gmail] proactive engine unavailable ({type(exc).__name__}); "
+              "no analyze for the new account", flush=True)
+        return "unavailable"
+    try:
+        result = request_analyze(account=account)
+        if inspect.isawaitable(result):
+            _spawn(result)
+        return "requested"
+    except Exception as exc:  # noqa: BLE001
+        print(f"[gmail] proactive analyze request failed: {type(exc).__name__}", flush=True)
+        return "failed"
+
+
+async def disconnect(account: str = "") -> dict:
+    """Disconnect & erase. Invalidate before awaiting revocation; a late fetch
+    cannot restore access. Every removed account's derived data is erased
+    (`erase_account_data`) before its token is revoked with Google."""
+    global _pending_flow, _flow_generation
+    with revocation():
+        invalidate_behavior_history("disconnected")
+        _withdraw_history_configuration()
+        from service.tools import email_tools as E
+        _flow_generation += 1
+        _authorization.update(state="cancelled", generation=_flow_generation, error="Sign-in cancelled by disconnect",
+                              email="", phase="", phase_email="", analyze="")
+        if _pending_flow:
+            _pending_flow["server"].close()
+            _pending_flow = None
+        cfg = load_config()
+        accounts = connected_accounts(cfg)
+        removed = {email: item for email, item in accounts.items() if not account or email == account.lower()}
+        for email in removed:
+            accounts.pop(email)
+            _epochs[email] = _epochs.get(email, 0) + 1
+            _access.pop(email, None)
+            _last.pop(email, None)
+            _sent.pop(email, None)
+            _raw.pop(email, None)
+            _errors.pop(email, None)
+            for key in list(_meta):
+                if key[0] == email:
+                    _meta.pop(key, None)
+            _forget_auth(email)
+        if accounts or cfg.get("client_id"):
+            # The user's own OAuth client stays after the last account goes, so
+            # "Connect Google" in the notch still works after an erase. It holds
+            # no account data and no token.
+            _save_config({"client_id": cfg.get("client_id", ""), "client_secret": cfg.get("client_secret", ""),
+                          "accounts": accounts})
+        else:
+            with _history_config_lock:
+                CONFIG_PATH.unlink(missing_ok=True)
+                _observe_history_config({})
+        E.configure_external_accounts(accounts)
+    erased = {email: erase_account_data(email, attachment_text=False) for email in removed}
+    for email, parts in erased.items():     # the store may wait up to 30 s for a lock: off the event loop
+        parts["attachment_text"] = await asyncio.to_thread(_erase_attachment_text, email)
+    # Revocation is best effort: the local disconnect already succeeded. Each
+    # account says whether Google confirmed it ("revoked"), refused the token
+    # ("rejected", e.g. already revoked) or could not be reached ("offline").
+    revoked: dict[str, str] = {}
+    for email, item in removed.items():
+        try:
+            async with httpx.AsyncClient(timeout=5) as http:
+                answer = await http.post("https://oauth2.googleapis.com/revoke",
+                                         data={"token": item["refresh_token"]})
+            revoked[email] = "revoked" if answer.status_code == 200 else "rejected"
+        except Exception:
+            revoked[email] = "offline"
+    complete = all(value == "erased" or value.startswith("erased ")
+                   for parts in erased.values() for value in parts.values())
+    return {"removed": sorted(removed), "erased": erased, "complete": complete, "revoked": revoked}
+
+
+def _erase_attachment_text(account: str) -> str:
+    """Erase the text read from one account's attachments (service/attachment_store.py).
+    Blocking (a lock wait of up to 30 s). The answer comes from one call, not the shared flag."""
+    try:
+        from service import attachment_store
+        ok, erased = attachment_store.forget_account_result(account)
+        return f"erased {erased}" if ok else "failed: not erased"
+    except Exception as exc:  # noqa: BLE001
+        return f"failed: {type(exc).__name__}"
+
+
+def erase_account_data(account: str, *, attachment_text: bool = True) -> dict:
+    """Delete everything Harbor derived from one Google account. Synchronous and
+    local; each part is attempted even if another fails, and the result says
+    which succeeded, so "Disconnect & erase" can be verified.
+
+    - mail: the account's provider headers/history/bodies leave every composed
+      email cache (in memory and ~/.moe/cache) once it is out of the configured
+      accounts; this re-asserts that and re-persists.
+    - calendar: its Google Calendar rows (google_calendar_source.erase).
+    - mail_overviews: the mail gist and inbox summary (mail_gists), which were
+      written from the combined inbox and may describe this account's mail.
+    - proactive: `service.proactive.store.erase_account(account)` (W1's
+      engine), lazily imported; "unavailable" when the engine is absent.
+    - attachment_text: text read from its attachments (skipped when `attachment_text=False`).
+    - waiting_notices: what is held for quiet hours to end and may come from it
+      (AssistantStore.erase_held_for_account).
+    """
+    account = account.strip().lower()
+    result: dict[str, str] = {}
+    from service.tools import email_tools as E
+    try:
+        remaining = {email: item for email, item in connected_accounts().items() if email != account}
+        E.configure_external_accounts(remaining)
+        E._persist_composed_sources()
+        result["mail"] = "erased"
+    except Exception as exc:  # noqa: BLE001
+        result["mail"] = f"failed: {type(exc).__name__}"
+    for key in list(_meta):
+        if key[0] == account:
+            _meta.pop(key, None)
+    _sent.pop(account, None)
+    _raw.pop(account, None)
+    _forget_auth(account)
+    try:
+        from service import google_workspace
+        google_workspace.credentials_path(account).unlink(missing_ok=True)
+        result["workspace"] = "erased"
+    except Exception as exc:  # noqa: BLE001
+        result["workspace"] = f"failed: {type(exc).__name__}"
+    try:
+        from service import google_calendar_source as C
+        result["calendar"] = f"erased {C.erase(account)}"
+    except Exception as exc:  # noqa: BLE001
+        result["calendar"] = f"failed: {type(exc).__name__}"
+    try:
+        from service.assistant import mail_gists
+        mail_gists.invalidate(("summary", "inbox"))
+        result["mail_overviews"] = "erased"
+    except Exception as exc:  # noqa: BLE001
+        result["mail_overviews"] = f"failed: {type(exc).__name__}"
+    try:
+        from service.proactive.store import erase_account
+    except Exception:  # noqa: BLE001 — engine absent in this build
+        result["proactive"] = "unavailable"
+    else:
+        try:
+            erase_account(account)
+            result["proactive"] = "erased"
+        except Exception as exc:  # noqa: BLE001
+            result["proactive"] = f"failed: {type(exc).__name__}"
+    if attachment_text:     # `disconnect` passes False and erases it off the event loop
+        result["attachment_text"] = _erase_attachment_text(account)
+    try:
+        from service.google_calendar_source import _store
+        _store().erase_held_for_account(account)
+        result["waiting_notices"] = "erased"
+    except Exception as exc:  # noqa: BLE001
+        result["waiting_notices"] = f"failed: {type(exc).__name__}"
+    try:
+        # The saved Daily Summary was composed from the combined inbox (both
+        # days, no per-account attribution), so it is withdrawn like the rest.
+        from service.assistant import brief_latest
+        brief_latest.clear()
+        result["daily_summary"] = "erased"
+    except Exception as exc:  # noqa: BLE001
+        result["daily_summary"] = f"failed: {type(exc).__name__}"
+    print(f"[gmail] erased Google account data: {result}", flush=True)
+    return result
+
+
+# --- Explicit public history binding (disabled unless trusted callers bind it) --
+
+
+def _history_guard():
+    from service.gmail_behavior_history import history_source_guard
+    return history_source_guard()
+
+
+_HISTORY_ISSUER = object()
+_history_records = {}
+_history_account_ids = {}
+_history_config_digest = None
+_history_registry_gate = None
+_history_recovery_gates = weakref.WeakSet()
+_history_http_clients = weakref.WeakSet()
+_history_configuration_authority = Authority("gmail-configured-accounts")
+
+
+@dataclass(frozen=True)
+class HistoryAccountStatus:
+    account: object  # Immutable gmail_behavior_history.AccountIdentity.
+    client_revision: str
+    credentials_revision: str
+    configured: bool = True
+    display_label: str = ""  # UI only; never an identity or permission input.
+
+    def to_metadata(self):
+        return {"schema": 1, "kind": "gmail_history_account", "value": asdict(self)}
+
+
+@dataclass(frozen=True, eq=False)
+class HistoryAccountLease:
+    """A live source object, never a deserializable account permission DTO."""
+    status: HistoryAccountStatus
+    _issuer: object = field(repr=False)
+
+    @property
+    def account(self):
+        return self.status.account
+
+    def to_metadata(self):
+        return self.status.to_metadata()
+
+    def __reduce_ex__(self, protocol):
+        raise TypeError("History source leases cannot be restored")
+
+
+@dataclass(frozen=True)
+class _HistoryConfigured:
+    lease: HistoryAccountLease
+    address: str = field(repr=False)
+    client_id: str = field(repr=False)
+    client_secret: str = field(repr=False)
+    refresh_token: str = field(repr=False)
+
+
+@mutating
+def _withdraw_history_configuration():
+    """Memory withdrawal before config I/O or connection-changing awaits."""
+    global _history_config_digest, _history_registry_gate
+    with _history_guard():
+        _history_configuration_authority.withdraw()
+        _history_config_digest = None
+        _history_registry_gate = None
+        _history_records.clear()
+        invalidate_behavior_history()
+
+
+def _history_recovery_blocked():
+    """Cached latch only: metadata/admission must not import or check disk."""
+    module = sys.modules.get("service.config.quarantine")
+    gate = module.current_gate() if module is not None else None
+    return module is not None and (gate is None or gate.blocked)
+
+
+def _history_cached_gate():
+    module = sys.modules.get("service.config.quarantine")
+    return module.current_gate() if module is not None else None
+
+
+@mutating
+def _observe_history_config(cfg):
+    """Only explicit source config observations call this; never a getter."""
+    global _history_config_digest, _history_registry_gate
+    if _history_recovery_blocked():
+        _withdraw_history_configuration()
+        return
+    from service.gmail_behavior_history import AccountIdentity
+    try:
+        accounts = connected_accounts(cfg)
+        canonical = {}
+        raw = cfg.get("accounts") if isinstance(cfg, dict) else None
+        if isinstance(raw, dict) and len({str(k).strip().lower() for k in raw}) != len(raw):
+            accounts = {}
+        for address, item in accounts.items():
+            address = address.strip().lower()
+            if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", address):
+                raise ValueError()
+            values = tuple(item.get(k, "") for k in ("client_id", "client_secret", "refresh_token"))
+            if not all(isinstance(v, str) for v in values) or not values[0] or not values[2]:
+                raise ValueError()
+            canonical[address] = (*values, str(item.get("mail_account_id", "")))
+        digest = hashlib.sha256(json.dumps(canonical, sort_keys=True).encode()).digest()
+    except Exception:
+        canonical = {}
+        digest = b"invalid"
+    with _history_guard():
+        gate = _history_cached_gate()
+        if _history_recovery_blocked():
+            _withdraw_history_configuration()
+            return
+        if digest == _history_config_digest and gate is _history_registry_gate:
+            return
+        _history_configuration_authority.withdraw()
+        invalidate_behavior_history()
+        _history_records.clear()
+        set_revision = secrets.token_hex(16)
+        for address in list(_history_account_ids):
+            if address not in canonical:
+                _history_account_ids.pop(address)
+        for address, (client, secret, refresh, _) in canonical.items():
+            opaque_id = _history_account_ids.setdefault(address, secrets.token_hex(16))
+            account = AccountIdentity("gmail", opaque_id, secrets.token_hex(16), set_revision)
+            status = HistoryAccountStatus(account, secrets.token_hex(16), secrets.token_hex(16),
+                                          display_label=address)
+            lease = HistoryAccountLease(status, _HISTORY_ISSUER)
+            _history_records[opaque_id] = _HistoryConfigured(lease, address, client, secret, refresh)
+        _history_config_digest = digest
+        _history_registry_gate = gate
+        _history_configuration_authority.publish()
+
+
+@mutating
+def refresh_history_configuration():
+    """Explicit trusted bootstrap read. Status/admission getters never call it."""
+    _register_history_recovery()
+    with _history_config_lock:
+        _observe_history_config(load_config())
+    return history_account_status()
+
+
+def history_account_status():
+    """Pure cached configured metadata; no account/token/permission inference."""
+    with _history_guard():
+        if (_history_recovery_blocked() or
+                (_history_records and _history_registry_gate is not _history_cached_gate())):
+            _withdraw_history_configuration()
+        return tuple(row.lease.status for row in _history_records.values())
+
+
+def history_account_lease(account_id):
+    with _history_guard():
+        if _history_recovery_blocked() or _history_registry_gate is not _history_cached_gate():
+            _withdraw_history_configuration()
+            return None
+        row = _history_records.get(account_id) if isinstance(account_id, str) else None
+        return row.lease if row else None
+
+
+def _history_lease_current(lease):
+    if _history_recovery_blocked() or _history_registry_gate is not _history_cached_gate():
+        return False
+    if not isinstance(lease, HistoryAccountLease) or lease._issuer is not _HISTORY_ISSUER:
+        return False
+    row = _history_records.get(lease.account.account_id)
+    return row is not None and row.lease is lease
+
+
+@dataclass(frozen=True)
+class HistoryPermissionState:
+    """Only a trusted zero-I/O application probe supplies these server facts.
+
+    Public request/body/checkpoint DTOs must never be installed as this probe.
+    P2 must revoke/refresh before its settings/Forget/session/role mutations or
+    awaits. A probe reads a single immutable in-memory snapshot, without locks.
+    """
+    account_ids: tuple[str, ...]
+    scope_digests: tuple[str, ...]
+    session_id: str
+    session_epoch: int
+    role: str
+    role_epoch: int
+    consent_epoch: int
+    global_learning: bool
+    email_consent: bool
+    history_start: bool
+    account_scopes: tuple[tuple[str, str], ...] = ()
+
+    def allows(self, lease, scope):
+        return (type(self.account_ids) is tuple and type(self.scope_digests) is tuple
+                and lease.account.account_id in self.account_ids and scope.digest in self.scope_digests
+                and type(self.account_scopes) is tuple
+                and ((not self.account_scopes and len(self.scope_digests) == 1)
+                     or (all(type(pair) is tuple and len(pair) == 2 for pair in self.account_scopes)
+                         and (lease.account.account_id, scope.digest) in self.account_scopes))
+                and isinstance(self.session_id, str) and 0 < len(self.session_id) <= 256
+                and all(ord(c) >= 32 for c in self.session_id)
+                and self.role == "gmail_history"
+                and all(type(v) is int and v >= 0 for v in
+                        (self.session_epoch, self.role_epoch, self.consent_epoch))
+                and self.global_learning is True and self.email_consent is True and self.history_start is True)
+
+
+@dataclass(frozen=True, eq=False)
+class HistoryGrant:
+    """Source-issued application+account lease, not request authority."""
+    account_lease: HistoryAccountLease
+    scope: object
+    permission: HistoryPermissionState
+    _application: object = field(repr=False)
+    _issuer: object = field(repr=False)
+
+    def to_metadata(self):
+        return {"schema": 1, "kind": "gmail_history_grant_metadata",
+                "account": self.account_lease.to_metadata(), "scope_digest": self.scope.digest,
+                "session_epoch": self.permission.session_epoch, "role_epoch": self.permission.role_epoch,
+                "consent_epoch": self.permission.consent_epoch}
+
+    def __reduce_ex__(self, protocol):
+        raise TypeError("History grants cannot be restored")
+
+
+class HistoryApplicationAuthority:
+    def __init__(self, *, probe, _issuer=None):
+        if _issuer is not _HISTORY_ISSUER or not callable(probe):
+            raise ValueError("Trusted application bootstrap probe required")
+        self._probe = probe
+        self._state = None
+        self._revoked = False
+        self._grants = weakref.WeakSet()
+        self._bridges = weakref.WeakSet()
+        self._publication = Authority("gmail-history-application", owner=self)
+
+    def __reduce_ex__(self, protocol):
+        raise TypeError("History application authority cannot be restored")
+
+    def refresh(self):
+        """Publish current trusted memory facts; withdraw before caller awaits."""
+        with _history_guard():
+            if self._revoked:
+                return None
+            try:
+                state = self._probe()
+                if not isinstance(state, HistoryPermissionState):
+                    state = None
+            except Exception:
+                state = None
+            if state != self._state:
+                self._publication.withdraw()
+                self._grants.clear()
+                for bridge in list(self._bridges):
+                    bridge.invalidate("revoked")
+                self._state = state
+                if state is not None:
+                    self._publication.publish()
+            return state
+
+    def revoke(self):
+        """Terminal installation withdrawal; reinstall via trusted bootstrap."""
+        with _history_guard():
+            self._publication.withdraw()
+            self._revoked = True
+            self._state = None
+            self._grants.clear()
+            for bridge in list(self._bridges):
+                bridge.invalidate("revoked")
+
+    def issue(self, account_lease, scope):
+        from service.gmail_behavior_history import HistoryScope
+        with _history_guard():
+            state = self.refresh()
+            if (state is None or not _history_lease_current(account_lease)
+                    or not isinstance(scope, HistoryScope) or not state.allows(account_lease, scope)):
+                raise PermissionError("Current configured account and application history permission required")
+            grant = HistoryGrant(account_lease, scope, state, self, _HISTORY_ISSUER)
+            self._grants.add(grant)
+            return grant
+
+
+def install_history_application(*, probe):
+    """Trusted application-code bootstrap only, never route-supplied data."""
+    return HistoryApplicationAuthority(probe=probe, _issuer=_HISTORY_ISSUER)
+
+
+def _history_grant_current(grant):
+    if not isinstance(grant, HistoryGrant) or grant._issuer is not _HISTORY_ISSUER:
+        return False
+    app = grant._application
+    state = app.refresh()
+    return (grant in app._grants and state == grant.permission
+            and _history_lease_current(grant.account_lease) and state is not None
+            and state.allows(grant.account_lease, grant.scope))
+
+
+@mutating
+def _register_history_recovery():
+    from service.config import quarantine
+    gate = quarantine.current_gate()
+    with _history_guard():
+        if gate not in _history_recovery_gates:
+            gate.callbacks.append(_withdraw_history_configuration)
+            _history_recovery_gates.add(gate)
+    return gate
+
+
+class HistoryHTTPClient:
+    """Explicit source-owned fixed-policy client, no default construction.
+
+    synthetic() uses only MockTransport. network() is an explicit future runtime
+    factory, never invoked automatically. Both disable proxy environment,
+    redirects and retries. Behavior never supplies token or OAuth helpers.
+    """
+    def __init__(self, *, transport, _issuer=None):
+        if _issuer is not _HISTORY_ISSUER:
+            raise ValueError("Use the explicit source HTTP factories")
+        self._client = httpx.AsyncClient(transport=transport, follow_redirects=False,
+                                        trust_env=False, timeout=10)
+        self._gate = _register_history_recovery()
+        with _history_guard():
+            _history_http_clients.add(self)
+
+    @classmethod
+    def synthetic(cls, handler):
+        if not callable(handler):
+            raise ValueError("Synthetic HTTP handler required")
+        return cls(transport=httpx.MockTransport(handler), _issuer=_HISTORY_ISSUER)
+
+    @classmethod
+    def network(cls):
+        return cls(transport=httpx.AsyncHTTPTransport(retries=0), _issuer=_HISTORY_ISSUER)
+
+    async def aclose(self):
+        await self._client.aclose()
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *args):
+        await self.aclose()
+
+    async def _request(self, check, method, url, **kwargs):
+        from service.config import quarantine
+        # Recovery I/O is explicit transport work OUTSIDE the history guard.
+        # No source/admission/getter callback checks disk or acquires its lock.
+        if quarantine.current_gate() is not self._gate:
+            _withdraw_history_configuration()
+            raise GmailError("History credential authority changed")
+        refresh_history_configuration()
+        self._gate.check()
+        check()
+        response = await self._client.request(method, url, **{**kwargs, "follow_redirects": False})
+        refresh_history_configuration()
+        self._gate.check()
+        check()
+        return response
+
+
+class _BoundHistoryHTTP:
+    def __init__(self, bridge, grant, http):
+        self.bridge, self.grant, self.http = bridge, grant, http
+
+    async def request(self, method, url, **kwargs):
+        response = await self.http._request(lambda: self.bridge._require_grant(self.grant), method, url, **kwargs)
+        if response.status_code in (401, 403):
+            _withdraw_history_configuration()
+            self.bridge._binding_error = "Configured Gmail authorization could not be verified"
+        return response
+
+
+class PublicContinuation:
+    """Opaque, volatile traversal handoff. Metadata never restores this object."""
+    __slots__ = ("__weakref__",)
+
+    def __init__(self, *, _issuer=None):
+        if _issuer is not _HISTORY_ISSUER:
+            raise TypeError("History continuation must be issued by its live source")
+
+    def __copy__(self):
+        raise TypeError("History continuation cannot be copied")
+
+    def __deepcopy__(self, memo):
+        raise TypeError("History continuation cannot be copied")
+
+    def __reduce_ex__(self, protocol):
+        raise TypeError("History continuation cannot be restored")
+
+
+class PublicHistoryBridge:
+    """Prepared production binding; no production caller or default activation.
+
+    All currentness/cache operations use the SAME core guard. Application probes
+    read immutable memory without taking any other lock. Explicit config I/O uses
+    application barrier -> config mutex -> history guard for withdrawal/publication,
+    never the reverse. No application lease spans a provider await.
+    """
+    def __init__(self, *, application, limits, clock=time.time, monotonic=time.monotonic):
+        from service.gmail_behavior_history import HistoryProvider
+        if not isinstance(application, HistoryApplicationAuthority):
+            raise ValueError("Source-installed application authority required")
+        self._application = application
+        self._clock = clock
+        self._grant = None
+        self._token = None
+        self._binding_error = ""
+        self._continuation = None
+        self._start_identity = None
+        self._provider = HistoryProvider(admission=self._admission, limits=limits, clock=clock, monotonic=monotonic)
+        with _history_guard():
+            application._bridges.add(self)
+            _behavior_history_sources.add(self)
+
+    def _current(self, grant):
+        current = _history_grant_current(grant)
+        return self._grant is grant and current
+
+    def _require_grant(self, grant):
+        from service.gmail_behavior_history import _Withdrawn
+        with _history_guard():
+            if not self._current(grant):
+                if self._grant is grant:
+                    self.invalidate("revoked")
+                raise _Withdrawn()
+
+    def _admission(self):
+        from service.gmail_behavior_history import Admission
+        grant = self._grant
+        if grant is None or not self._current(grant):
+            return None
+        state = grant.permission
+        return Admission(grant.account_lease.account, state.consent_epoch, state.session_epoch,
+                         True, True, True, grant.scope.digest)
+
+    def start(self, grant):
+        with _history_guard():
+            if (not isinstance(grant, HistoryGrant) or grant._application is not self._application
+                    or not _history_grant_current(grant)):
+                raise PermissionError("Live source-issued account/application history grant required")
+            self.invalidate()
+            # invalidate may discard a grant reused by this same bridge.
+            if grant not in self._application._grants:
+                raise PermissionError("Withdrawn history grant cannot restart")
+            self._grant = grant
+            self._binding_error = ""
+            self._provider.control("start", scope=grant.scope)
+            self._start_identity = object()
+            return self.status()
+
+    def invalidate(self, reason="invalidated"):
+        with _history_guard():
+            self._provider.invalidate(reason)
+            if self._grant is not None:
+                self._application._grants.discard(self._grant)
+            self._grant = self._token = None
+            self._continuation = self._start_identity = None
+
+    def prepare_continuation(self):
+        """Issue one live handoff before expiry; no HTTP, disk I/O or await."""
+        with _history_guard():
+            self.status()
+            state = self._provider._continuation_status()
+            if not state["available"]:
+                if state["blocked_reason"]:
+                    self._continuation = None
+                    self._provider._stop_continuation("History continuation stopped; coverage is partial")
+                raise PermissionError("Current progressing history handoff window required")
+            if self._continuation is None:
+                self._continuation = (PublicContinuation(_issuer=_HISTORY_ISSUER),
+                                      self._provider._job, self._grant, self._start_identity)
+            return self._continuation[0]
+
+    def continue_scan(self, continuation, *, grant):
+        """Consume a source-issued traversal with a NEW current unused grant.
+
+        Same explicit Start, source lease, scope, application and immutable
+        permission are mandatory. Old cache/receipt/token are withdrawn. Only
+        a subsequent explicit, counted step can refresh/profile/fetch again.
+        """
+        with _history_guard():
+            self.status()
+            issued = self._continuation
+            old = self._grant
+            if (issued is None or continuation is not issued[0]
+                    or self._provider._job is not issued[1] or old is not issued[2]
+                    or self._start_identity is not issued[3]
+                    or not self._provider._continuation_status()["available"]
+                    or not self._current(old)
+                    or not isinstance(grant, HistoryGrant) or grant is old
+                    or grant._application is not self._application
+                    or grant.account_lease is not old.account_lease or grant.scope != old.scope
+                    or grant.permission != old.permission or not _history_grant_current(grant)
+                    or any(bridge._grant is grant for bridge in self._application._bridges)):
+                raise PermissionError("Live source continuation and fresh same-Start grant required")
+            # No I/O/await between final old/new validation and atomic transfer.
+            self._continuation = None
+            self._application._grants.discard(old)
+            self._grant, self._token = grant, None
+            try:
+                self._provider._continue_segment()
+                self._require_grant(grant)
+            except BaseException:
+                self.invalidate("revoked")
+                raise
+            return self.status()
+
+    def control(self, action):
+        actions = {"pause": "paused", "cancel": "cancelled", "revoke": "revoked", "forget": "forgotten"}
+        if action not in actions:
+            raise ValueError("Start requires a live source-issued grant")
+        self.invalidate(actions[action])
+        return self.status()
+
+    def status(self):
+        with _history_guard():
+            grant = self._grant
+            if grant is not None and not self._current(grant):
+                self.invalidate("revoked")
+            status = self._provider.status()
+            if self._grant is not None and status["state"] not in ("running", "exhausted", "capped", "partial"):
+                self.invalidate(status["state"])
+                status = self._provider.status()
+            return {**status, "binding": self._grant.to_metadata() if self._grant else None,
+                    "binding_error": self._binding_error,
+                    "continuation": self._provider._continuation_status()}
+
+    def snapshot(self, *, expected_receipt=None, required_refs=()):
+        with _history_guard():
+            self.status()
+            snapshot = self._provider.snapshot(expected_receipt=expected_receipt, required_refs=required_refs)
+            if snapshot is None:
+                return None
+            from service.config import quarantine
+            witness = Witness.combine(snapshot.cache_witness,
+                _history_configuration_authority.token(), self._application._publication.token(),
+                quarantine.publication_token(_history_registry_gate))
+            return replace(snapshot, publication_witness=witness)
+
+    def checkpoint(self):
+        with _history_guard():
+            # Traversal stays source-owned; this export is never resume authority.
+            return {"schema": 1, "status": self.status()}
+
+    async def _source_token(self, http):
+        from service import gmail_behavior_history as H
+        grant = self._grant
+        self._require_grant(grant)
+        cached = self._token
+        if cached and cached[0] is grant and self._clock() < cached[2] - 60:
+            return H.HistoryAccessToken(http.admission, cached[1])
+        with _history_guard():
+            self._require_grant(grant)
+            record = _history_records[grant.account_lease.account.account_id]
+        try:
+            response = await http.post(TOKEN_URL, data={"client_id": record.client_id,
+                "client_secret": record.client_secret, "refresh_token": record.refresh_token,
+                "grant_type": "refresh_token"})
+            self._require_grant(grant)
+            data = response.json()
+            if (response.status_code != 200 or not isinstance(data, dict)
+                    or not isinstance(data.get("access_token"), str) or not data["access_token"]
+                    or SCOPE not in str(data.get("scope", "")).split()
+                    or data.get("token_type", "").lower() != "bearer"):
+                raise GmailError("History read authorization unavailable")
+            expires = data.get("expires_in")
+            if (isinstance(expires, bool) or not isinstance(expires, (int, float))
+                    or not math.isfinite(expires) or not 60 < expires <= 86400):
+                raise GmailError("History token expiry unavailable")
+            profile = await http.get(API + "/profile", headers={"Authorization": f"Bearer {data['access_token']}"})
+            self._require_grant(grant)
+            owner = profile.json()
+            if (profile.status_code != 200 or not isinstance(owner, dict)
+                    or not isinstance(owner.get("emailAddress"), str)
+                    or owner["emailAddress"].strip().lower() != record.address):
+                raise GmailError("History token does not match configured account")
+            with _history_guard():
+                self._require_grant(grant)
+                self._token = (grant, data["access_token"], self._clock() + expires)
+            return H.HistoryAccessToken(http.admission, data["access_token"])
+        except (H._BudgetStop, H._Withdrawn):
+            raise
+        except Exception:
+            with _history_guard():
+                if self._grant is grant:
+                    self.invalidate("revoked")
+                    self._binding_error = "Configured Gmail authorization could not be verified"
+            raise GmailError("Configured Gmail authorization could not be verified") from None
+
+    async def step(self, *, http, budget):
+        from service.gmail_behavior_history import StepBudget
+        with _history_guard():
+            if type(http) is not HistoryHTTPClient or http not in _history_http_clients:
+                raise ValueError("Explicit source-owned history HTTP client required")
+            if not isinstance(budget, StepBudget):
+                raise ValueError("Explicit bounded history step budget required")
+            self.status()
+            grant = self._grant
+            if grant is None:
+                return self.status()
+        try:
+            await self._provider.step(http=_BoundHistoryHTTP(self, grant, http), token=self._source_token, budget=budget)
+        except asyncio.CancelledError:
+            with _history_guard():
+                if self._grant is grant:
+                    self.invalidate("cancelled")
+            raise
+        return self.status()
+
+
+def new_public_history_bridge(*, application, limits, clock=time.time, monotonic=time.monotonic):
+    return PublicHistoryBridge(application=application, limits=limits, clock=clock, monotonic=monotonic)

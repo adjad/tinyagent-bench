@@ -1,0 +1,1730 @@
+"""Outbound actions — the things Harbor DOES, as opposed to reads and reports.
+
+The tools that SPEAK IN THE USER'S NAME (send_email, reply_to_email,
+send_message) sit in the always-confirm categories (see policy.
+_ALWAYS_CONFIRM_OUTBOUND): they ask every single time, they can't be
+pre-approved with a standing grant, and full-access mode doesn't skip the
+prompt. That asymmetry is deliberate — full-access is about not being nagged
+while operating your own computer, and speaking in your name to other people
+isn't that.
+
+The DRAFT tools (draft_email, draft_message) deliberately do NOT carry that
+weight. A draft opens a compose window with the text filled in and sends
+nothing; the user's own click in Mail/Messages is the confirmation, which is a
+stronger gate than a card in Harbor. They exist because the natural flow — "write
+this, let me look, then send" — otherwise had to be modelled as a send, which
+is the one thing that can't be taken back.
+
+The TRIAGE tool (email_triage) acts only on the user's own
+mailbox and nothing leaves the machine. Archive is reversible (the message
+moves to Archive, it is not deleted), so neither is treated as outbound.
+
+Everything goes through the app bridge (service/assistant/outbox.py) because
+Mail and Messages Automation is granted to Harbor.app, not to this Python process.
+"""
+from __future__ import annotations
+
+import re
+import time
+from contextlib import contextmanager
+from contextvars import ContextVar
+from typing import Iterator
+
+from service.assistant.outbox import request as app_request
+from service.tools.registry import not_done, register
+from service.tools.timeranges import WHEN_ARG
+
+_MAX_RESPONSE_CHARS = 3000
+_EMAIL_RE = re.compile(r"^[^@\s,;]+@[^@\s,;]+\.[^@\s,;]+$")
+
+
+_OUTBOUND_PREVIEW_TOOLS = {
+    "send_message", "draft_message", "send_email", "draft_email", "reply_to_email",
+    "schedule_send", "forward_email",
+}
+# Not outbound text, but the card must still show what will run or change:
+# the command or script itself, and the file a write or move touches.
+_ACTION_PREVIEW_TOOLS = {"run_shell", "run_applescript", "write_file", "move_path",
+                         "open_app", "web_fetch", "http_request", "save_email_attachment"}
+# The same limit policy.CARD_TEXT_LIMIT holds commands to: a command or script
+# that needs a card and is longer than this is refused before any card, so
+# these never show a clipped command. File contents and notes are clipped.
+_PREVIEW_CHARS = 4000
+
+
+_ODD_SPACE = re.compile(r"[\u00a0\u1680\u2000-\u200b\u202f\u205f\u3000\ufeff]")
+
+
+def _tidy_preview(text: str) -> str:
+    """Collapse padding that could push the real line out of sight in the card's
+    220pt box: odd Unicode spaces, long runs of spaces or tabs (indentation is
+    kept up to 8), and runs of blank lines (kept to one)."""
+    text = str(text).replace("\r\n", "\n").replace("\r", "\n")
+    text = re.sub(r"[\u2028\u2029\x0b\x0c]", "\n", _ODD_SPACE.sub(" ", text))
+    lines = []
+    for line in text.split("\n"):
+        body = line.lstrip(" \t")
+        indent = min(len(line) - len(body), 8)
+        lines.append(" " * indent + re.sub(r"[ \t]{2,}", " ", body).rstrip())
+    return re.sub(r"\n{3,}", "\n\n", "\n".join(lines)).strip("\n")
+
+
+def _clip_preview(text: str) -> str:
+    text = _tidy_preview(text)
+    if len(text) <= _PREVIEW_CHARS:
+        return text
+    return text[:_PREVIEW_CHARS] + f"\n…[{len(text) - _PREVIEW_CHARS} more characters not shown]"
+
+
+def _path_kind(raw: object) -> str:
+    """"folder", "file", "missing" or "unknown" for a path on this Mac."""
+    from pathlib import Path
+    try:
+        p = Path(str(raw or "")).expanduser()
+        return "folder" if p.is_dir() else "file" if p.exists() else "missing"
+    except (OSError, ValueError):
+        return "unknown"
+
+
+def _script_files_preview(args: dict) -> str:
+    """The text of every script file the command runs (a card for `sh x.sh`
+    would otherwise show nothing of what x.sh does)."""
+    from service.safety.policy import executed_script_files, read_script_file
+    parts = []
+    for raw in executed_script_files(args):
+        text, problem = read_script_file(raw)
+        parts.append(f"\n\nRuns {raw}:\n" + (_clip_preview(text) if text is not None
+                                               else f"({problem})"))
+    return "".join(parts)
+
+
+_FORWARD_NOT_FOUND = ("(Harbor couldn't find this email in the mail it has read, "
+                      "so it can't show the subject or sender.)")
+
+
+def _one_line(text: object, limit: int) -> str:
+    """Sender-written text as one clipped card line."""
+    line = " ".join(_ODD_SPACE.sub(" ", str(text or "")).split())
+    return line if len(line) <= limit else line[:limit].rstrip() + "…"
+
+
+def _forwarded_email_lines(message_id: object) -> list[str]:
+    """Subject, sender and date of the email a forward card is about, looked up
+    by Message-ID in the mail Harbor has already read. [] when it isn't there, or
+    when one ID matches different emails: the card then says it couldn't tell,
+    and never names an email it isn't sure of. Reads caches only."""
+    try:
+        from datetime import datetime
+
+        from service.tools import email_tools
+        wanted = email_tools._norm_mid(str(message_id or ""))
+        if not wanted:
+            return []
+        for rows in (email_tools.header_rows, email_tools._parse_raw, email_tools._history_records):
+            hits = [row for row in rows()
+                    if email_tools._norm_mid(str(row.get("message_id") or "")) == wanted]
+            if not hits:
+                continue
+            row = hits[0]
+            if any((hit.get("subject"), hit.get("sender")) != (row.get("subject"), row.get("sender"))
+                   for hit in hits):
+                return []
+            sender = str(row.get("sender") or "").strip() or "Unknown sender"
+            address = str(row.get("sender_address") or "").strip()
+            if address and address not in sender:
+                sender = f"{sender} <{address}>"
+            when = datetime.fromtimestamp(row["ts"]).strftime("%a %b %-d, %Y %-I:%M %p")
+            return [f"Email: {_one_line(row.get('subject'), 160) or '(no subject)'}",
+                    f"From: {_one_line(sender, 120)}", f"Date: {when}"]
+    except Exception:  # noqa: BLE001 - a cache problem never breaks the card
+        return []
+    return []
+
+
+def _action_preview(tool: str, args: dict) -> str:
+    if tool == "run_shell":
+        return ("Command:\n" + _clip_preview(str(args.get("cmd") or "").strip() or "(empty)")
+                + _script_files_preview(args))
+    if tool == "run_applescript":
+        return ("AppleScript:\n" + _clip_preview(str(args.get("script") or "").strip() or "(empty)")
+                + _script_files_preview(args))
+    if tool == "open_app":
+        name = str(args.get("name") or "").strip() or "(no app given)"
+        target = str(args.get("target") or "").strip()
+        return f"Open: {name}" + (f"\nWith: {_clip_preview(target)}" if target else "")
+    if tool in ("web_fetch", "http_request"):
+        method = str(args.get("method") or "GET").upper() if tool == "http_request" else "GET"
+        return f"{method}: {_clip_preview(str(args.get('url') or '(no address given)'))}"
+    if tool == "save_email_attachment":
+        # The line the save engine made when it settled on this one file.
+        from service.tools.attachment_actions import card_for
+        return card_for(args) or "(this file was not set up; nothing will be saved)"
+    if tool == "write_file":
+        path = str(args.get("path") or "").strip() or "(no path given)"
+        state = {"file": "replaces the existing file", "missing": "creates a new file",
+                 "folder": "this is a folder", "unknown": "could not check"}[_path_kind(path)]
+        content = str(args.get("content") or "")
+        return (f"File: {path} ({state})\n\n"
+                + (_clip_preview(content) if content else "(empty file)"))
+    source = str(args.get("source") or "").strip() or "(no source given)"
+    destination = str(args.get("destination") or "").strip() or "(no destination given)"
+    labels = {"file": "a file", "folder": "a folder", "missing": "nothing there",
+              "unknown": "could not check"}
+    return (f"Move: {source} ({labels[_path_kind(source)]})\n"
+            f"To: {destination} ({labels[_path_kind(destination)]})")
+
+
+# Frozen retrieval documents from before the prompt-only latency change.
+# The older wording is search data, not instructions: preserving every byte
+# keeps semantic vectors, lexical rankings and BM25 corpus statistics stable.
+# Model schemas and UI documentation use the updated descriptions below.
+_OUTBOUND_RETRIEVAL_DESCRIPTIONS = {
+    'send_email': (
+        "Send an email from the user's Mail account. Use when the user asks to "
+        "email/reply to someone. ALWAYS show the user the recipient, subject, and "
+        "full body in your message BEFORE calling this — they approve the send on a "
+        "confirmation card that shows only a summary, so the draft itself has to "
+        "have been visible in the conversation first. `to` accepts either an email "
+        "address or a saved contact's NAME ('Mom', 'Dan') — a name is resolved from "
+        "Contacts automatically, and `lookup_contact` will show you the address "
+        "first if you want to confirm it. Never invent an address; if it can't be "
+        "resolved you'll be told, and you should ask the user rather than guess. "
+        "Write the body as the user would send it — no placeholders like "
+        "[Your Name], no meta-commentary. If `to` is the USER'S OWN address, this "
+        "is refused once by default (it usually means an attribution address got "
+        "used as a destination by mistake) — if the user's own words in this "
+        "conversation just confirmed they genuinely want to email themselves, "
+        "call this again with confirmed_self_send=true."
+    ),
+    'reply_to_email': (
+        "Reply to a specific email IN ITS ORIGINAL THREAD, keeping the subject and "
+        "conversation intact. Use this — not send_email — whenever the user says "
+        "'reply', 'respond', or 'answer' about mail they received. You need the "
+        "message's Message-ID, which view_emails prints for each email; call "
+        "view_emails first if you don't have it. Only `body` is yours to write: the "
+        "recipient and subject come from the original message, so don't restate "
+        "them. ALWAYS show the user the full reply text in your message BEFORE "
+        "calling this. Write it as the user would send it — no placeholders like "
+        "[Your Name], no meta-commentary. Set reply_all only if the user asked to "
+        "include everyone on the thread."
+    ),
+    'send_message': (
+        "Send an iMessage/SMS from the user's Messages app. Use when the user asks "
+        "to text/message someone. ALWAYS show the exact text you're about to send "
+        "in your message BEFORE calling this. `to` accepts a phone number, an "
+        "iMessage email address, or a saved contact's NAME ('Mom', 'Dan') — a name "
+        "is resolved from Contacts automatically. Do NOT use view_messages to hunt "
+        "for someone's number: it replaces numbers with contact names before you "
+        "see them, so it can never show you one. Use `lookup_contact` if you want "
+        "to confirm the number first. Keep it in the user's own voice: short, no "
+        "sign-off, no 'sent from my assistant'. If `to` is one of the USER'S OWN "
+        "email addresses (iMessage can use those as a handle), this is refused "
+        "once by default — if the user's own words just confirmed they genuinely "
+        "want to message themselves, call this again with confirmed_self_send=true."
+    ),
+}
+
+
+def confirm_preview(tool: str, args: dict) -> str | None:
+    """A human-readable rendering of what an outbound tool is about to send —
+    or None if `tool` isn't one of these.
+
+    MEASURED GAP (2026-08-18): the confirmation card's `reason` for every one
+    of these tools is a fixed generic string — "sends something on your
+    behalf — always confirmed" — with no recipient and no content. The
+    backend already includes the real `args` (to/text/subject/body) in the
+    confirm event, but the Swift client's `Pending` struct has no `args`
+    field and never reads it, so a user clicking "Allow once" has never
+    actually seen what they're approving.
+
+    Rather than changing the client, this reuses the `preview` field
+    `create_tool`'s confirmation already populates (service/agent/loop.py) —
+    a distinct, already-wired, already-rendered (scrollable, monospaced)
+    block in the card, just never populated for these tools. Same mechanism,
+    a second use site.
+    """
+    if tool in _ACTION_PREVIEW_TOOLS:
+        return _action_preview(tool, args)
+    if tool == "cancel_scheduled_send":
+        return _cancel_scheduled_preview(args)
+    if tool not in _OUTBOUND_PREVIEW_TOOLS:
+        return None
+    if tool == "forward_email":
+        to = ", ".join(_card_recipient(r, want_email=True) for r in _split_recipients(
+            str(args.get("to", "")))) or "(no recipient given)"
+        note = str(args.get("note", "")).strip()
+        # The ID alone tells the user nothing: say which email this is.
+        about = _forwarded_email_lines(args.get("message_id"))
+        return ("".join(f"{line}\n" for line in about)
+                + f"Forward message {args.get('message_id', '?')}\n"
+                + ("" if about else _FORWARD_NOT_FOUND + "\n") + f"To: {to}"
+                + (f"\n\nNote:\n{_clip_preview(note)}" if note else "\n\n(no note)"))
+    if tool in ("send_message", "draft_message"):
+        to = _card_recipient(str(args.get("to", "")),
+                             bound=_bound_handle(args) if tool == "send_message" else "",
+                             ) or "(no recipient given)"
+        text = str(args.get("text", "")).strip() or "(empty)"
+        return f"To: {to}\n\n{text}"
+    if tool in ("send_email", "draft_email"):
+        to = str(args.get("to", "")).strip() or "(no recipient given)"
+        cc = str(args.get("cc", "")).strip()
+        subject = str(args.get("subject", "")).strip() or "(no subject)"
+        body = str(args.get("body", "")).strip() or "(empty)"
+        header = f"To: {to}" + (f"\nCc: {cc}" if cc else "") + f"\nSubject: {subject}"
+        return f"{header}\n\n{body}"
+    if tool == "schedule_send":
+        from service.tools.timeranges import BadWhen, resolve_when
+
+        raw_channel = str(args.get("channel", "")).strip()
+        channel = raw_channel.lower()
+        channel_label = {
+            "email": "Email",
+            "message": "Message",
+        }.get(channel, raw_channel or "(no channel given)")
+        to = str(args.get("to", "")).strip()
+        # One recipient only; the tool refuses a list, so a list is shown as given.
+        if len(parts := _split_recipients(to)) == 1:
+            to = _card_recipient(parts[0], want_email=channel == "email")
+        to = to or "(no recipient given)"
+        raw_when = str(args.get("when", "")).strip()
+        when = "(no delivery time given)"
+        if raw_when:
+            try:
+                when_dt, _ = resolve_when(raw_when)
+            except BadWhen:
+                # The tool itself will return the actionable validation error.
+                # Keeping the unrecognized value visible here is more useful
+                # than replacing it with a second, different explanation.
+                when = raw_when
+            else:
+                display_when = when_dt if when_dt.utcoffset() is not None else when_dt.astimezone()
+                zone = display_when.tzname() or "local time"
+                resolved = display_when.strftime("%a %b %-d at %-I:%M %p")
+                when = f"{resolved} {zone} (requested: {raw_when})"
+                # The same args dictionary executes after approval. Freeze the
+                # exact instant shown on the card so a delayed click cannot
+                # resolve a relative phrase to a different delivery time.
+                args["when"] = display_when.isoformat()
+        body = _degarble(
+            str(args.get("body") or args.get("text") or "")
+        ).strip() or "(empty)"
+        header = f"Channel: {channel_label}\nTo: {to}\nDelivery time: {when}"
+        if channel == "email":
+            subject = _degarble(
+                str(args.get("subject", ""))
+            ).strip() or "(no subject)"
+            header += f"\nSubject: {subject}"
+            return f"{header}\n\nBody:\n{body}"
+        return f"{header}\n\nMessage:\n{body}"
+    if tool == "reply_to_email":
+        from service.tasks.reply_contract import preview, validate_envelope
+        if envelope := validate_envelope(args.get("expected_reply")):
+            return preview(envelope)
+        body = str(args.get("body", "")).strip() or "(empty)"
+        note = " (reply-all)" if args.get("reply_all") else ""
+        return f"Reply{note} to message {args.get('message_id', '?')}\n\n{body}"
+    return None
+
+
+def _typed_own_request_addresses() -> set[str]:
+    """Email addresses written in the person's own request line this turn,
+    lowercased: the first non-empty line of their message, quoted spans masked."""
+    from service.tools.self_send import turn_text
+    from service.utterance_shape import mask_quoted
+    lines = [line for line in (turn_text() or "").splitlines() if line.strip()]
+    if not lines:
+        return set()
+    request = mask_quoted(lines[0])
+    return {m.lower().rstrip(".") for m in re.findall(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+", request)}
+
+
+def _own_address_guard(to: str, tool: str, confirmed_self_send: bool = False,
+                       typed: str = "") -> str | None:
+    """Corrective message when `to` is one of the USER'S OWN addresses — else None.
+
+    MEASURED FAILURE (2026-08-18). Asked to "draft a message to mom with my
+    stock movements", the model sent an iMessage to `sam.rivera@example.com` —
+    the user's own address, which the identity block puts in every agent system
+    prompt (agent/loop.py's identity_hint). Mom never got it; the user texted
+    themselves.
+
+    This is the SAME failure shape as builtin._wrong_account_path, where the
+    same email became a fake `/Users/SamRivera` home directory: an identifier
+    that exists in the prompt for ATTRIBUTION gets grabbed to fill an unrelated
+    slot. Because a literal address matches _EMAIL_RE, it skips
+    _resolve_recipient entirely — the very code that would have caught a name
+    it could not resolve. So the guard has to sit before that branch.
+
+    Corrective, not silent: name the tool that finds the real recipient, the
+    way tools/timeranges.BadPeriod teaches its vocabulary. Deliberately NOT a
+    hard block — texting yourself is legitimate ("send me a reminder"), so the
+    message tells the model how to proceed if the user REALLY meant themselves.
+
+    VERIFIED FAILURE 2026-08-19 (live testing, this session): the docstring's
+    "not a hard block" claim was FALSE as originally written — the guard fired
+    unconditionally on every call with no way to pass, no matter how explicitly
+    the user confirmed. Live transcript: guard blocks -> user says "yes I
+    genuinely mean to send it to myself, this is intentional" -> model calls
+    send_email again with the identical arguments -> guard blocks AGAIN,
+    verbatim, because nothing about the retry was different from the model's
+    point of view. It concluded (reasonably, given what it could see) "they
+    can't send to their own email address using this tool" — an absolute
+    limitation that isn't real, presented as if it were. `confirmed_self_send`
+    is the actual escape hatch the docstring always claimed existed: the model
+    sets it to true on a RETRY, once the user's own words in this conversation
+    have confirmed the self-send is intentional — not before, and not as a
+    default, so an unconfirmed self-send is still caught the first time.
+    """
+    addr = (to or "").strip().lower()
+    if not addr or confirmed_self_send:
+        return None
+    # The person's own words this turn named themselves ("email myself …"):
+    # that is the confirmation, and the card that follows is still the approval.
+    from service.tools.self_send import named_self
+    if named_self():
+        return None
+    try:
+        from service.memory.identity import user_emails
+        own = {e.strip().lower() for e in (user_emails() or []) if e}
+    except Exception:  # noqa: BLE001 — no identity yet is not a failure
+        return None
+    # The person typed this very address in their own request this turn ("send
+    # an email to <their address> with my schedule"): that is them naming the
+    # recipient, not the model borrowing the attribution address. VERIFIED
+    # FAILURE 2026-11-15: that request was refused before any card. Only the
+    # person's own words count (turn_text is this turn's user message, never
+    # model text or an earlier turn), and only the request line itself: quoted
+    # spans are masked and anything after the first line (pasted mail, a page,
+    # a file) is not read. The approval card, showing the address, still follows.
+    if all(r.strip().lower() in _typed_own_request_addresses() for r in _split_recipients(to)
+           if r.strip().lower() in own) and any(r.strip().lower() in own for r in _split_recipients(to)):
+        return None
+    if addr not in own:
+        # Several recipients ("a@x.com, me@y.com"): any one of them that is
+        # the user's own address is caught the same as if it stood alone.
+        hit = next((r for r in _split_recipients(to) if r.strip().lower() in own), "")
+        if not hit:
+            return None
+        to = hit.strip()
+    if typed and to.lower() not in {r.lower() for r in _split_recipients(typed)}:
+        # A NAME that resolved to the user's own address: the same mistake as
+        # typing the address, reached through a contact (a "Me" card, a fact
+        # that saved the user's own address under someone else's name).
+        return _not_sent(
+            (f"(error: NOT sent — `{typed}` resolves to `{to}`, the USER'S OWN "
+             f"address, not a recipient. If this is a MISTAKE, ask the user for "
+             f"the person's real number or address. If the user's own words just "
+             f"confirmed they genuinely mean to send to THEMSELVES, call {tool} "
+             f"again with confirmed_self_send=true — that is the only thing that "
+             f"changes on the retry; the same arguments without it will be "
+             f"blocked again.)"),
+            question=(f"{typed} is saved with your own address ({to}). Who should it "
+                      f"go to, or do you mean to send it to yourself?"),
+            needs_recipient=True)
+    return _not_sent(
+        (f"(error: NOT sent — `{to}` is the USER'S OWN address, not a "
+         f"recipient. Their email address is in your prompt for ATTRIBUTION "
+         f"(telling their messages from other people's), never as a "
+         f"destination. If this is a MISTAKE, call `lookup_contact` with the "
+         f"person's NAME to get the real handle, then call {tool} again. If "
+         f"the user's own words just confirmed they genuinely mean to send "
+         f"to THEMSELVES, call {tool} again with confirmed_self_send=true — "
+         f"that is the only thing that changes on the retry; the same "
+         f"arguments without it will be blocked again.)"),
+        question=f"{to} is your own address. Who should it go to, or do you mean to send it to yourself?",
+        needs_recipient=True)
+
+# Unfilled template placeholders — "[Your Name]", "{recipient}", "<company>".
+# Observed live: the agent model signed a real outgoing email "Best,\n[Your Name]"
+# despite the tool description telling it not to. Worth catching in code rather
+# than only in a prompt, because the cost is asymmetric — the user's actual
+# correspondent receives the mistake, and nothing downstream can undo a sent
+# message.
+_PLACEHOLDER_RE = re.compile(
+    r"\[[^\]\n]{2,40}\]|\{\{?[a-z_ ]{2,40}\}?\}|<[a-z][a-z ._-]{1,30}>", re.I)
+# Bracketed text that's ordinary prose rather than a template slot.
+_PLACEHOLDER_OK_RE = re.compile(
+    r"^\[?\s*(?:sic|\d+|https?://|see |note:|via |source:)", re.I)
+# A SQUARE-bracketed span is ambiguous in a way the other two forms are not.
+# "{recipient}" and "<company>" essentially only occur in templates, but "[…]"
+# is ordinary punctuation, and REAL content routinely arrives wearing it.
+#
+# MEASURED FALSE POSITIVE (2026-09-08, live): a two-week calendar digest the
+# user had already approved for their mom was refused at the last step because
+# two event titles, copied verbatim out of get_upcoming, carry brackets of
+# their own — "Move-in [Hollis Marlow]" and "Community Meetings with your RA
+# [MANDATORY for On-Campus Frosh]". Neither is an unfilled slot; both are the
+# real value, already filled in, straight from the calendar.
+#
+# So a bracketed span now has to READ like a slot before it counts as one: it
+# must NAME the kind of thing that belongs there ("[Your Name]", "[date]",
+# "[insert address]") rather than BE a thing. The other two forms keep the
+# old, looser rule — nothing writes "{recipient}" by accident.
+_SLOT_WORD_RE = re.compile(
+    r"\b(?:your|name|recipient|sender|insert|placeholder|tbd|todo|date|time|"
+    r"address|phone|email|company|subject|topic|link|url|amount|x{2,})\b", re.I)
+
+
+def _unfilled_placeholders(text: str) -> list[str]:
+    holes: list[str] = []
+    for m in _PLACEHOLDER_RE.finditer(text or ""):
+        span = m.group(0)
+        inner = span.strip("[]{}<>").strip()
+        if _PLACEHOLDER_OK_RE.match(inner):
+            continue
+        if span.startswith("[") and not _SLOT_WORD_RE.search(inner):
+            continue
+        holes.append(span)
+    return holes
+
+
+# These content heuristics — placeholders above, truncation below — exist to
+# catch the MODEL's mistakes BEFORE a human sees the draft. They are guesses
+# about text, and a guess must never outrank a person who has read the actual
+# words and said send.
+#
+# MEASURED FAILURE (2026-09-08, live): the user was shown the full outgoing
+# text on the confirmation card, clicked "Allow once", and the send was then
+# refused by the placeholder check running INSIDE the tool — i.e. after the
+# approval it was supposed to inform. The ordering was backwards: these checks
+# belong in front of the card (see outbound_content_problem, called from
+# agent/loop.py before the card is raised), never behind it.
+#
+# Set only where the exact outgoing content was actually rendered for the user
+# — a confirmation card carrying a `preview`, or Harbor's editable draft card —
+# never for a bare "sends something on your behalf" card that shows no text.
+_CONTENT_REVIEWED: ContextVar[bool] = ContextVar(
+    "harbor_content_reviewed", default=False)
+
+
+@contextmanager
+def human_reviewed_content(reviewed: bool = True) -> Iterator[None]:
+    """Mark the enclosed send as one whose exact text a human just read."""
+    token = _CONTENT_REVIEWED.set(bool(reviewed))
+    try:
+        yield
+    finally:
+        _CONTENT_REVIEWED.reset(token)
+
+
+def _unreviewed() -> bool:
+    """True when no human has read the exact text about to go out."""
+    return not _CONTENT_REVIEWED.get()
+
+
+# The small on-device agent model (LFM2.5) sometimes over-escapes when it
+# writes tool-call JSON by hand: it emits a literal backslash-n instead of an
+# actual newline, and backslash-quote instead of a bare quote (JSON doesn't
+# need either escaped that way — it's imitating Python string literals).
+# json.loads happily decodes that into a Python string that still CONTAINS
+# the two-character sequence "\n" / "\'" rather than a real newline/quote, and
+# nothing downstream un-mangles it — it round-trips verbatim through
+# AppleScript and lands in the delivered mail/message exactly as typed.
+# Observed live: an SMS delivered with literal "\n\n" between lines instead of
+# line breaks. Fixed here rather than in the AppleScript layer (OutboundSender
+# .escape) because by then a real newline and this artifact are
+# indistinguishable — the fix has to happen before that distinction is lost.
+_LITERAL_ESCAPE_RE = re.compile(r"\\[nt]|\\+(['\"])")
+
+
+def normalize_outbound_text(text: str) -> str:
+    """Canonical outbound text, safe to apply before preview and again at dispatch.
+
+    Consume a whole backslash run before a quote so a second normalization
+    cannot change text the user has already approved. Newline/tab escapes
+    become real whitespace once; remaining literal backslashes stay literal.
+    """
+    if not text or "\\" not in text:
+        return text
+    return _LITERAL_ESCAPE_RE.sub(
+        lambda m: {"\\n": "\n", "\\t": "\t"}.get(m.group(0), m.group(1)), text)
+
+
+def _degarble(text: str) -> str:
+    """Compatibility name for existing callers and sanitization tests."""
+    return normalize_outbound_text(text)
+
+
+def _looks_truncated(text: str) -> bool:
+    """A value that opens with a quote character it never closes is the
+    signature of another observed artifact: the model started wrapping the
+    field in a quote (or an apostrophe'd word) and generation stopped before
+    finishing it. Verified live: a scheduling email sent with body "'Here is
+    your schedule for tomorrow (Friday" — cut off mid-sentence, no closing
+    punctuation, sent as-is with nothing else in it. Deliberately narrow (vs.
+    e.g. flagging any text lacking terminal punctuation) so it doesn't reject
+    ordinary short, punctuation-free texts like "omw" or "yep"."""
+    t = (text or "").strip()
+    return bool(t) and t[0] in "'\"" and t[0] not in t[1:]
+
+
+# Fields whose content is the thing a human would be approving, per tool.
+_OUTBOUND_CONTENT_FIELDS = {
+    "send_message": ("text",),
+    "send_email": ("subject", "body"),
+    "reply_to_email": ("body",),
+    "schedule_send": ("subject", "body", "text"),
+}
+
+
+def outbound_content_problem(tool: str, args: dict) -> str | None:
+    """The content complaint an outbound tool would raise, computed BEFORE the
+    confirmation card — or None if the draft is fine.
+
+    Called from agent/loop.py so a draft with an unfilled slot or a cut-off
+    body is handed straight back to the model to rewrite, and never becomes a
+    card at all. That keeps the checks doing the job they were written for
+    (catching the model) while leaving the human's answer final: once the card
+    has been shown and approved, the same checks are skipped inside the tool
+    (see human_reviewed_content).
+
+    Only reads args, exactly as the tool will receive them — no resolution, no
+    sending — so calling it costs nothing and can't have side effects.
+    """
+    fields = _OUTBOUND_CONTENT_FIELDS.get(tool)
+    if not fields:
+        return None
+    verb = "scheduled" if tool == "schedule_send" else "sent"
+    parts = [_degarble(str(args.get(f) or "")) for f in fields]
+    if any(_looks_truncated(p) for p in parts):
+        correction = (
+            f"Rewrite the complete text in {tool}'s arguments for the approval preview."
+            if tool in {"send_email", "send_message", "reply_to_email"} else
+            f"Write the FULL text out in your reply first, then pass that same complete text to {tool}.")
+        return (f"(NOT {verb} — the draft looks cut off mid-sentence rather "
+                f"than a complete message. {correction})")
+    if (holes := _unfilled_placeholders("\n".join(parts))):
+        return (f"(NOT {verb} — the draft still has unfilled placeholders: "
+                f"{', '.join(holes[:4])}. Rewrite it with the real values and "
+                f"call {tool} again. For the user's own name, use what you "
+                f"know about them from your context, or just end the message "
+                f"without a signature — a message signed '[Your Name]' is "
+                f"worse than one with no sign-off.)")
+    return None
+
+
+def _split_recipients(value: str) -> list[str]:
+    return [p.strip() for p in re.split(r"[,;]", value or "") if p.strip()]
+
+
+def _not_sent(text: str, *, question: str = "", needs_recipient: bool = False) -> str:
+    """Mark a result as proof that nothing went out (see registry._NotSentResult).
+
+    Only for a path that returns before the app-bridge call, or on the bridge's
+    own not_attempted answer. `question` is what Harbor asks the person."""
+    from service.tools.registry import _NotSentResult
+    return _NotSentResult(text, question=question, needs_recipient=needs_recipient)
+
+
+# What a model passes as `to` when the person said "text myself": "me", "my
+# number", "my own email". The person's own name is checked separately.
+_SELF_RECIPIENT_RE = re.compile(
+    r"^(?:to\s+)?(?:me|myself|self|the\s+user|(?:my|the\s+user'?s)\s+(?:own\s+)?(?:number|phone(?:\s+number)?|"
+    r"cell(?:\s+number)?|mobile|e-?mail(?:\s+address)?|address|inbox|account|apple\s+id))$", re.I)
+_APPLE_ID_DOMAINS = frozenset({"icloud.com", "me.com", "mac.com"})
+_NO_OWN_HANDLE_EMAIL = ("I don't know your own email address: Harbor takes it from the accounts "
+                        "set up in Mail, and none has synced yet. What address should I use?")
+_NO_OWN_HANDLE_TEXT = ("I don't know your own number or address: Harbor has no phone number for "
+                       "you, and takes your address from the accounts set up in Mail, where "
+                       "none has synced yet. What number or address should I use?")
+
+
+def _names_user(name: str) -> bool:
+    """`name` is the person's own name: full, first, or what they asked to be called."""
+    typed = " ".join(name.split()).casefold()
+    own = set()
+    try:
+        from service.memory import identity
+        names = (identity.user_name(), identity._preferred_name())
+    except Exception:  # noqa: BLE001 - no identity: not their name
+        return False
+    for full in names:
+        if full := " ".join(str(full or "").split()).casefold():
+            own |= {full, full.split()[0]}
+    return bool(typed) and typed in own
+
+
+def _own_recipient(name: str, *, want_email: bool = False) -> tuple[str, str] | None:
+    """(the person's own handle, "") for "me"/"myself"/their own name when their
+    own words this turn named themselves; ("", not-sent) when no own handle is
+    known; None when this is not a send to themselves (resolve as a contact).
+
+    Read-only identity: no phone number is known to Harbor, so a text goes to an
+    own address (an Apple ID one first, since iMessage reaches those)."""
+    from service.tools.self_send import named_self
+    typed = (name or "").strip().strip(".!?\"'")
+    if not named_self() or not (_SELF_RECIPIENT_RE.match(typed) or _names_user(typed)):
+        return None
+    try:
+        from service.memory.identity import user_emails
+        emails = [e.strip() for e in user_emails() or [] if _EMAIL_RE.match(e.strip())]
+    except Exception:  # noqa: BLE001 - no identity yet: asked for below
+        emails = []
+    if not want_email:
+        emails = ([e for e in emails if e.rsplit("@", 1)[-1].lower() in _APPLE_ID_DOMAINS]
+                  + [e for e in emails if e.rsplit("@", 1)[-1].lower() not in _APPLE_ID_DOMAINS])
+    if emails:
+        return emails[0], ""
+    what = "email address" if want_email else "phone number or address"
+    return "", _not_sent(
+        (f"(NOT sent — the user asked to send this to themselves, but Harbor knows no {what} "
+         "of theirs: it has no phone number for them, and their own address comes only from "
+         "the accounts set up in Mail, where none has synced yet. Ask the user which "
+         f"{'address' if want_email else 'number or address'} to use — don't guess, and "
+         "don't look their name up as a contact.)"),
+        question=_NO_OWN_HANDLE_EMAIL if want_email else _NO_OWN_HANDLE_TEXT,
+        needs_recipient=True)
+
+
+def _resolve_recipient(name: str, *, want_email: bool = False) -> tuple[str, str]:
+    """A contact NAME -> (handle, ""), or ("", explanation) if it can't be
+    resolved unambiguously. The explanation is written for the model to relay;
+    it is a lookup failure, so it also proves that nothing was sent.
+    """
+    if (own := _own_recipient(name, want_email=want_email)) is not None:
+        return own
+    from service.tools import imessage_tools as contacts
+    from service.tools.imessage_tools import find_contacts
+
+    ask = "What email address should I use?" if want_email else "What number or address should I use?"
+    matches = find_contacts(name)
+    if not matches and not contacts._name_handles:
+        # No contact is loaded at all, so "no saved contact for Mom" would be
+        # wrong: say why the name can't be looked up (as lookup_contact does),
+        # and still ask for the address. Read from the module at call time:
+        # a contacts sync replaces these.
+        if contacts._contacts_not_allowed:
+            why = contacts._contacts_not_allowed_message()
+            return "", _not_sent((f"({why} So {name!r} can't be looked up, and it isn't a valid "
+                                  "address. Ask the user for it — don't guess.)"),
+                                 question=f"{why} {ask}", needs_recipient=True)
+        return "", _not_sent((f"(No contacts are synced yet — Contacts is off in Harbor, or the first "
+                              f"sync hasn't finished — so {name!r} can't be looked up, and it isn't "
+                              "a valid address. Ask the user for it — don't guess.)"),
+                             question=(f"I can't look up {name}: no contacts are synced yet, or "
+                                       f"Contacts is off in Harbor. {ask}"),
+                             needs_recipient=True)
+    if not matches:
+        return "", _not_sent((f"(no saved contact matches {name!r}, and it isn't a valid "
+                              "address. Ask the user for it — don't guess.)"),
+                             question=f"I don't have a saved contact for {name}. {ask}",
+                             needs_recipient=True)
+    if len(matches) > 1:
+        listed = ", ".join(m["name"] for m in matches[:6])
+        return "", _not_sent((f"({name!r} matches several contacts ({listed}). Ask the "
+                              "user which one they mean — do NOT pick one yourself.)"),
+                             question=f"{name} matches several contacts: {listed}. Which one do you mean?",
+                             needs_recipient=True)
+
+    who, handles = matches[0]["name"], matches[0]["handles"]
+    if want_email:
+        emails = [h for h in handles if "@" in h]
+        if not emails:
+            return "", _not_sent((f"({who} has no email address saved in "
+                                  "Contacts — only a phone number. Ask the user for it.)"),
+                                 question=f"{who} has no email address saved in Contacts. {ask}",
+                                 needs_recipient=True)
+        if len(set(emails)) > 1:
+            return "", _not_sent((f"({who} has multiple email addresses saved: "
+                                  f"{', '.join(emails)}. Ask the user which address to use.)"),
+                                 question=(f"{who} has several email addresses saved: "
+                                           f"{', '.join(emails)}. Which one should I use?"),
+                                 needs_recipient=True)
+        return emails[0], ""
+
+    handle = matches[0]["preferred"]
+    if not handle:
+        return "", _not_sent(f"({who} has no usable handle saved in Contacts.)",
+                             question=f"{who} has no number or address saved in Contacts. {ask}",
+                             needs_recipient=True)
+    return handle, ""
+
+
+def _is_handle(to: str) -> bool:
+    """A literal address or number, as opposed to a contact name to resolve."""
+    return bool(_EMAIL_RE.match(to) or re.fullmatch(r"[+()\-.\s\d]{7,}", to) or _typed_short_code(to))
+
+
+def _typed_short_code(to: str) -> bool:
+    """A 3 to 6 digit number the person typed in their own message this turn:
+    a short code ("Text 22821: Harbor test 1" stopped at "no saved contact
+    matches '22821'", 2026-11-13, real Mac). One the model supplied and the
+    person never typed is still not a number."""
+    code = (to or "").strip()
+    if not re.fullmatch(r"\d{3,6}", code):
+        return False
+    from service.tools.self_send import turn_text
+    # Only where a recipient is named: before the message's own words begin.
+    head = re.split(r":|\b(?:saying|says|that|with\s+the\s+(?:text|message|body))\b", turn_text(), 1, flags=re.I)[0]
+    return bool(re.search(rf"(?<![\d.,/-]){code}(?![\d/-]|[.,]\d)", head))
+
+
+def _saved_name(handle: str) -> str:
+    """The saved contact a literal handle belongs to, or ""."""
+    try:
+        from service.tools.imessage_tools import contact_name_for_handle
+        return contact_name_for_handle(handle)
+    except Exception:  # noqa: BLE001 - a label never stops a card or a receipt
+        return ""
+
+
+def _named(handle: str, typed: str = "") -> str:
+    """One recipient for a card or receipt: the saved contact and where it goes,
+    "Brian Chen (+15550101234)". The contact is found from the handle itself, so
+    the name is the person the handle belongs to and never only the name that
+    was typed; `typed` is used when the handle isn't saved under any name."""
+    who = _saved_name(handle) or typed
+    return f"{who} ({handle})" if who else handle
+
+
+def _bound_handle(args: dict) -> str:
+    """The number a text's card was settled on (`resolved_to`), or "". Only
+    used for a typed NAME, and only when it is a real handle: a literal handle
+    in `to` is where the text goes, whatever else the call carries. A plain
+    string is never a binding: only the value prepare_send_recipient set
+    (registry.HostBoundArg) is, so a model, a stored workflow step or any
+    other caller that passes `resolved_to` cannot choose the number."""
+    from service.tools.registry import is_host_bound
+    to = str(args.get("to") or "").strip()
+    raw = args.get("resolved_to")
+    bound = str(raw).strip() if is_host_bound(raw) else ""
+    return bound if bound and to and not _is_handle(to) and _is_handle(bound) else ""
+
+
+def _card_recipient(to: str, *, want_email: bool = False, bound: str = "") -> str:
+    """One recipient as a card shows it, resolved the way the tool will.
+
+    A name that matches one contact names that contact and the handle, and says
+    what was typed when the saved name is a different one ("Ian" matching only
+    Brian Chen). A literal handle gains its saved name. Anything that doesn't
+    resolve is shown as given: the tool's own answer covers it.
+    """
+    to = (to or "").strip()
+    if not to:
+        return to
+    try:
+        if _is_handle(to):
+            return _named(to)
+        if bound:
+            # Already settled for this card: show exactly where the send goes.
+            handle = bound
+        else:
+            handle, problem = _resolve_recipient(to, want_email=want_email)
+            if problem or not handle:
+                return to
+        who = _saved_name(handle)
+        label = _named(handle, to)
+        if who and who.casefold() != to.casefold():
+            label += f' - matched from "{to}"'
+        return label
+    except Exception:  # noqa: BLE001 - a lookup problem leaves the card as it was
+        return to
+
+
+def _cc_addresses(cc: str) -> tuple[list[str], str]:
+    """A cc field -> (addresses, ""), or ([], explanation). A saved contact's
+    NAME becomes its one email address, exactly as a name in `to` does."""
+    resolved: list[str] = []
+    for r in _split_recipients(cc):
+        if _EMAIL_RE.match(r):
+            resolved.append(r)
+            continue
+        handle, problem = _resolve_recipient(r, want_email=True)
+        if problem:
+            return [], problem
+        resolved.append(handle)
+    return resolved, ""
+
+
+def _self_not_invented(to: str, body: str = "") -> str:
+    """`to` with every address or number the person did not type, and that is
+    not their own, read as "me", on a turn where they named themselves as the
+    recipient ("Email myself a test" reached a card addressed to an address
+    the model made up, 2026-11-13 real-model run). Other turns: unchanged."""
+    from service.tools.self_send import named_self, typed_this_turn
+    if not to or not named_self():
+        return to
+    try:
+        from service.memory.identity import user_emails
+        own = {e.strip().casefold() for e in user_emails() or []}
+    except Exception:  # noqa: BLE001 - no identity: nothing is known to be theirs
+        own = set()
+    if not _is_handle(to) and "@" not in to and body and " ".join(to.split()).casefold() in body.casefold():
+        # "Text myself: Harbor test" arrived as to="Harbor test": the body, not a person.
+        return "me"
+    parts = _split_recipients(to) if "@" in to else [to]
+    kept = ["me" if (_is_handle(r) and r.casefold() not in own and not typed_this_turn(r)
+                     and not _saved_name(r)) else r
+            for r in parts]
+    return ", ".join(dict.fromkeys(kept))
+
+
+def prepare_send_recipient(tool, args: dict) -> tuple[dict, str | None]:
+    """(args, problem): settle a send's recipient once, BEFORE its card.
+
+    A recipient that can't be resolved never becomes a card: the user isn't
+    asked to approve a send that can't happen, and is asked for the address
+    instead. An email to a name is bound to the one saved address here, so the
+    card shows where it really goes and the approved send can't resolve to
+    anything else; a name in cc is settled the same way. A text keeps its
+    typed name in `to` and carries the one number it matched in `resolved_to`:
+    the card shows that number, and the approved send goes to it without
+    looking the name up again, so a contact that changes between the card and
+    the tap can't move the text to a number nobody approved. Both card and
+    receipt name the contact that matched, "Mom (…1234)". Only ever refuses or
+    narrows to the one address, and sends nothing.
+    """
+    name = getattr(tool, "name", "")
+    # Only the real tools: another tool of that name resolves its own recipient.
+    if name not in {"send_email", "send_message"} or globals().get(name) is not getattr(tool, "func", None):
+        return args, None
+    tool = name
+    to = str(args.get("to") or "").strip()
+    if (mine := _self_not_invented(to, " ".join(str(args.get(k) or "") for k in ("text", "body", "subject")))) != to:
+        to = mine
+        args = {**args, "to": to}
+    if not to and _own_recipient("me") is not None:
+        # "Text myself …" with no recipient passed: the person named themselves.
+        to = "me"
+        args = {**args, "to": to}
+    if tool == "send_message":
+        # Never the model's own value: set here from the lookup, or not at all.
+        args = {k: v for k, v in args.items() if k != "resolved_to"}
+        handle = ""
+        if to and not _is_handle(to):
+            handle, problem = _resolve_recipient(to)
+            if problem:
+                return args, problem
+            if handle and _is_handle(handle):
+                from service.tools.registry import host_bound_arg
+                args["resolved_to"] = host_bound_arg(handle)
+        confirmed = bool(args.get("confirmed_self_send"))
+        # Judged on where the text really goes, not only on what was typed: a
+        # name that resolves to the user's own address is the same mistake.
+        return args, (_own_address_guard(to, tool, confirmed)
+                      or (_own_address_guard(handle, tool, confirmed, to)
+                          if handle else None))
+    resolved: list[str] = []
+    for r in _split_recipients(to):
+        if _EMAIL_RE.match(r):
+            resolved.append(r)
+            continue
+        handle, problem = _resolve_recipient(r, want_email=True)
+        if problem:
+            return args, problem
+        resolved.append(handle)
+    if not resolved:
+        return args, None  # the tool's own "no recipient" answer covers it
+    bound = ", ".join(resolved)
+    if (problem := _own_address_guard(bound, tool, bool(args.get("confirmed_self_send")),
+                                      to)):
+        return {**args, "to": bound}, problem
+    # A name in cc: refused here when it has no single address, never after the
+    # card was approved, and otherwise shown on the card as the address it is.
+    copies = str(args.get("cc") or "").strip()
+    if not copies:
+        return {**args, "to": bound}, None
+    cc, problem = _cc_addresses(copies)
+    if problem:
+        return args, problem
+    return {**args, "to": bound, "cc": ", ".join(cc)}, None
+
+
+@register(
+    "send_email",
+    "Send an email NOW from the user's Mail. A plain 'email X ...' or 'send X an email' is a "
+    "send, not a draft: the confirmation card shows recipient, subject and body for approval. "
+    "Use draft_email only when they say draft / don't send / let me check it; reply_to_email "
+    "to answer a thread; schedule_send only when they name a later send time. `to`: an "
+    "address or a saved contact NAME ('Mom'), resolved automatically, so no lookup_contact "
+    "first; never invent an address, ask if it can't be resolved. Put the full subject and "
+    "body in the arguments once, in the user's voice, no placeholders. To the user's OWN "
+    "address it is refused once; retry with confirmed_self_send=true only if their own words "
+    "just confirmed it.",
+    {"type": "object",
+     "properties": {
+         "to": {"type": "string",
+                "description": "recipient email address; comma-separate several"},
+         "subject": {"type": "string", "description": "subject line"},
+         "body": {"type": "string", "description": "the full message body"},
+         "cc": {"type": "string", "description": "optional cc addresses"},
+         "confirmed_self_send": {"type": "boolean",
+                                 "description": "set true ONLY on a retry, after the user has explicitly confirmed they mean to email themselves"},
+     },
+     "required": ["to", "subject", "body"]},
+    category="email_send",
+    retrieval_description=_OUTBOUND_RETRIEVAL_DESCRIPTIONS["send_email"],
+)
+async def send_email(to: str, subject: str, body: str, cc: str = "",
+                     confirmed_self_send: bool = False) -> str:
+    if (msg := _own_address_guard(to, "send_email", confirmed_self_send)):
+        return msg
+    # Repair the model's over-escaping only when no card showed this text. An
+    # approved card is sent exactly as shown: "C:\temp\new" keeps its backslashes.
+    if _unreviewed():
+        subject, body = _degarble(subject), _degarble(body)
+    if _unreviewed() and (_looks_truncated(subject) or _looks_truncated(body)):
+        return _not_sent("(NOT sent — the draft looks cut off mid-sentence rather than "
+                         "a complete subject/body. Rewrite the complete subject and "
+                         "body in send_email's arguments for the approval preview.)")
+    recipients = _split_recipients(to)
+    if not recipients:
+        return _not_sent("(no recipient — ask the user who this should go to)",
+                         question="Who should it go to?", needs_recipient=True)
+    # A name where an address belongs gets resolved from Contacts, same as
+    # send_message. Anything still unaddressable after that is reported rather
+    # than guessed at.
+    resolved: list[str] = []
+    for r in recipients:
+        if _EMAIL_RE.match(r):
+            resolved.append(r)
+            continue
+        handle, problem = _resolve_recipient(r, want_email=True)
+        if problem:
+            return problem
+        resolved.append(handle)
+    recipients = resolved
+    # A name that resolved to the user's own address is caught like the typed one.
+    if (msg := _own_address_guard(", ".join(recipients), "send_email",
+                                  confirmed_self_send, to)):
+        return msg
+    copies, problem = _cc_addresses(cc)
+    if problem:
+        return problem
+    bad = [r for r in recipients + copies if not _EMAIL_RE.match(r)]
+    if bad:
+        return _not_sent((f"(not valid email addresses: {', '.join(bad)}. Don't guess an "
+                          "address — look it up in the user's mail or ask them for it.)"),
+                         question=f"{', '.join(bad)} doesn't look like an email address. What address should I use?",
+                         needs_recipient=True)
+    if _unreviewed() and (holes := _unfilled_placeholders(f"{subject}\n{body}")):
+        return _not_sent((f"(NOT sent — the draft still has unfilled placeholders: "
+                          f"{', '.join(holes[:4])}. Rewrite it with the real values. For "
+                          "the user's own name, use what you know about them from your "
+                          "context, or just end the message without a signature — an "
+                          "email signed '[Your Name]' is worse than one with no sign-off.)"))
+
+    res = await app_request("send_email", {
+        "to": recipients, "cc": copies,
+        "subject": subject or "", "body": body or "",
+    })
+    if res.get("ok") is not True or ("status" in res and res["status"] != "succeeded"):
+        if not (res.get("ok") is False and res.get("status") == "not_attempted"
+                and res.get("dispatch_started") is False):
+            from service.tools.registry import _OutboundUnknownResult
+            return _OutboundUnknownResult(
+                "Email outcome unknown — sending was not confirmed. Check Mail before trying again; do not retry automatically.",
+                operation="send_email", action_id=res.get("action_id") or "")
+        return _not_sent(f"(the email was NOT sent: {res.get('error') or 'unknown error'})")
+    return f"Email sent to {', '.join(recipients)}."
+
+
+@register(
+    "schedule_send",
+    "Send an email or text LATER, at a time the user names ('text mom at 6', 'email the "
+    "recruiter Monday', 'send this tonight'). If they say now, right away or give no time, "
+    "use send_message / send_email instead. The user approves once on a card showing "
+    "recipient, text and time; it then sends by itself, so write it exactly as it should "
+    "arrive. ALWAYS show the full text and repeat their time in your reply before calling "
+    "(their words or this tool's returned time, never one you computed). `channel`: 'email' "
+    "or 'message'. `to`: an address, phone or saved contact NAME. Harbor must be running then; "
+    "say so for far-off or overnight times. A NEW standalone email or text only: it cannot schedule a "
+    "reply in an email thread (say so and call neither this nor reply_to_email). If the "
+    "result says the time is past or unclear, NOTHING was scheduled; say so and ask what time "
+    "they meant.",
+    {"type": "object",
+     "properties": {
+         "channel": {"type": "string", "enum": ["email", "message"],
+                     "description": "'email' for mail, 'message' for iMessage/SMS"},
+         "to": {"type": "string",
+                "description": "exactly one email address, phone number, or "
+                               "contact name; use a separate schedule_send "
+                               "call for each recipient"},
+         "body": {"type": "string", "description": "the full message to send"},
+         "text": {"type": "string",
+                   "description": "alias for `body` — pass either one, not both. "
+                                  "Accepted because send_message/draft_message use "
+                                  "`text` for this same concept, so a channel='message' "
+                                  "call reaching for that name still works first try."},
+         "when": WHEN_ARG,
+         "subject": {"type": "string", "description": "subject line (email only)"},
+     },
+     "required": ["channel", "to", "when"]},
+    category="scheduled_send",
+)
+async def schedule_send(channel: str, to: str, when: str, body: str = "",
+                        text: str = "", subject: str = "") -> str:
+    from service.assistant.outbound_queue import outbound_queue
+    from service.tools.timeranges import BadWhen, resolve_when
+
+    channel = (channel or "").strip().lower()
+    if channel not in ("email", "message"):
+        return _not_sent("(channel must be 'email' or 'message')")
+    recipients = _split_recipients(to)
+    if len(recipients) > 1:
+        return _not_sent("(NOT scheduled — schedule_send supports exactly one recipient. "
+                         "Schedule each recipient separately; nothing was queued.)",
+                         question="I can only schedule one recipient at a time. Who should this one go to?")
+    body = _degarble(body or text)
+    subject = _degarble(subject)
+    if not body.strip():
+        return _not_sent("(nothing to send — pass `body` with the full message)",
+                         question="What should the message say?")
+    if _unreviewed() and _looks_truncated(body):
+        return _not_sent("(NOT scheduled — the draft looks cut off mid-sentence. Write "
+                         "the FULL text out in your reply first, then pass that same "
+                         "complete text to schedule_send.)")
+    # Placeholders are rejected here exactly as they are for an immediate send:
+    # nobody is going to be looking at this when it goes out, so a "[Your Name]"
+    # that survives to delivery is strictly worse than one caught now.
+    if _unreviewed() and (holes := _unfilled_placeholders(f"{subject}\n{body}")):
+        return _not_sent(f"(NOT scheduled — the draft still has unfilled placeholders: "
+                         f"{', '.join(holes[:4])}. Rewrite it with the real values.)")
+    try:
+        when_dt, _when_label = resolve_when(when)
+    except BadWhen as e:
+        return _not_sent(str(e), question=f"I couldn't read that time, so nothing is scheduled. What time should I send it?")
+    when_ts = when_dt.timestamp()
+    if when_ts <= time.time():
+        return _not_sent(f"(NOT scheduled — {when!r} resolves to "
+                         f"{when_dt:%a %b %-d at %-I:%M %p}, which is in the past. Ask "
+                         "the user what time they actually meant, or send it now with "
+                         f"{'send_email' if channel == 'email' else 'send_message'}.)",
+                         question=f"That time has already passed, so nothing is scheduled. What time should I send it?")
+
+    # What the queue row, the cancel card and the receipt call the recipient:
+    # the saved contact the handle belongs to, not only the name that was typed.
+    if channel == "email":
+        if not recipients:
+            return _not_sent("(no recipient — ask the user who this should go to)",
+                             question="Who should this go to?")
+        r = typed = recipients[0]
+        if _EMAIL_RE.match(r):
+            display = _named(r)
+        else:
+            r, problem = _resolve_recipient(r, want_email=True)
+            if problem:
+                return problem
+            display = _named(r, typed)
+        recipient = r
+    else:
+        if not recipients:
+            return _not_sent("(no recipient — ask the user who to text)",
+                             question="Who should I text?")
+        recipient = recipients[0]
+        if _is_handle(recipient):
+            display = _named(recipient)
+        else:
+            handle, problem = _resolve_recipient(recipient)
+            if problem:
+                return problem
+            display = _named(handle, recipient)
+            recipient = handle
+
+    sid = outbound_queue.add(channel=channel, recipient=recipient, body=body,
+                             when_ts=when_ts, subject=subject, display=display)
+    pretty = when_dt.strftime("%a %b %-d at %-I:%M %p")
+    return (f"Scheduled: {'email' if channel == 'email' else 'text'} to {display} "
+            f"on {pretty} (id {sid}). It sends automatically — Harbor needs to be "
+            "running at that time. Use cancel_scheduled_send to call it off.")
+
+
+@register(
+    "list_scheduled_sends",
+    "Only emails/texts the user scheduled Harbor to send later; for to-dos, tasks "
+    "or \"what's pending\" use search_reminders. "
+    "Review scheduled emails/texts by exact queue ID and recorded status. "
+    "Default: a bounded pending list with body previews. Use status='all' or "
+    "'history' for recent recorded outcomes; absence from pending is never proof "
+    "of delivery. Pass id for one exact record's full body and status across "
+    "all statuses; id overrides status/count. 'sent' means the app accepted the "
+    "send request, not confirmed recipient delivery. This tool only reads; it "
+    "never sends, retries, marks read or cancels.",
+    {"type": "object", "properties": {
+        "status": {"type": "string",
+                   "enum": ["pending", "sending", "sent", "missed", "cancelled", "failed", "unknown", "all", "history"],
+                   "description": "Default pending; history excludes pending. Recent history uses recorded attempt/creation times, not a complete status-change log."},
+        "count": {"type": "integer", "minimum": 1, "maximum": 100,
+                  "description": "Maximum list rows, default 20; omitted older rows are disclosed."},
+        "id": {"type": "string", "description": "Exact queue ID for full body and current recorded status, ignoring list scope/count. No prefix matching."},
+    }},
+    category="assistant_read",
+)
+async def list_scheduled_sends(status: str = "pending", count: int = 20, id: str = "") -> str:
+    from service.assistant.outbound_queue import outbound_queue
+
+    if not isinstance(id, str):
+        return "(error: scheduled-send id must be an exact string ID.)"
+    if id.strip():
+        row = outbound_queue.get(id.strip())
+        if row is None:
+            return (f"No scheduled-send record matches exact ID {id.strip()!r}. "
+                    "No send, cancellation or delivery outcome can be established from that absence.")
+        return _scheduled_send_record(row, full_body=True)
+    try:
+        rows, truncated = outbound_queue.review(status, count)
+    except ValueError as exc:
+        return f"(error: {exc})"
+    if not rows:
+        return (f"No scheduled-send records in status scope {status!r}. "
+                "Absence from this view does not establish recipient delivery.")
+    scope = ("Pending scheduled sends, earliest scheduled first." if status == "pending" else
+             f"Recorded scheduled sends: {status}. Most recent recorded attempt first, "
+             "otherwise creation/scheduled time. Cancellation and missed-window times "
+             "are not separately recorded; this is not a complete status-change history.")
+    coverage = (f"\nList coverage: showing {len(rows)} records; additional matching records "
+                f"are omitted by count={count}. Inspect an exact ID for its full body."
+                if truncated else "")
+    return scope + coverage + "\n\n" + "\n\n".join(
+        _scheduled_send_record(row, full_body=False) for row in rows)
+
+
+_SCHEDULED_STATUS_NOTES = {
+    "pending": "Queued; no send attempt is recorded. Harbor must be running to dispatch it.",
+    "sending": "Claimed for sending; final outcome is not recorded. Cancellation can no longer be guaranteed.",
+    "sent": "The app accepted the send request. Recipient delivery and read receipts are not verified.",
+    "missed": "The scheduled window was missed; this queued item was retired without dispatch.",
+    "cancelled": "Cancelled while pending; Harbor will not dispatch this queued item.",
+    "failed": "A send attempt was recorded as failed. Recipient delivery is not verified; check the app before retrying.",
+    "unknown": "The send outcome is unknown after interruption; it may have been sent. Harbor will not retry automatically. Check the app before retrying.",
+}
+
+
+def _scheduled_time(value) -> str:
+    from datetime import datetime
+
+    try:
+        return datetime.fromtimestamp(value).astimezone().strftime("%a %b %-d, %Y %-I:%M %p %Z (%z)")
+    except (TypeError, ValueError, OverflowError, OSError):
+        return "unavailable"
+
+
+def _scheduled_send_record(row, *, full_body: bool) -> str:
+    status = row["status"]
+    note = _SCHEDULED_STATUS_NOTES.get(status, "Unrecognized stored status; no delivery outcome can be established.")
+    kind = {"email": "Email", "message": "Text"}.get(row["channel"], str(row["channel"]))
+    lines = [f"[{row['id']}] {kind} to {row['display'] or row['recipient']}",
+             f"Recipient: {row['recipient']}", f"Scheduled: {_scheduled_time(row['when_ts'])}",
+             f"Recorded status: {status or 'unrecognized'} — {note}"]
+    if row["fired_at"] is not None:
+        lines.append(f"Last recorded send attempt/outcome: {_scheduled_time(row['fired_at'])}")
+    if row["subject"]:
+        lines.append(f"Subject: {row['subject']}")
+    if row["error"]:
+        lines.append(f"Recorded error: {row['error']}")
+    body = row["body"]
+    if full_body:
+        lines.append("Full stored body:\n" + body)
+    else:
+        lines.append("Body preview:\n" + body[:160])
+        if len(body) > 160:
+            lines.append(f"[Body preview truncated; inspect exact ID {row['id']} for the full stored body.]")
+    return "\n".join(lines)
+
+
+def _cancel_scheduled_preview(args: dict) -> str:
+    """The queued row a cancel card is about: recipient, subject or a text
+    preview, and when it is scheduled. The tool cancels by the same exact ID."""
+    from service.assistant.outbound_queue import outbound_queue
+    sid = str(args.get("id") or "").strip()
+    if not sid:
+        return "Cancel scheduled send: (no ID given; nothing would be cancelled)"
+    try:
+        row = outbound_queue.get(sid)
+    except Exception:  # noqa: BLE001 - an unreadable queue still shows the ID
+        row = None
+    if row is None:
+        return f"Cancel scheduled send [{sid}]: no queued item has this ID; nothing would be cancelled."
+    kind = {"email": "email", "message": "text"}.get(row["channel"], str(row["channel"]))
+    to = row["display"] or row["recipient"]
+    if row["display"] and str(row["recipient"]) not in row["display"]:
+        to += f" ({row['recipient']})"
+    lines = [f"Cancel scheduled {kind} [{row['id']}]", f"To: {to}",
+             f"Scheduled: {_scheduled_time(row['when_ts'])}",
+             f"Status: {row['status'] or 'unrecognized'}"]
+    if row["subject"]:
+        lines.append(f"Subject: {row['subject']}")
+    body = str(row["body"] or "")
+    lines.append("Text: " + ((_clip_preview(body[:300]) + ("…" if len(body) > 300 else "")) if body else "(empty)"))
+    return "\n".join(lines)
+
+
+@register(
+    "cancel_scheduled_send",
+    "Cancel a scheduled email/text only while it remains pending. A claimed "
+    "or completed send cannot be recalled by this tool. Needs an exact id from "
+    "list_scheduled_sends — inspect that first if you don't have it.",
+    {"type": "object",
+     "properties": {
+         "id": {"type": "string", "description": "id from list_scheduled_sends"},
+     },
+     "required": ["id"]},
+    category="assistant_write",
+)
+async def cancel_scheduled_send(id: str) -> str:
+    from service.assistant.outbound_queue import outbound_queue
+
+    if not isinstance(id, str) or not id.strip():
+        return not_done("Ask the user for an exact scheduled-send ID. NOT cancelled: no cancellation was applied.",
+                        question="Which scheduled send should I cancel?")
+    # cancel() is one conditional UPDATE: no row back means it changed nothing.
+    row = outbound_queue.cancel((id or "").strip())
+    if not row:
+        recorded = outbound_queue.get((id or "").strip())
+        if recorded is not None:
+            record = _scheduled_send_record(recorded, full_body=False)
+            if recorded["status"] == "cancelled":
+                return ("No matches among pending sends. Already recorded as cancelled; "
+                        "no new cancellation was applied.\n" + record)
+            return not_done("(error: NOT cancelled: this item is no longer pending. No cancellation was "
+                            "applied; this tool cannot recall an attempted send.)\n" + record)
+        return ("No matches for that exact scheduled-send ID. NOT cancelled: no cancellation was applied. "
+                "Absence from pending does not establish delivery; review list_scheduled_sends(status='all').")
+    return f"Cancelled [{row['id']}] {row['channel']} to {row['display']}. It was still pending; Harbor will not dispatch it."
+
+
+@register(
+    "reply_to_email",
+    "Reply to a specific email IN ITS ORIGINAL THREAD, keeping the subject and "
+    "conversation intact. Use this — not send_email — whenever the user says "
+    "'reply', 'respond', or 'answer' about mail they received. You need the "
+    "message's Message-ID, which view_emails prints for each email; call "
+    "view_emails first if you don't have it. Only `body` is yours to write: the "
+    "recipient and subject come from the original message, so don't restate "
+    "them. Put the complete reply in `body` once; the confirmation card "
+    "displays it for approval. Write it as the user would send it — no placeholders like "
+    "[Your Name], no meta-commentary. Set reply_all only if the user asked to "
+    "include everyone on the thread. Replies can only be sent immediately after "
+    "approval; scheduling a reply in-thread is not supported. State that limitation "
+    "before execution and do not substitute schedule_send, which creates a new message.",
+    {"type": "object",
+     "properties": {
+         "message_id": {"type": "string",
+                        "description": "Message-ID of the email being replied to, from view_emails"},
+         "body": {"type": "string", "description": "the full reply body"},
+         "reply_all": {"type": "boolean",
+                       "description": "reply to everyone on the thread instead of just the sender"},
+         "expected_reply": {"type": "object",
+                            "description": "Native reply envelope populated by Harbor before approval; never invent this."},
+         "account": {"type": "string",
+                     "description": ("optional: the Mail account whose copy of this "
+                                     "message to reply from. A message you were cc'd "
+                                     "on exists in several accounts under one "
+                                     "Message-ID; without this the reply goes from "
+                                     "whichever account Mail finds first.")},
+     },
+     "required": ["message_id", "body"]},
+    category="email_send",
+    retrieval_description=_OUTBOUND_RETRIEVAL_DESCRIPTIONS["reply_to_email"],
+)
+async def reply_to_email(message_id: str, body: str, reply_all: bool = False,
+                         account: str = "", expected_reply: dict | None = None) -> str:
+    message_id = (message_id or "").strip()
+    if not message_id:
+        return _not_sent("(no message_id — call view_emails first and use the Message-ID "
+                         "it prints for the email you're replying to)")
+    # Preparation already rendered these exact words. Never transform an
+    # approved escape sequence or line break after the card was accepted.
+    if not body.strip():
+        return _not_sent("(nothing to send — the reply body is empty)")
+    if _unreviewed() and _looks_truncated(body):
+        return _not_sent("(NOT sent — the reply looks cut off mid-sentence rather than a "
+                         "complete message. Rewrite the complete body in "
+                         "reply_to_email's arguments for the approval preview.)")
+    if _unreviewed() and (holes := _unfilled_placeholders(body)):
+        return _not_sent(f"(NOT sent — the reply still has unfilled placeholders: "
+                         f"{', '.join(holes[:4])}. Rewrite it with the real values.)")
+    from service.tasks.reply_contract import envelope_matches, make_receipt, validate_envelope
+    expected = validate_envelope(expected_reply)
+    if (expected is None or expected["message_id"] != message_id
+            or expected["account"] != account or not expected["content"].startswith(body)):
+        return _not_sent("(reply NOT sent — resolve and preview the outgoing reply before approval)")
+    res = await app_request("reply_to_email", {
+        "message_id": message_id, "body": body, "reply_all": bool(reply_all),
+        "account": account, "expected_reply": expected,
+    })
+    if res.get("ok") is not True or ("status" in res and res["status"] != "succeeded"):
+        if (res.get("ok") is False and res.get("status") == "not_attempted"
+                and res.get("dispatch_started") is False):
+            return _not_sent(f"(reply NOT sent: {res.get('error') or 'publication did not start'})")
+        from service.tools.registry import _OutboundUnknownResult
+        return _OutboundUnknownResult(
+            "Reply outcome unknown — sending was not confirmed. Check Mail before trying again; do not retry automatically.",
+            operation="reply_to_email", action_id=res.get("action_id") or "")
+    if res.get("accepted") is not True or not envelope_matches(res.get("reply"), expected):
+        from service.tools.registry import _OutboundUnknownResult
+        return _OutboundUnknownResult(
+            "Reply outcome unknown — the bridge did not confirm the approved reply. Check Mail before trying again; do not retry automatically.",
+            operation="reply_to_email", action_id=res.get("action_id") or "")
+    return make_receipt(expected)
+
+
+async def prepare_reply_args(args: dict) -> tuple[dict | None, str]:
+    """Inspect a disposable native reply, then freeze the envelope for approval.
+
+    Never trusts an expected_reply supplied by a model. The bridge prepares
+    and discards a temporary compose window; this operation cannot send.
+    """
+    from service.tasks.reply_contract import validate_envelope
+    message_id = str(args.get("message_id") or "").strip()
+    account = str(args.get("account") or "")
+    account_id = str(args.get("account_id") or "")
+    body = str(args.get("body") or "")
+    if not message_id or not body.strip():
+        return None, "I need a specific email and reply text before preparing a reply."
+    result = await app_request("prepare_email_reply", {
+        "message_id": message_id, "account": account, "account_id": account_id, "body": body,
+        "reply_all": bool(args.get("reply_all")),
+    })
+    envelope = validate_envelope(result.get("reply"))
+    if (result.get("ok") is not True or envelope is None
+            or envelope["message_id"] != message_id
+            or (account and envelope["account"] != account)
+            or (account_id and envelope["account_id"] != account_id)
+            or not envelope["content"].startswith(body)):
+        return None, "I couldn’t verify the outgoing reply in Mail. Nothing was sent. Refresh the email or choose its account and try again."
+    return {"message_id": message_id, "account": envelope["account"],
+            "body": body, "reply_all": bool(args.get("reply_all")),
+            "expected_reply": envelope}, ""
+
+
+@register(
+    "draft_email",
+    "Open a NEW unsent email in Mail, filled in, for the user to review and send themselves. "
+    "Only when they say draft, write-but-don't-send or let me check it first; a plain 'email "
+    "X ...' is send_email. `to`: an address or a saved contact NAME.",
+    {"type": "object",
+     "properties": {
+         "to": {"type": "string",
+                "description": "recipient email address or contact name; comma-separate several"},
+         "subject": {"type": "string", "description": "subject line"},
+         "body": {"type": "string", "description": "the full message body"},
+         "cc": {"type": "string", "description": "optional cc addresses"},
+     },
+     "required": ["to", "subject", "body"]},
+    category="email_draft",
+)
+async def draft_email(to: str, subject: str, body: str, cc: str = "") -> str:
+    # No _own_address_guard here, unlike send_email — deliberately. This is
+    # now the tool _SELF_SEND_RE in router.py routes an explicit "send/email
+    # ME" request to (send_email is removed from the offered set for that
+    # turn, so this is what's left). Blocking the user's own address here
+    # would defeat that routing: drafting to yourself is legitimate and safe
+    # BY CONSTRUCTION — this opens a real compose window and never sends, so
+    # even a wrongly-guessed address is a draft the user reviews before
+    # anything goes anywhere, not a silent misfire like send_email's.
+    subject, body = _degarble(subject), _degarble(body)
+    recipients = _split_recipients(to)
+    if not recipients:
+        return "(no recipient — ask the user who this should go to)"
+    resolved: list[str] = []
+    for r in recipients:
+        if _EMAIL_RE.match(r):
+            resolved.append(r)
+            continue
+        handle, problem = _resolve_recipient(r, want_email=True)
+        if problem:
+            return problem
+        resolved.append(handle)
+    # Placeholders are NOT rejected here, unlike send_email. A draft is exactly
+    # where a half-finished line is legitimate — the user is about to read it
+    # and can fix anything before it goes. Blocking here would make the safe
+    # tool stricter than the irreversible one.
+    res = await app_request("draft_email", {
+        "to": resolved, "cc": _split_recipients(cc),
+        "subject": subject or "", "body": body or "",
+    })
+    if not res.get("ok"):
+        return f"(the draft was NOT created: {res.get('error') or 'unknown error'})"
+    return (f"Draft opened in Mail to {', '.join(resolved)} — nothing has been "
+            "sent. Tell the user to review it and hit send.")
+
+
+@register(
+    "draft_message",
+    "Prepare an editable message draft inside Harbor — WITHOUT sending it. "
+    "The user can edit, discard, or send it from the draft card. Use when they want to see the "
+    "text first ('draft a text to Mom', \"write it but don't send\"). `to` "
+    "accepts a phone number or a saved contact's NAME.",
+    {"type": "object",
+     "properties": {
+         "to": {"type": "string",
+                "description": "phone number, iMessage address, or contact name"},
+         "text": {"type": "string", "description": "the message to prefill"},
+     },
+     "required": ["to", "text"]},
+    category="messages_draft",
+)
+async def draft_message(to: str, text: str) -> str:
+    from service.tools.registry import _literal_message_recipient, _prepared_message_draft
+
+    # Preparation sends nothing. Only this successful host path mints a card.
+    if type(to) is not str or type(text) is not str:
+        return "(error: Draft recipient and body must be strings.)"
+    to = to.strip(" ")
+    if not to or any(ord(c) < 32 or ord(c) == 127 for c in to):
+        return "(no recipient — ask the user who to text)"
+    text = _degarble(text)
+    if not text.strip():
+        return "(nothing to draft — the message body is empty)"
+    literal = _literal_message_recipient(to)
+    if literal is None:
+        handle, problem = _resolve_recipient(to)
+        if problem:
+            return problem
+        literal = _literal_message_recipient(handle)
+    if literal is None:
+        return "(error: Choose one supported literal phone number or email address.)"
+    return _prepared_message_draft(literal, text)
+
+
+# action -> (app-bridge operation, its arguments, success receipt). The bridge
+# operations predate the merge and keep their names on the Swift side.
+_TRIAGE_ACTIONS = {
+    "archive": ("archive_email", {}, "Moved to Archive."),
+    "mark_read": ("mark_email_read", {"read": True}, "Marked as read."),
+    "mark_unread": ("mark_email_read", {"read": False}, "Marked as unread."),
+    "flag": ("flag_email", {"flagged": True}, "Flagged."),
+    "unflag": ("flag_email", {"flagged": False}, "Unflagged."),
+}
+
+
+@register(
+    "email_triage",
+    "Tidy one email in the user's own Mail: archive it (moves it out of the "
+    "inbox into Archive — NOT a delete, it can be found again), mark it read or "
+    "unread, or flag/unflag it for follow-up. Needs the message's Message-ID, "
+    "which view_emails prints for each email. Nothing leaves the Mac.",
+    {"type": "object",
+     "properties": {
+         "message_id": {"type": "string",
+                        "description": "Message-ID of the email, from view_emails"},
+         "action": {"type": "string", "enum": list(_TRIAGE_ACTIONS),
+                    "description": "archive, mark_read, mark_unread, flag, or unflag"},
+     },
+     "required": ["message_id", "action"]},
+    category="email_triage",
+    aliases=["get that out of my inbox", "file away the Walgreens email",
+             "clear that one out", "mark those as read",
+             "I've seen it, clear the unread badge", "mark that unread",
+             "flag this email for follow-up", "mark this important",
+             "remove the flag from that email"],
+)
+async def email_triage(message_id: str, action: str) -> str:
+    message_id = (message_id or "").strip()
+    # Both refusals come before the app bridge is asked for anything, so they
+    # are proof nothing changed. A bridge failure below is not.
+    if not message_id:
+        return not_done("(no message_id — call view_emails first and use the Message-ID "
+                        "it prints for the email you mean)",
+                        question="Which email do you mean?")
+    if action not in _TRIAGE_ACTIONS:
+        return not_done(f"(error: unknown action {action!r}. Use {', '.join(_TRIAGE_ACTIONS)}.)",
+                        question="I can archive an email, mark it read or unread, or flag or unflag it. "
+                                 "Which would you like?")
+    operation, extra, receipt = _TRIAGE_ACTIONS[action]
+    res = await app_request(operation, {"message_id": message_id, **extra})
+    if not res.get("ok"):
+        return f"(couldn't update the message: {res.get('error') or 'unknown error'})"
+    return receipt
+
+
+# The app's forward script is held back on purpose (OutboundSender.swift,
+# unverifiedForwardLookup): its lookup finds no message, so Mail composes
+# nothing and the app can only report an unconfirmed result. That held the
+# whole chat ("An earlier action in this chat may not have finished") for a
+# send that never began. Until a real forward has been checked in Mail, the
+# tool says plainly that nothing was sent. Set True together with the app-side
+# change, after a real forward has been checked by hand in Mail.
+APPLE_MAIL_FORWARD_READY = False
+
+
+@register(
+    "forward_email",
+    "Forward a specific email to someone else, keeping the original content "
+    "intact. Needs the Message-ID from view_emails. `to` accepts addresses or "
+    "saved contact NAMES (comma-separate several); optional `note` is a short "
+    "message prepended above the forwarded content.",
+    {"type": "object",
+     "properties": {
+         "message_id": {"type": "string", "description": "Message-ID of the email to forward, from view_emails"},
+         "to": {"type": "string", "description": "recipient(s) — address or contact name, comma-separated"},
+         "note": {"type": "string", "description": "optional short note to add above the forwarded content"},
+     },
+     "required": ["message_id", "to"]},
+    category="email_send",
+    aliases=["forward this email to Dan", "send this to my accountant",
+             "fwd this to the team", "can you forward that email over to mom"],
+)
+async def forward_email(message_id: str, to: str, note: str = "") -> str:
+    message_id = (message_id or "").strip()
+    if not message_id:
+        return _not_sent("(no message_id — call view_emails first and use the Message-ID "
+                         "it prints for the email you want to forward)")
+    recipients = _split_recipients(to)
+    if not recipients:
+        return _not_sent("(no recipient — ask the user who this should go to)",
+                         question="Who should it go to?")
+    resolved: list[str] = []
+    for r in recipients:
+        if _EMAIL_RE.match(r):
+            resolved.append(r)
+            continue
+        handle, problem = _resolve_recipient(r, want_email=True)
+        if problem:
+            return problem
+        resolved.append(handle)
+    if not APPLE_MAIL_FORWARD_READY:
+        # Returned before the app is asked for anything: proof nothing was sent,
+        # so the chat is not held for an unconfirmed send.
+        return _not_sent(
+            "(the forward was NOT sent: this build cannot forward an email through Apple Mail yet. "
+            "Nothing was sent and nothing changed. Offer to send the email's text as a new email "
+            "with send_email instead, and do not call forward_email again in this chat.)",
+            question="I can't forward an email through Mail yet, so nothing was sent. "
+                     "Want me to send its text as a new email instead?")
+    note = note or ""
+    if _unreviewed():  # as send_email: an approved note goes out as its card showed it
+        note = _degarble(note)
+    res = await app_request("forward_email", {
+        "message_id": message_id, "to": resolved, "body": note,
+    })
+    if res.get("ok") is not True or ("status" in res and res["status"] != "succeeded"):
+        if not (res.get("ok") is False and res.get("status") == "not_attempted"
+                and res.get("dispatch_started") is False):
+            from service.tools.registry import _OutboundUnknownResult
+            return _OutboundUnknownResult(
+                "Forward outcome unknown — sending was not confirmed. Check Mail before trying again; do not retry automatically.",
+                operation="forward_email", action_id=res.get("action_id") or "")
+        return _not_sent(f"(the forward was NOT sent: {res.get('error') or 'unknown error'})")
+    return f"Forwarded to {', '.join(_named(r) for r in resolved)}."
+
+
+
+MESSAGE_HANDED_OVER = "Messages accepted it; delivery isn't confirmed here."
+# TEMPORARY, at the owner's request on 2026-11-15 ("just remove the error message
+# for now - I will add something else later"): a text Messages marked Not
+# Delivered shows the person only QUIET_NOT_DELIVERED. The model, the audit log
+# and the debug export still get the full failure below, nothing is retried, and
+# no reply says Sent. Replace this visible line with the owner's wording.
+NOT_DELIVERED_TEXT = "Messages shows it as Not Delivered."
+QUIET_NOT_DELIVERED = "Passed to Messages."
+
+
+def quiet_not_delivered(result) -> bool:
+    """A send_message result Messages itself marked Not Delivered."""
+    return NOT_DELIVERED_TEXT in str(result or "")
+
+
+TEXT_FORWARDING_HINT = ("To send SMS texts from this Mac, turn on Text Message Forwarding for it "
+                        "on your iPhone: Settings › Apps › Messages › Text Message Forwarding.")
+
+@register(
+    "send_message",
+    "Send an iMessage/SMS NOW from the user's Messages. For 'text/message/tell X ...', send "
+    "it: don't stop at a draft or a contact lookup (draft_message only if they say draft / "
+    "don't send; schedule_send only for a later time they name). If the text needs facts "
+    "(schedule, weather, a price), read them first, then call this in the same turn. `to`: a "
+    "phone, iMessage email or saved contact NAME, resolved automatically; view_messages never "
+    "shows numbers. Put the full text in `text` once, short, in the user's voice, no "
+    "sign-off; the confirmation card shows it. To the user's OWN address it is refused once; "
+    "retry with confirmed_self_send=true only if their own words just confirmed it.",
+    {"type": "object",
+     "properties": {
+         "to": {"type": "string",
+                "description": "phone number or iMessage email address"},
+         "text": {"type": "string", "description": "the message to send"},
+         "confirmed_self_send": {"type": "boolean",
+                                 "description": "set true ONLY on a retry, after the user has explicitly confirmed they mean to message themselves"},
+     },
+     "required": ["to", "text"]},
+    category="messages_send",
+    retrieval_description=_OUTBOUND_RETRIEVAL_DESCRIPTIONS["send_message"],
+)
+async def send_message(to: str, text: str, confirmed_self_send: bool = False,
+                       resolved_to: str = "") -> str:
+    if (msg := _own_address_guard(to, "send_message", confirmed_self_send)):
+        return msg
+    to = (to or "").strip()
+    bound = _bound_handle({"to": to, "resolved_to": resolved_to})
+    if not to:
+        return _not_sent("(no recipient — ask the user who to text)",
+                         question="Who should I text?", needs_recipient=True)
+    if _unreviewed():
+        text = _degarble(text)
+    if _unreviewed() and _looks_truncated(text):
+        return _not_sent("(NOT sent — the draft looks cut off mid-sentence rather than "
+                         "a complete message. Rewrite the complete text in "
+                         "send_message's arguments for the approval preview.)")
+
+    # Display name for the result line, kept separate from the handle actually
+    # dialed — if `to` resolves from a contact name, the transcript should say
+    # "Mom (…1234)", not just the raw number, so a resolution mistake leaves a
+    # visible trace instead of a plausible-looking but wrong send.
+    # The name shown is the saved contact the handle belongs to, not what was
+    # typed: "Ian" can match only Brian Chen, and "Ian (…1234)" would hide that.
+    if _is_handle(to):
+        display = _named(to)
+    else:
+        # `to` is a NAME. Resolve it here rather than only erroring: the model
+        # gets the user's phrasing ("text Mom"), and making the send fail
+        # unless it first thinks to call lookup_contact is a failure mode that
+        # actually happened. Only a single unambiguous match sends — several
+        # "Mom"-ish contacts must come back to the user, never a coin flip.
+        # A card already settled this name on one number (`resolved_to`): the
+        # send goes there, the number the person approved, and is not looked
+        # up a second time. With no card behind the call, resolve it here.
+        if bound:
+            handle = bound
+        else:
+            handle, problem = _resolve_recipient(to)
+            if problem:
+                return problem
+        # Where the text really goes is judged too, not only the typed name.
+        if (msg := _own_address_guard(handle, "send_message", confirmed_self_send, to)):
+            return msg
+        display = _named(handle, to)
+        to = handle
+
+    if not (text or "").strip():
+        return _not_sent("(nothing to send — the message body is empty)")
+    if _unreviewed() and (holes := _unfilled_placeholders(text)):
+        return _not_sent(f"(NOT sent — the message still has unfilled placeholders: "
+                         f"{', '.join(holes[:4])}. Rewrite it with the real values.)")
+    res = await app_request("send_message", {"to": to, "text": text})
+    if res.get("ok") is not True or ("status" in res and res["status"] != "succeeded"):
+        if not (res.get("ok") is False and res.get("status") == "not_attempted"
+                and res.get("dispatch_started") is False):
+            from service.tools.registry import _OutboundUnknownResult
+            return _OutboundUnknownResult(
+                "Message outcome unknown — sending was not confirmed. Check Messages before trying again; do not retry automatically.",
+                operation="send_message", action_id=res.get("action_id") or "")
+        return _not_sent(f"(the message was NOT sent: {res.get('error') or 'unknown error'})")
+    # Messages accepting a text is not the text going out: a short code with
+    # no SMS relay was accepted and then marked Not Delivered on the real app.
+    # The app reads the message's own row back from Messages and says which.
+    delivery = res.get("delivery")
+    by_sms = bool(re.fullmatch(r"\d{3,6}", to)) or res.get("delivery_service") in ("SMS", "RCS")
+    if delivery == "no_sms_account":
+        # The app's script stopped before any send.
+        return _not_sent(f"(the text to {display} was NOT sent: this Mac can't send SMS texts. "
+                         f"{TEXT_FORWARDING_HINT})")
+    if delivery == "failed":
+        # Error 22 on an iMessage is Messages failing to reach that handle by
+        # iMessage (seen 2026-11-15 for a person whose conversation runs on
+        # RCS). Messages' own "Send as Text Message" on the failed bubble is
+        # the next step; nothing here resends it.
+        by_imessage = not by_sms and res.get("delivery_service") == "iMessage"
+        from service.tools.registry import _NotDeliveredResult
+        return _NotDeliveredResult(f"The text to {display} was not delivered: {NOT_DELIVERED_TEXT}"
+                + (f" {TEXT_FORWARDING_HINT}" if by_sms else "")
+                + (" Messages couldn't reach them by iMessage. In Messages, Control-click the "
+                   "failed message and choose Send as Text Message." if by_imessage else "")
+                + " Check Messages before trying again; do not retry automatically.")
+    if delivery == "delivered":
+        return f"Message sent to {display}. Messages shows it as delivered."
+    if delivery == "sent":
+        return f"Message sent to {display}."
+    return f"Message sent to {display}. {MESSAGE_HANDED_OVER}"
+
+

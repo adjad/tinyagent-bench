@@ -1,0 +1,11 @@
+"""Phone gateway: the only door the iPhone app has into Harbor on this Mac.
+
+The Harbor backend stays on 127.0.0.1:8765. This package runs a small separate
+process, bound only to the Mac's Tailscale address, that authenticates paired
+phones and forwards a fixed set of routes. See ios/docs/PHONE_GATEWAY.md.
+"""
+
+# 2: ping answers a nonce challenge with per-device proofs (PHONE_GATEWAY.md).
+GATEWAY_VERSION = 2
+DEFAULT_PORT = 8799
+DEFAULT_BACKEND = "http://127.0.0.1:8765"

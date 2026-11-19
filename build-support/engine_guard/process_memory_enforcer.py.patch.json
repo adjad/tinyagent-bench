@@ -1,0 +1,67 @@
+{
+  "path": "omlx/process_memory_enforcer.py",
+  "input_sha256": "242834641aeb16450d57e062449221a066206a62d066d57c312be073d656ba19",
+  "output_sha256": "7c881b28509e35c196d0d3903adef7a5bd77f1c82b8b63c84384535481285855",
+  "edits": [
+    {
+      "old": "logger = logging.getLogger(__name__)",
+      "new": "# Modified by Harbor: pinned memory-guard evidence/admission overlay.\nfrom . import harbor_guard as _harbor_guard\n\nlogger = logging.getLogger(__name__)",
+      "count": 1
+    },
+    {
+      "old": "        self._pressure_reclaim_grace_polls = 0\n        if self._prefill_memory_guard:\n",
+      "new": "        _harbor_guard.reset(self)\n        self._pressure_reclaim_grace_polls = 0\n        if self._prefill_memory_guard:\n",
+      "count": 1
+    },
+    {
+      "old": "    def _get_ceiling_breakdown(self) -> dict[str, int]:",
+      "new": "    @_harbor_guard.sampled\n    def _get_ceiling_breakdown(self) -> dict[str, int]:",
+      "count": 1
+    },
+    {
+      "old": "    def _propagate_memory_limit(self) -> None:",
+      "new": "    @_harbor_guard.propagating\n    def _propagate_memory_limit(self) -> None:",
+      "count": 1
+    },
+    {
+      "old": "                return {**terms, \"dynamic\": self._get_static_ceiling()}",
+      "new": "                _harbor_guard.note_source(self, \"static_fallback\")\n                return {**terms, \"dynamic\": self._get_static_ceiling()}",
+      "count": 1
+    },
+    {
+      "old": "            terms[\"free\"] = available",
+      "new": "            _harbor_guard.note_source(self, \"available_memory\")\n            terms[\"free\"] = available",
+      "count": 1
+    },
+    {
+      "old": "            terms[\"free\"] = stats[\"free\"]",
+      "new": "            _harbor_guard.note_source(self, \"host_statistics64\")\n            terms[\"free\"] = stats[\"free\"]",
+      "count": 1
+    },
+    {
+      "old": "            return {\"static\": 0, \"dynamic\": 0, \"metal_cap\": 0, \"hard_limit\": 0}",
+      "new": "            _harbor_guard.note_source(self, \"disabled\")\n            return {\"static\": 0, \"dynamic\": 0, \"metal_cap\": 0, \"hard_limit\": 0}",
+      "count": 1
+    },
+    {
+      "old": "        if self._memory_guard_tier == \"custom\":\n            dynamic_ceiling =",
+      "new": "        if self._memory_guard_tier == \"custom\":\n            _harbor_guard.note_source(self, \"custom\")\n            dynamic_ceiling =",
+      "count": 1
+    },
+    {
+      "old": "                engine_type = type(engine).__name__",
+      "new": "                _harbor_guard.unresolved(self)\n                engine_type = type(engine).__name__",
+      "count": 1
+    },
+    {
+      "old": "            try:\n                await self._check_and_enforce()\n                await self._check_ttl()\n            except asyncio.CancelledError:\n                break\n            except Exception as e:\n                logger.error(f\"Process memory enforcer error: {e}\")",
+      "new": "            _harbor_guard.begin_iteration(self)\n            try:\n                await self._check_and_enforce()\n                # Sampling and enforcement are the guard's evidence. The TTL\n                # sweep takes the pool lock, which a model load holds through\n                # its own admission check, so it must not keep the pass pending.\n                _harbor_guard.complete_iteration(self)\n                await self._check_ttl()\n            except asyncio.CancelledError:\n                _harbor_guard.fail_iteration(self)\n                break\n            except Exception as e:\n                _harbor_guard.fail_iteration(self)\n                logger.error(f\"Process memory enforcer error: {e}\")",
+      "count": 1
+    },
+    {
+      "old": "        if self._settings_manager is None:\n            return\n        await self._engine_pool.check_ttl_expirations(",
+      "new": "        if self._settings_manager is None:\n            return\n        # Modified by Harbor: a load holds the pool lock through its admission\n        # check, so waiting on it here would stall the guard's evidence until\n        # the load is refused as stale. Idle unloads can wait for the next pass.\n        lock = getattr(self._engine_pool, \"_lock\", None)\n        if lock is not None and lock.locked():\n            return\n        await self._engine_pool.check_ttl_expirations(",
+      "count": 1
+    }
+  ]
+}

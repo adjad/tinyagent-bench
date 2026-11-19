@@ -1,0 +1,61 @@
+"""HTTP surface for the user's profile (service/memory/profile.py).
+
+The notch's Getting to know you flow PATCHes after every step, so closing the
+panel mid-way loses nothing; About you in the Memory window edits the same
+fields. Every response carries the profile, its status and the preview of how
+Harbor uses it, so a client never needs a second call to show the result.
+"""
+from __future__ import annotations
+
+from typing import Any
+
+from fastapi import APIRouter, HTTPException
+
+from service.memory import profile as P
+
+router = APIRouter(prefix="/profile", tags=["profile"])
+
+
+def _payload(profile: dict) -> dict[str, Any]:
+    # The same predicate the prompts use (P.may_send_to): the label can't
+    # say "Stays on this Mac" while the profile rides to a cloud model.
+    host = P.sent_to()
+    status = {**P.status(profile), "local_only": not host, "sent_to": host,
+              "tailnet_nodes": P.tailnet_nodes()}
+    return {"profile": profile, "status": status, "preview": P.preview(profile)}
+
+
+@router.get("")
+def get_profile() -> dict[str, Any]:
+    return _payload(P.load())
+
+
+@router.patch("")
+def patch_profile(body: dict[str, Any]) -> dict[str, Any]:
+    try:
+        return _payload(P.update(body))
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from None
+
+
+@router.post("/complete")
+def complete_profile() -> dict[str, Any]:
+    return _payload(P.mark_complete())
+
+
+@router.post("/dismiss")
+def dismiss_profile() -> dict[str, Any]:
+    return _payload(P.dismiss())
+
+
+@router.delete("")
+def delete_profile() -> dict[str, Any]:
+    profile = P.clear()
+    # Asked in the same questions, so Erase covers it. A failure here must not
+    # report the erase of the answers as failed.
+    try:
+        from service import user_hours
+        user_hours.clear()
+    except OSError:
+        pass
+    return _payload(profile)

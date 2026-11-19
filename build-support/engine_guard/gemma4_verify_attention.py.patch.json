@@ -1,0 +1,12 @@
+{
+  "path": "omlx/patches/gemma4_verify_attention.py",
+  "input_sha256": "ad4a99baa3c5230ed54cc161feac51144494c04c3910717a68354a1f34dc5ae9",
+  "output_sha256": "c5a36c8f8e0a3f7af7c98d93ba04b98db3972c9c3b25cad113a532edad910cd2",
+  "edits": [
+    {
+      "old": "            output = gemma4_verify_kernel.fused_verify_sdpa(\n                queries, cache.keys, cache.values, big_k.shape[2], self.scale\n            )\n",
+      "new": "            # Modified by Harbor: a dispatch this GPU refuses (threadgroup\n            # limit), or any other failure building the fused route, costs\n            # this call the kernel, never the reply. The cache update above\n            # is the stock one, so the stock attention reads the same keys.\n            try:\n                output = gemma4_verify_kernel.fused_verify_sdpa(\n                    queries, cache.keys, cache.values, big_k.shape[2], self.scale\n                )\n            except Exception as exc:\n                gemma4_verify_kernel.note_stock_fallback(exc)\n                output = sdpa(\n                    queries, big_k, big_v, cache=cache, scale=self.scale, mask=mask\n                )\n",
+      "count": 1
+    }
+  ]
+}

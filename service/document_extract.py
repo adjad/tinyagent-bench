@@ -1,0 +1,534 @@
+"""Text out of an attached document's bytes, bounded. Runs in a CHILD process.
+
+service/documents.py starts `python -I` on this module's `main()` for every
+attached document, feeds the bytes on stdin and reads one JSON line back. The
+parsers here (pypdf, python-docx, openpyxl, python-pptx, textutil) can take
+seconds and hundreds of MB on a hostile file; in a child they can't stall the
+service's event loop, and the parent kills the child at its deadline (a thread
+can't be killed). Pure: no service imports, no network, nothing written to disk.
+
+Rules:
+- IMPORTANT: a ZIP-based document (docx/xlsx/pptx/odt) is checked BEFORE any
+  parser opens it: the central directory is walked by hand
+  (linked_documents._zip_preflight), a zip64 record (which would make zipfile
+  read a different, hidden directory) is refused, and every part is INFLATED
+  to measure its real size, since declared sizes can lie. Parts that aren't
+  media by both extension and declared content type (an XML part named ".bin"
+  included) get 8 MB each and 24 MB together. A 179 KB docx holding 60 MB of
+  XML took 46 s and 1.45 GB in python-docx before this (Release Auditor,
+  2026-10-28).
+- pypdf's decompression ceilings drop from 75 MB to PDF_STREAM_BYTES.
+- Extraction stops once MAX_TEXT_CHARS is reached (pages, paragraphs, slides
+  and rows alike) and walks at most MAX_PDF_PAGES PDF pages. Large mode raises
+  those three limits (LARGE_TEXT_CHARS, LARGE_PDF_PAGES, LARGE_DOCUMENT_BYTES)
+  and nothing else (plus a `[Pages: N]` line with the PDF's true page count and a `[Page N]` line
+  before each PDF page's text; file text that looks like a marker is defused): the ZIP and stream
+  bounds above stay exactly as tight.
+- Every failure is a ValueError with a plain sentence for the person.
+"""
+from __future__ import annotations
+
+import io
+import json
+import re
+import struct
+import subprocess
+import sys
+import zlib
+from html.parser import HTMLParser
+from pathlib import PurePath
+from types import SimpleNamespace
+from zipfile import BadZipFile, ZIP_DEFLATED, ZIP_STORED, ZipFile
+
+MAX_DOCUMENT_BYTES = 20 * 1024 * 1024
+MAX_TEXT_CHARS = 24_000
+MAX_PDF_PAGES = 60
+# Large mode (argv[2] == "large"): a document read in full by service/large_document.py,
+# which condenses it before any model sees it, so far more can be pulled out.
+LARGE_TEXT_CHARS = 600_000
+LARGE_PDF_PAGES = 1500
+LARGE_DOCUMENT_BYTES = 32 * 1024 * 1024
+# ZIP bounds. The entry count and total are looser than linked_documents'
+# because a real deck carries many parts and images. What a parser builds a
+# tree from is every NON-media part (XML, whatever its extension: a ".bin" part
+# can carry an XML content type), and those are held tight: 8 MB each and
+# 24 MB together, measured by actually inflating them, never by the sizes the
+# archive declares (a header can lie about them).
+ZIP_ENTRIES = 2_000
+ZIP_TOTAL_BYTES = 64 * 1024 * 1024
+ZIP_TEXT_PART_BYTES = 8 * 1024 * 1024
+ZIP_TEXT_TOTAL_BYTES = 24 * 1024 * 1024
+ZIP_MEDIA_PART_BYTES = 24 * 1024 * 1024
+ZIP_RATIO = 100
+_MEDIA_EXTENSIONS = {"png", "jpg", "jpeg", "jfif", "gif", "bmp", "tif", "tiff", "emf", "wmf", "wdp", "svg",
+                     "heic", "webp", "mp4", "mov", "m4v", "mp3", "m4a", "wav", "wma", "wmv", "avi"}
+_MEDIA_TYPES = ("image/", "audio/", "video/")
+# pypdf's own decompression ceilings are 75 MB per stream; a page's text needs far less.
+PDF_STREAM_BYTES = 8 * 1024 * 1024
+_TEXTUTIL_TIMEOUT_S = 20.0
+# Child CPU ceiling (macOS enforces it). Memory is watched by the PARENT, which
+# kills the child above documents.CHILD_FOOTPRINT_BYTES: macOS ignores RLIMIT_AS.
+CHILD_CPU_SECONDS = 40
+
+_TEXTUTIL = {"doc": "doc", "rtf": "rtf", "odt": "odt", "wordml": "wordml"}
+_HTML = {"html", "htm"}
+_PLAIN = {"txt", "text", "md", "markdown", "csv", "tsv", "json", "log", "xml", "yaml", "yml"}
+_ZIPPED = {"docx", "xlsx", "pptx", "odt"}
+_LEGACY = {"xls": ".xlsx", "ppt": ".pptx"}
+
+TOO_COMPLEX = "That document is too large or complex for Harbor to read."
+SCANNED = "That PDF has no text Harbor can read (it looks scanned)."
+# AES-encrypted PDFs need a cipher library Harbor doesn't ship, even when they open with no password.
+ENCRYPTED = "That PDF is encrypted in a way Harbor can't open."
+DAMAGED = "That document couldn't be read. It may be damaged."
+LOCKED = "That document is password-protected. Harbor can't read it without the password."
+# A docx, xlsx or pptx saved with a password is not a ZIP: Office wraps the encrypted file in its
+# older container format, which starts with these bytes and names these two streams (in UTF-16).
+_OLE = b"\xd0\xcf\x11\xe0"
+_LOCKED_STREAMS = tuple(name.encode("utf-16-le") for name in ("EncryptedPackage", "EncryptionInfo"))
+
+
+class _Enough(Exception):
+    """Raised inside a walk once the text cap is reached."""
+
+
+class _Text:
+    """Collects text up to the cap, then stops the walk."""
+
+    def __init__(self, limit: int | None = None):
+        self.parts: list[str] = []
+        self.size = 0
+        # Read at call time, so the current cap applies, not the one at import.
+        self.limit = MAX_TEXT_CHARS if limit is None else limit
+
+    def add(self, text: str) -> None:
+        if not text:
+            return
+        self.parts.append(text)
+        self.size += len(text) + 1
+        if self.size > self.limit:
+            raise _Enough
+
+    def joined(self, sep: str = "\n") -> str:
+        return sep.join(self.parts)
+
+
+def _kind(name: str) -> str:
+    return PurePath(name or "").suffix.lower().lstrip(".")
+
+
+def is_locked_office(data: bytes) -> bool:
+    """Whether these bytes are an Office file saved with a password (see _OLE). Nothing is parsed."""
+    return data.startswith(_OLE) and all(stream in data for stream in _LOCKED_STREAMS)
+
+
+# --- ZIP preflight ----------------------------------------------------------------
+
+def _content_types(archive: ZipFile, names: set[str]) -> tuple[dict[str, str], dict[str, str]]:
+    """(overrides by lower-cased part name, defaults by extension) from [Content_Types].xml, if any."""
+    overrides: dict[str, str] = {}
+    defaults: dict[str, str] = {}
+    if "[Content_Types].xml" not in names:
+        return overrides, defaults
+    with archive.open("[Content_Types].xml") as source:
+        raw = source.read(1024 * 1024 + 1)
+    if len(raw) > 1024 * 1024:
+        raise ValueError(TOO_COMPLEX)
+    from xml.parsers import expat
+
+    def start(tag, attrs):
+        local = tag.rpartition("}")[2]
+        if local == "Override" and "PartName" in attrs:
+            overrides[attrs["PartName"].lstrip("/").lower()] = attrs.get("ContentType", "").lower()
+        elif local == "Default" and "Extension" in attrs:
+            defaults[attrs["Extension"].lower()] = attrs.get("ContentType", "").lower()
+    parser = expat.ParserCreate(namespace_separator="}")
+    parser.StartElementHandler = start
+    try:
+        parser.Parse(raw, True)
+    except expat.ExpatError:
+        raise ValueError(DAMAGED) from None
+    return overrides, defaults
+
+
+def _is_media(name: str, overrides: dict[str, str], defaults: dict[str, str]) -> bool:
+    """Media only when BOTH the extension and any declared type say so."""
+    ext = PurePath(name).suffix.lower().lstrip(".")
+    if ext not in _MEDIA_EXTENSIONS:
+        return False
+    declared = overrides.get(name.lower()) or defaults.get(ext)  # OPC part names ignore case
+    return declared is None or declared.startswith(_MEDIA_TYPES)
+
+
+def _inflated_size(archive: ZipFile, info, limit: int) -> int:
+    """The entry's REAL size, inflating at most limit+1 bytes."""
+    size = 0
+    with archive.open(info) as source:
+        while chunk := source.read(min(1024 * 1024, limit + 1 - size)):
+            size += len(chunk)
+            if size > limit:
+                break
+    return size
+
+
+def zip_guard(data: bytes) -> None:
+    """Refuse a ZIP whose expansion isn't bounded, before any parser sees it."""
+    from service import linked_documents
+    try:
+        linked_documents._zip_preflight(data, SimpleNamespace(zip_entries=ZIP_ENTRIES))
+    except linked_documents._Stop as stop:
+        raise ValueError(TOO_COMPLEX if stop.status == "limit_exceeded" else DAMAGED) from None
+    end = data.rfind(b"PK\x05\x06", max(0, len(data) - 65557))
+    # A zip64 locator in front of the end record makes zipfile read a DIFFERENT,
+    # larger directory than the one checked above. Office files never need zip64.
+    if b"PK\x06\x06" in data[max(0, end - 65557):end] or b"PK\x06\x07" in data[max(0, end - 65557):end]:
+        raise ValueError(DAMAGED)
+    count = struct.unpack_from("<H", data, end + 10)[0]
+    try:
+        with ZipFile(io.BytesIO(data)) as archive:
+            infos = archive.infolist()
+            if len(infos) != count:
+                raise ValueError(DAMAGED)
+            names = {info.filename for info in infos}
+            if len(names) != len(infos):
+                raise ValueError(DAMAGED)
+            overrides, defaults = _content_types(archive, names)
+            total = text_total = 0
+            for info in infos:
+                if info.flag_bits & 1:
+                    raise ValueError("That document is password-protected.")
+                if info.compress_type not in (ZIP_STORED, ZIP_DEFLATED):
+                    raise ValueError(DAMAGED)
+                media = _is_media(info.filename, overrides, defaults)
+                limit = ZIP_MEDIA_PART_BYTES if media else ZIP_TEXT_PART_BYTES
+                if info.file_size > limit or info.file_size > max(1, info.compress_size) * ZIP_RATIO:
+                    raise ValueError(TOO_COMPLEX)
+                real = _inflated_size(archive, info, limit)
+                if real != info.file_size:
+                    raise ValueError(TOO_COMPLEX if real > info.file_size else DAMAGED)
+                total += real
+                text_total += 0 if media else real
+                if total > ZIP_TOTAL_BYTES or text_total > ZIP_TEXT_TOTAL_BYTES:
+                    raise ValueError(TOO_COMPLEX)
+    except (BadZipFile, EOFError, zlib.error, NotImplementedError):
+        raise ValueError(DAMAGED) from None
+
+
+# --- the formats ------------------------------------------------------------------
+
+# Large mode writes marker lines of its own ([Pages: N], [Page N], [Slide N], [Sheet: name]) for
+# service/large_document.py. A line of the FILE's text that looks like one is defused with a space
+# after the bracket, so a marker in the text is only ever the extractor's.
+#
+# What gets defused is a superset of what large_document recognises (its recognisers are
+# case-sensitive, need `[` at the very start of a line and one ASCII space or ": " after the word):
+# - the line may start with any whitespace except a newline, because text is stripped on its way
+#   through (a chunk's `.strip()`), which would put a hidden marker at a line start;
+# - the word is matched case-insensitively and may be followed by anything.
+# What stays untouched is inert because no recogniser matches it: a `[` that is not the first
+# non-blank character of a line (a marker in the middle of a line, or after a "\r", "\v" or
+# U+2028, which the recognisers do not treat as line breaks), full-width or other look-alike
+# brackets (U+FF3B, U+3010, U+27E6 ...: the recognisers need an ASCII `[`), and anything with
+# a space between the bracket and the word (the form this function writes, so it is idempotent).
+_FORGED_MARKER = re.compile(r"^([^\S\n]*)\[(?=(?:pages?|slides?|sheet)\b)", re.I | re.M)
+# The largest page count the extractor writes in `[Pages: N]` (seven digits, as large_document's
+# header pattern accepts). A hostile PDF can declare any number.
+MAX_DECLARED_PAGES = 9_999_999
+
+
+def defuse_markers(text: str) -> str:
+    """`text` with every line that could pass for an extractor marker made harmless.
+
+    A line that starts (after any blanks) with `[Page`, `[Pages`, `[Slide`, `[Slides` or `[Sheet`, in
+    any letter case, gets a space after the bracket: `[Page 9]` becomes `[ Page 9]`. Use it on any
+    text that did not come from the extractor's own markers but will be joined into marker-bearing
+    text (file text, recognised text). Pure, linear in the length of `text`, idempotent, and safe on
+    any str, including empty.
+    """
+    return _FORGED_MARKER.sub(r"\1[ ", text)
+
+
+_neutralise = defuse_markers
+
+
+def _pdf(data: bytes, limit: int | None = None, pages: int | None = None, markers: bool = False) -> tuple[str, bool]:
+    from pypdf import PdfReader, filters
+    for name in ("ZLIB_MAX_OUTPUT_LENGTH", "LZW_MAX_OUTPUT_LENGTH", "RUN_LENGTH_MAX_OUTPUT_LENGTH",
+                 "JBIG2_MAX_OUTPUT_LENGTH", "MAX_DECLARED_STREAM_LENGTH", "MAX_ARRAY_BASED_STREAM_OUTPUT_LENGTH"):
+        if hasattr(filters, name):
+            setattr(filters, name, PDF_STREAM_BYTES)
+    try:
+        reader = PdfReader(io.BytesIO(data))
+        if reader.is_encrypted:
+            # Many PDFs are encrypted only to limit printing or copying and open with no password.
+            # pypdf keeps is_encrypted true after a successful decrypt, so the result decides.
+            try:
+                opened = bool(reader.decrypt(""))
+            except Exception:  # noqa: BLE001
+                opened = False
+            if not opened:
+                raise ValueError("That PDF is password-protected. Harbor can't read it without the password.")
+        out = _Text(limit)
+        max_pages = MAX_PDF_PAGES if pages is None else pages
+        total = max(0, min(len(reader.pages), MAX_DECLARED_PAGES))
+        cut = total > max_pages
+        try:
+            for index, page in enumerate(reader.pages):
+                if index >= max_pages:
+                    cut = True
+                    break
+                body = (page.extract_text() or "").strip()
+                # Large mode labels each page, so an answer can say where a figure is.
+                if markers and body:
+                    body = f"[Page {index + 1}]\n{defuse_markers(body)}"
+                out.add(body)
+        except _Enough:
+            cut = True
+        text = out.joined("\n\n")
+        # Large mode also says how many pages the PDF really has, even when the text is cut short.
+        if markers and text.strip():
+            text = f"[Pages: {total}]\n{text}"
+        return text, cut
+    except ValueError:
+        raise
+    except Exception as error:  # noqa: BLE001 — a damaged PDF is unreadable, never a crash
+        if type(error).__name__ == "DependencyError":      # pypdf: the cipher needs a library Harbor doesn't ship
+            raise ValueError(ENCRYPTED) from None
+        raise ValueError("That PDF couldn't be read. It may be damaged.") from None
+
+
+def _docx(data: bytes, limit: int | None = None) -> tuple[str, bool]:
+    from docx import Document
+    doc = Document(io.BytesIO(data))
+    out = _Text(limit)
+    try:
+        for paragraph in doc.paragraphs:
+            if paragraph.text.strip():
+                out.add(paragraph.text)
+        for table in doc.tables:
+            for row in table.rows:
+                cells = [c.text.strip() for c in row.cells if c.text.strip()]
+                if cells:
+                    out.add(" | ".join(cells))
+    except _Enough:
+        return out.joined(), True
+    return out.joined(), False
+
+
+def _cell(value, markers: bool = False) -> str:
+    """One spreadsheet cell on one line, unable to pass for a column break.
+
+    A row is written as one line with " | " between cells, and service/large_document.py reads it
+    back by splitting on exactly those. So a line break inside a cell (Alt+Enter in a notes or
+    address column) becomes a space, as does any other run of blanks, and a `|` standing alone
+    between blanks becomes `/`. A `|` inside a word ("A|B") cannot be taken for a column break and
+    stays.
+    """
+    if value is None:
+        return ""
+    text = str(value)
+    if markers:
+        # Before the lines are joined: a marker at the start of a cell's second line is still one.
+        text = defuse_markers(text)
+    return " ".join("/" if word == "|" else word for word in text.split())
+
+
+def _xlsx(data: bytes, limit: int | None = None, markers: bool = False) -> tuple[str, bool]:
+    from openpyxl import load_workbook
+    book = load_workbook(io.BytesIO(data), read_only=True, data_only=True)
+    out = _Text(limit)
+    try:
+        for sheet in book.worksheets:
+            title = " ".join(str(sheet.title).splitlines()) if markers else sheet.title
+            out.add(f"[Sheet: {title}]")
+            for row in sheet.iter_rows(values_only=True):
+                cells = [_cell(v, markers) for v in row]
+                if any(c.strip() for c in cells):
+                    line = " | ".join(cells).rstrip(" |")
+                    out.add(defuse_markers(line) if markers else line)
+    except _Enough:
+        return out.joined(), True
+    finally:
+        book.close()
+    return out.joined(), False
+
+
+def _slide_lines(shapes) -> list[str]:
+    """The text on a slide, in the order its shapes are stored: text boxes and placeholders, the
+    rows of each table (cells joined with " | "), and whatever is inside a group, however deeply
+    groups are nested. Charts, pictures and diagrams carry no text this reads.
+
+    Walked with a list of open groups, not by recursion, so a deck made of groups inside groups
+    can't exhaust the stack.
+    """
+    from pptx.shapes.group import GroupShape
+    lines: list[str] = []
+    open_groups = [iter(shapes)]
+    while open_groups:
+        for shape in open_groups[-1]:
+            if isinstance(shape, GroupShape):
+                open_groups.append(iter(shape.shapes))
+                break
+            if shape.has_text_frame:
+                if shape.text_frame.text.strip():
+                    lines.append(shape.text_frame.text)
+            elif getattr(shape, "has_table", False):
+                for row in shape.table.rows:
+                    cells = [" ".join(cell.text.split()) for cell in row.cells]
+                    cells = [cell for cell in cells if cell]
+                    if cells:
+                        lines.append(" | ".join(cells))
+        else:
+            open_groups.pop()
+    return lines
+
+
+def _pptx(data: bytes, limit: int | None = None, markers: bool = False) -> tuple[str, bool]:
+    from pptx import Presentation
+    deck = Presentation(io.BytesIO(data))
+    out = _Text(limit)
+    try:
+        for i, slide in enumerate(deck.slides, 1):
+            lines = _slide_lines(slide.shapes)
+            if slide.has_notes_slide:
+                notes = (slide.notes_slide.notes_text_frame.text or "").strip()
+                if notes:
+                    lines.append(f"[speaker notes] {notes}")
+            if lines:
+                body = "\n".join(lines)
+                out.add(f"[Slide {i}]\n" + (defuse_markers(body) if markers else body))
+    except _Enough:
+        return out.joined("\n\n"), True
+    return out.joined("\n\n"), False
+
+
+def _textutil(data: bytes, fmt: str) -> str:
+    """macOS's own converter, fed on stdin so nothing is written to disk."""
+    try:
+        done = subprocess.run(["/usr/bin/textutil", "-stdin", "-stdout", "-format", fmt, "-convert", "txt",
+                               "-encoding", "UTF-8"], input=data, capture_output=True,
+                              timeout=_TEXTUTIL_TIMEOUT_S, env={"PATH": "/usr/bin:/bin", "LANG": "C"})
+    except (OSError, subprocess.TimeoutExpired):
+        raise ValueError("That document couldn't be read.") from None
+    if done.returncode != 0:
+        raise ValueError(DAMAGED)
+    return done.stdout.decode("utf-8", "replace")
+
+
+class _HTMLText(HTMLParser):
+    """Visible text of an HTML page: scripts and styles dropped, blocks on their own lines."""
+    _SKIP = {"script", "style", "noscript", "template"}
+    _BLOCK = {"p", "div", "br", "li", "tr", "h1", "h2", "h3", "h4", "h5", "h6", "section", "article", "td"}
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.parts: list[str] = []
+        self._skipping = 0
+
+    def handle_starttag(self, tag, attrs):
+        if tag in self._SKIP:
+            self._skipping += 1
+        elif tag in self._BLOCK:
+            self.parts.append("\n")
+
+    def handle_endtag(self, tag):
+        if tag in self._SKIP and self._skipping:
+            self._skipping -= 1
+
+    def handle_data(self, data):
+        if not self._skipping:
+            self.parts.append(data)
+
+
+def _html(data: bytes) -> str:
+    parser = _HTMLText()
+    parser.feed(_plain_text(data))
+    lines = (" ".join(line.split()) for line in "".join(parser.parts).splitlines())
+    return "\n".join(line for line in lines if line)
+
+
+def _plain_text(data: bytes) -> str:
+    if b"\x00" in data[:8192] and not data.startswith((b"\xff\xfe", b"\xfe\xff")):
+        raise ValueError("That file isn't a document Harbor can read.")
+    for encoding in ("utf-8-sig", "utf-16"):
+        try:
+            return data.decode(encoding)
+        except UnicodeDecodeError:
+            continue
+    return data.decode("latin-1")
+
+
+def extract_text(name: str, data: bytes, large: bool = False) -> tuple[str, bool]:
+    """(text, cut short) for a document's bytes, or ValueError with a plain sentence."""
+    max_bytes = LARGE_DOCUMENT_BYTES if large else MAX_DOCUMENT_BYTES
+    limit = LARGE_TEXT_CHARS if large else MAX_TEXT_CHARS
+    pages = LARGE_PDF_PAGES if large else MAX_PDF_PAGES
+    if len(data) > max_bytes:
+        raise ValueError(f"That document is too large for Harbor to read ({max_bytes // (1024 * 1024)} MB at most).")
+    kind = _kind(name)
+    if kind in _LEGACY:
+        raise ValueError(f"Harbor can't read old .{kind} files. Save it as {_LEGACY[kind]} and try again.")
+    if kind in _ZIPPED:
+        if is_locked_office(data):
+            raise ValueError(LOCKED)
+        zip_guard(data)
+    cut = False
+    try:
+        if kind == "pdf":
+            text, cut = _pdf(data, limit, pages, markers=large)
+            if not text.strip():
+                raise ValueError(SCANNED)
+        elif kind == "docx":
+            text, cut = _docx(data, limit)
+        elif kind == "xlsx":
+            text, cut = _xlsx(data, limit, markers=large)
+        elif kind == "pptx":
+            text, cut = _pptx(data, limit, markers=large)
+        elif kind in _HTML:
+            text = _html(data)
+        elif kind in _TEXTUTIL:
+            text = _textutil(data, _TEXTUTIL[kind])
+        elif kind in _PLAIN or not kind:
+            text = _plain_text(data)
+        else:
+            raise ValueError(f"Harbor can't read .{kind} files yet.")
+    except ValueError:
+        raise
+    except Exception:  # noqa: BLE001 — a damaged file is unreadable, never a crash
+        raise ValueError(DAMAGED) from None
+    if not text.strip():
+        raise ValueError("That document has no text Harbor can read.")
+    if large and kind not in ("pdf", "xlsx", "pptx"):
+        text = defuse_markers(text)
+    if len(text) > limit:
+        text, cut = text[:limit], True
+    return text, cut
+
+
+def _limit_self() -> None:
+    try:
+        import resource
+        resource.setrlimit(resource.RLIMIT_CPU, (CHILD_CPU_SECONDS, CHILD_CPU_SECONDS))
+    except (ImportError, ValueError, OSError):
+        pass
+
+
+def main() -> None:
+    """Child entry: argv[1] is the file name, argv[2] `large` for large mode, stdin the bytes."""
+    _limit_self()
+    name = sys.argv[1] if len(sys.argv) > 1 else ""
+    large = len(sys.argv) > 2 and sys.argv[2] == "large"
+    data = sys.stdin.buffer.read((LARGE_DOCUMENT_BYTES if large else MAX_DOCUMENT_BYTES) + 1)
+    try:
+        text, cut = extract_text(name, data, large)
+        result = {"text": text, "cut": cut}
+    except ValueError as error:
+        result = {"error": str(error) or DAMAGED}
+    except MemoryError:
+        result = {"error": TOO_COMPLEX}
+    sys.stdout.write(json.dumps(result))
+    sys.stdout.flush()
+
+
+if __name__ == "__main__":
+    main()

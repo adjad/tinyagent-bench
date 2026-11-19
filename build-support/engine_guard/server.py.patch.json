@@ -1,0 +1,77 @@
+{
+  "path": "omlx/server.py",
+  "input_sha256": "e5ef48cdadc46167281eb861d9fe2fc08fc7af89dee6379fb2d46018a7c6400d",
+  "output_sha256": "f97cb6717ec67b0268c6834c68405ac26c35b56135877ca5a5ef105c059874ae",
+  "edits": [
+    {
+      "old": "logger = logging.getLogger(__name__)",
+      "new": "# Modified by Harbor: pinned memory-guard evidence/admission overlay.\nfrom . import harbor_guard as _harbor_guard\n\nlogger = logging.getLogger(__name__)",
+      "count": 1
+    },
+    {
+      "old": "    # Start process memory enforcer if configured",
+      "new": "    _harbor_initial_ready = False\n    # Start process memory enforcer if configured",
+      "count": 1
+    },
+    {
+      "old": "        enforcer.start()",
+      "new": "        enforcer.start()\n        _harbor_initial_ready = await _harbor_guard.wait_initial(enforcer)",
+      "count": 1
+    },
+    {
+      "old": "                await _server_state.engine_pool.preload_pinned_models()",
+      "new": "                if _harbor_initial_ready:\n                    await _server_state.engine_pool.preload_pinned_models()",
+      "count": 1
+    },
+    {
+      "old": "@app.exception_handler(PrefillMemoryExceededError)",
+      "new": "@app.exception_handler(_harbor_guard.GuardEvidenceUnavailable)\nasync def _harbor_guard_refusal(request, exc):\n    capacity = isinstance(exc, _harbor_guard.GuardCapacityChanged)\n    code = \"engine_guard_capacity_changed\" if capacity else \"engine_guard_unavailable\"\n    return JSONResponse(status_code=507 if capacity else 503,\n                        headers={\"X-Harbor-Guard-Refusal\": \"1\"},\n                        content={\"error\": {\"type\": code, \"code\": code, \"message\": str(_harbor_guard.GuardCapacityChanged() if capacity else _harbor_guard.GuardEvidenceUnavailable())}})\n\n\n@app.exception_handler(PrefillMemoryExceededError)",
+      "count": 1
+    },
+    {
+      "old": "    metrics = get_server_metrics()\n    snapshot = metrics.get_snapshot()\n\n    pool = _server_state.engine_pool",
+      "new": "    metrics = get_server_metrics()\n    snapshot = metrics.get_snapshot()\n    harbor_guard_proof = _harbor_guard.snapshot(_server_state.process_memory_enforcer)\n\n    pool = _server_state.engine_pool",
+      "count": 1
+    },
+    {
+      "old": "        enforcer = _server_state.process_memory_enforcer\n        if enforcer is not None:\n            try:\n                model_memory_max = enforcer.get_final_ceiling()\n            except Exception as exc:  # noqa: BLE001\n                logger.warning(\"Status memory ceiling unavailable: %s\", exc)",
+      "new": "        model_memory_max = harbor_guard_proof[\"cap_bytes\"]",
+      "count": 1
+    },
+    {
+      "old": "        \"model_memory_max\": model_memory_max,",
+      "new": "        \"model_memory_max\": model_memory_max,\n        \"harbor_guard\": harbor_guard_proof,",
+      "count": 1
+    },
+    {
+      "old": "await engine.start()",
+      "new": "await _harbor_guard.start_bound(engine)",
+      "count": 3
+    },
+    {
+      "old": "    except EnginePoolError as e:\n        raise HTTPException(status_code=500, detail=str(e))",
+      "new": "    except _harbor_guard.GuardEvidenceUnavailable:\n        raise\n    except EnginePoolError as e:\n        raise HTTPException(status_code=500, detail=str(e))",
+      "count": 2
+    },
+    {
+      "old": "    _server_state.gpu_power_limiter = gpu_power.GpuPowerLimiter(base_path)",
+      "new": "    # Modified by Harbor: release the GPU power cap as soon as the last capped\n    # request ends (upstream holds it 15 s), so Low Power Mode never throttles\n    # the Mac while Harbor is idle.\n    _server_state.gpu_power_limiter = gpu_power.GpuPowerLimiter(base_path, release_delay_s=0.0)",
+      "count": 1
+    },
+    {
+      "old": "@app.post(\"/v1/models/{model_id}/unload\")\n",
+      "new": "# Modified by Harbor: drop the GPU power cap now, even while capped requests\n# still run (they finish uncapped), so an app that starts using the GPU in the\n# middle of a capped request is not held under it. The cap is Mac-wide.\n@app.post(\"/v1/harbor/gpu-power/lift\")\nasync def harbor_lift_gpu_power(_: bool = Depends(verify_api_key)):\n    limiter = _server_state.gpu_power_limiter\n    if limiter is not None:\n        await limiter.close()\n    return {\"status\": \"ok\"}\n\n\n@app.post(\"/v1/models/{model_id}/unload\")\n",
+      "count": 1
+    },
+    {
+      "old": "from . import harbor_guard as _harbor_guard\n",
+      "new": "from . import harbor_guard as _harbor_guard\nfrom . import harbor_encoders as _harbor_encoders\n",
+      "count": 1
+    },
+    {
+      "old": "@app.post(\"/v1/models/{model_id}/load\")\n",
+      "new": "# Modified by Harbor: which encoder towers each loaded model holds, and\n# pre-warm/release one (omlx/harbor_encoders.py).\n@app.get(\"/v1/harbor/encoders\")\nasync def harbor_encoders_status(_: bool = Depends(verify_api_key)):\n    return _harbor_encoders.pool_status(_server_state.engine_pool)\n\n\n@app.post(\"/v1/harbor/encoders/{modality}/{action}\")\nasync def harbor_encoders_action(modality: str, action: str, request: FastAPIRequest,\n                               _: bool = Depends(verify_api_key)):\n    try:\n        body = await request.json()\n    except ValueError:\n        body = None\n    model = body.get(\"model\") if isinstance(body, dict) else None\n    if not isinstance(model, str) or not model:\n        return JSONResponse(status_code=422, content={\"error\": \"model_required\"})\n    status, content = await _harbor_encoders.act(\n        _server_state.engine_pool, resolve_model_id(model), modality, action)\n    return JSONResponse(status_code=status, content=content)\n\n\n@app.post(\"/v1/models/{model_id}/load\")\n",
+      "count": 1
+    }
+  ]
+}

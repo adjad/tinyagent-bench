@@ -1,0 +1,9 @@
+{
+  "license": "Apache-2.0",
+  "source": "Pinned oMLX _propagate_memory_limit missing-scheduler branch after Harbor overlay; no native, model or vendor imports.",
+  "input_sha256": "242834641aeb16450d57e062449221a066206a62d066d57c312be073d656ba19",
+  "output_sha256": "7c881b28509e35c196d0d3903adef7a5bd77f1c82b8b63c84384535481285855",
+  "source_sha256": "7426d60e05144b2e2260a3352f349fa00618a420c5ba52f0eb540b25f1496e20",
+  "branch_ast_sha256": "a79c481c98738bee0d83c8179f696652d66cb6c12f1e99b0898bc44744df1d96",
+  "python": "def source_scheduler_branch(self):\n    for entry in self._engine_pool._entries.values():\n        scheduler = self._resolve_scheduler(entry)\n        if scheduler is None:\n            engine = getattr(entry, 'engine', None)\n            if engine is None:\n                continue\n            if getattr(engine, '_loaded', True) is False:\n                continue\n            if getattr(engine, '_prefill_memory_guard_managed_externally', False):\n                continue\n            if getattr(engine, 'is_diffusion_model', False):\n                continue\n            if isinstance(engine, BaseNonStreamingEngine):\n                engine.set_memory_soft_limit(soft_limit)\n                continue\n            _harbor_guard.unresolved(self)\n            engine_type = type(engine).__name__\n            if engine_type not in self._scheduler_resolve_warned:\n                self._scheduler_resolve_warned.add(engine_type)\n                logger.warning('ProcessMemoryEnforcer: could not resolve scheduler for engine type %s \u2014 prefill memory guard will not propagate to this engine. Verify the wrapper chain (engine._engine.engine.scheduler) still holds.', engine_type)\n            continue\n"
+}

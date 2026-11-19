@@ -1,0 +1,847 @@
+"""Tool registry. Each tool declares a safety `category` used by the policy engine."""
+from __future__ import annotations
+
+import asyncio
+import copy
+import inspect
+import hashlib
+import re
+from dataclasses import dataclass, field
+from typing import Any, Callable
+
+REGISTRY: dict[str, "Tool"] = {}
+
+
+class _OutboundUnknownResult(str):
+    """Ephemeral host uncertainty, never reconstructed from model/JSON text.
+
+    Only the four outbound wrappers mint this carrier after bridge dispatch or
+    a mismatched reply acknowledgment. Primitive metadata is immutable and
+    deliberately lost when a result is serialized, sliced, or coerced to str.
+    """
+    __slots__ = ("_operation", "_action_id")
+
+    def __new__(cls, text: str, *, operation: str, action_id: str):
+        if operation not in {"send_email", "send_message", "forward_email", "reply_to_email"}:
+            raise ValueError("Invalid outbound receipt operation")
+        if not isinstance(action_id, str) or not re.fullmatch(r"[A-Za-z0-9:_-]{0,128}", action_id):
+            raise ValueError("Invalid outbound action identity")
+        instance = super().__new__(cls, text)
+        object.__setattr__(instance, "_operation", operation)
+        object.__setattr__(instance, "_action_id", action_id)
+        return instance
+
+    @property
+    def operation(self):
+        return self._operation
+
+    @property
+    def action_id(self):
+        return self._action_id
+
+    def __setattr__(self, name, value):
+        raise AttributeError("Outbound uncertainty receipts are immutable")
+
+    def __delattr__(self, name):
+        raise AttributeError("Outbound uncertainty receipts are immutable")
+
+
+class _NotDoneResult(str):
+    """Host proof that an effect tool refused BEFORE any write.
+
+    The only thing that settles an effect attempt as "not done" instead of
+    unverified, so a bad date or an ambiguous title leaves the chat usable.
+    Minted only through not_done(), on a return path that comes before the tool
+    writes anything (see _NOT_DONE_TOOLS). Every other outcome (an exception, a
+    plain string, a new return path nobody marked) stays unverified and keeps
+    the chat locked: not marking something fails safe. Lost when serialized,
+    sliced or coerced to str, and never rebuilt from text.
+
+    `question` is what Harbor says to the person when it stops here; the text
+    itself is written for the model.
+    """
+    __slots__ = ("_question",)
+
+    def __new__(cls, text: str, *, question: str = ""):
+        instance = super().__new__(cls, text)
+        object.__setattr__(instance, "_question", question)
+        return instance
+
+    @property
+    def question(self):
+        return self._question
+
+    def __setattr__(self, name, value):
+        raise AttributeError("Refusal receipts are immutable")
+
+    def __delattr__(self, name):
+        raise AttributeError("Refusal receipts are immutable")
+
+    def __copy__(self):
+        return self
+
+    def __deepcopy__(self, memo):
+        return self
+
+
+class _NotSentResult(_NotDoneResult):
+    """Host proof that an outbound tool stopped BEFORE anything was dispatched.
+
+    The opposite of _OutboundUnknownResult. The same fail-safe rules as
+    _NotDoneResult, with one more source: minted only in
+    service/tools/action_tools.py (_not_sent), on a return path that comes
+    before the app-bridge call, or when the bridge itself answers not_attempted
+    with dispatch_started false.
+    """
+    __slots__ = ("_needs_recipient",)
+
+    def __new__(cls, text: str, *, question: str = "", needs_recipient: bool = False):
+        instance = super().__new__(cls, text, question=question)
+        object.__setattr__(instance, "_needs_recipient", bool(needs_recipient))
+        return instance
+
+    @property
+    def needs_recipient(self):
+        return self._needs_recipient
+
+
+class _NotDeliveredResult(str):
+    """Host proof that Messages itself recorded this text as failed: its own row
+    carries an error (Not Delivered). The outcome is known, so it settles as
+    terminal and does not hold later actions in the chat the way an unknown
+    outcome does (2026-11-15: one Not Delivered text locked every later send).
+
+    Minted only in service/tools/action_tools.py send_message, from the app's
+    read-back of Messages' store. Lost when serialized, sliced or coerced to
+    str, and never rebuilt from text. Nothing is retried because of it.
+    """
+    __slots__ = ()
+
+    def __copy__(self):
+        return self
+
+    def __deepcopy__(self, memo):
+        return self
+
+
+def not_delivered_receipt(tool, result) -> bool:
+    """`result` is send_message's own proof that Messages marked the text failed."""
+    return (type(result) is _NotDeliveredResult and getattr(tool, "name", "") == "send_message"
+            and getattr(getattr(tool, "func", None), "__module__", "") == "service.tools.action_tools")
+
+
+class _SavedResult(str):
+    """Host proof that save_email_attachment wrote its file.
+
+    The success text quotes a file name the sender chose, so no wording of it can
+    be trusted to say how the save went. classify_tool_outcome reads this type
+    instead of the text. Minted only by saved(); lost when serialized, sliced or
+    coerced to str, and never rebuilt from text.
+    """
+    __slots__ = ()
+
+    def __setattr__(self, name, value):
+        raise AttributeError("Saved receipts are immutable")
+
+    def __delattr__(self, name):
+        raise AttributeError("Saved receipts are immutable")
+
+    def __copy__(self):
+        return self
+
+    def __deepcopy__(self, memo):
+        return self
+
+
+def saved(text: str) -> str:
+    """Mark the text of a completed attachment save (see _SavedResult)."""
+    return _SavedResult(text)
+
+
+# The fixed shape of a completed save, for callers that only hold the text.
+_SAVED_TEXT = re.compile(r"Saved “[^\n]*” to [^\n]*\.")
+
+
+_NOT_SENT_TOOLS = frozenset({"send_email", "send_message", "forward_email", "reply_to_email",
+                             "schedule_send", "draft_email", "draft_message"})
+
+
+def not_sent_receipt(tool, result) -> bool:
+    """`result` is this built-in outbound tool's own proof that nothing went out."""
+    return (type(result) is _NotSentResult and getattr(tool, "name", "") in _NOT_SENT_TOOLS
+            and getattr(getattr(tool, "func", None), "__module__", "") == "service.tools.action_tools")
+
+
+# The built-in tools whose refusals are marked, and the module each must come
+# from. A tool missing here keeps locking the chat on a refusal, which is safe.
+_NOT_DONE_TOOLS = {
+    "add_reminder": "service.tools.assistant_tools",
+    "update_reminder": "service.tools.assistant_tools",
+    "add_calendar_event": "service.tools.assistant_tools",
+    "update_event": "service.tools.assistant_tools",
+    "cancel_event": "service.tools.assistant_tools",
+    "complete_reminder": "service.tools.schedule_extras",
+    "cancel_scheduled_send": "service.tools.action_tools",
+    "email_triage": "service.tools.action_tools",
+    "manage_contacts": "service.tools.contacts_tools",
+    "set_timer": "service.tools.timers_alarms",
+    "create_note": "service.tools.notes_write",
+    "append_note": "service.tools.notes_write",
+    "delete_note": "service.tools.notes_write",
+    "remember": "service.tools.memory_tools",
+    "save_email_attachment": "service.tools.attachment_actions",
+    "study_make": "service.study.ask_tools",
+}
+
+
+def not_done(text: str, *, question: str = "") -> str:
+    """Mark a refusal as proof that nothing changed (see _NotDoneResult).
+
+    Only for a path that returns before the tool writes anything. An unknown
+    or partial outcome must stay a plain string, so the chat stays locked."""
+    return _NotDoneResult(text, question=question)
+
+
+def not_done_receipt(tool, result) -> bool:
+    """`result` is this built-in tool's own proof that it changed nothing."""
+    return (type(result) is _NotDoneResult
+            and getattr(getattr(tool, "func", None), "__module__", "")
+            == _NOT_DONE_TOOLS.get(getattr(tool, "name", "")))
+
+
+# In-process host provenance only: never reconstruct this authority from wire text.
+_DRAFT_ORIGIN = object()
+
+
+def _literal_message_recipient(value: Any) -> str | None:
+    """One whole phone/email handle; trim outer ASCII spaces, reject controls.
+
+    Phones retain the existing punctuation formats, with 7–15 ASCII digits.
+    Names, display-name addresses and recipient lists are not literal handles.
+    """
+    if type(value) is not str or any(ord(c) < 32 or ord(c) == 127 for c in value):
+        return None
+    value = value.strip(" ")
+    if re.fullmatch(r"[A-Za-z0-9!#$%&'*+/=?^_`{|}~.-]+@[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)+", value):
+        local = value.split("@", 1)[0]
+        return value if not local.startswith(".") and not local.endswith(".") and ".." not in local else None
+    if (re.fullmatch(r"\+?[0-9(][0-9() .-]*[0-9)]", value)
+            and 7 <= len(re.sub(r"[^0-9]", "", value)) <= 15
+            and value.count("(") == value.count(")") <= 1
+            and ("(" not in value or value.index("(") < value.index(")"))):
+        return value
+    return None
+
+
+class _PreparedMessageDraft(str):
+    """Immutable host preparation receipt, not a send authorization/token."""
+    __slots__ = ("_draftorigin", "_resolved_to", "_prepared_text")
+
+    def __new__(cls, *, resolved_to: str, prepared_text: str, _origin=None):
+        if (_origin is not _DRAFT_ORIGIN or cls is not _PreparedMessageDraft
+                or type(resolved_to) is not str or not resolved_to
+                or _literal_message_recipient(resolved_to) != resolved_to
+                or type(prepared_text) is not str or not prepared_text.strip()):
+            raise ValueError("Invalid host draft preparation")
+        instance = super().__new__(cls, "Message draft prepared in Harbor — nothing has been sent. The user can edit or send it from the draft card.")
+        object.__setattr__(instance, "_draftorigin", _origin)
+        object.__setattr__(instance, "_resolved_to", resolved_to)
+        object.__setattr__(instance, "_prepared_text", prepared_text)
+        return instance
+
+    @property
+    def draftorigin(self):
+        return self._draftorigin
+
+    @property
+    def resolved_to(self):
+        return self._resolved_to
+
+    @property
+    def prepared_text(self):
+        return self._prepared_text
+
+    def __setattr__(self, name, value):
+        raise AttributeError("Prepared draft receipts are immutable")
+
+    def __delattr__(self, name):
+        raise AttributeError("Prepared draft receipts are immutable")
+
+
+def _prepared_message_draft(resolved_to: str, prepared_text: str) -> _PreparedMessageDraft:
+    return _PreparedMessageDraft(resolved_to=resolved_to, prepared_text=prepared_text,
+                                 _origin=_DRAFT_ORIGIN)
+
+
+def _valid_message_draft(result: Any, tool_name: str = "draft_message") -> bool:
+    if type(result) is not _PreparedMessageDraft or tool_name != "draft_message":
+        return False
+    try:
+        return (result.draftorigin is _DRAFT_ORIGIN
+                and type(result.resolved_to) is str
+                and bool(result.resolved_to)
+                and _literal_message_recipient(result.resolved_to) == result.resolved_to
+                and type(result.prepared_text) is str and bool(result.prepared_text.strip()))
+    except AttributeError:
+        return False
+
+
+class DisplayOnlyToolResult(str):
+    """Escaped publisher text for deterministic UI presentation, never inference.
+
+    The string value preserves direct tool callers' display API. Agent execution
+    must consume this type before slicing, formatting, or serializing the result.
+    """
+
+    model_text = (
+        "News was retrieved for a separate publisher-metadata display. "
+        "Its contents are unavailable to the model; do not invent, summarize, "
+        "or use them as action arguments."
+    )
+
+    def __new__(cls, display: str, *, model_text: str | None = None, artifact_kind: str = "news"):
+        instance = super().__new__(cls, display)
+        instance.artifact_kind = artifact_kind
+        if model_text is not None:
+            instance.model_text = model_text
+        return instance
+
+
+class PublicSearchToolResult(str):
+    """Original search display with a separate bounded model-facing evidence view."""
+
+    def __new__(cls, display: str, *, model_text: str,
+                cloud_display: str | None = None):
+        instance = super().__new__(cls, display)
+        instance.model_text = model_text
+        instance.cloud_display = cloud_display if cloud_display is not None else display
+        return instance
+
+
+@dataclass(frozen=True)
+class StoredDisplayArtifact:
+    """A server-loaded display record, never accepted from a client payload."""
+    session_id: str
+    turn_idx: int
+    text: str
+    kind: str
+
+    @property
+    def provenance(self) -> dict:
+        return {"session_id": self.session_id, "turn_idx": self.turn_idx,
+                "kind": self.kind,
+                "sha256": hashlib.sha256(self.text.encode("utf-8")).hexdigest()}
+
+
+# update_event's answer when the Harbor app (which holds the Calendar grant) is not
+# connected: nothing can be moved, and nothing was.
+EVENT_UPDATE_UNAVAILABLE = (
+    "Calendar events can't be moved right now because the Harbor app isn't connected. "
+    "Nothing was changed; try again once Harbor is running, or edit the event in Calendar.")
+
+
+@dataclass
+class Tool:
+    name: str
+    description: str
+    parameters: dict          # JSON schema for the arguments
+    category: str             # safety category: shell, fs_read, fs_write, ...
+    func: Callable[..., Any]  # called with **args, returns a string (sync or async)
+    # Example user utterances this tool answers ("where did I put my taxes",
+    # "find that pdf"). Used ONLY by router/semantic.py, which embeds them
+    # alongside the name and description so retrieval matches how a person
+    # actually asks rather than how the tool is named. Never serialized into
+    # `schema()`, so they cost zero prompt tokens no matter how many are added
+    # — the whole point is to improve selection without spending context.
+    aliases: list[str] = field(default_factory=list)
+    # Optional stable search document when model-facing wording is optimized.
+    # Description edits otherwise alter BM25 corpus statistics and embedding
+    # rankings for every tool. Never serialized into a model tool schema.
+    retrieval_description: str | None = None
+    # An unavailable implementation is stopped before approval/dispatch, even
+    # if a router or model selects its retained compatibility registration.
+    unavailable_reason: str = ""
+    # Reached only by name from a deterministic route or typed workflow, never
+    # by keyword/embedding search: it stays out of every retrieval index, so it
+    # neither competes in a retrieved menu nor shows up for a lookalike request.
+    internal: bool = False
+
+    @property
+    def effective_retrieval_description(self) -> str:
+        return self.description if self.retrieval_description is None else self.retrieval_description
+
+    def schema(self) -> dict:
+        return {
+            "type": "function",
+            "function": {
+                "name": self.name,
+                "description": self.description,
+                "parameters": self.parameters,
+            },
+        }
+
+
+@dataclass(frozen=True)
+class ToolOutcome:
+    """Typed interpretation of a tool result used by the agent verifier.
+
+    Tools may continue returning strings; this compatibility layer gives the
+    loop a reliable distinction between success, denial/failure, and dry-run
+    planning while individual tools migrate to richer native outcomes.
+    """
+    status: str  # succeeded | unknown | no_match | needs_input | denied | failed | planned | unsupported
+    text: str
+    effect: str = ""
+    facts: dict[str, Any] = field(default_factory=dict)
+
+
+_TOOL_EFFECTS = {
+    "send_message": "sent", "send_email": "sent", "reply_to_email": "sent",
+    "forward_email": "sent",
+    "schedule_send": "scheduled", "draft_message": "drafted",
+    "draft_email": "drafted", "add_reminder": "created",
+    "update_reminder": "updated", "update_event": "updated",
+    "add_calendar_event": "created", "complete_reminder": "completed",
+    "cancel_event": "cancelled", "cancel_scheduled_send": "cancelled",
+    "clear_past_reminders": "deleted", "clear_reminders": "deleted",
+    "toggle_setting": "changed", "write_file": "written", "move_path": "moved",
+    "organize_files": "moved", "save_email_attachment": "saved",
+    "commit_private_meeting": "created",
+    "save_knowledge": "created", "edit_knowledge": "updated", "delete_knowledge": "deleted",
+    "delete_note": "deleted",
+}
+
+
+def classify_tool_outcome(tool_name: str, result: str, *, planned: bool = False,
+                          denied: bool = False) -> ToolOutcome:
+    text = str(result or "")
+    effect = _TOOL_EFFECTS.get(tool_name, "read")
+    if planned:
+        return ToolOutcome("planned", text, effect)
+    if not denied and type(result) is _OutboundUnknownResult and result.operation == tool_name:
+        return ToolOutcome("unknown", text, effect, {"action_id": result.action_id})
+    if tool_name == "save_email_attachment" and not denied and (
+            type(result) is _SavedResult
+            or (type(result) is str and _SAVED_TEXT.fullmatch(text))):
+        # The file's name is the sender's and sits inside this text; it is never
+        # read for words like "denied" or "nothing found".
+        return ToolOutcome("succeeded", text, effect)
+    if not denied and type(result) is _NotDoneResult:
+        # A marked refusal keeps its usual status, but never reads as success
+        # or an empty result, whatever its wording.
+        plain = classify_tool_outcome(tool_name, text)
+        return plain if plain.status in {"failed", "needs_input"} else ToolOutcome("failed", text, effect)
+    if tool_name == "draft_message":
+        if denied:
+            return ToolOutcome("denied", text, effect)
+        if _valid_message_draft(result, tool_name):
+            return ToolOutcome("succeeded", text, effect)
+        low = text.strip().lower()
+        if "user denied this action" in low or low.startswith("blocked by safety"):
+            return ToolOutcome("denied", text, effect)
+        return ToolOutcome("failed", text, effect)
+    low = text.strip().lower()
+    if tool_name == "organize_files" and low.startswith("would move "):
+        return ToolOutcome("preview", text, effect)
+    if tool_name == "organize_files" and low.startswith(("no files", "moved 0 ")):
+        return ToolOutcome("no_match", text, effect)
+    if denied or "user denied this action" in low or low.startswith("blocked by safety"):
+        return ToolOutcome("denied", text, effect)
+    if is_tool_error(text) or any(mark in low for mark in (
+            "(not sent", "(not scheduled", "(couldn't", "(could not",
+            "(no recipient", "(nothing to send", "(channel must", "was not sent")):
+        return ToolOutcome("failed", text, effect)
+    if tool_name == "update_event":
+        if (text == EVENT_UPDATE_UNAVAILABLE or low.startswith("no upcoming calendar event matches")
+                or "which one?" in low or low == "which event should move?"):
+            return ToolOutcome("needs_input", text, effect)
+        # Only the verified native move's receipt is success. The old cancel +
+        # recreate receipt is not, and neither is any other text.
+        if re.fullmatch(r"Moved “.+” to [^.\n]+\.( Only this occurrence moved\.)?"
+                        r"( Invitees were notified of the new time\.)?", text, re.S):
+            return ToolOutcome("succeeded", text, effect)
+        return ToolOutcome("failed", text, effect)
+    if tool_name == "get_upcoming":
+        if low.startswith("harbor is still syncing"):
+            return ToolOutcome("needs_input", text, effect)
+        if low.startswith("harbor could not check"):
+            return ToolOutcome("failed", text, effect)
+        if re.search(
+                r"\bnothing scheduled in (?:the )?(?:next \d+ day\(s\)|"
+                r"today|tomorrow|this week|next week|this weekend|"
+                r"this month|next month)(?=[\s.!?]|$)",
+                low):
+            return ToolOutcome("no_match", text, effect)
+    if tool_name == "view_emails" and low.startswith("no emails matching"):
+        return ToolOutcome("no_match", text, effect)
+    if any(mark in low for mark in ("nothing active matches", "nothing found",
+                                     "no matches", "no inbox data")):
+        return ToolOutcome("no_match", text, effect)
+    if any(mark in low for mark in ("which one?", "ask the user", "needs part of")):
+        return ToolOutcome("needs_input", text, effect)
+    if tool_name == "add_reminder" and not low.startswith("reminder set:"):
+        # Bad ISO dates, past times, and arbitrary nonempty strings are not
+        # evidence of a write. The creation tool emits this receipt after save.
+        return ToolOutcome("failed", text, effect)
+    receipts = {
+        "send_message": "message sent to ", "send_email": "email sent to ",
+        "reply_to_email": "reply sent", "forward_email": "forwarded to ",
+        "schedule_send": "scheduled:", "draft_email": "draft opened in mail",
+        "draft_message": "message draft prepared in harbor",
+        "commit_private_meeting": "private calendar block created: ",
+        "save_knowledge": "saved knowledge: ", "edit_knowledge": "updated knowledge: ",
+        "delete_knowledge": "deleted knowledge: ", "delete_note": "deleted the note ",
+    }
+    if tool_name in receipts and not low.startswith(receipts[tool_name]):
+        return ToolOutcome("failed", text, effect)
+    return ToolOutcome("succeeded", text, effect)
+
+
+def register(name: str, description: str, parameters: dict, category: str,
+             aliases: list[str] | None = None, *,
+             retrieval_description: str | None = None, unavailable_reason: str = "",
+             internal: bool = False):
+    def deco(func):
+        REGISTRY[name] = Tool(name, description, parameters, category, func,
+                              list(aliases or []), retrieval_description, unavailable_reason,
+                              internal)
+        return func
+    return deco
+
+
+def get_tool(name: str) -> Tool | None:
+    return REGISTRY.get(name)
+
+
+def is_tool_routable(name: str) -> bool:
+    """Whether ``name`` may be offered or dispatched as a working capability."""
+    tool = REGISTRY.get(name)
+    return bool(tool and not tool.unavailable_reason)
+
+
+def routable_tool_names() -> set[str]:
+    return {name for name, tool in REGISTRY.items() if not tool.unavailable_reason}
+
+
+def is_tool_searchable(name: str) -> bool:
+    """Whether retrieval may surface ``name``: routable and not internal-only."""
+    tool = REGISTRY.get(name)
+    return bool(tool and not tool.unavailable_reason and not tool.internal)
+
+
+def searchable_tool_names() -> set[str]:
+    return {name for name in REGISTRY if is_tool_searchable(name)}
+
+
+# JSON-schema keywords whose values are themselves schemas (or maps/lists of
+# them). Everything else under a schema node — default, enum, const, examples —
+# is literal DATA, and a "description" key there belongs to the data.
+_SCHEMA_MAP_KEYS = ("properties", "patternProperties", "$defs", "definitions")
+_SCHEMA_LIST_KEYS = ("anyOf", "oneOf", "allOf", "prefixItems")
+_SCHEMA_ONE_KEYS = ("items", "additionalProperties", "not", "contains",
+                    "if", "then", "else", "propertyNames")
+
+
+def _strip_parameter_descriptions(node: Any, keep: frozenset[str] = frozenset()) -> Any:
+    """Copy of a JSON schema without `description` prose on schema nodes.
+
+    Only schema positions are walked, so a property literally NAMED
+    "description" (create_tool's argument) and a "description" key inside a
+    default/enum/const value both survive. Properties listed in `keep` keep
+    their prose: a few parameters carry a safety rule or a format the model
+    cannot infer from the name (see short_descriptions.KEEP_PARAMETER_PROSE)."""
+    if not isinstance(node, dict):
+        return copy.deepcopy(node)
+    out = {}
+    for key, value in node.items():
+        if key == "description" and isinstance(value, str):
+            continue
+        if key in _SCHEMA_MAP_KEYS and isinstance(value, dict):
+            out[key] = {name: (copy.deepcopy(sub) if key == "properties" and name in keep
+                               else _strip_parameter_descriptions(sub))
+                        for name, sub in value.items()}
+        elif key in _SCHEMA_LIST_KEYS and isinstance(value, list):
+            out[key] = [_strip_parameter_descriptions(sub) for sub in value]
+        elif key in _SCHEMA_ONE_KEYS and isinstance(value, dict):
+            out[key] = _strip_parameter_descriptions(value)
+        else:
+            out[key] = copy.deepcopy(value)
+    return out
+
+
+def model_schema(name: str, description: str, parameters: dict) -> dict:
+    """The schema the MODEL is shown for one tool.
+
+    Full by default. With terse mode on: the one-line description and bare
+    parameters, built from copies so the registry's stored objects are never
+    touched and retrieval keeps indexing the full description. Every path that
+    hands schemas to the model goes through here, including model-led schema
+    discovery, so the model never sees a mix it was not trained on."""
+    from service.config import terse_tool_schemas_enabled
+    if terse_tool_schemas_enabled():
+        from service.tools.short_descriptions import KEEP_PARAMETER_PROSE, SHORT
+        # Only tools the model was trained on in terse form are shortened.
+        # Skill/MCP/user-authored tools have no entry and keep every word,
+        # parameters included: nothing else would tell the model their rules.
+        if name in SHORT:
+            description = SHORT[name]
+            parameters = _strip_parameter_descriptions(
+                parameters, KEEP_PARAMETER_PROSE.get(name, frozenset()))
+    return {"type": "function",
+            "function": {"name": name, "description": description, "parameters": parameters}}
+
+
+def tool_schemas(names: list[str] | None = None) -> list[dict]:
+    tools = REGISTRY.values() if names is None else [REGISTRY[n] for n in names if n in REGISTRY]
+    return [model_schema(t.name, t.description, t.parameters)
+            for t in tools if not t.unavailable_reason]
+
+
+def _arg_hint(tool: Tool) -> str:
+    """A compact "name: type (required)" listing for the tool's real
+    parameters — fed back on a bad call so the model can self-correct instead
+    of guessing again blind."""
+    props = tool.parameters.get("properties", {})
+    required = set(tool.parameters.get("required", []))
+    parts = [f"{name}: {schema.get('type', 'any')}" + (" (required)" if name in required else "")
+             for name, schema in props.items()]
+    return ", ".join(parts) or "(no arguments)"
+
+
+# Arguments the HOST adds to a call after the model wrote it, which are not in
+# the tool's schema and are never offered to the model. `send_message.
+# resolved_to` is the one number a text's card was settled on (action_tools.
+# prepare_send_recipient sets it, and drops any value the call arrived with).
+# Accepted only at dispatch (`host_bound=True`) and only as a HostBoundArg:
+# every check of a call as the model wrote it still refuses them, and so does
+# dispatch for a plain value, so no model or caller can ever supply one.
+HOST_BOUND_ARGS: dict[str, frozenset[str]] = {
+    "send_message": frozenset({"resolved_to"}),
+}
+
+
+class HostBoundArg(str):
+    """A value for a HOST_BOUND_ARGS key that the host itself set.
+
+    `host_bound=True` used to accept the key from anyone: every path into
+    run_tool (the agent loop's ALLOW branch, router-direct calls, workflow and
+    task steps, vision actions) validated with it, so a call that arrived WITH
+    `resolved_to` kept it and the text went to whatever number it named. Only
+    the host's own approval path (action_tools.prepare_send_recipient) wraps a
+    value in this type. Arguments parsed from a model's JSON, a stored
+    workflow, or an HTTP body are plain `str` and can never be one, so they
+    are refused at dispatch and ignored by the tool itself."""
+    __slots__ = ()
+
+
+def host_bound_arg(value: str) -> HostBoundArg:
+    return HostBoundArg(value)
+
+
+def is_host_bound(value: object) -> bool:
+    return type(value) is HostBoundArg
+
+
+def _validate_args(tool: Tool, args: dict, *, host_bound: bool = False) -> str | None:
+    """Checks `args` against the tool's REGISTERED schema before dispatch,
+    instead of only finding out from a TypeError once `tool.func(**args)` has
+    already been called. Every tool today takes named kwargs with no **kwargs
+    catch-all, so an unexpected key does still raise — but relying on that is
+    fragile (a future tool with a catch-all would silently swallow a
+    hallucinated arg instead of surfacing it) and it's the wrong layer to
+    depend on for something the schema already tells us. Returns an
+    error string in the same shape the old TypeError branch used (so
+    `is_tool_error` below still recognizes it), or None if `args` is clean.
+    """
+    if not isinstance(args, dict):
+        return f"(error calling {tool.name}: arguments must be a JSON object.)"
+    props = tool.parameters.get("properties", {})
+    host = HOST_BOUND_ARGS.get(tool.name, frozenset()) if host_bound else frozenset()
+    # A host-bound key counts only when the host set it (see HostBoundArg).
+    unknown = [k for k in args if k not in props
+               and not (k in host and is_host_bound(args[k]))]
+    missing = [r for r in tool.parameters.get("required", []) if r not in args]
+    def invalid(value, schema, path):
+        kind = schema.get('type')
+        matches = {
+            'string': isinstance(value, str), 'boolean': isinstance(value, bool),
+            'integer': isinstance(value, int) and not isinstance(value, bool),
+            'number': isinstance(value, (int, float)) and not isinstance(value, bool),
+            'array': isinstance(value, list), 'object': isinstance(value, dict),
+            'null': value is None,
+        }
+        types = kind if isinstance(kind, list) else [kind]
+        if kind and not any(matches.get(t, True) for t in types):
+            return f"{path} must be {kind}"
+        if 'enum' in schema and value not in schema['enum']:
+            return f"{path} must be one of {schema['enum']!r}"
+        if isinstance(value, list) and 'items' in schema:
+            for index, item in enumerate(value):
+                if problem := invalid(item, schema['items'], f'{path}[{index}]'):
+                    return problem
+        return None
+    problems = [problem for key, value in args.items() if key in props
+                and (problem := invalid(value, props[key], key))]
+    if not unknown and not missing and not problems:
+        return None
+    bits = []
+    if unknown:
+        bits.append(f"unexpected argument(s) {unknown!r}")
+    if missing:
+        bits.append(f"missing required argument(s) {missing!r}")
+    bits.extend(problems)
+    return (f"(error calling {tool.name}({args!r}): {'; '.join(bits)}. "
+            f"Expected arguments — {_arg_hint(tool)}. Call it again with corrected arguments.)")
+
+
+def unwrap_nested_args(tool: Tool | None, args: object) -> object:
+    """{"parameters": {...}} / {"arguments": {...}} -> the inner object, when the
+    tool has no argument of that name: a call-format slip (web_latch_bitcoin,
+    2026-10-31), not a choice of values. Nothing inside is changed."""
+    if (tool is not None and isinstance(args, dict) and len(args) == 1):
+        (key, inner), = args.items()
+        if (key in {"parameters", "arguments", "args"} and isinstance(inner, dict)
+                and key not in tool.parameters.get("properties", {})):
+            return inner
+    return args
+
+
+def runnable_stub_call(tool: Tool | None, args: object) -> bool:
+    """True when a call to a tool offered by NAME ONLY (a model-led stub) can
+    run as that call instead of only loading the schema: its arguments already
+    satisfy the registered schema exactly (known names, required present, types
+    and enums valid). An effect also needs at least one argument, so a bare
+    `open_app()` still loads its schema first. Every guard after the stub step
+    (policy, confirmation, safety stops, grants) still applies to the call.
+
+    Toolbench baseline 2026-10-31: 149 of 476 failures were a stub call the
+    model never repeated; it then told the user "Calculator is open" or "I
+    saved your gate code" though nothing ran."""
+    args = unwrap_nested_args(tool, args)
+    if tool is None or not isinstance(args, dict) or tool.unavailable_reason:
+        return False
+    if _validate_args(tool, args) is not None:
+        return False
+    from service.router.model_led import effectful_call
+    return bool(args) or not effectful_call(tool, args)
+
+
+def is_tool_error(result: str) -> bool:
+    """True for a tool_result string produced by run_tool's own failure paths
+    (bad args caught by `_validate_args`, or an exception from the tool
+    itself) — every one of those is built with the same leading "(error"
+    marker. Used by the agent loop so a step-limit fallback never surfaces
+    one of these formatted-for-the-model error strings to the user as if it
+    were a real answer (see run_agent's final fallback)."""
+    return result.strip().startswith("(error")
+
+
+def private_shell_target(tool: Tool) -> bool:
+    """Recognize the named/category shell and aliases of its original code."""
+    from service.tools.builtin import _PRIVATE_SHELL_DISPATCH
+    original, code, _, _ = _PRIVATE_SHELL_DISPATCH
+    return (tool.name == "run_shell" or tool.category == "shell"
+            or tool.func is original or getattr(tool.func, "__code__", None) is code)
+
+
+def private_shell_implementation(tool: Tool) -> bool:
+    from service.tools.builtin import _PRIVATE_SHELL_DISPATCH
+    original, code, runner, runner_code = _PRIVATE_SHELL_DISPATCH
+    return (tool.name == "run_shell" and tool.category == "shell" and tool.func is original
+            and getattr(original, "__code__", None) is code
+            and getattr(runner, "__code__", None) is runner_code)
+
+
+def private_shell_problem(tool: Tool, args: dict) -> str | None:
+    if not private_shell_target(tool):
+        return None
+    from service.safety.policy import read_only_shell_argv
+    if not private_shell_implementation(tool):
+        return "Private context permits only the original builtin shell read implementation."
+    if set(args) != {"cmd"} or read_only_shell_argv(args.get("cmd")) is None:
+        return "Private context permits only validated local shell reads; no overrides, composition or private paths."
+    return None
+
+
+async def run_tool(tool: Tool, args: dict, *, private_shell_read_only: bool = False) -> str:
+    """Runs the tool and returns its result as a tool_result string.
+
+    Previously an unhandled exception here (missing/misnamed/wrong-typed
+    argument -> TypeError, or any other runtime error) propagated all the way
+    up through the agent loop and killed the ENTIRE turn with a generic
+    top-level error — the model never saw what went wrong and had no chance
+    to retry with corrected arguments, which is the actual fix for a bad tool
+    call. Caught here instead, so a bad call becomes an ordinary tool_result
+    the model can read and correct on its next step, the same way a wrong
+    file path or an ambiguous title already does.
+    """
+    from service.inference.remote_policy import remote_only_profile, remote_tool_allowed
+    if remote_only_profile() is not None and not remote_tool_allowed(tool.name):
+        return ("This tool needs Harbor's on-Mac models or extensions, which this "
+                "remote-inference build does not run; nothing was executed.")
+
+    def normalize_result(res):
+        # Preserve the existing display-only/public-source separation first.
+        if (type(res) in {_OutboundUnknownResult, _NotSentResult, _NotDoneResult, _SavedResult,
+                          _NotDeliveredResult}
+                or _valid_message_draft(res, tool.name)
+                or isinstance(res, (DisplayOnlyToolResult, PublicSearchToolResult))):
+            return res
+        from service.router.model_led import BuiltinCompletion, authoritative_builtin, effectful_call
+        if (type(res) is BuiltinCompletion and res.tool_name == tool.name
+                and authoritative_builtin(tool)
+                and type(res.completion_code) is int
+                and res.phase == ("mutation" if effectful_call(tool, args) else "read")):
+            return res
+        return str(res)
+
+    if tool.unavailable_reason:
+        return tool.unavailable_reason
+    # Drop junk empty-name keys before dispatch. Small models emit `{"": ""}`
+    # for a no-argument tool instead of `{}` — observed live: a `show_profile`
+    # call came back as {'': ''}, raised TypeError, and burned a whole agent
+    # step recovering from it. An empty key can never be a real parameter name,
+    # so silently ignoring it is strictly better than failing the call.
+    if args:
+        args = {k: v for k, v in args.items() if k}
+    # Reject a bad call BEFORE it ever reaches tool.func — see _validate_args.
+    if (err := _validate_args(tool, args, host_bound=True)) is not None:
+        return err
+    try:
+        # A SYNC tool runs on a worker thread, not on the event loop.
+        #
+        # 18 registered tools are plain `def`s, and their blocking budgets are
+        # not small: run_shell's subprocess.run has timeout=120, run_speed_test
+        # 45, every _osascript/_run helper 20, and read_file's PDF/docx/xlsx
+        # extraction is pure CPU over as many as 200 pages. Called inline, each
+        # of those freezes uvicorn's single event loop for its whole duration —
+        # which stops the SSE heartbeats that keep the UI from looking hung,
+        # stops the /assistant/sync pushes that keep the mail/messages caches
+        # warm, and stalls any second request.
+        #
+        # This is THREAD concurrency, not model concurrency — it is explicitly
+        # not the parallel-tool-execution work that was built, measured and
+        # reverted (see the block comment in agent/loop.py). Still exactly one
+        # tool at a time, and nothing here touches oMLX.
+        if private_shell_read_only:
+            if problem := private_shell_problem(tool, args):
+                return f"(error: {problem} The tool was NOT run.)"
+            if private_shell_target(tool):
+                from service.tools.builtin import _PRIVATE_SHELL_DISPATCH
+                runner = _PRIVATE_SHELL_DISPATCH[2]
+                # Snapshot the sole immutable argument before the worker wait.
+                return normalize_result(await asyncio.to_thread(runner, args["cmd"]))
+        if inspect.iscoroutinefunction(tool.func):
+            res = await tool.func(**args)
+            return normalize_result(res)
+        res = await asyncio.to_thread(tool.func, **args)
+        # A sync function can still RETURN an awaitable (a plain `def` that
+        # hands back a coroutine); to_thread only resolves the call itself.
+        if inspect.isawaitable(res):
+            res = await res
+        return normalize_result(res)
+    except TypeError as e:
+        return (f"(error calling {tool.name}({args!r}): {e}. "
+                f"Expected arguments — {_arg_hint(tool)}. Call it again with corrected arguments.)")
+    except Exception as e:  # noqa: BLE001 — must surface as a tool_result, never crash the turn
+        return f"(error running {tool.name}: {e})"

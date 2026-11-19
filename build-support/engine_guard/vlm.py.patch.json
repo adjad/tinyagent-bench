@@ -1,0 +1,22 @@
+{
+  "path": "omlx/engine/vlm.py",
+  "input_sha256": "6fff38f74a2ed3966cf83b3cab6d9db50607734fccf926c8ce717e6b7f1ab4a2",
+  "output_sha256": "4eda5c1d77827079ae2c0f67aa7b9e78cceaf97975659fc68ff28e40055277e8",
+  "edits": [
+    {
+      "old": "from ..patches.gemma4_audio import apply_gemma4_audio_patch\n",
+      "new": "from ..patches.gemma4_audio import apply_gemma4_audio_patch\n# Modified by Harbor: Gemma 4 audio/vision encoders load on demand.\nfrom .. import harbor_encoders as _harbor_encoders\n",
+      "count": 1
+    },
+    {
+      "old": "        # Inject mlx-lm tool calling support into VLM tokenizer\n        self._inject_tool_calling(self._tokenizer)\n\n        self._loaded = True\n",
+      "new": "        # Inject mlx-lm tool calling support into VLM tokenizer\n        self._inject_tool_calling(self._tokenizer)\n\n        # Modified by Harbor: after every load-time transform, release the\n        # encoders until a request or pre-warm needs them.\n        await _harbor_encoders.attach(self)\n        self._loaded = True\n",
+      "count": 1
+    },
+    {
+      "old": "    async def stop(self) -> None:\n        \"\"\"Stop the engine and cleanup resources.\"\"\"\n",
+      "new": "    async def stop(self) -> None:\n        \"\"\"Stop the engine and cleanup resources.\"\"\"\n        _harbor_encoders.detach(self)\n",
+      "count": 1
+    }
+  ]
+}

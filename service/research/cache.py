@@ -1,0 +1,86 @@
+"""Content-addressed cache for normalized page fetches, shared across jobs.
+
+Re-fetching the exact same URL for a second research job (or a second round
+of the same job) wastes network time and re-exposes Harbor to the same site
+twice. This cache is purely an optimization: a miss always falls back to a
+real fetch, and nothing here is treated as evidence until the orchestrator's
+own extraction/validation runs against the returned text.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import time
+from pathlib import Path
+
+from service.paths import MOE_DIR, STALE_TEMP_S, private_write_bytes
+
+CACHE_DIR = MOE_DIR / "research_cache"
+_TTL_SECONDS = 6 * 3600
+_MAX_AGE_DAYS = 30
+
+
+def _key(canonical_url: str) -> str:
+    return hashlib.sha256(canonical_url.encode("utf-8")).hexdigest()
+
+
+def _path(canonical_url: str) -> Path:
+    return CACHE_DIR / f"{_key(canonical_url)}.json"
+
+
+def get(canonical_url: str) -> dict | None:
+    path = _path(canonical_url)
+    try:
+        raw = path.read_text("utf-8")
+    except OSError:
+        return None
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError:
+        return None
+    if time.time() - float(data.get("cached_at", 0)) > _TTL_SECONDS:
+        return None
+    return data
+
+
+def put(canonical_url: str, *, url: str, title: str, text: str,
+        content_type: str, published_at: str, via_archive: bool = False,
+        page_canonical_url: str = "") -> None:
+    """Store a fetched page under the address it was requested at.
+
+    ``canonical_url`` is the key and must be the caller's own identity for the
+    request, never an address the page declared for itself: a page could then
+    file its text under another page's address. What the page declared goes in
+    ``page_canonical_url``, as data.
+    """
+    CACHE_DIR.mkdir(parents=True, exist_ok=True, mode=0o700)
+    path = _path(canonical_url)
+    data = {"url": url, "canonical_url": canonical_url, "title": title, "text": text,
+            "content_type": content_type, "published_at": published_at,
+            "via_archive": via_archive, "page_canonical_url": page_canonical_url,
+            "cached_at": time.time()}
+    # What the user researched: owner-only from the first byte, written atomically.
+    private_write_bytes(path, json.dumps(data).encode("utf-8"))
+
+
+def purge_older_than(days: float = _MAX_AGE_DAYS) -> int:
+    if not CACHE_DIR.exists():
+        return 0
+    cutoff = time.time() - days * 86400
+    removed = 0
+    for entry in CACHE_DIR.glob("*.json"):
+        try:
+            if entry.stat().st_mtime < cutoff:
+                entry.unlink()
+                removed += 1
+        except OSError:
+            continue
+    # Temp copies a write left by dying before its rename (private_write_bytes).
+    stale = time.time() - STALE_TEMP_S
+    for entry in CACHE_DIR.glob(".*.json.*.tmp"):
+        try:
+            if entry.lstat().st_mtime < stale:
+                entry.unlink()
+        except OSError:
+            continue
+    return removed

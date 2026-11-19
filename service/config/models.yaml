@@ -1,0 +1,204 @@
+# MOE expert roster — maps logical roles to oMLX model ids.
+# The router emits a ROLE; this file resolves the role to a concrete model.
+#
+# SINGLE-MODEL ROSTER (2026-08-08). Every chat/tool role now resolves to one
+# resident model. The previous roster split work across a small always-warm
+# model and a big tool-calling one, and most of the routing complexity in
+# service/router/router.py existed to manage that swap: keep the big model
+# asleep, siphon cheap reads to the small one, restrict which tools each could
+# see. None of that is load-bearing with one model, and it had started actively
+# causing bugs — a "summarize my mail and send it" request was handed a
+# read-only toolset chosen for the small model and spent 212s composing an
+# email it structurally could not send.
+#
+# What survives from that era, on its own merits: tool subsets are still
+# narrowed per request, because a long tool list measurably degrades selection
+# (measured: 5-7 domain tools -> 3/3 correct calls, all 44 -> 2/3 and it
+# reached for an unrelated tool). That is a reliability property of the model,
+# not a swap optimization, so it stays — see router._domain_subset.
+#
+omlx:
+  base_url: "http://127.0.0.1:8000"
+  # api_key is read from ~/.omlx/settings.json at runtime
+
+roles:
+  # Every text role is the same resident model — no swap, no cold load, and no
+  # routing decision that hinges on which model a request lands on.
+  #
+  # Base Gemma 4 E4B (with its MTP head). Its sampling lives in the engine's
+  # per-model settings, seeded by service/engine/profiles.py. Existing user
+  # overrides are still deep-merged over these code defaults.
+  #
+  # 0.5.0: these stay on BASE even though setup now offers only Gemma Harbor
+  # (catalog.GEMMA_E4B_HARBOR) and base is kept, not offered (catalog.KEPT_MODELS). An install that never applied
+  # a model in setup runs on these defaults with no overlay of its own, so
+  # pointing them at the tuned id would move it to a model it doesn't have.
+  # A new install gets the tuned model through setup instead: the download
+  # finishes, setup applies it (/setup/apply), and the overlay names it. A built-in-
+  # engine Mac with no roles of its own and only Gemma Harbor on disk (a lost overlay)
+  # resolves these to Gemma Harbor when read (config._stranded_roles); nothing is written.
+  fast:       "gemma-4-E4B-it-oQ4e-mtp"
+  router:     "gemma-4-E4B-it-oQ4e-mtp"
+  coding:     "gemma-4-E4B-it-oQ4e-mtp"
+  reasoning:  "gemma-4-E4B-it-oQ4e-mtp"
+  agent:      "gemma-4-E4B-it-oQ4e-mtp"
+  general:    "gemma-4-E4B-it-oQ4e-mtp"
+  # Smart Search's T2 retrieval tier (320MB, 1024-dim). NOT a chat model — it's
+  # served by oMLX's /v1/embeddings, which rejects LLMs on that endpoint. It is
+  # lazy and no longer participates in tool routing.
+  embedding:  "Qwen3-Embedding-0.6B-4bit-DWQ"
+  # Optional tool-routing cross-encoder after a pure-Python lexical shortlist.
+  # Smart Search may still load the embedder separately; the reranker evicts it
+  # before use so all three models cannot remain resident together.
+  reranker:   "Qwen3-Reranker-0.6B-mlx-6bit"
+
+tool_retrieval:
+  # `reranker` is available for controlled comparisons, but is not the strict
+  # default: the live 40-tool sample was 39/40 at ~1.08s warm while the lexical
+  # top-20 menu was 40/40 at ~4.4ms and does not retain another model.
+  provider: "lexical"
+
+# which models can actually drive the tool loop (structured tool_calls).
+#
+# Whatever the `agent` role points at is ALWAYS treated as tool-capable (see
+# config.is_tool_capable) — this list is only for models that should be
+# accepted on tool routes WITHOUT being the agent model. Re-verify a model
+# with `python scripts/test_model.py <model>` before adding it: that runs the
+# real router + agent loop + tools, so a clean run is the evidence for an
+# entry here.
+#
+# 2026-08-06 re-measured: the old "only one model emits parseable tool_calls"
+# finding no longer holds. LFM2.5-2.6B-MLX-6bit emits clean structured
+# tool_calls, single- and multi-turn, streaming and not, and narrates tool
+# results correctly through the real loop.
+# 2026-08-18: Ling-3.0-tiny-oQ6e verified against the real loop — clean
+# structured tool_calls single- and multi-turn, correct parallel emission
+# (emails+messages in ONE step), and correct selection from the 16-tool
+# ambiguous menu. Also holds up under greedy + enable_thinking:false, the
+# combination that historically broke tool calling on this roster.
+# 2026-08-18 quantization sweep: oQ4e verified at the SAME bar as oQ6e, and it
+# is the rostered variant. A HARD RELIABILITY CLIFF sits at 4 bits — measured
+# over 10 reps on the 16-tool ambiguous menu at the production temperature:
+#     oQ3e 5/10 | oQ3.5e 6/10 | oQ4e 10/10 | oQ5e 10/10 | oQ6e 10/10
+# Do NOT roster oQ3e/oQ3.5e however tempting the memory saving: below 4 bits
+# the model picks the WRONG tool about half the time and answers confidently,
+# which is silent. A single-sample version of that test produced an alternating
+# pattern that was pure noise and briefly made oQ3e look best — use reps.
+tool_capable:
+  # Gemma 4 E4B MTP: clean tool calls with thinking on and off (2026-10-24).
+  - "gemma-4-E4B-it-oQ4e-mtp"
+  # Gemma Harbor, Harbor's tuned Gemma (Ask LoRA r5, step 1800): base's template and tool
+  # format. Toolbench 2026-11-11, same clock as base: public 77% vs 68%,
+  # private 84% vs 72%; unsafe proposals about twice base's on the safety slice.
+  - "Gemma-Wisp"
+  - "gemma-4-E4B-it-r5-step-01800-oQ4e-mtp"   # its pre-release folder name, same weights
+  - "LFM2.5-2.6B-MLX-6bit"
+  - "Ling-3.0-tiny-oQ6e"
+  - "Ling-3.0-tiny-oQ4e"
+
+# Models whose chat template honors chat_template_kwargs {"enable_thinking":
+# false}. Used ONLY on the summary path (see config.no_thinking_kwargs) to skip
+# a chain of thought that buys nothing when the source text is already in the
+# prompt — measured 17.4s -> 2.0s on Agents-A1-4B for the same inbox.
+#
+# Verify before adding: send the model a summary prompt with and without the
+# kwarg and confirm reasoning_content goes to zero AND the answer survives. A
+# template that ignores the variable looks identical to one that lacks it, so
+# an unverified entry is silently a no-op. gpt-oss used reasoning_effort
+# instead of this variable, and LFM2.5's think block cannot be disabled at all.
+# Ling verified 2026-08-18 the way this comment requires: same summary prompt
+# with and without the kwarg — reasoning_content 51 chars -> 0, and the answer
+# survived intact (it actually improved, keeping a detail the thinking run
+# dropped). Without this entry Ling would carry a think block through every
+# summarize_emails/summarize_messages call while A1 skips it, which is a
+# straight unfairness in any head-to-head timing.
+no_thinking_capable:
+  # Gemma 4 E4B MTP, 2026-10-24: thinking-off summaries are fine (no tool
+  # messages on that path). NOT safe after a tool result: see
+  # thinking_required_after_tool below.
+  - "gemma-4-E4B-it-oQ4e-mtp"
+  # The tuned Gemma shares base's template. Without this entry it would think
+  # through the whole budget on digests, Brief summaries and message topics
+  # (measured on r4 2026-11-05: digests failed, topics returned no JSON).
+  - "Gemma-Wisp"
+  - "gemma-4-E4B-it-r5-step-01800-oQ4e-mtp"   # its pre-release folder name, same weights
+  - "Agents-A1-4B-oQe6"
+  - "Ling-3.0-tiny-oQ6e"
+  # oQ4e verified 2026-08-18 the way this comment requires: the enable_thinking
+  # gate passed (tool call still emitted with the think block suppressed).
+  # Omitting it here would silently reinstate a chain of thought on every
+  # summarize_emails/summarize_messages call.
+  - "Ling-3.0-tiny-oQ4e"
+
+# Models that return ZERO tokens when asked to write with thinking off after
+# a `role: tool` message. Measured 2026-10-24 on Gemma 4 E4B MTP: the step
+# after a tool result came back with completion_tokens 0 whenever
+# `enable_thinking: false` was sent, so every tool-using Ask answer was empty.
+# The agent loop's narration step (config.thinking_after_tool_required)
+# states thinking ON for these models instead of OFF. Summary paths, which
+# carry no tool messages, still use no_thinking_capable above.
+thinking_required_after_tool:
+  - "gemma-4-E4B-it-oQ4e-mtp"
+  - "Gemma-Wisp"
+  - "gemma-4-E4B-it-r5-step-01800-oQ4e-mtp"   # its pre-release folder name, same weights
+
+# Models whose think block Harbor states EXPLICITLY on every request, both
+# `enable_thinking: true` and `false`, instead of omitting the kwarg to mean
+# "on". The Harbor-merged Ling fine-tunes were trained thinking-off and emit no
+# reasoning under their default template; sending nothing therefore means
+# "whatever the oMLX admin profile says", which is a toggle Harbor cannot see
+# (it was flipped on 2026-10-13 and silently changed every "thinking" path).
+# Policy for these models (config.thinking_kwargs / agent.loop / main.py):
+# off by default — selection steps, narration, plain chat, background
+# extraction, search; ON for the daily brief, the Messages digest, and an
+# agent step after a tool failure this turn, each with a budget that holds
+# the think block (config.user_facing_summary_budget).
+explicit_thinking:
+  - "Ling-3.0-tiny-Wisp-V2-merged-oQ4e"
+  - "Ling-3.0-tiny-Wisp-V3-merged-oQ4e"
+  - "Ling-3.0-tiny-Wisp-V3-merged"
+
+default_role: "general"
+
+# Auto-unload any resident model after this many idle minutes (0 disables).
+# Purely a memory-reclaim measure — an idle model just reloads, at the usual
+# cold-start cost, the next time it's actually used. Runtime-adjustable via
+# GET/POST /idle_timeout (in-memory only; a restart reverts to this default).
+idle_unload_minutes: 5
+
+# oMLX per-model `reasoning_parser`, for reference — it is NOT set from this
+# file. It lives in ~/.omlx/model_settings.json per model, and its values are
+# xgrammar builtin structural-tag keys, so they do not match sglang's flag
+# spellings one-for-one.
+#
+# Agents-A1's upstream serving config (InternScience model card) is:
+#     --reasoning-parser qwen3  --tool-call-parser qwen3_coder
+# which maps onto oMLX/xgrammar as:
+#     reasoning_parser: "qwen_3"        (reasoning only)
+#     reasoning_parser: "qwen_3_coder"  (reasoning + tool calls)  <- use this
+# Valid keys in the bundled xgrammar: llama, kimi, deepseek_r1, deepseek_v3_1,
+# deepseek_v3_2, deepseek_v4, qwen_3, qwen_3_5, qwen_3_coder, harmony,
+# minimax, glm_4_7. `harmony` is gpt-oss's and is wrong for this roster.
+#
+# Currently UNSET for Agents-A1-4B-oQe6, and setting it changes nothing yet:
+# oMLX consults reasoning_parser only when a request carries a compiled
+# grammar (`structured_outputs` / `response_format`), and Harbor sends neither.
+# Set it before turning on guided grammar, not after — and note that oMLX
+# auto-applies a thinking_budget to grammar-constrained requests when a parser
+# IS set, which force-closes <think> and can leak the monologue into content.
+
+# Model-led routing, ON by default since 0.5.0-rc3 (off through rc2): the
+# model answers every /agent turn and picks its own tools; typed tasks,
+# delivery workflows, router reads/direct calls and verbatim tool
+# short-circuits are skipped. Safety policy, confirmation cards, outbound-send
+# confirmation and permission grants still apply to every call. A turn whose
+# agent role is bound to a cloud or local-provider endpoint keeps the rules
+# path (service/main._model_only_turn).
+# HARBOR_MODEL_ONLY=1/0 overrides it; ~/.moe/config.yaml can set it too
+# (`model_only: false` brings the rules path back). /resetharbor drops that
+# override, so the packaged default applies again after a reset.
+model_only: true
+
+# Gemma 4 E4B returns zero tokens when it narrates after a tool result with
+# thinking off, so model-only narration steps keep thinking on.
+model_only_narration_thinking: true

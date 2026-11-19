@@ -1,0 +1,170 @@
+"""Which inference engine Harbor talks to: the user's oMLX.app or its bundled one.
+
+Resolved ONCE at import, like the other `.moe` constants: switching mode needs a
+backend restart, and the config module needs the answer before it defines the
+settings paths. A fresh install prefers the available built-in engine unless
+oMLX.app is installed. The router persists that first choice, never this module.
+A Mac that cannot run the built-in engine and has no oMLX.app falls back to external
+without that being saved, so a later macOS update gets the built-in engine.
+"""
+from __future__ import annotations
+
+import json
+import os
+import platform
+import re
+from collections.abc import Callable
+from pathlib import Path
+
+from service.paths import MOE_DIR
+
+EXTERNAL = "external-omlx"
+BUNDLED = "bundled"
+_MODES = (EXTERNAL, BUNDLED)
+
+
+def _version(text: str) -> tuple[int, ...]:
+    return tuple((list(map(int, re.findall(r"\d+", text))) + [0, 0, 0])[:3])
+
+
+def _compatibility(root: Path | None, mac_version: str | None) -> tuple[str | None, str | None]:
+    document = (root or engine_code_root()) / "ENGINE.json"
+    try:
+        needed = json.loads(document.read_text()).get("minimum_macos")
+    except FileNotFoundError:
+        return None, None  # A source checkout has no packaged engine requirement.
+    except (OSError, ValueError, AttributeError, RecursionError):
+        return None, "The bundled engine's ENGINE.json is unreadable"
+    if not isinstance(needed, str) or re.fullmatch(r"\d{1,3}(?:\.\d{1,3}){0,2}", needed) is None:
+        return None, "The bundled engine's macOS requirement is invalid"
+    current = mac_version if mac_version is not None else platform.mac_ver()[0]
+    if re.fullmatch(r"\d{1,3}(?:\.\d{1,3}){0,2}", current) is None:
+        current = ""
+    if _version(current) < _version(needed):
+        return needed, f"The bundled engine needs macOS {needed} or newer (this Mac has {current or 'unknown'})"
+    return needed, None
+
+
+def unsupported_reason(root: Path | None = None, mac_version: str | None = None) -> str | None:
+    """The packaged engine's requirement, independently of the app's macOS floor.
+
+    No ENGINE.json means a source checkout. An existing but malformed manifest
+    cannot establish compatibility and must not bypass the startup/mode gate.
+    """
+    return _compatibility(root, mac_version)[1]
+
+
+def bundled_compatibility(root: Path | None = None, mac_version: str | None = None) -> dict:
+    """Setup facts that remain visible after falling back to an external engine."""
+    root = root or engine_code_root()
+    minimum, reason = _compatibility(root, mac_version)
+    available = engine_present(root) and reason is None
+    return {"available": available, "minimum_macos": minimum,
+            "unavailable_reason": reason or (None if available else "The built-in engine is not included in this build.")}
+
+
+def _overlay_selection() -> tuple[bool, str | None]:
+    """Whether a selection exists, and its valid value. Never expose raw config."""
+    try:
+        import yaml
+        doc = yaml.safe_load((MOE_DIR / "config.yaml").read_text())
+        if doc is None:
+            doc = {}
+        if not isinstance(doc, dict):
+            return True, None
+        section = doc.get("engine", {})
+        if section is None:
+            return False, None
+        if not isinstance(section, dict):
+            return True, None
+        if "mode" not in section:
+            return False, None
+        value = section["mode"]
+        return True, value if isinstance(value, str) and value in _MODES else None
+    except FileNotFoundError:
+        return False, None
+    except Exception:  # noqa: BLE001 — do not overwrite unreadable settings
+        return True, None
+
+
+def configured_mode() -> str | None:
+    """Saved next-launch choice, falling back to a valid launch override."""
+    present, saved = _overlay_selection()
+    if present:
+        return saved
+    value = os.environ.get("HARBOR_ENGINE_MODE", "").strip()
+    return value if value in _MODES else None
+
+
+def selection_unset() -> bool:
+    return "HARBOR_ENGINE_MODE" not in os.environ and not _overlay_selection()[0]
+
+
+# The one place Harbor can use a person's oMLX from: the CLI that starts it (service/main.py
+# OMLX_CLI) and the check of who answers on its port (attributed_transport.DesktopOmlx) are
+# both fixed to it. A copy in ~/Applications can be neither started nor verified.
+EXTERNAL_OMLX_APP = Path("/Applications/oMLX.app")
+
+
+def external_omlx_installed(present: Callable[[Path], bool] | None = None) -> bool:
+    """Presence only: never open the installed app or its settings. Injectable.
+
+    Only the copy Harbor can use counts. One in ~/Applications alone must not make a fresh
+    install pick an engine Harbor cannot start, and whose every answer it would refuse.
+    """
+    present = present or Path.exists
+    return bool(present(EXTERNAL_OMLX_APP))
+
+
+def engine_present(root: Path | None = None) -> bool:
+    root = root or engine_code_root()
+    return (root / "py" / "bin" / "python3").is_file() and (root / "ENGINE.json").is_file()
+
+
+def _configured_mode(external_installed: Callable[[], bool] | None = None) -> str:
+    if selection_unset():
+        installed = external_installed or external_omlx_installed
+        return (BUNDLED if engine_present() and unsupported_reason() is None
+                and not installed() else EXTERNAL)
+    override = os.environ.get("HARBOR_ENGINE_MODE", "").strip()
+    value = override or _overlay_selection()[1]
+    mode = value if value in _MODES else EXTERNAL
+    if mode == BUNDLED and unsupported_reason() is not None:
+        return EXTERNAL
+    # A saved choice outlives the build that made it: a build with no engine staged must not
+    # strand a user on "bundled". An explicit launch override is a deliberate choice and stays.
+    if mode == BUNDLED and not override and not engine_present():
+        return EXTERNAL
+    return mode
+
+
+def is_bundled() -> bool:
+    return MODE == BUNDLED
+
+
+def engine_data_dir() -> Path:
+    """Private engine state; follows HARBOR_HOME so the sandbox gets its own engine."""
+    return MOE_DIR / "engine"
+
+
+def engine_code_root() -> Path:
+    """Read-only engine code: HARBOR_ENGINE_ROOT, else `engine/` beside the service package."""
+    override = os.environ.get("HARBOR_ENGINE_ROOT", "").strip()
+    if override:
+        # Resolved: attribution refuses an engine root reached through a symlink.
+        return Path(override).expanduser().resolve()
+    here = Path(__file__).resolve()
+    # Source checkout: <repo>/engine. Packaged app: the backend is Resources/backend and the
+    # engine is its sibling, Resources/engine.
+    for candidate in (here.parents[2] / "engine", here.parents[3] / "engine"):
+        if (candidate / "ENGINE.json").is_file():
+            return candidate
+    return here.parents[2] / "engine"
+
+
+def bundled_base_path() -> Path | None:
+    """Where the bundled engine keeps settings.json and model_settings.json, else None."""
+    return engine_data_dir() / "base" if is_bundled() else None
+
+
+MODE = _configured_mode()   # last: it needs the helpers above

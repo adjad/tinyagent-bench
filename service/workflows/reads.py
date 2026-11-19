@@ -1,0 +1,600 @@
+"""Narrow, deterministic read intents from the replay; no effect tools."""
+from __future__ import annotations
+
+import re
+from datetime import date, datetime, timedelta
+
+from service.router.router import calendar_is_excluded
+from service.utterance_shape import deliberate, quoted_spans
+from service.safety.policy import Tier, decide
+from service.tools.registry import DisplayOnlyToolResult, get_tool, run_tool, classify_tool_outcome
+from service.tools import access_needed
+from service.tasks.models import TaskExecution
+from service.workflows.compiler import (
+    _normalize, _date_range, _source_args, _OUTBOUND, _INLINE_EMAIL_SUMMARY,
+    _STOCK_IDENTIFIER, _KNOWN_STOCK_TICKERS,
+    extract_stock_symbols,
+)
+
+
+# A negative stock clause must be removed before symbol extraction. If its
+# positive half is incomplete, the structured read asks instead of fetching
+# an instrument the user explicitly excluded.
+_STOCK_EXCLUSION = re.compile(
+    r"\b(?:but\s+not|all\s+but|exclud(?:e|es|ed|ing)|omit(?:ting)?|"
+    r"except(?:\s+for)?|other\s+than|without|not)\b",
+    re.I,
+)
+_EXCLUDED_STOCK_IDENTIFIER = (
+    r"(?i:[A-Za-z][A-Za-z0-9.'’&-]*(?:\s+(?!(?:and|or|email|text|send)\b)"
+    r"(?:[A-Za-z][A-Za-z0-9.'’&-]*|&)){0,3})(?=\s+(?:stocks?|shares?)\b)"
+    r"|"
+    # A lowercase unknown name can be part of a list whose stock noun appears
+    # only on the last item: "not palantir or tesla shares". Stop before a
+    # connector, but never reinterpret common source/action words as tickers.
+    r"(?i:(?!(?:and|or|email|text|send|from|my|the|notes?|using|without)\b)"
+    r"[a-z][a-z0-9.'’&-]*(?:\s+(?!(?:and|or|email|text|send|from|my|the|notes?|"
+    r"using|without)\b)[a-z][a-z0-9.'’&-]*){0,3})(?=\s*(?:,|\b(?:and|or)\b)\s+)"
+    r"|"
+    r"(?-i:\$?[A-Z][A-Za-z0-9]*(?:[.'’&-][A-Za-z0-9]+)*"
+    r"(?:\s+[A-Z][A-Za-z0-9]*(?:[.'’&-][A-Za-z0-9]+)*){0,3})"
+    rf"|(?:{_STOCK_IDENTIFIER})(?![A-Za-z])"
+)
+_EXCLUDED_STOCK_LIST = (
+    rf"(?:the\s+)?(?:{_EXCLUDED_STOCK_IDENTIFIER})(?:\s+(?:stocks?|shares?))?"
+    rf"(?:\s*(?:,|and|or)\s*(?:the\s+)?(?:{_EXCLUDED_STOCK_IDENTIFIER})"
+    rf"(?:\s+(?:stocks?|shares?))?)*"
+)
+_BARE_STOCK_NAME = (
+    r"(?!(?:from|for|with|using|my|the|notes?|today|yesterday|now|news|"
+    r"market|email|text|send|and|or)\b)[a-z][a-z0-9.'’&-]*"
+    r"(?:\s+(?!(?:and|or|email|text|send|from|for|with|using|notes?)\b)"
+    r"[a-z][a-z0-9.'’&-]*){0,3}"
+)
+# A bare lowercase phrase after "not" is only a company name when it does not
+# open like ordinary speech: "I am not in a hurry", "not sure", "not great".
+_BARE_STOCK_SPEECH = (
+    r"(?!(?:in|on|at|to|a|an|it|that|this|so|too|very|quite|really|yet|ready|"
+    r"going|sure|great|good|bad|asking|interested|worried|happy|certain|bothered|"
+    r"fussed|urgent|important|needed|necessary)\b)"
+)
+_BARE_STOCK_EXCLUSION = re.compile(
+    rf"(?:the\s+)?{_BARE_STOCK_SPEECH}{_BARE_STOCK_NAME}"
+    rf"(?:\s*(?:,|and|or)\s*(?:the\s+)?{_BARE_STOCK_NAME})*"
+    r"(?=\s*(?:$|[,.;!?]|\band\s+(?:email|text|send)\b))",
+    re.I,
+)
+
+
+def stock_symbol_key(value: str) -> str:
+    """Compare known aliases, tickers and free-form company names consistently."""
+    name = re.sub(r"\s+(?:stocks?|shares?)$", "", value.strip(), flags=re.I)
+    name = re.sub(r"^the\s+", "", name, flags=re.I).strip(" ,")
+    name = re.sub(r"\s*,?\s+(?:inc\.?|incorporated|corp\.?|corporation|co\.?|"
+                  r"company|ltd\.?|limited)$", "", name, flags=re.I)
+    resolved = extract_stock_symbols(name, standalone=True)
+    return (resolved[0] if len(resolved) == 1 else name).casefold()
+
+
+def stock_exclusion_clauses(text: str) -> list[tuple[int, frozenset[str]]]:
+    """Locate named stock exclusions without treating unrelated negation as stock scope."""
+    clauses = []
+    for marker in _STOCK_EXCLUSION.finditer(text):
+        tail = text[marker.end():].lstrip(" ,")
+        match = re.match(_EXCLUDED_STOCK_LIST, tail, re.I)
+        nouns = list(re.finditer(
+            r"\b(?:stocks?|shares?|portfolio|prices?|quotes?|equities)\b",
+            text[:marker.start()], re.I))
+        # The stock noun must be in the marker's own sentence: in "What is the
+        # Roku stock price? I am not in a hurry." the negation is about
+        # something else.
+        if nouns and not re.search(
+                r"[?!;]|\.(?:\s|$)", text[nouns[-1].end():marker.start()]):
+            bare = _BARE_STOCK_EXCLUSION.match(tail)
+            if bare and (not match or bare.end() > match.end()):
+                match = bare
+        if match:
+            names = frozenset(stock_symbol_key(part) for part in re.split(
+                r"\s*(?:,|\band\b|\bor\b)\s*", match.group(), flags=re.I) if part)
+            if names:
+                clauses.append((marker.start(), names))
+    return clauses
+
+
+def excluded_stock_symbols(text: str) -> frozenset[str]:
+    """Resolve named negative stock clauses even when another action follows.
+
+    This is also used immediately before stock tool execution, because mixed
+    delivery requests bypass the standalone structured-read compiler.
+    """
+    return frozenset(symbol for _, names in stock_exclusion_clauses(text)
+                     for symbol in names)
+
+
+def permitted_stock_symbols(text: str, symbols: list[str]) -> list[str]:
+    """Fail closed on excluded name/ticker aliases before any stock fetch."""
+    clauses = stock_exclusion_clauses(text)
+    if not clauses:
+        return symbols
+    excluded = {symbol for _, names in clauses for symbol in names}
+    included = {stock_symbol_key(symbol) for symbol in
+                extract_stock_symbols(text[:clauses[0][0]])}
+    known_tickers = {symbol.casefold() for symbol in _KNOWN_STOCK_TICKERS}
+    unresolved = any(symbol not in known_tickers for symbol in excluded)
+    return [symbol for symbol in symbols
+            if (key := stock_symbol_key(str(symbol))) not in excluded
+            and (not included or key in included)
+            and not (unresolved and (not included or key not in known_tickers))]
+
+
+def _stock_request_without_exclusions(text: str, period: str) -> tuple[str, list[str]] | None:
+    exclusion = _STOCK_EXCLUSION.search(text)
+    if exclusion is None:
+        return text, []
+    excluded_text = text[exclusion.end():].strip()
+    if period:
+        excluded_text = re.sub(
+            r"\s+(?:(?:for|during|in)\s+)?(?:the\s+)?" + re.escape(period) + r"$",
+            "", excluded_text, flags=re.I).strip()
+    if not re.fullmatch(_EXCLUDED_STOCK_LIST, excluded_text, re.I):
+        return None
+    excluded_symbols = list(excluded_stock_symbols(text))
+    if not excluded_symbols:
+        return None
+    return text[:exclusion.start()].strip(" ,"), excluded_symbols
+
+
+def adjacent_stock_response(last_assistant: str, last_tools: str) -> str:
+    """Expose stock symbols only from the immediately preceding stock reply."""
+    tools = {name.strip() for name in last_tools.split(",") if name.strip()}
+    return last_assistant if "get_stock_price" in tools else ""
+
+
+def _stock_read_request(text: str, period: str) -> bool:
+    """Recognize complete quote/performance asks, not financial topic words."""
+    body = re.sub(r"^(?:and\s+)?(?:(?:please|can\s+you|could\s+you)\s+)?", "", text, flags=re.I)
+    if period:
+        body = re.sub(r"\s+(?:(?:for|from|over|in|during|as\s+of)\s+)?(?:the\s+)?"
+                      + re.escape(period) + r"$", "", body, flags=re.I)
+    subject = r"(?:[\w.,&'-]+\s+){0,8}(?:stocks?|shares?|portfolio)"
+    names = r"[\w.,&'-]+(?:\s+[\w.,&'-]+){0,8}"
+    quote = (
+        r"(?:what(?:'s|\s+is|\s+are|\s+was|\s+were)|show(?:\s+me)?|check|get|fetch)\s+"
+        r"(?:(?:my|the|current|latest)\s+)*(?:"
+        + subject + r"\s+(?:prices?|quotes?)|"
+        r"(?:stocks?|shares?)\s+(?:prices?|quotes?)\s+(?:of|for)\s+" + names + r"|"
+        r"(?:prices?|quotes?)\s+(?:of|for)\s+" + subject + r")"
+    )
+    performance_verb = (
+        r"(?:doing|do|done|perform(?:ing|ed)?|trend(?:ing|ed)?|"
+        r"mov(?:e[ds]?|ing)|chang(?:e[ds]?|ing))"
+    )
+    performance = (
+        r"(?:how\s+(?:are|is|did|has|have)\s+" + subject + r"\s+" + performance_verb
+        + r"|what\s+(?:did|has|have)\s+" + subject + r"\s+" + performance_verb + r")"
+    )
+    if not (re.fullmatch(quote, body, re.I) or re.fullmatch(performance, body, re.I)):
+        return False
+    # A market-wide question has no portfolio identity to inherit. Only a
+    # named equity or an explicit personal/demonstrative reference may do so.
+    return bool(
+        extract_stock_symbols(body)
+        or re.search(
+            r"\b(?:(?:my|our|these|those)\s+(?:stocks?|shares?|portfolio)|"
+            r"(?:this|that)\s+(?:stock|share|portfolio))\b",
+            body,
+            re.I,
+        )
+    )
+
+
+# A structured read may answer ONLY the request it fully understands. These
+# helpers decide that; anything they decline goes on to the router and the
+# model, which see every clause. Declining is always safe (the request is still
+# answered, one model call slower); answering a different request than the one
+# asked is not.
+_MONTHS = ("january february march april may june july august september october "
+           "november december").split()
+_MONTH_DAY = re.compile(
+    r"\b(?:on\s+|for\s+)?(?P<month>" + "|".join(m[:3] + r"[a-z]*" for m in _MONTHS) + r")\.?\s+"
+    r"(?P<day>\d{1,2})(?:st|nd|rd|th)?\b(?!\s*(?::|am\b|pm\b|o'clock))"
+    r"(?:,?\s+(?P<year>\d{4}))?", re.I)
+_DAY_MONTH = re.compile(
+    r"\b(?:on\s+|for\s+)?(?P<day>\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?"
+    r"(?P<month>" + "|".join(m[:3] + r"[a-z]*" for m in _MONTHS) + r")\b"
+    r"(?:,?\s+(?P<year>\d{4}))?", re.I)
+
+
+def _named_date(text: str, today: date) -> str | None:
+    """'October 12' / '12th of Oct' as an exact YYYY-MM-DD, or None. A date that
+    has already passed this year is not guessed into next year."""
+    match = _MONTH_DAY.fullmatch(text) or _DAY_MONTH.fullmatch(text)
+    if not match:
+        return None
+    if match.group("month").lower() not in {*_MONTHS, *(m[:3] for m in _MONTHS), "sept"}:
+        return None
+    month = next((i + 1 for i, name in enumerate(_MONTHS)
+                  if name.startswith(match.group("month")[:3].lower())), None)
+    try:
+        found = date(int(match.group("year") or today.year), month, int(match.group("day")))
+    except (TypeError, ValueError):
+        return None
+    return found.isoformat() if found >= today else None
+
+
+def _calendar_read_args(text: str, period: str, today: date | None = None,
+                        *, default_days: int = 7) -> dict | None:
+    """get_upcoming arguments for a calendar read the shortcut FULLY understands,
+    or None to hand the request on. Handles one source, one clause, one time scope
+    (including 'today and tomorrow' and an exact date), and a reminder exclusion."""
+    today = today or datetime.now().date()
+    temporal = re.fullmatch(
+        r"(?:please\s+|can\s+you\s+|could\s+you\s+)?(?:show(?:\s+me)?|check|list)\s+"
+        r"(?P<period>today|tomorrow)[’']s\s+calendar", text.strip(" .!?"), re.I)
+    if temporal:
+        return {"period": temporal.group("period").lower()}
+    # Consume the WHOLE supported request. Anything left over needs semantic
+    # interpretation; keyword blacklists cannot enumerate every second action.
+    match = re.fullmatch(
+        r"(?:please\s+|can\s+you\s+|could\s+you\s+)?(?:"
+        r"what(?:[’']s|\s+is|\s+are)\s+(?:on|in)\s+|is\s+there\s+anything\s+(?:on|in)\s+|"
+        r"(?:show(?:\s+me)?|check|list)\s+|(?:why\s+)?are\s+there\s+no\s+)"
+        r"(?:my\s+|the\s+)?(?P<source>cal(?:endar)?(?:\s+events)?|schedule)\b(?P<tail>.*)",
+        text.strip(" .!?"), re.I)
+    if not match:
+        return None
+    tail = match.group("tail").strip()
+    # get_upcoming already reads only active commitments, so this exact state
+    # filter is fully represented. Other status predicates remain unresolved.
+    tail = re.sub(r"^that\s+are\s+not\s+cancelled\b|^that\s+are\s+not\s+canceled\b",
+                  "", tail, flags=re.I).strip()
+    title = re.search(
+        r'''\b(?:named|titled|called)\s+(?:"(?P<double>[^"\n]+)"|“(?P<curly>[^”\n]+)”|'''
+        r"'(?P<single>[^'\n]+)'|`(?P<backtick>[^`\n]+)`)", tail, re.I)
+    query = next((v for v in title.groupdict().values() if v is not None), "") if title else ""
+    if title:
+        tail = (tail[:title.start()] + tail[title.end():]).strip()
+    # Interpret source clauses only after removing the literal title. Calendar
+    # never reads the web or Notes; excluding Reminders needs calendar_only.
+    # Consume complete trailing clauses, leaving unknown conditions or actions
+    # intact so they cannot accidentally authorize a narrower read.
+    reminders_excluded = False
+    while True:
+        exclusion = re.search(
+            r"(?:^|[,;]\s*|\s+)(?:but\s+)?(?:do\s+not\s+(?:include|use)|"
+            r"don[’']t\s+(?:include|use)|without|excluding|exclude|skip|leave\s+out|no)"
+            r"\s+reminders?\s*$", tail, re.I)
+        if exclusion:
+            reminders_excluded = True
+        else:
+            exclusion = re.search(
+                r"(?:^|[,;]\s*|\s+)(?:but\s+)?(?:do\s+not|don[’']t)\s+(?:"
+                r"browse(?:\s+(?:the\s+)?(?:web|internet))?|"
+                r"(?:use|search)\s+(?:the\s+)?(?:web|internet)|"
+                r"(?:use|read|search)\s+(?:my\s+|the\s+)?notes)\s*$", tail, re.I)
+        if not exclusion:
+            break
+        tail = tail[:exclusion.start()].strip()
+    scope = re.sub(r"^(?:for|on)\s+", "", tail, flags=re.I).strip()
+    numeric = re.fullmatch(r"(?:the\s+)?next\s+(\d+)\s+(days?|weeks?)", scope, re.I)
+    if not scope:
+        args: dict = {"days": default_days}
+    elif re.fullmatch(r"today\s+and\s+tomorrow|tomorrow\s+and\s+today", scope, re.I):
+        args = {"period": "today and tomorrow"}
+    elif re.fullmatch(r"this\s+weekend", scope, re.I):
+        saturday = today - timedelta(days=today.weekday()) + timedelta(days=5)
+        sunday = saturday + timedelta(days=1)
+        args = {"period": f"{saturday.isoformat()}..{sunday.isoformat()}"}
+    elif (exact := _named_date(scope, today)) is not None:
+        args = {"period": exact}
+    elif re.fullmatch(r"today|tomorrow|(?:this|next)\s+(?:week|month)", scope, re.I):
+        args = {"period": scope.lower()}
+    elif numeric:
+        days = int(numeric[1]) * (7 if numeric[2].lower().startswith("week") else 1)
+        # The tool caps its days argument at 60. Do not silently truncate a
+        # larger request or turn a zero-day range into a one-day read.
+        if not 1 <= days <= 60:
+            return None
+        args = {"days": days}
+    else:
+        return None
+    if query:
+        args["query"] = query
+    if reminders_excluded or re.fullmatch(r"cal(?:endar)?\s+events", match["source"], re.I):
+        args = {**args, "calendar_only": True}
+    return args
+
+
+_NOT_A_SENDER = re.compile(
+    r"\b(?:and|or|then|also|but|yesterday|today|tomorrow|tonight|last|this|next|since|before|after|"
+    r"between|during|from|week|weeks|month|months|year|years|day|days|hour|hours|ago|"
+    r"delete|remove|trash|archive|mark|move|forward|reply|send|unsubscribe|flag|read|unread|"
+    r"summari[sz]e|that|which|who|where|with|about|over|under|only|just|accounts?|on|in|at|to|"
+    r"monday|tuesday|wednesday|thursday|friday|saturday|sunday|"
+    r"january|february|march|april|may|june|july|august|september|october|november|december)\b", re.I)
+
+
+def _sender_phrase(raw: str) -> str | None:
+    """The tail of 'purchases from X' when it is a plain sender name; otherwise
+    None. Anything carrying a time word, a conjunction or another action means the
+    request has more in it than a sender, and must not be flattened into one."""
+    candidate = raw.strip()
+    if (not candidate or len(candidate.split()) > 4 or _NOT_A_SENDER.search(candidate)
+            or re.search(r"\d{1,2}[/-]\d{1,2}|\d{4}|[;!?]", candidate)):
+        return None
+    return candidate
+
+
+# daily_brief returns evidence for the model: coverage caveats ("no cached
+# absence is verified") and instructions ("ask for a city, never guess one").
+# Shown verbatim from this path it read as diagnostics in a clean-install run,
+# so it always goes through the router's direct call, which the model narrates.
+_NARRATED_READS = frozenset({"daily_brief"})
+
+
+def _normalize_calendar_request(text: str) -> str:
+    """Correct request syntax without changing a quoted event's identity."""
+    parts = []
+    cursor = 0
+    for start, end in quoted_spans(text):
+        parts.extend((_normalize(text[cursor:start]), text[start:end]))
+        cursor = end
+    parts.append(_normalize(text[cursor:]))
+    return "".join(parts)
+
+
+def compile_read(prompt: str, *, last_user: str = "", last_tools: str = "",
+                 last_stock_response: str = ""):
+    if deliberate(prompt) is not None:
+        return None
+    from service.calendar_time_intent import named_calendar_time
+    intent = named_calendar_time(prompt)
+    if intent is not None:
+        if intent.supported and intent.personal and not intent.no_calendar:
+            return [("get_upcoming", intent.calendar_args())], ""
+        return None
+    from service.workflows.workflow20 import mentioned_sources, personal_read
+    read = personal_read(prompt)
+    if read is not None and any(name in _NARRATED_READS for name, _ in read.direct_calls):
+        # The router runs the same direct call and the model answers from it.
+        return None
+    if read is not None and read.direct_calls:
+        return list(read.direct_calls), ""
+    if read is not None:
+        return None
+    # A fully consumed Calendar read can explicitly exclude Reminders. Check
+    # that complete grammar before counting excluded nouns as another source.
+    calendar_text = _normalize_calendar_request(prompt).strip(" *_.?!")
+    calendar_args = _calendar_read_args(calendar_text, _date_range(calendar_text))
+    if calendar_args is not None:
+        return [("get_upcoming", calendar_args)], ""
+    # A one-source shortcut must consume the whole source contract. Preserve
+    # compound reads for routing instead of silently returning only Mail.
+    if len(mentioned_sources(prompt)) > 1:
+        return None
+    text = _normalize(prompt).strip(" *_.?!")
+    read_prefix = re.match(r"(?:can you |could you |please )?(?:what|show|check|list|compare)\b", text, re.I)
+    if _OUTBOUND.search(text) and not _INLINE_EMAIL_SUMMARY.match(text) and not read_prefix:
+        return None
+    if re.search(r"\b(?:create|set|add|remove|delete|cancel|update|remind)\b", text, re.I):
+        return None
+    period = _date_range(text)
+    if re.fullmatch(r"(?:show|put|keep)?\s*(?:it|this|that)?\s*(?:here\s+)?on\s+harbor", text, re.I):
+        if any(name in last_tools for name in ("summarize_emails", "summarize_messages", "daily_brief")):
+            return [], "The summary above is already displayed here in Harbor; nothing was sent elsewhere."
+    if (re.search(r"\b(?:calendar|my schedule)\b", text, re.I)
+            and re.search(r"\b(?:what|show|check|list)\b", text, re.I)
+            and not calendar_is_excluded(text)):
+        # Only a calendar read the shortcut fully understands runs here. A second
+        # source ("and messages"), a named date it cannot resolve, a second request
+        # or an exclusion it cannot honour all continue to the router and the model.
+        args = _calendar_read_args(text, period)
+        if args is None:
+            return None
+        return [("get_upcoming", args)], ""
+    if re.search(r"\bstock\s+markets?\b", text, re.I):
+        # A market question is not a request for the preceding portfolio's
+        # tickers. Preserve only the exact news-topic substitution; other
+        # market intents (movement, explanation, forecast, or a new time span)
+        # must reach the router/model with their original wording intact.
+        if (re.fullmatch(r"(?:and\s+)?in\s+the\s+stock\s+market", text, re.I)
+                and "web_search" in {name.strip() for name in last_tools.split(",")}
+                and re.search(r"\bnews\b", last_user, re.I)):
+            return [("web_search", {"query": "stock market news today"})], ""
+        return None
+    stock_request = _stock_request_without_exclusions(text, period)
+    stock_text, _ = stock_request or (text, [])
+    compare_context = (re.match(r"compare\s+(?:this|that|it)\b", stock_text, re.I)
+                       and ("get_stock_price" in last_tools or "stock" in last_user.lower()))
+    stock_context = (stock_request is not None and (
+        _stock_read_request(stock_text, period)
+        or compare_context
+        or (bool(re.fullmatch(r"(?:all|both|these|those)\s+(?:of\s+)?them", stock_text, re.I))
+            and bool(last_stock_response))))
+    if not stock_context and _STOCK_EXCLUSION.search(text) and _stock_read_request(text, period):
+        return [], "Which stock symbols or company names should I include?"
+    if stock_context and not re.search(r"\bnews\b", text, re.I):
+        args = _source_args("stock", stock_text, period)
+        prior_tools = {name.strip() for name in last_tools.split(",") if name.strip()}
+        prior_symbols = (
+            extract_stock_symbols(last_user)
+            if "get_stock_price" in prior_tools or compare_context else []
+        ) or extract_stock_symbols(last_stock_response)
+        if (not args.get("symbols")
+                and re.search(r"\b(?:this|that)\s+(?:stock|share)\b", stock_text, re.I)
+                and len(prior_symbols) != 1):
+            return [], "Which stock symbol or company name do you mean?"
+        args["symbols"] = permitted_stock_symbols(
+            text, args.get("symbols") or prior_symbols)
+        if (not args.get("period")
+                and not re.search(r"\b(?:current|latest|live|now)\b", stock_text, re.I)
+                and (prior_period := _date_range(last_user))):
+            args["period"] = prior_period
+        if not args["symbols"]:
+            return [], "Which stock symbols or company names should I include?"
+        return [("get_stock_price", args)], ""
+    if re.search(r"\b(?:email|inbox)\b", text, re.I) and re.search(r"\b(?:summaries|summary|digest)\b", text, re.I):
+        # Delivery-envelope parsing can discard a following send instruction;
+        # this earlier read shortcut needs its own complete read-only grammar.
+        temporal = rf"(?:\s+(?:(?:from|for|during|on)\s+)?{re.escape(period)})?" if period else ""
+        if not re.fullmatch(
+                r"(?:(?:please|can you|could you)\s+)?"
+                r"(?:(?:show(?: me)?|check|list|give me)\s+)?"
+                r"(?:my\s+|the\s+)?(?:email|inbox)\s+(?:summaries|summary|digest)"
+                + temporal, text, re.I):
+            return None
+        args = {"day": period} if period in {"today", "yesterday"} else ({"period": period} if period else {})
+        return [("summarize_emails", args)], ""
+    if re.search(r"\b(?:email|inbox)\b", text, re.I) and re.search(r"\bpurchases?\s+from\b", text, re.I):
+        match = re.fullmatch(
+            r"(?:(?:please|can you|could you)\s+)?(?:show(?: me)?|list|check)\s+"
+            r"(?:my\s+|the\s+)?(?:email|inbox)\s+(?:for\s+)?purchases?\s+from\s+([\w -]+)", text, re.I)
+        sender = _sender_phrase(match.group(1)) if match else None
+        if sender:
+            return [("view_emails", {"query": sender, "strict_match": True})], ""
+        return None
+    return None
+
+
+_WEATHER_FAILURES = (
+    # (marker in the tool's error, status, reply template)
+    ("no location given", "needs_input", "Which city do you want the weather for?"),
+    ("ambiguous california city", "needs_input",
+     "More than one California city starts with {city}. Which one do you mean? "
+     "Give its full name."),
+    ("ambiguous california location", "needs_input",
+     "I couldn't tell which California place {place} is. Give the full city "
+     "name followed by \", CA\"."),
+    # Only California names reach this one ("Riverside", "Santa"), and a
+    # prefix like "Santa" is not itself a city, so no "{city}, CA" example.
+    ("no unambiguous location", "needs_input",
+     "There's more than one {city}. Which one do you mean? Add the state or "
+     "country after a comma."),
+    ("the location says", "needs_input", "Which day do you want the weather in {place} for?"),
+    ("time constraint was included", "failed",
+     "I can give current conditions or a whole-day forecast for today and the "
+     "next two days, but not a specific hour or part of the day. Try asking "
+     "for {place} today or tomorrow."),
+    ("unsupported weather range", "failed",
+     "I can give current conditions or a whole-day forecast for today and the "
+     "next two days, but not a specific hour or part of the day. Try asking "
+     "for {place} today or tomorrow."),
+    ("forecast does not cover", "failed",
+     "The forecast only covers today and the next two days, so I can't give "
+     "{place} for {period}."),
+    ("could not verify", "failed",
+     "The weather service returned a different place than {place}, so I didn't "
+     "use its numbers. Try adding the state or country."),
+)
+# Only a clause separator starts a directive: "; ask the user ..." or
+# " — do not guess". A bare "-" or "." also occurs inside the detail itself
+# ("e-mail use limit hit at api.check.io").
+_MODEL_DIRECTIVE = re.compile(
+    r"(?:\s*;\s*|\s+—\s+)(?:ask|do not|don't|never|check|use)\b[^;]*", re.I)
+# "Santa, CA" / "Riverside California": the question names the city alone,
+# not "Santa, CA" again.
+_PLACE_SUFFIX = re.compile(r"\s*,.*$|\s+(?:ca|calif\.?|california)$", re.I)
+_HTTP_STATUS = re.compile(r"\bHTTP (\d{3})\b")
+
+
+def read_failure_reply(name: str, args: dict, raw) -> tuple[str, str] | None:
+    """(status, plain reply) for a failed read tool's "(error: ...)" text."""
+    text = str(raw or "").strip()
+    if not text.startswith("(error"):
+        return None
+    place = str((args or {}).get("location") or "that place").strip() or "that place"
+    if name == "get_weather":
+        low = text.lower()
+        city = _PLACE_SUFFIX.sub("", place) or place
+        for marker, status, template in _WEATHER_FAILURES:
+            if marker in low:
+                return status, template.format(
+                    place=place, city=city,
+                    period=str((args or {}).get("period") or "that range"))
+        # wttr.in answers an unknown place with 400 or 404; retrying will not
+        # help. Any other status (403, 408, 429, 451, 5xx) is about the
+        # service or the request, not the name, so "try again" stays honest.
+        code = _HTTP_STATUS.search(text)
+        if code and code[1] in {"400", "404"}:
+            return "failed", (f"I couldn't find weather for {place}. Check the "
+                              "spelling, or add the state or country.")
+        return "failed", (f"I couldn't get the weather for {place} right now. "
+                          "The weather service didn't return usable data; try "
+                          "again in a moment.")
+    detail = re.sub(r"^\(error:?\s*|\)$", "", text).strip()
+    detail = _MODEL_DIRECTIVE.sub("", detail).strip(" .;—-")
+    return "failed", (f"I couldn't finish that: {detail}." if detail
+                      else "I couldn't finish that read.")
+
+
+def _read_reply_text(item: dict) -> str:
+    """What the person reads for one successful read. The tool result itself
+    stays untouched for the model and follow-up turns; only this text changes."""
+    if item["name"] == "get_weather" and item["status"] == "succeeded":
+        from service.workflows.weather_reply import format_weather_reply
+        sentence = format_weather_reply(item["result"])
+        if sentence:
+            return sentence
+    # The fence lines tell the model where untrusted text starts and stops; the
+    # person reading this reply needs neither (and a renderer may take "<...>"
+    # for a tag).
+    from service.tools.untrusted import unfence
+    return unfence(item["result"])
+
+
+async def execute_read(compiled, emit, *, test_mode=False):
+    planned, response = compiled
+    calls, results, displays = [], [], []
+    if response:
+        return TaskExecution("needs_input", response)
+    has_display_only = False
+    for name, args in planned:
+        tool = get_tool(name)
+        if not tool:
+            return TaskExecution("failed", f"Required read tool {name} is unavailable.")
+        policy = decide(tool.category, args, tool=name)
+        call = {"id": f"read_{len(calls)}", "name": name, "args": args,
+                "decision": policy.tier.value, "reason": policy.reason}
+        calls.append(call)
+        await emit({"type": "tool_call", **call})
+        needs: list[dict] = []
+        if test_mode:
+            raw = "Dry run only — no data read and no tool executed."
+        elif policy.tier is not Tier.ALLOW:
+            raw = f"Read blocked by policy: {policy.reason}"
+        else:
+            # A source macOS hasn't allowed rides on the result, so Ask shows
+            # its fix button; this path has no model to name it.
+            with access_needed.noting() as needs:
+                raw = await run_tool(tool, args)
+        displays.append(str(raw))
+        if isinstance(raw, DisplayOnlyToolResult):
+            raw = raw.model_text
+            has_display_only = True
+        status = ("planned" if test_mode else "denied" if policy.tier is not Tier.ALLOW
+                  else classify_tool_outcome(name, raw).status)
+        item = {"id": call["id"], "name": name, "result": raw, "status": status}
+        results.append(item)
+        await emit({"type": "tool_result", **item, **access_needed.payload(needs)})
+    failed = any(r["status"] not in {"succeeded", "no_match", "planned"} for r in results)
+    # A tool's "(error: ...)" text is written for a model, not a person. This
+    # path has no model pass, so 1.4.0 showed it verbatim ("(error: no
+    # unambiguous location — ...; do not guess one)"). Say it plainly instead.
+    replies = [read_failure_reply(r["name"], call["args"], r["result"])
+               if r["status"] == "failed" else None
+               for r, call in zip(results, calls)]
+    response = "\n\n".join(reply[1] if reply else _read_reply_text(r)
+                            for r, reply in zip(results, replies))
+    if has_display_only:
+        response = DisplayOnlyToolResult("\n\n".join(displays), model_text=response,
+                                         artifact_kind="news" if len(results) == 1 else "mixed")
+    # Only a question back to the user is needs_input: every unsuccessful read
+    # must have a plain reply that asks one. A denied read, or a tool's own
+    # needs_input status, has no reply and stays failed.
+    unsuccessful = [reply for r, reply in zip(results, replies)
+                    if r["status"] not in {"succeeded", "no_match", "planned"}]
+    asks = bool(unsuccessful) and all(reply and reply[0] == "needs_input"
+                                      for reply in unsuccessful)
+    return TaskExecution("planned" if test_mode else "needs_input" if asks
+                         else "failed" if failed else "completed",
+                         response, calls, results)

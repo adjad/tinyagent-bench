@@ -1,0 +1,317 @@
+"""HTTP routes for the proactive engine (prefix /assistant/proactive).
+
+The integrator includes this router in service/main.py:
+    from service.proactive.api import router as proactive_router
+    app.include_router(proactive_router)
+"""
+from __future__ import annotations
+
+from fastapi import APIRouter, HTTPException, Request
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
+
+router = APIRouter(prefix="/assistant/proactive", tags=["proactive"])
+
+
+class Analyze(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    account: str | None = Field(default=None, max_length=320)
+
+
+class Fire(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    draft: str | None = Field(default=None, max_length=5000)
+    recipient: str | None = Field(default=None, max_length=320)
+
+
+class TodoUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    done: bool | None = None
+    add_to_day: bool | None = None
+    day: str | None = None
+    timezone: str | None = None
+
+
+def _native_only(request: Request) -> None:
+    """The app's own JSON requests only: any Origin header (a web page, even
+    "null") is refused, and so is a body that isn't JSON."""
+    if "origin" in request.headers:
+        raise HTTPException(403, "Use Harbor's Brief for this.")
+    media = (request.headers.get("content-type") or "").split(";", 1)[0].strip().lower()
+    if media != "application/json":
+        raise HTTPException(415, "Content-Type must be application/json.")
+
+
+async def _body(request: Request, model):
+    _native_only(request)
+    try:
+        data = await request.json()
+    except ValueError as exc:
+        raise HTTPException(422, "Body must be a JSON object.") from exc
+    if not isinstance(data, dict):
+        raise HTTPException(422, "Body must be a JSON object.")
+    try:
+        return model(**data)
+    except ValidationError as exc:
+        raise HTTPException(422, "Invalid request.") from exc
+
+
+class Empty(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+
+class Cleared(BaseModel):
+    """What the row said when the user acted on it (cycle.item_fingerprint)."""
+    model_config = ConfigDict(extra="forbid")
+    fingerprint: str = Field(pattern=r"^[0-9a-f]{24}$")
+
+
+def _item_id(item_id: str) -> str:
+    if not item_id or len(item_id) > 200 or any(ch.isspace() for ch in item_id):
+        raise HTTPException(422, "Invalid id.")
+    return item_id
+
+
+class Act(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    enabled: bool
+    # "Yes, these too" on the card about new actions: add to a yes that is in force, never
+    # turn everything back on if the person switched it off meanwhile.
+    only_new: bool = False
+
+
+def _act_state() -> dict:
+    """What the switch shows: the gate (service/proactive/acting.py) and what Harbor did lately."""
+    import time
+    from service.proactive import acting, autoadd
+    state = acting.state()
+    state["per_cycle"] = autoadd.MAX_PER_CYCLE
+    try:
+        from service.proactive.store import store
+        state["recent"] = acting.recent(store(), time.time())
+        # What Harbor did in the last day (a rolling day), for the Brief's "N today".
+        state["today"] = acting.done_since(store(), time.time() - acting.DAY_S)
+    except Exception:  # noqa: BLE001 — the list is a courtesy; the switch still works without it
+        state["recent"] = []
+        state["today"] = 0
+    # While adding from texts is agreed to, say when it can't work (Contacts off or not synced).
+    try:
+        state["note"] = autoadd.contacts_note() if acting.enabled("add") else ""
+    except Exception:  # noqa: BLE001
+        state["note"] = ""
+    return state
+
+
+@router.get("/act")
+def act():
+    """Whether Harbor may act without asking, since when, and what it did lately."""
+    return _act_state()
+
+
+@router.put("/act")
+async def set_act(request: Request):
+    """The person's own answer to "Let Harbor act for me": their standing approval, or its end.
+
+    The app's own JSON request only, and a yes only from the app itself. It changes one
+    thing, the gate's own file, and a yes records its time so only later messages are acted on. What
+    Harbor may do stays in each action's own code, which reads the setting again right
+    before it writes. Off takes effect at once."""
+    body = await _body(request, Act)
+    if body.enabled:
+        # Giving consent takes more than "no Origin header": the caller must be the Harbor app
+        # that launched this service, proven from the kernel's socket table. Another program
+        # on this Mac cannot say yes for the person. Taking consent back stays open to the
+        # app's ordinary request, so off never depends on that proof succeeding.
+        _require_app(request)
+    from service.proactive import acting
+    try:
+        acting.set_enabled(body.enabled, only_new=body.enabled and body.only_new)
+    except acting.NotOn as exc:
+        raise HTTPException(409, "Letting Harbor act for you was turned off meanwhile, so nothing changed. "
+                                 "You can turn it on in Settings.") from exc
+    except Exception as exc:  # noqa: BLE001 — whatever failed, the reply says what is true now
+        # Every reply is the gate as it really is (_act_state reads it again), never what was
+        # asked for. A failed yes leaves the gate off (acting.set_enabled), so the words are true.
+        if acting.enabled():                 # unreachable by design (both paths leave it off); never claim off
+            raise HTTPException(409, "Harbor couldn't save this change. Letting Harbor act for you is still on.") from exc
+        if body.enabled:
+            raise HTTPException(409, "Harbor couldn't save your yes (~/.moe/act_for_me.json). Until it can, "
+                                     "Harbor does nothing on its own.") from exc
+        # An off that went wrong somewhere but is in fact off is a success.
+    return _act_state()
+
+
+def _require_app(request: Request) -> None:
+    from service.harbor_reset import caller_is_parent_app
+    client, server = request.scope.get("client"), request.scope.get("server")
+    try:
+        from service.harbor_reset import names_another_caller
+        # Exactly the connection's own (host, port) pairs go to the check: loopback, real int ports.
+        # A forwarded-for header could stand in for them: never the app's own request.
+        proven = bool(not names_another_caller(request) and client and server and len(client) == 2 and len(server) == 2
+                      and client[0] == "127.0.0.1" and server[0] == "127.0.0.1"
+                      and type(client[1]) is int and type(server[1]) is int
+                      and caller_is_parent_app((client[0], client[1]), (server[0], server[1])) is True)
+    except Exception:  # noqa: BLE001 — unproven is refused
+        proven = False
+    if not proven:
+        raise HTTPException(403, "Only the Harbor app can turn this on.")
+
+
+@router.post("/act/asked")
+async def act_asked(request: Request):
+    """The question was shown and put aside without a yes. It is not asked again."""
+    await _body(request, Empty)
+    from service.proactive import acting
+    try:
+        acting.mark_asked()
+    except Exception:  # noqa: BLE001 — it will simply be asked once more
+        pass
+    return _act_state()                     # the true state from disk, whatever happened above
+
+
+@router.get("")
+def proactive(account: str | None = None):
+    from service.proactive.cycle import snapshot
+    return snapshot(account=account)
+
+
+@router.post("/analyze")
+async def analyze(request: Request):
+    """Analyze now: runs in the background; progress shows in workspace.proactive."""
+    body = await _body(request, Analyze)
+    from service.proactive.cycle import analyze as start
+    return start(body.account or None)
+
+
+@router.post("/return")
+async def returned(request: Request):
+    """The notch opened. When the Brief went stale while Harbor was away, a
+    catch-up is owed (return_refresh); it never loads a model itself: opening
+    Ask prewarms it. {"updating": true} means the Brief now says so."""
+    await _body(request, Empty)
+    from service.proactive import return_refresh
+    return_refresh.arm("opened")
+    return {"ok": True, "updating": return_refresh.updating()}
+
+
+@router.post("/cards/{card_id}/fire")
+async def fire(card_id: str, request: Request):
+    body = await _body(request, Fire)
+    from service.proactive.executor import fire as run
+    result = await run(card_id, body.draft, body.recipient)
+    if result.get("status") == "not_found":
+        raise HTTPException(status_code=404, detail=result["error"])
+    return result
+
+
+@router.post("/cards/{card_id}/dismiss")
+async def dismiss(card_id: str, request: Request):
+    await _body(request, Empty)
+    from service.proactive.store import store
+    card = store().card(card_id)
+    if card is None:
+        raise HTTPException(status_code=404, detail="That card is gone. Refresh the Brief.")
+    store().dismiss_card(card)
+    return {"ok": True, "card_id": card_id}
+
+
+def _stored_ask(kind: str, record_id: str) -> str | None:
+    """The stable ask (stable.ask_key) behind a stored to-do or thread: the
+    conversation and its latest incoming message. Clearing a row records it, so
+    the row stays cleared when the next cycle words it differently, and the same
+    ask never returns as a card; a new message is a new ask."""
+    from service.proactive.store import store
+    for record in store().state().get(kind) or []:
+        if isinstance(record, dict) and record.get("id") == record_id:
+            asks = record.get("asks") or []
+            return asks[0] if asks and isinstance(asks[0], str) else None
+    return None
+
+
+def _find_todo(todo_id: str) -> dict | None:
+    from service.proactive.cycle import snapshot
+    from service.proactive.store import store
+    for todo in snapshot()["todos"]:
+        if todo["id"] == todo_id:
+            # The snapshot strips internal fields; the stored copy keeps them.
+            for stored in store().state().get("todos") or []:
+                if stored.get("id") == todo_id:
+                    return {**todo, "fingerprints": stored.get("fingerprints") or [],
+                            "asks": stored.get("asks") or []}
+            return todo
+    return None
+
+
+@router.post("/todos/{todo_id}/clear")
+async def clear_todo(todo_id: str, request: Request):
+    """Hide a to-do from the Brief. Never checks it off and never writes to
+    Reminders, Mail or Messages; it comes back if it changes."""
+    body = await _body(request, Cleared)
+    from service.proactive.store import store
+    store().clear_item(_item_id(todo_id), body.fingerprint, ask=_stored_ask("todos", todo_id))
+    return {"ok": True, "todo_id": todo_id, "decision": "cleared"}
+
+
+@router.post("/threads/{thread_id}/clear")
+async def clear_thread(thread_id: str, request: Request):
+    """Hide a mail or text thread from Needs attention. Nothing is marked read."""
+    body = await _body(request, Cleared)
+    from service.proactive.store import store
+    store().clear_item(_item_id(thread_id), body.fingerprint, ask=_stored_ask("threads", thread_id))
+    return {"ok": True, "thread_id": thread_id, "decision": "cleared"}
+
+
+@router.post("/todos/{todo_id}/done")
+async def complete_todo(todo_id: str, request: Request):
+    """Complete a dated reminder's to-do in Reminders through the verified path
+    (schedule_extras.complete_commitment); the row leaves only on its verified
+    result. Unlike ``{"done": true}``, which only checks the row off in Harbor."""
+    body = await _body(request, Cleared)
+    from service.proactive.cycle import snapshot, todo_id as make_id
+    from service.proactive.store import store
+    todo = next((t for t in snapshot()["todos"] if t["id"] == _item_id(todo_id)), None)
+    if todo is None:
+        raise HTTPException(404, "That to-do is gone. Refresh the Brief.")
+    if todo.get("can_complete") is not True:
+        raise HTTPException(409, "Only a dated reminder can be marked done in Reminders.")
+    if todo.get("fingerprint") != body.fingerprint:
+        raise HTTPException(409, "That reminder changed; nothing was marked done.")
+    from service.assistant.needs_you_api import reminder_where
+    from service.assistant.store import assistant_store
+    row = reminder_where(assistant_store, lambda cid: make_id(str(cid)) == todo_id)
+    if row is None:
+        raise HTTPException(404, "That reminder is no longer in your list.")
+    # The live reminder, not only the snapshot, must still be what the row showed.
+    from service.proactive.cycle import item_fingerprint
+    if item_fingerprint(row.get("title"), row.get("when_ts")) != item_fingerprint(todo.get("title"), todo.get("due_ts")):
+        raise HTTPException(409, "That reminder changed; nothing was marked done.")
+    from service.tools.schedule_extras import complete_commitment
+    ok, message = await complete_commitment(row, assistant_store)
+    if not ok:
+        raise HTTPException(502, message.strip("()").removeprefix("error: ").rstrip(".") + ".")
+    store().set_todo_done(todo, True)
+    store().clear_item(todo_id, body.fingerprint)
+    return {"ok": True, "todo_id": todo_id, "decision": "done"}
+
+
+@router.post("/todos/{todo_id}")
+async def update_todo(todo_id: str, request: Request):
+    body = await _body(request, TodoUpdate)
+    from service.proactive.store import store
+    if body.done is None and not body.add_to_day:
+        raise HTTPException(status_code=422, detail="Send done or add_to_day.")
+    todo = _find_todo(todo_id)
+    if todo is None:
+        raise HTTPException(status_code=404, detail="That to-do is gone. Refresh the Brief.")
+    result: dict = {"ok": True, "todo_id": todo_id}
+    if body.add_to_day:
+        from service.proactive.executor import add_to_day
+        added = add_to_day(todo["title"], todo.get("due_ts"), day=body.day, timezone=body.timezone)
+        if added.get("ok") is not True:
+            return {**added, "todo_id": todo_id}
+        store().mark_added_to_day(todo_id, added.get("task_id") or "")
+        result["task_id"] = added.get("task_id")
+    if body.done is not None:
+        store().set_todo_done(todo, body.done)
+        result["done"] = body.done
+    return result

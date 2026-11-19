@@ -1,0 +1,262 @@
+"""Turns raw facts about this Mac and its inference apps into a setup checklist.
+
+The checklist uses passed-in model facts and the selected engine profile, so
+the same logic serves the first-run guide, Settings, and tests.
+"""
+from __future__ import annotations
+
+import platform
+import re
+import shlex
+from dataclasses import dataclass
+
+from . import catalog
+from .engines import BUNDLED, EXTERNAL_ENGINES, OMLX, EngineState, main_engine_profile
+from .hardware import Hardware
+
+# Text roles a single "use this model" choice sets, and their labels.
+TEXT_ROLES = ("fast", "general", "coding", "reasoning")
+ROLE_LABELS = {"fast": "Fast & routing", "general": "General & agentic",
+               "coding": "Coding", "reasoning": "Reasoning"}
+# oMLX 0.7.0 and later need macOS 26. The bundled engine's own (fractional)
+# requirement is reported separately in bundled_engine.minimum_macos.
+OMLX_MIN_MACOS = 26
+# Legacy major-only wire field. The packaged engine's authoritative fractional
+# requirement is reported separately in bundled_engine.minimum_macos.
+# Same wording as Settings' local-provider panel. Loopback proves the app is on this
+# Mac, not that it keeps prompts there, so this must never claim more than that.
+EXTERNAL_ENGINE_DISCLOSURE = (
+    "Reasoning prompts are sent to the app you connect. If you also let it run tools, the "
+    "results of those tools — your calendar, mail, messages, notes and files — are sent to it "
+    "too. Harbor does not automatically send earlier conversation summaries or remembered facts. "
+    "Routing, summary generation, search and memory stay with managed models. A loopback app "
+    "without an API key is not identity-verified; connect only one you trust.")
+
+
+def visible_test_answer(payload: object) -> str:
+    """Validate setup evidence before /chat discards completion metadata.
+
+    Keep the complete-visible-assistant contract used by the raw engine smoke.
+    This pure check never launches or queries an engine.
+    """
+    if isinstance(payload, dict) and payload.get("error") is not None:
+        raise ValueError("The model returned an error. Try again or pick another model.")
+    choices = payload.get("choices") if isinstance(payload, dict) else None
+    choice = choices[0] if isinstance(choices, list) and choices else None
+    if not isinstance(choice, dict) or choice.get("finish_reason") != "stop":
+        raise ValueError("The model did not finish its answer. Try again or pick another model.")
+    message = choice.get("message")
+    if not isinstance(message, dict) or message.get("role") != "assistant":
+        raise ValueError("The model returned no assistant answer. Try again or pick another model.")
+    content = message.get("content")
+    if not isinstance(content, str):
+        raise ValueError("The model returned no visible answer. Try again or pick another model.")
+    content = re.sub(r"(?is)<think>(?:(?!</?think>).)*</think>", "", content)
+    if "<think" in content.lower() or "</think" in content.lower():
+        raise ValueError("The model returned unfinished reasoning. Try again or pick another model.")
+    content = content.strip()
+    if not content:
+        raise ValueError("The model gave no visible answer. It may be spending its whole budget thinking; try again or pick another model.")
+    return content
+
+
+def remote_model() -> dict | None:
+    """The model every answer comes from when Harbor is remote-only: its id and the
+    provider's host and name ("OpenRouter", "Gemini API", else the host), for the app
+    to name it ("Gemini 3.8 Flash · OpenRouter"). No
+    credential and no path; None when Harbor isn't remote-only."""
+    try:
+        from urllib.parse import urlsplit
+        from service.inference.remote_policy import remote_only_profile
+        profile = remote_only_profile()
+        if profile is None:
+            return None
+        host = urlsplit(profile.base_url).hostname or ""
+        from service.inference.providers import wire_provider
+        wire = wire_provider(getattr(profile, "provider", "openai-compatible"), profile.base_url)
+        provider = {"gemini": "Gemini API", "openrouter": "OpenRouter"}.get(wire, host)
+        return {"id": profile.model_id, "host": host, "provider": provider}
+    except Exception:  # noqa: BLE001 — setup status must answer regardless
+        return None
+
+
+def remote_only() -> bool:
+    """Whether every answer comes from a remote provider. An invalid remote
+    configuration is not remote-only here; inference reports that itself."""
+    try:
+        from service.inference.remote_policy import remote_only_profile
+        return remote_only_profile() is not None
+    except Exception:  # noqa: BLE001 — setup status must answer regardless
+        return False
+
+
+def host_macos_major() -> int | None:
+    """This Mac's major macOS version, or None when it can't be read."""
+    match = re.match(r"\d+", platform.mac_ver()[0] or "")
+    return int(match.group()) if match else None
+
+
+@dataclass(frozen=True)
+class OmlxState:
+    installed: bool
+    running: bool
+    model_dir: str | None = None
+    admin_url: str = "http://127.0.0.1:8000/admin"
+
+
+def _entry(model_id: str, hardware: Hardware, tool_capable: list[str],
+           installed: list[str] | None = None) -> dict:
+    known = catalog.by_id(model_id)
+    if known:
+        return {"id": model_id, "label": f"{known.label} · {known.quant}",
+                "size_gb": known.size_gb, "fit": catalog.fit(known, hardware.ram_gb, installed),
+                "tested": known.tested, "note": known.note}
+    return {"id": model_id, "label": model_id, "size_gb": None, "fit": "unknown",
+            "tested": model_id in tool_capable,
+            "note": "Not one of Harbor's tested models." if model_id not in tool_capable
+                    else "Qualified for Harbor's tool loop."}
+
+
+def _label(model_id: str) -> str:
+    known = catalog.by_id(model_id)
+    return f"{known.label} · {known.quant}" if known else model_id
+
+
+def download_info(model_id: str | None, model_dir: str | None) -> dict | None:
+    """Catalogue details, including a manual fallback for external engines."""
+    known = catalog.by_id(model_id) if model_id else None
+    if not known or not known.repo:
+        return None
+    target = f"{model_dir.rstrip('/')}/{known.repo}" if model_dir else None
+    # The folder comes from oMLX's settings and the user pastes this into Terminal.
+    command = (f"hf download {known.repo} --local-dir {shlex.quote(target)}" if target
+               else f"hf download {known.repo}")
+    return {"model": known.id, "label": f"{known.label} · {known.quant}",
+            "size_gb": known.size_gb, "repo": known.repo,
+            "url": f"https://huggingface.co/{known.repo}", "command": command,
+            "install_hf": "python3 -m pip install -U huggingface_hub"}
+
+
+def build_status(*, hardware: Hardware, omlx: OmlxState, installed: list[str],
+                 models_source: str, roles: dict[str, dict], externals: list[EngineState],
+                 tool_capable: list[str]) -> dict:
+    ranked = [m.id for m in catalog.in_use_order(hardware.ram_gb, installed)]
+    rec = catalog.recommend(hardware.ram_gb, installed)
+    chat_models = [m for m in installed if m != catalog.EMBEDDING_MODEL.id
+                   and "embedding" not in m.lower() and "rerank" not in m.lower()]
+    # Catalog models first in recommended order, then everything else.
+    ordered = sorted(chat_models, key=lambda m: (ranked.index(m) if m in ranked else len(ranked), m))
+    entries = [_entry(m, hardware, tool_capable, installed) for m in ordered]
+    engine = main_engine_profile()
+    built_in = engine is BUNDLED
+
+    checks: list[dict] = []
+    if built_in and omlx.running:
+        checks.append({"id": "engine", "state": "ok", "title": "Harbor's built-in engine is ready",
+                       "detail": "The built-in engine is answering on this Mac."})
+    elif built_in:
+        checks.append({"id": "engine", "state": "warn", "title": "Start Harbor's built-in engine",
+                       "detail": "The engine isn't answering yet. Start it here, or retry if startup failed.",
+                       "action": "start_engine"})
+    elif omlx.running:
+        checks.append({"id": "engine", "state": "ok", "title": "oMLX is running",
+                       "detail": "Harbor's main inference engine is ready."})
+    elif omlx.installed:
+        checks.append({"id": "engine", "state": "warn", "title": "oMLX isn't running",
+                       "detail": "It is installed. Start it and Harbor can use it.",
+                       "action": "start_engine"})
+    elif platform.machine() == "x86_64":
+        # An Intel Mac: the engine needs Apple silicon, whatever the macOS version.
+        checks.append({"id": "engine", "state": "todo", "title": "This Mac can't run Harbor's built-in engine",
+                       "detail": ("The built-in engine needs a Mac with Apple silicon. This build runs on "
+                                  "a cloud model with your own key instead: OpenRouter or the Gemini API."),
+                       "action": "unsupported_macos"})
+    elif (host := host_macos_major()) is not None and host < OMLX_MIN_MACOS:
+        # Neither the built-in engine nor a current oMLX can run here; sending the
+        # user to download oMLX would only strand them.
+        checks.append({"id": "engine", "state": "todo", "title": "This Mac can't run Harbor's built-in engine or oMLX",
+                       "detail": (f"Both need a newer macOS than this Mac has (macOS {host}). You can instead connect "
+                                  "Ollama, LM Studio or llama.cpp (Harbor tests that the model can call tools), "
+                                  "or use Harbor's remote-only mode in Settings."),
+                       "action": "unsupported_macos"})
+    else:
+        checks.append({"id": "engine", "state": "todo", "title": "Install oMLX",
+                       "detail": "Install an oMLX build compatible with this Mac, then open it once.",
+                       "action": "install_omlx", "url": OMLX.url})
+
+    missing = [r for r in TEXT_ROLES
+               if roles.get(r, {}).get("endpoint", "local") == "local"
+               and roles.get(r, {}).get("model") not in installed]
+    if not built_in and not omlx.running and not installed:
+        checks.append({"id": "model", "state": "todo", "title": "Choose a model",
+                       "detail": "Harbor will list your models once oMLX is running."})
+    elif not chat_models:
+        preferred = catalog.by_id(rec["first_choice"])
+        if not rec["fits"]:
+            # Nothing Harbor can download would load here (or the memory can't be
+            # read yet): say so, and point at another route, never a download.
+            checks.append({"id": "model", "state": "todo", "title": "No model fits this Mac",
+                           "detail": rec["warning"] or "No model Harbor can download fits this Mac.",
+                           "action": "no_local_fit"})
+        elif preferred is not None and preferred.repo is None and rec["get"] is None:
+            checks.append({"id": "model", "state": "todo", "title": "Add a local model",
+                           "detail": f"Add {preferred.label}'s model folder to the engine's model directory, then check again.",
+                           "action": "add_local_model"})
+        else:
+            checks.append({"id": "model", "state": "todo", "title": "Download a model",
+                           "detail": "No chat model is installed yet.", "action": "download_model"})
+    elif missing:
+        names = ", ".join(sorted({roles.get(r, {}).get("model") or "(none)" for r in missing}))
+        checks.append({"id": "model", "state": "todo", "title": "Pick an installed model",
+                       "detail": f"Harbor is set to use {names}, which isn't installed.",
+                       "action": "apply_model"})
+    else:
+        checks.append({"id": "model", "state": "ok", "title": "Models are set",
+                       "detail": "Every role points at an installed model."})
+
+    embedder = catalog.EMBEDDING_MODEL
+    checks.append({"id": "search", "state": "ok" if embedder.id in installed else "warn",
+                   "title": "Smart Search model" if embedder.id in installed else "Smart Search needs an embedding model",
+                   "detail": "Installed." if embedder.id in installed
+                             else "Optional. Without it, Smart Search falls back to keyword matching."})
+
+    ready = all(c["state"] == "ok" for c in checks if c["id"] in ("engine", "model"))
+    from service.engine.mode import bundled_compatibility
+    return {
+        "ready": ready,
+        # Harbor answers through a remote provider (HARBOR_REMOTE_ONLY, or Cloud
+        # "Everything"), so a missing local model is not "not set up".
+        "remote_only": remote_only(),
+        "remote_model": remote_model(),
+        "bundled_engine": bundled_compatibility(),
+        "hardware": {"chip": hardware.chip, "ram_gb": hardware.ram_gb, "tier": hardware.tier},
+        "omlx": {"installed": built_in or omlx.installed, "running": omlx.running, "bundled": built_in,
+                 "model_dir": omlx.model_dir,
+                 "min_macos": OMLX_MIN_MACOS, "url": OMLX.url,
+                 # oMLX's own admin page has a Model Downloader for Hugging Face repos.
+                 "admin_url": f"http://127.0.0.1:{engine.port}/admin" if built_in else omlx.admin_url},
+        "models": {"source": models_source, "installed": entries,
+                   "recommended": rec["first_choice"],
+                   "recommended_label": _label(rec["first_choice"]), "use": rec["use"], "warning": rec["warning"],
+                   "fits": rec["fits"],
+                   "download": download_info(rec["get"], omlx.model_dir),
+                   "embedding_download": None if embedder.id in installed
+                                         else download_info(embedder.id, omlx.model_dir)},
+        "roles": [{"role": r, "label": ROLE_LABELS[r], **roles.get(r, {})} for r in TEXT_ROLES],
+        "engines": [
+            {"id": engine.id, "label": engine.label, "port": engine.port, "runs_tools": True,
+             "summary": engine.summary, "how_to_start": engine.how_to_start, "url": engine.url,
+             "running": omlx.running, "models": len(chat_models)},
+            *[{"id": e.profile.id, "label": e.profile.label, "port": e.port, "runs_tools": False,
+               "summary": e.profile.summary, "how_to_start": e.profile.how_to_start,
+               "url": e.profile.url, "running": True, "models": len(e.models),
+               "model_ids": e.models} for e in externals],
+            *[{"id": p.id, "label": p.label, "port": p.port, "runs_tools": False,
+               "summary": p.summary, "how_to_start": p.how_to_start, "url": p.url,
+               "running": False, "models": 0, "model_ids": []}
+              for p in EXTERNAL_ENGINES
+              if p.id not in {e.profile.id for e in externals}],
+        ],
+        "checks": checks,
+        "disclosure": EXTERNAL_ENGINE_DISCLOSURE,
+    }

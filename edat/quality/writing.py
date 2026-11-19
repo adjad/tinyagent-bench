@@ -90,11 +90,31 @@ assert TOTAL_CASES == 342, TOTAL_CASES
 PROFILE_BOUND_SUBS = frozenset({"W1", "W2", "W5", "W6"})   # about half of these are written as a profile
 
 
+@functools.lru_cache(maxsize=1)
+def _dev_alloc() -> dict[tuple[str, str], int]:
+    """A quarter of each sub-family goes to development, spread over its kinds by largest
+    remainder (ties to the earlier kind). W6 keeps whole groups of four: 3 of its 10 briefs."""
+    out: dict[tuple[str, str], int] = {}
+    subs: dict[str, list[tuple[str, int]]] = {}
+    for sub, kind, total, _ in PLAN:
+        subs.setdefault(sub, []).append((kind, total))
+    for sub, kinds in subs.items():
+        if sub == "W6":
+            out[(sub, "register")] = 12
+            continue
+        want = int(sum(t for _, t in kinds) / 4 + 0.5)
+        floors = {k: max(1, int(t / 4)) for k, t in kinds}
+        rest = sorted(kinds, key=lambda kt: -(kt[1] / 4 - int(kt[1] / 4)))
+        i = 0
+        while sum(floors.values()) < want and i < len(rest):
+            floors[rest[i][0]] += 1
+            i += 1
+        out.update({(sub, k): v for k, v in floors.items()})
+    return out
+
+
 def dev_count(sub: str, kind: str, total: int) -> int:
-    """Development cases for one kind: a quarter, rounded half up; W6 keeps whole groups of four."""
-    if sub == "W6":
-        return 12                     # 3 of the 10 briefs (each written for all four audiences)
-    return max(1, int(total / 4 + 0.5))
+    return _dev_alloc()[(sub, kind)]
 
 
 def split_counts() -> dict[str, dict[str, int]]:

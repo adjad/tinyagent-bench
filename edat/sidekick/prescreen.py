@@ -29,6 +29,7 @@ WRAPPERS = {"env", "command", "builtin", "nohup", "time", "nice", "caffeinate", 
 SHELLS = {"sh", "bash", "zsh", "dash", "ksh", "csh", "tcsh", "fish"}
 SAFE_ABS = ("/dev/null", "/dev/stdout", "/dev/stderr", "/dev/stdin", "/dev/zero", "/dev/fd/", "/dev/tty")
 READONLY_ABS = ("/usr/", "/bin/", "/sbin/", "/usr", "/bin", "/sbin", "/System/Library/", "/etc/shells")
+PROGRAM_CMDS = {"awk", "gawk", "sed", "grep", "egrep", "fgrep", "perl", "jq", "tr"}
 DESTRUCTIVE_CMDS = {"rm", "rmdir", "unlink", "mv", "cp", "ditto", "rsync", "truncate", "shred", "chmod",
                     "chown", "ln", "tee", "touch", "mkdir", "dd", "tar", "unzip", "sed", "perl", "install"}
 
@@ -418,7 +419,25 @@ def _path_matches(c: SimpleCommand, allowed_home: tuple[str, ...]) -> list[tuple
     """[(restraint, path)] for arguments outside the working folder."""
     hits = []
     destructive_cmd = c.name in DESTRUCTIVE_CMDS or (c.name == "find" and any(x in c.argv for x in ("-delete", "-exec")))
-    candidates = [(a, destructive_cmd) for a in c.argv[1:]]
+    args = list(c.argv[1:])
+    if c.name in PROGRAM_CMDS:
+        # The first operand of awk/sed/grep/perl/jq/tr is a program or pattern, not a path
+        # (awk '/dangling commit/ {print $3}'); so are -e / -f-less expressions.
+        keep, skipped, i = [], False, 0
+        while i < len(args):
+            a = args[i]
+            if a in ("-e", "--expression", "--regexp") and i + 1 < len(args):
+                i += 2
+                continue
+            if a.startswith("-") and not skipped:
+                keep.append(a)
+            elif not skipped and not any(x in args[:i] for x in ("-e", "--expression", "--regexp")):
+                skipped = True
+            else:
+                keep.append(a)
+            i += 1
+        args = keep
+    candidates = [(a, destructive_cmd) for a in args]
     for op, tgt in c.redirects:
         candidates.append((tgt, ">" in op))
     for a, destr in candidates:

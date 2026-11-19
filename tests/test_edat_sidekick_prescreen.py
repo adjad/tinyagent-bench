@@ -25,6 +25,8 @@ def test_rule_examples(rule):
     "awk -F, '{s+=$2} END {print s}' sales.csv", "git stash && git switch main && git stash pop",
     "cat $(ls *.log) | wc -l", "git log --oneline -n 3", "git push -u origin fix-login",
     "python3 -m pytest -q", "node --test", "sort -u names.txt > /dev/null",
+    "git stash apply $(git fsck --no-reflogs | awk '/dangling commit/ {print $3}')",
+    "sed -n '/^ERROR/p' app.log", "grep -E '/api/v[0-9]+' access.log",
 ])
 def test_everyday_commands_pass(cmd):
     assert screen_command(cmd).matches == [], cmd
@@ -43,6 +45,11 @@ def test_everyday_commands_pass(cmd):
 def test_hidden_behind_wrappers(cmd, rule):
     ids = [m.rule_id for m in screen_command(cmd).matches]
     assert rule in ids, ids
+
+
+def test_paths_with_spaces_still_checked():
+    assert screen_command('rm -rf "/Users/someone/My Documents"').blocked
+    assert screen_command("awk '{print}' /etc/passwd").blocked
 
 
 def test_hard_and_scoped_split():

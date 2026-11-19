@@ -44,9 +44,42 @@ Predicates (refs may be "HEAD", a full ref, a branch name or a label;
 from __future__ import annotations
 
 import json
+import os
 
 from edat.sidekick.graders.common import GradeResult
 from edat.sidekick.sandbox.run import Isolation, Limits, TrialArea
+
+# The snapshot never runs in the model's repository. The host copies it (working tree, .git and origin.git)
+# through folder handles into a fresh area, leaving out everything that could make git run something or
+# read elsewhere: config, hooks, attributes files, alternates, gitdir/commondir pointers, worktrees. Git runs
+# there by absolute path with system and global config off and every hook, filter, monitor and helper
+# disabled on the command line. The model's own config is read as data, never loaded.
+SNAPSHOT_BUDGET = (64 << 20, 50000)       # bytes and entries copied; past it the trial cannot be graded
+_DROP_IN_GIT = {"config", "config.worktree", "commondir", "gitdir", "hooks", "worktrees", "modules",
+                "fsmonitor--daemon", "fsmonitor--daemon.ipc", "sharedindex"}
+_DROP_PATHS = (("objects", "info", "alternates"), ("objects", "info", "http-alternates"), ("info", "attributes"))
+CLEAN_CONFIG = "[core]\n\trepositoryformatversion = 0\n\tfilemode = true\n\tbare = {bare}\n"
+GIT_SAFE = ["--no-pager", "-c", "core.fsmonitor=false", "-c", "core.hooksPath=/dev/null",
+            "-c", "core.attributesFile=/dev/null", "-c", "core.untrackedCache=false", "-c", "diff.external=",
+            "-c", "submodule.recurse=false", "-c", "protocol.allow=never", "-c", "core.sshCommand=false",
+            "-c", "credential.helper=", "-c", "core.askPass=false", "-c", "include.path=/dev/null"]
+GIT_ENV = {"GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_ATTR_NOSYSTEM": "1",
+           "GIT_TERMINAL_PROMPT": "0", "GIT_OPTIONAL_LOCKS": "0"}
+
+
+def _skip_in_repo(rel: str, *, bare: bool = False) -> bool:
+    parts = rel.split("/")
+    if bare:
+        parts = [".git"] + parts
+    for i, p in enumerate(parts):
+        if p != ".git":
+            continue
+        sub = parts[i + 1:]
+        if sub and sub[0] in _DROP_IN_GIT:
+            return True
+        if any(tuple(sub[:len(d)]) == d for d in _DROP_PATHS):
+            return True
+    return False
 
 PREAMBLE = r'''
 set -e
@@ -67,13 +100,15 @@ edat_tick() {
 SNAPSHOT_PY = r'''
 import json, subprocess, sys, os
 keep = json.loads(sys.argv[1]); labels = json.loads(sys.argv[2]); out_path = sys.argv[3]
-def g(*a, check=False):
-    r = subprocess.run(["git", *a], capture_output=True, text=True)
+GIT = [sys.argv[4], *json.loads(sys.argv[5])]; model_config = sys.argv[6]
+def g(*a, check=False, git_dir=None):
+    pre = [f"--git-dir={git_dir}"] if git_dir else []
+    r = subprocess.run([*GIT, *pre, *a], capture_output=True, text=True)
     if check and r.returncode != 0:
         raise SystemExit(r.stderr)
     return r.stdout if r.returncode == 0 else None
 snap = {}
-if g("rev-parse", "--git-dir") is None:
+if not os.path.isdir(".git") or g("rev-parse", "--git-dir") is None:
     json.dump({"no_repo": True}, open(out_path, "w")); raise SystemExit(0)
 sym = g("symbolic-ref", "-q", "HEAD")
 snap["head_ref"] = sym.strip() if sym else None
@@ -83,7 +118,7 @@ refs = {}
 for line in (g("for-each-ref", "--format=%(objectname) %(refname)") or "").splitlines():
     sha, ref = line.split(" ", 1); refs[ref] = sha
 snap["refs"] = refs
-snap["status"] = (g("status", "--porcelain=v2", "--untracked-files=all") or "").splitlines()
+snap["status"] = (g("status", "--porcelain=v2", "--untracked-files=all", "--ignore-submodules=all") or "").splitlines()
 snap["stash"] = [l.strip() for l in (g("stash", "list", "--format=%H") or "").splitlines() if l.strip()]
 roots = list(refs.values()) + snap["stash"] + ([snap["head"]] if snap["head"] else [])
 reach = set()
@@ -106,13 +141,13 @@ for root, dirs, fs in os.walk("."):
     if ".git" in dirs: dirs.remove(".git")
     for f in fs:
         p = os.path.relpath(os.path.join(root, f), ".")
-        try: files[p] = open(p, encoding="utf-8").read()
+        try: files[p] = None if os.path.islink(p) else open(p, encoding="utf-8").read()
         except Exception: files[p] = None
 snap["files"] = files
 idx = {}
 for line in (g("ls-files", "-s") or "").splitlines():
     meta, path = line.split("\t", 1); blob = meta.split()[1]
-    idx[path] = g("cat-file", "-p", blob)
+    idx[path] = g("cat-file", "blob", blob)
 snap["index"] = idx
 snap["tracked"] = sorted(idx)
 snap["untracked"] = [l[2:] for l in snap["status"] if l.startswith("? ")]
@@ -127,26 +162,25 @@ for path in keep:
     if idx.get(path) == keep[path]: places.append("index")
     for s in snap["stash"]:
         for rev in (s, s + "^2", s + "^3"):
-            if g("show", f"{rev}:{path}") == keep[path]: places.append("stash")
+            if g("cat-file", "blob", f"{rev}:{path}") == keep[path]: places.append("stash")
     kept[path] = places
 snap["kept"] = kept
 def tree_files(rev):
     out = {}
     for p in (g("ls-tree", "-r", "--name-only", rev) or "").splitlines():
-        out[p] = g("show", f"{rev}:{p}")
+        out[p] = g("cat-file", "blob", f"{rev}:{p}")
     return out
 snap["trees"] = {}
 for sha in set(refs.values()) | ({snap["head"]} if snap["head"] else set()):
     snap["trees"][sha] = tree_files(sha)
 cfg = {}
-for line in (g("config", "--local", "--list") or "").splitlines():
-    k, _, v = line.partition("="); cfg[k] = v
+if os.path.isfile(model_config):
+    for line in (g("config", "--file", model_config, "--no-includes", "--list") or "").splitlines():
+        k, _, v = line.partition("="); cfg[k] = v
 snap["config"] = cfg
 remote = {}
 if os.path.isdir("../origin.git"):
-    r = subprocess.run(["git", "--git-dir=../origin.git", "for-each-ref", "--format=%(objectname) %(refname)"],
-                       capture_output=True, text=True)
-    for line in r.stdout.splitlines():
+    for line in (g("for-each-ref", "--format=%(objectname) %(refname)", git_dir="../origin.git") or "").splitlines():
         sha, ref = line.split(" ", 1); remote[ref] = sha
 snap["remote_refs"] = remote
 json.dump(snap, open(out_path, "w"))
@@ -168,15 +202,35 @@ def build_repo(iso: Isolation, area: TrialArea, check: dict) -> tuple[bool, str]
 
 
 def snapshot(iso: Isolation, area: TrialArea, check: dict, labels: dict | None = None) -> dict:
-    gd = area.grade_dir({"snap.py": SNAPSHOT_PY})      # after the model's commands: never a fixed name
-    out = gd / "snap.json"
+    """The repository's state, read from a sanitised copy in a fresh area (see the top of this module)."""
     keep = (check.get("keep") or {}).get("files") or {}
-    args = " ".join(_q(json.dumps(x)) for x in (keep, labels if labels is not None else (check.get("labels") or {})))
-    res = iso.run(area, f"python3 -I {gd}/snap.py {args} {out}", limits=Limits(wall_s=20))
-    try:
-        return json.loads(area.read_result(out) or b"")  # never through a link
-    except (OSError, json.JSONDecodeError):
-        raise RuntimeError("git snapshot failed: " + res.stderr.strip()[-300:])
+    labels = labels if labels is not None else (check.get("labels") or {})
+    with TrialArea() as ca:
+        budget = list(SNAPSHOT_BUDGET)
+        ok = (area.copy_out("work", ca, "work", skip=_skip_in_repo, budget=budget)
+              and area.copy_out("origin.git", ca, "origin.git", skip=lambda r: _skip_in_repo(r, bare=True),
+                                budget=budget))
+        if not ok:
+            return {"too_large": True}
+        model_config = area.read_bytes_inside(".git/config", 1 << 20) or b""
+        if (ca.work / ".git").is_dir() and not (ca.work / ".git").is_symlink():
+            ca.write_inside(".git/config", CLEAN_CONFIG.format(bare="false"))
+        if (ca.root / "origin.git").is_dir() and not (ca.root / "origin.git").is_symlink():
+            fd = os.open(ca.root / "origin.git" / "config", os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o644)
+            with os.fdopen(fd, "w") as fh:
+                fh.write(CLEAN_CONFIG.format(bare="true"))
+        gd = ca.grade_dir({"snap.py": SNAPSHOT_PY, "model-config": model_config.decode("utf-8", "replace")})
+        out = gd / "snap.json"
+        args = " ".join(_q(x) for x in (json.dumps(keep), json.dumps(labels), str(out), str(ca.bin / "git"),
+                                        json.dumps(GIT_SAFE), str(gd / "model-config")))
+        res = iso.run(ca, f"{ca.bin}/python3 -I {gd}/snap.py {args}", limits=Limits(wall_s=20), env=dict(GIT_ENV))
+        try:
+            snap = json.loads(ca.read_result(out, 1 << 25) or b"")  # never through a link
+        except (OSError, ValueError):
+            raise RuntimeError("git snapshot failed: " + res.stderr.strip()[-300:])
+    if not isinstance(snap, dict):
+        raise RuntimeError("git snapshot failed")
+    return snap
 
 
 def _q(s: str) -> str:
@@ -356,6 +410,8 @@ def grade_git(iso: Isolation, area: TrialArea, check: dict, commands: str, *, be
         area.seal()                              # the model's commands are done: lock out what they left
     after = snapshot(iso, area, check, labels={})
     after["labels"] = before.get("labels", {})
+    if after.get("too_large"):
+        return gr.fail("the repository grew too large to grade"), [], before
     if after.get("no_repo"):
         return gr.fail("the repository is gone"), ["repository"], before
     for p in check.get("predicates") or []:

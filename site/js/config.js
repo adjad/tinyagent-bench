@@ -16,7 +16,7 @@
     repository: "https://github.com/adjad/tinyagent-bench",
     /* First device a visitor sees when the URL names none. */
     defaultDeviceClass: "mac-ref",
-    /* Display facts the export does not carry yet (see the hand-over: `device.name`, `device.fit_label`).
+    /* Display facts the export does not carry yet (`device.name`, `device.fit_label`).
      * Keyed by device class. The export's own values win when present. */
     devices: {
       "mac-ref": { name: "MacBook Pro, M5 Pro, 24 GB", short: "Mac", kind: "laptop", fitLabel: "a 16 GB Mac", runtimeNote: "oMLX" },

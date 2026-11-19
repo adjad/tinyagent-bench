@@ -9,6 +9,7 @@ return value and the type of every exception raised.
 from __future__ import annotations
 
 import random
+import re
 
 from edat.sidekick.ceiling.rungs import answer_files, fill, probe_instance, probe_template
 from edat.sidekick.gen.core import pick
@@ -73,9 +74,30 @@ def _build(v, *, module, solution, prompt, tests, wrongs):
     assert len(set(ws)) == len(ws) >= 2
     f = module + ".py"
     return probe_instance(
-        prompt=fill(prompt, **v), targets=[f], hidden_tests=fill(_HEAD + tests + _HARNESS, **v),
+        prompt=fill(prompt, **v), targets=[f], hidden_tests=None,
         references=[answer_files({f: sol}), answer_files({f: sol}, style="label")],
-        wrong=[answer_files({f: w}) for w in ws])
+        wrong=[answer_files({f: w}) for w in ws],
+        probes=state_probes(fill(_HEAD + tests, **v)), solution={f: sol})
+
+
+_SUT = re.compile(r"^from (\w+) import (\w+) as SUT\s*$", re.M)
+
+
+def state_probes(tests: str, *, seed: int = 1234, n_random: int = 250) -> list[dict]:
+    """The hidden tests as host-driven op sequences: the hand-written ones and `n_random` seeded random ones,
+    drawn here, on the host, by the template's own generator. The reference class stays on the host side
+    (unused: the expected results come from the template's solution, run apart)."""
+    m = _SUT.search(tests)
+    assert m, "no `from <module> import <Class> as SUT` line"
+    mod, cls = m.group(1), m.group(2)
+    ns: dict = {"__name__": "state_probes"}
+    exec(_SUT.sub("", tests), ns)                                          # noqa: S102 - the template's own code
+    seqs = [list(ops) for ops in ns["HAND"]]
+    rng = random.Random(seed)
+    seqs += [ns["gen"](rng) for _ in range(n_random)]
+    init = list(ns["ARGS"])
+    return [{"kind": "ops", "mod": mod, "cls": cls, "init": init,
+             "steps": [[name, list(args)] for name, args in ops]} for ops in seqs]
 
 
 # ------------------------------------------------------------------ parking meter

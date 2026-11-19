@@ -80,9 +80,17 @@ def _finish(v: dict, *, task: str, sample_name: str, sample_text: str, ref: str,
     sol = fill(sol, **v)
     wrongs = [fill(w, **v) for w in wrongs]
     assert len({sol, *wrongs}) == len(wrongs) + 1
+    gns: dict = {"__name__": "data_probes"}
+    exec(fill(gen, **v), gns)                                              # noqa: S102 - the template's own code
+    rng = random.Random(1234)
+    made = {"gen_input_%d%s" % (i, ext): gns["_gen"](rng) for i in range(4)}
+    names = [sample_name] + sorted(hidden) + sorted(made)
+    probes = [{"kind": "run", "argv": ["report.py", n]} for n in names]
+    del tests
     return probe_instance(
-        prompt=prompt, targets=["report.py"], hidden_tests=tests,
-        files={sample_name: sample_text}, hidden_files=hidden,
+        prompt=prompt, targets=["report.py"], hidden_tests=None,
+        files={sample_name: sample_text}, hidden_files={**hidden, **made},
+        probes=probes, solution={"report.py": sol},
         references=[answer_files({"report.py": sol}), answer_files({"report.py": sol}, style="label")],
         wrong=[answer_files({"report.py": w}) for w in wrongs])
 

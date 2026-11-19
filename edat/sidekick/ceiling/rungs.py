@@ -18,6 +18,7 @@ the fall-off is visible.
 """
 from __future__ import annotations
 
+import json
 import random
 from dataclasses import dataclass
 
@@ -98,11 +99,36 @@ def format_line(targets: list[str]) -> str:
 def probe_instance(*, prompt: str, targets: list[str], hidden_tests: str, references: list[str],
                    wrong: list[str], files: dict[str, str] | None = None,
                    hidden_files: dict[str, str] | None = None, visible_tests: dict[str, str] | None = None,
-                   tool: dict | None = None, time_limit_s: float = 20.0, notes: str = "") -> Instance:
-    """One probe trial. `prompt` is the task; the answer-format line is added here."""
+                   tool: dict | None = None, time_limit_s: float = 20.0, notes: str = "",
+                   probes: list[dict] | None = None, solution: dict[str, str] | None = None,
+                   reference_names: tuple[str, ...] | None = None,
+                   hand_probes: dict[str, list[dict]] | None = None) -> Instance:
+    """One probe trial. `prompt` is the task; the answer-format line is added here. With `probes` (and the
+    template's own `solution` files) the case is graded on the host (`probes.py`) and has no hidden test file."""
     check = {"targets": list(targets), "files": dict(files or {}), "hidden_tests": hidden_tests,
              "hidden_files": dict(hidden_files or {}), "visible_tests": dict(visible_tests or {}),
              "time_limit_s": time_limit_s}
+    if reference_names is not None:
+        # Rewrite the hand-written hidden tests into host-driven probes (rewrite.py). Every test the rewrite
+        # refuses must have a hand conversion in `hand_probes`, keyed by its name; nothing is dropped silently.
+        from edat.sidekick.ceiling.rewrite import rewrite
+        auto, refused = rewrite(hidden_tests, reference_names=tuple(reference_names))
+        hand = dict(hand_probes or {})
+        missing = [str(r) for r in refused if r.test not in hand]
+        if missing:
+            raise ValueError("the rewrite refused, and no hand conversion is given: " + "; ".join(missing))
+        unused = set(hand) - {r.test for r in refused}
+        if unused:
+            raise ValueError("hand conversions for tests the rewrite converts itself: " + ", ".join(sorted(unused)))
+        probes = list(auto)
+        for r in refused:
+            probes += [dict(p, test=p.get("test") or r.test, hand=True) for p in hand[r.test]]
+    if probes is not None:
+        if not solution or set(solution) != set(targets):
+            raise ValueError("host-driven probes need the solution's version of every target")
+        json.dumps(probes)                                   # plain values only
+        check.pop("hidden_tests")
+        check.update(probes=list(probes), solution=dict(solution))
     return Instance(prompt=prompt.rstrip() + "\n\n" + format_line(list(targets)), answer_kind="files",
                     grader="probe", check=check, references=list(references), wrong=list(wrong),
                     tool=tool, notes=notes)

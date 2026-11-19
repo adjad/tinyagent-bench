@@ -7,6 +7,7 @@ few hundred random inputs against it.
 """
 from __future__ import annotations
 
+import math
 import random
 
 from edat.sidekick.ceiling.rungs import answer_files, fill, probe_instance, probe_template
@@ -111,10 +112,17 @@ def _shipping(rng: random.Random):
     wrong_no_ceil = sol.replace("kg = math.ceil(weight_kg)", "kg = weight_kg")
     wrong_heavy_free = sol.replace(f"fee = weight_part if kg > {v['HEAVY']} else 0.0", "fee = 0.0")
     assert len({sol, wrong_remote_free, wrong_no_ceil, wrong_heavy_free}) == 4
+    t = fill(_SHIP_TESTS, **v)
+    edges = t.split("CASES = ", 1)[1].split("\n]\n", 1)[0] + "\n]"
+    gen = ("(round(r.uniform(0, @FREE_OVER@ * 2), 2), round(r.uniform(0.05, @HEAVY@ * 2), 2), "
+           "r.random() < 0.3, r.random() < 0.5)")
+    probes = rules_probes("shipping", "shipping_fee", edges + " + [(1, 1)]", fill(gen, **v), "[(10, 0), (10, -2)]",
+                          seed=4711, tol_abs=0.006)
     return probe_instance(
-        prompt=prompt, targets=["shipping.py"], hidden_tests=fill(_SHIP_TESTS, **v),
+        prompt=prompt, targets=["shipping.py"], hidden_tests=None,
         references=[answer_files({"shipping.py": sol}), answer_files({"shipping.py": sol}, style="label")],
-        wrong=[answer_files({"shipping.py": w}) for w in (wrong_remote_free, wrong_no_ceil, wrong_heavy_free)])
+        wrong=[answer_files({"shipping.py": w}) for w in (wrong_remote_free, wrong_no_ceil, wrong_heavy_free)],
+        probes=probes, solution={"shipping.py": sol})
 
 
 
@@ -166,8 +174,28 @@ def _make(v, module, func, sol, prompt, edges, gen, wrongs, raises=None):
         bad.append(answer_files({module: w}))
     assert len(set(bad)) == len(bad)
     return probe_instance(
-        prompt=fill(prompt, **v), targets=[module], hidden_tests=tests,
-        references=[answer_files({module: sol}), answer_files({module: sol}, style="label")], wrong=bad)
+        prompt=fill(prompt, **v), targets=[module], hidden_tests=None,
+        references=[answer_files({module: sol}), answer_files({module: sol}, style="label")], wrong=bad,
+        probes=rules_probes(module[:-3], func, fill(edges, **v), fill(gen, **v), fill(raises, **v) if raises else None),
+        solution={module: sol})
+
+
+def rules_probes(mod: str, func: str, edges: str, gen: str, raises: str | None, *, seed: int = 1234,
+                 n_random: int = 300, tol_abs: float | None = None) -> list[dict]:
+    """The hidden tests as host-driven calls: the edge cases, `n_random` seeded random inputs (drawn here, on
+    the host, exactly as the old test drew them) and the inputs that must raise ValueError."""
+    ns = {"math": math, "random": random}
+    calls = [list(a) for a in eval(edges, dict(ns))]                    # noqa: S307 - the template's own text
+    r = random.Random(seed)
+    calls += [list(eval(gen, dict(ns, r=r))) for _ in range(n_random)]  # noqa: S307
+    out = [{"kind": "call", "mod": mod, "fn": func, "args": a} for a in calls]
+    if tol_abs is not None:
+        for p in out:
+            p["tol_abs"] = tol_abs
+    if raises:
+        out += [{"kind": "call", "mod": mod, "fn": func, "args": list(a), "raises": "ValueError"}
+                for a in eval(raises, dict(ns))]                          # noqa: S307
+    return out
 
 
 # ------------------------------------------------------------------ weekly pay

@@ -331,7 +331,7 @@ def answer_trial(client, inst, *, suite: str, seed: int, thinking: bool, samplin
          "reasoning_tokens": usage.get("reasoning_tokens"), "max_tokens": budget, "model_calls": 1,
          "reasoned": bool((res.reasoning or "").strip() or (usage.get("reasoning_tokens") or 0) > 0
                           or re.search(r"<(think|thinking|reasoning)>", text, re.I))}
-    for k in ("partial", "hidden_passed", "hidden_total", "grade_hardened", "tripwire"):
+    for k in ("partial", "hidden_passed", "hidden_total", "grade_hardened", "grading", "tripwire"):
         if k in g.metrics:
             m[k] = g.metrics[k]
     raw = {"prompt_head": inst.prompt[:600], "answer": visible_answer(text)[:20000],
@@ -379,7 +379,7 @@ def tool_trial(client, inst, *, suite: str, seed: int, thinking: bool, sampling,
     m = {"pass": g.passed, "failure_mode": classify(g), "time_s": round(wall, 3), "model_calls": steps,
          "max_tokens": budget}
     for k in ("tool_calls", "refused_calls", "malformed_calls", "hallucinated_tools", "partial", "hidden_total",
-              "grade_hardened", "tripwire"):
+              "grade_hardened", "grading", "tripwire"):
         if k in g.metrics:
             m[k] = g.metrics[k]
     raw = {"prompt_head": inst.prompt[:600], "final_text": tt.final_text[:5000],

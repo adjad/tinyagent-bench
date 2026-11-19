@@ -20,7 +20,7 @@ shown as a difference from each, per surface and profile.
     python scripts/run_productbench.py --model cloud/claude-haiku-5.5 --profile standin \
         --stub-script test_fixtures/productbench/standin/stub.json --trials 1 --max-spend-usd 1
 
-    # real runs: see the live-run plan in .claude/edge-bench/08-product-eval-design.md
+    # real runs: see the live-run plan in docs/benchmark/08-product-eval-design.md
     python scripts/run_productbench.py --model Gemma-Wisp --profile <profile.json> --trials 3
     python scripts/run_productbench.py --model cloud/gemini-4-carbon --profile <profile.json> \
         --cloud-ok --max-spend-usd 5 --reference-run <pinned run dir>

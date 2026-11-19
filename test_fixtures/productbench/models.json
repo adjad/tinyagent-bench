@@ -1,5 +1,5 @@
 {
-  "note": "EDAT in-assistant evaluation: the model entries a run may name with --model. Ids stay in configuration; prices and weights hashes are filled in by the coordinator or the performance results before a ranked run. null means not known yet.",
+  "note": "EDAT in-assistant evaluation: the model entries a run may name with --model. Ids stay in configuration; prices and weights hashes are filled in from the provider's model list and the performance results before a ranked run. null means not known yet.",
   "references": ["Gemma-Wisp", "gemma-4-E4B-it-oQ4e-mtp"],
   "device_reference": "MacBook Pro, Apple M5 Pro, 24 GB",
   "entries": [

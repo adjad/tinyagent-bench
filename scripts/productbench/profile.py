@@ -2,7 +2,7 @@
 
 This is the product benchmark's own profile shape ("productbench/1"). The
 shared profile schema written by the profiles session
-(`.claude/edge-bench/09-profile-schema.md`) is adapted into it by
+(`docs/benchmark/09-profile-schema.md`) is adapted into it by
 `adapt_shared()` once that schema exists; until then the stand-in profile in
 test_fixtures/productbench/ is written directly in this shape.
 

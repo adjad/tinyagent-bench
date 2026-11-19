@@ -1,7 +1,7 @@
 """Deterministic readability checks for an Ask answer.
 
 A subset of the hygiene layer in the output-quality spec
-(`.claude/edge-bench/03-output-quality-spec.md`, section 4.2), applied to what
+(`docs/benchmark/03-output-quality-spec.md`, section 4.2), applied to what
 Harbor's Ask panel shows: the `panel` display profile (narrow, no tables,
 headings or nested lists). Check ids keep the spec's numbering so a result can
 be read against it:

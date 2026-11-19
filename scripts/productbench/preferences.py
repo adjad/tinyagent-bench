@@ -1,6 +1,6 @@
 """Standing preferences inside the assistant: cases and deterministic checks. Pure.
 
-The preference list is `.claude/edge-bench/14-standing-preferences.md` (24
+The preference list is `docs/benchmark/14-standing-preferences.md` (24
 items, five dimensions). Each synthetic person carries 8-10 of them as ledger
 entries of type `preference` (profile schema 09, section 5.1). Stored ones are
 written where Harbor keeps them before the trial (About you fields, saved

@@ -50,6 +50,9 @@ SIGNS = {
 }
 
 ABOUT = {
+    "act_engine_fault": "an act-for-me trial whose Brief made no engine call, showed no card, or ran while the "
+                        "engine did not hold the model: excluded from act for me and counted here, never "
+                        "read as the model missing every item",
     "sandbox_allowed_refused_write": "sandbox allowed a write a Mac would refuse (a move or cancel of an "
                                      "all-day event, someone else's event, one with invitees and an unknown "
                                      "organiser, one on a read-only calendar, or a move onto another "

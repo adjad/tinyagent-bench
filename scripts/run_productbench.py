@@ -36,10 +36,12 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import contextlib
 import json
 import os
 import platform
 import re
+import signal
 import subprocess
 import sys
 import time
@@ -60,6 +62,8 @@ from scripts.productbench import models as model_files  # noqa: E402
 from scripts.productbench import known_faults  # noqa: E402
 from scripts.productbench import loader as world_loader  # noqa: E402
 from scripts.productbench import autonomy, long_session, preferences, privacy, questions, simday  # noqa: E402
+from scripts.productbench import engine_prep  # noqa: E402
+from edat.runtime import run_guard  # noqa: E402
 from scripts.productbench import score_ask, score_brief, score_day, summary  # noqa: E402
 from scripts.productbench.capture import Bench, TeeTransport  # noqa: E402
 from scripts.productbench.profile import load as load_profile  # noqa: E402
@@ -112,6 +116,92 @@ def sync_preflight(profiles: list, args) -> dict:
 
 class StopRun(RuntimeError):
     """A stop condition held between trials (host memory, the error share)."""
+
+
+class Terminated(BaseException):
+    """SIGTERM or SIGHUP: unwind so every `finally` runs (the trial's servers stop) and the run
+    folder records why it stopped. A BaseException, so no `except Exception` swallows it."""
+
+    def __init__(self, signum: int):
+        super().__init__(f"terminated by signal {signal.Signals(signum).name}")
+        self.signum = signum
+
+
+def install_signal_handlers() -> list[int]:
+    """Turn SIGTERM, and SIGHUP unless it is ignored (a nohup run keeps running when its terminal
+    goes away), into Terminated, so a trial's servers stop. For a run without the run guard (a stub or
+    cloud run); while a guarded run holds the guard, the guard's own handlers (SIGTERM, SIGHUP,
+    SIGQUIT, SIGINT) do the same and restore the engine. Returns the signals handled."""
+    def handler(signum, frame):
+        raise Terminated(signum)
+    handled = []
+    for sig in (signal.SIGTERM, signal.SIGHUP):
+        if sig == signal.SIGHUP and signal.getsignal(sig) == signal.SIG_IGN:
+            continue
+        signal.signal(sig, handler)
+        handled.append(sig)
+    return handled
+
+
+def guard_for(args, chosen, stub: bool, report_name: str):
+    """The shared run guard (edat/runtime/run_guard.py) for a run that uses this Mac's engine: the lock,
+    the engine's state saved and restored on every exit (signals included), Harbor checked, one
+    loopback engine URL. A stub run or a cloud-only run touches no engine and runs unguarded."""
+    if stub or all(e.cloud for e in chosen):
+        return contextlib.nullcontext(None)
+    url = f"http://127.0.0.1:{args.engine_port}"
+    return run_guard.RunGuard(Path(args.out), lock=args.lock,
+                              engine=run_guard.Engine(url, api_key=run_guard.read_engine_key()),
+                              engine_service=run_guard.OmlxService(port=args.engine_port) if args.start_engine
+                              else None, report_name=report_name)
+
+
+def inside_repo(path: Path | str | None) -> bool:
+    if not path:
+        return False
+    try:
+        Path(path).expanduser().resolve().relative_to(ROOT.resolve())
+        return True
+    except ValueError:
+        return False
+
+
+def refuse_inside_repo(out: str | None, tmpdir: str | None) -> str | None:
+    """Why a live run must not start: results or scratch homes (the preflight's too) would land
+    inside the repository. None when both are outside it."""
+    for what, path in (("--out", out), ("$TMPDIR", tmpdir)):
+        if inside_repo(path):
+            return f"{what} {path} is inside the repository; results and scratch homes stay outside it"
+    return None
+
+
+def engine_fault(rec: dict) -> bool:
+    """A record the engine or transport failed (it says nothing about the model)."""
+    return bool((rec.get("captured") or {}).get("error"))
+
+
+def all_faults(log: Path, n: int) -> bool:
+    """Whether the last `n` records written are every one an engine fault (n of 0 is not)."""
+    if n <= 0:
+        return False
+    try:
+        rows = [json.loads(x) for x in log.read_text(encoding="utf-8").splitlines() if x.strip()]
+    except OSError:
+        return False
+    tail = rows[-n:]
+    return len(tail) == n and all(engine_fault(r) for r in tail)
+
+
+def act_engine_fault(usage: dict | None, cards: list, resident: dict | None, model: str, *, stub: bool) -> str | None:
+    """Why an act-for-me record cannot be judged: its Brief made no engine call, showed no card, or
+    the engine did not hold the model. Such a record is excluded, never read as "missed it all"."""
+    if not (usage or {}).get("calls"):
+        return "the Brief made no engine call"
+    if not cards:
+        return "the Brief showed no card"
+    if not stub and resident is not None and model not in (resident.get("loaded") or []):
+        return f"the engine did not hold {model}"
+    return None
 
 
 MAX_ERROR_SHARE = 0.02          # as the agentic spec: over 2% excluded trials invalidates a run
@@ -435,11 +525,13 @@ async def run_act_trial(bench: Bench, plan: dict, base: dict, log: Path, spend: 
     result.update({"mode": plan["mode"], "expectations": len(plan["expectations"]), "passed_over": passed_over})
     cards = [{"title": c.get("title"), "kind": (c.get("action") or {}).get("method")}
              for c in (cap["snapshot"].get("cards") or [])]
+    fault = act_engine_fault(cap.get("usage"), cards, simday.engine_resident(bench.engine_port),
+                             bench.model, stub=rec_base["stub"])
     _record(log, known_faults.stamp_writes({**rec_base, "surface": "act", "case": "act-for-me", "family": "act_for_me",
                   "captured": {"mode": plan["mode"], "yes_at": plan["yes_at"], "arrivals": autonomy.arrival_posts(
                       plan["expectations"]), "posted": posted, "done": done, "act_state": state,
                       "background_writes": writes, "brief_cards": cards, "brief_elapsed_s": cap["elapsed_s"],
-                      "usage": cap.get("usage")},
+                      "usage": cap.get("usage"), "error": fault},
                   "score": result}, profile))
     c = result["counts"]
     print(f"  act    {'—' if result['score'] is None else round(100 * result['score'], 1)}  right={c['right']} "
@@ -683,9 +775,15 @@ def main() -> None:
                     help="the Keychain item Harbor reads the OpenRouter token from (never the token)")
     ap.add_argument("--port", type=int, default=8775)
     ap.add_argument("--sandbox-port", type=int, default=8766)
-    ap.add_argument("--engine-port", type=int, default=8000,
-                    help="the running oMLX the backend uses (local real runs only)")
+    ap.add_argument("--engine-port", type=int, default=engine_prep.PORT,
+                    help="the running oMLX the backend uses (local real runs only); the same default as "
+                         "engine_prep ($TINYAGENT_ENGINE_PORT, else 8000)")
     ap.add_argument("--out", default=None, help="results root (default $TMPDIR/productbench)")
+    ap.add_argument("--lock", default=run_guard.LOCK,
+                    help="the shared heavy-job lock a live run takes (mkdir) and removes on every exit")
+    ap.add_argument("--start-engine", action="store_true",
+                    help="if oMLX's server is stopped, start it for the run and stop it again afterwards "
+                         "(never quits the app or changes a setting)")
     ap.add_argument("--report", default=None, help="re-summarise a run directory")
     ap.add_argument("--sim-day", default=None, metavar="SCRIPT",
                     help="play a scripted day (edat-sim-day-v1 JSON, or 'default' to build one from the "
@@ -696,6 +794,7 @@ def main() -> None:
     ap.add_argument("--write-sim-day", default=None, metavar="PATH",
                     help="write the default day script for --profile to PATH and exit")
     args = ap.parse_args()
+    install_signal_handlers()
 
     entries, file_refs = model_files.load(args.models_file)
     refs = args.reference or file_refs
@@ -715,6 +814,10 @@ def main() -> None:
 
     if not args.model or not args.profile:
         sys.exit("--model and --profile are required")
+    args.out = args.out or str(Path(os.environ.get("TMPDIR", "/tmp")) / "productbench")
+    inside = refuse_inside_repo(args.out, os.environ.get("TMPDIR"))
+    if inside:
+        sys.exit(inside + "; nothing was run")
     for pr in pinned:          # refuse now, not after hours of trials, if a pinned run is of an older scorer
         older = [v for v in summary.scorer_of(_load_records(pr)) if v != summary.SCORER_VERSION]
         if older:
@@ -741,128 +844,160 @@ def main() -> None:
             sys.exit("preflight failed: a profile's sources do not sync; nothing was run")
         if args.preflight_only:
             return
-    if not stub and any(not e.cloud for e in chosen):
-        try:
-            listed = httpx.get(f"http://127.0.0.1:{args.engine_port}/v1/models", timeout=3).json()
-        except (httpx.HTTPError, ValueError):
-            sys.exit(f"no engine answers on :{args.engine_port}; this harness never starts one")
-        available = [m.get("id") for m in (listed.get("data") or []) if isinstance(m, dict)]
-        for e in chosen:
-            if e.cloud:
-                continue
-            served = model_files.pick_served(e, available)
-            if served is None:
-                sys.exit(f"{e.id}: the engine lists none of {[e.model_id, *e.served_as]}; nothing was run")
-            e.model_id = served
-
     run = f"{RUN_PREFIX}-{time.strftime('%Y%m%d-%H%M%S')}"
-    root = Path(args.out) if args.out else Path(os.environ.get("TMPDIR", "/tmp")) / "productbench"
-    run_dir = root / run
-    run_dir.mkdir(parents=True, exist_ok=True)
-    log = run_dir / "results.jsonl"
-    only = {x.strip() for x in args.only.split(",") if x.strip()} or None
-    device = device_info()
-    if args.sim_day:
-        play_sim_day(args, chosen, run, run_dir, device, stub)
-        return
-    meta = {"run": run, "title": summary.TITLE, "harness": HARNESS_VERSION, "git_sha": _git_sha(),
-            "date": time.strftime("%Y-%m-%d"), "entries": [e.id for e in chosen], "references": refs,
-            "pinned_reference_runs": [str(p) for p in pinned], "profiles": [], "surfaces": surfaces,
-            "trials": args.trials, "stub": stub, "device": device, "language": "en",
-            "max_spend_usd": args.max_spend_usd, "started": time.time(), "trials_meta": [],
-            "sync_preflight": preflight,
-            # whether the sandbox here answers Calendar/Reminders writes (else replays: known_faults.py)
-            **sandbox_marks(),
-            "supersedes": args.supersedes,
-            "known_gaps": ({} if "act" in surfaces else {"act_not_run": known_faults.GAPS["act_not_run"]}),
-            "sampling": "Harbor's own requests: model-only Ask sends no temperature, so a local model's "
-                        "oMLX per-model profile applies; what each call actually sent is in usage.jsonl "
-                        "and in every record's captured.usage.sampling_sent"}
-    spend = Spend(args.max_spend_usd)
-    print(f"{summary.TITLE}: run {run} -> {run_dir}")
-    stopped = None
     try:
-        for ppath in args.profile:
-            profile = load_profile(_resolve(ppath))
-            cases, sources = case_files.for_profile(profile, args.cases)
-            if "ask" in surfaces and not args.cases:
-                have = {c["id"] for c in cases.get("ask", [])}
-                cases["ask"] += [c for c in questions.cases_for(profile) if c["id"] not in have]
-            act_plan = autonomy.plan_for(profile) if "act" in surfaces else None
-            times = sorted({c["at"] for c in cases.get("ask", []) + cases.get("day", {}).get("plans", [])
-                            if c.get("at")})
-            meta["profiles"].append({"id": profile.id, "path": str(_resolve(ppath)),
-                                     "anchor": profile.data["anchor"], "timezone": profile.data["timezone"],
-                                     "cases": sources, "ask_cases": len(cases.get("ask", [])),
-                                     "later_clock_times": times})
-            ctx = Ctx(profile, cases)
-            meta["profiles"][-1].update({"preference_cases": len(ctx.pref_cases),
-                                         "privacy_rules": len(ctx.rules),
-                                         "long_session_turns": len(ctx.long["turns"]) if ctx.long else 0})
-            for entry in chosen:
-                runtime = runtime_info(entry, stub=stub, engine_port=args.engine_port)
-                engine_port = None if (stub or entry.cloud) else args.engine_port
-                for trial in range(args.first_trial, args.first_trial + args.trials):
-                    passes = ([(None, False)] if set(surfaces) - {"act"} else []) + [(t, False) for t in times]
-                    if act_plan is not None and act_plan["expectations"]:
-                        passes.append((None, True))
-                    for at, act in passes:
-                        why = check_stop(log, stub=stub)
-                        if why:
-                            raise StopRun(f"{why}. Resume: the same command with --model {entry.id} "
-                                          f"--profile {profile.id} --first-trial {trial} --trials "
-                                          f"{args.first_trial + args.trials - trial} into a new --out")
-                        label = (f"{entry.id} / {profile.id} / trial {trial}" + (f" / at {at}" if at else "")
-                                 + (" / act-for-me" if act else ""))
-                        print(f"\n== {label} ==")
-                        home = run_dir / "homes" / "-".join(
-                            filter(None, [profile.id, entry.id.replace("/", "_"), str(trial),
-                                          at.replace(":", "").replace("+", "d").replace(" ", "-") if at else None,
-                                          "act" if act else None]))
-                        home.parent.mkdir(parents=True, exist_ok=True)
-                        bench = Bench(profile, entry.model_id, home, port=args.port,
-                                      sandbox_port=args.sandbox_port, engine_port=args.engine_port,
-                                      stub_script=args.stub_script, cloud=entry.cloud,
-                                      context_window=entry.context_window,
-                                      credential_ref=args.credential_ref, at=at,
-                                      act_yes_at=act_plan["yes_at"] if act else None,
-                                      narration_thinking=entry.thinking == "narration-on")
-                        base = {"run": run, "entry": entry.id, "model": entry.model_id, "kind": entry.kind,
-                                "ranked": entry.ranked and not stub, "stub": stub, "variant": entry.variant(),
-                                "device": device, "runtime": runtime, "profile": profile.id, "trial": trial,
-                                "date": meta["date"], "_entry": entry}
-                        t0 = time.monotonic()
-                        n = 0
-                        resident_start = simday.engine_resident(engine_port)
-                        try:
-                            bench.start()
-                            if act:
-                                n = asyncio.run(run_act_trial(bench, act_plan, base, log, spend))
-                            else:
-                                n = asyncio.run(run_trial(bench, cases, surfaces, base, log, only, spend, ctx,
-                                                          at=at))
-                        finally:
-                            bench.stop()
-                            escapes = bench.escapes()
-                            meta["trials_meta"].append({"entry": entry.id, "profile": profile.id,
-                                                        "trial": trial, "at": at, "act_for_me": act,
-                                                        "records": n,
-                                                        "engine_resident": {"start": resident_start,
-                                                                            "end": simday.engine_resident(engine_port)},
-                                                        "startup": bench.startup,
-                                                        "clock_offset_s": round(bench.offset, 3),
-                                                        "elapsed_s": round(time.monotonic() - t0, 1),
-                                                        "escapes": escapes})
-                            if escapes:
-                                print(f"  guard refused {len(escapes)} attempt(s): {escapes[:3]}")
-    except (SpendLimit, StopRun) as exc:
-        stopped = str(exc)
-        print(f"\nSTOPPED: {stopped}")
-    meta["stopped"] = stopped
-    meta["cloud_spend_usd"] = round(spend.spent, 6)
-    meta["finished"] = time.time()
-    (run_dir / "meta.json").write_text(json.dumps(meta, indent=1))
-    print("\n" + write_summary(run_dir, _load_records(run_dir), refs, pinned, meta))
+        with guard_for(args, chosen, stub, f"{run}-guard.json") as g:
+            if not stub and any(not e.cloud for e in chosen):
+                try:
+                    with httpx.Client(trust_env=False, timeout=3) as c:
+                        listed = c.get(f"http://127.0.0.1:{args.engine_port}/v1/models",
+                                       headers=g.engine._client.headers if g is not None else None).json()
+                except (httpx.HTTPError, ValueError):
+                    sys.exit(f"no engine answers on :{args.engine_port}; start oMLX's server, or pass "
+                             "--start-engine to have the run start it and stop it again")
+                available = [m.get("id") for m in (listed.get("data") or []) if isinstance(m, dict)]
+                for e in chosen:
+                    if e.cloud:
+                        continue
+                    served = model_files.pick_served(e, available)
+                    if served is None:
+                        sys.exit(f"{e.id}: the engine lists none of {[e.model_id, *e.served_as]}; nothing was run")
+                    e.model_id = served
+
+            root = Path(args.out)
+            run_dir = root / run
+            run_dir.mkdir(parents=True, exist_ok=True)
+            log = run_dir / "results.jsonl"
+            only = {x.strip() for x in args.only.split(",") if x.strip()} or None
+            device = device_info()
+            if args.sim_day:
+                play_sim_day(args, chosen, run, run_dir, device, stub)
+                return
+            meta = {"run": run, "title": summary.TITLE, "harness": HARNESS_VERSION, "git_sha": _git_sha(),
+                    "date": time.strftime("%Y-%m-%d"), "entries": [e.id for e in chosen], "references": refs,
+                    "pinned_reference_runs": [str(p) for p in pinned], "profiles": [], "surfaces": surfaces,
+                    "trials": args.trials, "stub": stub, "device": device, "language": "en",
+                    "max_spend_usd": args.max_spend_usd, "started": time.time(), "trials_meta": [],
+                    "sync_preflight": preflight,
+                    # whether the sandbox here answers Calendar/Reminders writes (else replays: known_faults.py)
+                    **sandbox_marks(),
+                    "supersedes": args.supersedes,
+                    "known_gaps": ({} if "act" in surfaces else {"act_not_run": known_faults.GAPS["act_not_run"]}),
+                    "sampling": "Harbor's own requests: model-only Ask sends no temperature, so a local model's "
+                                "oMLX per-model profile applies; what each call actually sent is in usage.jsonl "
+                                "and in every record's captured.usage.sampling_sent"}
+            spend = Spend(args.max_spend_usd)
+            print(f"{summary.TITLE}: run {run} -> {run_dir}")
+            stopped = None
+            try:
+                for ppath in args.profile:
+                    profile = load_profile(_resolve(ppath))
+                    cases, sources = case_files.for_profile(profile, args.cases)
+                    if "ask" in surfaces and not args.cases:
+                        have = {c["id"] for c in cases.get("ask", [])}
+                        cases["ask"] += [c for c in questions.cases_for(profile) if c["id"] not in have]
+                    act_plan = autonomy.plan_for(profile) if "act" in surfaces else None
+                    times = sorted({c["at"] for c in cases.get("ask", []) + cases.get("day", {}).get("plans", [])
+                                    if c.get("at")})
+                    meta["profiles"].append({"id": profile.id, "path": str(_resolve(ppath)),
+                                             "anchor": profile.data["anchor"], "timezone": profile.data["timezone"],
+                                             "cases": sources, "ask_cases": len(cases.get("ask", [])),
+                                             "later_clock_times": times})
+                    ctx = Ctx(profile, cases)
+                    meta["profiles"][-1].update({"preference_cases": len(ctx.pref_cases),
+                                                 "privacy_rules": len(ctx.rules),
+                                                 "long_session_turns": len(ctx.long["turns"]) if ctx.long else 0})
+                    for entry in chosen:
+                        if g is not None and not entry.cloud:
+                            g.prepare(entry.model_id)     # Harbor checked; only this model resident
+                        runtime = runtime_info(entry, stub=stub, engine_port=args.engine_port)
+                        engine_port = None if (stub or entry.cloud) else args.engine_port
+                        for trial in range(args.first_trial, args.first_trial + args.trials):
+                            passes = ([(None, False)] if set(surfaces) - {"act"} else []) + [(t, False) for t in times]
+                            if act_plan is not None and act_plan["expectations"]:
+                                passes.append((None, True))
+                            for at, act in passes:
+                                why = check_stop(log, stub=stub) or (g.should_stop() if g is not None else None)
+                                if why:
+                                    raise StopRun(f"{why}. Resume: the same command with --model {entry.id} "
+                                                  f"--profile {profile.id} --first-trial {trial} --trials "
+                                                  f"{args.first_trial + args.trials - trial} into a new --out")
+                                label = (f"{entry.id} / {profile.id} / trial {trial}" + (f" / at {at}" if at else "")
+                                         + (" / act-for-me" if act else ""))
+                                print(f"\n== {label} ==")
+                                home = run_dir / "homes" / "-".join(
+                                    filter(None, [profile.id, entry.id.replace("/", "_"), str(trial),
+                                                  at.replace(":", "").replace("+", "d").replace(" ", "-") if at else None,
+                                                  "act" if act else None]))
+                                home.parent.mkdir(parents=True, exist_ok=True)
+                                bench = Bench(profile, entry.model_id, home, port=args.port,
+                                              sandbox_port=args.sandbox_port, engine_port=args.engine_port,
+                                              stub_script=args.stub_script, cloud=entry.cloud,
+                                              context_window=entry.context_window,
+                                              credential_ref=args.credential_ref, at=at,
+                                              act_yes_at=act_plan["yes_at"] if act else None,
+                                              narration_thinking=entry.thinking == "narration-on")
+                                base = {"run": run, "entry": entry.id, "model": entry.model_id, "kind": entry.kind,
+                                        "ranked": entry.ranked and not stub, "stub": stub, "variant": entry.variant(),
+                                        "device": device, "runtime": runtime, "profile": profile.id, "trial": trial,
+                                        "date": meta["date"], "_entry": entry}
+                                t0 = time.monotonic()
+                                n = 0
+                                resident_start = simday.engine_resident(engine_port)
+                                try:
+                                    bench.start()
+                                    if act:
+                                        n = asyncio.run(run_act_trial(bench, act_plan, base, log, spend))
+                                    else:
+                                        n = asyncio.run(run_trial(bench, cases, surfaces, base, log, only, spend, ctx,
+                                                                  at=at))
+                                finally:
+                                    bench.stop()
+                                    escapes = bench.escapes()
+                                    meta["trials_meta"].append({"entry": entry.id, "profile": profile.id,
+                                                                "trial": trial, "at": at, "act_for_me": act,
+                                                                "records": n,
+                                                                "engine_resident": {"start": resident_start,
+                                                                                    "end": simday.engine_resident(engine_port)},
+                                                                "startup": bench.startup,
+                                                                "clock_offset_s": round(bench.offset, 3),
+                                                                "elapsed_s": round(time.monotonic() - t0, 1),
+                                                                "escapes": escapes})
+                                    if escapes:
+                                        print(f"  guard refused {len(escapes)} attempt(s): {escapes[:3]}")
+                                if g is not None:
+                                    g.note("not_applicable" if n == 0 else "excluded" if all_faults(log, n) else "ok")
+                                if all_faults(log, n):
+                                    raise StopRun(f"every record of {label} is an engine fault ({n} of {n}): "
+                                                  "the run ends as a failure, not as done")
+            except (SpendLimit, StopRun) as exc:
+                stopped = str(exc)
+                print(f"\nSTOPPED: {stopped}")
+                if g is not None and not g.stop_reason:
+                    g.stop(stopped)
+            except run_guard.RunInterrupted as exc:
+                meta["stopped"] = f"terminated by {exc}"
+                meta["finished"] = time.time()
+                (run_dir / "meta.json").write_text(json.dumps(meta, indent=1))
+                raise
+            except Terminated as exc:
+                stopped = str(exc)
+                print(f"\nSTOPPED: {stopped}")
+                meta["stopped"] = stopped
+                meta["finished"] = time.time()
+                (run_dir / "meta.json").write_text(json.dumps(meta, indent=1))
+                sys.exit(128 + exc.signum)
+            meta["stopped"] = stopped
+            meta["cloud_spend_usd"] = round(spend.spent, 6)
+            meta["finished"] = time.time()
+            (run_dir / "meta.json").write_text(json.dumps(meta, indent=1))
+            print("\n" + write_summary(run_dir, _load_records(run_dir), refs, pinned, meta))
+    except run_guard.RunInterrupted as exc:
+        sys.exit(128 + exc.signum)                # the guard restored the engine and released the lock
+    except run_guard.GuardError as exc:
+        sys.exit(f"run guard: {exc}")
+    if g is not None and g.exit_code:
+        sys.exit(g.exit_code)
 
 
 if __name__ == "__main__":

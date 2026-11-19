@@ -689,13 +689,21 @@ def test_n1_a_first_signal_on_the_first_line_of_exit_still_restores(env):
     assert "SIGTERM" in report(tmp_path)["signals_ignored"]
 
 
-def test_n2_a_bad_url_never_leaves_the_heavy_lock(env):
+def test_n2_a_bad_url_never_leaves_the_heavy_lock(env, monkeypatch):
     fake, guard, tmp_path, _ = env
+    home = tmp_path / "home"
+    (home / ".omlx").mkdir(parents=True)
+    (home / ".omlx" / "settings.json").write_text(json.dumps({"auth": {"api_key": "invented-key"}}))
+    monkeypatch.setenv("HOME", str(home))
+    read = []
+    real_read = rg.read_engine_key
+    monkeypatch.setattr(rg, "read_engine_key", lambda *a, **k: read.append(1) or real_read(*a, **k))
     save, lock = tmp_path / "s.json", tmp_path / "L"
     save.write_text(json.dumps({"token": "t", "base_url": URL, "loaded": ["user-model", "user-pinned"]}))
     for bad in ("http://localhost:8000", "http://10.0.0.2:8000", "not a url"):
         assert rg.restore_cli(save, bad, str(lock), harbor=lambda: None) == 1
         assert not lock.exists()
+    assert read == []                                   # the key is never read for a refused URL
     assert rg.restore_cli(save, URL, str(tmp_path / "missing" / "L"), harbor=lambda: None,
                           engine=rg.Engine(URL, transport=fake.transport)) == 1   # lock cannot be made
     assert save.exists() and fake.calls == []
@@ -715,3 +723,101 @@ def test_an_unload_answered_400_while_loading_again_waits_and_retries(env):
         g.prepare("gemma-a")
     assert done
     back_as_before(fake, tmp_path)
+
+
+# ------------------------------------------------------------------ the engine's server (engine_service)
+
+class FakeService:
+    """oMLX's server as the guard sees it: running or not, started and stopped by its command line."""
+
+    def __init__(self, running=False, answers=True):
+        self.up, self.answers, self.calls = running, answers, []
+
+    def running(self):
+        return self.up and self.answers
+
+    def start(self):
+        self.calls.append("start")
+        self.up = True
+
+    def stop(self):
+        self.calls.append("stop")
+        self.up = False
+
+
+def test_service_found_running_is_neither_started_nor_stopped(env):
+    fake, guard, tmp_path, _ = env
+    svc = FakeService(running=True)
+    with guard(engine_service=svc) as g:
+        g.prepare("gemma-a")
+        g.note("ok")
+    assert svc.calls == [] and g.outcome == "finished"
+    assert report(tmp_path)["engine_service"] == {"found_running": True}
+    back_as_before(fake, tmp_path)
+
+
+def test_service_found_stopped_is_started_then_stopped_after_the_restore(env):
+    fake, guard, tmp_path, _ = env
+    svc = FakeService(running=False)
+    with guard(engine_service=svc) as g:
+        save = json.loads((tmp_path / "heavy.lock.engine-save.json").read_text())
+        assert save["engine_service"] == {"found_running": False}          # a killed run still leaves the note
+        g.prepare("gemma-a")
+        g.note("ok")
+    assert svc.calls == ["start", "stop"] and not svc.up
+    r = report(tmp_path)
+    assert r["engine_service"]["found_running"] is False and r["engine_service"]["stopped"] == "run ended"
+    back_as_before(fake, tmp_path)
+
+
+def test_a_start_that_never_answers_is_refused_and_put_back(env):
+    fake, guard, tmp_path, _ = env
+    svc = FakeService(running=False, answers=False)
+    with pytest.raises(rg.GuardError, match="did not answer"):
+        with guard(engine_service=svc, service_wait_s=0, sleep=lambda s: None):
+            pass
+    assert svc.calls == ["start", "stop"]                                  # stopped again, as found
+    assert not (tmp_path / "heavy.lock").exists()
+    assert not (tmp_path / "heavy.lock.engine-save.json").exists()          # no save: no model was touched
+    assert fake.loaded() == ["user-model", "user-pinned"]
+
+
+def test_a_failed_restore_leaves_the_started_server_running_and_says_so(env):
+    fake, guard, tmp_path, _ = env
+    svc = FakeService(running=False)
+    with pytest.raises(httpx.HTTPStatusError):
+        with guard(engine_service=svc) as g:
+            g.prepare("gemma-a")
+            fake.fail = ("POST", "/load")                                   # the restore cannot load them back
+    assert svc.calls == ["start"] and svc.up
+    r = report(tmp_path)
+    assert "left_running" in r["engine_service"] and "stops it again" in r["restore_with"]
+    save = json.loads((tmp_path / "heavy.lock.engine-save.json").read_text())
+    assert save["engine_service"] == {"found_running": False}
+    # the restore by hand puts the models back, then stops the server it was found without
+    fake.fail = None
+    svc2 = FakeService(running=True)
+    eng = rg.Engine(URL, transport=fake.transport, sleep=lambda s: None)
+    assert rg.restore_cli(tmp_path / "heavy.lock.engine-save.json", URL, str(tmp_path / "lock2"),
+                          engine=eng, harbor=lambda: None, service=svc2) == 0
+    assert svc2.calls == ["stop"] and fake.loaded() == ["user-model", "user-pinned"]
+
+
+def test_sighup_during_the_run_restores_then_stops_the_started_server(env):
+    fake, guard, tmp_path, _ = env
+    svc = FakeService(running=False)
+    with pytest.raises(rg.RunInterrupted):
+        with guard(engine_service=svc) as g:
+            g.prepare("gemma-a")
+            os.kill(os.getpid(), signal.SIGHUP)
+    assert svc.calls == ["start", "stop"]
+    back_as_before(fake, tmp_path)
+
+
+def test_harbor_open_when_stopping_leaves_the_server_running(env):
+    fake, guard, tmp_path, state = env
+    svc = FakeService(running=False)
+    g = guard(engine_service=svc, harbor=lambda: "app")
+    g._service_started = True                           # as after a start at entry; Harbor appeared since
+    g._stop_service("run ended")
+    assert svc.calls == [] and "Harbor" in g.report["engine_service"]["left_running"]

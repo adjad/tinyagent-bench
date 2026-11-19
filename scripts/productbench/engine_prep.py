@@ -5,6 +5,15 @@
     python -m scripts.productbench.engine_prep restore <run folder>/resident-before.json
     python -m scripts.productbench.engine_prep weights <model folder>
 
+A live in-assistant run no longer calls `keep` or `restore`: the runner holds the shared run guard
+(edat/runtime/run_guard.py), which takes the lock, saves the engine's state with a token and the
+pinned and default models, and restores it on every exit. `keep` and `restore` stay for callers
+that keep one save file across several models (the sidekick tier).
+
+Every engine call takes `--engine-port` (default `$TINYAGENT_ENGINE_PORT`, else 8000), the same
+default as the runner's `--engine-port`, so unloads and chats go to one engine. The client is the
+run guard's: a literal loopback address checked before any header is built, proxies ignored.
+
 `status` only reads (GET /v1/models/status). `keep` writes what was loaded to --save the first
 time (never overwrites it), then unloads every other loaded chat model, so only the model under
 test can be resident (the user's standing rule: never two models loaded at once). The engine
@@ -43,8 +52,10 @@ def _headers() -> dict:
     return {"Authorization": f"Bearer {key}"} if key else {}
 
 
-def _client() -> httpx.Client:
-    return httpx.Client(base_url=f"http://127.0.0.1:{PORT}", headers=_headers(), timeout=120)
+def _client(port: int | None = None) -> httpx.Client:
+    from edat.runtime.run_guard import loopback_base_url
+    base = loopback_base_url(f"http://127.0.0.1:{int(port or PORT)}")      # before any header is built
+    return httpx.Client(base_url=base, headers=_headers(), timeout=120, trust_env=False, follow_redirects=False)
 
 
 def is_aux(model_id: str) -> bool:
@@ -87,19 +98,23 @@ def plan_restore(now_loaded: list[str], before: list[str]) -> tuple[list[str], l
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
-    sub.add_parser("status")
+    port_help = "the engine's port (default $TINYAGENT_ENGINE_PORT, else 8000; loopback only)"
+    st = sub.add_parser("status")
+    st.add_argument("--engine-port", type=int, default=PORT, help=port_help)
     k = sub.add_parser("keep")
     k.add_argument("model")
     k.add_argument("--save", required=True)
+    k.add_argument("--engine-port", type=int, default=PORT, help=port_help)
     r = sub.add_parser("restore")
     r.add_argument("saved")
+    r.add_argument("--engine-port", type=int, default=PORT, help=port_help)
     w = sub.add_parser("weights")
     w.add_argument("folder")
     args = ap.parse_args(argv)
     if args.cmd == "weights":
         print(weights_sha256(args.folder))
         return 0
-    with _client() as c:
+    with _client(args.engine_port) as c:
         now = loaded(c)
         if args.cmd == "status":
             print(json.dumps({"loaded": now}))

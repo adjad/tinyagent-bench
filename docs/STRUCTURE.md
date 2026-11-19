@@ -1,6 +1,6 @@
 # Repository structure
 
-The layout of EDAT (Edge Device Agentic Testing).
+The layout of tinyagent-bench.
 
 Where each kind of thing lives, and where the pieces still being built will go.
 The rule that shapes the layout: **files imported from Harbor keep their Harbor
@@ -107,9 +107,13 @@ Recorded during the import on 2026-11-18. Each has the choice taken for now.
    reusing `service/inference/endpoints.py`. No such file exists in Harbor; the
    endpoint code is `service/config/endpoints.py`, which is imported. *Taken:*
    that file.
-11. **Naming.** The benchmark is EDAT. Imported code keeps Harbor's identifiers,
-   paths and environment variables (`HARBOR_*`, `Toolbench`, `ios/Packages/HarborLing/`).
-   *Taken:* no renames inside imported code.
+11. **Naming.** The benchmark is tinyagent-bench, matching the repository. Its
+   own code still uses the internal prefix `edat` (the `edat/` package,
+   `tests/test_edat_*.py`, schema ids such as `edat.result/1.0`, `EDAT_*`
+   environment variables, the schema `$id` URLs). *Taken:* one mechanical rename
+   pass to `tinyagent_bench` once the open build branches have merged, so it
+   doesn't conflict with them. Imported Harbor code keeps Harbor's identifiers
+   (`HARBOR_*`, `Toolbench`, `ios/Packages/HarborLing/`) for good.
 
 ## Bringing in the in-progress branches
 

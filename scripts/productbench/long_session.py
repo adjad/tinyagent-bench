@@ -1,6 +1,6 @@
 """A long Ask conversation per profile: does the assistant hold up late in it? Pure.
 
-Shape from the EDAT agentic spec (02, section 3.15), on Harbor's own loop (the
+Shape from the tinyagent-bench agentic spec (02, section 3.15), on Harbor's own loop (the
 "Harbor-loop product track": Harbor's history budget and rolling summary
 apply, not the reference loop's trimming):
 

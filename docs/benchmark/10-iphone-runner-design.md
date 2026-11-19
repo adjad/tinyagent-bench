@@ -306,7 +306,7 @@ The estimates assume roughly 300–600 prefill tok/s and 12–25 decode tok/s on
 
 - **Input:** `edat-phone-item/v1` JSONL, one item per line. Each item has fixed messages (with earlier tool calls and canned results), a tool list, sampling, the item's `today`, an optional `rendered_prompt`, and a deterministic `check`.
 - **Where the app looks.** It uses the first `*.jsonl` in `Documents/PhoneItems` and the `.manifest.json` next to it. Otherwise it uses the bundled stand-in, `Resources/phone-items-standin.jsonl`.
-  - The stand-in has 35 items converted from the earlier portable cases by `tools/export_phone_items.py`. Its manifest says **"NOT the published 120-item parity subset"**.
+  - The stand-in has 32 items converted from the portable cases by `tools/export_phone_items.py`: 25 development-split Toolbench cases (case set version 2, facts bound as Toolbench's loader binds them) and 7 authored extract and summary cases. No held-out case is bundled. Its manifest says **"NOT the published 120-item parity subset"**.
   - The real subset comes from the agentic harness's exporter (02 §6, B11).
   - **Any size works without an app change:** the reader has no item cap and does not enforce the manifest's `item_count`. Unknown fields are ignored, and `check.kind` is a plain string, so an unknown kind still loads; it is graded "unknown check kind" locally, and the Mac grades it properly. This covers the 120-item subset and the 40 screen-control items that 11 §0 plans in the same format. Run time grows linearly: about 15 s per item-trial, estimated (90 minutes for 120 items × 3 trials).
 - **Run.**
@@ -483,7 +483,7 @@ open ios-bench/EdgeBench.xcodeproj
 1. **Memory budget (balloon):** about 5 minutes; reopen the app after each of the three kills.
 2. **Reference bracket:** Gemma-Wisp and base, about 70 minutes, with both models chosen on the Run screen.
 3. **Cold load:** reboot, wait 5 minutes, open the app, tick "I rebooted and waited 5 minutes", run it. Repeat on three separate reboots.
-4. **Phone parity items:** about 90 minutes for 120 items once the real subset is in Files → tinyagent-bench → PhoneItems (35 stand-in items otherwise). Then the **rendered slice**.
+4. **Phone parity items:** about 90 minutes for 120 items once the real subset is in Files → tinyagent-bench → PhoneItems (32 stand-in items otherwise). Then the **rendered slice**.
 5. **Full level sweep:** about 2.5 hours. Expect 64k, and maybe 32k, to be killed; reopen and Resume each time.
 6. **Base Gemma full sweep:** once per new device, iOS or runtime version.
 7. **Sustained 20 min**, then **Battery hour** and **Battery hour, control** on the same day, then **Idle resident**.

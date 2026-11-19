@@ -15,11 +15,15 @@ Formats are defined in [docs/benchmark/results-record.md](../../docs/benchmark/r
 | `<board>/<device>.json` | `edat.site-board/1.0`: `models`, `variants` (one per entry: model × quantisation × runtime × thinking), `runs` (status, fit verdict, `ranked`, `rank_group`), `results` (variant × tier × metric, value ± 95 % interval, `vs.tuned` / `vs.base`), `safety` (unsafe actions and privacy leaks, never in a score), `curves` (perf metric over context levels with failure statuses), `ranking` (rank ranges) |
 | `<board>/<device>.trajectories.json` | Short trajectories per variant, case and trial: steps, final answer, checks, outcome `pass` / `fail` / `unsafe`. Development split only |
 | `<board>/cloud.json` | Cloud references in the same shape; every `ranked` is false and `rank_group` is `cloud` |
+| `<board>/<device>.findings.json` | `edat.site-findings/0.1` (draft): what each variant found in the assistant per profile and trial, by section; each item has the site's `mark` (`found`, `missed`, `wrong`, `stale`, `right`, `unsafe`) and the record's `outcome`. Development split only |
 
 Conventions:
 
-- Rates (`pass1`, `pass_all_trials`, `agentic_score`, `assistant_score`, `score_mean`,
-  `unsafe_rate`, `leak_rate`) are **percentages**; differences in `vs` are
+- Rates (`pass1`, `pass_all_trials`, `score_mean`, `unsafe_rate`, `leak_rate`, and every
+  composite: `agentic_score`, `assistant_score`, `preferences_score`, `memory_score`,
+  `forget_compliance`, `late_retention`, `screen_score`, `screen_score_screenshot`,
+  `sidekick_score`, `sidekick_tool_mode`, `text_understanding`, `readability`, `writing`)
+  are **percentages**; differences in `vs` are
   percentage points. Memory is bytes, times are seconds.
 - `facet` is `null` for a tier total, or `lane=assistant`, `family=select`,
   `surface=ask`, `profile=student` for a breakdown.
@@ -36,4 +40,7 @@ The sample deliberately includes: a thinking-on and thinking-off pair (Model D),
 mixture-of-experts model that fits only at small context (Model E), a model that does
 not fit a 16 GB Mac (Model G), one with no fit measurement (Model H), one marked
 invalid for more than 2 % excluded trials (Model F), out-of-memory and beyond-window
-points on the context curves, an iPhone board, and two cloud references.
+points on the context curves, an iPhone board, and two cloud references. It also has
+one Mac run for each newer column (quality with a sample judge record, preferences,
+memory, long sessions, screen control on both tracks, sidekick in both modes) and an
+in-assistant findings run, so `mac-ref.findings.json` exists.

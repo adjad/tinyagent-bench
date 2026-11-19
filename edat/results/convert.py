@@ -248,6 +248,8 @@ def _perf_model(m: dict, kind: str) -> dict:
         out["weights_fingerprint"] = m["weights_fingerprint"]
     q = m.get("quant") or {}
     out["quant"] = {k: q.get(k) for k in ("scheme", "bits", "group_size", "mixed") if k in q} if q.get("scheme") else None
+    if m.get("speculation") in ("none", "mtp", "draft_model"):
+        out["speculation"] = m["speculation"]
     for k in ("architecture", "params_total", "params_active", "template_sha256", "variant_of", "headline_entry"):
         if m.get(k) is not None:
             out[k] = m[k]
@@ -278,21 +280,92 @@ def perf_sample_metrics(s: dict) -> dict:
          "footprint_steady_bytes": s.get("footprint_steady_bytes"),
          "swap_delta_bytes": s.get("swap_delta_bytes"),
          "net_ttft_s": s.get("net_ttft_s"), "net_total_s": s.get("net_total_s"), "cost_usd": s.get("cost_usd")}
+    load = s.get("load") or {}
+    m["load_s"] = _s(load.get("t_load_start_ns"), load.get("t_ready_ns"))
+    m["load_to_first_token_s"] = _s(load.get("t_load_start_ns"), load.get("t_first_token_possible_ns"))
     kill = s.get("kill_evidence") or {}
     if m["footprint_peak_bytes"] is None and isinstance(kill.get("last_footprint_bytes"), int):
         m["footprint_peak_bytes"] = kill["last_footprint_bytes"]
     return {k: v for k, v in m.items() if v is not None}
 
 
+EXPORT_MANIFEST = "edat.export-manifest/1"
+_EXPORT_KINDS = {"mem-": "footprint_log", "phone-": "phone_results", "manifest-": "edat.export-manifest/1"}
+
+
+def read_export(path: Path | str, workdir: Path) -> tuple[Path, list[Path]]:
+    """The iPhone runner's export (a `tinyagent-bench-<run_id>.zip`, or the folder it
+    unpacks to) -> (run document, the other files). Every file the
+    `edat.export-manifest/1` lists is checked against its sha256 and size."""
+    import zipfile
+    path = Path(path).expanduser()
+    if path.is_file() and path.suffix == ".zip":
+        with zipfile.ZipFile(path) as z:
+            for info in z.infolist():
+                name = Path(info.filename)
+                if name.is_absolute() or ".." in name.parts:
+                    raise ConversionError(f"{path}: refusing an archive entry outside the folder ({info.filename})")
+            z.extractall(workdir)
+        found = [p for p in workdir.rglob("manifest-*.json")]
+        if len(found) != 1:
+            raise ConversionError(f"{path}: expected one manifest-<run_id>.json, found {len(found)}")
+        folder = found[0].parent
+    elif path.is_dir():
+        folder = path
+    else:
+        raise ConversionError(f"{path}: not an export zip or folder")
+    manifests = sorted(folder.glob("manifest-*.json"))
+    if len(manifests) != 1:
+        raise ConversionError(f"{folder}: expected one manifest-<run_id>.json, found {len(manifests)}")
+    man = json.loads(manifests[0].read_text())
+    if man.get("schema") != EXPORT_MANIFEST:
+        raise ConversionError(f"{manifests[0]}: schema {man.get('schema')!r} is not {EXPORT_MANIFEST}")
+    if man.get("record_schema") != "edat.perf/1.0":
+        raise ConversionError(f"{manifests[0]}: record_schema {man.get('record_schema')!r} is not edat.perf/1.0")
+    files, run_doc = [manifests[0]], None
+    for f in man.get("files") or ():
+        p = folder / f["name"]
+        if Path(f["name"]).name != f["name"] or not p.is_file():
+            raise ConversionError(f"{folder}: the manifest lists {f['name']!r}, which is missing")
+        data = p.read_bytes()
+        if hashlib.sha256(data).hexdigest() != f.get("sha256") or (f.get("bytes") is not None
+                                                                   and len(data) != f["bytes"]):
+            raise ConversionError(f"{p.name}: does not match the export manifest (altered or truncated)")
+        if p.name.startswith("run-") and p.suffix == ".json":
+            run_doc = p
+        else:
+            files.append(p)
+    if run_doc is None:
+        raise ConversionError(f"{folder}: the manifest lists no run-<run_id>.json")
+    return run_doc, files
+
+
 def convert_perf(doc_path: Path | str, store: Path | str, *, board_version: str, device_id: str | None = None,
                  sampling_source: str = "engine_default", harness_commit: str | None = None,
                  run_dir: Path | str | None = None, sample: bool = False) -> Path:
-    """edat.perf/1.0 run document -> one tinyagent-bench run of tier perf."""
+    """edat.perf/1.0 run document -> one tinyagent-bench run of tier perf.
+
+    `doc_path` may also be the iPhone runner's export zip or folder; its manifest
+    is verified and its footprint log and phone results are kept as attachments.
+    The phone results (`edat-phone-result/v1`) are graded on the phone for
+    display only, so they are not turned into records: the Mac re-grader of
+    02 §6.4 writes the `phone_parity` records."""
+    import tempfile
     doc_path = Path(doc_path).expanduser()
+    extra: list[Path] = []
+    with tempfile.TemporaryDirectory() as tmp:
+        if doc_path.suffix == ".zip" or doc_path.is_dir():
+            doc_path, extra = read_export(doc_path, Path(tmp))
+        return _convert_perf_doc(doc_path, extra, store, board_version=board_version, device_id=device_id,
+                                 sampling_source=sampling_source, harness_commit=harness_commit, run_dir=run_dir,
+                                 sample=sample)
+
+
+def _convert_perf_doc(doc_path: Path, extra: list[Path], store, *, board_version, device_id, sampling_source,
+                      harness_commit, run_dir, sample) -> Path:
     doc = json.loads(doc_path.read_text())
     if doc.get("schema") != "edat.perf/1.0":
-        raise ConversionError(f"{doc_path}: schema {doc.get('schema')!r} is not edat.perf/1.0 "
-                              "(the iPhone runner's edgebench.run/0.1 is not read yet; results-record.md D9)")
+        raise ConversionError(f"{doc_path}: schema {doc.get('schema')!r} is not edat.perf/1.0")
     kind = doc.get("kind") or "local"
     run_id = doc["run_id"]
     runner = doc.get("runner") or {}
@@ -380,6 +453,9 @@ def convert_perf(doc_path: Path | str, store: Path | str, *, board_version: str,
             rec["raw"] = w.put_raw(raw)
         w.append_many(records)
         w.attach(f"run-{re.sub(r'[^A-Za-z0-9._-]', '_', run_id)}.json", doc_path, "edat.perf/1.0")
+        for p in extra:
+            kind = next((k for prefix, k in _EXPORT_KINDS.items() if p.name.startswith(prefix)), "export_file")
+            w.attach(re.sub(r"[^A-Za-z0-9._-]", "_", p.name), p, kind)
         w.set_source({"converter": "perf", "samples": len(doc.get("samples") or ()),
                       "verdicts": len(doc.get("verdicts") or ())})
         return w.dir

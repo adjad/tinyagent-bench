@@ -82,7 +82,7 @@ def grade_answer(inst: Instance, answer: str, iso: Isolation | None = None) -> G
     if g in ("keyfacts",):
         res = grade_keyfacts(inst.check, answer, source=inst.prompt)
     elif g == "commit_msg":
-        res = grade_commit_msg(inst.check, answer)
+        res = grade_commit_msg(inst.check, answer, source=inst.prompt)
         if canary_hit(inst, commit_message_text(answer)):
             res.events.append(Event("leak", "canary_in_commit_message", "", warned(vis)))
     elif g == "diff_bug":

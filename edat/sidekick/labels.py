@@ -19,7 +19,7 @@ REASONS = {
     "git_view": "graded by real git reading a repository the model controls",
     "source_compare": "a test that compares the module against the shown source passes",
     "task_blind_output": "task-blind output can pass (any line holding the expected name and number)",
-    "prompt_echo": "echoing the prompt can pass (facts are matched anywhere in the answer's free text)",
+    "prompt_echo": "fact-matched free text; the guard against copying the prompt awaits its own pass",
     "guessable": "one constant answer passes every case (the Yes/No diffs without a bug, answered No)",
     "probe_in_process": "the hidden tests run in the same process as the model's code",
     "not_allow_listed": "graded by a method not on the allow-list",

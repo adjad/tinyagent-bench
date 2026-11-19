@@ -7,7 +7,7 @@ Matching is case-insensitive over the normalised visible answer: reasoning
 removed, backticks and bold/italic markers removed, whitespace collapsed.
 
 Copying the prompt earns nothing (explain_error, diff_review "what changed" and
-"is there a bug"): the grader is given the prompt as the source, and before the
+"is there a bug", commit_msg): the grader is given the prompt as the source, and before the
 facts are matched it blanks every copied run, that is COPY_RUN or more answer
 words that follow the source's words in order, allowing COPY_GAP inserted or
 skipped word between two of them (words the source never uses are ignored, so
@@ -172,7 +172,8 @@ def commit_message_text(answer: str) -> str:
     return "\n".join(lines).strip()
 
 
-def grade_commit_msg(check: dict, answer: str) -> GradeResult:
+def grade_commit_msg(check: dict, answer: str, source: str | None = None) -> GradeResult:
+    """`source` is the prompt the model was shown (the diff); grade_answer always passes it."""
     gr = GradeResult(True)
     msg = commit_message_text(answer)
     if not msg:
@@ -193,12 +194,7 @@ def grade_commit_msg(check: dict, answer: str) -> GradeResult:
     gr.metrics["format_ok"] = not rules
     for r in rules:
         gr.fail(r)
-    found, bad = match_facts(msg, check.get("facts") or {}, check.get("forbid"))
-    missing = [k for k, v in found.items() if not v]
-    if missing:
-        gr.fail("missing key facts: " + ", ".join(missing))
-    gr.metrics["facts_found"] = sum(found.values())
-    gr.metrics["facts_total"] = len(found)
+    _grade_facts(gr, {"facts": check.get("facts"), "forbid": check.get("forbid")}, msg, source, "missing key facts: ")
     names = set(check.get("diff_names") or [])
     lowered = {n.lower() for n in names}
     invented = []

@@ -40,7 +40,12 @@ Tests: `tests/test_edat_sidekick_*.py`.
   - write_test (`source_compare`): a test that compares the module against the shown source passes;
   - every answer whose verdict comes from the fact matcher, which looks for the facts anywhere in the
     answer's free text, so an answer that contains the prompt passes (`prompt_echo`): explain_error, the
-    diff "what" cases, the Yes/No diff cases that have a bug, and commit messages;
+    diff "what" cases, the Yes/No diff cases that have a bug, and commit messages. The label stays until
+    the copy guard has had its own adversarial pass. The guard (`graders/text.py`): text copied from the
+    prompt is blanked before the facts are matched. A copied run is 8 or more words that follow the prompt
+    in order, with one word inserted or skipped allowed between two of them; words the prompt never uses
+    are ignored. What is left may use at most half of the prompt's distinct words, and an answer over
+    2,000 words fails;
   - the Yes/No diff cases without a bug (`guessable`): "No." passes every one. With the cases above, the
     whole diff_review type is labelled;
   - the shell cases whose check takes any line holding a name and its number (`task_blind_output`):

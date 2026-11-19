@@ -100,6 +100,23 @@ def test_diff_bug_facts_from_the_diff_do_not_count():
     assert not grade_diff_bug(check, "Yes. " + " ".join(w + " qq" for w in diff.split()), source=diff).passed
 
 
+def test_commit_message_quoting_the_diff_earns_nothing():
+    diff = """Write a commit message for this change.
+
+```diff
+-def fetch(url, timeout=30):
++def fetch(url, timeout=5):
+     return http_get(url, timeout=timeout)
+```"""
+    check = {"facts": {"what": [r"timeout"], "value": [r"\b5\b"]}, "diff_names": ["fetch", "http_get"]}
+    assert grade_commit_msg(check, "Lower the fetch timeout to 5 seconds", source=diff).passed
+    body = diff.split("```diff\n", 1)[1].split("```", 1)[0]
+    for forged in ("Update code\n\n" + body,
+                   "Update code\n\n" + body + "\n\nRename and remove unused dead code, handle empty input."):
+        assert grade_commit_msg(check, forged).passed               # the matcher alone takes it: the guard fails it
+        assert not grade_commit_msg(check, forged, source=diff).passed
+
+
 def test_every_explanation_case_refuses_its_own_prompt():
     """Through grade_answer (which passes the prompt): each template's references pass, the prompt echoed
     back (with "Yes." for a diff with a bug) fails, and so does a wrong answer with the shown code quoted."""
@@ -110,10 +127,10 @@ def test_every_explanation_case_refuses_its_own_prompt():
     for t in all_templates():
         for seed in range(2):
             inst = t.build(random.Random(f"echo{seed}"))
-            if inst.grader not in ("keyfacts", "diff_bug") or (inst.grader == "diff_bug" and not inst.check.get("has_bug")):
+            if inst.grader not in ("keyfacts", "diff_bug", "commit_msg") or (inst.grader == "diff_bug" and not inst.check.get("has_bug")):
                 continue
             n += 1
-            pre = "Yes. " if inst.grader == "diff_bug" else ""
+            pre = {"diff_bug": "Yes. ", "commit_msg": "Update code\n\n"}.get(inst.grader, "")
             code = "\n".join(b for _, b in fences(inst.prompt))
             for ref in inst.references:
                 assert grade_answer(inst, ref).passed, t.id
@@ -121,7 +138,7 @@ def test_every_explanation_case_refuses_its_own_prompt():
                 assert not grade_answer(inst, echo).passed, (t.id, echo[:50])
             for w in inst.wrong:
                 assert not grade_answer(inst, w + "\n```\n" + code + "\n```").passed, t.id
-    assert n >= 40
+    assert n >= 50
 
 def test_commit_format_rules():
     check = {"facts": {"what": [r"renam"]}, "diff_names": ["get_user", "get_usr", "accounts.py"]}

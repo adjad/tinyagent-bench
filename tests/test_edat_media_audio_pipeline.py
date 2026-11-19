@@ -34,11 +34,14 @@ def test_stub_engine_is_deterministic_and_marks_placeholder(engine):
     assert not np.array_equal(a.samples, engine.synthesize("call amara at five", "stub-04").samples)
 
 
-def test_real_engines_are_refused_until_approved():
+def test_only_the_approved_engines_can_be_built(monkeypatch):
     assert get_engine("stub").id == StubEngine.id
-    with pytest.raises(LookupError):
+    monkeypatch.delenv("EDAT_PIPER_DIR", raising=False)
+    with pytest.raises(LookupError):            # approved, but no local weights: refuses
         get_engine("piper")
-    assert not any(c.approved for c in CANDIDATES)
+    with pytest.raises(LookupError):
+        get_engine("xtts")
+    assert {c.engine for c in CANDIDATES if c.approved} == {"Kokoro-82M", "Piper"}
 
 
 def test_wav_round_trip_and_resample():
@@ -108,11 +111,14 @@ def test_condition_grid_covers_version_one():
 
 def test_entity_command_set():
     cases = cmd.entity_commands()
-    assert len(cases) == cmd.ENTITY_SET_SIZE == 300
-    assert len({c.case_id for c in cases}) == 300
+    assert len(cases) == cmd.ENTITY_SET_SIZE == 500
+    assert len({c.case_id for c in cases}) == 500
     assert cmd.entity_commands()[17].to_json() == cases[17].to_json()      # seeded
     kinds = {e.kind for c in cases for e in c.entities}
-    assert kinds == {"phone", "name", "time", "date", "duration", "money", "email", "address"}
+    assert kinds == {"phone", "name", "time", "date", "duration", "money", "email", "address",
+                     "term", "number"}
+    assert {e.sub for c in cases for e in c.entities if e.kind == "term"} == \
+        {"app", "product", "medical", "finance", "technical"}
     for c in cases:
         assert not any(ch.isdigit() for ch in c.spoken), c.spoken   # spoken forms are words
         assert c.text.isascii() and c.expect

@@ -57,8 +57,7 @@ def validate_instance(t: Template, inst: Instance, seed: str, iso: Isolation, re
     if inst.grader == "write_test":
         tests = extract(inst.references[0], inst.answer_kind).snippet
         for k, m in enumerate(inst.check["mutants"]):
-            with TrialArea() as area:
-                r = _run_with(iso, area, inst.check, m, tests)
+            r = _run_with(iso, TrialArea, inst.check, m, tests)
             if r.exit_code == 0:
                 rep.problems.append(Problem(t.id, seed, f"mutant {k} not caught by the reference tests"))
     if t.tool_mode:

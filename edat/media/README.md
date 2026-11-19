@@ -1,84 +1,131 @@
-# EDAT vision and audio tests (`edat/media/`)
+# tinyagent-bench vision and audio tests (`edat/media/`)
 
-Design: [05-vision-audio-spec](../../docs/benchmark/05-vision-audio-spec.md). Version 1 scope
-only: English, no video, no speech output, synthetic speech first, redistributable data only,
-no judge model. Nothing here runs a model, a speech engine or a download by itself.
+Design: [05-vision-audio-spec](../../docs/benchmark/05-vision-audio-spec.md), full-coverage
+revision. Scope: English only, no video, no speech output, redistributable data only, and no
+judge model. Nothing here runs a model, a speech engine or a download on its own. Every
+generator scales by parameter, so the full sets are produced by command. A small development
+sample is committed. Held-out splits are generated only into `$EDAT_PRIVATE_DIR`, and every
+generator refuses to write them inside the repository.
 
-| Piece | Module | Spec |
-| --- | --- | --- |
-| Synthetic image families (7) and their ground truth | `vision/families/*.py`, `vision/canvas.py`, `vision/items.py`, `vision/generate.py` | §7.1 V1, §7.4 V5 |
-| Extraction scorers: normalised exact match, ANLS, relaxed (5 %), reading CER, abstention | `vision/score.py`, `common.py` | §7.1 |
-| Validator: every planted field visibly present, gold scores 1, blank scores 0 | `vision/validate.py` | §7.1 |
-| Image and audio cost workloads for the performance runner | `workloads.py` | §8 V4, §4 A2, §5 A9 |
-| Transcript normaliser, WER, CER, insertion rate, bootstrap interval, A5 detectors | `audio/normalize.py`, `audio/wer.py`, `textdist.py` | §3 A1, §5 A5 |
-| Speech-engine seam, stub engine, candidate engines | `audio/tts.py` | §5 A3, §13.2 |
-| Noise ladder, simulated rooms, overlap | `audio/mix.py` | §5 A4 |
-| Spoken commands: 300 entity-dense cases, two-pass / native / pipeline, matcher seam, entity accuracy | `audio/commands.py` | §5 A3 |
-| Latency definitions | `audio/latency.py` | §4.1 A2 |
-| Runner writing `edat.result/1.0` records, 3 trials, "no image/audio input" | `runner.py`, `adapter.py` | §2, §10.5 |
-| Checkpoint header inspection (tower sizes, T / T+V / T+V+A, strip plan) | `checkpoint.py` | §9.4 M1 |
-| Dataset manifests and fetch script | `datasets.py`, `test_fixtures/media/datasets/` | §3.3, §5, §7.2 |
+## Vision
 
-## Vision items
+| Suite | What | Module | Full count |
+| --- | --- | --- | --- |
+| V1 extraction | 11 synthetic families from invented data, with ground truth and pixel proof | `vision/families/*.py`, `canvas.py`, `items.py`, `generate.py`, `validate.py`, `score.py` | 5,500 images, 22,000 questions + 5,500 full readings |
+| V2 public sets | manifests only; loaders not built | `datasets.py` | about 15,000 |
+| V3 image to action | flyers, tickets, invitations, bookings, appointments, due notices, chats; scored with Harbor's own `parse_proposal` / `proposal_call` | `vision/actions.py` | 1,000 (15 % no event, 15 % several) |
+| V4 cost and limits | image tokens, TTFT, decode, preprocess; 1–16 images-per-request ladder; resolution and token-budget accuracy ladders | `workloads.py` | about 3,000 requests |
+| V5 robustness | 25 conditions over 600 base images; 500 unreadable images | `vision/robustness.py` | 30,000 + 500 requests |
+| V7 reasoning | counting, spatial, multi-image (2–4 per request), chart trend, control location (point or box) | `vision/reasoning.py` | 5,500 requests (+ about 1,270 ScreenSpot-v2, fetched at run time) |
+
+V1 families (500 images each, 4 scored questions and 1 full reading per image, 10 %
+abstention items):
+
+| Family | Templates |
+| --- | --- |
+| `app_screens` | chat, inbox, settings, error dialog, notifications, maps card, contact, music, files, alert, alarms |
+| `web_pages` | product, flight, hotel, train, article, search results, sign-in error, order, checkout, booking, pricing |
+| `documents` | letters, reports, policies, multi-column pages, slides, dense pages |
+| `receipts_forms` | 12 receipt layouts, invoices, tax-style forms, application forms, ID-like cards with clearly fake data |
+| `tables` | plain, zebra, grouped headers, totals, wide, status, long (3–40 rows) |
+| `charts` | bar, horizontal bar, grouped, stacked, line, area, pie, scatter, histogram, box plot, dual axis |
+| `handwriting` | notes, shopping lists, to-do lists, sticky notes (open handwriting fonts through `EDAT_HANDWRITING_FONT_DIR`; a proxy until they are fetched) |
+| `photo_text` | flyer, poster, sign, menu, product label, whiteboard, parcel, screen, ticket; perspective, lighting and damage levels 0–3 |
+| `calendar` | day, week, month, agenda, timeline, clash views |
+| `spreadsheet` | grids with column letters, frozen headers, highlighted cells, toolbar |
+| `diagrams` | flowcharts, org charts, timelines, floor plans, network and sequence diagrams, labelled maps |
 
 ```bash
-.venv/bin/python -m edat.media.vision.generate families
+.venv/bin/python -m edat.media.vision.generate generate --split dev --count 500 --out OUT/v1
 ```
 
 ```bash
-.venv/bin/python -m edat.media.vision.generate generate --family documents --count 250 --out /tmp/edat-v1
+.venv/bin/python -m edat.media.vision.robustness generate --split dev --out OUT/v5
 ```
 
-Each item is `<id>.png` plus `<id>.json`: the source data, every planted field with its pixel
-box and a hash of its pixels taken right after drawing, the text in reading order (the
-full-reading reference), and the questions with gold answers. Every item the generator writes
-passes the validator first.
+```bash
+.venv/bin/python -m edat.media.vision.reasoning generate --split dev --out OUT/v7
+```
 
-| Family | Templates | Questions per image |
-| --- | --- | --- |
-| `app_screens` | chat, inbox, settings, error dialog, notifications, maps card, contact | 4 + reading |
-| `web_pages` | product, flight, hotel, article, search results, sign-in error, order | 4 + reading |
-| `documents` | receipt (10 layouts), invoice | 5 + reading |
-| `charts_tables` | table, bar, line, pie, stacked bar, scatter | 4 + reading |
-| `calendar` | day, week, month | 4 + reading |
-| `spreadsheet` | expenses, inventory, roster, orders, grades, timesheet, sales | 4 + reading |
-| `photo_text` | flyer, poster, sign, menu, on a generated photo with perspective and damage levels 0–3 | 5 + reading |
+```bash
+.venv/bin/python -m edat.media.vision.actions generate --split dev --out OUT/v3
+```
 
-Splits and counts:
+For a held-out split, run `python -m edat.media.vision.generate init-heldout-seed` once with
+`EDAT_PRIVATE_DIR` set, then pass `--split heldout` and an output folder outside the
+repository.
 
-| Split | Seed | Images | Questions | Where |
-| --- | --- | --- | --- | --- |
-| dev sample | public (`DEV_SEED`) | 21 (3 per family) | 111 | committed, `test_fixtures/media/vision/dev/` |
-| dev full | public | 250 per family, 1,750 | 9,250 (1,750 of them full readings) | generated on demand |
-| held-out | private (`$EDAT_PRIVATE_DIR/media/heldout_seed`) | 250 per family, 1,750 | 9,250 | `$EDAT_PRIVATE_DIR` only; the generator refuses to write it in the repository |
+Each V1 item is `<id>.png` plus `<id>.json`. The JSON holds:
+- the source data;
+- every planted field with its pixel box and a hash of its pixels taken right after drawing;
+- named element boxes for control location;
+- the text in reading order (the full-reading reference);
+- the questions with their gold answers.
 
-Within each template, theme (light, dark) and device pixel ratio (1, 2) rotate, and 2 items
-in 20 are abstention items (a field absent or blurred; the right answer is "not shown").
-`--long-side` re-renders at the V5 sizes (512 to 3,000 px) instead of resizing.
+The validator proves that every asked field is inside the image, was not drawn over, has ink
+at 3:1 contrast, uses glyphs the font has and reads as its planted value. It also checks that
+the gold answer scores 1 and a blank answer scores 0. The generators write only items that
+pass.
 
-Font: Pillow's embedded Aileron Regular (CC0), so no font is downloaded and the same Pillow and
-FreeType versions give the same pixels (both are recorded with every item). It covers ASCII
-only, and the validator refuses any other character. Every name, brand, address, phone number
-(555-01xx) and email (`example.com`, `example.org`, `mail.test`) is invented.
+Scoring has no judge:
+- normalised exact match (NFKC, case-fold, ISO dates, 24-hour times, money, phone digits);
+- ANLS at 0.5;
+- within 5 % for values read off a plot;
+- CER and line recall for full readings;
+- false-answer rate for abstention;
+- exact counts with error by count size;
+- point inside the element's box, or IoU ≥ 0.5 when a box is asked for.
+
+Font: Pillow's embedded Aileron Regular (CC0), ASCII only. Noto and the handwriting fonts are
+in the font manifests and plug in through `EDAT_FONT_DIR` and `EDAT_HANDWRITING_FONT_DIR`.
+Every name, brand, address, phone number (555-01xx) and email (`example.com`, `example.org`,
+`mail.test`) is invented.
 
 ## Audio
 
-Speech engines: only the stub exists. It writes **placeholder tones, not speech**, so the whole
-pipeline can be tested; its clips are marked `placeholder: true`. A real engine needs the
-coordinator's approval of the engine and each voice (`audio/tts.py`, `CANDIDATES`). No
-rendered speech is committed.
+| Suite | What | Module | Full count |
+| --- | --- | --- | --- |
+| A1 accuracy | normaliser (`edat-en-norm/1`, Whisper's rules), WER/CER at corpus level with a bootstrap interval | `audio/normalize.py`, `audio/wer.py`, `textdist.py` | the public sets in the manifests |
+| A2 latency | TTFT-audio, time to final, RTF, user-perceived latency, reference endpointer | `audio/latency.py`, `workloads.py` | ladders |
+| A3 spoken commands | single (agentic, Toolbench, 500 entity-dense), voice variance, follow-up dialogues, corrections, disfluency, noisy; two-pass, native and pipeline | `audio/commands.py`, `audio/spoken_cases.py`, `audio/dialogue.py` | 10,866 clips |
+| A4 robustness | noise types and SNRs, three image-source rooms, level, clipping, truncation, narrowband, overlap | `audio/mix.py` | 2,620 utterances × 19 conditions |
+| A5 non-speech | silence and non-speech, speech then noise, commands in noise, answer-leak | `audio/nonspeech.py` | 3,000 clips |
+| A7 understanding | conversations (who said, speaker count, DER), urgency, sound events, recordings with planted facts, CREMA-D, ESC-10, Big Bench Audio | `audio/understanding.py` | about 15,000 questions |
+| A8 long audio | length ladder, 30 s windows with 1 s overlap, seam errors, behaviour past the limit | `audio/longform.py` | 200 ladder clips |
+| entities | names, numbers, dates, money and term lists for entity accuracy | `audio/entities.py` | — |
 
-## Model adapter
+Speech engines (`audio/tts.py`):
+- **Kokoro-82M** (Apache-2.0) is the main engine.
+- **Piper `en_GB-cori-medium`** (CC BY 4.0) is the second.
+- **The 12-voice plan** is in `test_fixtures/media/tts/voices.json`.
 
-The runner calls `client.chat(...)` exactly as `docs/benchmark/model-adapter.md` defines and
-duck-types the result, so it runs today against `StubMediaClient` and later against
-`edat.models` clients. What the adapter must add for media is in `adapter.ADAPTER_GAPS`.
+Both real engines load only from a local folder (`EDAT_KOKORO_DIR`, `EDAT_PIPER_DIR`) with the
+hub forced offline, and refuse rather than download. The stub engine writes **placeholder
+tones, not speech**, so the whole pipeline can be tested; its clips are marked
+`placeholder: true`. No rendered speech is committed.
+
+## Shared
+
+- `runner.py`:
+  - writes `edat.result/1.0` records (`tier` `vision` or `audio`, suite in `facets.family`);
+  - runs 3 trials;
+  - records `not_applicable` ("no image input" / "no audio input");
+  - retries once, then marks the record `excluded`;
+  - sends 1–4 images per V7 request, V5 items in their own format, and V3 as Harbor's own request.
+- `adapter.py`: the media capabilities and the gaps the shared model adapter still has
+  (`ADAPTER_GAPS`).
+- `checkpoint.py`: safetensors header inspection (tower sizes, T / T+V / T+V+A, strip plan).
+- `datasets.py`: 44 manifests in `test_fixtures/media/datasets/` with every file's size,
+  checksum and licence. It provides:
+  - `python -m edat.media.datasets summary`, which totals what version 1 needs;
+  - `fetch`, which refuses anything not approved, any destination inside the repository and any
+    call without `--yes`.
 
 ## Tests
 
 ```bash
-.venv/bin/python -m pytest -q tests/test_edat_media_audio_wer.py tests/test_edat_media_audio_pipeline.py tests/test_edat_media_checkpoint.py tests/test_edat_media_datasets.py tests/test_edat_media_runner.py tests/test_edat_media_vision.py
+.venv/bin/python -m pytest -q tests/test_edat_media_*.py
 ```
 
-They need Pillow and NumPy in the environment (not yet in `requirements-dev.txt`); without them
-the image and audio tests skip.
+They need Pillow, NumPy and PyYAML in the environment. Pillow and NumPy are not yet in
+`requirements-dev.txt`; without them the image and audio tests skip.

@@ -6,7 +6,7 @@ parentheses; drop the fillers hmm, mm, mhm, mmm, uh, um; expand contractions
 and titles; drop symbols and diacritics but keep numeric symbols; spelled-out
 numbers to digits; British to American spelling; collapse spaces.
 
-This is EDAT's own implementation, identified by :data:`NORMALIZER_ID`. It is
+This is tinyagent-bench's own implementation, identified by :data:`NORMALIZER_ID`. It is
 checked against hand-made pairs (``tests/test_edat_media_audio_wer.py``), not
 byte-for-byte against Whisper's code: the number rules below are a documented
 subset, and the spelling map is a built-in subset unless the full Whisper map

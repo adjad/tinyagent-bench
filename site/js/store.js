@@ -50,7 +50,7 @@
       id: d.id, class: d.class || d.id, path: d.path, trajectories: d.trajectories, findings: d.findings || null,
       name: d.name || c.name || [d.soc, gb ? gb + " GB" : null].filter(Boolean).join(", ") || d.id,
       short: d.short || c.short || d.id, kind: d.kind || c.kind || (/(phone|iphone)/i.test(d.class || d.id) ? "phone" : "laptop"),
-      fitLabel: d.fit_label || c.fitLabel || "this device", runtimeNote: c.runtimeNote || "",
+      fitLabel: d.fit_label ? String(d.fit_label).replace(/^fits\s+/i, "") : c.fitLabel || "this device", runtimeNote: c.runtimeNote || "",
       ram_bytes: d.ram_bytes || null, soc: d.soc || null, os: d.os || null
     };
   }
@@ -67,7 +67,11 @@
       this.variants = new Map((raw.variants || []).map((v) => [v.key, v]));
       this.runs = new Map((raw.runs || []).map((r) => [r.variant, r]));
       this.res = new Map(); this.present = new Set(); this.facetsByTier = new Map();
-      (raw.results || []).forEach((r) => {
+      /* rows the store says may not be scored (labels.may_score false, or the sidekick's not-hardened view) are kept
+       * apart: never in a table cell, a chart or a rank, only counted in this.unscored */
+      const unscored = (r) => (r.labels && r.labels.may_score === false) || r.tier === "sidekick_not_hardened" || r.view === "sidekick_not_hardened";
+      this.unscored = (raw.results || []).filter(unscored);
+      (raw.results || []).filter((r) => !unscored(r)).forEach((r) => {
         this.res.set(r.variant + "§" + r.tier + "§" + r.metric + "§" + (r.facet || ""), r);
         this.present.add(r.tier + "§" + r.metric + "§" + (r.facet || ""));
         this.present.add(r.tier);
@@ -140,7 +144,7 @@
       if (rec.status && rec.status !== "ok") return S(rec.status === "not_run" && rec.empty_reason ? "not_run_here" : rec.status, { rec, reason: rec.empty_reason || null });
       if (rec.value == null) return S("no_value", { rec, reason: rec.empty_reason || null });
       const iv = rec.interval && rec.interval_kind !== "none" ? [rec.interval[0] * sc, rec.interval[1] * sc] : null;
-      return { status: "ok", value: rec.value * sc, interval: iv, half: half(iv), n: rec.n_cases, trials: rec.n_trials, kind: rec.interval_kind, vs: rec.vs || null, label: rec.label || null, rec };
+      return { status: "ok", value: rec.value * sc, interval: iv, half: half(iv), n: rec.n_cases, trials: rec.n_trials, kind: rec.interval_kind, vs: rec.vs || null, label: rec.label || null, selection: rec.selection || null, rec };
     }
     if (src.loop) {
       /* the gap between the two loops, from the board's loops[] row: delta, paired interval and tag */

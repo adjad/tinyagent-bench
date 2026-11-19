@@ -3,41 +3,55 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>tinyagent-bench</title>
-<meta name="description" content="Design mock-up of a public benchmark for small language models used as on-device agents on laptops and phones. All numbers are sample data.">
+<title>Leaderboard</title>
+<meta name="description" content="A public benchmark for small language models used as on-device agents: which model is the best agent that fits your device, and what it costs in memory, speed and battery.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600&family=IBM+Plex+Sans:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="site.css?v=19">
+<link rel="stylesheet" href="css/site.css">
+<script>try { var t = localStorage.getItem("edat-theme"); if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); } catch (e) {}</script>
 </head>
 <body>
-<div class="sample-band" role="note">
+<a class="skip-link" href="#app">Skip to the results</a>
+<div class="sample-band" role="note" id="sample-band" hidden>
   <div class="container"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2l6.5 11.5h-13L8 2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 6.5v3.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="11.6" r=".9" fill="currentColor"/></svg>
-  <span>Design mock-up. Every number is sample data and every model name is invented; the two devices and runtimes are the planned first ones, with no results yet.</span></div>
+  <span id="sample-text"></span></div>
 </div>
 <header class="topbar">
   <div class="container">
-    <a class="wordmark" href="#/" aria-label="tinyagent-bench, leaderboard"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="12" width="4" height="9" rx="1" fill="currentColor"/><rect x="10" y="7" width="4" height="14" rx="1" fill="currentColor" opacity=".7"/><rect x="17" y="3" width="4" height="18" rx="1" fill="currentColor" opacity=".45"/></svg><span>tinyagent-bench</span></a>
+    <a class="wordmark" href="#/" id="wordmark"></a>
     <nav aria-label="Main"><ul class="nav-links" id="nav-links"></ul></nav>
     <div class="topbar-tools">
       <label class="device-label small muted" for="nav-device">Results on</label>
-      <select class="select" id="nav-device" aria-label="Device for all results"></select>
-      <button type="button" class="key key--ghost key--icon" id="theme-btn" aria-label="Switch light or dark"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 2.5a5.5 5.5 0 010 11z" fill="currentColor"/></svg></button>
+      <select class="select" id="nav-device"></select>
+      <button type="button" class="key key--ghost key--icon" id="theme-btn" aria-label="Switch between light and dark"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 2.5a5.5 5.5 0 010 11z" fill="currentColor"/></svg></button>
       <button type="button" class="key key--ghost key--icon menu-btn" id="menu-btn" aria-label="Menu" aria-expanded="false" aria-controls="nav-links"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
     </div>
   </div>
 </header>
-<main id="app">
-  <noscript><div class="container"><p>This mock-up renders its sample data with JavaScript. The published site would render every table on the server, so it reads with scripting off.</p></div></noscript>
+<main id="app" tabindex="-1">
+  <noscript><div class="container"><p>This site draws its tables and charts from the published result files with JavaScript. The raw files are in the <code>data/</code> folder next to this page.</p></div></noscript>
 </main>
 <footer class="foot">
   <div class="container">
-    <p>tinyagent-bench, benchmark 0.1, design mock-up. Sample data only.</p>
-    <ul><li><a href="#/methodology">Methodology</a></li><li><a href="#/vote">Readability vote</a></li><li><a href="#/devices">Devices</a></li></ul>
+    <p id="foot-text"></p>
+    <ul><li><a href="#/methodology">Methodology</a></li><li><a href="#/vote">Readability votes</a></li><li><a href="#/devices">Devices</a></li><li><a href="#/profiles">Profiles</a></li><li><a id="foot-repo" href="#/methodology">Source</a></li></ul>
   </div>
 </footer>
-<script src="data.js?v=19"></script>
-<script src="charts.js?v=19"></script>
-<script src="app.js?v=19"></script>
+<script src="js/config.js"></script>
+<script src="js/registry.js"></script>
+<script src="js/store.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/pages/home.js"></script>
+<script src="js/pages/model.js"></script>
+<script src="js/pages/compare.js"></script>
+<script src="js/pages/tests.js"></script>
+<script src="js/pages/devices.js"></script>
+<script src="js/pages/profiles.js"></script>
+<script src="js/pages/findings.js"></script>
+<script src="js/pages/vote.js"></script>
+<script src="js/pages/methodology.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>

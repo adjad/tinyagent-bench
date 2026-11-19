@@ -326,7 +326,7 @@ def test_day_tab_blocks_are_read_in_profile_time(profile):
     assert [(b.start, b.end) for b in blocks] == [(600, 660), (720, 735)]
 
 
-# ---------------------------------------------------------------- shared EDAT schema
+# ---------------------------------------------------------------- shared tinyagent-bench schema
 EDAT = ROOT / "test_fixtures" / "productbench" / "edat_mini"
 
 

@@ -1,4 +1,4 @@
-"""Statistics for EDAT results. Pure functions, deterministic (fixed seeds).
+"""Statistics for tinyagent-bench results. Pure functions, deterministic (fixed seeds).
 
 - wilson(k, n): Wilson score interval for a single rate (02 §5.2).
 - case_bootstrap(per_case): percentile interval of the mean over cases,

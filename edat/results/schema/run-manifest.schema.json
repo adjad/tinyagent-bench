@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/adjad/Edge_device_agentic_testing/edat/results/schema/run-manifest.schema.json",
-  "title": "EDAT run manifest (edat.run-manifest/1.0)",
+  "title": "tinyagent-bench run manifest (edat.run-manifest/1.0)",
   "description": "manifest.json in a run directory: what the run was, the comparison key every record in it shares, and checksums of records.jsonl and the raw files. Rewritten atomically (temp file + rename) after every append. See docs/benchmark/results-record.md.",
   "type": "object",
   "additionalProperties": false,

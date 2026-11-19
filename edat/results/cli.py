@@ -1,4 +1,4 @@
-"""Command line for the EDAT results store.
+"""Command line for the tinyagent-bench results store.
 
     python -m edat.results validate RUN_DIR [RUN_DIR ...] [--deep]
     python -m edat.results merge RUN_DIR RUN_DIR [...] --out DIR
@@ -234,7 +234,7 @@ def parser() -> argparse.ArgumentParser:
     sp.add_argument("--json", action="store_true")
     sp.set_defaults(fn=cmd_diff)
 
-    sp = sub.add_parser("convert", help="turn existing harness output into an EDAT run")
+    sp = sub.add_parser("convert", help="turn existing harness output into a tinyagent-bench run")
     sp.add_argument("format", choices=("toolbench", "perf", "productbench"))
     sp.add_argument("src")
     sp.add_argument("--board-version", required=True)

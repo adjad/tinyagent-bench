@@ -1,17 +1,19 @@
 """The ceiling run's engine safety, against a fake engine on loopback (no model, no oMLX).
 
 The engine address is loopback only and checked before any header (oMLX's key) is built; redirects and
-proxies are never followed; unloads, loads and chats use one address; the engine state saved by the run
-(loaded and pinned models) is put back on every way out, SIGTERM and SIGHUP included, and the lock is
-removed; a state left by an earlier run is never restored; preflight writes nothing inside the
-repository; a run with no graded trial, or only engine faults, is a failed run. Every model id is invented.
+proxies are never followed. A run with the engine goes through the shared run guard
+(edat/runtime/run_guard.py): one chat model resident, the engine state saved fresh and put back on every
+way out, signals included, Harbor checked failing closed, the lock always released. The tests marked P1
+to P11 are the regression tests for PR 27's review findings. Every model id is invented.
 """
 from __future__ import annotations
 
 import json
 import os
 import signal
+import subprocess
 import threading
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
@@ -20,16 +22,23 @@ import pytest
 from edat.sidekick.ceiling import engine as eng
 from edat.sidekick.ceiling import models
 from edat.sidekick.ceiling import run as run_mod
+from edat.runtime import run_guard as rg
 from edat.sidekick.ceiling.run import Quick, run_all
 
 
 class FakeEngine:
-    """Enough of oMLX's API for keep and restore: status, list, load, unload; records every request."""
+    """Enough of oMLX's API for the run guard: status (with is_loading), list, load, unload; records every
+    request. `unload_lag` and `load_lag` (seconds) make unloads answer 202 and finish later and loads show
+    is_loading first, as oMLX does; `fail_loads` answers 500 to loads; `hook(method, path)` runs before each
+    request is answered."""
 
-    def __init__(self, loaded=(), pinned=(), ids=("model-a", "model-b", "model-c", "helper-embed"), redirect_to=None):
+    def __init__(self, loaded=(), pinned=(), ids=("model-a", "model-b", "model-c", "helper-embed"), redirect_to=None,
+                 unload_lag=0.0, load_lag=0.0, hook=None):
         self.loaded, self.pinned, self.ids = set(loaded), set(pinned), list(ids)
+        self.loading: set[str] = set()
         self.requests: list[tuple[str, str, str | None]] = []
         self.redirect_to = redirect_to
+        self.unload_lag, self.load_lag, self.hook, self.fail_loads = unload_lag, load_lag, hook, False
         fake = self
 
         class H(BaseHTTPRequestHandler):
@@ -47,16 +56,32 @@ class FakeEngine:
 
             def _route(self, method):
                 fake.requests.append((method, self.path, self.headers.get("Authorization")))
+                if fake.hook:
+                    fake.hook(method, self.path)
                 if fake.redirect_to:
                     return self._send(307, {}, [("Location", fake.redirect_to + self.path)])
                 if method == "GET" and self.path == "/v1/models":
                     return self._send(200, {"data": [{"id": i} for i in fake.ids]})
                 if method == "GET" and self.path == "/v1/models/status":
-                    return self._send(200, {"models": [{"id": i, "loaded": i in fake.loaded, "pinned": i in fake.pinned}
-                                                       for i in fake.ids]})
+                    return self._send(200, {"models": [{"id": i, "loaded": i in fake.loaded, "pinned": i in fake.pinned,
+                                                        "is_loading": i in fake.loading} for i in fake.ids]})
                 parts = self.path.strip("/").split("/")
                 if method == "POST" and len(parts) == 4 and parts[3] in ("load", "unload"):
-                    (fake.loaded.add if parts[3] == "load" else fake.loaded.discard)(parts[2])
+                    mid = parts[2]
+                    if parts[3] == "load" and fake.fail_loads:
+                        return self._send(500)
+                    if parts[3] == "unload" and fake.unload_lag:
+                        threading.Timer(fake.unload_lag, lambda: fake.loaded.discard(mid)).start()
+                        return self._send(202, {"status": "unloading"})
+                    if parts[3] == "load" and fake.load_lag:
+                        fake.loading.add(mid)
+
+                        def done():
+                            fake.loading.discard(mid)
+                            fake.loaded.add(mid)
+                        threading.Timer(fake.load_lag, done).start()
+                        return self._send(200, {"status": "ok"})
+                    (fake.loaded.add if parts[3] == "load" else fake.loaded.discard)(mid)
                     return self._send(200, {"status": "ok"})
                 return self._send(404)
 
@@ -84,10 +109,12 @@ def fake():
 
 @pytest.fixture
 def key(monkeypatch):
-    """oMLX's key as engine_prep reads it, counted: a refused address must never build it."""
+    """oMLX's key as engine_prep and the run guard read it, counted: a refused address must never build it,
+    and no test reads the real one."""
     calls = []
     import scripts.productbench.engine_prep as ep
     monkeypatch.setattr(ep, "_headers", lambda: calls.append(1) or {"Authorization": "Bearer test-key"})
+    monkeypatch.setattr(rg, "read_engine_key", lambda settings=None: calls.append(1) or "test-key")
     return calls
 
 
@@ -165,64 +192,274 @@ def test_proxy_settings_in_the_environment_are_not_used(fake, key, monkeypatch):
         assert "model-a" in eng.listed(c)
 
 
-# ------------------------------------------------------------------ saved state, put back on every way out
+# ------------------------------------------------------------------ the run guard: one model, put back on every way out
+
+BEFORE = {"model-a", "model-b", "helper-embed"}
+
 
 def _entry_stub(calls, then=None):
     def run_entry(e, out, **kw):
         calls.append(e.model.engine_id)
         if then:
             then()
-        return {"skipped": None, "stopped": None, "written": 1, "summary": {"ceiling": 1, "solid": 1, "excluded": 0}}
+        if kw.get("guard") is not None:
+            kw["guard"].note("ok")
+        return {"skipped": None, "stopped": None, "written": 1, "sitting": {"ok": 1, "excluded": 0, "error": 0},
+                "summary": {"ceiling": 1, "solid": 1, "excluded": 0}}
     return run_entry
 
 
 @pytest.fixture
 def quiet(monkeypatch):
-    monkeypatch.setattr(run_mod, "harbor_running", lambda: False)
+    """Harbor closed and memory free, as this module's checks see them (the guard is given these)."""
+    monkeypatch.setattr(run_mod, "harbor_running", lambda: None)
+    monkeypatch.setattr(run_mod, "memory_free_pct", lambda: 90)
     monkeypatch.setattr(run_mod, "weights_for", lambda out, mdir, m: "0" * 64)
 
 
-def test_keep_unloads_on_the_same_engine_and_restore_puts_back_loaded_and_pinned(tmp_path, fake, key, quiet, monkeypatch):
-    calls = []
+def _guarded(tmp_path, f, models=None):
+    return run_all(tmp_path / "out", plan="quick", client_kind="omlx", progress=None, models=models or [_model()],
+                   base_url=f.url, lock=str(tmp_path / "lock"))
+
+
+def _save(tmp_path) -> Path:
+    return tmp_path / "lock.engine-save.json"           # the guard's host-wide save, next to the lock
+
+
+def _posts(f, since=0):
+    return [p for m, p, _ in f.requests[since:] if m == "POST"]
+
+
+def test_one_chat_model_resident_then_loaded_and_pinned_put_back(tmp_path, fake, key, quiet, monkeypatch):
     seen = []
-    monkeypatch.setattr(run_mod, "_run_entry", _entry_stub(calls, lambda: seen.append(set(fake.loaded))))
-    log = run_all(tmp_path / "out", plan="quick", client_kind="omlx", progress=None, models=[_model()],
-                  base_url=fake.url, lock=str(tmp_path / "lock"))
-    assert seen == [{"helper-embed"}]                       # only the helper stayed while the model ran
-    assert fake.loaded == {"model-a", "model-b", "helper-embed"} and fake.pinned == {"model-a"}
-    assert log["engine_restored"].startswith("restored") and not log["failed"]
-    saved = json.loads((tmp_path / "out" / "resident-before.json").read_text())
-    assert saved["loaded"] == ["helper-embed", "model-a", "model-b"] and saved["pinned"] == ["model-a"]
-    assert all(p.startswith("/v1/") for _, p, _ in fake.requests) and not (tmp_path / "lock").exists()
+    monkeypatch.setattr(run_mod, "_run_entry", _entry_stub([], lambda: seen.append(set(fake.loaded))))
+    log = _guarded(tmp_path, fake)
+    assert seen == [{"model-c", "helper-embed"}]        # the pinned model-a was unloaded too: one chat model
+    assert fake.loaded == BEFORE and fake.pinned == {"model-a"}
+    assert log["outcome"] == "finished" and log["failed"] is False and log["exit_code"] == 0
+    assert log["engine_restored"].startswith("engine restored")
+    report = json.loads((tmp_path / "out" / "run-guard-quick.json").read_text())
+    assert report["engine_before"]["loaded"] == ["model-a", "model-b"] and report["engine_before"]["pinned"] == ["model-a"]
+    assert not _save(tmp_path).exists() and not (tmp_path / "lock").exists()
 
 
-@pytest.mark.parametrize("sig", [signal.SIGTERM, signal.SIGHUP])
-def test_sigterm_and_sighup_restore_the_engine_and_remove_the_lock(tmp_path, fake, key, quiet, monkeypatch, sig):
-    calls = []
-    before = {sig_: signal.getsignal(sig_) for sig_ in (signal.SIGTERM, signal.SIGHUP)}
-    monkeypatch.setattr(run_mod, "_run_entry", _entry_stub(calls, lambda: os.kill(os.getpid(), sig)))
-    with pytest.raises(SystemExit) as exc:
-        run_all(tmp_path / "out", plan="quick", client_kind="omlx", progress=None, models=[_model(), _model("model-b")],
-                base_url=fake.url, lock=str(tmp_path / "lock"))
-    assert exc.value.code == 128 + sig and len(calls) == 1          # stopped in the first entry
-    assert fake.loaded == {"model-a", "model-b", "helper-embed"} and not (tmp_path / "lock").exists()
+def test_an_engine_run_needs_the_lock(tmp_path, fake, key, quiet):
+    with pytest.raises(rg.GuardError, match="lock"):
+        run_all(tmp_path / "out", plan="quick", client_kind="omlx", progress=None, models=[_model()], base_url=fake.url)
+    assert fake.requests == []
+
+
+def test_harbor_open_at_the_start_refuses_and_touches_nothing(tmp_path, fake, key, quiet, monkeypatch):
+    monkeypatch.setattr(run_mod, "harbor_running", lambda: "process matching 'Harbor'")
+    with pytest.raises(rg.GuardError, match="Harbor"):
+        _guarded(tmp_path, fake)
+    assert fake.requests == [] and not (tmp_path / "lock").exists() and not _save(tmp_path).exists()
+
+
+def test_p1_p2_an_unrestored_save_refuses_the_next_start_until_it_is_restored(tmp_path, fake, key, quiet, monkeypatch):
+    """P1, P2: a sitting killed before its restore leaves the host-wide save. The next start refuses before any
+    engine call (it never saves the damaged state as the user's), preflight fails on it, nothing is set aside
+    under another name, and the guard's restore command puts the engine back."""
+    monkeypatch.setattr(run_mod, "_run_entry", _entry_stub([]))
+    earlier = {"schema": rg.SAVE_SCHEMA, "token": "an-earlier-sitting", "created_at": "2026-01-01T00:00:00+00:00",
+               "base_url": fake.url, "loaded": ["model-a", "model-b"], "pinned": ["model-a"],
+               "helpers_loaded": ["helper-embed"], "default_model": None}
+    _save(tmp_path).write_text(json.dumps(earlier))
+    fake.loaded = {"model-c", "helper-embed"}           # what the killed sitting left loaded
+    with pytest.raises(rg.GuardError, match="never restored"):
+        _guarded(tmp_path, fake)
+    assert fake.requests == [] and fake.loaded == {"model-c", "helper-embed"}
+    assert json.loads(_save(tmp_path).read_text()) == earlier and not (tmp_path / "lock").exists()
+    assert not list(tmp_path.rglob("*stale*"))
+    monkeypatch.setattr(run_mod, "require_sandbox", lambda: type("R", (), {"passed": True, "probes": []})())
+    monkeypatch.setattr(run_mod, "model_dir_from_settings", lambda: None)
+    rows = {n: ok for n, ok, _ in run_mod.preflight(tmp_path / "out", lock=str(tmp_path / "lock"))}
+    assert rows["no unrestored engine state from an earlier run"] is False
+    assert rg.restore_cli(_save(tmp_path), fake.url, str(tmp_path / "restore.lock"), harbor=lambda: None) == 0
+    assert fake.loaded == BEFORE and not _save(tmp_path).exists()
+    assert _guarded(tmp_path, fake)["outcome"] == "finished" and fake.loaded == BEFORE
+
+
+def test_p3_the_harbor_check_fails_closed(monkeypatch):
+    monkeypatch.setattr(rg.subprocess, "run",
+                        lambda *a, **k: subprocess.CompletedProcess(a[0], 3, "", "pgrep: cannot list processes"))
+    assert run_mod.harbor_running().startswith("unknown")
+
+    def no_pgrep(*a, **k):
+        raise OSError("no pgrep")
+    monkeypatch.setattr(rg.subprocess, "run", no_pgrep)
+    assert run_mod.harbor_running().startswith("unknown")
+
+
+def test_p4_harbor_opening_mid_run_stops_it_and_nothing_more_is_sent(tmp_path, fake, key, quiet, monkeypatch):
+    """Harbor opens during the first model: the second is not prepared, the restore sends no unload or load,
+    the save is kept with the command to restore it, and the run is failed."""
+    state = {"open": False, "n": 0}
+    monkeypatch.setattr(run_mod, "harbor_running", lambda: "process matching 'Harbor'" if state["open"] else None)
+
+    def opens():
+        state.update(open=True, n=len(fake.requests))
+    monkeypatch.setattr(run_mod, "_run_entry", _entry_stub([], opens))
+    log = _guarded(tmp_path, fake, models=[_model(), _model("model-b")])
+    assert [r["result"] for r in log["entries"]] == ["done", "not started"] and "Harbor" in log["entries"][1]["why"]
+    assert _posts(fake, state["n"]) == []
+    assert log["outcome"] == "failed" and log["failed"] is True and "Harbor" in log["engine_restored"]
+    assert _save(tmp_path).exists() and "run_guard restore" in log["restore_with"] and not (tmp_path / "lock").exists()
+
+
+@pytest.mark.parametrize("sig", [signal.SIGTERM, signal.SIGHUP, signal.SIGQUIT])
+def test_p5_each_signal_interrupts_restores_and_releases(tmp_path, fake, key, quiet, monkeypatch, sig):
+    calls, seen = [], {}
+    before = {s: signal.getsignal(s) for s in (signal.SIGTERM, signal.SIGHUP, signal.SIGQUIT, signal.SIGINT)}
+
+    def hit():
+        seen["handler"] = signal.getsignal(sig)
+        os.kill(os.getpid(), sig)
+    monkeypatch.setattr(run_mod, "_run_entry", _entry_stub(calls, hit))
+    with pytest.raises(rg.RunInterrupted):
+        _guarded(tmp_path, fake, models=[_model(), _model("model-b")])
+    assert len(calls) == 1 and seen["handler"] not in (signal.SIG_DFL, signal.SIG_IGN, before[sig])
+    assert fake.loaded == BEFORE and not _save(tmp_path).exists() and not (tmp_path / "lock").exists()
     log = json.loads(next((tmp_path / "out").rglob("run-all.json")).read_text())
-    assert log["engine_restored"].startswith("restored")
+    assert log["outcome"] == "failed" and log["engine_restored"].startswith("engine restored")
     assert {s: signal.getsignal(s) for s in before} == before
 
 
-def test_a_state_left_by_an_earlier_run_is_never_restored(tmp_path, fake, key, quiet, monkeypatch):
-    out = tmp_path / "out"
-    out.mkdir()
-    (out / "resident-before.json").write_text(json.dumps({"loaded": ["model-c"], "pinned": []}))
+def test_p6_a_second_signal_during_the_restore_is_ignored(tmp_path, key, quiet, monkeypatch):
+    state = {"armed": False, "fired": False}
+
+    def hook(method, path):
+        if state["armed"] and method == "POST" and path.endswith("/load") and not state["fired"]:
+            state["fired"] = True
+            os.kill(os.getpid(), signal.SIGTERM)        # while the restore waits on its first load
+            time.sleep(0.3)
+    f = FakeEngine(loaded=("model-a", "model-b", "helper-embed"), pinned=("model-a",), hook=hook)
+    try:
+        def first():
+            state["armed"] = True
+            os.kill(os.getpid(), signal.SIGTERM)
+        monkeypatch.setattr(run_mod, "_run_entry", _entry_stub([], first))
+        with pytest.raises(rg.RunInterrupted):
+            _guarded(tmp_path, f)
+        assert state["fired"] and f.loaded == BEFORE
+        assert not _save(tmp_path).exists() and not (tmp_path / "lock").exists()
+        report = json.loads((tmp_path / "out" / "run-guard-quick.json").read_text())
+        assert report["engine"].startswith("engine restored") and "SIGTERM" in report["signals_ignored"]
+        log = json.loads(next((tmp_path / "out").rglob("run-all.json")).read_text())
+        assert "finished_at" in log and log["engine_restored"].startswith("engine restored")
+    finally:
+        f.close()
+
+
+def test_p7_queued_unloads_and_unfinished_loads_are_waited_for(tmp_path, key, quiet, monkeypatch):
+    """oMLX answers 202 to an unload and finishes later, and a load shows is_loading first: the model runs
+    with no other chat model left, and the restore reports success only once the engine matches."""
+    f = FakeEngine(loaded=("model-a", "model-b", "helper-embed"), pinned=("model-a",), unload_lag=0.3, load_lag=0.3)
+    seen = []
+    try:
+        monkeypatch.setattr(run_mod, "_run_entry", _entry_stub([], lambda: seen.append(set(f.loaded) | f.loading)))
+        log = _guarded(tmp_path, f)
+        assert seen == [{"model-c", "helper-embed"}]
+        assert f.loaded == BEFORE and f.loading == set() and log["engine_restored"].startswith("engine restored")
+        time.sleep(0.5)                                 # nothing queued lands afterwards
+        assert f.loaded == BEFORE
+    finally:
+        f.close()
+
+
+def test_p8_a_failed_restore_or_a_changed_pin_fails_the_run_and_keeps_the_save(tmp_path, key, quiet, monkeypatch):
+    f = FakeEngine(loaded=("model-a", "model-b", "helper-embed"), pinned=("model-a",))
+    try:
+        f.fail_loads = True                             # the model cannot be loaded, nor the user's put back
+        monkeypatch.setattr(run_mod, "_run_entry", _entry_stub([]))
+        log = _guarded(tmp_path, f)
+        assert log["entries"][0]["result"] == "not started" and "500" in log["failed_because"]
+        assert log["outcome"] == "failed" and log["failed"] is True and log["exit_code"] == 1
+        assert log["engine_restored"].startswith("restore FAILED") and log["restore_failed"]
+        assert _save(tmp_path).exists() and "run_guard restore" in log["restore_with"]
+        assert not (tmp_path / "lock").exists()
+        f.fail_loads = False
+        assert rg.restore_cli(_save(tmp_path), f.url, str(tmp_path / "restore.lock"), harbor=lambda: None) == 0
+        assert f.loaded == BEFORE
+
+        monkeypatch.setattr(run_mod, "_run_entry", _entry_stub([], lambda: f.pinned.discard("model-a")))
+        log = _guarded(tmp_path, f)
+        assert log["outcome"] == "failed" and "pinned" in log["engine_restored"] and _save(tmp_path).exists()
+    finally:
+        f.close()
+
+
+def _sitting_stub(ok, excluded, error):
+    def run_entry(e, out, **kw):
+        g = kw.get("guard")
+        for kind, n in (("ok", ok), ("excluded", excluded), ("error", error)):
+            for _ in range(n):
+                if g is not None:
+                    g.note(kind)
+        return {"skipped": None, "stopped": None, "written": ok + excluded + error,
+                "sitting": {"ok": ok, "excluded": excluded, "error": error},
+                "summary": {"ceiling": 1, "solid": 1, "excluded": 7}}   # old records' faults: not this sitting's
+    return run_entry
+
+
+@pytest.mark.parametrize("with_lock", [False, True])
+@pytest.mark.parametrize("ok, excluded, error, failed", [
+    (0, 0, 0, False),        # a resume with every trial already recorded
+    (2, 0, 0, False),        # a resume: two new graded trials (the old faults are not this sitting's)
+    (1, 2, 0, False),
+    (0, 3, 0, True),         # only engine faults this sitting
+    (0, 0, 3, True),         # trials that were not graded
+])
+def test_p9_a_failed_run_is_judged_by_this_sittings_trials(tmp_path, quiet, monkeypatch, with_lock, ok, excluded,
+                                                             error, failed):
+    monkeypatch.setattr(run_mod, "_run_entry", _sitting_stub(ok, excluded, error))
+    log = run_all(tmp_path / "out", plan="quick", client_kind="oracle", progress=None, models=[_model()],
+                  lock=str(tmp_path / "lock") if with_lock else None)
+    assert log["failed"] is failed and log["outcome"] == ("failed" if failed else "finished")
+
+
+def test_p10_a_run_off_the_main_thread_fails_and_leaves_no_lock(tmp_path, quiet, monkeypatch):
     monkeypatch.setattr(run_mod, "_run_entry", _entry_stub([]))
-    run_all(out, plan="quick", client_kind="omlx", progress=None, models=[_model("model-b")], base_url=fake.url)
-    assert fake.loaded == {"model-a", "model-b", "helper-embed"}        # not model-c, the earlier run's state
-    assert list(out.glob("resident-before.stale-*.json"))
-    st = eng.EngineState(out, fake.url)
-    st.saved = json.loads((out / "resident-before.json").read_text())
-    with pytest.raises(RuntimeError, match="not this run's saved state"):
-        st.restore()                                    # another run's token: refused
+    lock, err = tmp_path / "lock", {}
+
+    def go():
+        try:
+            run_all(tmp_path / "out", plan="quick", client_kind="oracle", progress=None, models=[_model()],
+                    lock=str(lock))
+        except BaseException as exc:  # noqa: BLE001
+            err["e"] = exc
+    th = threading.Thread(target=go)
+    th.start()
+    th.join()
+    assert isinstance(err.get("e"), ValueError) and not lock.exists()
+
+
+def test_p11_another_spelling_of_the_repository_is_refused(tmp_path, quiet):
+    repo = Path(run_mod.__file__).resolve().parents[3]
+    alt = Path(str(repo)[:-1] + str(repo)[-1].swapcase())
+    (tmp_path / "link").symlink_to(repo)
+    for p in (repo / "results", alt / "results", tmp_path / "link" / "results"):
+        assert run_mod.inside_repo(p), p
+    assert not run_mod.inside_repo(tmp_path / "results")
+    with pytest.raises(RuntimeError, match="outside the repository"):
+        run_all(alt / "results", plan="quick", client_kind="oracle", progress=None, models=[_model()],
+                lock=str(tmp_path / "lock"))
+    assert not (repo / "results").exists() and not (tmp_path / "lock").exists()
+
+
+def test_run_all_main_exit_codes(tmp_path, monkeypatch):
+    for outcome, code in (("finished", 0), ("stopped", 3), ("failed", 1)):
+        monkeypatch.setattr(run_mod, "run_all", lambda *a, **k: {"entries": [], "outcome": outcome})
+        assert run_mod.run_all_main(["--plan", "smoke", "--out", str(tmp_path)]) == code
+
+    def raises(exc):
+        def f(*a, **k):
+            raise exc
+        return f
+    monkeypatch.setattr(run_mod, "run_all", raises(rg.RunInterrupted(signal.SIGTERM)))
+    assert run_mod.run_all_main(["--plan", "smoke", "--out", str(tmp_path)]) == 1
+    monkeypatch.setattr(run_mod, "run_all", raises(rg.GuardError("a lock exists")))
+    assert run_mod.run_all_main(["--plan", "smoke", "--out", str(tmp_path)]) == 2
 
 
 def test_a_failure_creating_the_results_store_still_frees_the_lock(tmp_path, quiet, monkeypatch):
@@ -238,19 +475,7 @@ def test_preflight_writes_nothing_inside_the_repository(monkeypatch):
     out = repo / "edat-preflight-out-test"
     monkeypatch.setattr(run_mod, "require_sandbox", lambda: type("R", (), {"passed": True, "probes": []})())
     monkeypatch.setattr(run_mod, "model_dir_from_settings", lambda: None)
-    monkeypatch.setattr(run_mod, "harbor_running", lambda: False)
+    monkeypatch.setattr(run_mod, "harbor_running", lambda: None)
     rows = run_mod.preflight(out, weights=True)
     assert not out.exists()
     assert ("results folder outside the repository", False) in [(n, ok) for n, ok, _ in rows]
-
-
-def test_a_run_of_only_engine_faults_is_a_failed_run(tmp_path, quiet, monkeypatch):
-    monkeypatch.setattr(run_mod, "_run_entry", lambda e, out, **kw: {
-        "skipped": "the engine could not run this model", "stopped": None, "written": 3,
-        "summary": {"ceiling": 0, "solid": 0, "excluded": 3}})
-    log = run_all(tmp_path / "out", plan="quick", client_kind="oracle", progress=None,
-                  models=[_model(), _model("model-b")], lock=str(tmp_path / "lock"))
-    assert log["failed"] is True
-    monkeypatch.setattr(run_mod, "_run_entry", _entry_stub([]))
-    log = run_all(tmp_path / "out2", plan="quick", client_kind="oracle", progress=None, models=[_model()])
-    assert log["failed"] is False

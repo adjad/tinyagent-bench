@@ -12,6 +12,15 @@ from edat.sidekick.ceiling.run import Quick, _entry_problem, parse_rungs, plan_u
 from edat.sidekick.sandbox.run import SandboxUnavailable, SeatbeltIsolation
 
 
+@pytest.fixture(autouse=True)
+def host_checks(monkeypatch):
+    """Harbor closed and memory free, as the ceiling's checks (and the run guard given them) see them; the
+    guard's own Harbor and memory behaviour is tested in test_edat_sidekick_ceiling_engine and its own tests."""
+    from edat.sidekick.ceiling import run as run_mod
+    monkeypatch.setattr(run_mod, "harbor_running", lambda: None)
+    monkeypatch.setattr(run_mod, "memory_free_pct", lambda: 90)
+
+
 @pytest.fixture(scope="module")
 def iso():
     i = SeatbeltIsolation()
@@ -613,30 +622,6 @@ def test_a_broken_grader_git_stops_the_whole_run_and_frees_the_lock(tmp_path, mo
         run_all(tmp_path / "out", plan="quick", client_kind="oracle", progress=None, models=two,
                 lock=str(tmp_path / "lock"))
     assert len(calls) == 1 and not (tmp_path / "lock").exists()
-
-
-def test_run_all_never_unloads_while_harbor_is_open(tmp_path, monkeypatch):
-    from edat.sidekick.ceiling import run as run_mod
-    from edat.sidekick.ceiling.engine import EngineState
-    keeps = []
-    monkeypatch.setattr(EngineState, "keep", lambda self, engine_id: keeps.append(engine_id) or [])
-    monkeypatch.setattr(EngineState, "restore", lambda self: "restored: (test)")
-    monkeypatch.setattr(run_mod, "weights_for", lambda out, mdir, m: "0" * 64)
-    monkeypatch.setattr(run_mod, "_run_entry", lambda e, out, **kw: {"skipped": None, "stopped": None,
-                                                                      "summary": {"ceiling": 1, "solid": 1}})
-    two = [_model(), _model("gemma-4-E2B-it-oQ4e-mtp", label="Gemma 4 E2B", role="candidate", gb=3.9)]
-    monkeypatch.setattr(run_mod, "harbor_running", lambda: True)
-    with pytest.raises(SystemExit, match="Harbor is running"):
-        run_all(tmp_path / "out", plan="quick", client_kind="omlx", progress=None, models=two,
-                lock=str(tmp_path / "lock"))
-    assert keeps == [] and not (tmp_path / "lock").exists()
-    seen = iter([False, False, True])                      # closed at the start and for the first model only
-    monkeypatch.setattr(run_mod, "harbor_running", lambda: next(seen))
-    log = run_all(tmp_path / "out", plan="quick", client_kind="omlx", progress=None, models=two,
-                  lock=str(tmp_path / "lock"))
-    assert keeps == ["gemma-4-E4B-it-oQ4e-mtp"]
-    assert [r["result"] for r in log["entries"]] == ["done", "not started (stopped)"]
-    assert "Harbor is running" in log["entries"][1]["why"] and not (tmp_path / "lock").exists()
 
 
 def test_first_pass_repeats_stay_on_pass_a_rungs():

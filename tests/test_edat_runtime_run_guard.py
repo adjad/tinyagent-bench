@@ -689,13 +689,21 @@ def test_n1_a_first_signal_on_the_first_line_of_exit_still_restores(env):
     assert "SIGTERM" in report(tmp_path)["signals_ignored"]
 
 
-def test_n2_a_bad_url_never_leaves_the_heavy_lock(env):
+def test_n2_a_bad_url_never_leaves_the_heavy_lock(env, monkeypatch):
     fake, guard, tmp_path, _ = env
+    home = tmp_path / "home"
+    (home / ".omlx").mkdir(parents=True)
+    (home / ".omlx" / "settings.json").write_text(json.dumps({"auth": {"api_key": "invented-key"}}))
+    monkeypatch.setenv("HOME", str(home))
+    read = []
+    real_read = rg.read_engine_key
+    monkeypatch.setattr(rg, "read_engine_key", lambda *a, **k: read.append(1) or real_read(*a, **k))
     save, lock = tmp_path / "s.json", tmp_path / "L"
     save.write_text(json.dumps({"token": "t", "base_url": URL, "loaded": ["user-model", "user-pinned"]}))
     for bad in ("http://localhost:8000", "http://10.0.0.2:8000", "not a url"):
         assert rg.restore_cli(save, bad, str(lock), harbor=lambda: None) == 1
         assert not lock.exists()
+    assert read == []                                   # the key is never read for a refused URL
     assert rg.restore_cli(save, URL, str(tmp_path / "missing" / "L"), harbor=lambda: None,
                           engine=rg.Engine(URL, transport=fake.transport)) == 1   # lock cannot be made
     assert save.exists() and fake.calls == []

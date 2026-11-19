@@ -693,7 +693,9 @@ def restore_cli(save: Path, url: str, lock: str, *, engine: Engine | None = None
         return 1
     own = engine is None                                            # close only the client made here
     try:
-        engine = engine or Engine(url, api_key=read_engine_key())   # a bad --url fails here, before the lock
+        if engine is None:
+            loopback_base_url(url)                                  # a bad --url fails here: before the key is read and the lock
+            engine = Engine(url, api_key=read_engine_key())
     except Exception as exc:  # noqa: BLE001
         print(f"not restored: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1

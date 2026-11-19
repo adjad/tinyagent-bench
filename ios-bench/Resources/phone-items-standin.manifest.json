@@ -1,7 +1,7 @@
 {
  "exporter_version": "standin-1",
  "item_count": 32,
- "jsonl_sha256": "2174e935a4d9d97963b9a40463c04cb41424a08d578e947c507f62ac80d86215",
+ "jsonl_sha256": "f022af38b565d6dbbb48001b3e7190eb216f9e3cb637905485962f08cf052b37",
  "schema": "edat-phone-items-manifest/v1",
  "source": "ios-bench stand-in from portable-cases.json; NOT the published 120-item parity subset",
  "template_sha256": null,

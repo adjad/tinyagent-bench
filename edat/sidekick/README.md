@@ -1,6 +1,6 @@
-# EDAT sidekick tier (spec 12)
+# tinyagent-bench sidekick tier (spec 12)
 
-Light coding and terminal tasks for small models used as a developer's helper
+Light coding and terminal tasks in tinyagent-bench for small models used as a developer's helper
 on a Mac. Design: [12-sidekick-coding-spec](../../docs/benchmark/) (the
 working copy is newer than the repository's `docs/benchmark/`).
 

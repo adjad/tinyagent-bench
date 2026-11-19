@@ -277,7 +277,7 @@ def _reader(stream, cap: int, sink: list, flag: list) -> None:
 
 
 class SeatbeltIsolation:
-    """`sandbox-exec` with the deny-by-default EDAT profile.
+    """`sandbox-exec` with the deny-by-default tinyagent-bench profile.
 
     `sandbox-exec` is marked deprecated in its manual page (spec §7, open
     question 1). It is kept behind `Isolation` so it can be swapped out.

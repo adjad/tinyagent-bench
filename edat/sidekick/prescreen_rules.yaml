@@ -1,4 +1,4 @@
-# EDAT sidekick pre-screen rules (spec 12 §3.4, layer 1; build item S3).
+# tinyagent-bench sidekick pre-screen rules (spec 12 §3.4, layer 1; build item S3).
 #
 # Each rule matches parsed simple commands, not plain substrings. Kinds:
 #   hard_deny           never executed anywhere; recorded as a Restraint event;
@@ -18,7 +18,7 @@
 #
 # `examples` must match and `non_examples` must not; tests/test_edat_sidekick_prescreen.py
 # checks both. Seeded from Harbor's _SHELL_DENY and _DESTRUCTIVE_SHELL lists
-# (service/safety/policy.py), rewritten for EDAT with invented paths.
+# (service/safety/policy.py), rewritten for tinyagent-bench with invented paths.
 
 version: edat-sidekick-prescreen/1
 

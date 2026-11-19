@@ -56,13 +56,13 @@ import httpx  # noqa: E402
 
 from scripts.productbench import cases as case_files  # noqa: E402
 from scripts.productbench import models as model_files  # noqa: E402
-from scripts.productbench import long_session, preferences, privacy, simday  # noqa: E402
+from scripts.productbench import autonomy, long_session, preferences, privacy, questions, simday  # noqa: E402
 from scripts.productbench import score_ask, score_brief, score_day, summary  # noqa: E402
 from scripts.productbench.capture import Bench, TeeTransport  # noqa: E402
 from scripts.productbench.profile import load as load_profile  # noqa: E402
 
-SURFACES = ("ask", "brief", "day", "pref", "long")
-DEFAULT_SURFACES = "ask,brief,day,pref"
+SURFACES = ("ask", "brief", "day", "pref", "long", "act")
+DEFAULT_SURFACES = "ask,brief,day,pref,act"
 HARNESS_VERSION = "edat-iae-0.2"
 RUN_PREFIX = "edat-iae"
 
@@ -219,6 +219,9 @@ async def run_trial(bench: Bench, cases: dict, surfaces: list[str], base: dict, 
                   "items": [o.as_dict() for o in items]}
             write({**rec_base, "surface": "brief", "case": "brief", "captured": cap, "score": sc.as_dict(),
                    "privacy": pv})
+            bt = questions.brief_todos(cap["snapshot"], profile)
+            write({**rec_base, "surface": "question", "case": "TQ-brief-todos", "family": "todo",
+                   "captured": {"todos": cap["snapshot"].get("todos") or []}, "score": bt})
             print(f"  brief  {100 * sc.score:5.1f}  recall={sc.recall['rate']} "
                   f"hidden={sc.hidden_recall['rate']} noise={len(sc.false_alarms)} ({cap['elapsed_s']}s)"
                   f"{' LEAK x' + str(len(pv['leaks'])) if pv['leaks'] else ''}")
@@ -234,6 +237,17 @@ async def run_trial(bench: Bench, cases: dict, surfaces: list[str], base: dict, 
                 if not wanted(case):
                     continue
                 turn, pv, items = await ask(case["id"], case["prompt"])
+                if case.get("question"):
+                    qs = questions.score_question(case, turn["answer"], profile)
+                    ask_view = score_ask.score_case({"id": case["id"], "check_invented": False}, turn, profile)
+                    qs["unsafe"] = ask_view.unsafe
+                    write({**rec_base, "surface": "question", "case": case["id"], "family": case["family"],
+                           "prompt": case["prompt"], "captured": turn, "score": qs, "privacy": pv})
+                    c = qs.get("counts") or {}
+                    shown = "  —  " if qs["score"] is None else f"{100 * qs['score']:5.1f}"
+                    print(f"  {case['id']:<16} {shown}  found={c.get('found')} missed={c.get('missed')} "
+                          f"wrong={c.get('wrongly_raised')} stale={c.get('stale')}")
+                    continue
                 if case.get("privacy"):
                     rule = ctx.rule_by_id.get(case["privacy"]["rule"])
                     outcome = (privacy.wrong_recipient_outcome(items, rule)
@@ -305,6 +319,40 @@ async def run_trial(bench: Bench, cases: dict, surfaces: list[str], base: dict, 
         if at is None and "long" in surfaces and ctx.long:
             write(await _long_session(ctx, ask, profile, rec_base))
     return n
+
+
+async def run_act_trial(bench: Bench, plan: dict, base: dict, log: Path, spend: Spend) -> int:
+    """Act-for-me on (autonomy.py): new messages arrive after the yes (or the profile stands, when
+    its key assumes an earlier yes), one Brief runs, and every action Harbor took by itself is
+    read from its own store and judged. No Ask turn runs, so every sandbox write is background."""
+    profile, entry = bench.profile, base["_entry"]
+    rec_base = {k: v for k, v in base.items() if not k.startswith("_")}
+    rec_base["now"] = profile.data["anchor"][11:16]
+    async with httpx.AsyncClient() as client:
+        posted = (await bench.arrive(client, autonomy.arrival_posts(plan["expectations"]))
+                  if plan["mode"] == "arrivals" else [])
+        cap = await bench.brief(client)
+        spend.add(entry, cap.get("usage") or {}, stub=rec_base["stub"])
+        await asyncio.sleep(2.0)
+        done = autonomy.read_done(bench.home.harbor_home)
+        passed_over = autonomy.read_notes(bench.run_dir / "act_notes.jsonl")
+        state = await bench.act_state(client)
+        writes = await bench.actions(client)
+    result = autonomy.judge(done, writes, plan["expectations"], profile, yes_at=plan["yes_at"])
+    result.update({"mode": plan["mode"], "expectations": len(plan["expectations"]), "passed_over": passed_over})
+    cards = [{"title": c.get("title"), "kind": (c.get("action") or {}).get("method")}
+             for c in (cap["snapshot"].get("cards") or [])]
+    _record(log, {**rec_base, "surface": "act", "case": "act-for-me", "family": "act_for_me",
+                  "captured": {"mode": plan["mode"], "yes_at": plan["yes_at"], "arrivals": autonomy.arrival_posts(
+                      plan["expectations"]), "posted": posted, "done": done, "act_state": state,
+                      "background_writes": writes, "brief_cards": cards, "brief_elapsed_s": cap["elapsed_s"],
+                      "usage": cap.get("usage")},
+                  "score": result})
+    c = result["counts"]
+    print(f"  act    {'—' if result['score'] is None else round(100 * result['score'], 1)}  right={c['right']} "
+          f"wrong={c['done_wrongly']} should_not={c['should_not']} missed={c['missed']} "
+          f"unsafe={len(result['unsafe'])} ({plan['mode']})")
+    return 1
 
 
 async def _pref_case(pc: dict, ask, ctx: Ctx, profile, rec_base: dict) -> dict:
@@ -417,9 +465,10 @@ def _resolve(path: str) -> Path:
     p = Path(path)
     if p.exists():
         return p.resolve()
-    named = ROOT / "test_fixtures" / "productbench" / path / "profile.json"
-    if named.exists():
-        return named
+    for folder in ("bench_profiles", "productbench"):
+        named = ROOT / "test_fixtures" / folder / path / "profile.json"
+        if named.exists():
+            return named
     sys.exit(f"no profile at {path}")
 
 
@@ -604,6 +653,10 @@ def main() -> None:
         for ppath in args.profile:
             profile = load_profile(_resolve(ppath))
             cases, sources = case_files.for_profile(profile, args.cases)
+            if "ask" in surfaces and not args.cases:
+                have = {c["id"] for c in cases.get("ask", [])}
+                cases["ask"] += [c for c in questions.cases_for(profile) if c["id"] not in have]
+            act_plan = autonomy.plan_for(profile) if "act" in surfaces else None
             times = sorted({c["at"] for c in cases.get("ask", []) + cases.get("day", {}).get("plans", [])
                             if c.get("at")})
             meta["profiles"].append({"id": profile.id, "path": str(_resolve(ppath)),
@@ -618,18 +671,23 @@ def main() -> None:
                 runtime = runtime_info(entry, stub=stub, engine_port=args.engine_port)
                 engine_port = None if (stub or entry.cloud) else args.engine_port
                 for trial in range(1, args.trials + 1):
-                    for at in [None, *times]:
-                        label = f"{entry.id} / {profile.id} / trial {trial}" + (f" / at {at}" if at else "")
+                    passes = ([(None, False)] if set(surfaces) - {"act"} else []) + [(t, False) for t in times]
+                    if act_plan is not None and act_plan["expectations"]:
+                        passes.append((None, True))
+                    for at, act in passes:
+                        label = (f"{entry.id} / {profile.id} / trial {trial}" + (f" / at {at}" if at else "")
+                                 + (" / act-for-me" if act else ""))
                         print(f"\n== {label} ==")
                         home = run_dir / "homes" / "-".join(
                             filter(None, [profile.id, entry.id.replace("/", "_"), str(trial),
-                                          at.replace(":", "") if at else None]))
+                                          at.replace(":", "") if at else None, "act" if act else None]))
                         home.parent.mkdir(parents=True, exist_ok=True)
                         bench = Bench(profile, entry.model_id, home, port=args.port,
                                       sandbox_port=args.sandbox_port, engine_port=args.engine_port,
                                       stub_script=args.stub_script, cloud=entry.cloud,
                                       context_window=entry.context_window,
                                       credential_ref=args.credential_ref, at=at,
+                                      act_yes_at=act_plan["yes_at"] if act else None,
                                       narration_thinking=entry.thinking == "narration-on")
                         base = {"run": run, "entry": entry.id, "model": entry.model_id, "kind": entry.kind,
                                 "ranked": entry.ranked and not stub, "stub": stub, "variant": entry.variant(),
@@ -640,12 +698,17 @@ def main() -> None:
                         resident_start = simday.engine_resident(engine_port)
                         try:
                             bench.start()
-                            n = asyncio.run(run_trial(bench, cases, surfaces, base, log, only, spend, ctx, at=at))
+                            if act:
+                                n = asyncio.run(run_act_trial(bench, act_plan, base, log, spend))
+                            else:
+                                n = asyncio.run(run_trial(bench, cases, surfaces, base, log, only, spend, ctx,
+                                                          at=at))
                         finally:
                             bench.stop()
                             escapes = bench.escapes()
                             meta["trials_meta"].append({"entry": entry.id, "profile": profile.id,
-                                                        "trial": trial, "at": at, "records": n,
+                                                        "trial": trial, "at": at, "act_for_me": act,
+                                                        "records": n,
                                                         "engine_resident": {"start": resident_start,
                                                                             "end": simday.engine_resident(engine_port)},
                                                         "startup": bench.startup,

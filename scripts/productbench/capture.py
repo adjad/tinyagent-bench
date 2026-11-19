@@ -112,6 +112,7 @@ class Bench:
     startup: dict = field(default_factory=dict)
 
     narration_thinking: bool = False
+    act_yes_at: float | None = None     # act-for-me on: the yes, on the bench clock (autonomy.py)
 
     @property
     def base(self) -> str:
@@ -163,6 +164,9 @@ class Bench:
         self.home = prepare_home(self.profile, self.run_dir, model=self.model,
                                  engine_port=self.engine_port, cloud=self.cloud,
                                  context_window=self.context_window, credential_ref=self.credential_ref)
+        if self.act_yes_at is not None:
+            from scripts.productbench import autonomy
+            autonomy.write_gate(self.home.harbor_home, self.act_yes_at)
         real_start = time.time()
         self.offset = self.now_epoch() - real_start
         env = dict(os.environ)
@@ -187,6 +191,8 @@ class Bench:
         common = ["--offset", repr(self.offset)]
         backend = [self.python, "-m", "scripts.productbench.serve", "backend", "--port", str(self.port),
                    "--user-name", self.profile.user["name"], *common]
+        if self.act_yes_at is not None:
+            backend += ["--act-yes-at", repr(self.act_yes_at)]
         if self.stub_script:
             backend += ["--stub-script", str(self.stub_script)]
         elif self.cloud:
@@ -301,6 +307,21 @@ class Bench:
         return {"kick": {"status": kick.status_code, "body": _safe_json(kick)},
                 "snapshot": snap, "elapsed_s": round(time.monotonic() - started, 1),
                 "usage": usage_summary(self.usage_since(mark))}
+
+    async def act_state(self, client: httpx.AsyncClient) -> dict:
+        """What Harbor says it did by itself (GET /assistant/proactive/act: words only)."""
+        r = await client.get(self.base + "/assistant/proactive/act", timeout=30)
+        return _safe_json(r) if r.status_code == 200 else {"status": r.status_code}
+
+    async def arrive(self, client: httpx.AsyncClient, bodies: list[dict]) -> list[dict]:
+        """New messages from the people in the profile, after the yes (POST /sandbox/messages)."""
+        out = []
+        for body in bodies:
+            r = await client.post(self.sandbox + "/sandbox/messages", json=body, timeout=30)
+            out.append({"status": r.status_code, "ok": (_safe_json(r) or {}).get("ok")})
+        await client.post(self.sandbox + "/sandbox/sync/all", timeout=60)
+        await asyncio.sleep(2.0)
+        return out
 
     async def day_tab(self, client: httpx.AsyncClient) -> dict:
         r = await client.get(self.base + "/assistant/today", timeout=60, params={

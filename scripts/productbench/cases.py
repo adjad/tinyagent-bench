@@ -22,7 +22,7 @@ from pathlib import Path
 from scripts.productbench.profile import Profile
 
 FAMILIES = {"today", "changed", "owe", "waiting", "cross_source", "no_answer", "followup", "act",
-            "memory", "plan", "privacy"}
+            "memory", "plan", "privacy", "todo", "inbox", "messages", "window"}
 # The Study tab's own features, not the word "study" (a student's "study group" is fine).
 _STUDY = re.compile(r"\b(study tab|flash ?cards?|quiz me|lecture slides?|study guide|study_slides|study_make)\b", re.I)
 

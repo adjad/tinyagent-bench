@@ -16,6 +16,10 @@ writes: one per entry, profile, surface, case and trial. For each (entry, profil
   long_session  early against late in the 60-turn conversation.
   usage   calls, tokens, reported cost, first-byte latency (cloud references above all)
   day_tab Harbor's own Day plan (code, not the model), for reference only.
+  questions  the person's own questions (to-do list, email, messages, the next hours)
+          and the Brief's to-do list, by family. Reported apart from overall.
+  act_for_me  what Harbor did by itself: right / done wrongly / should not / missed.
+          Anything beyond what the setting allows is counted under safety (act_unsafe).
 
 `compare()` adds, for each row, its difference from each reference entry on the
 same profile, per surface and overall. Cloud references are their own kind:
@@ -26,7 +30,7 @@ from __future__ import annotations
 import statistics
 from collections import defaultdict
 
-from scripts.productbench import preferences
+from scripts.productbench import autonomy, preferences
 
 WEIGHTS = {"ask": 0.5, "brief": 0.25, "day": 0.25}
 SURFACES = ("ask", "brief", "day")
@@ -204,6 +208,17 @@ def summarize(records: list[dict]) -> list[dict]:
         long_rs = [r for r in recs if r["surface"] == "long"]
         if long_rs:
             row["long_session"] = _long(long_rs)
+        q_rs = [r for r in recs if r["surface"] == "question" and r["score"].get("score") is not None]
+        if q_rs:
+            fam = defaultdict(list)
+            for r in q_rs:
+                fam[r.get("family") or "other"].append(100.0 * r["score"]["score"])
+            row["questions"] = {"score": _mean(v for vs in fam.values() for v in vs),
+                                "by_family": {k: _mean(v) for k, v in sorted(fam.items())}}
+        act_rs = [r for r in recs if r["surface"] == "act"]
+        if act_rs:
+            row["act_for_me"] = autonomy.summarize([r["score"] for r in act_rs])
+            row["safety"]["act_unsafe"] = row["act_for_me"]["unsafe"]
         row["usage"] = _usage(recs)
         row["errors"] = sum(1 for r in recs if (r.get("captured") or {}).get("error"))
         out.append(row)
@@ -253,7 +268,7 @@ def markdown(rows: list[dict], references: list[str] | None = None) -> str:
               ("Cloud references (shown apart, never ranked with local models)",
                [r for r in rows if r["kind"] == "cloud_reference"])]
     head = ["entry", "profile", "overall", "Ask", "read.", "Brief", "Day", "Ask all-3", "Pref.",
-            "Day tab (code)", "unsafe", "not stopped", "leaks"] + [f"Δ {ref}" for ref in refs]
+            "Qs", "Act", "Day tab (code)", "unsafe", "act unsafe", "not stopped", "leaks"] + [f"Δ {ref}" for ref in refs]
     for title, rs in groups:
         if not rs:
             continue
@@ -265,7 +280,11 @@ def markdown(rows: list[dict], references: list[str] | None = None) -> str:
                      _fmt(s.get("brief", {}).get("score")), _fmt(s.get("day", {}).get("score")),
                      _fmt((s.get("ask", {}).get("all_trials_pass") or {}).get("share")),
                      _fmt((r.get("preferences") or {}).get("score")),
+                     _fmt((r.get("questions") or {}).get("score")),
+                     _fmt(None if (r.get("act_for_me") or {}).get("score") is None
+                          else 100.0 * r["act_for_me"]["score"]),
                      _fmt(r.get("day_tab", {}).get("score")), str(r["safety"]["executed_actions"]),
+                     str(r["safety"].get("act_unsafe", 0)),
                      str(r["safety"]["act_not_stopped"]), str(r["safety"].get("privacy_leaks", 0))]
             for ref in refs:
                 cells.append(_fmt((r.get("vs") or {}).get(ref, {}).get("overall"), signed=True))

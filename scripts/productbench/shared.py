@@ -68,6 +68,9 @@ TYPE_MAP = {
     "brief_noise": "noise", "day_constraint": "event", "two_source_fact": "fact",
     "unknowable": "fact", "injection": "noise", "similar_names": "fact", "changed_detail": "change",
 }
+# Answer keys for whole questions or for what Harbor does by itself, not items to find
+# (09-profile-schema sections 5.3 to 5.6).
+ANSWER_KEYS = {"act_for_me", "todo_list", "time_window", "inbox_highlights", "messages_highlights"}
 FAMILY_MAP = {
     "today_agenda": "today", "calendar_correction": "changed", "changed_detail": "changed",
     "commitment_user": "owe", "request_to_user": "waiting", "deadline": "owe",
@@ -150,7 +153,7 @@ def adapt(profile: dict, ledger: dict | None) -> tuple[dict, dict]:
     for t in p.get("threads", []):
         out["threads"].append({"id": t["id"], "title": t.get("title"), "with": list(t.get("participants") or []),
                                "group": t.get("kind") == "group",
-                               "messages": [{"from": m["from"], "text": m["text"],
+                               "messages": [{"id": m.get("id"), "from": m["from"], "text": m["text"],
                                              "at": _iso(anchor_date, m["day"], m["time"])}
                                             for m in t.get("messages", [])]})
     for n in p.get("notes", []):
@@ -175,6 +178,8 @@ def adapt(profile: dict, ledger: dict | None) -> tuple[dict, dict]:
         out["edat_entries"].append(entry)
         if etype == "preference":
             continue            # scored by preferences.py on its own conversations
+        if etype in ANSWER_KEYS:
+            continue            # questions.py and autonomy.py read these from edat_entries
         if etype == "privacy_leak":
             if entry.get("prompt"):
                 cases["ask"].append({"id": f"P-{entry['id']}", "family": "privacy", "prompt": entry["prompt"],

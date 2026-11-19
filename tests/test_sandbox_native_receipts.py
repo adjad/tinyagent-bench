@@ -215,3 +215,26 @@ def test_unanswered_calendar_write_is_not_verified(world):
         assert not verified
         assert "not confirmed" in result
     run_with_app(world, body)
+
+
+NOT_READY = "could not check current Calendar and Reminders availability"
+
+
+def test_free_time_sees_current_calendar_and_reminders(world):
+    from service.assistant.sync_status import ensure_sources
+    from service.tools.schedule_extras import find_free_time
+
+    async def body(app, sync):
+        await sync._push("calendar")       # the boot reads every reader makes
+        await sync._push("reminders")
+        readiness = await ensure_sources(("calendar", "reminders"))
+        assert [s["state"] for s in readiness["sources"]] == ["ready", "ready"], readiness
+        assert readiness["reminders_fresh"] is True
+        assert NOT_READY not in await find_free_time(period="tomorrow")
+
+        # A sandbox whose readers are paused gives no current read, so nothing is claimed fresh.
+        world.state["injection"]["sync_paused"] = True
+        readiness = await ensure_sources(("calendar", "reminders"))
+        assert readiness["reminders_fresh"] is False
+        assert NOT_READY in await find_free_time(period="tomorrow")
+    run_with_app(world, body)

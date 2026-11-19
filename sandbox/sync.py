@@ -146,6 +146,9 @@ class SyncScheduler:
         self._events: dict[str, asyncio.Event] = {s: asyncio.Event() for s in CADENCES}
         self._tasks: list[asyncio.Task] = []
         self._stopping = False
+        # One push per source at a time, so a reminders snapshot's start time
+        # reaches the backend in order (it refuses an older or equal one).
+        self._locks: dict[str, asyncio.Lock] = {s: asyncio.Lock() for s in CADENCES}
 
     def start(self) -> None:
         for source in CADENCES:
@@ -196,6 +199,11 @@ class SyncScheduler:
         """POST /sandbox/sync/{source} — bypasses the debounce entirely."""
         await self._push(source)
 
+    async def sync_now(self, source: str) -> None:
+        """A read the backend asked for (sync_assistant_sources_now): runs at once,
+        but like a timed read it honours sync_paused and records a failure."""
+        await self._push_with_retry(source)
+
     async def _post(self, path: str, body: dict) -> httpx.Response:
         latency = self.world.state["injection"].get("latency_ms", 0)
         if latency:
@@ -213,6 +221,10 @@ class SyncScheduler:
                "reason": reason or ("sandbox: marked unavailable" if unavailable else "")}
 
     async def _push(self, source: str) -> None:
+        async with self._locks[source]:
+            await self._push_locked(source)
+
+    async def _push_locked(self, source: str) -> None:
         world = self.world
         count = 0
         if source == "messages":
@@ -277,10 +289,14 @@ class SyncScheduler:
             await self._post("/assistant/sync/calendar",
                              {"events": events, "diagnostics": diagnostics})
         elif source == "reminders":
+            # When this read began, as RemindersWriter reports it: Harbor counts
+            # Reminders as current only for a read begun after its own request.
+            started = time.time()
             events = _calendar_events(world, world.state["reminders"])
             count = len(events)
             await self._post("/assistant/sync/calendar",
                              {"source": "reminders", "events": events,
-                              "diagnostics": {"authorized": True, "count": count}})
+                              "diagnostics": {"authorized": True, "count": count,
+                                              "snapshot_started_at": started}})
         world.state.setdefault("sync_status", {})[source] = {
             "ok": True, "status": "ok", "count": count, "at": time.time()}

@@ -46,6 +46,10 @@ REMINDER_ACTIONS = {"create_reminder", "update_reminder", "complete_reminder", "
 CALENDAR_ACTIONS = {"create_calendar_event", "delete_calendar_event", "move_calendar_event",
                     "cancel_calendar_event"}
 NATIVE_ACTIONS = REMINDER_ACTIONS | CALENDAR_ACTIONS
+# sync_assistant_sources_now names Harbor's sources; these are the sandbox pushes behind each.
+SOURCE_PUSHES = {"calendar": ("calendar",), "reminders": ("reminders",),
+                 "email": ("email_headers", "email_raw"), "messages": ("messages",),
+                 "notes": ("notes",), "browser_history": ("browser",)}
 
 _ACTION_LOG_MAX = 500
 
@@ -102,6 +106,9 @@ class OutboundConsumer:
         action_id = ev.get("action_id")
         if etype in NATIVE_ACTIONS and ev.get("event_id"):
             await self._handle_native(etype, ev)
+            return
+        if etype == "sync_assistant_sources_now":
+            await self._sync_sources_now(ev)
             return
         started = time.time()
         ok, error = True, ""
@@ -334,6 +341,18 @@ class OutboundConsumer:
             return {"email_headers", "email_raw"}
         await self.world.mutate(_do)
         return True, ""
+
+    async def _sync_sources_now(self, ev: dict) -> None:
+        """The backend wants current reads (sync_status.ensure_sources), as the app's
+        onSyncAssistantSources gives it: each named reader runs now, then the event is
+        acknowledged so a reconnect does not replay it."""
+        sources = ev.get("sources") if isinstance(ev.get("sources"), list) else []
+        pushes = [p for s in sources for p in SOURCE_PUSHES.get(str(s), ())]
+        if not pushes or self.sync is None:
+            return
+        await asyncio.gather(*(self.sync.sync_now(p) for p in dict.fromkeys(pushes)))
+        if ev.get("event_id"):
+            await self._ack(str(ev["event_id"]), "sync_assistant_sources_now")
 
     # --- durable native writes (Calendar, Reminders) ------------------------
 

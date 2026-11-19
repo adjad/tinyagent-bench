@@ -20,7 +20,7 @@ xcuserdata/
 *.dSYM/
 
 # Local results and run output (publish results only through the results store)
-results/
+/results/
 test_results/
 runs/
 *.local.json

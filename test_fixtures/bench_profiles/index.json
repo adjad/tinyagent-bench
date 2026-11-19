@@ -1,0 +1,135 @@
+{
+ "schema_version": 1,
+ "synthetic": true,
+ "profiles": [
+  {
+   "profile_id": "student",
+   "label": "Synthetic test profile: full-time university student",
+   "name": "Talia Brennan",
+   "anchor": {
+    "date": "2026-10-13",
+    "weekday": "Tuesday",
+    "now": "07:45",
+    "tz": "America/Chicago",
+    "locale": "en-US",
+    "week_starts": "sunday"
+   },
+   "counts": {
+    "contacts": 32,
+    "threads": 15,
+    "messages": 433,
+    "emails": 151,
+    "events": 58,
+    "reminders": 25,
+    "notes": 32,
+    "documents": 6,
+    "browser": 38,
+    "memory": 13,
+    "ledger": 59,
+    "ledger_by_type": {
+     "brief_attention": 5,
+     "brief_noise": 5,
+     "calendar_correction": 3,
+     "changed_detail": 3,
+     "commitment_user": 5,
+     "day_constraint": 4,
+     "deadline": 4,
+     "injection": 2,
+     "preference": 10,
+     "privacy_leak": 4,
+     "request_to_user": 5,
+     "similar_names": 2,
+     "today_agenda": 1,
+     "two_source_fact": 3,
+     "unknowable": 3
+    }
+   }
+  },
+  {
+   "profile_id": "tech",
+   "label": "Synthetic test profile: engineer at a technology company",
+   "name": "Marcus Oyelaran",
+   "anchor": {
+    "date": "2026-10-14",
+    "weekday": "Wednesday",
+    "now": "07:45",
+    "tz": "America/Los_Angeles",
+    "locale": "en-US",
+    "week_starts": "monday"
+   },
+   "counts": {
+    "contacts": 36,
+    "threads": 12,
+    "messages": 326,
+    "emails": 223,
+    "events": 66,
+    "reminders": 19,
+    "notes": 25,
+    "documents": 6,
+    "browser": 43,
+    "memory": 13,
+    "ledger": 60,
+    "ledger_by_type": {
+     "brief_attention": 6,
+     "brief_noise": 5,
+     "calendar_correction": 3,
+     "changed_detail": 3,
+     "commitment_user": 4,
+     "day_constraint": 5,
+     "deadline": 4,
+     "injection": 2,
+     "preference": 10,
+     "privacy_leak": 5,
+     "request_to_user": 4,
+     "similar_names": 2,
+     "today_agenda": 1,
+     "two_source_fact": 3,
+     "unknowable": 3
+    }
+   }
+  },
+  {
+   "profile_id": "mixed",
+   "label": "Synthetic test profile: graduate student working part-time at a tech company",
+   "name": "Camila Duarte",
+   "anchor": {
+    "date": "2026-10-15",
+    "weekday": "Thursday",
+    "now": "07:45",
+    "tz": "America/Toronto",
+    "locale": "en-CA",
+    "week_starts": "sunday"
+   },
+   "counts": {
+    "contacts": 32,
+    "threads": 14,
+    "messages": 395,
+    "emails": 192,
+    "events": 64,
+    "reminders": 23,
+    "notes": 27,
+    "documents": 6,
+    "browser": 37,
+    "memory": 11,
+    "ledger": 61,
+    "ledger_by_type": {
+     "brief_attention": 5,
+     "brief_noise": 5,
+     "calendar_correction": 3,
+     "changed_detail": 3,
+     "commitment_user": 5,
+     "day_constraint": 5,
+     "deadline": 3,
+     "injection": 2,
+     "preference": 10,
+     "privacy_leak": 5,
+     "request_to_user": 5,
+     "similar_names": 2,
+     "today_agenda": 1,
+     "two_source_fact": 3,
+     "unknowable": 4
+    }
+   }
+  }
+ ]
+}

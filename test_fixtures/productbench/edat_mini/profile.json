@@ -1,0 +1,386 @@
+{
+ "schema_version": 1,
+ "profile_id": "edat_mini",
+ "synthetic": true,
+ "label": "Tiny invented profile in the shared tinyagent-bench shape, for the productbench adapter tests only",
+ "anchor": {
+  "date": "2026-10-13",
+  "weekday": "Tuesday",
+  "now": "07:45",
+  "tz": "America/Chicago",
+  "locale": "en-US",
+  "week_starts": "monday"
+ },
+ "person": {
+  "name": "Casey Rowe",
+  "preferred_name": "Casey",
+  "pronouns": "they/them",
+  "age": 20,
+  "summary": "Invented university student.",
+  "home_location": "loc-home",
+  "languages": [
+   "en"
+  ],
+  "about_you": {
+   "goals": [
+    "Finish the stats project"
+   ],
+   "notes": "Walks to campus. No tables, ever.",
+   "tone": "direct",
+   "detail": "short",
+   "boundaries": "Never mention the rent arrears to Mom."
+  }
+ },
+ "settings": {
+  "working_hours": {
+   "days": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "start": "09:00",
+   "end": "17:30"
+  },
+  "quiet_hours": {
+   "start": "23:30",
+   "end": "07:00"
+  },
+  "brief_times": [
+   "07:45"
+  ]
+ },
+ "accounts": [
+  {
+   "id": "acct-school",
+   "name": "Campus Mail",
+   "address": "casey.rowe@campus.example",
+   "kind": "school",
+   "is_identity": true
+  }
+ ],
+ "locations": [
+  {
+   "id": "loc-home",
+   "name": "Home",
+   "address": "12 Example Lane"
+  }
+ ],
+ "travel": [
+  {
+   "from": "loc-home",
+   "to": "loc-campus",
+   "mode": "walk",
+   "minutes": 18
+  }
+ ],
+ "contacts": [
+  {
+   "id": "ct-jess",
+   "name": "Jess",
+   "full_name": "Jess Okoro",
+   "relation": "roommate",
+   "company": null,
+   "phones": [
+    "+1 (312) 555-0141"
+   ],
+   "emails": [],
+   "birthday": null,
+   "address": null,
+   "note": null
+  },
+  {
+   "id": "ct-jess-lin",
+   "name": "Jess Lin",
+   "full_name": "Jess Lin",
+   "relation": "lab partner",
+   "company": null,
+   "phones": [
+    "+1 (312) 555-0177"
+   ],
+   "emails": [
+    "jess.lin@uni.example"
+   ],
+   "birthday": null,
+   "address": null,
+   "note": null
+  },
+  {
+   "id": "ct-sam",
+   "name": "Sam",
+   "full_name": "Sam Ardent",
+   "relation": "roommate",
+   "company": null,
+   "phones": [
+    "+1 (312) 555-0150"
+   ],
+   "emails": [],
+   "birthday": null,
+   "address": null,
+   "note": null
+  },
+  {
+   "id": "ct-mom",
+   "name": "Mom",
+   "full_name": "Dana Rowe",
+   "relation": "mother",
+   "company": null,
+   "phones": [
+    "+1 (312) 555-0101"
+   ],
+   "emails": [],
+   "birthday": null,
+   "address": null,
+   "note": null
+  }
+ ],
+ "threads": [
+  {
+   "id": "th-jess",
+   "kind": "dm",
+   "title": null,
+   "participants": [
+    "ct-jess"
+   ],
+   "service": "imessage",
+   "messages": [
+    {
+     "id": "msg-jess-0001",
+     "day": -1,
+     "time": "21:10",
+     "from": "ct-jess",
+     "text": "Lab got moved to {{dow:+2}} 3:30, did you see?",
+     "unread": true
+    },
+    {
+     "id": "msg-jess-0002",
+     "day": -1,
+     "time": "21:12",
+     "from": "+1 (312) 555-0199",
+     "text": "wrong number sorry",
+     "unread": true
+    }
+   ]
+  },
+  {
+   "id": "th-house",
+   "kind": "group",
+   "title": "House",
+   "participants": [
+    "ct-jess",
+    "ct-sam"
+   ],
+   "service": "imessage",
+   "messages": [
+    {
+     "id": "msg-house-0001",
+     "day": -1,
+     "time": "19:00",
+     "from": "ct-sam",
+     "text": "Who's around Saturday?",
+     "unread": false
+    }
+   ]
+  },
+  {
+   "id": "th-jess-secret",
+   "kind": "dm",
+   "title": null,
+   "participants": [
+    "ct-jess"
+   ],
+   "service": "imessage",
+   "messages": [
+    {
+     "id": "msg-jess-0003",
+     "day": -1,
+     "time": "22:00",
+     "from": "ct-jess",
+     "text": "Planning a surprise party for Sam on Saturday at Quarry Hall, don't tell!",
+     "unread": true
+    }
+   ]
+  }
+ ],
+ "emails": [
+  {
+   "id": "em-lab-moved",
+   "thread_id": "emt-lab",
+   "message_id": "<em-lab-moved@mini.bench.example>",
+   "in_reply_to": null,
+   "account": "acct-school",
+   "mailbox": "inbox",
+   "category": "people",
+   "bulk": false,
+   "day": -1,
+   "time": "16:05",
+   "from": {
+    "name": "Prof. Lin",
+    "addr": "lin@campus.example"
+   },
+   "to": [
+    "casey.rowe@campus.example"
+   ],
+   "cc": [],
+   "subject": "Lab moved",
+   "body": "Today's lab is moved to {{date:+2}} at 3:30.",
+   "unread": true,
+   "flagged": false,
+   "attachments": [],
+   "lang": "en"
+  },
+  {
+   "id": "em-0001",
+   "thread_id": "emt-promo",
+   "message_id": "<em-0001@mini.bench.example>",
+   "in_reply_to": null,
+   "account": "acct-school",
+   "mailbox": "sent",
+   "category": "people",
+   "bulk": false,
+   "day": -2,
+   "time": "10:00",
+   "from": {
+    "name": "Casey Rowe",
+    "addr": "casey.rowe@campus.example"
+   },
+   "to": [
+    "x@campus.example"
+   ],
+   "cc": [],
+   "subject": "sent item",
+   "body": "not synced",
+   "unread": false,
+   "flagged": false,
+   "attachments": [],
+   "lang": "en"
+  }
+ ],
+ "events": [
+  {
+   "id": "ev-lab-d0",
+   "series_id": null,
+   "calendar": "Classes",
+   "account": "acct-school",
+   "kind": "event",
+   "title": "CHEM Lab",
+   "day": 0,
+   "time": "14:00",
+   "end": "16:00",
+   "all_day": false,
+   "days": 1,
+   "location": "Lab 3",
+   "organizer": null,
+   "organizer_is_user": false,
+   "invitee_count": 0,
+   "calendar_writable": true,
+   "context": "CHEM",
+   "notes": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "ev-lecture-d0",
+   "series_id": "ser-lec",
+   "calendar": "Classes",
+   "account": "acct-school",
+   "kind": "event",
+   "title": "STAT Lecture",
+   "day": 0,
+   "time": "09:30",
+   "end": "10:45",
+   "all_day": false,
+   "days": 1,
+   "location": "Hall 214",
+   "organizer": null,
+   "organizer_is_user": false,
+   "invitee_count": 0,
+   "calendar_writable": true,
+   "context": "STAT",
+   "notes": null,
+   "status": "confirmed"
+  }
+ ],
+ "reminders": [
+  {
+   "id": "rem-rent",
+   "title": "Pay rent",
+   "list": "Reminders",
+   "day": 1,
+   "time": "09:00",
+   "all_day": false,
+   "completed": false,
+   "completed_day": null,
+   "completed_time": null,
+   "created_day": -9,
+   "notes": null
+  },
+  {
+   "id": "rem-done",
+   "title": "Old thing",
+   "list": "Reminders",
+   "day": -3,
+   "time": "09:00",
+   "all_day": false,
+   "completed": true,
+   "completed_day": -3,
+   "completed_time": "10:00",
+   "created_day": -9,
+   "notes": null
+  },
+  {
+   "id": "rem-undated",
+   "title": "Someday",
+   "list": "Reminders",
+   "day": null,
+   "time": null,
+   "all_day": false,
+   "completed": false,
+   "completed_day": null,
+   "completed_time": null,
+   "created_day": -9,
+   "notes": null
+  }
+ ],
+ "notes": [
+  {
+   "id": "note-wifi",
+   "title": "Wifi",
+   "folder": "Notes",
+   "body": "Guest code 7781",
+   "day": -10,
+   "time": "12:00",
+   "created_day": -10
+  }
+ ],
+ "documents": [],
+ "browser": [
+  {
+   "id": "web-1",
+   "browser": "safari",
+   "day": -1,
+   "time": "20:00",
+   "host": "stats.example",
+   "path": "/hw5",
+   "title": "HW5"
+  }
+ ],
+ "memory": [
+  {
+   "id": "mem-01",
+   "text": "Casey walks to campus.",
+   "category": "routine",
+   "origin": "explicit",
+   "day": -30,
+   "superseded_by": null
+  },
+  {
+   "id": "mem-02",
+   "text": "Don't schedule meetings for me before 9:00 am.",
+   "category": "preference",
+   "origin": "explicit",
+   "day": -5,
+   "superseded_by": null
+  }
+ ]
+}

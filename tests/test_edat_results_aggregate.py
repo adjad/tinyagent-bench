@@ -17,7 +17,7 @@ OPTS = Options(resamples=2000, facet_resamples=500)
 def make_record(**overrides) -> dict:
     """A valid local `agentic` record. Dict overrides merge one level deep."""
     rec = {
-        "schema": "edat.result/1.0", "kind": "local", "tier": "agentic", "suite": "toolbench",
+        "schema": "edat.result/1.0", "kind": "local", "tier": "agentic", "suite": "reference-loop",
         "run_id": "run-a", "board_version": "2027.1", "lang": "en",
         "model": {"id": "cand", "role": "candidate", "weights_sha256": hashlib.sha256(b"cand").hexdigest(),
                   "quant": {"scheme": "q4"}},
@@ -323,8 +323,8 @@ def test_in_assistant_surface_facets():
 
 
 def test_composite_absent_for_tiers_without_one():
-    records = [rec(tier="memory", case="m1"), rec(tier="memory", case="m2", passed=False)]
-    block = entry(agg(records))["tiers"]["memory"]
+    records = [rec(tier="audio", case="m1"), rec(tier="audio", case="m2", passed=False)]
+    block = entry(agg(records))["tiers"]["audio"]
     assert block["composite"] is None
     assert block["headline"]["metric"] == "pass1"
 
@@ -817,3 +817,180 @@ def test_perf_excluded_samples_mark_the_entry_invalid():
     block = entry(agg(records))["tiers"]["perf"]
     assert block["excluded"] == 1
     assert block["invalid"] is True
+
+
+# --- quality headlines (03 §9, §13.2) ----------------------------------------
+
+from edat.results import composites  # noqa: E402
+
+
+def qrec(case, family, *, model="cand", trial=1, category=None, status="ok", **metrics):
+    r = rec(model=model, tier="quality", case=case, trial=trial, family=family, passed=None, status=status,
+            extra=metrics)
+    r["suite"] = "quality"
+    if category:
+        r["facets"]["category"] = category
+    return r
+
+
+def tu_records(model="cand", core2=1.0):
+    return [qrec("s1", "summary", model=model, core_recall=0.8, atoms=10, fabricated_atoms=1, trap_count=1,
+                 trap_failures=0, hygiene=80.0),
+            qrec("s2", "summary", model=model, core_recall=core2, atoms=10, fabricated_atoms=0, trap_count=1,
+                 trap_failures=1, hygiene=60.0),
+            qrec("e1", "extraction", model=model, extraction_field_acc=0.9, schema_valid=1.0),
+            qrec("n1", "numeric", model=model, numeric_ok=1.0)]
+
+
+def writing_records(model="cand"):
+    return [qrec("w1", "writing", model=model, category="W1", point_recall=0.8, atoms=10, invented_atoms=1,
+                 constraint_ok=1.0),
+            qrec("w3", "writing", model=model, category="W3", point_recall=1.0, atoms=10, invented_atoms=0,
+                 constraint_ok=0.0, fact_keep_rate=0.95),
+            qrec("w4", "writing", model=model, category="W4", point_recall=0.9, constraint_ok=1.0, fix_rate=0.8,
+                 flag_rate=0.6, overedit=0.004)]
+
+
+def judge(name, model="cand", **metrics):
+    r = rec(model=model, tier="quality", case=f"entry/{name}", passed=None, extra=metrics)
+    r["suite"] = "quality"
+    return r
+
+
+def test_text_understanding_weights_its_five_components():
+    h = composites.headlines(tu_records(), resamples=200, seed=1)["text_understanding"]
+    c = h["components"]
+    assert c["core_recall"] == pytest.approx(0.9)
+    assert c["extraction_numeric"] == pytest.approx(0.95)
+    assert c["faithfulness"] == pytest.approx(0.9)         # 1 - 2 * 1/20
+    assert c["trap_resistance"] == pytest.approx(0.5)
+    assert h["value"] == pytest.approx(0.86) and h["label"] == "full"
+    assert h["interval"][0] <= h["value"] <= h["interval"][1]
+
+
+def test_readability_is_structure_only_without_a_validated_judge():
+    h = composites.headlines(tu_records(), resamples=200, seed=1)["readability"]
+    assert h["value"] == pytest.approx(0.70) and h["label"] == "structure only"
+    unvalidated = tu_records() + [judge("readability_judge", pref_style_ctrl=60.0, judge_validated=False)]
+    assert composites.headlines(unvalidated, resamples=50, seed=1)["readability"]["label"] == "structure only"
+
+
+def test_readability_with_a_validated_judge_record():
+    recs = tu_records() + [judge("readability_judge", pref_style_ctrl=60.0, judge_validated=True)]
+    h = composites.headlines(recs, resamples=200, seed=1)["readability"]
+    assert h["value"] == pytest.approx(0.35 * 0.70 + 0.65 * 0.60) and h["label"] == "judge"
+    assert "held fixed" in h["note"]
+
+
+def test_writing_checks_only_renormalises_without_the_judge():
+    h = composites.headlines(writing_records(), resamples=200, seed=1)["writing"]
+    c = h["components"]
+    assert c["points"] == pytest.approx(0.9)
+    assert c["faithfulness"] == pytest.approx(0.8)          # 1 - 2 * (1/20 invented + 0.05 fact change)
+    assert c["constraints"] == pytest.approx(2 / 3)
+    assert c["editing"] == pytest.approx((0.8 + 0.6 + 0.8) / 3)
+    expected = (0.25 * 0.9 + 0.20 * 0.8 + 0.15 * 2 / 3 + 0.10 * c["editing"]) / 0.70
+    assert h["value"] == pytest.approx(expected)
+    assert h["label"] == "checks only" and h["missing"] == ["pref"]
+
+
+def test_writing_with_judge_and_grammar_reference():
+    recs = writing_records()
+    for r in recs:
+        r["metrics"]["grammar_errors_per_100w"] = 3.0
+    recs.append(judge("writing_judge", pref_style_ctrl=50.0, judge_validated=True, grammar_reference_per_100w=1.0))
+    h = composites.headlines(recs, resamples=50, seed=1)["writing"]
+    assert h["label"] == "judge" and h["components"]["pref"] == pytest.approx(0.5)
+    assert h["components"]["constraints"] == pytest.approx(2 / 3 - 0.02)
+
+
+def test_paired_headlines_drop_beyond_window_cases_from_both_sides():
+    a = tu_records("cand")
+    b = tu_records("other", core2=0.5)
+    d = composites.paired_headlines(a, b, resamples=200, seed=1)["text_understanding"]
+    assert d["delta"] == pytest.approx(0.30 * 0.25) and d["n_cases"] == 4
+    b[1] = qrec("s2", "summary", model="other", status="beyond_window")
+    d = composites.paired_headlines(a, b, resamples=200, seed=1)["text_understanding"]
+    assert d["n_cases"] == 3
+
+
+def test_paired_headlines_warn_when_labels_differ():
+    a = tu_records("cand") + [judge("readability_judge", pref_style_ctrl=70.0, judge_validated=True)]
+    b = tu_records("other")
+    d = composites.paired_headlines(a, b, resamples=50, seed=1)["readability"]
+    assert d["labels"] == ["judge", "structure only"] and "warning" in d
+
+
+def test_quality_tier_block_uses_headlines_and_keeps_entry_records_out_of_pass1():
+    recs = tu_records() + writing_records() + [judge("readability_judge", pref_style_ctrl=60.0,
+                                                     judge_validated=True)]
+    block = entry(agg(recs))["tiers"]["quality"]
+    assert block["records"] == 7                       # the judge record is not a case
+    assert block["composite"]["metric"] == "text_understanding"
+    assert {"text_understanding", "readability", "writing"} <= set(block["composites"])
+    assert block["composites"]["readability"]["label"] == "judge"
+
+
+# --- separate columns outside the Agentic Score -------------------------------
+
+def facet_rec(tier, case, passed, suite="sample", trial=1, **facets):
+    r = rec(tier=tier, case=case, passed=passed, trial=trial)
+    r["suite"] = suite
+    r["facets"] = facets
+    return r
+
+
+def test_preferences_score_is_the_equal_mean_of_its_dimensions():
+    recs = [facet_rec("preferences", "p1", True, dimension="persistence"),
+            facet_rec("preferences", "p2", False, dimension="persistence"),
+            facet_rec("preferences", "p3", True, dimension="override")]
+    block = entry(agg(recs))["tiers"]["preferences"]
+    c = block["composites"]["preferences_score"]
+    assert c["value"] == pytest.approx((0.5 + 1.0) / 2)
+    assert c["complete"] is False and "scope" in c["missing"] and c["label"] == "partial"
+    assert "agentic" not in entry(agg(recs))["tiers"]
+
+
+def test_memory_forget_and_long_session_late_retention():
+    mem = [facet_rec("memory", "m1", True, tags=["remember"]), facet_rec("memory", "m2", False, tags=["forget"]),
+           facet_rec("memory", "m3", True, tags=["forget"])]
+    longs = [facet_rec("long_session", "l1", True, band="early", tags=["fact_probe"]),
+             facet_rec("long_session", "l2", False, band="late", tags=["fact_probe"]),
+             facet_rec("long_session", "l3", True, band="late", tags=["tool_probe"])]
+    tiers = entry(agg(mem + longs))["tiers"]
+    assert tiers["memory"]["composites"]["memory_score"]["value"] == pytest.approx(2 / 3)
+    assert tiers["memory"]["composites"]["forget_compliance"]["value"] == pytest.approx(0.5)
+    assert tiers["long_session"]["composites"]["late_retention"]["value"] == pytest.approx(0.0)
+
+
+def test_screen_score_uses_the_text_track_and_leaves_guard_and_pixel_out():
+    recs = [facet_rec("app_control", f"{fam}-t", True, suite="screen-world", family=fam, track="ax_text")
+            for fam in ("ground", "form", "flow", "read", "disrupt", "cross")]
+    recs += [facet_rec("app_control", "guard-t", False, suite="screen-world", family="guard", track="ax_text"),
+             facet_rec("app_control", "ground-s", False, suite="screen-world", family="ground",
+                       track="screenshot_som")]
+    c = entry(agg(recs))["tiers"]["app_control"]["composites"]
+    assert c["screen_score"]["value"] == pytest.approx(1.0) and c["screen_score"]["complete"] is True
+    assert c["screen_score_screenshot"]["value"] == pytest.approx(0.0)
+    assert c["screen_score_screenshot"]["label"] == "partial"
+
+
+def test_sidekick_score_counts_answer_only_and_tool_mode_apart():
+    recs = [facet_rec("sidekick", "a1", True, suite="answer_only", family="fix_bug", mode="answer_only"),
+            facet_rec("sidekick", "a2", False, suite="answer_only", family="shell", mode="answer_only"),
+            facet_rec("sidekick", "t1", False, suite="tool_mode", family="fix_bug", mode="tool_mode")]
+    c = entry(agg(recs))["tiers"]["sidekick"]["composites"]
+    assert c["sidekick_score"]["value"] == pytest.approx(0.5)
+    assert c["sidekick_tool_mode"]["value"] == pytest.approx(0.0)
+
+
+def test_findings_and_toolbench_suites_are_their_own_views():
+    recs = [rec(case="c1"), rec(case="c2", passed=False)]
+    tb = rec(case="t1", passed=False)
+    tb["suite"] = "toolbench"
+    fi = rec(tier="in_assistant", case="student/findings/brief/x", surface="brief", extra={"found": True})
+    fi["suite"] = "productbench-findings"
+    tiers = entry(agg(recs + [tb, fi]))["tiers"]
+    assert tiers["agentic"]["pass1"]["value"] == pytest.approx(0.5)
+    assert tiers["toolbench"]["pass1"]["value"] == pytest.approx(0.0)
+    assert "in_assistant" not in tiers and tiers["in_assistant_findings"]["records"] == 1

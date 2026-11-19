@@ -1566,7 +1566,7 @@
      "unread": true
     },
     {
-     "id": "msg-mama-0046",
+     "id": "msg-mama-voice",
      "day": 0,
      "time": "07:15",
      "from": "ct-mama",
@@ -2094,7 +2094,7 @@
      "unread": false
     },
     {
-     "id": "msg-casa-0052",
+     "id": "msg-casa-d0-theo",
      "day": 0,
      "time": "06:55",
      "from": "ct-theo",
@@ -2719,7 +2719,7 @@
      "unread": false
     },
     {
-     "id": "msg-imani-0029",
+     "id": "msg-imani-forward",
      "day": -1,
      "time": "20:05",
      "from": "me",
@@ -3872,6 +3872,14 @@
      "from": "ct-dani-o",
      "text": "also no rush on the notes, monday is fine 🫶",
      "unread": false
+    },
+    {
+     "id": "msg-dani-o-prep",
+     "day": -1,
+     "time": "20:53",
+     "from": "ct-dani-o",
+     "text": "oh and week 9 prep: {{dow:+14}} {{date:+14:short}} at 15:00 at the calder café? I'll grab the big table 📚📚",
+     "unread": true
     }
    ]
   },
@@ -4415,9 +4423,9 @@
    "attachments": []
   },
   {
-   "id": "em-0115",
-   "thread_id": "emt-0115",
-   "message_id": "<em-0115@mixed.bench.example>",
+   "id": "em-0114",
+   "thread_id": "emt-0114",
+   "message_id": "<em-0114@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -4515,9 +4523,9 @@
    "attachments": []
   },
   {
-   "id": "em-0105",
-   "thread_id": "emt-0105",
-   "message_id": "<em-0105@mixed.bench.example>",
+   "id": "em-0104",
+   "thread_id": "emt-0104",
+   "message_id": "<em-0104@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -4615,9 +4623,9 @@
    "attachments": []
   },
   {
-   "id": "em-0109",
-   "thread_id": "emt-0109",
-   "message_id": "<em-0109@mixed.bench.example>",
+   "id": "em-0108",
+   "thread_id": "emt-0108",
+   "message_id": "<em-0108@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -4766,9 +4774,9 @@
    "attachments": []
   },
   {
-   "id": "em-0132",
-   "thread_id": "emt-0132",
-   "message_id": "<em-0132@mixed.bench.example>",
+   "id": "em-0129",
+   "thread_id": "emt-0129",
+   "message_id": "<em-0129@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -4991,9 +4999,9 @@
    "attachments": []
   },
   {
-   "id": "em-0106",
-   "thread_id": "emt-0106",
-   "message_id": "<em-0106@mixed.bench.example>",
+   "id": "em-0105",
+   "thread_id": "emt-0105",
+   "message_id": "<em-0105@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -5116,9 +5124,9 @@
    "attachments": []
   },
   {
-   "id": "em-0103",
-   "thread_id": "emt-0103",
-   "message_id": "<em-0103@mixed.bench.example>",
+   "id": "em-0102",
+   "thread_id": "emt-0102",
+   "message_id": "<em-0102@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -5272,9 +5280,9 @@
    ]
   },
   {
-   "id": "em-0112",
-   "thread_id": "emt-0112",
-   "message_id": "<em-0112@mixed.bench.example>",
+   "id": "em-0111",
+   "thread_id": "emt-0111",
+   "message_id": "<em-0111@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -5347,9 +5355,9 @@
    "attachments": []
   },
   {
-   "id": "em-0133",
-   "thread_id": "emt-0133",
-   "message_id": "<em-0133@mixed.bench.example>",
+   "id": "em-0130",
+   "thread_id": "emt-0130",
+   "message_id": "<em-0130@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -5472,9 +5480,9 @@
    "attachments": []
   },
   {
-   "id": "em-0116",
-   "thread_id": "emt-0116",
-   "message_id": "<em-0116@mixed.bench.example>",
+   "id": "em-0115",
+   "thread_id": "emt-0115",
+   "message_id": "<em-0115@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "sent",
@@ -5497,9 +5505,9 @@
    "attachments": []
   },
   {
-   "id": "em-0130",
-   "thread_id": "emt-0130",
-   "message_id": "<em-0130@mixed.bench.example>",
+   "id": "em-0127",
+   "thread_id": "emt-0127",
+   "message_id": "<em-0127@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-work",
    "mailbox": "inbox",
@@ -5627,9 +5635,9 @@
    "attachments": []
   },
   {
-   "id": "em-0117",
-   "thread_id": "emt-0117",
-   "message_id": "<em-0117@mixed.bench.example>",
+   "id": "em-0116",
+   "thread_id": "emt-0116",
+   "message_id": "<em-0116@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "spam",
@@ -5727,9 +5735,9 @@
    "attachments": []
   },
   {
-   "id": "em-0111",
-   "thread_id": "emt-0111",
-   "message_id": "<em-0111@mixed.bench.example>",
+   "id": "em-0110",
+   "thread_id": "emt-0110",
+   "message_id": "<em-0110@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -5877,9 +5885,9 @@
    "attachments": []
   },
   {
-   "id": "em-0107",
-   "thread_id": "emt-0107",
-   "message_id": "<em-0107@mixed.bench.example>",
+   "id": "em-0106",
+   "thread_id": "emt-0106",
+   "message_id": "<em-0106@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -6207,9 +6215,9 @@
    "attachments": []
   },
   {
-   "id": "em-0128",
-   "thread_id": "emt-0128",
-   "message_id": "<em-0128@mixed.bench.example>",
+   "id": "em-0125",
+   "thread_id": "emt-0125",
+   "message_id": "<em-0125@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-work",
    "mailbox": "inbox",
@@ -6307,9 +6315,9 @@
    "attachments": []
   },
   {
-   "id": "em-0127",
-   "thread_id": "emt-0127",
-   "message_id": "<em-0127@mixed.bench.example>",
+   "id": "em-0124",
+   "thread_id": "emt-0124",
+   "message_id": "<em-0124@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-work",
    "mailbox": "inbox",
@@ -6357,9 +6365,9 @@
    "attachments": []
   },
   {
-   "id": "em-0120",
-   "thread_id": "emt-0120",
-   "message_id": "<em-0120@mixed.bench.example>",
+   "id": "em-0119",
+   "thread_id": "emt-0119",
+   "message_id": "<em-0119@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-school",
    "mailbox": "inbox",
@@ -6457,9 +6465,9 @@
    "attachments": []
   },
   {
-   "id": "em-0119",
-   "thread_id": "emt-0119",
-   "message_id": "<em-0119@mixed.bench.example>",
+   "id": "em-0118",
+   "thread_id": "emt-0118",
+   "message_id": "<em-0118@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "trash",
@@ -6482,9 +6490,9 @@
    "attachments": []
   },
   {
-   "id": "em-0104",
-   "thread_id": "emt-0104",
-   "message_id": "<em-0104@mixed.bench.example>",
+   "id": "em-0103",
+   "thread_id": "emt-0103",
+   "message_id": "<em-0103@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -6608,9 +6616,9 @@
    "attachments": []
   },
   {
-   "id": "em-0110",
-   "thread_id": "emt-0110",
-   "message_id": "<em-0110@mixed.bench.example>",
+   "id": "em-0109",
+   "thread_id": "emt-0109",
+   "message_id": "<em-0109@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -6810,9 +6818,9 @@
    "attachments": []
   },
   {
-   "id": "em-0124",
-   "thread_id": "emt-0124",
-   "message_id": "<em-0124@mixed.bench.example>",
+   "id": "em-0122",
+   "thread_id": "emt-0122",
+   "message_id": "<em-0122@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-school",
    "mailbox": "inbox",
@@ -7036,9 +7044,9 @@
    "attachments": []
   },
   {
-   "id": "em-0129",
-   "thread_id": "emt-0129",
-   "message_id": "<em-0129@mixed.bench.example>",
+   "id": "em-0126",
+   "thread_id": "emt-0126",
+   "message_id": "<em-0126@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-work",
    "mailbox": "inbox",
@@ -7136,9 +7144,9 @@
    "attachments": []
   },
   {
-   "id": "em-0118",
-   "thread_id": "emt-0118",
-   "message_id": "<em-0118@mixed.bench.example>",
+   "id": "em-0117",
+   "thread_id": "emt-0117",
+   "message_id": "<em-0117@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "spam",
@@ -7286,9 +7294,9 @@
    "attachments": []
   },
   {
-   "id": "em-0108",
-   "thread_id": "emt-0108",
-   "message_id": "<em-0108@mixed.bench.example>",
+   "id": "em-0107",
+   "thread_id": "emt-0107",
+   "message_id": "<em-0107@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -7414,9 +7422,9 @@
    "attachments": []
   },
   {
-   "id": "em-0113",
-   "thread_id": "emt-0113",
-   "message_id": "<em-0113@mixed.bench.example>",
+   "id": "em-0112",
+   "thread_id": "emt-0112",
+   "message_id": "<em-0112@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -7564,9 +7572,9 @@
    "attachments": []
   },
   {
-   "id": "em-0131",
-   "thread_id": "emt-0131",
-   "message_id": "<em-0131@mixed.bench.example>",
+   "id": "em-0128",
+   "thread_id": "emt-0128",
+   "message_id": "<em-0128@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -7719,9 +7727,9 @@
    "attachments": []
   },
   {
-   "id": "em-0126",
-   "thread_id": "emt-0126",
-   "message_id": "<em-0126@mixed.bench.example>",
+   "id": "em-0123",
+   "thread_id": "emt-0123",
+   "message_id": "<em-0123@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-work",
    "mailbox": "inbox",
@@ -7769,9 +7777,9 @@
    "attachments": []
   },
   {
-   "id": "em-0122",
-   "thread_id": "emt-0122",
-   "message_id": "<em-0122@mixed.bench.example>",
+   "id": "em-0120",
+   "thread_id": "emt-0120",
+   "message_id": "<em-0120@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-school",
    "mailbox": "inbox",
@@ -7944,9 +7952,9 @@
    "attachments": []
   },
   {
-   "id": "em-0125",
-   "thread_id": "emt-0125",
-   "message_id": "<em-0125@mixed.bench.example>",
+   "id": "em-priya-1on1",
+   "thread_id": "emt-priya-1on1",
+   "message_id": "<em-priya-1on1@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-work",
    "mailbox": "inbox",
@@ -8119,9 +8127,9 @@
    "attachments": []
   },
   {
-   "id": "em-0102",
-   "thread_id": "emt-0102",
-   "message_id": "<em-0102@mixed.bench.example>",
+   "id": "em-condor-drop",
+   "thread_id": "emt-condor-drop",
+   "message_id": "<em-condor-drop@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -8169,9 +8177,9 @@
    "attachments": []
   },
   {
-   "id": "em-0123",
-   "thread_id": "emt-0123",
-   "message_id": "<em-0123@mixed.bench.example>",
+   "id": "em-0121",
+   "thread_id": "emt-0121",
+   "message_id": "<em-0121@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-school",
    "mailbox": "inbox",
@@ -8269,9 +8277,9 @@
    "attachments": []
   },
   {
-   "id": "em-0121",
-   "thread_id": "emt-0121",
-   "message_id": "<em-0121@mixed.bench.example>",
+   "id": "em-hana-a2",
+   "thread_id": "emt-hana-a2",
+   "message_id": "<em-hana-a2@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-school",
    "mailbox": "inbox",
@@ -8319,9 +8327,9 @@
    "attachments": []
   },
   {
-   "id": "em-0114",
-   "thread_id": "emt-0114",
-   "message_id": "<em-0114@mixed.bench.example>",
+   "id": "em-0113",
+   "thread_id": "emt-0113",
+   "message_id": "<em-0113@mixed.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",

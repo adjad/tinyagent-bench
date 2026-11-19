@@ -242,9 +242,16 @@ def minor_people(b: ProfileBuilder) -> None:
       to=["stat3120-f26@lists.cvu.example"], subject="STAT 3120: no problem set over midterm week",
       body=("Dear all,\n\nThere will be no problem set due during midterm week. Problem Set 6 will be posted the "
             "Friday after the exam.\n\nBest regards,\nProfessor Haddad"))
-    e(account=PER, day=-2, time="10:00", frm=("Brightsmile Dental", "reminders@brightsmiledental.example"),
-      subject=f"Reminder: cleaning on {D(8, 'short')} at 8:30 AM",
-      body="Reply C to confirm or call (773) 555-0170 to reschedule. Please arrive 10 minutes early.")
+    e(id="em-dentist-move", account=PER, day=-2, time="10:00",
+      frm=("Brightsmile Dental", "reminders@brightsmiledental.example"),
+      subject=f"Your cleaning on {D(8, 'short')} has moved to 11:15 AM",
+      body=("Our hygienist is out that morning, so we've moved your cleaning from 8:30 to 11:15 AM the same day "
+            "(about 45 minutes). Reply C to confirm or call (773) 555-0170 to pick another time."))
+    e(id="em-vh-monday-room", account=SCH, day=-1, time="15:05", frm=("Elena Vasquez-Hart", "elena.vasquezhart@cvu.example"),
+      to=["geog3250-f26@lists.cvu.example"], subject="GEOG 3250: Monday's class meets in Corbin 112",
+      body=("Dear all,\n\nNext Monday's class will meet in Corbin Hall 112 (the GIS lab), not our usual room, for a "
+            "hands-on georeferencing session that will help with GIS Lab 4. Same time. Please bring your laptop "
+            "charger.\n\nBest wishes,\nProf. Vasquez-Hart"))
     _ = ME_PER
 
 

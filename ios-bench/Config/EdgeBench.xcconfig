@@ -1,0 +1,8 @@
+// Shared settings. Personal signing goes in Local.xcconfig (git-ignored), for example:
+//   DEVELOPMENT_TEAM = ABCDE12345
+//   EDGEBENCH_BUNDLE_ID = com.yourname.edat
+// If Xcode says your team does not support the Increased Memory Limit capability, also add:
+//   EDGEBENCH_ENTITLEMENTS = App/EdgeBench-no-entitlements.entitlements
+EDGEBENCH_BUNDLE_ID = app.harbor.edat
+EDGEBENCH_ENTITLEMENTS = App/EdgeBench.entitlements
+#include? "Local.xcconfig"

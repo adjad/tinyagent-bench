@@ -71,7 +71,9 @@
   prompt: "do i have class tomorrow pls"
   expect: [{any_of: [get_upcoming, get_my_day_plan, daily_brief]}]
   forbid: [list_scheduled_sends, web_search]
-  answer: {contains_any: ["{dentist}", dentist, "no class", "don't have class", "nothing", "no events", "{class_word}"]}
+  answer:
+    contains_any: ["{dentist}", dentist, "no class", "no classes", "don't have class", "don't have any class", "no {class_word}"]
+    not_contains: ["yes, you have", "yes, you do"]
   trap: "features case 14 (08cd8da2): an event lead question reads the calendar; 'I don't have that' without a calendar read was the failure"
 
 # ---- Free time (09f5f830, c5e7b2ce, 13e7e0c8): a period word, never a days=N guess that misses the day.
@@ -80,7 +82,9 @@
   prompt: "is {tomorrow_weekday} afternoon open"
   expect: [{any_of: [find_free_time, get_upcoming], args: {period: {regex: "{tomorrow_weekday}|tomorrow|20\\d\\d-\\d\\d-\\d\\d"}}}]
   max_calls: 4
-  answer: {contains_any: [pm, afternoon, free]}
+  answer:
+    contains_any: [yes, mostly, open, "free from", "free until", "{dentist_time}"]
+    not_contains: ["not free", "no free", "fully booked", "isn't free"]
   trap: "features case 8 / real-usage #47 (09f5f830): a bare weekday was rejected as a period and the model gave up or guessed days=N. Tomorrow's free windows depend on the dentist time (it varies by world), so the answer check stays loose"
 - id: day_free_weekend_coffee
   prompt: "when can i grab coffee with {friend_first} this weekend"
@@ -99,15 +103,15 @@
   prompt: "do i have time for 30 min {tomorrow_weekday} around 2"
   expect: [{any_of: [find_free_time, get_upcoming], args: {period: {regex: "{tomorrow_weekday}|tomorrow|20\\d\\d-\\d\\d-\\d\\d"}}}]
   max_calls: 4
-  answer: {contains_any: [yes, free, "2:00", "2 pm", "2pm", "1:00", "available", open]}
+  answer: {contains_any: [yes, "free at", "open at", "free from", "free between", "you're free", "you are free", "2:00", works, "{dentist_time}"]}
   trap: "real-usage #48: 'time for N minutes <day> around <time>' is find_free_time with a period (and minutes=30); tomorrow's dentist is at 3:30 PM in the canonical world so 2 PM is open (other seeds put the dentist near 2, hence the loose check)"
 - id: day_free_trip_blocks
   prompt: "do i have any free time during the {trip}"
   expect: [{any_of: [find_free_time, get_upcoming]}]
   max_calls: 4
   answer:
-    contains_any: ["{trip}", busy, booked, blocked, "not free", "no free", "no gap", "no opening", "nothing free", "all day", "no available", "not available"]
-    not_contains: ["completely free", "wide open", "free all day", "totally free"]
+    contains_any: [busy, booked, blocked, "not free", "no free", "no gap", "no opening", "nothing free", "all day", "no available", "not available"]
+    not_contains: ["completely free", "wide open", "free all day", "totally free", "plenty of", "lots of free", "yes, you"]
   trap: "features case 9 (c5e7b2ce, 13e7e0c8): the user's OWN all-day Family trip on a writable calendar blocks the day; only a read-only holidays calendar frees it"
 - id: day_free_holiday_counts_free
   prompt: "am i free on {holiday}"
@@ -121,6 +125,9 @@
   prompt: "any gaps tonight"
   expect: [{any_of: [find_free_time, get_upcoming]}]
   max_calls: 4
+  answer:
+    contains_any: [free, open, gap, nothing]
+    not_contains: ["no gaps", "no free", "fully booked"]
   trap: "features case 8 (09f5f830): 'tonight' as a period for the availability tool"
 
 # ---- Source exclusion and the routine predictor.

@@ -180,7 +180,7 @@ def _mom(b: ProfileBuilder) -> None:
     ])
     t.script(0, [
         ("07:15", mom, "Good morning hija", {"unread": True}),
-        ("07:15", mom, "Send Abuela a voice message this morning if you can, she's up since 6", {"unread": True}),
+        ("07:15", mom, "Send Abuela a voice message this morning if you can, she's up since 6", {"unread": True, "id": "mama-voice"}),
         ("07:16", mom, "And it says 4 degrees there and rain later. Umbrella", {"unread": True}),
     ])
 
@@ -281,7 +281,7 @@ def _house(b: ProfileBuilder) -> None:
         ("22:15", noor, "also we're out of oat milk if anyone's passing a store"),
     ])
     t.script(0, [
-        ("06:55", theo, "Reminder for tonight: furnace tech 6-8pm. He needs the basement and the panel behind the laundry. Thank you Camila!", {"unread": True}),
+        ("06:55", theo, "Reminder for tonight: furnace tech 6-8pm. He needs the basement and the panel behind the laundry. Thank you Camila!", {"unread": True, "id": "casa-d0-theo"}),
         ("07:31", noor, "thank you cami!! i owe you one", {"unread": True}),
     ])
 
@@ -398,7 +398,7 @@ def _imani(b: ProfileBuilder) -> None:
         ("15:46", im, "omg right. P5 then"),
         ("19:55", ME, "P5 just emailed me asking for his incentive by e-transfer and my home address?? very weird"),
         ("20:01", im, "wtf. forward it to priya"),
-        ("20:05", ME, "doing it first thing tomorrow"),
+        ("20:05", ME, "doing it first thing tomorrow", {"id": "imani-forward"}),
         ("20:06", im, "good call"),
         ("20:20", im, "unrelated but fyi i'm out next wed morning for a physio appt, my back is a mess lol. pls don't mention it to priya, i just put 'ooo' on my calendar", {"id": "imani-physio"}),
         ("20:24", ME, "of course. hope it helps!"),
@@ -638,6 +638,7 @@ def _dani_o(b: ProfileBuilder) -> None:
         ("20:50", d, "pajama seminar tmrw!!! 🛌🛌"),
         ("20:51", ME, "best news of the week honestly"),
         ("20:52", d, "also no rush on the notes, monday is fine 🫶"),
+        ("20:53", d, f"oh and week 9 prep: {T.dow(14)} {T.date(14, 'short')} at 15:00 at the calder café? I'll grab the big table 📚📚", {"id": "dani-o-prep", "unread": True}),
     ])
 
 

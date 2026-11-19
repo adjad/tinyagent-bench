@@ -24,6 +24,14 @@ One YAML file per category under cases/. Each entry:
         access_needed: [calendar]        # sources whose permission is missing (see WORLD)
       split: gate                        # gate (held out; default) | dev | voice
       trap: "why this case exists"       # free text, shown in reports
+      report_only: "why"                 # recorded, never scored in any rate (e.g. the host refuses
+                                         # the needed tool for every model)
+
+CASE SET. CASE_SET_VERSION names the case set a run was made on; run metadata
+records it (with a hash of the case files) and --compare / --baseline refuse
+to pair runs made on different versions. Bump it with every change to a case's
+prompt, expectation or checks, and record the change in cases/CHANGELOG.md
+(ids and the kind of change only: the cases' text is not repeated there).
 
 FACTS. Anything a world can vary is written as a `{fact}` placeholder —
 "What's my {bank} balance?", `contains_all: ["{balance}"]` — and filled in by
@@ -107,6 +115,12 @@ class Case:
     access: str = "full"
     access_needed: frozenset[str] = frozenset()
     refused: frozenset[str] = frozenset()
+    report_only: str = ""
+    # Outbound privacy (02 §3.13; toolbench/privacy.py).
+    intended_recipients: tuple[str, ...] = ()
+    canaries_forbidden_in_outbound: tuple[str, ...] = ()
+    authorized_disclosures: tuple[str, ...] = ()
+    tags: tuple[str, ...] = ()
 
     @property
     def call_budget(self) -> int:
@@ -117,7 +131,10 @@ class Case:
         f = lambda v: _fill(v, facts)  # noqa: E731
         return replace(
             self, prompt=f(self.prompt), history=tuple(f(dict(t)) for t in self.history),
-            expect=tuple(Step(s.tools, f(dict(s.args))) for s in self.expect), answer=f(dict(self.answer)))
+            expect=tuple(Step(s.tools, f(dict(s.args))) for s in self.expect), answer=f(dict(self.answer)),
+            intended_recipients=tuple(f(list(self.intended_recipients))),
+            canaries_forbidden_in_outbound=tuple(f(list(self.canaries_forbidden_in_outbound))),
+            authorized_disclosures=tuple(f(list(self.authorized_disclosures))))
 
 
 # Fact names start with a letter, so a regex quantifier in a matcher ({2}) is never one.
@@ -135,9 +152,27 @@ def _fill(value, facts):
 
 
 _CASE_KEYS = {"id", "prompt", "history", "expect", "no_tool", "forbid", "answer", "max_calls", "trap",
-              "split", "confirm", "no_confirm", "refused", "access", "world"}
+              "split", "confirm", "no_confirm", "refused", "access", "world",
+              "intended_recipients", "canaries_forbidden_in_outbound", "authorized_disclosures", "tags",
+              "report_only"}
+_PRIVACY_KEYS = ("intended_recipients", "canaries_forbidden_in_outbound", "authorized_disclosures", "tags")
 _WORLD_KEYS = {"access_needed"}
 SPLITS = ("gate", "dev", "voice")
+# 1: the 383 cases as of 2026-11-14 (every run before this constant existed).
+# 2: after the 2026-11-18 blind case audit (cases/CHANGELOG.md).
+CASE_SET_VERSION = 2
+LEGACY_CASE_SET_VERSION = 1
+
+
+def case_set(directory: Path | None = None) -> dict:
+    """{version, sha256, cases}: the case set this checkout runs, for meta.json."""
+    import hashlib
+    directory = directory or CASES_DIR
+    h = hashlib.sha256()
+    for path in sorted(directory.glob("*.yaml")):
+        h.update(path.name.encode() + b"\0" + path.read_bytes() + b"\0")
+    return {"version": CASE_SET_VERSION, "sha256": h.hexdigest()[:16],
+            "cases": sum(1 for _ in load_cases(directory))}
 # Splits held out of every training set (shingle export).
 HELD_OUT_SPLITS = frozenset({"gate", "voice"})
 ACCESS = ("full", "default", "view")
@@ -201,6 +236,14 @@ def parse_case(raw: dict, category: str) -> Case:
             ("refused tools are also forbidden", refused & frozenset(raw.get("forbid") or ()))):
         if names:
             raise ValueError(f"{where}: {problem}: {sorted(names)}")
+    privacy = {}
+    for key in _PRIVACY_KEYS:
+        value = raw.get(key) or []
+        if not isinstance(value, list) or not all(isinstance(v, str) and v.strip() for v in value):
+            raise ValueError(f"{where}: {key} must be a list of non-empty strings")
+        privacy[key] = tuple(value)
+    if set(privacy["authorized_disclosures"]) & set(privacy["canaries_forbidden_in_outbound"]):
+        raise ValueError(f"{where}: a canary cannot be both forbidden and authorized")
     world = raw.get("world") or {}
     if not isinstance(world, dict) or set(world) - _WORLD_KEYS:
         raise ValueError(f"{where}: world takes only {sorted(_WORLD_KEYS)}")
@@ -214,7 +257,7 @@ def parse_case(raw: dict, category: str) -> Case:
         no_tool=bool(raw.get("no_tool")), forbid=frozenset(raw.get("forbid") or ()),
         answer=answer, max_calls=int(raw.get("max_calls") or 0), trap=str(raw.get("trap") or ""),
         split=split, confirm=confirm, no_confirm=no_confirm, refused=refused, access=access,
-        access_needed=frozenset(map(str, needed)))
+        access_needed=frozenset(map(str, needed)), report_only=str(raw.get("report_only") or ""), **privacy)
 
 
 def load_cases(directory: Path = CASES_DIR) -> list[Case]:

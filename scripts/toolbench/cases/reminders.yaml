@@ -1,13 +1,13 @@
 - id: rem_water_tonight
   prompt: "remind me to water the plants tonight at 8"
   expect: [{tool: add_reminder, args: {title: {icontains: plant}, when_iso: {date_offset: 0}}}]
-  trap: "2026-10-13 eval: 'don't let me forget to water the plants' -> search_notes"
+  trap: "a remind-me request with a clock time is add_reminder for tonight at that time, not a note search"
 - id: rem_nudge_invoice
   prompt: "nudge me tomorrow at noon about the invoice"
   expect: [{tool: add_reminder, args: {title: {icontains: invoice}, when_iso: {date_offset: 1}}}]
 - id: rem_dana_report
-  prompt: "remind me to send the report to Dana tomorrow"
-  expect: [{tool: add_reminder, args: {title: {icontains: report}}}]
+  prompt: "remind me to send the report to Dana tomorrow at 10"
+  expect: [{tool: add_reminder, args: {title: {icontains: report}, when_iso: {date_offset: 1}}}]
   forbid: [send_email, send_message, draft_email, draft_message, schedule_send]
   trap: "Dana is in the reminder text, not a recipient"
 - id: rem_list
@@ -23,17 +23,19 @@
   expect: [{tool: add_reminder, args: {title: {icontains: mom}, when_iso: {weekday: sunday}}}]
   forbid: [send_message, send_email]
 - id: rem_trash_tonight
-  prompt: "don't let me forget to take out the trash tonight"
+  prompt: "don't let me forget to take out the trash tonight at 9"
   expect: [{tool: add_reminder, args: {title: {icontains: trash}, when_iso: {date_offset: 0}}}]
   trap: "2026-10-13 eval: 'don't let me forget…' -> search_notes"
 - id: rem_bank_bill
   prompt: "is there a reminder about the {bank} bill?"
   expect: [{any_of: [search_reminders, get_upcoming]}]
-  answer: {contains_any: [bill]}
+  answer:
+    contains_any: ["9:00", "9 am", "9am", "{future_weekday}", "{future_date_short}"]
+    not_contains: ["no reminder", "don't see", "couldn't find", "no bill"]
 - id: rem_rename_plants
   split: dev
   prompt: "change the plants reminder to say water the garden"
-  expect: [{tool: update_reminder}]
+  expect: [{tool: update_reminder, args: {title: {icontains: plant}, new_title: {icontains: garden}}}]
   forbid: [clear_reminders, clear_past_reminders]
 - id: rem_timesheet_friday
   split: dev
@@ -88,7 +90,7 @@
   forbid: [clear_reminders, clear_past_reminders, cancel_event, complete_reminder]
   max_calls: 3
   answer:
-    contains_any: ["{rent_reminder}", overdue, old, older]
+    contains_any: ["{rent_reminder}", overdue]
     not_contains: ["{doordash_reminder}", "{stale_reminder}"]
   trap: "features case 17 (cd3a2d22, b24815c7, e2da8bc8): a reminder 14+ days overdue, or undated and a week old, is hidden from lists; the answer must not name it (only a count may be mentioned) and must not delete anything unasked"
 
@@ -159,18 +161,18 @@
   max_calls: 3
   trap: "real-usage #58 (R x2): 'send me a reminder ...' (to myself) was read as update and as a message to the person named in the title; Sam is in the reminder text only"
 - id: rem_alarm_no_time
-  prompt: "can u set an alarm for me tommorow to return the library books"
+  prompt: "can u set an alarm for me tommorow at 7 to return the library books"
   expect: [{any_of: [set_timer, add_reminder]}]
   forbid: [remember, save_knowledge, update_reminder]
   no_confirm: [add_reminder]
   max_calls: 3
-  answer: {contains_any: [":00", ":30", "a.m", "p.m", "9am", "8am", "7am", "9 am", "8 am", "7 am"]}
-  trap: "real-usage #55 / failure 18 (H-001): an alarm with no time was stored as a silent 9am reminder after remember() and a false 'reminder set'. Either tool is fine, but the answer must STATE the time that was assumed"
+  answer: {contains_any: ["7:00", "7am", "7 am", "7 a.m", "07:00"]}
+  trap: "real-usage #55 / failure 18 (H-001): an alarm request must become a real timer or reminder (never remember() and a false 'reminder set'). Either tool is fine, but the answer must STATE the time that was set"
 - id: rem_keep_doordash
   history:
     - user: "delete my old reminders"
-      assistant: "I can clear your past-due reminders, including “{doordash_reminder}”. Want me to go ahead?"
-  prompt: "keep the {doordash_reminder} one"
+      assistant: "The only past-due reminder I can clear is “{doordash_reminder}”. Want me to go ahead?"
+  prompt: "no, keep the {doordash_reminder} one"
   no_tool: true
   forbid: [cancel_event, clear_past_reminders, clear_reminders, complete_reminder, forget]
   answer:

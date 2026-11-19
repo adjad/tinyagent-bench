@@ -1,0 +1,41 @@
+{
+  "profile": "standin",
+  "note": "Harness-development question set for the stand-in profile. Real profiles get at least 25 Ask cases each.",
+  "ask": [
+    {"id": "A01", "family": "today", "qtype": "set", "prompt": "What's on my calendar today?",
+     "required": ["L_standup", "L_design", "L_lunch", "L_dentist"], "bonus": ["L_vendor", "L_leo"],
+     "forbidden": ["L_vendor.stale"], "tools_any": ["get_upcoming", "get_my_day_plan", "daily_brief"], "reference_words": 45},
+    {"id": "A02", "family": "today", "qtype": "fact", "prompt": "When is my dentist appointment?",
+     "required": [{"ledger": "L_dentist", "any": ["@16:00"]}], "tools_any": ["get_upcoming"], "reference_words": 12},
+    {"id": "A03", "family": "changed", "qtype": "explain", "prompt": "Has anything changed about today's meetings?",
+     "required": [{"ledger": "L_vendor", "all": ["@15:00"]}, {"any": ["northwind", "vendor", "lena"]}],
+     "tools_any": ["view_emails", "get_upcoming", "summarize_emails"], "reference_words": 30},
+    {"id": "A04", "family": "owe", "qtype": "records", "prompt": "What do I owe people this week?",
+     "required": ["L_budget", "L_slides", "L_tripod"], "bonus": ["L_bill", "L_rent"],
+     "forbidden": ["L_budget.stale"], "check_invented": true, "reference_words": 60},
+    {"id": "A05", "family": "waiting", "qtype": "set", "prompt": "Is anyone waiting on a reply from me?",
+     "required": [{"ledger": "L_leo", "any": ["leo", "mom", "dana"]}, {"ledger": "L_slides", "any": ["jordan", "slides"]}],
+     "tools_any": ["view_messages", "summarize_messages", "view_emails", "triage_inbox"], "reference_words": 40},
+    {"id": "A06", "family": "cross_source", "qtype": "fact", "prompt": "Who is presenting at my design review, and which room is it in?",
+     "required": ["L_presenter", "L_room"], "tools_any": ["get_upcoming", "view_emails"], "reference_words": 20},
+    {"id": "A07", "family": "no_answer", "qtype": "refuse/limit", "prompt": "What's my flight number for the trip next week?",
+     "expect_refusal": true, "forbidden_patterns": ["\\b[A-Z]{2} ?\\d{2,4}\\b"], "reference_words": 20},
+    {"id": "A08", "family": "followup", "qtype": "fact", "prompt": "When is the budget summary due?",
+     "required": [{"ledger": "L_budget", "any": ["thursday", "#2026-03-12"]}], "forbidden": ["L_budget.stale"],
+     "tools_any": ["view_emails", "summarize_emails", "search_reminders"], "reference_words": 15,
+     "followup": {"id": "A08b", "qtype": "fact", "prompt": "And how long does Maya want it to be?",
+                  "required": [{"any": ["two pages", "2 pages", "two-page", "2-page"]}], "reference_words": 12}},
+    {"id": "A09", "family": "act", "qtype": "draft", "prompt": "Text my mom that I'll pick up Leo at 5:30.",
+     "act": {"tools_any": ["send_message", "draft_message"], "draft_ok": true},
+     "tools_any": ["send_message", "draft_message"]},
+    {"id": "A10", "family": "cross_source", "qtype": "fact", "prompt": "What's the gate code for Sam's building? I'm meeting him for lunch.",
+     "required": ["L_gate"], "tools_any": ["search_notes"], "reference_words": 15}
+  ],
+  "brief": {"max_items": 12, "max_words": 400},
+  "day": {
+    "plans": [
+      {"id": "D01", "kind": "plan", "prompt": "Plan my day for today with times, including when to work on what I owe people."},
+      {"id": "D02", "kind": "slot", "minutes": 90, "prompt": "When today could I block 90 minutes for the Q1 budget summary? Give one time."}
+    ]
+  }
+}

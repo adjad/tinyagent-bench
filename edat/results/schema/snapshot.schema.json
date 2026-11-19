@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/adjad/Edge_device_agentic_testing/edat/results/schema/snapshot.schema.json",
+  "title": "tinyagent-bench published snapshot (edat.snapshot/1.0)",
+  "description": "data/results/<board_version>/<device_id>/snapshot.json: the runs a published snapshot is built from and every aggregate computed from them. Case-level records of the held-out split are never included. See docs/benchmark/results-record.md section 7.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "board_version", "device_id", "sample", "generated_at", "references", "runs", "entries"],
+  "properties": {
+    "schema": {"const": "edat.snapshot/1.0"},
+    "board_version": {"type": "string"},
+    "device_id": {"type": "string"},
+    "sample": {"type": "boolean"},
+    "notice": {"type": ["string", "null"]},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "references": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tuned", "base"],
+      "properties": {
+        "tuned": {"type": ["string", "null"], "description": "Entry key of the tuned baseline"},
+        "base": {"type": ["string", "null"], "description": "Entry key of the base reference"}
+      }
+    },
+    "runs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["run_id", "tier", "records", "records_sha256"],
+        "properties": {
+          "run_id": {"type": "string"},
+          "tier": {"type": "string"},
+          "records": {"type": "integer", "minimum": 0},
+          "records_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "harness_commit": {"type": "string"},
+          "sampling_class": {"type": "string"}
+        }
+      }
+    },
+    "records_exported": {"type": "integer", "minimum": 0},
+    "records_withheld_heldout": {"type": "integer", "minimum": 0},
+    "entries": {
+      "type": "array",
+      "description": "One aggregate per entry: identity, fit, ranking, per-tier scores, safety and differences from both references.",
+      "items": {"type": "object"}
+    }
+  }
+}

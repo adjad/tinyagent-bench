@@ -123,6 +123,7 @@ function hasData(m) {
     if (s.s) return (raw.safety || []).some((x) => x.tier === s.s && x[s.k] != null);
     if (s.c) return (raw.curves || []).some((x) => x.metric === s.c && (x.points || []).some((p) => p.level === s.level));
     if (s.fit) return (raw.runs || []).some((x) => x.fit && x.fit[s.fit] != null);
+    if (s.loop) return (raw.loops || []).some((x) => x.tier === s.loop && x[s.k] && x[s.k].delta != null);
     return false;
   });
 }
@@ -158,6 +159,16 @@ uniq(storeBad).slice(0, 12).forEach((m) => fail(m));
 if (storeBad.length > 12) fail(`... and ${storeBad.length - 12} more store problems`);
 if (!storeBad.length) ok("store");
 console.log(`  ${cells} cells, ${storeBad.length} problems`);
+// the second agentic loop: empty with the store's reason on cloud references and the phone, a value or a reason elsewhere
+{
+  let noReason = [];
+  for (const b of boards) for (const e of (b.board ? b.board.entries : [])) for (const id of ["assistant_loop_score", "repair_gain"]) {
+    const v = ST.value(e, id);
+    if ((b.isCloud || b.id === "iphone-ref") && v.status === "ok") noReason.push(`${b.id} ${e.key} ${id}: has a value`);
+    if (v.status !== "ok" && !v.reason && e.scored) noReason.push(`${b.id} ${e.key} ${id}: ${v.status} with no reason`);
+  }
+  check(!noReason.length, "two loops: every empty second-loop cell carries the store's reason" + (noReason.length ? ` (${noReason.slice(0, 3).join("; ")})` : ""));
+}
 
 section("Name, paths, held-out");
 const NAME = EDAT.config.name;
@@ -178,7 +189,7 @@ for (const t of trajFiles) {
 }
 check(held === 0, "no held-out trajectory records" + (held ? ` (${held} found)` : ""));
 // the "What it found" files (export or site sample): development split only
-for (const dir of [path.join(SITE, "data"), path.join(SITE, "fixtures")]) {
+for (const dir of [path.join(SITE, "data")]) {
   if (!fs.existsSync(dir)) continue;
   for (const f of fs.readdirSync(dir, { recursive: true }).filter((x) => String(x).endsWith(".findings.json"))) {
     const doc = JSON.parse(fs.readFileSync(path.join(dir, String(f)), "utf8"));
@@ -226,10 +237,11 @@ async function headless() {
   caseIds.forEach((c) => add(`#/case/agentic/${enc(c.id)}?m=${enc(c.key)}`));
   ["#/devices", "#/device/mac-ref", "#/device/iphone-ref", "#/profiles", "#/vote", "#/methodology"].forEach((h) => add(h));
   // "What it found": every profile in the findings sample, a reference as the chosen entry, no references beside it, the iPhone
-  const fpath = path.join(SITE, "fixtures", "sample-0", "mac-ref.findings.json");
+  const fpath = path.join(SITE, "data", "sample-0", "mac-ref.findings.json");
   const findings = fs.existsSync(fpath) ? JSON.parse(fs.readFileSync(fpath, "utf8")) : null;
   add("#/found");
-  (findings ? findings.profiles : []).forEach((p) => add(`#/found?p=${enc(p.id)}`));
+  (findings ? findings.profiles : []).forEach((p) => add(`#/found?p=${enc(typeof p === "string" ? p : p.id)}`));
+  add("#/found?t=2");
   if (mac && mac.raw.references.base) add(`#/found?m=${enc(mac.raw.references.base)}&refs=0`);
   add("#/found?d=iphone-ref");
   // case pages: an unsafe trial, a case id that does not exist; the test pages and profiles on the iPhone
@@ -271,7 +283,7 @@ async function headless() {
     }
   });
   const queue = routes.slice(), results = [];
-  await Promise.all([1, 2, 3].map(async () => { while (queue.length) results.push(await run(queue.shift())); }));
+  await Promise.all(Array.from({ length: Number(process.env.CHECK_JOBS) || 3 }, () => 0).map(async () => { while (queue.length) results.push(await run(queue.shift())); }));
   server.close();
   for (const { r, msg } of results.sort((a, b) => routes.indexOf(a.r) - routes.indexOf(b.r))) msg ? fail(`${r.label || r.hash}: ${msg}`) : ok(r.label || r.hash);
   console.log(`  ${routes.length} routes, ${results.filter((x) => x.msg).length} failing`);

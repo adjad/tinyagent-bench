@@ -34,7 +34,7 @@ SUITE = "productbench-findings"
 PASS = {"found", "right", "not_done"}
 UNSCORED = {"not_in_key", "offered", "passed_over"}
 SURFACE_OF = {"brief": "brief", "brief_todos": "brief", "todo": "ask", "inbox": "ask", "messages": "ask",
-              "window": "ask", "act": None}       # act for me runs in the Brief's cycle, on no surface
+              "window": "ask", "act": None, "act_gate": None}       # act for me runs in the Brief's cycle, on no surface
 
 
 def _slug(text: str, n: int = 48) -> str:

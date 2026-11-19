@@ -49,7 +49,8 @@ BAD = {"missed", "wrongly_raised", "stale", "done_wrongly", "should_not", "unsaf
 TEXT_MAX = 240
 SECTIONS = [
     ("brief", "Brief: what it spotted"),
-    ("act", "Done by itself (act for me)"),
+    ("act", "Done by itself (act for me): did the right thing"),
+    ("act_gate", "Done by itself: behaved as Harbor's rules require"),
     ("brief_todos", "The Brief's to-do list"),
     ("todo", "“What's on my to-do list?”"),
     ("inbox", "“What's in my email?”"),
@@ -224,30 +225,49 @@ def _question(rep: Report, key, r: dict) -> None:
 
 
 def _act(rep: Report, key, r: dict) -> None:
+    """Two sections: against the key's `decision` (did the right thing) and against its
+    `harbor_gate` (behaved as Harbor's rules require). Unsafe actions and Harbor's own reasons
+    for passing items over go with the second."""
     sc = r.get("score") or {}
     pid = key[1]
-    cells = rep.cells[key]["act"]
-    for a in sc.get("actions") or []:
-        k = a.get("expectation") or f"did:{a.get('kind')}:{a.get('title')}"
-        rep.label(pid, "act", k, a.get("truth") or f"{a.get('kind')}: {a.get('title')}")
-        text = f"{a.get('kind')}: {a.get('title')}" + (f" at {a['at_local']}" if a.get("at_local") else "")
-        if a.get("why"):
-            text += f" ({a['why']})"
-        cells[k].add(a["verdict"], text)
-    for m in sc.get("missed") or []:
-        rep.label(pid, "act", m["expectation"], m.get("truth") or m.get("title") or m["expectation"])
-        cells[m["expectation"]].add("missed", None)
-    for o in sc.get("offers") or []:
-        rep.label(pid, "act", o["expectation"], o.get("truth") or o["expectation"])
-        cells[o["expectation"]].add("not_done" if o.get("decision") in ("ask", "bait") else "offered", None)
-    for i, u in enumerate(sc.get("unsafe") or []):
+    gate = sc.get("gate") or {}
+    for section, verdict, missed in (("act", "verdict", sc.get("missed") or []),
+                                     ("act_gate", "verdict_gate", gate.get("missed") or [])):
+        if section == "act_gate" and not gate:
+            break                      # a record from before the two lenses
+        cells = rep.cells[key][section]
+        for a in sc.get("actions") or []:
+            k = a.get("expectation") or f"did:{a.get('kind')}:{a.get('title')}"
+            rep.label(pid, section, k, a.get("truth") or f"{a.get('kind')}: {a.get('title')}")
+            text = f"{a.get('kind')}: {a.get('title')}" + (f" at {a['at_local']}" if a.get("at_local") else "")
+            if a.get("why"):
+                text += f" ({a['why']})"
+            cells[k].add(a.get(verdict) or a.get("verdict"), text)
+        done = {m["expectation"] for m in missed}
+        for m in missed:
+            note = (f" (Harbor's rules give a {m['gate']} here)" if section == "act" and m.get("gate") not in (None, "act")
+                    else "")
+            rep.label(pid, section, m["expectation"], (m.get("truth") or m.get("title") or m["expectation"]) + note)
+            cells[m["expectation"]].add("missed", None)
+        for o in sc.get("offers") or []:
+            if o["expectation"] in done:
+                continue
+            asks_action = (o.get("decision") == "act") if section == "act" else (o.get("gate") == "act")
+            if asks_action:
+                continue
+            rep.label(pid, section, o["expectation"], o.get("truth") or o["expectation"])
+            cells[o["expectation"]].add("not_done", None)
+    target = "act_gate" if gate else "act"
+    cells = rep.cells[key][target]
+    for u in sc.get("unsafe") or []:
         k = f"unsafe:{u.get('why')}:{u.get('title') or u.get('type')}"
-        rep.label(pid, "act", k, f"(beyond what's allowed) {u.get('why')}")
+        rep.label(pid, target, k, f"(beyond what's allowed) {u.get('why')}")
         cells[k].add("unsafe", u.get("title") or json.dumps(u.get("payload") or {}))
     for n in sc.get("passed_over") or []:
         k = f"passed:{n.get('who')}:{n.get('reason')}"
-        rep.label(pid, "act", k, f"(Harbor passed over) {n.get('who') or 'an item'}")
+        rep.label(pid, target, k, f"(Harbor passed over) {n.get('who') or 'an item'}")
         cells[k].add("passed_over", n.get("reason"))
+
     if sc.get("mode") == "arrivals":
         note = "act for me: the profile's key has no act_for_me entries, so four invented messages were used"
         if note not in rep.notes[key]:

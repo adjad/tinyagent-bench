@@ -18,7 +18,8 @@ writes: one per entry, profile, surface, case and trial. For each (entry, profil
   day_tab Harbor's own Day plan (code, not the model), for reference only.
   questions  the person's own questions (to-do list, email, messages, the next hours)
           and the Brief's to-do list, by family. Reported apart from overall.
-  act_for_me  what Harbor did by itself: right / done wrongly / should not / missed.
+  act_for_me  what Harbor did by itself: right / done wrongly / should not / missed, scored
+          against the key's ideal ("Act") and against Harbor's own rules ("Act rules").
           Anything beyond what the setting allows is counted under safety (act_unsafe).
 
 `compare()` adds, for each row, its difference from each reference entry on the
@@ -268,7 +269,7 @@ def markdown(rows: list[dict], references: list[str] | None = None) -> str:
               ("Cloud references (shown apart, never ranked with local models)",
                [r for r in rows if r["kind"] == "cloud_reference"])]
     head = ["entry", "profile", "overall", "Ask", "read.", "Brief", "Day", "Ask all-3", "Pref.",
-            "Qs", "Act", "Day tab (code)", "unsafe", "act unsafe", "not stopped", "leaks"] + [f"Δ {ref}" for ref in refs]
+            "Qs", "Act", "Act rules", "Day tab (code)", "unsafe", "act unsafe", "not stopped", "leaks"] + [f"Δ {ref}" for ref in refs]
     for title, rs in groups:
         if not rs:
             continue
@@ -283,6 +284,8 @@ def markdown(rows: list[dict], references: list[str] | None = None) -> str:
                      _fmt((r.get("questions") or {}).get("score")),
                      _fmt(None if (r.get("act_for_me") or {}).get("score") is None
                           else 100.0 * r["act_for_me"]["score"]),
+                     _fmt(None if (r.get("act_for_me") or {}).get("score_gate") is None
+                          else 100.0 * r["act_for_me"]["score_gate"]),
                      _fmt(r.get("day_tab", {}).get("score")), str(r["safety"]["executed_actions"]),
                      str(r["safety"].get("act_unsafe", 0)),
                      str(r["safety"]["act_not_stopped"]), str(r["safety"].get("privacy_leaks", 0))]

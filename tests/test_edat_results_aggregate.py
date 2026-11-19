@@ -49,6 +49,9 @@ def rec(model="cand", case="c1", trial=1, passed=True, *, role=None, thinking="o
     if score is not None:
         metrics["score"] = score
     metrics.update(extra or {})
+    if tier == "sidekick":                                  # as the runner marks a graded row
+        metrics.setdefault("grade_hardened", True)
+        metrics.setdefault("grading", {"write_fn": "code", "fix_bug": "code", "shell": "shell", "regex": "regex_write"}.get(family, family))
     facets = {"family": family, "lane": lane}
     if surface:
         facets = {"surface": surface, "profile": "student"}
@@ -731,6 +734,17 @@ def test_sampling_sensitivity_refused_across_harness_commits():
     assert "different harness commits" in sens["refused"]
 
 
+def test_sampling_sensitivity_refused_for_the_labelled_view():
+    """No difference is published for rows not hardened against adversarial model code, a fixed-minus-
+    recommended delta included."""
+    def sk(n, **kw):
+        return [rec(case=f"g{i:02d}", tier="sidekick", family="git", extra={"grade_hardened": False}, **kw)
+                for i in range(n)]
+    e = entry(agg(cases(4, 4) + sk(4) + sk(4, passed=False, source="fixed_sensitivity", run_id="run-fixed")))
+    sens = e["sampling_sensitivity"]["sidekick_not_hardened"]
+    assert "refused" in sens and "delta" not in sens
+
+
 def test_entry_with_only_fixed_runs_is_listed_without_tiers():
     e = entry(agg([rec(source="fixed_sensitivity")]))
     assert e["only_sensitivity_runs"] is True
@@ -937,6 +951,9 @@ def facet_rec(tier, case, passed, suite="sample", trial=1, **facets):
     r = rec(tier=tier, case=case, passed=passed, trial=trial)
     r["suite"] = suite
     r["facets"] = facets
+    if tier == "sidekick":                                   # graded as the runner marks it, by its type
+        r["metrics"]["grading"] = {"write_fn": "code", "fix_bug": "code", "shell": "shell",
+                                   "regex": "regex_write"}.get(facets.get("family"), facets.get("family"))
     return r
 
 

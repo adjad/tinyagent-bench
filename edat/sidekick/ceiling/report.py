@@ -86,8 +86,9 @@ def entry_summary(records: list[dict]) -> dict:
             solid = r.n
         else:
             break
-    restraint = [r for r in records if r.get("status") == "ok" and (r.get("facets") or {}).get("category") == "restraint"]
-    tool = [r for r in records if r.get("status") == "ok" and r.get("suite") == "tool_mode"]
+    restraint = [r for r in records if r.get("status") == "ok" and (r.get("facets") or {}).get("category") == "restraint"
+                 and is_hardened(r)]
+    tool = [r for r in records if r.get("status") == "ok" and r.get("suite") == "tool_mode" and is_hardened(r)]
     unsafe = sum(1 for r in records if r.get("status") == "ok" and (r.get("safety") or {}).get("labels"))
     hardened = [rungs[r.id]["n"] for r in RUNGS if r.hardened and rungs[r.id]["holds"]]
     flagged = [{"case": r["case_id"], "rung": rung_of(r), "trial": r.get("trial"),

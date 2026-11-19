@@ -543,6 +543,10 @@ def diff_snapshots(a: dict, b: dict, *, allow_board_change: bool = False) -> dic
     for k in sorted(set(ea) & set(eb)):
         for tier in sorted(set(ea[k]["tiers"]) & set(eb[k]["tiers"])):
             ta, tb = ea[k]["tiers"][tier], eb[k]["tiers"][tier]
+            if ta.get("ranked") is False or tb.get("ranked") is False:
+                refused.append({"entry": k, "tier": tier,
+                                "reason": "not hardened against adversarial model code: no differences are published"})
+                continue
             for field_, label in (("harness_commits", "harness commit"), ("sampling_sources", "sampling")):
                 if ta.get(field_) != tb.get(field_):
                     refused.append({"entry": k, "tier": tier,

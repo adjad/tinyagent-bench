@@ -17,13 +17,21 @@ The comparison rule, once: a value matches the solution's as the original test's
 values as Python had them. So a bool equals the number it stands for (True == 1), an int equals the float
 of the same value, floats are compared exactly unless the probe has "tol_abs", NaN equals nothing, and a
 tuple never equals a list, except under "seq": "loose" (rung 5's old tests turned every tuple into a list,
-through lists and tuples only, before comparing). An exception matches by its class name, or with "raises"
-by any class in its MRO.
+through lists and tuples only, before comparing). A script run's output is compared with one trailing
+newline removed from each side, as rung 6's old `_run` did. An exception matches by its class, or with
+"raises" by any class in its MRO; a built-in class is named only when it is the built-in itself, as the
+driver captured it before any of the candidate's code ran, so a class of the candidate's own that is named
+`ValueError` is reported as `~<module>.ValueError` and never matches the built-in.
+
+Values cross the pipe in an envelope, both ways: each is `[tag, payload]` (none, bool, int, float, fspecial,
+str, list, tuple, dict, set, obj, type, exc, deep), and a container's items are envelopes nested inside its
+payload, never beside a tag. So the inputs keep their types on the way in (a tuple stays a tuple), and no
+value the candidate returns, a dict with odd keys included, can pass for a tag on the way out.
 
 The driver runs in the sandbox, once on the candidate's files in the trial's area and once on the template's
 own solution in a fresh area of its own (cached). It never holds an expected value, a reference or a
 hidden test: there is nothing in its process for the candidate to read but the inputs. Its reply is
-untrusted: sizes and depth are capped, only plain JSON values are accepted, and a malformed outcome is a
+untrusted: sizes and depth are capped, only well-formed envelopes are accepted, and a malformed outcome is a
 failed probe, never an error.
 """
 from __future__ import annotations
@@ -49,31 +57,64 @@ MODS = spec["modules"]
 sys.path.insert(0, os.getcwd())
 sys.dont_write_bytecode = True
 
+import builtins as _builtins
+_REAL_EXC = {n: c for n, c in vars(_builtins).items() if isinstance(c, type) and issubclass(c, BaseException)}
+
+def exc_names(e):
+    out = []
+    for c in type(e).__mro__[:20]:
+        n = getattr(c, "__name__", "?")
+        if _REAL_EXC.get(n) is c or c is object:
+            out.append(n)
+        else:
+            out.append("~" + str(getattr(c, "__module__", "?"))[:80] + "." + str(getattr(c, "__qualname__", n))[:80])
+    return out
+
 def norm(v, d=0):
     if d > 30:
-        return {"__deep__": True}
-    if v is None or isinstance(v, (bool, int)):
-        return v
-    if isinstance(v, str):
-        return v[:100000]
+        return ["deep"]
+    if v is None:
+        return ["none"]
+    if v is True or v is False:
+        return ["bool", v]
+    if isinstance(v, int):
+        return ["int", int(v)]
     if isinstance(v, float):
-        return v if math.isfinite(v) else {"__num__": repr(v)}
+        f = float(v)
+        return ["float", f] if math.isfinite(f) else ["fspecial", repr(f)]
+    if isinstance(v, str):
+        return ["str", str(v)[:100000]]
     if isinstance(v, tuple):
-        return {"__tuple__": [norm(x, d + 1) for x in list(v)[:5000]]}
+        return ["tuple", [norm(x, d + 1) for x in list(v)[:5000]]]
     if isinstance(v, list):
-        return [norm(x, d + 1) for x in list(v)[:5000]]
+        return ["list", [norm(x, d + 1) for x in list(v)[:5000]]]
     if isinstance(v, dict):
-        items = [(norm(k, d + 1), norm(x, d + 1)) for k, x in list(v.items())[:5000]]
-        if all(isinstance(k, str) for k, _ in items):
-            return dict(items)
-        return {"__map__": sorted([[k, x] for k, x in items], key=lambda p: json.dumps(p, sort_keys=True, default=str))}
+        return ["dict", [[norm(k, d + 1), norm(x, d + 1)] for k, x in list(v.items())[:5000]]]
     if isinstance(v, (set, frozenset)):
-        return {"__set__": sorted([norm(x, d + 1) for x in list(v)[:5000]], key=lambda x: json.dumps(x, sort_keys=True, default=str))}
+        return ["set", [norm(x, d + 1) for x in list(v)[:5000]]]
     if isinstance(v, BaseException):
-        return {"__exc__": [c.__name__ for c in type(v).__mro__][:20]}
+        return ["exc", exc_names(v)]
     if hasattr(v, "__dict__") and not callable(v):
-        return {"__obj__": type(v).__name__, "attrs": norm({k: x for k, x in vars(v).items() if not k.startswith("__")}, d + 1)}
-    return {"__type__": type(v).__name__}
+        return ["obj", str(type(v).__name__)[:200], norm({k: x for k, x in vars(v).items() if not str(k).startswith("__")}, d + 1)]
+    return ["type", str(type(v).__name__)[:200]]
+
+def dec(e):
+    t = e[0]
+    if t == "none":
+        return None
+    if t in ("bool", "int", "float", "str"):
+        return e[1]
+    if t == "fspecial":
+        return float(e[1])
+    if t == "list":
+        return [dec(x) for x in e[1]]
+    if t == "tuple":
+        return tuple(dec(x) for x in e[1])
+    if t == "set":
+        return set(dec(x) for x in e[1])
+    if t == "dict":
+        return {dec(k): dec(x) for k, x in e[1]}
+    raise ValueError("bad input envelope")
 
 def fresh():
     for m in list(sys.modules):
@@ -86,7 +127,7 @@ def outcome(thunk):
         with contextlib.redirect_stdout(io.StringIO()):
             return {"ok": norm(thunk())}
     except BaseException as e:
-        return {"raise": [c.__name__ for c in type(e).__mro__][:20]}
+        return {"raise": exc_names(e)}
 
 def run(p):
     fresh()
@@ -94,30 +135,29 @@ def run(p):
     if k == "call":
         def f():
             fn = getattr(importlib.import_module(p["mod"]), p["fn"])
-            return fn(*copy.deepcopy(p.get("args", [])), **copy.deepcopy(p.get("kwargs", {})))
+            return fn(*dec(p.get("args", ["list", []])), **dec(p.get("kwargs", ["dict", []])))
         return outcome(f)
     if k == "ops":
         try:
             with contextlib.redirect_stdout(io.StringIO()):
-                obj = getattr(importlib.import_module(p["mod"]), p["cls"])(*copy.deepcopy(p.get("init", [])))
+                obj = getattr(importlib.import_module(p["mod"]), p["cls"])(*dec(p.get("init", ["list", []])))
         except BaseException as e:
-            return {"raise": [c.__name__ for c in type(e).__mro__][:20]}
-        return {"ok": [outcome(lambda s=s: getattr(obj, s[0])(*copy.deepcopy(s[1]))) for s in p["steps"]]}
+            return {"raise": exc_names(e)}
+        return {"ok": [outcome(lambda s=s: getattr(obj, s[0])(*dec(s[1]))) for s in p["steps"]]}
     if k == "run":
         try:
             r = subprocess.run([sys.executable, *p["argv"]], capture_output=True, text=True,
                                timeout=float(p.get("timeout", 10)))
         except subprocess.TimeoutExpired:
             return {"raise": ["TimeoutExpired"]}
-        return {"ok": {"rc": r.returncode, "out": r.stdout[:200000]}}
+        return {"ok": norm({"rc": r.returncode, "out": r.stdout[:200000]})}
     if k == "script":
         recs = []
         def rec(v, i=0):
             if len(recs) < 20000:
                 recs.append([i, {"ok": norm(v)}])
         def rec_exc(e, i=0):
-            recs.append([i, {"raise": [c.__name__ for c in type(e).__mro__][:20]} if e is not None
-                         else {"ok": {"__no_raise__": True}}])
+            recs.append([i, {"raise": exc_names(e)} if e is not None else {"ok": ["str", "<no exception>"]}])
         def rec_call(fn, *a, **kw):
             recs.append([0, outcome(lambda: fn(*a, **kw))])
         def call_outcome(fn, args):
@@ -134,7 +174,7 @@ def run(p):
             with contextlib.redirect_stdout(io.StringIO()):
                 exec(compile(p["src"], "probe", "exec"), ns)
         except BaseException as e:
-            recs.append([-1, {"raise": [c.__name__ for c in type(e).__mro__][:20]}])
+            recs.append([-1, {"raise": exc_names(e)}])
         return {"ok": recs}
     return {"raise": ["UnknownProbe"]}
 
@@ -143,15 +183,52 @@ for p in spec["probes"]:
     try:
         results.append(run(p))
     except BaseException as e:
-        results.append({"raise": [c.__name__ for c in type(e).__mro__][:20]})
+        results.append({"raise": exc_names(e)})
 with open(out_path, "w") as fh:
     json.dump({"probes": results}, fh)
 '''
 
 
-def driver_probe(p: dict) -> dict:
-    """A probe as the driver gets it: no host-only key."""
+def enc(v):
+    """A host value in the driver's input envelope (the driver's `dec` rebuilds it, tuples and sets included)."""
+    if v is None:
+        return ["none"]
+    if v is True or v is False:
+        return ["bool", v]
+    if isinstance(v, int):
+        return ["int", int(v)]
+    if isinstance(v, float):
+        return ["float", v] if math.isfinite(v) else ["fspecial", repr(v)]
+    if isinstance(v, str):
+        return ["str", v]
+    if isinstance(v, tuple):
+        return ["tuple", [enc(x) for x in v]]
+    if isinstance(v, list):
+        return ["list", [enc(x) for x in v]]
+    if isinstance(v, (set, frozenset)):
+        return ["set", [enc(x) for x in sorted(v, key=repr)]]
+    if isinstance(v, dict):
+        return ["dict", [[enc(k), enc(x)] for k, x in v.items()]]
+    raise TypeError(f"a probe input of type {type(v).__name__} cannot cross to the driver")
+
+
+def probe_inputs(p: dict) -> dict:
+    """A probe without its host-only keys, its inputs as host values (what the leak gate reads)."""
     return {k: v for k, v in p.items() if k not in HOST_ONLY}
+
+
+def driver_probe(p: dict) -> dict:
+    """A probe as the driver gets it: no host-only key, its inputs in envelopes."""
+    d = probe_inputs(p)
+    if "args" in d:
+        d["args"] = enc(list(d["args"]))
+    if "kwargs" in d:
+        d["kwargs"] = enc(dict(d["kwargs"]))
+    if "init" in d:
+        d["init"] = enc(list(d["init"]))
+    if "steps" in d:
+        d["steps"] = [[name, enc(list(args))] for name, args in d["steps"]]
+    return d
 
 
 def modules_of(check: dict) -> list[str]:
@@ -171,15 +248,153 @@ def drive(iso: Isolation, area: TrialArea, check: dict, code: dict[str, str]) ->
     res = iso.run(area, f"{area.bin}/python3 -I {gd}/driver.py {gd}/spec.json {gd}/reply.json",
                   limits=Limits(wall_s=float(check.get("time_limit_s", 20.0)), cpu_s=30))
     raw = None if res.killed else area.read_result(gd / "reply.json", REPLY_BYTES)
-    out = parse_reply(raw, len(probes))
+    out = parse_reply(raw, probes)
     if res.killed:
         out = [{"killed": res.killed}] * len(probes)
     return out
 
 
-def parse_reply(raw: bytes | None, n: int) -> list[dict | None]:
-    """The driver's reply, trusted for nothing: n outcomes, each a plain {"ok": value} or {"raise": [names]},
-    or None."""
+class _Bad(Exception):
+    pass
+
+
+class Obj:
+    """An object the driver reported by its class name and attributes."""
+    __slots__ = ("name", "attrs")
+
+    def __init__(self, name: str, attrs: dict):
+        self.name, self.attrs = name, attrs
+
+    def __hash__(self):
+        return hash(("Obj", self.name))
+
+    def __eq__(self, other):
+        return isinstance(other, Obj) and self.name == other.name and _eq(self.attrs, other.attrs, None)
+
+    def __repr__(self):
+        return f"<{self.name} object>"
+
+
+class Tagged:
+    """A value the driver could only name: a type (`type`), an exception value (`exc`), or too deep (`deep`)."""
+    __slots__ = ("kind", "what")
+
+    def __init__(self, kind: str, what):
+        self.kind, self.what = kind, what
+
+    def __hash__(self):
+        return hash((self.kind, self.what))
+
+    def __eq__(self, other):
+        return isinstance(other, Tagged) and (self.kind, self.what) == (other.kind, other.what) and self.kind != "deep"
+
+    def __repr__(self):
+        return f"<{self.kind} {self.what}>"
+
+
+def _names_ok(names) -> bool:
+    return (isinstance(names, list) and 0 < len(names) <= 20 and all(isinstance(x, str) and len(x) <= 200 for x in names)
+            and mro_plausible(names))
+
+
+def decode(e, depth: int = 0, budget: list[int] | None = None):
+    """An envelope from the driver as a host value; raises _Bad on anything malformed."""
+    budget = budget if budget is not None else [MAX_NODES]
+    budget[0] -= 1
+    if budget[0] < 0 or depth > MAX_DEPTH or not isinstance(e, list) or not e or not isinstance(e[0], str):
+        raise _Bad
+    t, n = e[0], len(e)
+    if t == "none" and n == 1:
+        return None
+    if t == "bool" and n == 2 and isinstance(e[1], bool):
+        return e[1]
+    if t == "int" and n == 2 and isinstance(e[1], int) and not isinstance(e[1], bool) and abs(e[1]) < 1 << 256:
+        return e[1]
+    if t == "float" and n == 2 and isinstance(e[1], float):
+        return e[1]
+    if t == "fspecial" and n == 2 and e[1] in ("inf", "-inf", "nan"):
+        return float(e[1])
+    if t == "str" and n == 2 and isinstance(e[1], str) and len(e[1]) <= MAX_STR:
+        return e[1]
+    if t in ("list", "tuple", "set") and n == 2 and isinstance(e[1], list):
+        items = [decode(x, depth + 1, budget) for x in e[1]]
+        if t == "list":
+            return items
+        if t == "tuple":
+            return tuple(items)
+        try:
+            return frozenset(items)
+        except TypeError:
+            raise _Bad from None
+    if t == "dict" and n == 2 and isinstance(e[1], list):
+        out = {}
+        for pair in e[1]:
+            if not (isinstance(pair, list) and len(pair) == 2):
+                raise _Bad
+            k = decode(pair[0], depth + 1, budget)
+            try:
+                if k in out:
+                    raise _Bad
+                out[k] = decode(pair[1], depth + 1, budget)
+            except TypeError:
+                raise _Bad from None
+        return out
+    if t == "obj" and n == 3 and isinstance(e[1], str) and len(e[1]) <= 200:
+        attrs = decode(e[2], depth + 1, budget)
+        if not isinstance(attrs, dict):
+            raise _Bad
+        return Obj(e[1], attrs)
+    if t == "type" and n == 2 and isinstance(e[1], str) and len(e[1]) <= 200:
+        return Tagged("type", e[1])
+    if t == "exc" and n == 2 and _names_ok(e[1]):
+        return Tagged("exc", tuple(e[1]))
+    if t == "deep" and n == 1:
+        return Tagged("deep", None)
+    raise _Bad
+
+
+def _outcome(o, budget: list[int]) -> dict:
+    """One {"ok": envelope} or {"raise": names}, decoded; raises _Bad."""
+    if not isinstance(o, dict) or len(o) != 1:
+        raise _Bad
+    if "raise" in o:
+        if not _names_ok(o["raise"]):
+            raise _Bad
+        return {"raise": list(o["raise"])}
+    if "ok" not in o:
+        raise _Bad
+    return {"ok": decode(o["ok"], 0, budget)}
+
+
+def _reply_for(p: dict, o, budget: list[int]) -> dict:
+    kind = p.get("kind")
+    if isinstance(o, dict) and "raise" in o:
+        return _outcome(o, budget)
+    if kind == "ops":
+        if not (isinstance(o, dict) and len(o) == 1 and isinstance(o.get("ok"), list)
+                and len(o["ok"]) == len(p.get("steps") or [])):
+            raise _Bad
+        return {"ok": [_outcome(x, budget) for x in o["ok"]]}
+    if kind == "script":
+        if not (isinstance(o, dict) and len(o) == 1 and isinstance(o.get("ok"), list) and len(o["ok"]) <= 20001):
+            raise _Bad
+        recs = []
+        for x in o["ok"]:
+            if not (isinstance(x, list) and len(x) == 2 and isinstance(x[0], int) and not isinstance(x[0], bool)):
+                raise _Bad
+            recs.append([x[0], _outcome(x[1], budget)])
+        return {"ok": recs}
+    out = _outcome(o, budget)
+    if kind == "run" and not (isinstance(out["ok"], dict) and set(out["ok"]) == {"rc", "out"}
+                              and isinstance(out["ok"]["rc"], int) and isinstance(out["ok"]["out"], str)):
+        raise _Bad
+    return out
+
+
+def parse_reply(raw: bytes | None, probes: list[dict]) -> list[dict | None]:
+    """The driver's reply, trusted for nothing: one decoded outcome per probe, each {"ok": value} or
+    {"raise": names}, or None where it is malformed (sizes, depth and node count capped)."""
+    n = len(probes)
     if not raw:
         return [None] * n
     try:
@@ -189,16 +404,13 @@ def parse_reply(raw: bytes | None, n: int) -> list[dict | None]:
     if not isinstance(r, dict) or not isinstance(r.get("probes"), list) or len(r["probes"]) != n:
         return [None] * n
     budget = [MAX_NODES]
-    return [o if _outcome_ok(o, budget) else None for o in r["probes"]]
-
-
-def _outcome_ok(o, budget: list[int]) -> bool:
-    if not isinstance(o, dict) or len(o) != 1:
-        return False
-    if "raise" in o:
-        return isinstance(o["raise"], list) and 0 < len(o["raise"]) <= 20 and all(
-            isinstance(x, str) and len(x) <= 200 for x in o["raise"]) and mro_plausible(o["raise"])
-    return "ok" in o and _plain(o["ok"], 0, budget)
+    out: list[dict | None] = []
+    for p, o in zip(probes, r["probes"]):
+        try:
+            out.append(_reply_for(p, o, budget))
+        except (_Bad, RecursionError):
+            out.append(None)
+    return out
 
 
 def _builtin_exceptions() -> dict[str, type]:
@@ -214,8 +426,11 @@ def mro_plausible(names: list[str]) -> bool:
     """Could `names` be a real exception class's MRO (as the driver reports it)? Each built-in exception
     class named must come before all its built-in ancestors, which must be there too (unless the list was
     cut at 20), no name twice, and at most MAX_BUILTIN_LEAVES built-in classes that are not an ancestor of
-    another one named (a class may inherit from two or three; a reply naming every exception is refused)."""
+    another one named (a class may inherit from two or three; a reply naming every exception is refused).
+    Any other name is the candidate's own class, as `~<module>.<name>`."""
     if len(set(names)) != len(names):
+        return False
+    if any(n not in _BUILTIN_EXC and n != "object" and not n.startswith("~") for n in names):
         return False
     pos = {n: i for i, n in enumerate(names)}
     named = [n for n in names if n in _BUILTIN_EXC]
@@ -231,30 +446,9 @@ def mro_plausible(names: list[str]) -> bool:
     return sum(1 for n in named if n not in ancestors) <= MAX_BUILTIN_LEAVES
 
 
-def _plain(v, depth: int, budget: list[int]) -> bool:
-    budget[0] -= 1
-    if budget[0] < 0 or depth > MAX_DEPTH:
-        return False
-    if v is None or isinstance(v, bool):
-        return True
-    if isinstance(v, int):
-        return abs(v) < 1 << 256
-    if isinstance(v, float):
-        return True
-    if isinstance(v, str):
-        return len(v) <= MAX_STR
-    if isinstance(v, list):
-        return all(_plain(x, depth + 1, budget) for x in v)
-    if isinstance(v, dict):
-        return all(isinstance(k, str) and len(k) <= MAX_STR and _plain(x, depth + 1, budget) for k, x in v.items())
-    return False
-
-
 def _loose(v):
     """Rung 5's old `_norm`: tuples become lists, through lists and tuples only."""
-    if isinstance(v, dict) and set(v) == {"__tuple__"}:
-        return [_loose(x) for x in v["__tuple__"]]
-    if isinstance(v, list):
+    if isinstance(v, (list, tuple)):
         return [_loose(x) for x in v]
     return v
 
@@ -264,7 +458,7 @@ def _num(v) -> bool:
 
 
 def same(a, b, tol_abs: float | None = None, seq: str = "strict") -> bool:
-    """The comparison rule (top of this module): the original test's `==`, on the driver's normal form."""
+    """The comparison rule (top of this module): the original test's `==`, on host values."""
     if seq == "loose":
         a, b = _loose(a), _loose(b)
     return _eq(a, b, tol_abs)
@@ -275,18 +469,25 @@ def _eq(a, b, tol_abs) -> bool:
         if tol_abs is not None:
             return abs(a - b) <= tol_abs
         return a == b
-    if isinstance(a, list) and isinstance(b, list):
+    if isinstance(a, list) and isinstance(b, list) or isinstance(a, tuple) and isinstance(b, tuple):
         return len(a) == len(b) and all(_eq(x, y, tol_abs) for x, y in zip(a, b))
     if isinstance(a, dict) and isinstance(b, dict):
-        if set(a) == {"__num__"} or set(b) == {"__num__"}:          # inf, -inf, nan
-            return a == b and a.get("__num__") != "nan"
         return a.keys() == b.keys() and all(_eq(a[k], b[k], tol_abs) for k in a)
+    if isinstance(a, frozenset) and isinstance(b, frozenset):
+        return a == b
+    if isinstance(a, (Obj, Tagged)) or isinstance(b, (Obj, Tagged)):
+        return a == b
     return type(a) is type(b) and a == b
 
 
+def _strip_nl(s: str) -> str:
+    return s[:-1] if s.endswith("\n") else s
+
+
 def outcome_matches(got: dict | None, want: dict, probe: dict) -> bool:
-    """One outcome against the solution's. An exception matches by its class name (or, with "raises", any
-    class in its MRO); an op sequence or a script's records match step by step."""
+    """One outcome against the solution's. An exception matches by its class (or, with "raises", any class
+    in its MRO), built-ins by identity; an op sequence or a script's records match step by step; a script
+    run by its exit code and its output with one trailing newline removed from each side."""
     if got is None or "killed" in got:
         return False
     if "raise" in want or "raise" in got:
@@ -304,8 +505,10 @@ def outcome_matches(got: dict | None, want: dict, probe: dict) -> bool:
         if not (isinstance(g, list) and isinstance(w, list) and len(g) == len(w)):
             return False
         sub = {k: v for k, v in probe.items() if k in ("raises", "tol_abs", "seq")}
-        return all(isinstance(x, dict) and _outcome_ok(x, [MAX_NODES]) and outcome_matches(x, y, sub)
-                   for x, y in zip(g, w))
+        return all(isinstance(x, dict) and outcome_matches(x, y, sub) for x, y in zip(g, w))
+    if probe.get("kind") == "run":
+        g, w = got["ok"], want["ok"]
+        return g["rc"] == w["rc"] and _strip_nl(g["out"]) == _strip_nl(w["out"])
     return same(got["ok"], want["ok"], probe.get("tol_abs"), probe.get("seq", "strict"))
 
 
@@ -316,8 +519,7 @@ def _script_matches(g, w, probe: dict) -> bool:
     if not (isinstance(g, list) and isinstance(w, list) and len(g) == len(w)):
         return False
     for x, y in zip(g, w):
-        if not (isinstance(x, list) and len(x) == 2 and isinstance(x[0], int) and isinstance(x[1], dict)
-                and _outcome_ok(x[1], [MAX_NODES]) and x[0] == y[0]):
+        if x[0] != y[0]:
             return False
         i, o = x
         if checks is None:                                   # a script without checks: equal to the solution's
@@ -340,11 +542,11 @@ def check_passes(c: dict, o: dict, sol: dict) -> bool:
     v = o["ok"]
     if op == "ref":
         return "ok" in sol and same(v, sol["ok"])
-    want = host_norm(c.get("value"))
+    want = host_value(c.get("value"))
     if op == "eq":
         return same(v, want)
     if op == "is":
-        return v is want or (v is None and want is None) or (isinstance(v, bool) and v is want)
+        return (v is None and want is None) or (isinstance(v, bool) and isinstance(want, bool) and v == want)
     if op == "approx":
         return isinstance(v, (int, float)) and not isinstance(v, bool) and abs(v - want) <= c["abs"]
     if op == "truthy":
@@ -373,36 +575,33 @@ def check_passes(c: dict, o: dict, sol: dict) -> bool:
 def _contains(container, item) -> bool:
     if isinstance(container, str):
         return isinstance(item, str) and item in container
-    if isinstance(container, list):
+    if isinstance(container, (list, tuple, frozenset)):
         return any(same(item, x) for x in container)
     if isinstance(container, dict):
-        if "__set__" in container and len(container) == 1:
-            return any(same(item, x) for x in container["__set__"])
-        return isinstance(item, str) and item in container
+        try:
+            return item in container
+        except TypeError:
+            return False
     return False
 
 
-def host_norm(v):
-    """A host literal in the driver's normal form (tuples and sets tagged, sets sorted)."""
-    if isinstance(v, tuple):
-        return {"__tuple__": [host_norm(x) for x in v]}
+def host_value(v):
+    """A host literal as a host value: lists of the old tagged forms ({"__tuple__": [...]}, {"__set__": [...]})
+    become tuples and frozensets; anything else is itself."""
+    if isinstance(v, dict) and len(v) == 1 and next(iter(v)) in ("__tuple__", "__set__") and isinstance(next(iter(v.values())), list):
+        (k, items), = v.items()
+        items = [host_value(x) for x in items]
+        return tuple(items) if k == "__tuple__" else frozenset(items)
     if isinstance(v, list):
-        return [host_norm(x) for x in v]
+        return [host_value(x) for x in v]
+    if isinstance(v, tuple):
+        return tuple(host_value(x) for x in v)
     if isinstance(v, dict):
-        if set(v) in ({"__set__"}, {"__tuple__"}) and isinstance(next(iter(v.values())), list):
-            (k,) = v
-            if k == "__tuple__":
-                return {k: [host_norm(x) for x in v[k]]}
-            return {"__set__": sorted((host_norm(x) for x in v["__set__"]), key=lambda x: json.dumps(x, sort_keys=True, default=str))}
-        if all(isinstance(k, str) for k in v):
-            return {k: host_norm(x) for k, x in v.items()}
-        return {"__map__": sorted([[host_norm(k), host_norm(x)] for k, x in v.items()],
-                                  key=lambda p: json.dumps(p, sort_keys=True, default=str))}
-    if isinstance(v, (set, frozenset)):
-        return {"__set__": sorted((host_norm(x) for x in v), key=lambda x: json.dumps(x, sort_keys=True, default=str))}
-    if isinstance(v, float) and not math.isfinite(v):
-        return {"__num__": repr(v)}
+        return {k: host_value(x) for k, x in v.items()}
     return v
+
+
+host_norm = host_value
 
 
 _SOLUTION_CACHE: dict[str, list[dict]] = {}
@@ -430,12 +629,15 @@ def _scalars(v, out: set) -> None:
         return
     if isinstance(v, (int, float, str)):
         out.add(v)
-    elif isinstance(v, list):
+    elif isinstance(v, (list, tuple, frozenset, set)):
         for x in v:
             _scalars(x, out)
     elif isinstance(v, dict):
         for k, x in v.items():
+            _scalars(k, out)
             _scalars(x, out)
+    elif isinstance(v, Obj):
+        _scalars(v.attrs, out)
 
 
 def trivial(v) -> bool:
@@ -455,7 +657,7 @@ def source_constants(p: dict) -> set:
             if isinstance(node, ast.Constant) and isinstance(node.value, str):
                 out.update(_words(node.value))
     else:
-        _scalars(driver_probe(p), out)
+        _scalars(probe_inputs(p), out)
     return out
 
 

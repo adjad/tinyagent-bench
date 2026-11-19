@@ -133,18 +133,50 @@ def test_the_candidates_process_holds_no_expected_value(iso):
 # ------------------------------------------------------------------ the reply is untrusted
 
 def test_a_malformed_reply_is_failed_probes_never_an_error():
+    two = [{"kind": "call"}, {"kind": "call"}]
     deep = "[" * 5000 + "]" * 5000
     for raw in (None, b"", b"not json", deep.encode(), b"[]", b'{"probes": 3}', b'{"probes": [1, 2]}',
-                json.dumps({"probes": [{"ok": {"a": {"__x__": object.__name__}}, "extra": 1}, {"ok": 1}]}).encode()):
-        out = P.parse_reply(raw, 2)
-        assert len(out) == 2
+                json.dumps({"probes": [{"ok": ["dict", [[["str", "a"], ["x"]]]], "extra": 1}, {"ok": 1}]}).encode()):
+        out = P.parse_reply(raw, two)
+        assert len(out) == 2 and all(o is None for o in out)
     mro = ["ValueError", "Exception", "BaseException", "object"]
-    assert P.parse_reply(json.dumps({"probes": [{"ok": 1}, {"raise": mro}]}).encode(), 2) == [{"ok": 1}, {"raise": mro}]
-    assert P.parse_reply(b'{"probes": [{"ok": 1}, {"raise": ["ValueError"]}]}', 2) == [{"ok": 1}, None]  # no ancestors
-    assert P.parse_reply(b'{"probes": [{"ok": 1}, {"raise": [7]}]}', 2) == [{"ok": 1}, None]
-    huge = json.dumps({"probes": [{"ok": "x" * (P.MAX_STR + 1)}]}).encode()
-    assert P.parse_reply(huge, 1) == [None]
+    one = json.dumps({"probes": [{"ok": ["int", 1]}, {"raise": mro}]}).encode()
+    assert P.parse_reply(one, two) == [{"ok": 1}, {"raise": mro}]
+    assert P.parse_reply(b'{"probes": [{"ok": ["int", 1]}, {"raise": ["ValueError"]}]}', two) == [{"ok": 1}, None]
+    assert P.parse_reply(b'{"probes": [{"ok": ["int", 1]}, {"raise": [7]}]}', two) == [{"ok": 1}, None]
+    assert P.parse_reply(b'{"probes": [{"ok": 1}, {"ok": ["int", true]}]}', two) == [None, None]   # bare, or a bool as int
+    huge = json.dumps({"probes": [{"ok": ["str", "x" * (P.MAX_STR + 1)]}]}).encode()
+    assert P.parse_reply(huge, [{"kind": "call"}]) == [None]
+    unhashable = json.dumps({"probes": [{"ok": ["set", [["list", []]]]}]}).encode()
+    assert P.parse_reply(unhashable, [{"kind": "call"}]) == [None]
     assert not P.outcome_matches(None, {"ok": 1}, {"kind": "call"})
+
+
+def test_no_value_can_pass_for_a_tag():
+    """Every value is nested inside an envelope, so a dict whose keys look like the host's old tags decodes
+    as a dict, never as a tuple, a set or a number (N4)."""
+    two = [{"kind": "call"}] * 2
+    forged = ["dict", [[["str", "__tuple__"], ["list", [["int", 1], ["int", 2]]]]]]
+    real = ["tuple", [["int", 1], ["int", 2]]]
+    got, want = P.parse_reply(json.dumps({"probes": [{"ok": forged}, {"ok": real}]}).encode(), two)
+    assert got == {"ok": {"__tuple__": [1, 2]}} and want == {"ok": (1, 2)}
+    assert not P.outcome_matches(got, want, {"kind": "call"})
+    nan = P.parse_reply(json.dumps({"probes": [{"ok": ["dict", [[["str", "__num__"], ["str", "nan"]]]]},
+                                               {"ok": ["fspecial", "nan"]}]}).encode(), two)
+    assert nan[0] == {"ok": {"__num__": "nan"}} and nan[1]["ok"] != nan[1]["ok"]
+
+
+def test_inputs_keep_their_types_on_the_way_in():
+    """Tuples, sets and dicts with tuple keys cross to the driver in envelopes and are rebuilt there (N1)."""
+    p = {"kind": "call", "mod": "m", "fn": "f", "args": [(1, (2, 3)), {4, 5}, {(1, 2): "a"}], "kwargs": {"k": (6,)},
+         "test": "test_x", "covers": "all"}
+    d = P.driver_probe(p)
+    assert d["args"][0] == "list" and d["args"][1][0][0] == "tuple" and d["kwargs"][0] == "dict"
+    ns: dict = {}
+    exec(P.DRIVER.split("def fresh():")[0].split("sys.dont_write_bytecode = True", 1)[1], ns)   # norm, dec
+    assert ns["dec"](d["args"]) == [(1, (2, 3)), {4, 5}, {(1, 2): "a"}]
+    assert ns["dec"](d["kwargs"]) == {"k": (6,)}
+    assert P.probe_inputs(p)["args"] == p["args"]                           # the leak gate reads host values
 
 
 def test_a_candidate_that_overwrites_the_reply_fails_the_probes(iso):
@@ -302,15 +334,20 @@ def test_a_history_without_defaults_or_limit_check_fails(iso):
 # ------------------------------------------------------------------ the comparison rule (F2, F3)
 
 def test_the_comparison_rule_is_the_original_tests_equality():
-    T = lambda *xs: {"__tuple__": list(xs)}
+    T = lambda *xs: tuple(xs)
     assert P.same(True, 1) and P.same(False, 0.0) and P.same(1, 1.0)           # == between bool and number
     assert not P.same(True, 2) and not P.same("1", 1)
     assert not P.same(0.1 + 0.2, 0.3) and P.same(0.1 + 0.2, 0.3, tol_abs=1e-9)  # exact, unless approx
     assert not P.same(T(1, "B"), [1, "B"]) and P.same(T(1, "B"), T(1, "B"))   # a tuple is not a list
     assert P.same(T(1, T(2)), [1, [2]], seq="loose")                            # rung 5's old _norm
     assert not P.same({"k": T(1)}, {"k": [1]}, seq="loose")                     # ... not inside dicts
-    assert not P.same({"__num__": "nan"}, {"__num__": "nan"}) and P.same({"__num__": "inf"}, {"__num__": "inf"})
-    assert P.host_norm((1, (2,))) == T(1, T(2))
+    assert not P.same(float("nan"), float("nan")) and P.same(float("inf"), float("inf"))
+    assert P.same(frozenset({1, 2}), frozenset({2, 1})) and not P.same(frozenset({1}), [1])
+    assert P.host_value({"__tuple__": [1, {"__tuple__": [2]}]}) == (1, (2,))
+    run = {"kind": "run"}
+    assert P.outcome_matches({"ok": {"rc": 0, "out": "a\nb"}}, {"ok": {"rc": 0, "out": "a\nb\n"}}, run)   # N2
+    assert not P.outcome_matches({"ok": {"rc": 0, "out": "a\nb\n\n"}}, {"ok": {"rc": 0, "out": "a\nb\n"}}, run)
+    assert not P.outcome_matches({"ok": {"rc": 1, "out": "a\nb\n"}}, {"ok": {"rc": 0, "out": "a\nb\n"}}, run)
 
 
 def test_a_list_where_the_prompt_asks_for_a_tuple_fails(iso):
@@ -329,8 +366,8 @@ def test_a_list_where_the_prompt_asks_for_a_tuple_fails(iso):
 def test_an_exception_list_that_is_no_real_mro_never_matches():
     class Both(ValueError, KeyError):
         pass
-    real = [c.__name__ for c in Both.__mro__]
-    assert P.mro_plausible(real) and P.mro_plausible([c.__name__ for c in KeyError.__mro__])
+    real = ["~test.Both"] + [c.__name__ for c in Both.__mro__[1:]]            # as the driver names it
+    assert P.mro_plausible(real) and not P.mro_plausible([c.__name__ for c in Both.__mro__]) and P.mro_plausible([c.__name__ for c in KeyError.__mro__])
     every = ["ValueError", "KeyError", "LookupError", "IndexError", "RuntimeError", "TypeError", "Exception",
              "BaseException", "object"]
     assert not P.mro_plausible(every) and not P.mro_plausible(every[::-1])
@@ -339,7 +376,7 @@ def test_an_exception_list_that_is_no_real_mro_never_matches():
     probe = {"kind": "call", "raises": "ValueError"}
     assert P.outcome_matches(want, want, probe)
     assert not P.outcome_matches({"raise": every}, want, probe)
-    assert P.parse_reply(json.dumps({"probes": [{"raise": every}]}).encode(), 1) == [None]
+    assert P.parse_reply(json.dumps({"probes": [{"raise": every}]}).encode(), [{"kind": "call"}]) == [None]
 
 
 # ------------------------------------------------------------------ no expected value in a record (F5)
@@ -366,3 +403,84 @@ def test_the_not_hardened_label_follows_how_a_row_was_graded():
     assert row_hardened(RUNG_BY_ID["rules"], {"grading": "x"}) is False
     sidekick = next(r for r in RUNG_BY_ID.values() if r.source == "sidekick")
     assert row_hardened(sidekick, {})
+
+
+# ------------------------------------------------------------------ round 2 (N1 to N5)
+
+def test_a_candidate_that_needs_a_list_where_the_tests_pass_a_tuple_fails(iso):
+    """N1: `holidays += [6]` breaks on the tuple the old tests passed; the probes pass it as a tuple too."""
+    inst = _inst("rules_weekly_pay")
+    sol = inst.check["solution"]["payroll.py"]
+    bad = sol.replace("    if len(hours) != 7", "    holidays += []\n    if len(hours) != 7", 1)
+    assert bad != sol
+    assert not _grade(inst, {"payroll.py": bad}, iso).passed
+    assert _grade(inst, inst.check["solution"], iso).passed
+
+
+def test_a_report_without_its_final_newline_passes(iso):
+    """N2: the old `_run` removed one trailing newline before comparing; so do the probes."""
+    inst = _inst("data_sales_by_region")
+    sol = inst.check["solution"]["report.py"]
+    head = ("import atexit as _ae, io as _io, sys as _s\n_buf, _real = _io.StringIO(), _s.stdout\n_s.stdout = _buf\n"
+            "def _fl():\n    o = _buf.getvalue()\n    _real.write(o[:-1] if o.endswith('\\n') else o)\n    _real.flush()\n"
+            "_ae.register(_fl)\n")
+    assert not sol.lstrip().startswith("from __future__")
+    assert _grade(inst, {"report.py": head + sol}, iso).passed
+    two = head.replace("o[:-1] if o.endswith('\\n') else o", "o + '\\n'")
+    assert not _grade(inst, {"report.py": two + sol}, iso).passed
+
+
+def test_an_exception_class_of_the_candidates_own_named_like_a_builtin_fails(iso):
+    """N3: pytest.raises(ValueError) failed a home-made class named ValueError; so does a raising probe."""
+    inst = _inst("rules_weekly_pay")
+    sol = inst.check["solution"]["payroll.py"]
+    g = _grade(inst, {"payroll.py": "class ValueError(Exception):\n    pass\n\n\n" + sol}, iso)
+    assert not g.passed
+
+
+def test_a_dict_shaped_like_a_tag_does_not_pass_for_a_tuple(iso):
+    """N4: rules_course_grade returns `(points, letter)`; a dict that mimics the old tuple tag fails."""
+    inst = _inst("rules_course_grade")
+    sol = inst.check["solution"]["grading.py"]
+    forged = (sol.replace("def final_grade(", "def _final_grade(")
+              + "\n\ndef final_grade(*a, **k):\n    return {'__tuple__': list(_final_grade(*a, **k))}\n")
+    assert not _grade(inst, {"grading.py": forged}, iso).passed
+
+
+def test_the_gate_fails_closed_on_what_it_does_not_recognise():
+    """N5: tests pytest would collect that the map cannot see, or assertions reached other than by a direct
+    call, refuse the conversion even though no hidden file does any of these today."""
+    from edat.sidekick.ceiling.rungs import coverage
+    probe = [{"kind": "call", "test": "test_a", "covers": "all"}]
+    base = "import pytest\nfrom m import f\n\ndef test_a():\n    assert f(1) == 1\n"
+    assert coverage(base, probe)["unmapped"] == []
+    cases = {
+        "a test named without the underscore": base + "\ndef testb():\n    assert f(2) == 2\n",
+        "a test made by a factory": base + "\ndef _make(n):\n    def t():\n        assert f(n) == n\n    return t\n\ntest_c = _make(3)\n",
+        "a helper reached through map": base + "\ndef _chk(n):\n    assert f(n) == n\n\ndef test_d():\n    list(map(_chk, [4]))\n",
+        "a fixture": base + "\n@pytest.fixture\ndef thing():\n    return 1\n",
+        "an unrecognised decorator": base.replace("def test_a", "@pytest.mark.skip\ndef test_a"),
+        "a dynamic definition": base + "\nglobals()['test_e'] = lambda: None\n",
+        "a test imported under a test name": base + "\nfrom other import test_f\n",
+        "a test bound in a loop": base + "\nfor _i in range(2):\n    def test_g():\n        assert f(_i) == _i\n",
+        "a test generator hook": base + "\ndef pytest_generate_tests(metafunc):\n    pass\n",
+    }
+    for why, src in cases.items():
+        assert coverage(src, probe + [{"kind": "call", "test": n, "covers": "all"} for n in ("test_d",) if "test_d" in src])["unmapped"], why
+    param = "import pytest\nfrom m import f\nCASES = [1, 2, 3]\n\n@pytest.mark.parametrize('n', CASES)\ndef test_p(n):\n    assert f(n) == n\n"
+    p3 = [{"kind": "call", "test": "test_p", "covers": "all"}] * 3
+    assert coverage(param, p3)["unmapped"] == [] and coverage(param, p3[:2])["unmapped"]   # one probe per set
+    built = param.replace("CASES = [1, 2, 3]", "CASES = [1] + [n for n in (2, 3)]")
+    assert coverage(built, p3)["unmapped"] == []
+    unknown = param.replace("CASES = [1, 2, 3]", "CASES = load_cases()")
+    assert coverage(unknown, p3)["unmapped"]
+
+
+def test_host_probe_rows_carry_their_own_method_and_reason():
+    from edat.sidekick.labels import REASONS, grading_label, may_score
+    lab = grading_label("probe", {"probes": [{"kind": "call"}]})
+    assert lab == {"grading": "host_probes", "grade_hardened": False, "not_hardened_reason": "host_probes_unreviewed"}
+    assert lab["not_hardened_reason"] in REASONS
+    assert grading_label("probe", {"hidden_tests": "x"})["not_hardened_reason"] == "probe_in_process"
+    row = {"status": "ok", "facets": {"family": "rules", "tags": []}, "metrics": {"grading": "host_probes", "grade_hardened": True}}
+    assert not may_score(row)                       # not on the allow-list, whatever the mark says

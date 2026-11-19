@@ -191,6 +191,81 @@ def _inside_with_raises(fn, call) -> bool:
     return False
 
 
+TEST_PREFIX = "test"            # what pytest collects by default: any function whose name starts with it
+_DYNAMIC = {"globals", "locals", "vars", "setattr", "exec", "eval", "__import__", "compile"}
+
+
+def _is_parametrize(d) -> bool:
+    return (isinstance(d, ast.Call) and isinstance(d.func, ast.Attribute) and d.func.attr == "parametrize"
+            and isinstance(d.func.value, ast.Attribute) and d.func.value.attr == "mark"
+            and isinstance(d.func.value.value, ast.Name) and d.func.value.value.id == "pytest" and len(d.args) == 2)
+
+
+def _param_sets(fn, tree) -> int | None:
+    """How many times pytest runs `fn`: the product of its parametrize lists' lengths, each given in place or
+    by a module-level name bound once, and evaluated with no names (a literal, or sums and comprehensions of
+    literals). None when the gate cannot count them."""
+    n = 1
+    for d in fn.decorator_list:
+        if not _is_parametrize(d):
+            continue                        # refused on its own by _unrecognised
+        vals = d.args[1]
+        if isinstance(vals, ast.Name):
+            binds = [st.value for st in tree.body if isinstance(st, ast.Assign)
+                     and any(isinstance(t, ast.Name) and t.id == vals.id for t in st.targets)]
+            vals = binds[0] if len(binds) == 1 else None
+        if vals is None:
+            return None
+        try:                       # the template's own code (the host already runs it to draw the probes),
+            got = eval(compile(ast.Expression(vals), "params", "eval"), {"__builtins__": {}})   # noqa: S307
+        except Exception:          # with no names at all: a literal, sums and comprehensions of literals
+            return None
+        if not isinstance(got, (list, tuple)):
+            return None
+        n *= len(got)
+    return n
+
+
+def _unrecognised(tree, funcs) -> list[str]:
+    """The gate fails closed: anything that could make pytest run a test the map does not see, or run an
+    assertion other than through a direct call, is refused, even where no hidden file does it today."""
+    out = []
+    for st in tree.body:
+        if isinstance(st, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            for d in st.decorator_list:
+                if not (st.name.startswith(TEST_PREFIX) and _is_parametrize(d)):
+                    out.append(f"{st.name}: the decorator at line {d.lineno} is not recognised")
+            if st.name == "pytest_generate_tests":
+                out.append("pytest_generate_tests makes tests the gate cannot see")
+        elif isinstance(st, ast.ClassDef):
+            if st.decorator_list:
+                out.append(f"class {st.name}: its decorator is not recognised")
+        else:
+            bound = []
+            if isinstance(st, ast.Assign):
+                bound = [n.id for t in st.targets for n in ast.walk(t) if isinstance(n, ast.Name)]
+            elif isinstance(st, (ast.AnnAssign, ast.AugAssign)):
+                bound = [n.id for n in ast.walk(st.target) if isinstance(n, ast.Name)]
+            elif isinstance(st, (ast.Import, ast.ImportFrom)):
+                bound = [(a.asname or a.name).split(".")[0] for a in st.names]
+            elif isinstance(st, (ast.For, ast.While, ast.With, ast.If, ast.Try)):
+                bound = [n.id for n in ast.walk(st) if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Store)]
+                bound += [n.name for n in ast.walk(st) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))]
+            out += [f"{b} at line {st.lineno} is a test name bound other than by def" for b in bound
+                    if b.startswith(TEST_PREFIX) or b.startswith("Test") or b == "pytest_generate_tests"]
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in _DYNAMIC:
+            out.append(f"{node.func.id}() at line {node.lineno} can define tests the gate cannot see")
+        if isinstance(node, ast.Attribute) and node.attr in ("modules", "__dict__"):
+            out.append(f".{node.attr} at line {node.lineno} can define tests the gate cannot see")
+    called = {id(n.func) for n in ast.walk(tree) if isinstance(n, ast.Call)}
+    for node in ast.walk(tree):
+        if (isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load) and node.id in funcs
+                and id(node) not in called):
+            out.append(f"{node.id} is used as a value at line {node.lineno}, so its assertions could run unseen")
+    return out
+
+
 def coverage(original: str, probes: list[dict]) -> dict:
     """Map the original hidden test file onto the probes. Each test function (and the module itself, for a
     check it makes at import time) has its assertions: its own and those of the helper functions it calls,
@@ -203,6 +278,7 @@ def coverage(original: str, probes: list[dict]) -> dict:
     funcs = {f.name: f for f in tree.body if isinstance(f, (ast.FunctionDef, ast.AsyncFunctionDef))}
     unmapped = [f"class {c.name}: tests in classes are not mapped" for c in tree.body
                 if isinstance(c, ast.ClassDef) and c.name.startswith("Test")]
+    unmapped += _unrecognised(tree, funcs)
     top = [n for n in tree.body if not isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))]
     units: dict[str, list[str]] = {}
     mod_units = sorted({f"{k} at line {n.lineno}" for st in top for n in ast.walk(st) if (k := _is_assertion(n))})
@@ -214,13 +290,13 @@ def coverage(original: str, probes: list[dict]) -> dict:
         for node in ast.walk(fn):
             if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
                 h = funcs.get(node.func.id)
-                if h is not None and not h.name.startswith("test_") and h.name not in seen:
+                if h is not None and not h.name.startswith(TEST_PREFIX) and h.name not in seen:
                     seen.add(h.name)
                     out += [f"{h.name}: {u}" for u in _units(h)] + helper_units(h, seen)
         return out
 
     for name, fn in funcs.items():
-        if name.startswith("test_"):
+        if name.startswith(TEST_PREFIX):
             units[name] = _units(fn) + helper_units(fn, {name})
     per = {t: {"assertions": len(u), "probes": 0, "covered": set()} for t, u in units.items()}
     for i, p in enumerate(probes):
@@ -237,6 +313,11 @@ def coverage(original: str, probes: list[dict]) -> dict:
         else:
             unmapped.append(f"probe {i} ({t}) does not say which assertions it covers")
     for t, d in per.items():
+        sets = _param_sets(funcs[t], tree) if t in funcs and funcs[t].decorator_list else 1
+        if sets is None:
+            unmapped.append(f"{t}: its parameters are not a literal list the gate can count")
+        elif d["probes"] and d["probes"] < sets:
+            unmapped.append(f"{t} has {sets} parameter sets but {d['probes']} probes")
         if not units[t]:
             unmapped.append(f"{t} has no assertion")
         elif not d["probes"]:

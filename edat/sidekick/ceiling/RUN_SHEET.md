@@ -235,7 +235,8 @@ forbids an output (they held against nine spray commands): 118 of 228 cases, and
   labelled);
 - the shell cases whose output check takes any line holding a name and its number, with no forbidden
   output (`task_blind_output`): task-blind output can pass;
-- the ceiling ladder's rungs 4 to 9 (`probe_in_process`) until their conversion lands.
+- the ceiling ladder's rungs 4 to 6, graded by host-driven probes (`host_probes_unreviewed`) until that
+  method is on the allow-list, and rungs 7 to 9 (`probe_in_process`) until their conversion lands.
 
 A labelled row carries the tag `grade-not-hardened`, `grade_hardened: false` and its reason, set from how
 its case is graded before grading starts, so an error in grading cannot strip it. Scoring is default deny:
@@ -245,8 +246,9 @@ scored list and it carries no label; a row with no mark, an old or resumed recor
 again rather than reuse it) or an unknown type never does. The scorers: the runner's summary, the results
 aggregate (rows not scored go to their own `sidekick_not_hardened` view, never ranked, with no difference
 from a reference, no sampling-sensitivity delta and no snapshot difference), the export and the site data
-(no site figure or trajectory), and the ceiling report (rungs 1 to 3, the ceiling, "solid up to" and the
-restraint and tool-mode rates are worked out without them). The summary reports them apart, under
+(no site figure or trajectory), and the ceiling report. There, rungs 1 to 3 and the restraint and tool-mode
+rates are worked out without labelled rows. The ceiling and "solid up to" span all nine rungs, so they
+include rungs 4 to 9, every row of which is labelled; the hardened ceiling uses rungs 1 to 3 alone. The summary reports them apart, under
 `not_hardened`, with their reasons. Each label comes off only after its own fix has had its own
 adversarial pass. A sandboxed test program cannot read other
 processes or devices (see "What model code can reach").
@@ -323,8 +325,11 @@ pass by accident. Their rows carry the tag `grade-not-hardened`, the report mark
 of any published or ranked score until they are rebuilt. A tripwire flags answers on those rungs whose
 code touches the test machinery or the process (`tripwire` in the row's metrics, listed in the report)
 for a person to read; it never changes a grade, and an answer it does not flag is not thereby honest.
-The labelled sidekick tasks on rungs 1 to 3 (above) carry the same label: rungs 1 to 3, the ceiling and
-"solid up to" are worked out without them.
+The labelled sidekick tasks on rungs 1 to 3 (above) carry the same label. Rungs 1 to 3, and the hardened
+ceiling, are worked out without them. The ceiling and "solid up to" span all nine rungs, so they
+include the labelled rungs 4 to 9, which is why neither is ever published or ranked. Rungs 4 to 6 are
+graded by host-driven probes (`grading: host_probes`) and carry `host_probes_unreviewed` until the
+coordinator puts that method on the allow-list; rungs 7 to 9 carry `probe_in_process`.
 
 **Hardening the git tasks** is a later change, designed first: the host would rebuild what it grades
 from the candidate's objects into a fresh host-owned repository through a narrow, validated import,
@@ -333,8 +338,13 @@ reading neither the model's repository nor a hand-written parse of it as the sou
 Rungs 4 to 6 are now graded by host-driven probes (`edat/sidekick/ceiling/probes.py`): the model's files
 answer calls, op sequences and script runs in a sandboxed driver that never compares, the template's own
 solution answers the same probes in a fresh area of its own, and the harness decides (`grading:
-host_probes` in the row). They keep the label above until that change has merged and had its own
-adversarial review. Their `partial` is now the share of probes matched, not of pytest tests, so it is
+host_probes` in the row). Values cross to and from the driver in `[tag, payload]` envelopes, so an
+input tuple stays a tuple and no value the model returns can pass for a tag. A built-in exception is
+named only when it is the built-in itself, and a script's output is compared with one trailing newline
+removed, as the old tests did. The completeness gate fails closed: a test the map cannot see (any name
+pytest would collect, a test bound other than by `def`, an unrecognised decorator, a helper used as a
+value, dynamic definitions, fewer probes than parameter sets) refuses the conversion. They keep the label
+above until the coordinator puts `host_probes` on the allow-list. Their `partial` is now the share of probes matched, not of pytest tests, so it is
 not comparable with earlier runs.
 
 `--weights` prints each model's `weights_sha256` for the records (cached in `$OUT/weights.json`;

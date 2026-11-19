@@ -198,16 +198,18 @@ kill. Then:
   descriptors it already holds, and nothing it writes through them matters: each grader reads what it
   grades once, after the seal, from a copy or through handles, so a late write can only produce a state
   the model could have written itself before the seal.
+- **A fast forker:** a process that forks faster than `lsof` lists can keep a descriptor alive through the
+  whole search, so the search may end "settled" while a descendant still writes to a file after the seal.
+  No pass comes out of it once any listing has found one of its processes, which already makes the trial
+  unsafe (and a process no listing finds is the case above). The full fix is a separate
+  user account per trial, so every process it starts can be found and killed by account; that needs
+  administrator rights and is left for later.
 
 **What model code can reach on this Mac.** Its own trial folder (read and write), the pinned toolchains
 and the system's own folders (read), `/dev/null`, `zero`, `random`, `urandom` and its own descriptors;
 never a terminal or pty, `/usr/local`, the network (loopback and local sockets included), another
-process's files or the process table. One gap is the system's, not the profile's: Seatbelt does not
-mediate the system call that reads another process's arguments and environment (`KERN_PROCARGS2`), so
-model code can read those for any process of this user, and only a blanket ban on system queries, which
-breaks every interpreter, would stop it. Model code itself gets a fixed environment, and with no network
-what it reads can leave only through its answer and output, which go into the run's records. Don't run the benchmark
-from a shell whose environment holds secrets, and keep secrets out of command lines while it runs.
+process's files, or anything about a process outside its own sandbox: not its arguments or environment,
+its path, its details or the process list. Model code itself gets a fixed environment.
 
 **What the graders trust.** Nothing the model's code can write. The python3, node and git the graders run
 live in a read-only folder the harness makes outside every trial folder. Code answers run in a driver
@@ -224,7 +226,20 @@ In that copy git serves objects and nothing else, and the snapshot checks that e
 id; one that does not counts as missing. Refs, HEAD, the stash log and the index are parsed from their
 files; commits and trees from the checked objects; untracked files are every file not in the index;
 changes come from hashing each file and comparing it with the index, and the index with HEAD's tree.
-What was checked against git's documentation (gitrepository-layout, git-config, githooks, gitattributes,
+Every parse is strict: anything git could read differently (a loose ref with trailing text or upper-case
+hex, a symbolic ref without its space, a second `tree` header or a misplaced `parent`, a tree naming a file
+twice or out of git's order, packed-refs out of order, a stash log without `refs/stash`, a config
+`include`, an index out of order or with an extension git would require) makes the repository
+unreadable, never a fallback, and `git fsck --strict` on the copy is a backstop.
+
+**Two readers must agree.** A hand-written reader may always differ from git somewhere not yet found, so
+git itself (the host-owned binary, on the same copy, with its config replaced and its environment
+isolated) reads every fact the grader uses: HEAD and its branch, every ref, the stash list, the reachable
+commits and each one's tree, parents and subject, the files of each tree graded, the index, untracked
+files, staged and unstaged changes, the config (against a second, strict config reader) and origin's
+refs. If the two readers differ on any fact, or the raw reader refuses the repository, the trial fails
+as unsafe with a `git_view_mismatch` event and is counted as lost work. A forgery has to fool both
+readers the same way. What was checked against git's documentation (gitrepository-layout, git-config, githooks, gitattributes,
 gitignore, git-replace, git-sparse-checkout, git-update-index, gitformat-index, git environment
 variables), and what each item does here:
 
@@ -245,6 +260,13 @@ variables), and what each item does here:
 | `gitdir`, `commondir`, `worktrees`, `modules`, a `.git` file | point at another repository | left out; a `.git` that is a file is not copied |
 | `reftable` ref storage | keep refs where the raw reader does not look | left out; a repository that uses it has no refs here and fails |
 | links inside `.git` | make git read outside the copy | never copied, and reported |
+| loose ref format (trailing text, upper-case hex, `ref:` without a space) | git and a lax reader see different refs | exactly git's format or unreadable; never a fallback to packed-refs |
+| commit headers (a second `tree`, `parent` out of place, repeated or unknown headers) | git and a lax reader see different trees or parents | first tree, parents straight after it, author, committer; anything else unreadable |
+| tree entries (a name twice, out of order, `.`, `..`, `.git`, a slash, an odd mode) | git and a lax reader see different files | unreadable |
+| packed-refs (out of order, a false "sorted" header, a name twice) | git misses a ref by bisection | unreadable |
+| stash log without `refs/stash` | a stash git no longer lists | counted only while `refs/stash` exists and ends the log |
+| config `include`, `includeIf` | git loads settings the reader skips | unreadable |
+| anything not yet found | a reader and git disagree | git reads every fact too; a difference is unsafe |
 | submodules (gitlinks) | pull in another repository | never looked into |
 
 File metadata (sizes, dates, names by exact path) is readable anywhere on the Mac by design: path lookup

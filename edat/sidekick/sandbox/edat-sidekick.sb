@@ -18,12 +18,14 @@
 ;; Processes: fork, signal own children, read basic system facts.
 (allow process-fork)
 (allow signal (target same-sandbox))
+;; No information about any process outside this sandbox: not its arguments or environment
+;; (KERN_PROCARGS2), its kinfo_proc, its path or its descriptors (proc_pidinfo, proc_pidpath), nor the
+;; list of processes. The explicit deny is needed: the default alone leaves those reads open.
+(deny process-info*)
 (allow process-info* (target same-sandbox))
 
 ;; System facts (CPU count, OS version, page size, limits) that interpreters and libc read at start.
-;; The process table is denied by name. Seatbelt does not mediate one read by name: another
-;; process's arguments and environment (KERN_PROCARGS2), which stays readable for the user's own
-;; processes; the harness gives model code a fixed environment, and RUN_SHEET.md records the limit.
+;; The process table is denied by name too; reads about other processes are denied above.
 (allow sysctl-read)
 (deny sysctl-read
   (sysctl-name-prefix "kern.proc")

@@ -151,53 +151,124 @@ def test_sampler_rate_switch_marks_next_reading():
         PowerSampler(lambda: 1.0, w, now_ns=lambda: 0, rate_hz=-1)
 
 
-def _wait_for(pred, timeout=5.0):
-    end = time.monotonic() + timeout
-    while time.monotonic() < end:
-        if pred():
-            return True
-        time.sleep(0.005)
-    return False
+def test_sampler_switch_during_a_read_marks_the_next_reading():
+    """A reading whose read began before set_rate is not the first at the new rate."""
+    w = ListWriter()
+    box = {}
+
+    def read():
+        if len(w.rows) == 1:
+            box["s"].set_rate(1.0)            # the switch lands while this read is in progress
+        return 1.0
+
+    s = box["s"] = PowerSampler(read, w, now_ns=iter(range(10, 1000, 10)).__next__, rate_hz=20.0)
+    for _ in range(3):
+        s.sample_once()
+    assert [r[2] for r in w.rows] == [{}, {}, {"rate_hz": 1.0}]
+
+
+def test_sampler_rate_mark_survives_failed_read_and_write():
+    class FlakyWriter(ListWriter):
+        fail = 1
+
+        def append(self, t_ns, watts, **extra):
+            if extra and self.fail:
+                self.fail -= 1
+                raise OSError("disk full")
+            super().append(t_ns, watts, **extra)
+
+    reads = iter([1.0, RuntimeError("smc busy"), 2.0, 3.0, 4.0])
+
+    def read():
+        v = next(reads)
+        if isinstance(v, Exception):
+            raise v
+        return v
+
+    w = FlakyWriter()
+    s = PowerSampler(read, w, now_ns=iter(range(10, 1000, 10)).__next__, rate_hz=20.0)
+    s.sample_once()
+    s.set_rate(1.0)
+    assert [s.sample_once() for _ in range(4)] == [False, False, True, True]   # read error, write error
+    assert [(r[1], r[2]) for r in w.rows] == [(1.0, {}), (3.0, {"rate_hz": 1.0}), (4.0, {})]
+    assert s.n_read_errors == 1 and s.n_write_errors == 1
+
+
+class WatchedWriter:
+    """Wraps a writer; lets a test block, with a bound, until the sampler thread has written enough."""
+
+    def __init__(self, inner=None):
+        self.inner, self.rows = inner, []
+        self.cond = threading.Condition()
+
+    def append(self, t_ns, watts, **extra):
+        if self.inner is not None:
+            self.inner.append(t_ns, watts, **extra)
+        with self.cond:
+            self.rows.append((t_ns, watts, extra))
+            self.cond.notify_all()
+
+    def flush(self):
+        if self.inner is not None:
+            self.inner.flush()
+
+    def wait_until(self, pred, timeout=10.0):
+        with self.cond:
+            return self.cond.wait_for(lambda: pred(self.rows), timeout)
 
 
 def test_sampler_thread_runs_switches_rate_and_survives_errors(tmp_path):
     calls = [0]
+    errored = threading.Event()
 
     def read():
         calls[0] += 1
         if calls[0] == 2:
+            errored.set()
             raise OSError("transient")
         return 3.0
 
     p = tmp_path / "s.jsonl"
-    w = TraceWriter(p, source="smc_pstr")
+    tw = TraceWriter(p, source="smc_pstr")
+    w = WatchedWriter(tw)
     s = PowerSampler(read, w, now_ns=time.monotonic_ns, rate_hz=200.0)
     s.start()
     with pytest.raises(RuntimeError):
         s.start()
-    assert _wait_for(lambda: s.n_samples >= 3)
+    assert w.wait_until(lambda rows: len(rows) >= 3)
+    assert errored.is_set()
     s.set_rate(100.0)
-    assert _wait_for(lambda: s.rate_hz == 100.0 and s.n_samples >= 6)
+    # Wait for the mark itself and two readings after it, not for a count the thread may
+    # already have passed before the switch.
+    assert w.wait_until(lambda rows: any(r[2] for r in rows)
+                        and len(rows) - next(i for i, r in enumerate(rows) if r[2]) >= 3)
+    thread = s._thread
     s.stop()
-    w.close()
+    assert not thread.is_alive()                               # really stopped: joined, not slept on
+    tw.close()
     n = s.n_samples
-    time.sleep(0.05)
-    assert s.n_samples == n                                   # really stopped
-    assert s.n_read_errors == 1
+    assert n == len(w.rows)
+    assert s.n_read_errors == 1 and s.rate_hz == 100.0
+    assert [r[2] for r in w.rows if r[2]] == [{"rate_hz": 100.0}]
     tr = read_trace(p)
     assert len(tr) == n and tr.t_ns == sorted(tr.t_ns)
     assert tr.rate_changes and tr.rate_changes[0][1] == 100.0
 
 
 def test_sampler_thread_never_crashes_on_constant_errors():
+    errors = threading.Semaphore(0)
+
     def read():
+        errors.release()
         raise OSError("always")
 
     s = PowerSampler(read, ListWriter(), now_ns=time.monotonic_ns, rate_hz=500.0)
     s.start()
-    assert _wait_for(lambda: s.n_read_errors >= 3)
+    assert all(errors.acquire(timeout=10.0) for _ in range(3))
+    thread = s._thread
     s.stop()
-    assert s.n_samples == 0
+    assert not thread.is_alive()
+    assert s.n_samples == 0 and s.n_read_errors >= 3
 
 
 # ---------------------------------------------------------------------------- SMC (no hardware)

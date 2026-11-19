@@ -1,18 +1,19 @@
-"""Live-run safety (engine_prep, the runner, session.py): the engine and the lock are put back on
-every exit path, a saved engine state from another run is never restored, and an all-faults
-trial ends as a failure. No engine, server or port is used: every outside effect is a fake."""
+"""Live-run safety in the in-assistant runner: its servers stop on a signal, one engine port, no
+results or scratch inside the repository, an all-faults trial ends as a failure, and a live run
+holds the shared run guard (edat/runtime/run_guard.py, tested in test_edat_runtime_run_guard.py).
+No engine, server or port is used."""
 from __future__ import annotations
 
+import argparse
+import contextlib
 import importlib.util
 import json
-import os
 import signal
 from pathlib import Path
 
 import pytest
 
 from scripts.productbench import engine_prep as ep
-from scripts.productbench import session
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -24,101 +25,28 @@ def _runner():
     return mod
 
 
-class FakeEngine:
-    """/v1/models/status, load and unload, like oMLX."""
-
-    def __init__(self, loaded):
-        self.loaded = list(loaded)
-        self.calls = []
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *a):
-        return False
-
-    def get(self, path):
-        rows = [{"id": m, "loaded": True} for m in self.loaded]
-        return type("R", (), {"json": lambda s: {"models": rows}})()
-
-    def post(self, path):
-        mid, verb = path.split("/v1/models/")[1].rsplit("/", 1)
-        self.calls.append((verb, mid))
-        if verb == "unload" and mid in self.loaded:
-            self.loaded.remove(mid)
-        if verb == "load" and mid not in self.loaded:
-            self.loaded.append(mid)
-        return type("R", (), {"raise_for_status": lambda s: None})()
-
-
-@pytest.fixture
-def engine(monkeypatch, tmp_path):
-    eng = FakeEngine(["Other-chat-model", "bge-m3-embed"])
-    ports = []
-    monkeypatch.setattr(ep, "_client", lambda port=None: ports.append(port) or eng)
-    settings = tmp_path / "model_settings.json"
-    settings.write_text(json.dumps({"models": {"Other-chat-model": {"is_pinned": True, "is_default": True}}}))
-    monkeypatch.setattr(ep, "SETTINGS", settings)
-    eng.ports, eng.settings = ports, settings
-    return eng
-
-
-# ------------------------------------------------------------------ engine_prep
-def test_keep_saves_flags_and_token_and_restore_puts_them_back(engine, tmp_path):
-    save = tmp_path / "before.json"
-    assert ep.main(["keep", "Model-under-test", "--save", str(save), "--token", "t1", "--engine-port", "8123"]) == 0
-    data = json.loads(save.read_text())
-    assert data["loaded"] == ["Other-chat-model", "bge-m3-embed"] and data["token"] == "t1"
-    assert data["flags"] == {"Other-chat-model": {"is_pinned": True, "is_default": True}}
-    assert data["engine_port"] == 8123 and set(engine.ports) == {8123}       # one engine for every call
-    assert engine.loaded == ["bge-m3-embed"]                                   # helper models stay
-    # a second keep in the same session (the next model) reuses the file
-    assert ep.main(["keep", "Second-model", "--save", str(save), "--token", "t1", "--engine-port", "8123"]) == 0
-    assert ep.main(["restore", str(save), "--token", "t1", "--engine-port", "8123"]) == 0
-    assert "Other-chat-model" in engine.loaded
-
-
-def test_a_save_from_another_run_is_never_reused_or_restored(engine, tmp_path):
-    save = tmp_path / "resident-before.json"
-    save.write_text(json.dumps({"loaded": ["Yesterdays-model"], "token": "old"}))
-    with pytest.raises(ep.StaleSave):
-        ep.main(["keep", "Model-under-test", "--save", str(save), "--token", "new"])
-    with pytest.raises(ep.StaleSave):
-        ep.main(["restore", str(save), "--token", "new"])
-    legacy = tmp_path / "legacy.json"
-    legacy.write_text(json.dumps({"loaded": ["Yesterdays-model"]}))           # no token at all
-    with pytest.raises(ep.StaleSave):
-        ep.main(["restore", str(legacy), "--token", "new"])
-    assert engine.calls == []                                                 # the engine was never touched
-    # a file saved from another engine's port is refused too
-    other = tmp_path / "other-port.json"
-    other.write_text(json.dumps({"loaded": [], "token": "new", "engine_port": 9000}))
-    with pytest.raises(ep.StaleSave):
-        ep.main(["restore", str(other), "--token", "new", "--engine-port", "8000"])
-
-
-def test_restore_reports_changed_pin_flags_and_never_writes_them(engine, tmp_path):
-    save = tmp_path / "before.json"
-    assert ep.main(["keep", "Model-under-test", "--save", str(save), "--token", "t"]) == 0
-    before = engine.settings.read_text()
-    engine.settings.write_text(json.dumps({"models": {"Other-chat-model": {"is_pinned": False}}}))
-    assert ep.main(["restore", str(save), "--token", "t"]) == 3
-    assert ep.flag_changes({"a": {"is_pinned": True}}, {}) == ["a"]
-    assert ep.flag_changes({"a": {"is_pinned": True}}, {"a": {"is_pinned": True, "is_default": False}}) == []
-    assert before != engine.settings.read_text()                             # only the test changed it
-
-
-def test_without_a_token_keep_still_shares_one_file_across_models(engine, tmp_path):
-    save = tmp_path / "resident-before.json"
-    assert ep.main(["keep", "A", "--save", str(save)]) == 0
-    first = save.read_text()
-    assert ep.main(["keep", "B", "--save", str(save)]) == 0                    # the sidekick tier's use
-    assert save.read_text() == first
-
-
-def test_the_engine_client_is_loopback_whatever_the_port():
+def test_engine_prep_client_is_the_guards_loopback_client():
     with ep._client(8123) as c:
-        assert str(c.base_url) == "http://127.0.0.1:8123"
+        assert str(c.base_url) == "http://127.0.0.1:8123" and c.trust_env is False
+
+
+def test_a_live_run_holds_the_run_guard_and_a_stub_or_cloud_run_does_not(tmp_path):
+    rpb = _runner()
+    local = type("E", (), {"cloud": False})()
+    cloud = type("E", (), {"cloud": True})()
+    args = argparse.Namespace(out=str(tmp_path), lock=str(tmp_path / "heavy.lock"), engine_port=8123,
+                              start_engine=False)
+    assert isinstance(rpb.guard_for(args, [local], True, "r.json"), contextlib.nullcontext)
+    assert isinstance(rpb.guard_for(args, [cloud], False, "r.json"), contextlib.nullcontext)
+    g = rpb.guard_for(args, [local, cloud], False, "r.json")
+    assert isinstance(g, rpb.run_guard.RunGuard) and g.engine.base_url == "http://127.0.0.1:8123"
+    assert g.lock == Path(args.lock) and g.engine_service is None and g.report_path.name == "r.json"
+    args.start_engine = True
+    g = rpb.guard_for(args, [local], False, "r.json")
+    assert isinstance(g.engine_service, rpb.run_guard.OmlxService) and g.engine_service.port == 8123
+    with pytest.raises(rpb.run_guard.GuardError, match="inside the repository"):
+        rpb.guard_for(argparse.Namespace(out=str(ROOT / "results"), lock=args.lock, engine_port=8123,
+                                         start_engine=False), [local], False, "r.json")
 
 
 # ------------------------------------------------------------------ the runner
@@ -178,117 +106,3 @@ def test_act_engine_faults_are_excluded_and_counted():
     assert rows[0]["act_engine_faults"] == 1
     rep = findings.collect([good, bad], {})
     assert rep.faults[("M", "p")]["act_engine_fault"] == {"trial 2"}
-
-
-# ------------------------------------------------------------------ session.py
-@pytest.fixture
-def host(monkeypatch, tmp_path):
-    """A Mac with Harbor closed, free ports, and an engine that is stopped until started."""
-    state = {"engine": False, "harbor": False, "cli": [], "keeps": [], "restores": []}
-    monkeypatch.setattr(session, "harbor_running", lambda: state["harbor"])
-    monkeypatch.setattr(session, "port_busy", lambda p: False)
-    monkeypatch.setattr(session, "engine_prep_listening", lambda p: state["engine"])
-
-    def cli(path, verb):
-        state["cli"].append(verb)
-        state["engine"] = verb == "restart"
-        return 0
-    monkeypatch.setattr(session, "engine_cli", cli)
-
-    def prep(argv):
-        (state["keeps"] if argv[0] == "keep" else state["restores"]).append(argv)
-        if argv[0] == "keep":
-            Path(argv[argv.index("--save") + 1]).write_text("{}")
-        return 0
-    monkeypatch.setattr(session.engine_prep, "main", prep)
-    monkeypatch.setenv("TMPDIR", str(tmp_path / "tmp"))
-    state["plan"] = {"out": str(tmp_path / "out"), "lock": str(tmp_path / "heavy.lock"), "engine_port": 8000,
-                     "start_engine": True, "omlx_cli": "omlx-cli",
-                     "steps": [{"engine_model": "A", "runner": ["--model", "A", "--profile", "p"]},
-                               {"engine_model": "B", "runner": ["--model", "B", "--profile", "p"]}]}
-    return state
-
-
-class FakeChild:
-    made = 0
-
-    def __init__(self, out: Path, *, stopped=None, rc=0, raise_on_wait=None):
-        FakeChild.made += 1
-        run = out / f"edat-iae-20260101-{FakeChild.made:06d}"
-        run.mkdir(parents=True, exist_ok=True)
-        (run / "meta.json").write_text(json.dumps({"stopped": stopped}))
-        self.rc, self.raise_on_wait, self.signals = rc, raise_on_wait, []
-
-    def wait(self, timeout=None):
-        if self.raise_on_wait:
-            exc, self.raise_on_wait = self.raise_on_wait, None
-            raise exc
-        return self.rc
-
-    def poll(self):
-        return None if self.signals == [] else self.rc
-
-    def send_signal(self, sig):
-        self.signals.append(sig)
-
-    def kill(self):
-        self.signals.append("kill")
-
-
-def test_session_runs_every_step_then_restores_and_releases(host, monkeypatch, tmp_path):
-    children = []
-
-    def popen(cmd, cwd):
-        assert cmd[cmd.index("--engine-port") + 1] == "8000" and "--out" in cmd
-        children.append(FakeChild(Path(cmd[cmd.index("--out") + 1])))
-        return children[-1]
-    monkeypatch.setattr(session.subprocess, "Popen", popen)
-    log = session.run(host["plan"], wait_s=0)
-    assert log["result"] == "done" and [s["result"] for s in log["steps"]] == ["done", "done"]
-    token = log["token"]
-    assert all(k[k.index("--token") + 1] == token for k in host["keeps"])
-    assert host["restores"] and host["restores"][0][1].endswith(f"engine-before-{token}.json")
-    assert host["cli"] == ["restart", "stop"]                     # found stopped, so stopped again
-    assert not Path(host["plan"]["lock"]).exists() and log["lock_released"] is True
-
-
-def test_a_signal_mid_step_still_restores_the_engine_and_the_lock(host, monkeypatch):
-    child = {}
-
-    def popen(cmd, cwd):
-        child["c"] = FakeChild(Path(cmd[cmd.index("--out") + 1]),
-                               raise_on_wait=session.Terminated(signal.SIGTERM))
-        return child["c"]
-    monkeypatch.setattr(session.subprocess, "Popen", popen)
-    log = session.run(host["plan"], wait_s=0)
-    assert "SIGTERM" in log["result"] and child["c"].signals[0] == signal.SIGTERM
-    assert log["restore"] == "restored" and host["cli"][-1] == "stop"
-    assert not Path(host["plan"]["lock"]).exists()
-
-
-def test_a_stopped_step_ends_the_session_as_a_failure(host, monkeypatch):
-    monkeypatch.setattr(session.subprocess, "Popen",
-                        lambda cmd, cwd: FakeChild(Path(cmd[cmd.index("--out") + 1]), stopped="engine faults"))
-    log = session.run(host["plan"], wait_s=0)
-    assert log["result"].startswith("failed") and len(log["steps"]) == 1
-    assert log["restore"] == "restored" and not Path(host["plan"]["lock"]).exists()
-
-
-def test_session_refuses_before_touching_anything(host, monkeypatch, tmp_path):
-    lock = Path(host["plan"]["lock"])
-    lock.mkdir()
-    log = session.run(host["plan"], wait_s=0)
-    assert "exists" in log["result"] and lock.exists() and log["lock_released"] == "not taken"
-    assert host["keeps"] == [] and host["cli"] == []
-    lock.rmdir()
-    host["harbor"] = True
-    with pytest.raises(session.SessionError, match="Harbor is running"):
-        session.run(host["plan"], wait_s=0)
-    host["harbor"] = False
-    bad = {**host["plan"], "out": str(ROOT / "results")}
-    with pytest.raises(session.SessionError, match="inside the repository"):
-        session.run(bad, wait_s=0)
-    bad = {**host["plan"], "steps": [{"engine_model": "A", "runner": ["--engine-port", "9"]}]}
-    with pytest.raises(session.SessionError, match="the session sets it"):
-        session.run(bad, wait_s=0)
-    assert host["keeps"] == [] and not lock.exists()

@@ -324,26 +324,27 @@ Each of these only reads. If any fails, the run does not start.
 | --- | --- | --- |
 | Harbor app | quit, because it shares oMLX and could load a second model mid-run. Quitting Harbor also shuts oMLX down (its menu-bar app keeps running, but nothing listens on 8000) | relaunch by its application path (`open -n /Applications/Harbor.app`), then check `ps -axo pid,lstart,command \| grep MacOS/Harbor` shows one fresh process |
 | oMLX server | started again with `omlx-cli restart` (`start` does not bring it back), checked with `lsof -nP -iTCP:8000 -sTCP:LISTEN` | left running for Harbor |
-| resident model | `engine_prep keep <id> --save <results>/resident-before.json` writes what was loaded (only the first time), then unloads every other chat model so only the model under test can be resident. The engine loads the model under test on the first request. Helper models are left alone | `engine_prep restore <results>/resident-before.json` unloads what the run left and reloads exactly what was resident before |
+| resident model | the run guard (15.2a) saves what was loaded, pinned and default, then makes the model under test the only chat model loaded. Helper models are left alone | the guard, on every exit: it reloads exactly what was resident before and compares the pinned set and the default model |
 | settings | none. oMLX's per-model settings are read, not changed. The act-for-me yes is written only in the run's throwaway Harbor home | nothing to restore |
 | keep awake | `caffeinate -i -w <run pid>` | ends with the run |
 
-### 15.2a The guarded session (`scripts/productbench/session.py`)
+### 15.2a A live run holds the shared run guard
 
-`python -m scripts.productbench.session --plan plan.json` runs the steps of a live run (one engine model and one runner command each) and puts the Mac back on every exit path, a signal included. A run needs no hand-written driver:
+A run that uses this Mac's engine (not a stub or cloud-only run) holds the shared run guard (`edat/runtime/run_guard.py`) for its whole length; no hand-written driver is needed and none should take the lock around it:
 
-- it starts nothing while Harbor runs or port 8765, 8791, 8775 or 8766 is taken, and refuses an `out` or `$TMPDIR` inside the repository;
-- it takes the lock with mkdir (stops if it exists) and removes it only because it took it;
-- SIGTERM, SIGINT and SIGHUP (unless ignored, as under nohup) unwind to the same clean-up: the running step gets SIGTERM, whose handler stops its servers and writes `stopped` into its run folder; the resident models are put back; oMLX is stopped again if the session found it stopped; the lock is removed. Signals are ignored while that runs;
-- the engine's state is saved once per session, in `engine-before-<token>.json`; `engine_prep keep` and `restore` with `--token` refuse any file without that token, so a state an earlier run left (in the same folder or not) is never restored. The save also records each model's pinned and default flags; `restore` exits 3 if they differ afterwards and never writes them;
-- one engine port: `engine_prep --engine-port` and the runner's `--engine-port` share one default (`$TINYAGENT_ENGINE_PORT`, else 8000), and the session passes its port to both;
-- a step that stops (its meta says `stopped`, or the runner exits non-zero) ends the session as a failure. The runner itself stops when every record of a trial is an engine fault, at any record count; an act-for-me record whose Brief made no engine call, showed no card, or ran while the engine did not hold the model is such a fault, excluded from act for me and counted (`act_engine_faults`), never read as missing every item.
+- before anything starts it refuses an `--out` or `$TMPDIR` inside the repository, and a Harbor that is running (failing closed);
+- it takes the heavy-job lock (`--lock`, default `run_guard.LOCK`) with mkdir and removes it on every exit;
+- it saves the engine's state fresh (loaded, pinned, helper and default models, with a token) to `<lock>.engine-save.json` and puts it back on every exit, Ctrl-C, SIGTERM, SIGHUP and SIGQUIT included; a save left by an earlier run refuses the start and prints `python -m edat.runtime.run_guard restore`;
+- before each entry it makes that model the only chat model loaded, checking Harbor first; it checks Harbor and free memory every 10 trial homes;
+- with `--start-engine`, a stopped oMLX server is started for the run (`omlx-cli restart`; the menu-bar app is never quit and no setting is changed) and stopped again after the models are restored; the save file notes that it was found stopped, and after a failed restore it is left running for the restore by hand;
+- one engine port (`--engine-port`, the same default as `engine_prep`'s: `$TINYAGENT_ENGINE_PORT`, else 8000) and one loopback URL for every engine call, proxies ignored;
+- a trial home whose every record is an engine fault stops the run as a failure at any record count, so a small run (act for me, 3 records) cannot end as done; an act-for-me record whose Brief made no engine call, showed no card, or ran without the model resident is such a fault, excluded from act for me and counted (`act_engine_faults`).
 
-What happened is written to `<out>/session-<token>.json`; the exit code is 0 only when every step finished and the engine was restored.
+The guard's report is `<out>/<run>-guard.json`; the runner's exit code is the guard's (0 finished, 3 stopped and resumable, 1 failed). A stub or cloud run holds no guard; SIGTERM, and SIGHUP unless ignored, still stop its servers and mark its run folder.
 
 ### 15.3 Commands, in order
 
-From the repository root, with `OUT=~/tinyagent-bench-results/in-assistant`. To keep the printed lines, add `2>&1 | tee -a $OUT/run.log` to each run command. If the host keeps heavy jobs apart with a lock directory, take it around each step (`mkdir <lock> || exit` before it; `rmdir <lock>` after it, only if this step created it). One model is resident at a time; all of one model's runs finish before the other model is loaded.
+From the repository root, with `OUT=~/tinyagent-bench-results/in-assistant`. To keep the printed lines, add `2>&1 | tee -a $OUT/run.log` to each run command. Each run command holds the run guard (15.2a): it takes the heavy-job lock and saves and restores the engine itself, so do not take the lock around it, and `engine_prep keep` and `restore` are not needed. Add `--start-engine` when oMLX's server is stopped. One model is resident at a time; give one run command one `--model`, and all of one model's runs finish before the next.
 
 ```bash
 .venv/bin/python -m scripts.productbench.engine_prep status
@@ -354,11 +355,7 @@ From the repository root, with `OUT=~/tinyagent-bench-results/in-assistant`. To 
 **1. Smoke, about 10 minutes**: the tuned baseline, the student profile, the Brief only, one trial.
 
 ```bash
-.venv/bin/python -m scripts.productbench.engine_prep keep gemma-4-E4B-it-r5-step-01800-oQ4e-mtp --save $OUT/resident-before.json
-```
-
-```bash
-.venv/bin/python scripts/run_productbench.py --model Gemma-Wisp --profile student --surface brief --trials 1 --out $OUT/smoke
+.venv/bin/python scripts/run_productbench.py --model Gemma-Wisp --profile student --surface brief --trials 1 --out $OUT/smoke --start-engine
 ```
 
 Check the printed lines and `summary.md`: one Brief line with a score and the seconds it took, and no `error`. Redo the duration estimate (15.4) from it before going on.
@@ -377,13 +374,7 @@ Check the printed lines and `summary.md`: one Brief line with a score and the se
 .venv/bin/python scripts/run_productbench.py --model Gemma-Wisp --profile mixed --trials 3 --out $OUT/gemma-wisp
 ```
 
-**3. Base Gemma**, after switching the resident model:
-
-```bash
-.venv/bin/python -m scripts.productbench.engine_prep keep gemma-4-E4B-it-oQ4e-mtp --save $OUT/resident-before.json
-```
-
-(`--save` never overwrites, so the file still holds what was resident before step 1.) Then the same three commands with `--model gemma-4-E4B-it-oQ4e-mtp --out $OUT/base-gemma`.
+**3. Base Gemma**: the same three commands with `--model gemma-4-E4B-it-oQ4e-mtp --out $OUT/base-gemma`. The guard makes it the only model loaded and restores the engine after each command.
 
 Each command uses the defaults: every surface (`ask,brief,day,pref,act`); each pinned clock time in its own trial home (the time-window questions' `at` times, for example 11:30, 15:00 and 18:30 on the profile's anchor day, and "+N HH:MM" on later days); the act-for-me pass in its own home with the yes dated before the profile's earliest item. The clock is pinned per profile at its anchor (`anchor` in the profile).
 
@@ -393,7 +384,7 @@ Each command uses the defaults: every surface (`ask,brief,day,pref,act`); each p
 .venv/bin/python -m scripts.productbench.findings $OUT/gemma-wisp/edat-iae-* $OUT/base-gemma/edat-iae-* --out $OUT/findings
 ```
 
-**5. Put things back**: `engine_prep restore $OUT/resident-before.json`, then relaunch Harbor by path and check it as in 15.2.
+**5. Put things back**: the guard has already restored the engine (and stopped a server it started) at the end of each command; relaunch Harbor by path and check it as in 15.2. If a run was killed outright (SIGKILL), the save is still there: close Harbor and run `python -m edat.runtime.run_guard restore`.
 
 ### 15.4 Duration, and its basis
 

@@ -47,6 +47,18 @@ What it guarantees:
   port before any header is built. Proxies are ignored
   (`trust_env=False`). The key goes only in that client's headers, never into
   the environment.
+* **The engine's server, when asked (`engine_service`).** A run may pass an
+  object that can tell whether oMLX's server is running and start and stop it
+  (`OmlxService`: its own command line; the menu-bar app is never quit and no
+  setting is changed). At start, after the Harbor check, the lock and the
+  output folder, the guard records whether the server was running and, if it
+  was not, starts it and waits until the engine answers (failing closed on a
+  timeout). The save file records `engine_service.found_running`, so even a
+  killed run leaves that note. At exit the models are restored first; only if
+  that succeeded, and Harbor is not running, is a server the guard started
+  stopped again. After a failed restore it is left running for the person
+  restoring by hand, and the report and `restore_hint()` say so. Without
+  `engine_service` (the default) the server is never touched.
 * **Stops.** The STOP file, the time limit, free memory under 15% (or free
   memory that cannot be read twice running), and more than 2% engine faults or
   raised trials after 50 trials all stop the run. A run in which every model
@@ -93,6 +105,8 @@ HARBOR_PROCESS_PATTERNS = (
     r"(uvicorn|-m) service(\.| |$)",
 )
 HARBOR_PORTS = (8765, 8791)
+OMLX_CLI = "/Applications/oMLX.app/Contents/MacOS/omlx-cli"
+SERVICE_WAIT_S = 120.0
 EXIT = {"finished": 0, "failed": 1, "stopped": 3}
 
 
@@ -267,6 +281,31 @@ def memory_free_pct(run=_run) -> int | None:
     return int(m.group(1)) if m else None
 
 
+class OmlxService:
+    """oMLX's server, started and stopped with its own command line. The menu-bar app is never quit and
+    no oMLX setting is changed. `restart` is what brings a stopped server back (`start` does not)."""
+
+    def __init__(self, cli: str = OMLX_CLI, port: int = 8000, run=None) -> None:
+        self.cli, self.port = cli, int(port)
+        self._run = run or (lambda argv: subprocess.run(argv, capture_output=True, text=True, timeout=120))
+
+    def running(self) -> bool:
+        import socket
+        with socket.socket() as sock:
+            sock.settimeout(1.0)
+            return sock.connect_ex(("127.0.0.1", self.port)) == 0
+
+    def start(self) -> None:
+        p = self._run([self.cli, "restart"])
+        if p.returncode != 0:
+            raise GuardError(f"{self.cli} restart exited {p.returncode}")
+
+    def stop(self) -> None:
+        p = self._run([self.cli, "stop"])
+        if p.returncode != 0:
+            raise GuardError(f"{self.cli} stop exited {p.returncode}")
+
+
 def inside_repo(path: Path, repo: Path = REPO) -> bool:
     p = Path(path).expanduser().resolve()
     return p == repo or repo in p.parents
@@ -279,7 +318,8 @@ class RunGuard:
                  save_path: str | Path | None = None, report_name: str = "run-report.json",
                  harbor=harbor_running, free_pct=memory_free_pct, repo: Path = REPO,
                  memory_floor_pct: int = MEMORY_FLOOR_PCT, host_check_every: int = HOST_CHECK_EVERY,
-                 install_signals: bool = True) -> None:
+                 install_signals: bool = True, engine_service=None, service_wait_s: float = SERVICE_WAIT_S,
+                 sleep=time.sleep) -> None:
         self.out = Path(out).expanduser().resolve()
         if inside_repo(self.out, repo):                 # before anything is written
             raise GuardError(f"the output folder is inside the repository: {self.out}")
@@ -293,6 +333,8 @@ class RunGuard:
         self._harbor, self._free = harbor, free_pct
         self.memory_floor_pct, self.host_check_every = memory_floor_pct, host_check_every
         self.install_signals = install_signals
+        self.engine_service, self.service_wait_s, self._sleep = engine_service, service_wait_s, sleep
+        self._service_started = False
         self.report: dict = {}
         self.statuses: list[str] = []
         self.trials = 0
@@ -319,10 +361,14 @@ class RunGuard:
             self._lock_made = True
             self.out.mkdir(parents=True, exist_ok=True)  # before the save: a failure here leaves no save behind
             self._install()
+            if self.engine_service is not None:
+                self._bring_up_service()
             if self.engine is not None:
                 self._save_fresh()
         except BaseException:
             self._exiting = True
+            if self._service_started:                   # no model was touched: put the server back as found
+                self._stop_service("start refused")
             self._cleanup(write_report=False)
             raise
         return self
@@ -338,6 +384,13 @@ class RunGuard:
                 restore_error = e
                 self.report["engine"] = f"restore FAILED: {type(e).__name__}: {e}"[:500]
                 self.report["restore_with"] = self.restore_hint()
+            if self._service_started:
+                if restore_error is None:
+                    self._stop_service("run ended")
+                else:
+                    self.report.setdefault("engine_service", {})["left_running"] = (
+                        "the restore failed, so the server the run started is left running for the restore "
+                        "by hand; stop it afterwards")
             self.outcome = self._outcome(exc, restore_error)
             errors = self.statuses.count("error")
             self.report.update(outcome=self.outcome, exit_code=EXIT[self.outcome], stopped=self.stop_reason,
@@ -397,8 +450,12 @@ class RunGuard:
         self.stop_reason, self.stop_resumable = reason, resumable
 
     def restore_hint(self) -> str:
-        return (f"close Harbor, then: python -m edat.runtime.run_guard restore --save {self.save_path}"
+        hint = (f"close Harbor, then: python -m edat.runtime.run_guard restore --save {self.save_path}"
                 + (f" --url {self.engine.base_url}" if self.engine else "") + f" --lock {self.lock}")
+        if self._service_started:
+            hint += (" (the engine's server was found stopped: the restore stops it again once the models "
+                     "are back)")
+        return hint
 
     # -------------------------------------------------- internals
     def _stop_reason(self) -> tuple[str | None, bool]:
@@ -438,6 +495,40 @@ class RunGuard:
         if h:
             raise GuardError(f"Harbor appears to be running ({h}); not {before}. Close it first.")
 
+    def _bring_up_service(self) -> None:
+        """Record whether the engine's server runs; start it if not, and wait until the engine answers."""
+        found = bool(self.engine_service.running())
+        self.report["engine_service"] = {"found_running": found}
+        if found:
+            return
+        self._service_started = True                    # set first: a start cut short is still stopped again
+        self.engine_service.start()
+        deadline = time.monotonic() + self.service_wait_s
+        while True:
+            try:
+                if self.engine_service.running() and (self.engine is None or self.engine.status() is not None):
+                    break
+            except Exception:  # noqa: BLE001  (not answering yet)
+                pass
+            if time.monotonic() > deadline:
+                raise GuardError(f"the engine's server did not answer within {self.service_wait_s:g} s "
+                                 "of being started")
+            self._sleep(1.0)
+        self.report["engine_service"]["started"] = True
+
+    def _stop_service(self, why: str) -> None:
+        row = self.report.setdefault("engine_service", {})
+        h = self._harbor()
+        if h:                                           # Harbor uses the server: leave it, and say so
+            row["left_running"] = f"Harbor appears to be running ({h}); the server was not stopped"
+            return
+        try:
+            self.engine_service.stop()
+            row["stopped"] = why
+            self._service_started = False
+        except Exception as exc:  # noqa: BLE001  (recorded; the lock is still released)
+            row["stop_failed"] = f"{type(exc).__name__}: {exc}"[:300]
+
     def _save_fresh(self) -> None:
         if self.save_path.exists():                     # removed after every successful restore
             try:
@@ -450,6 +541,8 @@ class RunGuard:
         self._token = secrets.token_hex(8)
         state = {"schema": SAVE_SCHEMA, "token": self._token, "created_at": utc_now(), "pid": os.getpid(),
                  "base_url": self.engine.base_url, "out": str(self.out), **self.engine.snapshot()}
+        if self.engine_service is not None:
+            state["engine_service"] = {"found_running": not self._service_started}
         _write_json(self.save_path, state)
         self.report["engine_before"] = {k: state[k] for k in ("token", "created_at", "loaded", "pinned",
                                                                 "helpers_loaded", "default_model")}
@@ -591,8 +684,10 @@ def main(argv: list[str] | None = None) -> int:
     return restore_cli(Path(a.save), a.url, a.lock)
 
 
-def restore_cli(save: Path, url: str, lock: str, *, engine: Engine | None = None, harbor=harbor_running) -> int:
-    """The restore a person runs after a failed one: under the heavy-job lock, so no run starts meanwhile."""
+def restore_cli(save: Path, url: str, lock: str, *, engine: Engine | None = None, harbor=harbor_running,
+                service=None) -> int:
+    """The restore a person runs after a failed one: under the heavy-job lock, so no run starts meanwhile.
+    When the save says the engine's server was found stopped, it is stopped again after the models are back."""
     if not lock or not str(lock).strip():
         print("not restored: a heavy-job lock path is required", file=sys.stderr)
         return 1
@@ -612,7 +707,19 @@ def restore_cli(save: Path, url: str, lock: str, *, engine: Engine | None = None
         print(f"not restored: {lock} {why}.", file=sys.stderr)
         return 1
     try:
+        try:
+            found = (json.loads(Path(save).read_text()).get("engine_service") or {}).get("found_running")
+        except (OSError, ValueError):
+            found = None
         print(restore(engine, save, harbor=harbor))
+        if found is False:
+            h = harbor()
+            if h:
+                print(f"the engine's server was found stopped, but Harbor appears to be running ({h}); "
+                      "left running")
+            else:
+                (service or OmlxService(port=engine.port)).stop()
+                print("the engine's server was found stopped before the run: stopped again")
     except Exception as exc:  # noqa: BLE001  (an engine error is a failed restore, not a crash)
         print(f"not restored: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1

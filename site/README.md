@@ -86,3 +86,22 @@ missing result always reads as a status with an icon and words, never a blank or
 - Held-out cases never appear. The store exports development-split trajectories only; the data layer also drops any
   record marked held out.
 - The sample board is labelled as sample data everywhere it shows.
+
+## Files the pages read beyond today's export
+
+These are proposals for the results store. Each page shows a designed empty state until its file exists.
+
+- **`data/<board>/<device>.findings.json`** ("What it found", `#/found`), schema `edat.site-findings/0.1`:
+  `{schema, sample, split: "dev", notice, board_version, device_id, profiles: [{id, label, name, anchor: {date, weekday, now, tz}}],
+  runs: [{variant, profile, trial, captured_at, split?,
+  brief: {cards: [Item], attention: [Item], todos: [Item]}, missed: [Key + {zone}],
+  actions: [{text, tool, verdict: "right" | "should_not" | "wrong", beyond_allowed, key_id, why}],
+  day: [{at: "HH:MM", question, kind: "email" | "messages" | "next3h", answer, facts: [Key + {mark}], empty_key}]}]}`,
+  where `Key` is `{key_id, key_type, key_text, source}` from the profile's answer key and `Item` is `Key + {text, mark}`
+  with `mark` one of `found`, `wrongly raised` (`wrong`), `stale` (and `missed` for keys not surfaced). Runs marked held
+  out are dropped. Until the store writes this file, a sample board falls back to
+  `fixtures/<board>/<device>.findings.json`, made by `fixtures/make_findings_sample.py` from the profiles' public
+  ledgers with invented model output. A real board never falls back.
+- **`data/<board>/vote-pairs.json`** (`#/vote`): the shape is described at the top of `js/pages/vote.js`.
+- **`data/<board>/profiles.json`** (`#/profiles`): one record per synthetic person with id, label, invented name,
+  age, summary, anchor time, data volumes and planted counts by ledger type.

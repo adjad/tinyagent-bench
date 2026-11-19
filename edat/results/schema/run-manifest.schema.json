@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/adjad/Edge_device_agentic_testing/edat/results/schema/run-manifest.schema.json",
+  "title": "EDAT run manifest (edat.run-manifest/1.0)",
+  "description": "manifest.json in a run directory: what the run was, the comparison key every record in it shares, and checksums of records.jsonl and the raw files. Rewritten atomically (temp file + rename) after every append. See docs/benchmark/results-record.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "run_id", "tier", "kind", "board_version", "harness_commit", "created_at", "updated_at",
+               "comparison_key", "entries", "records", "raw"],
+  "properties": {
+    "schema": {"const": "edat.run-manifest/1.0"},
+    "run_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "tier": {"type": "string"},
+    "suite": {"type": ["string", "null"]},
+    "kind": {"enum": ["local", "cloud_reference"]},
+    "board_version": {"type": "string"},
+    "harness_commit": {"type": "string", "pattern": "^[0-9a-f]{7,40}$"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "updated_at": {"type": "string", "format": "date-time"},
+    "sample": {"type": "boolean"},
+    "comparison_key": {
+      "type": "object",
+      "description": "Fields every record in the run shares. Two runs can be merged or compared only when these match (thinking is checked per entry).",
+      "additionalProperties": false,
+      "required": ["board_version", "harness_commit", "sampling_class", "lang", "tier"],
+      "properties": {
+        "board_version": {"type": "string"},
+        "harness_commit": {"type": "string"},
+        "sampling_class": {"enum": ["recommended", "fixed_sensitivity"]},
+        "lang": {"const": "en"},
+        "tier": {"type": "string"},
+        "policy_fingerprint": {"type": ["string", "null"]}
+      }
+    },
+    "entries": {
+      "type": "array",
+      "description": "One row per entry seen in the run, with its record count.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["entry_key", "model_id", "thinking", "records"],
+        "properties": {
+          "entry_key": {"type": "string"},
+          "model_id": {"type": "string"},
+          "thinking": {"enum": ["on", "off", "minimal"]},
+          "device_id": {"type": ["string", "null"]},
+          "sampling_source": {"type": "string"},
+          "records": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "records": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "count", "sha256"],
+      "properties": {
+        "path": {"const": "records.jsonl"},
+        "count": {"type": "integer", "minimum": 0},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "raw": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dir", "count"],
+      "properties": {
+        "dir": {"const": "raw"},
+        "count": {"type": "integer", "minimum": 0}
+      }
+    },
+    "attachments": {
+      "type": "array",
+      "description": "Run-level files kept beside the records, such as an edat.perf/1.0 run document or a Toolbench meta.json.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "sha256", "kind"],
+        "properties": {
+          "name": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "kind": {"type": "string"}
+        }
+      }
+    },
+    "source": {"type": "object"}
+  }
+}

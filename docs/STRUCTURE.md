@@ -40,10 +40,15 @@ written only for this benchmark goes in the benchmark's own folders.
 | Model-neutral agentic harness pieces | `edat/` (for example `edat/loop.py`, `edat/cases/`, `edat/phone/`) | Names as proposed in [02-agentic-spec](benchmark/02-agentic-spec.md). Harbor-specific behaviour stays in `scripts/toolbench/`. |
 | Output-quality tests | `edat/quality/`, cases in `test_fixtures/quality/` | Design: [03-output-quality-spec](benchmark/03-output-quality-spec.md). |
 | Vision and audio tests | `edat/media/`, synthetic items in `test_fixtures/media/` | Design: [05-vision-audio-spec](benchmark/05-vision-audio-spec.md). Rendered items only; no personal media. |
-| Results store | `results/` is git-ignored for local runs. Published results go in `data/results/` as reviewed, versioned files, one folder per benchmark version and device. | Nothing is published yet. Each published run needs its exact model, quantisation, runtime version, device and harness commit. |
-| Website | `site/` | Today a mock-up. The real site renders from `data/results/`. Design: [06-ui-design](benchmark/06-ui-design.md). |
+| Results store: code | `edat/results/` | Writes one record per run for every tier, computes the statistics and exports what the website reads. |
+| Results store: published results | `data/results/` | Reviewed, versioned result files, one folder per benchmark version and device. Nothing real is published yet. Local run output stays in the git-ignored `/results/` and `test_results/` at the repository root. |
+| Website data | `site/data/` | Exported from `data/results/` by `edat/results/`. Today it holds only labelled sample data. |
+| Website | `site/` | Today a mock-up. The real site renders from `site/data/`. Design: [06-ui-design](benchmark/06-ui-design.md). |
 | Hosted reference (unranked, quality tests only) | `edat/hosted/`, reusing `service/inference/providers.py`, `remote_policy.py` and `service/config/endpoints.py` | Synthetic data only. Credentials come from the Keychain at run time and never enter the repository ([REMOTE_INFERENCE](REMOTE_INFERENCE.md)). |
-| Standing preferences, long sessions, on-screen app control, sidekick (coding and terminal) tasks | Cases in `test_fixtures/` next to the harness that runs them; new harness code in `edat/` | [14-standing-preferences](benchmark/14-standing-preferences.md); the others are designed in later documents. |
+| Model adapters | `edat/models/` | One adapter per runtime or provider, so the harness talks to every model the same way. |
+| Sidekick tasks (light coding and terminal) | `edat/sidekick/`, cases in `test_fixtures/sidekick/` | Planned. |
+| On-screen app control | `edat/screen/`, cases in `test_fixtures/screen/` | Planned. |
+| Standing preferences, long sessions | Cases in `test_fixtures/` next to the harness that runs them; new harness code in `edat/` | [14-standing-preferences](benchmark/14-standing-preferences.md); long sessions are designed in a later document. |
 | Tests for new benchmark code | `tests/test_edat_*.py` for `edat/`, next to the imported tests | Keeps one `pytest.ini`. |
 
 Rules for new work:

@@ -1,0 +1,5110 @@
+{
+ "schema": "edat.snapshot/1.0",
+ "board_version": "sample-0",
+ "device_id": "iphone-ref",
+ "sample": true,
+ "notice": "SAMPLE DATA. Every model name and number in this file is invented to exercise the website; nothing describes a real model.",
+ "generated_at": "2026-11-18T09:00:00Z",
+ "references": {
+  "tuned": "local|Sample Tuned 4B|q4|mlx-swift|off",
+  "base": "local|Sample Base 4B|q4|mlx-swift|off"
+ },
+ "runs": [
+  {
+   "run_id": "sample-agentic-phone",
+   "tier": "agentic",
+   "records": 210,
+   "records_sha256": "dc78c3453d661ab9cca29a0bb73c88958f96729ea2e169425a73518dda608eb0",
+   "harness_commit": "0000000",
+   "sampling_class": "recommended"
+  },
+  {
+   "run_id": "sample-perf-phone",
+   "tier": "perf",
+   "records": 70,
+   "records_sha256": "4c90d4d18954011a2dab09c59017291461688e6825340cebf41cc1d13014d3b0",
+   "harness_commit": "0000000",
+   "sampling_class": "recommended"
+  }
+ ],
+ "records_exported": 280,
+ "records_withheld_heldout": 0,
+ "entries": [
+  {
+   "entry_key": "local|Sample Base 4B|q4|mlx-swift|off",
+   "device_id": "iphone-ref",
+   "model_id": "Sample Base 4B",
+   "role": "reference",
+   "kind": "local",
+   "weights": "sha256:5e5fad30666c79e9",
+   "weights_sha256": "5e5fad30666c79e97a0dcb2541dcacf729f3ced0445ca0342143fd170be25b16",
+   "quant": "q4",
+   "params_total": 4000000000,
+   "params_active": 4000000000,
+   "architecture": "dense",
+   "headline_entry": true,
+   "runtime": "mlx-swift",
+   "runtime_version": "sample-0.25",
+   "thinking": "off",
+   "requested_model": null,
+   "resolved_model": null,
+   "upstream_provider": null,
+   "run_date": null,
+   "device": {
+    "class": "iphone-ref",
+    "id": "iphone-ref",
+    "model_id": "SamplePhone",
+    "os": "iOS 27",
+    "ram_bytes": 12884901888,
+    "soc": "A19 Pro"
+   },
+   "tiers": {
+    "agentic": {
+     "tier": "agentic",
+     "records": 42,
+     "graded": 42,
+     "status_counts": {
+      "ok": 42
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-agentic-phone"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "author_recommended"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "pass1": {
+      "value": 0.309524,
+      "interval": [
+       0.190711,
+       0.46026
+      ],
+      "interval_kind": "wilson",
+      "interval_cluster": [
+       0.190476,
+       0.428571
+      ],
+      "n_cases": 14,
+      "n_trials": 42,
+      "passes": 13,
+      "pass_all_trials": {
+       "value": 0.0,
+       "interval": [
+        0.0,
+        0.215311
+       ],
+       "n_cases": 14,
+       "k": 0,
+       "trials_per_case": [
+        3
+       ],
+       "flag": null
+      },
+      "pass_k": {
+       "2": 0.071429,
+       "3": 0.0
+      }
+     },
+     "score": {
+      "value": 0.622595,
+      "interval": [
+       0.51564,
+       0.723668
+      ],
+      "interval_kind": "bootstrap_cases",
+      "n_cases": 14,
+      "n_trials": 42
+     },
+     "composite": {
+      "value": 0.309524,
+      "interval": [
+       0.309524,
+       0.309524
+      ],
+      "n_cases": 14,
+      "strata": 14,
+      "weights": {
+       "abstain/assistant": 0.071429,
+       "abstain/neutral": 0.071429,
+       "mixed/assistant": 0.071429,
+       "mixed/neutral": 0.071429,
+       "parallel/assistant": 0.071429,
+       "parallel/neutral": 0.071429,
+       "pev/assistant": 0.071429,
+       "pev/neutral": 0.071429,
+       "recovery/assistant": 0.071429,
+       "recovery/neutral": 0.071429,
+       "select/assistant": 0.071429,
+       "select/neutral": 0.071429,
+       "sequential/assistant": 0.071429,
+       "sequential/neutral": 0.071429
+      },
+      "metric": "agentic_score",
+      "interval_kind": "bootstrap_cases",
+      "families": [
+       "abstain",
+       "mixed",
+       "parallel",
+       "pev",
+       "recovery",
+       "select",
+       "sequential"
+      ],
+      "complete": true
+     },
+     "safety": {
+      "trials": 42,
+      "unsafe_trials": 5,
+      "unsafe_rate": 0.119048,
+      "unsafe_interval": [
+       0.051938,
+       0.250004
+      ],
+      "unsafe_count": 5,
+      "unsafe_per_100": 11.904762,
+      "unsafe_n": 42,
+      "leak_trials": 2,
+      "leak_rate": 0.047619,
+      "leak_interval": [
+       0.013158,
+       0.157899
+      ],
+      "leak_count": 2,
+      "leak_per_100": 4.761905,
+      "leak_n": 42,
+      "labels": {
+       "canary_leak": 2,
+       "unsafe_call": 5
+      }
+     },
+     "facets": {
+      "lane=assistant": {
+       "pass1": {
+        "value": 0.238095,
+        "interval": [
+         0.10628,
+         0.450912
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.095238,
+         0.428571
+        ],
+        "n_cases": 7,
+        "n_trials": 21,
+        "passes": 5,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.35433
+         ],
+         "n_cases": 7,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.047619,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.570857,
+        "interval": [
+         0.367492,
+         0.74859
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 7,
+        "n_trials": 21
+       }
+      },
+      "lane=neutral": {
+       "pass1": {
+        "value": 0.380952,
+        "interval": [
+         0.20751,
+         0.591213
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.238095,
+         0.52381
+        ],
+        "n_cases": 7,
+        "n_trials": 21,
+        "passes": 8,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.35433
+         ],
+         "n_cases": 7,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.095238,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.674333,
+        "interval": [
+         0.570875,
+         0.773669
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 7,
+        "n_trials": 21
+       }
+      },
+      "family=abstain": {
+       "pass1": {
+        "value": 0.166667,
+        "interval": [
+         0.030053,
+         0.563503
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.333333
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 1,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.528167,
+        "interval": [
+         0.500667,
+         0.555667
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=mixed": {
+       "pass1": {
+        "value": 0.166667,
+        "interval": [
+         0.030053,
+         0.563503
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.333333
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 1,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.689167,
+        "interval": [
+         0.570333,
+         0.808
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=parallel": {
+       "pass1": {
+        "value": 0.666667,
+        "interval": [
+         0.299993,
+         0.903229
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.666667,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 4,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.333333,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.707667,
+        "interval": [
+         0.704333,
+         0.711
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=pev": {
+       "pass1": {
+        "value": 0.166667,
+        "interval": [
+         0.030053,
+         0.563503
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.333333
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 1,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.489167,
+        "interval": [
+         0.483333,
+         0.495
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=recovery": {
+       "pass1": {
+        "value": 0.333333,
+        "interval": [
+         0.096771,
+         0.700007
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.333333
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 2,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.695167,
+        "interval": [
+         0.601333,
+         0.789
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=select": {
+       "pass1": {
+        "value": 0.5,
+        "interval": [
+         0.187616,
+         0.812384
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 3,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.924333,
+        "interval": [
+         0.848667,
+         1.0
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=sequential": {
+       "pass1": {
+        "value": 0.166667,
+        "interval": [
+         0.030053,
+         0.563503
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.333333
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 1,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.3245,
+        "interval": [
+         0.124333,
+         0.524667
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      }
+     },
+     "metrics": {
+      "format_ok": {
+       "value": 0.97619,
+       "interval": [
+        0.876788,
+        0.995785
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 14,
+       "n_trials": 42
+      },
+      "steps": {
+       "value": 2.690476,
+       "interval": [
+        2.238095,
+        3.119048
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 14,
+       "n_trials": 42
+      },
+      "wall_s": {
+       "value": 6.731667,
+       "interval": [
+        5.945369,
+        7.362958
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 14,
+       "n_trials": 42
+      }
+     },
+     "headline": {
+      "metric": "agentic_score",
+      "source": "composite",
+      "value": 0.309524,
+      "interval": [
+       0.309524,
+       0.309524
+      ],
+      "interval_kind": "bootstrap_cases"
+     },
+     "sampling_classes": [
+      "recommended"
+     ],
+     "rank_range": [
+      2,
+      3
+     ]
+    },
+    "perf": {
+     "tier": "perf",
+     "records": 14,
+     "graded": 14,
+     "status_counts": {
+      "ok": 14
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-perf-phone"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "engine_default"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "curves": {
+      "ttft_s": [
+       {
+        "level": 512,
+        "value": 1.27315,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 1024,
+        "value": 2.56645,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 2048,
+        "value": 4.9405,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 5120,
+        "value": 12.6921,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 10240,
+        "value": 24.34815,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 32768,
+        "value": 80.1783,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 65536,
+        "value": 155.32735,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       }
+      ],
+      "prefill_tps": [
+       {
+        "level": 512,
+        "value": 418.6,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 1024,
+        "value": 406.95,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 2048,
+        "value": 418.85,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 5120,
+        "value": 405.0,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 10240,
+        "value": 421.45,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 32768,
+        "value": 409.0,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 65536,
+        "value": 422.1,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       }
+      ],
+      "decode_tps": [
+       {
+        "level": 512,
+        "value": 25.38,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 1024,
+        "value": 24.485,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 2048,
+        "value": 24.82,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 5120,
+        "value": 22.955,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 10240,
+        "value": 22.275,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 32768,
+        "value": 16.66,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 65536,
+        "value": 12.895,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       }
+      ],
+      "footprint_peak_bytes": [
+       {
+        "level": 512,
+        "value": 3854215310.0,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 1024,
+        "value": 3981251370.0,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 2048,
+        "value": 3900520469.5,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 5120,
+        "value": 4132392932.0,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 10240,
+        "value": 4130102475.5,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 32768,
+        "value": 4976492430.5,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 65536,
+        "value": 5836998750.5,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       }
+      ]
+     },
+     "sampling_classes": [
+      "recommended"
+     ]
+    }
+   },
+   "sampling_sources": [
+    "author_recommended",
+    "engine_default"
+   ],
+   "fit": {
+    "verdict": "fits",
+    "max_level_fits": 32768,
+    "peak_bytes_at_2048": 3929895075,
+    "peak_bytes_at_10240": 4187593113,
+    "budget_bytes": 10737418240,
+    "budget_source": "derived-v1"
+   },
+   "invalid": false,
+   "ranked": true,
+   "rank_group": "ranked",
+   "flags": [],
+   "vs": {
+    "tuned": {
+     "reference": "local|Sample Tuned 4B|q4|mlx-swift|off",
+     "device_id": "iphone-ref",
+     "tiers": {
+      "agentic": {
+       "pass1": {
+        "delta": -0.214286,
+        "interval": [
+         -0.405357,
+         -0.02381
+        ],
+        "tag": "worse",
+        "n_cases": 14,
+        "wins": 3,
+        "losses": 8,
+        "ties": 3
+       },
+       "score": {
+        "delta": -0.124548,
+        "interval": [
+         -0.228338,
+         -0.025642
+        ],
+        "tag": "worse",
+        "n_cases": 14,
+        "wins": 5,
+        "losses": 8,
+        "ties": 1
+       },
+       "agentic_score": {
+        "interval": [
+         -0.214286,
+         -0.214286
+        ],
+        "tag": "worse",
+        "n_cases": 14,
+        "strata": 14,
+        "weights": {
+         "abstain/assistant": 0.071429,
+         "abstain/neutral": 0.071429,
+         "mixed/assistant": 0.071429,
+         "mixed/neutral": 0.071429,
+         "parallel/assistant": 0.071429,
+         "parallel/neutral": 0.071429,
+         "pev/assistant": 0.071429,
+         "pev/neutral": 0.071429,
+         "recovery/assistant": 0.071429,
+         "recovery/neutral": 0.071429,
+         "select/assistant": 0.071429,
+         "select/neutral": 0.071429,
+         "sequential/assistant": 0.071429,
+         "sequential/neutral": 0.071429
+        },
+        "delta": -0.214286
+       },
+       "unsafe_rate": {
+        "delta": 0.02381,
+        "interval": [
+         -0.095238,
+         0.142857
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 2,
+        "losses": 2,
+        "ties": 10,
+        "ratio": 1.25
+       },
+       "leak_rate": {
+        "delta": -0.02381,
+        "interval": [
+         -0.119048,
+         0.083929
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 2,
+        "losses": 3,
+        "ties": 9,
+        "ratio": 0.666667
+       }
+      }
+     }
+    },
+    "base": {
+     "reference": "local|Sample Base 4B|q4|mlx-swift|off",
+     "device_id": "iphone-ref",
+     "tiers": {
+      "agentic": {
+       "self": true
+      }
+     }
+    }
+   },
+   "sampling_sensitivity": {}
+  },
+  {
+   "entry_key": "local|Sample Model C 3B|q4|mlx-swift|off",
+   "device_id": "iphone-ref",
+   "model_id": "Sample Model C 3B",
+   "role": "candidate",
+   "kind": "local",
+   "weights": "sha256:687f383dc823facd",
+   "weights_sha256": "687f383dc823facde2ea409f38e850498e50f621e72219f474b215e25ac30cfc",
+   "quant": "q4",
+   "params_total": 3000000000,
+   "params_active": 3000000000,
+   "architecture": "dense",
+   "headline_entry": true,
+   "runtime": "mlx-swift",
+   "runtime_version": "sample-0.25",
+   "thinking": "off",
+   "requested_model": null,
+   "resolved_model": null,
+   "upstream_provider": null,
+   "run_date": null,
+   "device": {
+    "class": "iphone-ref",
+    "id": "iphone-ref",
+    "model_id": "SamplePhone",
+    "os": "iOS 27",
+    "ram_bytes": 12884901888,
+    "soc": "A19 Pro"
+   },
+   "tiers": {
+    "agentic": {
+     "tier": "agentic",
+     "records": 42,
+     "graded": 42,
+     "status_counts": {
+      "ok": 42
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-agentic-phone"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "author_recommended"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "pass1": {
+      "value": 0.309524,
+      "interval": [
+       0.190711,
+       0.46026
+      ],
+      "interval_kind": "wilson",
+      "interval_cluster": [
+       0.166667,
+       0.452381
+      ],
+      "n_cases": 14,
+      "n_trials": 42,
+      "passes": 13,
+      "pass_all_trials": {
+       "value": 0.0,
+       "interval": [
+        0.0,
+        0.215311
+       ],
+       "n_cases": 14,
+       "k": 0,
+       "trials_per_case": [
+        3
+       ],
+       "flag": null
+      },
+      "pass_k": {
+       "2": 0.095238,
+       "3": 0.0
+      }
+     },
+     "score": {
+      "value": 0.584333,
+      "interval": [
+       0.467796,
+       0.695796
+      ],
+      "interval_kind": "bootstrap_cases",
+      "n_cases": 14,
+      "n_trials": 42
+     },
+     "composite": {
+      "value": 0.309524,
+      "interval": [
+       0.309524,
+       0.309524
+      ],
+      "n_cases": 14,
+      "strata": 14,
+      "weights": {
+       "abstain/assistant": 0.071429,
+       "abstain/neutral": 0.071429,
+       "mixed/assistant": 0.071429,
+       "mixed/neutral": 0.071429,
+       "parallel/assistant": 0.071429,
+       "parallel/neutral": 0.071429,
+       "pev/assistant": 0.071429,
+       "pev/neutral": 0.071429,
+       "recovery/assistant": 0.071429,
+       "recovery/neutral": 0.071429,
+       "select/assistant": 0.071429,
+       "select/neutral": 0.071429,
+       "sequential/assistant": 0.071429,
+       "sequential/neutral": 0.071429
+      },
+      "metric": "agentic_score",
+      "interval_kind": "bootstrap_cases",
+      "families": [
+       "abstain",
+       "mixed",
+       "parallel",
+       "pev",
+       "recovery",
+       "select",
+       "sequential"
+      ],
+      "complete": true
+     },
+     "safety": {
+      "trials": 42,
+      "unsafe_trials": 3,
+      "unsafe_rate": 0.071429,
+      "unsafe_interval": [
+       0.02459,
+       0.190094
+      ],
+      "unsafe_count": 3,
+      "unsafe_per_100": 7.142857,
+      "unsafe_n": 42,
+      "leak_trials": 0,
+      "leak_rate": 0.0,
+      "leak_interval": [
+       0.0,
+       0.083799
+      ],
+      "leak_count": 0,
+      "leak_per_100": 0.0,
+      "leak_n": 42,
+      "labels": {
+       "unsafe_call": 3
+      }
+     },
+     "facets": {
+      "lane=assistant": {
+       "pass1": {
+        "value": 0.47619,
+        "interval": [
+         0.28344,
+         0.676305
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.355952,
+         0.571429
+        ],
+        "n_cases": 7,
+        "n_trials": 21,
+        "passes": 10,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.35433
+         ],
+         "n_cases": 7,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.142857,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.689571,
+        "interval": [
+         0.54484,
+         0.801112
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 7,
+        "n_trials": 21
+       }
+      },
+      "lane=neutral": {
+       "pass1": {
+        "value": 0.142857,
+        "interval": [
+         0.04981,
+         0.346361
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.333333
+        ],
+        "n_cases": 7,
+        "n_trials": 21,
+        "passes": 3,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.35433
+         ],
+         "n_cases": 7,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.047619,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.479095,
+        "interval": [
+         0.313855,
+         0.645435
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 7,
+        "n_trials": 21
+       }
+      },
+      "family=abstain": {
+       "pass1": {
+        "value": 0.333333,
+        "interval": [
+         0.096771,
+         0.700007
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.333333
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 2,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.464,
+        "interval": [
+         0.349,
+         0.579
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=mixed": {
+       "pass1": {
+        "value": 0.333333,
+        "interval": [
+         0.096771,
+         0.700007
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 2,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.508833,
+        "interval": [
+         0.264333,
+         0.753333
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=parallel": {
+       "pass1": {
+        "value": 0.666667,
+        "interval": [
+         0.299993,
+         0.903229
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.666667,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 4,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.333333,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.833667,
+        "interval": [
+         0.814667,
+         0.852667
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=pev": {
+       "pass1": {
+        "value": 0.166667,
+        "interval": [
+         0.030053,
+         0.563503
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.333333
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 1,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.478167,
+        "interval": [
+         0.264667,
+         0.691667
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=recovery": {
+       "pass1": {
+        "value": 0.333333,
+        "interval": [
+         0.096771,
+         0.700007
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 2,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.742667,
+        "interval": [
+         0.614,
+         0.871333
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=select": {
+       "pass1": {
+        "value": 0.166667,
+        "interval": [
+         0.030053,
+         0.563503
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.333333
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 1,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.407,
+        "interval": [
+         0.26,
+         0.554
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=sequential": {
+       "pass1": {
+        "value": 0.166667,
+        "interval": [
+         0.030053,
+         0.563503
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.333333
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 1,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.656,
+        "interval": [
+         0.519,
+         0.793
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      }
+     },
+     "metrics": {
+      "format_ok": {
+       "value": 0.97619,
+       "interval": [
+        0.876788,
+        0.995785
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 14,
+       "n_trials": 42
+      },
+      "steps": {
+       "value": 2.642857,
+       "interval": [
+        2.309524,
+        2.904762
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 14,
+       "n_trials": 42
+      },
+      "wall_s": {
+       "value": 6.970714,
+       "interval": [
+        6.21125,
+        7.680762
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 14,
+       "n_trials": 42
+      }
+     },
+     "headline": {
+      "metric": "agentic_score",
+      "source": "composite",
+      "value": 0.309524,
+      "interval": [
+       0.309524,
+       0.309524
+      ],
+      "interval_kind": "bootstrap_cases"
+     },
+     "sampling_classes": [
+      "recommended"
+     ],
+     "rank_range": [
+      2,
+      3
+     ]
+    },
+    "perf": {
+     "tier": "perf",
+     "records": 14,
+     "graded": 14,
+     "status_counts": {
+      "ok": 14
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-perf-phone"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "engine_default"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "curves": {
+      "ttft_s": [
+       {
+        "level": 512,
+        "value": 1.03825,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 1024,
+        "value": 2.0069,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 2048,
+        "value": 3.9117,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 5120,
+        "value": 9.7493,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 10240,
+        "value": 19.5002,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 32768,
+        "value": 64.25755,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 65536,
+        "value": 127.6221,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       }
+      ],
+      "prefill_tps": [
+       {
+        "level": 512,
+        "value": 518.15,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 1024,
+        "value": 523.35,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 2048,
+        "value": 530.5,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 5120,
+        "value": 527.9,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 10240,
+        "value": 526.7,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 32768,
+        "value": 510.35,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 65536,
+        "value": 513.8,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       }
+      ],
+      "decode_tps": [
+       {
+        "level": 512,
+        "value": 31.415,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 1024,
+        "value": 31.49,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 2048,
+        "value": 31.435,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 5120,
+        "value": 29.925,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 10240,
+        "value": 27.835,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 32768,
+        "value": 20.795,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 65536,
+        "value": 15.7,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       }
+      ],
+      "footprint_peak_bytes": [
+       {
+        "level": 512,
+        "value": 2939852177.5,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 1024,
+        "value": 2922810157.5,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 2048,
+        "value": 2907792658.0,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 5120,
+        "value": 2993213885.0,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 10240,
+        "value": 3121213379.0,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 32768,
+        "value": 3764747709.0,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 65536,
+        "value": 4527405789.0,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       }
+      ]
+     },
+     "sampling_classes": [
+      "recommended"
+     ]
+    }
+   },
+   "sampling_sources": [
+    "author_recommended",
+    "engine_default"
+   ],
+   "fit": {
+    "verdict": "fits",
+    "max_level_fits": 32768,
+    "peak_bytes_at_2048": 2947421306,
+    "peak_bytes_at_10240": 3140694835,
+    "budget_bytes": 10737418240,
+    "budget_source": "derived-v1"
+   },
+   "invalid": false,
+   "ranked": true,
+   "rank_group": "ranked",
+   "flags": [],
+   "vs": {
+    "tuned": {
+     "reference": "local|Sample Tuned 4B|q4|mlx-swift|off",
+     "device_id": "iphone-ref",
+     "tiers": {
+      "agentic": {
+       "pass1": {
+        "delta": -0.214286,
+        "interval": [
+         -0.404762,
+         -0.02381
+        ],
+        "tag": "worse",
+        "n_cases": 14,
+        "wins": 3,
+        "losses": 8,
+        "ties": 3
+       },
+       "score": {
+        "delta": -0.16281,
+        "interval": [
+         -0.318717,
+         -0.007602
+        ],
+        "tag": "worse",
+        "n_cases": 14,
+        "wins": 3,
+        "losses": 11,
+        "ties": 0
+       },
+       "agentic_score": {
+        "interval": [
+         -0.214286,
+         -0.214286
+        ],
+        "tag": "worse",
+        "n_cases": 14,
+        "strata": 14,
+        "weights": {
+         "abstain/assistant": 0.071429,
+         "abstain/neutral": 0.071429,
+         "mixed/assistant": 0.071429,
+         "mixed/neutral": 0.071429,
+         "parallel/assistant": 0.071429,
+         "parallel/neutral": 0.071429,
+         "pev/assistant": 0.071429,
+         "pev/neutral": 0.071429,
+         "recovery/assistant": 0.071429,
+         "recovery/neutral": 0.071429,
+         "select/assistant": 0.071429,
+         "select/neutral": 0.071429,
+         "sequential/assistant": 0.071429,
+         "sequential/neutral": 0.071429
+        },
+        "delta": -0.214286
+       },
+       "unsafe_rate": {
+        "delta": -0.02381,
+        "interval": [
+         -0.095238,
+         0.047619
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 1,
+        "losses": 2,
+        "ties": 11,
+        "ratio": 0.75
+       },
+       "leak_rate": {
+        "delta": -0.071429,
+        "interval": [
+         -0.142857,
+         0.0
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 0,
+        "losses": 3,
+        "ties": 11,
+        "ratio": 0.0
+       }
+      }
+     }
+    },
+    "base": {
+     "reference": "local|Sample Base 4B|q4|mlx-swift|off",
+     "device_id": "iphone-ref",
+     "tiers": {
+      "agentic": {
+       "pass1": {
+        "delta": 0.0,
+        "interval": [
+         -0.166667,
+         0.166667
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 4,
+        "losses": 4,
+        "ties": 6
+       },
+       "score": {
+        "delta": -0.038262,
+        "interval": [
+         -0.211757,
+         0.132627
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 7,
+        "losses": 7,
+        "ties": 0
+       },
+       "agentic_score": {
+        "interval": [
+         0.0,
+         0.0
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "strata": 14,
+        "weights": {
+         "abstain/assistant": 0.071429,
+         "abstain/neutral": 0.071429,
+         "mixed/assistant": 0.071429,
+         "mixed/neutral": 0.071429,
+         "parallel/assistant": 0.071429,
+         "parallel/neutral": 0.071429,
+         "pev/assistant": 0.071429,
+         "pev/neutral": 0.071429,
+         "recovery/assistant": 0.071429,
+         "recovery/neutral": 0.071429,
+         "select/assistant": 0.071429,
+         "select/neutral": 0.071429,
+         "sequential/assistant": 0.071429,
+         "sequential/neutral": 0.071429
+        },
+        "delta": 0.0
+       },
+       "unsafe_rate": {
+        "delta": -0.047619,
+        "interval": [
+         -0.190476,
+         0.071429
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 2,
+        "losses": 3,
+        "ties": 9,
+        "ratio": 0.6
+       },
+       "leak_rate": {
+        "delta": -0.047619,
+        "interval": [
+         -0.119048,
+         0.0
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 0,
+        "losses": 2,
+        "ties": 12,
+        "ratio": 0.0
+       }
+      }
+     }
+    }
+   },
+   "sampling_sensitivity": {}
+  },
+  {
+   "entry_key": "local|Sample Model F 1B|q4|mlx-swift|off",
+   "device_id": "iphone-ref",
+   "model_id": "Sample Model F 1B",
+   "role": "candidate",
+   "kind": "local",
+   "weights": "sha256:298e5069b0356680",
+   "weights_sha256": "298e5069b0356680bf61b8c1999fd3c2464ffc143030efaaeee52ef356cb3b72",
+   "quant": "q4",
+   "params_total": 1200000000,
+   "params_active": 1200000000,
+   "architecture": "dense",
+   "headline_entry": true,
+   "runtime": "mlx-swift",
+   "runtime_version": "sample-0.25",
+   "thinking": "off",
+   "requested_model": null,
+   "resolved_model": null,
+   "upstream_provider": null,
+   "run_date": null,
+   "device": {
+    "class": "iphone-ref",
+    "id": "iphone-ref",
+    "model_id": "SamplePhone",
+    "os": "iOS 27",
+    "ram_bytes": 12884901888,
+    "soc": "A19 Pro"
+   },
+   "tiers": {
+    "agentic": {
+     "tier": "agentic",
+     "records": 42,
+     "graded": 40,
+     "status_counts": {
+      "excluded": 2,
+      "ok": 40
+     },
+     "excluded": 2,
+     "excluded_rate": 0.047619,
+     "run_ids": [
+      "sample-agentic-phone"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "author_recommended"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": true,
+     "pass1": {
+      "value": 0.214286,
+      "interval": [
+       0.123161,
+       0.375031
+      ],
+      "interval_kind": "wilson",
+      "interval_cluster": [
+       0.071429,
+       0.357143
+      ],
+      "n_cases": 14,
+      "n_trials": 40,
+      "passes": 9,
+      "pass_all_trials": {
+       "value": 0.0,
+       "interval": [
+        0.0,
+        0.215311
+       ],
+       "n_cases": 14,
+       "k": 0,
+       "trials_per_case": [
+        2,
+        3
+       ],
+       "flag": "unequal_trials"
+      },
+      "pass_k": {
+       "2": 0.071429,
+       "3": 0.0
+      }
+     },
+     "score": {
+      "value": 0.568702,
+      "interval": [
+       0.461348,
+       0.680078
+      ],
+      "interval_kind": "bootstrap_cases",
+      "n_cases": 14,
+      "n_trials": 40
+     },
+     "composite": {
+      "value": 0.214286,
+      "interval": [
+       0.214286,
+       0.214286
+      ],
+      "n_cases": 14,
+      "strata": 14,
+      "weights": {
+       "abstain/assistant": 0.071429,
+       "abstain/neutral": 0.071429,
+       "mixed/assistant": 0.071429,
+       "mixed/neutral": 0.071429,
+       "parallel/assistant": 0.071429,
+       "parallel/neutral": 0.071429,
+       "pev/assistant": 0.071429,
+       "pev/neutral": 0.071429,
+       "recovery/assistant": 0.071429,
+       "recovery/neutral": 0.071429,
+       "select/assistant": 0.071429,
+       "select/neutral": 0.071429,
+       "sequential/assistant": 0.071429,
+       "sequential/neutral": 0.071429
+      },
+      "metric": "agentic_score",
+      "interval_kind": "bootstrap_cases",
+      "families": [
+       "abstain",
+       "mixed",
+       "parallel",
+       "pev",
+       "recovery",
+       "select",
+       "sequential"
+      ],
+      "complete": true
+     },
+     "safety": {
+      "trials": 40,
+      "unsafe_trials": 4,
+      "unsafe_rate": 0.1,
+      "unsafe_interval": [
+       0.03958,
+       0.230518
+      ],
+      "unsafe_count": 4,
+      "unsafe_per_100": 10.0,
+      "unsafe_n": 40,
+      "leak_trials": 9,
+      "leak_rate": 0.225,
+      "leak_interval": [
+       0.123161,
+       0.375031
+      ],
+      "leak_count": 9,
+      "leak_per_100": 22.5,
+      "leak_n": 40,
+      "labels": {
+       "canary_leak": 9,
+       "unsafe_call": 4
+      }
+     },
+     "facets": {
+      "lane=assistant": {
+       "pass1": {
+        "value": 0.333333,
+        "interval": [
+         0.181192,
+         0.567146
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.095238,
+         0.571429
+        ],
+        "n_cases": 7,
+        "n_trials": 20,
+        "passes": 7,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.35433
+         ],
+         "n_cases": 7,
+         "k": 0,
+         "trials_per_case": [
+          2,
+          3
+         ],
+         "flag": "unequal_trials"
+        },
+        "pass_k": {
+         "2": 0.142857,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.648952,
+        "interval": [
+         0.455779,
+         0.809658
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 7,
+        "n_trials": 20
+       }
+      },
+      "lane=neutral": {
+       "pass1": {
+        "value": 0.095238,
+        "interval": [
+         0.027866,
+         0.301034
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.190476
+        ],
+        "n_cases": 7,
+        "n_trials": 20,
+        "passes": 2,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.35433
+         ],
+         "n_cases": 7,
+         "k": 0,
+         "trials_per_case": [
+          2,
+          3
+         ],
+         "flag": "unequal_trials"
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.488452,
+        "interval": [
+         0.387617,
+         0.58502
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 7,
+        "n_trials": 20
+       }
+      },
+      "family=abstain": {
+       "pass1": {
+        "value": 0.5,
+        "interval": [
+         0.187616,
+         0.812384
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 3,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.702,
+        "interval": [
+         0.555333,
+         0.848667
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=mixed": {
+       "pass1": {
+        "value": 0.0,
+        "interval": [
+         0.0,
+         0.390334
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.0
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 0,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.496833,
+        "interval": [
+         0.482333,
+         0.511333
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=parallel": {
+       "pass1": {
+        "value": 0.5,
+        "interval": [
+         0.187616,
+         0.812384
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 3,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.738667,
+        "interval": [
+         0.625667,
+         0.851667
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=pev": {
+       "pass1": {
+        "value": 0.0,
+        "interval": [
+         0.0,
+         0.489891
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.0
+        ],
+        "n_cases": 2,
+        "n_trials": 4,
+        "passes": 0,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          2
+         ],
+         "flag": "fewer_than_3_trials"
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": null
+        }
+       },
+       "score": {
+        "value": 0.68825,
+        "interval": [
+         0.6545,
+         0.722
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 4
+       }
+      },
+      "family=recovery": {
+       "pass1": {
+        "value": 0.333333,
+        "interval": [
+         0.096771,
+         0.700007
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 2,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.61,
+        "interval": [
+         0.300667,
+         0.919333
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=select": {
+       "pass1": {
+        "value": 0.166667,
+        "interval": [
+         0.030053,
+         0.563503
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.333333
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 1,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.485333,
+        "interval": [
+         0.453,
+         0.517667
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=sequential": {
+       "pass1": {
+        "value": 0.0,
+        "interval": [
+         0.0,
+         0.390334
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.0
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 0,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.259833,
+        "interval": [
+         0.201,
+         0.318667
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      }
+     },
+     "metrics": {
+      "format_ok": {
+       "value": 0.95,
+       "interval": [
+        0.834961,
+        0.986179
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 14,
+       "n_trials": 40
+      },
+      "steps": {
+       "value": 2.392857,
+       "interval": [
+        2.0,
+        2.851488
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 14,
+       "n_trials": 40
+      },
+      "wall_s": {
+       "value": 7.011905,
+       "interval": [
+        6.215482,
+        7.785345
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 14,
+       "n_trials": 40
+      }
+     },
+     "headline": {
+      "metric": "agentic_score",
+      "source": "composite",
+      "value": 0.214286,
+      "interval": [
+       0.214286,
+       0.214286
+      ],
+      "interval_kind": "bootstrap_cases"
+     },
+     "sampling_classes": [
+      "recommended"
+     ]
+    },
+    "perf": {
+     "tier": "perf",
+     "records": 14,
+     "graded": 12,
+     "status_counts": {
+      "beyond_window": 2,
+      "ok": 12
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-perf-phone"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "engine_default"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "curves": {
+      "ttft_s": [
+       {
+        "level": 512,
+        "value": 0.51965,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 1024,
+        "value": 0.96785,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 2048,
+        "value": 1.88325,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 5120,
+        "value": 4.7951,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 10240,
+        "value": 9.2899,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 32768,
+        "value": 30.1827,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 65536,
+        "value": null,
+        "status": "beyond_window",
+        "need_bytes": null,
+        "n": 0
+       }
+      ],
+      "prefill_tps": [
+       {
+        "level": 512,
+        "value": 1090.25,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 1024,
+        "value": 1115.6,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 2048,
+        "value": 1117.15,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 5120,
+        "value": 1079.25,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 10240,
+        "value": 1108.3,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 32768,
+        "value": 1087.45,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 65536,
+        "value": null,
+        "status": "beyond_window",
+        "need_bytes": null,
+        "n": 0
+       }
+      ],
+      "decode_tps": [
+       {
+        "level": 512,
+        "value": 66.11,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 1024,
+        "value": 67.125,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 2048,
+        "value": 66.2,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 5120,
+        "value": 61.175,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 10240,
+        "value": 58.575,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 32768,
+        "value": 44.305,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 65536,
+        "value": null,
+        "status": "beyond_window",
+        "need_bytes": null,
+        "n": 0
+       }
+      ],
+      "footprint_peak_bytes": [
+       {
+        "level": 512,
+        "value": 1613703696.0,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 1024,
+        "value": 1581627040.0,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 2048,
+        "value": 1588890525.5,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 5120,
+        "value": 1674287525.0,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 10240,
+        "value": 1677605116.5,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 32768,
+        "value": 1922566963.0,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 65536,
+        "value": null,
+        "status": "beyond_window",
+        "need_bytes": null,
+        "n": 0
+       }
+      ],
+      "e2e_s": [
+       {
+        "level": 512,
+        "value": null,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 0
+       },
+       {
+        "level": 1024,
+        "value": null,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 0
+       },
+       {
+        "level": 2048,
+        "value": null,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 0
+       },
+       {
+        "level": 5120,
+        "value": null,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 0
+       },
+       {
+        "level": 10240,
+        "value": null,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 0
+       },
+       {
+        "level": 32768,
+        "value": null,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 0
+       },
+       {
+        "level": 65536,
+        "value": null,
+        "status": "beyond_window",
+        "need_bytes": null,
+        "n": 0
+       }
+      ]
+     },
+     "sampling_classes": [
+      "recommended"
+     ]
+    }
+   },
+   "sampling_sources": [
+    "author_recommended",
+    "engine_default"
+   ],
+   "fit": {
+    "verdict": "fits",
+    "max_level_fits": 32768,
+    "peak_bytes_at_2048": 1629940088,
+    "peak_bytes_at_10240": 1707249500,
+    "budget_bytes": 10737418240,
+    "budget_source": "derived-v1"
+   },
+   "invalid": true,
+   "ranked": false,
+   "rank_group": "invalid",
+   "flags": [
+    "invalid_excluded_over_2pct"
+   ],
+   "vs": {
+    "tuned": {
+     "reference": "local|Sample Tuned 4B|q4|mlx-swift|off",
+     "device_id": "iphone-ref",
+     "tiers": {
+      "agentic": {
+       "pass1": {
+        "delta": -0.309524,
+        "interval": [
+         -0.452381,
+         -0.142857
+        ],
+        "tag": "worse",
+        "n_cases": 14,
+        "wins": 1,
+        "losses": 10,
+        "ties": 3
+       },
+       "score": {
+        "delta": -0.17844,
+        "interval": [
+         -0.289635,
+         -0.049815
+        ],
+        "tag": "worse",
+        "n_cases": 14,
+        "wins": 2,
+        "losses": 12,
+        "ties": 0
+       },
+       "agentic_score": {
+        "interval": [
+         -0.309524,
+         -0.309524
+        ],
+        "tag": "worse",
+        "n_cases": 14,
+        "strata": 14,
+        "weights": {
+         "abstain/assistant": 0.071429,
+         "abstain/neutral": 0.071429,
+         "mixed/assistant": 0.071429,
+         "mixed/neutral": 0.071429,
+         "parallel/assistant": 0.071429,
+         "parallel/neutral": 0.071429,
+         "pev/assistant": 0.071429,
+         "pev/neutral": 0.071429,
+         "recovery/assistant": 0.071429,
+         "recovery/neutral": 0.071429,
+         "select/assistant": 0.071429,
+         "select/neutral": 0.071429,
+         "sequential/assistant": 0.071429,
+         "sequential/neutral": 0.071429
+        },
+        "delta": -0.309524
+       },
+       "unsafe_rate": {
+        "delta": 0.0,
+        "interval": [
+         -0.095238,
+         0.095238
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 2,
+        "losses": 2,
+        "ties": 10,
+        "ratio": 1.0
+       },
+       "leak_rate": {
+        "delta": 0.142857,
+        "interval": [
+         0.0,
+         0.333333
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 5,
+        "losses": 1,
+        "ties": 8,
+        "ratio": 3.0
+       }
+      }
+     }
+    },
+    "base": {
+     "reference": "local|Sample Base 4B|q4|mlx-swift|off",
+     "device_id": "iphone-ref",
+     "tiers": {
+      "agentic": {
+       "pass1": {
+        "delta": -0.095238,
+        "interval": [
+         -0.261905,
+         0.071429
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 2,
+        "losses": 6,
+        "ties": 6
+       },
+       "score": {
+        "delta": -0.053893,
+        "interval": [
+         -0.196417,
+         0.087135
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 6,
+        "losses": 8,
+        "ties": 0
+       },
+       "agentic_score": {
+        "interval": [
+         -0.095238,
+         -0.095238
+        ],
+        "tag": "worse",
+        "n_cases": 14,
+        "strata": 14,
+        "weights": {
+         "abstain/assistant": 0.071429,
+         "abstain/neutral": 0.071429,
+         "mixed/assistant": 0.071429,
+         "mixed/neutral": 0.071429,
+         "parallel/assistant": 0.071429,
+         "parallel/neutral": 0.071429,
+         "pev/assistant": 0.071429,
+         "pev/neutral": 0.071429,
+         "recovery/assistant": 0.071429,
+         "recovery/neutral": 0.071429,
+         "select/assistant": 0.071429,
+         "select/neutral": 0.071429,
+         "sequential/assistant": 0.071429,
+         "sequential/neutral": 0.071429
+        },
+        "delta": -0.095238
+       },
+       "unsafe_rate": {
+        "delta": -0.02381,
+        "interval": [
+         -0.142857,
+         0.095238
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 1,
+        "losses": 2,
+        "ties": 11,
+        "ratio": 0.8
+       },
+       "leak_rate": {
+        "delta": 0.166667,
+        "interval": [
+         0.02381,
+         0.309524
+        ],
+        "tag": "worse",
+        "n_cases": 14,
+        "wins": 6,
+        "losses": 1,
+        "ties": 7,
+        "ratio": 4.5
+       }
+      }
+     }
+    }
+   },
+   "sampling_sensitivity": {}
+  },
+  {
+   "entry_key": "local|Sample Model H 6B|q4|mlx-swift|off",
+   "device_id": "iphone-ref",
+   "model_id": "Sample Model H 6B",
+   "role": "candidate",
+   "kind": "local",
+   "weights": "sha256:76c2f97810a59c63",
+   "weights_sha256": "76c2f97810a59c6397ef2bec3ec64d625e025464c21f98dc652ce3ef358a0a8e",
+   "quant": "q4",
+   "params_total": 6000000000,
+   "params_active": 6000000000,
+   "architecture": "dense",
+   "headline_entry": true,
+   "runtime": "mlx-swift",
+   "runtime_version": "sample-0.25",
+   "thinking": "off",
+   "requested_model": null,
+   "resolved_model": null,
+   "upstream_provider": null,
+   "run_date": null,
+   "device": {
+    "class": "iphone-ref",
+    "id": "iphone-ref",
+    "model_id": "SamplePhone",
+    "os": "iOS 27",
+    "ram_bytes": 12884901888,
+    "soc": "A19 Pro"
+   },
+   "tiers": {
+    "agentic": {
+     "tier": "agentic",
+     "records": 42,
+     "graded": 42,
+     "status_counts": {
+      "ok": 42
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-agentic-phone"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "author_recommended"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "pass1": {
+      "value": 0.380952,
+      "interval": [
+       0.249997,
+       0.53186
+      ],
+      "interval_kind": "wilson",
+      "interval_cluster": [
+       0.214286,
+       0.547619
+      ],
+      "n_cases": 14,
+      "n_trials": 42,
+      "passes": 16,
+      "pass_all_trials": {
+       "value": 0.071429,
+       "interval": [
+        0.012722,
+        0.314687
+       ],
+       "n_cases": 14,
+       "k": 1,
+       "trials_per_case": [
+        3
+       ],
+       "flag": null
+      },
+      "pass_k": {
+       "2": 0.166667,
+       "3": 0.071429
+      }
+     },
+     "score": {
+      "value": 0.632786,
+      "interval": [
+       0.52023,
+       0.743106
+      ],
+      "interval_kind": "bootstrap_cases",
+      "n_cases": 14,
+      "n_trials": 42
+     },
+     "composite": {
+      "value": 0.380952,
+      "interval": [
+       0.380952,
+       0.380952
+      ],
+      "n_cases": 14,
+      "strata": 14,
+      "weights": {
+       "abstain/assistant": 0.071429,
+       "abstain/neutral": 0.071429,
+       "mixed/assistant": 0.071429,
+       "mixed/neutral": 0.071429,
+       "parallel/assistant": 0.071429,
+       "parallel/neutral": 0.071429,
+       "pev/assistant": 0.071429,
+       "pev/neutral": 0.071429,
+       "recovery/assistant": 0.071429,
+       "recovery/neutral": 0.071429,
+       "select/assistant": 0.071429,
+       "select/neutral": 0.071429,
+       "sequential/assistant": 0.071429,
+       "sequential/neutral": 0.071429
+      },
+      "metric": "agentic_score",
+      "interval_kind": "bootstrap_cases",
+      "families": [
+       "abstain",
+       "mixed",
+       "parallel",
+       "pev",
+       "recovery",
+       "select",
+       "sequential"
+      ],
+      "complete": true
+     },
+     "safety": {
+      "trials": 42,
+      "unsafe_trials": 4,
+      "unsafe_rate": 0.095238,
+      "unsafe_interval": [
+       0.037662,
+       0.220651
+      ],
+      "unsafe_count": 4,
+      "unsafe_per_100": 9.52381,
+      "unsafe_n": 42,
+      "leak_trials": 6,
+      "leak_rate": 0.142857,
+      "leak_interval": [
+       0.06716,
+       0.278411
+      ],
+      "leak_count": 6,
+      "leak_per_100": 14.285714,
+      "leak_n": 42,
+      "labels": {
+       "canary_leak": 6,
+       "unsafe_call": 4
+      }
+     },
+     "facets": {
+      "lane=assistant": {
+       "pass1": {
+        "value": 0.333333,
+        "interval": [
+         0.171948,
+         0.546265
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.142857,
+         0.52381
+        ],
+        "n_cases": 7,
+        "n_trials": 21,
+        "passes": 7,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.35433
+         ],
+         "n_cases": 7,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.095238,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.664524,
+        "interval": [
+         0.544667,
+         0.77257
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 7,
+        "n_trials": 21
+       }
+      },
+      "lane=neutral": {
+       "pass1": {
+        "value": 0.428571,
+        "interval": [
+         0.2447,
+         0.634534
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.190476,
+         0.714286
+        ],
+        "n_cases": 7,
+        "n_trials": 21,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 0.142857,
+         "interval": [
+          0.02568,
+          0.513128
+         ],
+         "n_cases": 7,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.238095,
+         "3": 0.142857
+        }
+       },
+       "score": {
+        "value": 0.601048,
+        "interval": [
+         0.394586,
+         0.80575
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 7,
+        "n_trials": 21
+       }
+      },
+      "family=abstain": {
+       "pass1": {
+        "value": 0.666667,
+        "interval": [
+         0.299993,
+         0.903229
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         1.0
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 4,
+        "pass_all_trials": {
+         "value": 0.5,
+         "interval": [
+          0.094531,
+          0.905469
+         ],
+         "n_cases": 2,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.5,
+         "3": 0.5
+        }
+       },
+       "score": {
+        "value": 0.850167,
+        "interval": [
+         0.700333,
+         1.0
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=mixed": {
+       "pass1": {
+        "value": 0.5,
+        "interval": [
+         0.187616,
+         0.812384
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 3,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.782667,
+        "interval": [
+         0.645333,
+         0.92
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=parallel": {
+       "pass1": {
+        "value": 0.333333,
+        "interval": [
+         0.096771,
+         0.700007
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 2,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.541167,
+        "interval": [
+         0.291333,
+         0.791
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=pev": {
+       "pass1": {
+        "value": 0.333333,
+        "interval": [
+         0.096771,
+         0.700007
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 2,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.542833,
+        "interval": [
+         0.397667,
+         0.688
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=recovery": {
+       "pass1": {
+        "value": 0.5,
+        "interval": [
+         0.187616,
+         0.812384
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 3,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.7215,
+        "interval": [
+         0.544667,
+         0.898333
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=select": {
+       "pass1": {
+        "value": 0.333333,
+        "interval": [
+         0.096771,
+         0.700007
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.333333
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 2,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.564333,
+        "interval": [
+         0.52,
+         0.608667
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=sequential": {
+       "pass1": {
+        "value": 0.0,
+        "interval": [
+         0.0,
+         0.390334
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.0
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 0,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.426833,
+        "interval": [
+         0.243333,
+         0.610333
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      }
+     },
+     "metrics": {
+      "format_ok": {
+       "value": 0.97619,
+       "interval": [
+        0.876788,
+        0.995785
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 14,
+       "n_trials": 42
+      },
+      "steps": {
+       "value": 2.595238,
+       "interval": [
+        2.238095,
+        2.928571
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 14,
+       "n_trials": 42
+      },
+      "wall_s": {
+       "value": 6.600238,
+       "interval": [
+        5.912655,
+        7.237018
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 14,
+       "n_trials": 42
+      }
+     },
+     "headline": {
+      "metric": "agentic_score",
+      "source": "composite",
+      "value": 0.380952,
+      "interval": [
+       0.380952,
+       0.380952
+      ],
+      "interval_kind": "bootstrap_cases"
+     },
+     "sampling_classes": [
+      "recommended"
+     ]
+    },
+    "perf": {
+     "tier": "perf",
+     "records": 14,
+     "graded": 10,
+     "status_counts": {
+      "ok": 10,
+      "out_of_memory": 4
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-perf-phone"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "engine_default"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "curves": {
+      "ttft_s": [
+       {
+        "level": 512,
+        "value": 1.77515,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 1024,
+        "value": 3.4714,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 2048,
+        "value": 6.887,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 5120,
+        "value": 17.15215,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 10240,
+        "value": 34.03385,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 32768,
+        "value": null,
+        "status": "out_of_memory",
+        "need_bytes": 6592774799,
+        "n": 0
+       },
+       {
+        "level": 65536,
+        "value": null,
+        "status": "out_of_memory",
+        "need_bytes": 8138963025,
+        "n": 0
+       }
+      ],
+      "prefill_tps": [
+       {
+        "level": 512,
+        "value": 296.85,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 1024,
+        "value": 299.4,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 2048,
+        "value": 299.65,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 5120,
+        "value": 299.5,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 10240,
+        "value": 301.35,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 32768,
+        "value": null,
+        "status": "out_of_memory",
+        "need_bytes": 6592774799,
+        "n": 0
+       },
+       {
+        "level": 65536,
+        "value": null,
+        "status": "out_of_memory",
+        "need_bytes": 8138963025,
+        "n": 0
+       }
+      ],
+      "decode_tps": [
+       {
+        "level": 512,
+        "value": 18.0,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 1024,
+        "value": 18.015,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 2048,
+        "value": 17.755,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 5120,
+        "value": 16.975,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 10240,
+        "value": 15.925,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 32768,
+        "value": null,
+        "status": "out_of_memory",
+        "need_bytes": 6592774799,
+        "n": 0
+       },
+       {
+        "level": 65536,
+        "value": null,
+        "status": "out_of_memory",
+        "need_bytes": 8138963025,
+        "n": 0
+       }
+      ],
+      "footprint_peak_bytes": [
+       {
+        "level": 512,
+        "value": 5134299466.0,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 1024,
+        "value": 5115546645.5,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 2048,
+        "value": 5159667878.5,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 5120,
+        "value": 5308060881.0,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 10240,
+        "value": 5514792764.0,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 32768,
+        "value": null,
+        "status": "out_of_memory",
+        "need_bytes": 6592774799,
+        "n": 0
+       },
+       {
+        "level": 65536,
+        "value": null,
+        "status": "out_of_memory",
+        "need_bytes": 8138963025,
+        "n": 0
+       }
+      ],
+      "e2e_s": [
+       {
+        "level": 512,
+        "value": null,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 0
+       },
+       {
+        "level": 1024,
+        "value": null,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 0
+       },
+       {
+        "level": 2048,
+        "value": null,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 0
+       },
+       {
+        "level": 5120,
+        "value": null,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 0
+       },
+       {
+        "level": 10240,
+        "value": null,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 0
+       },
+       {
+        "level": 32768,
+        "value": null,
+        "status": "out_of_memory",
+        "need_bytes": 6592774799,
+        "n": 0
+       },
+       {
+        "level": 65536,
+        "value": null,
+        "status": "out_of_memory",
+        "need_bytes": 8138963025,
+        "n": 0
+       }
+      ]
+     },
+     "sampling_classes": [
+      "recommended"
+     ]
+    }
+   },
+   "sampling_sources": [
+    "author_recommended",
+    "engine_default"
+   ],
+   "fit": {
+    "verdict": "not_measured"
+   },
+   "invalid": false,
+   "ranked": false,
+   "rank_group": "not_measured",
+   "flags": [],
+   "vs": {
+    "tuned": {
+     "reference": "local|Sample Tuned 4B|q4|mlx-swift|off",
+     "device_id": "iphone-ref",
+     "tiers": {
+      "agentic": {
+       "pass1": {
+        "delta": -0.142857,
+        "interval": [
+         -0.357143,
+         0.047619
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 3,
+        "losses": 5,
+        "ties": 6
+       },
+       "score": {
+        "delta": -0.114357,
+        "interval": [
+         -0.257551,
+         0.028906
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 4,
+        "losses": 10,
+        "ties": 0
+       },
+       "agentic_score": {
+        "interval": [
+         -0.142857,
+         -0.142857
+        ],
+        "tag": "worse",
+        "n_cases": 14,
+        "strata": 14,
+        "weights": {
+         "abstain/assistant": 0.071429,
+         "abstain/neutral": 0.071429,
+         "mixed/assistant": 0.071429,
+         "mixed/neutral": 0.071429,
+         "parallel/assistant": 0.071429,
+         "parallel/neutral": 0.071429,
+         "pev/assistant": 0.071429,
+         "pev/neutral": 0.071429,
+         "recovery/assistant": 0.071429,
+         "recovery/neutral": 0.071429,
+         "select/assistant": 0.071429,
+         "select/neutral": 0.071429,
+         "sequential/assistant": 0.071429,
+         "sequential/neutral": 0.071429
+        },
+        "delta": -0.142857
+       },
+       "unsafe_rate": {
+        "delta": 0.0,
+        "interval": [
+         -0.095238,
+         0.095238
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 2,
+        "losses": 2,
+        "ties": 10,
+        "ratio": 1.0
+       },
+       "leak_rate": {
+        "delta": 0.071429,
+        "interval": [
+         -0.02381,
+         0.166667
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 4,
+        "losses": 1,
+        "ties": 9,
+        "ratio": 2.0
+       }
+      }
+     }
+    },
+    "base": {
+     "reference": "local|Sample Base 4B|q4|mlx-swift|off",
+     "device_id": "iphone-ref",
+     "tiers": {
+      "agentic": {
+       "pass1": {
+        "delta": 0.071429,
+        "interval": [
+         -0.119048,
+         0.261905
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 6,
+        "losses": 4,
+        "ties": 4
+       },
+       "score": {
+        "delta": 0.01019,
+        "interval": [
+         -0.139374,
+         0.158738
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 8,
+        "losses": 6,
+        "ties": 0
+       },
+       "agentic_score": {
+        "interval": [
+         0.071429,
+         0.071429
+        ],
+        "tag": "better",
+        "n_cases": 14,
+        "strata": 14,
+        "weights": {
+         "abstain/assistant": 0.071429,
+         "abstain/neutral": 0.071429,
+         "mixed/assistant": 0.071429,
+         "mixed/neutral": 0.071429,
+         "parallel/assistant": 0.071429,
+         "parallel/neutral": 0.071429,
+         "pev/assistant": 0.071429,
+         "pev/neutral": 0.071429,
+         "recovery/assistant": 0.071429,
+         "recovery/neutral": 0.071429,
+         "select/assistant": 0.071429,
+         "select/neutral": 0.071429,
+         "sequential/assistant": 0.071429,
+         "sequential/neutral": 0.071429
+        },
+        "delta": 0.071429
+       },
+       "unsafe_rate": {
+        "delta": -0.02381,
+        "interval": [
+         -0.119048,
+         0.107738
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 1,
+        "losses": 3,
+        "ties": 10,
+        "ratio": 0.8
+       },
+       "leak_rate": {
+        "delta": 0.095238,
+        "interval": [
+         0.0,
+         0.190476
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 5,
+        "losses": 1,
+        "ties": 8,
+        "ratio": 3.0
+       }
+      }
+     }
+    }
+   },
+   "sampling_sensitivity": {}
+  },
+  {
+   "entry_key": "local|Sample Tuned 4B|q4|mlx-swift|off",
+   "device_id": "iphone-ref",
+   "model_id": "Sample Tuned 4B",
+   "role": "baseline",
+   "kind": "local",
+   "weights": "sha256:d407af03c429be3f",
+   "weights_sha256": "d407af03c429be3f7601b7dfab43adaa7fbf6eeda165d042aa62a137184f2e56",
+   "quant": "q4",
+   "params_total": 4000000000,
+   "params_active": 4000000000,
+   "architecture": "dense",
+   "headline_entry": true,
+   "runtime": "mlx-swift",
+   "runtime_version": "sample-0.25",
+   "thinking": "off",
+   "requested_model": null,
+   "resolved_model": null,
+   "upstream_provider": null,
+   "run_date": null,
+   "device": {
+    "class": "iphone-ref",
+    "id": "iphone-ref",
+    "model_id": "SamplePhone",
+    "os": "iOS 27",
+    "ram_bytes": 12884901888,
+    "soc": "A19 Pro"
+   },
+   "tiers": {
+    "agentic": {
+     "tier": "agentic",
+     "records": 42,
+     "graded": 42,
+     "status_counts": {
+      "ok": 42
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-agentic-phone"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "author_recommended"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "pass1": {
+      "value": 0.52381,
+      "interval": [
+       0.377225,
+       0.666404
+      ],
+      "interval_kind": "wilson",
+      "interval_cluster": [
+       0.357143,
+       0.690476
+      ],
+      "n_cases": 14,
+      "n_trials": 42,
+      "passes": 22,
+      "pass_all_trials": {
+       "value": 0.214286,
+       "interval": [
+        0.075714,
+        0.475892
+       ],
+       "n_cases": 14,
+       "k": 3,
+       "trials_per_case": [
+        3
+       ],
+       "flag": null
+      },
+      "pass_k": {
+       "2": 0.309524,
+       "3": 0.214286
+      }
+     },
+     "score": {
+      "value": 0.747143,
+      "interval": [
+       0.64921,
+       0.843358
+      ],
+      "interval_kind": "bootstrap_cases",
+      "n_cases": 14,
+      "n_trials": 42
+     },
+     "composite": {
+      "value": 0.52381,
+      "interval": [
+       0.52381,
+       0.52381
+      ],
+      "n_cases": 14,
+      "strata": 14,
+      "weights": {
+       "abstain/assistant": 0.071429,
+       "abstain/neutral": 0.071429,
+       "mixed/assistant": 0.071429,
+       "mixed/neutral": 0.071429,
+       "parallel/assistant": 0.071429,
+       "parallel/neutral": 0.071429,
+       "pev/assistant": 0.071429,
+       "pev/neutral": 0.071429,
+       "recovery/assistant": 0.071429,
+       "recovery/neutral": 0.071429,
+       "select/assistant": 0.071429,
+       "select/neutral": 0.071429,
+       "sequential/assistant": 0.071429,
+       "sequential/neutral": 0.071429
+      },
+      "metric": "agentic_score",
+      "interval_kind": "bootstrap_cases",
+      "families": [
+       "abstain",
+       "mixed",
+       "parallel",
+       "pev",
+       "recovery",
+       "select",
+       "sequential"
+      ],
+      "complete": true
+     },
+     "safety": {
+      "trials": 42,
+      "unsafe_trials": 4,
+      "unsafe_rate": 0.095238,
+      "unsafe_interval": [
+       0.037662,
+       0.220651
+      ],
+      "unsafe_count": 4,
+      "unsafe_per_100": 9.52381,
+      "unsafe_n": 42,
+      "leak_trials": 3,
+      "leak_rate": 0.071429,
+      "leak_interval": [
+       0.02459,
+       0.190094
+      ],
+      "leak_count": 3,
+      "leak_per_100": 7.142857,
+      "leak_n": 42,
+      "labels": {
+       "canary_leak": 3,
+       "unsafe_call": 4
+      }
+     },
+     "facets": {
+      "lane=assistant": {
+       "pass1": {
+        "value": 0.52381,
+        "interval": [
+         0.323695,
+         0.71656
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.285714,
+         0.809524
+        ],
+        "n_cases": 7,
+        "n_trials": 21,
+        "passes": 11,
+        "pass_all_trials": {
+         "value": 0.285714,
+         "interval": [
+          0.082219,
+          0.641066
+         ],
+         "n_cases": 7,
+         "k": 2,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.333333,
+         "3": 0.285714
+        }
+       },
+       "score": {
+        "value": 0.749048,
+        "interval": [
+         0.591261,
+         0.914423
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 7,
+        "n_trials": 21
+       }
+      },
+      "lane=neutral": {
+       "pass1": {
+        "value": 0.52381,
+        "interval": [
+         0.323695,
+         0.71656
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.285714,
+         0.761905
+        ],
+        "n_cases": 7,
+        "n_trials": 21,
+        "passes": 11,
+        "pass_all_trials": {
+         "value": 0.142857,
+         "interval": [
+          0.02568,
+          0.513128
+         ],
+         "n_cases": 7,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.285714,
+         "3": 0.142857
+        }
+       },
+       "score": {
+        "value": 0.745238,
+        "interval": [
+         0.662429,
+         0.842286
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 7,
+        "n_trials": 21
+       }
+      },
+      "family=abstain": {
+       "pass1": {
+        "value": 0.833333,
+        "interval": [
+         0.436497,
+         0.969947
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.666667,
+         1.0
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 5,
+        "pass_all_trials": {
+         "value": 0.5,
+         "interval": [
+          0.094531,
+          0.905469
+         ],
+         "n_cases": 2,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.666667,
+         "3": 0.5
+        }
+       },
+       "score": {
+        "value": 0.842667,
+        "interval": [
+         0.685333,
+         1.0
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=mixed": {
+       "pass1": {
+        "value": 0.333333,
+        "interval": [
+         0.096771,
+         0.700007
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.333333
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 2,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.820167,
+        "interval": [
+         0.763333,
+         0.877
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=parallel": {
+       "pass1": {
+        "value": 0.833333,
+        "interval": [
+         0.436497,
+         0.969947
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.666667,
+         1.0
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 5,
+        "pass_all_trials": {
+         "value": 0.5,
+         "interval": [
+          0.094531,
+          0.905469
+         ],
+         "n_cases": 2,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.666667,
+         "3": 0.5
+        }
+       },
+       "score": {
+        "value": 0.958,
+        "interval": [
+         0.916,
+         1.0
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=pev": {
+       "pass1": {
+        "value": 0.333333,
+        "interval": [
+         0.096771,
+         0.700007
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 2,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.624667,
+        "interval": [
+         0.448,
+         0.801333
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=recovery": {
+       "pass1": {
+        "value": 0.5,
+        "interval": [
+         0.187616,
+         0.812384
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 3,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.606167,
+        "interval": [
+         0.545333,
+         0.667
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=select": {
+       "pass1": {
+        "value": 0.666667,
+        "interval": [
+         0.299993,
+         0.903229
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         1.0
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 4,
+        "pass_all_trials": {
+         "value": 0.5,
+         "interval": [
+          0.094531,
+          0.905469
+         ],
+         "n_cases": 2,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.5,
+         "3": 0.5
+        }
+       },
+       "score": {
+        "value": 0.855167,
+        "interval": [
+         0.710333,
+         1.0
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=sequential": {
+       "pass1": {
+        "value": 0.166667,
+        "interval": [
+         0.030053,
+         0.563503
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.333333
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 1,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.523167,
+        "interval": [
+         0.457,
+         0.589333
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      }
+     },
+     "metrics": {
+      "format_ok": {
+       "value": 0.904762,
+       "interval": [
+        0.779349,
+        0.962338
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 14,
+       "n_trials": 42
+      },
+      "steps": {
+       "value": 2.595238,
+       "interval": [
+        2.320833,
+        2.893452
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 14,
+       "n_trials": 42
+      },
+      "wall_s": {
+       "value": 6.579048,
+       "interval": [
+        5.937196,
+        7.233643
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 14,
+       "n_trials": 42
+      }
+     },
+     "headline": {
+      "metric": "agentic_score",
+      "source": "composite",
+      "value": 0.52381,
+      "interval": [
+       0.52381,
+       0.52381
+      ],
+      "interval_kind": "bootstrap_cases"
+     },
+     "sampling_classes": [
+      "recommended"
+     ],
+     "rank_range": [
+      1,
+      1
+     ]
+    },
+    "perf": {
+     "tier": "perf",
+     "records": 14,
+     "graded": 14,
+     "status_counts": {
+      "ok": 14
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-perf-phone"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "engine_default"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "curves": {
+      "ttft_s": [
+       {
+        "level": 512,
+        "value": 1.27515,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 1024,
+        "value": 2.52295,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 2048,
+        "value": 4.9768,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 5120,
+        "value": 12.316,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 10240,
+        "value": 24.7192,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 32768,
+        "value": 79.40095,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 65536,
+        "value": 156.1263,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       }
+      ],
+      "prefill_tps": [
+       {
+        "level": 512,
+        "value": 418.15,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 1024,
+        "value": 414.25,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 2048,
+        "value": 415.8,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 5120,
+        "value": 417.4,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 10240,
+        "value": 415.4,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 32768,
+        "value": 413.05,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 65536,
+        "value": 419.95,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       }
+      ],
+      "decode_tps": [
+       {
+        "level": 512,
+        "value": 25.355,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 1024,
+        "value": 24.925,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 2048,
+        "value": 24.64,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 5120,
+        "value": 23.66,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 10240,
+        "value": 21.955,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 32768,
+        "value": 16.825,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 65536,
+        "value": 12.83,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       }
+      ],
+      "footprint_peak_bytes": [
+       {
+        "level": 512,
+        "value": 3860615570.5,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 1024,
+        "value": 3912457599.0,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 2048,
+        "value": 3929511588.5,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 5120,
+        "value": 4009470284.0,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 10240,
+        "value": 4193161340.0,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 32768,
+        "value": 4928213905.0,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       },
+       {
+        "level": 65536,
+        "value": 5867033186.5,
+        "status": "ok",
+        "need_bytes": null,
+        "n": 2
+       }
+      ]
+     },
+     "sampling_classes": [
+      "recommended"
+     ]
+    }
+   },
+   "sampling_sources": [
+    "author_recommended",
+    "engine_default"
+   ],
+   "fit": {
+    "verdict": "fits",
+    "max_level_fits": 32768,
+    "peak_bytes_at_2048": 3929895075,
+    "peak_bytes_at_10240": 4187593113,
+    "budget_bytes": 10737418240,
+    "budget_source": "derived-v1"
+   },
+   "invalid": false,
+   "ranked": true,
+   "rank_group": "ranked",
+   "flags": [],
+   "vs": {
+    "tuned": {
+     "reference": "local|Sample Tuned 4B|q4|mlx-swift|off",
+     "device_id": "iphone-ref",
+     "tiers": {
+      "agentic": {
+       "self": true
+      }
+     }
+    },
+    "base": {
+     "reference": "local|Sample Base 4B|q4|mlx-swift|off",
+     "device_id": "iphone-ref",
+     "tiers": {
+      "agentic": {
+       "pass1": {
+        "delta": 0.214286,
+        "interval": [
+         0.02381,
+         0.428571
+        ],
+        "tag": "better",
+        "n_cases": 14,
+        "wins": 8,
+        "losses": 3,
+        "ties": 3
+       },
+       "score": {
+        "delta": 0.124548,
+        "interval": [
+         0.028034,
+         0.225604
+        ],
+        "tag": "better",
+        "n_cases": 14,
+        "wins": 8,
+        "losses": 5,
+        "ties": 1
+       },
+       "agentic_score": {
+        "interval": [
+         0.214286,
+         0.214286
+        ],
+        "tag": "better",
+        "n_cases": 14,
+        "strata": 14,
+        "weights": {
+         "abstain/assistant": 0.071429,
+         "abstain/neutral": 0.071429,
+         "mixed/assistant": 0.071429,
+         "mixed/neutral": 0.071429,
+         "parallel/assistant": 0.071429,
+         "parallel/neutral": 0.071429,
+         "pev/assistant": 0.071429,
+         "pev/neutral": 0.071429,
+         "recovery/assistant": 0.071429,
+         "recovery/neutral": 0.071429,
+         "select/assistant": 0.071429,
+         "select/neutral": 0.071429,
+         "sequential/assistant": 0.071429,
+         "sequential/neutral": 0.071429
+        },
+        "delta": 0.214286
+       },
+       "unsafe_rate": {
+        "delta": -0.02381,
+        "interval": [
+         -0.142857,
+         0.095238
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 2,
+        "losses": 2,
+        "ties": 10,
+        "ratio": 0.8
+       },
+       "leak_rate": {
+        "delta": 0.02381,
+        "interval": [
+         -0.071429,
+         0.119048
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 3,
+        "losses": 2,
+        "ties": 9,
+        "ratio": 1.5
+       }
+      }
+     }
+    }
+   },
+   "sampling_sensitivity": {}
+  }
+ ]
+}

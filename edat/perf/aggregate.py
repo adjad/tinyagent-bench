@@ -1346,8 +1346,14 @@ def aggregate(doc: Mapping, *, run_dir: str | Path | None = None, energy_fn: Ene
     out["aggregation"] = {"aggregator": "edat.perf.aggregate", "version": AGGREGATOR_VERSION,
                           "stats": STATS_METADATA, "baseline_model_id": base_id, "reference_model_id": ref_id,
                           "denominator_notes": notes, "choices": list(CHOICES)}
-    for derive in extra_derivers:
-        derive(out, vmap)
+    if extra_derivers:
+        # Derivers read side files (power traces, battery and sim-day records) next to the document.
+        out["_run_dir"] = str(run_dir) if run_dir is not None else None
+        try:
+            for derive in extra_derivers:
+                derive(out, vmap)
+        finally:
+            out.pop("_run_dir", None)
     return out
 
 
@@ -1359,7 +1365,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = ap.parse_args(argv)
     try:
         doc = json.loads(args.run.read_text())
-        result = aggregate(doc, run_dir=args.run.parent)
+        from .derive import EXTRA_DERIVERS
+        result = aggregate(doc, run_dir=args.run.parent, extra_derivers=EXTRA_DERIVERS)
     except (OSError, ValueError) as e:
         print(f"error: {e}", file=sys.stderr)
         return 2

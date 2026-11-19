@@ -45,7 +45,9 @@ def test_energy_pair_numbers_by_hand(tmp_path):
     path = w.finalize(ended_utc=clock.utc(), device={"class": "mac-ref", "ram_bytes": 24 << 30},
                       runtime={"name": "omlx"}, models=r.finish_models(), prompt_pack={"M": {}},
                       conditions_start={}, conditions_end={})
-    doc = aggregate(json.loads(path.read_text()), run_dir=w.dir)
+    from edat.perf.derive import EXTRA_DERIVERS
+    doc = aggregate(json.loads(path.read_text()), run_dir=w.dir, extra_derivers=EXTRA_DERIVERS)
+    assert "_run_dir" not in doc
     pair = next(c for c in doc["cells"] if c["test"] == "energy_pair")
     assert pair["e_dec_mJ_per_tok"] == pytest.approx(700.0, rel=0.01)
     assert pair["e_pre_mJ_per_tok"] == pytest.approx(13.73e3 / 512, rel=0.02)

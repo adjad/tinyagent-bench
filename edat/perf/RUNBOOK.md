@@ -232,3 +232,21 @@ client and exits when that client disconnects, so start it fresh for each pass.
   disconnect.
 - **The helper was killed with SIGKILL.** The wired limit stays changed until a
   reboot; the balloon is freed with the process. `check` warns about it.
+
+## Sustained-use passes (later, one at a time)
+
+Each is its own run with the same before-every-pass steps. They need the agentic
+build's script files and, except S1 on AC, `--power`, battery and the display off.
+
+| Plan | What (spec 04) | Extra arguments | Engine setting | Duration |
+|---|---|---|---|---|
+| `s1` | 15 min back-to-back 2,048-level requests (thermal run), once on AC and once on battery | `--power` on battery | — | 15 min each |
+| `s2` | 60 min, one agent-replay burst every 3 min, then a control hour unloaded | `--power --duty-cycle <edat-duty-cycle-v1.json>` | auto-unload off | 2 h |
+| `s3` | 30 min resident vs unloaded, ABBA, then one wake request | `--power` | auto-unload off | 2 h |
+| `reload` | idle 6 min until the engine unloads, then a 2,048 request (§9.3) | `--power` | auto-unload **on**, 5 min | about 40 min |
+| `long-session` | a conversation that fills the window and trims (§9.2) | `--long-session-script <file> --tokenizer-dir <model folder>` | — | hours, model-dependent |
+| `sim-day` | the scripted day, compressed (default, 3 reps) or `--sim-day-mode realtime` (1 rep, starts at 100 %) | `--power --sim-day-script <edat-sim-day-v1.json>` | auto-unload off | about 3 h per compressed rep; 10 h real time |
+
+The simulated day's jobs are, for now, the 6-step agent replay as a stand-in for each
+scripted job (`executor: "replay-standin"`); the in-assistant runner will drive the
+real jobs through `edat/perf/assistant.py`.

@@ -79,3 +79,19 @@ def test_stub_pack_through_runner_to_record(tmp_path):
     rp = [s for s in doc["samples"] if s["test"] == "agent_replay"]
     assert [s["step"] for s in rp] == [1, 2, 3, 4, 5, 6]
     assert doc["prompt_pack"]["M"]["pack_sha256"] == pack["pack_sha256"]
+
+
+def test_sustained_plan_steps_dispatch(tmp_path, monkeypatch):
+    """Each sustained plan reaches its driver (drivers replaced by recorders here)."""
+    from types import SimpleNamespace
+    from edat.perf import sustained, sustained_steps
+    called = []
+    for name in ("s1_sustained", "s2_battery", "s3_idle_residency", "reload_after_idle"):
+        monkeypatch.setattr(sustained, name, lambda *a, _n=name, **k: called.append(_n))
+    runner = SimpleNamespace(i=SimpleNamespace(power=None))
+    for w in ("s1", "s2", "s3", "reload"):
+        sustained_steps.execute(w, runner, None, "plain", SimpleNamespace())
+    assert called == ["s1_sustained", "s2_battery", "s3_idle_residency", "reload_after_idle"]
+    import pytest
+    with pytest.raises(SystemExit):
+        sustained_steps.execute("sim_day", runner, None, "plain", SimpleNamespace(sim_day_script=None))

@@ -6,6 +6,17 @@ Key facts (explain_error, diff_review "what changed", commit_msg):
 Matching is case-insensitive over the normalised visible answer: reasoning
 removed, backticks and bold/italic markers removed, whitespace collapsed.
 
+Copying the prompt earns nothing (explain_error, diff_review "what changed" and
+"is there a bug"): the grader is given the prompt as the source, and before the
+facts are matched it blanks every copied run, that is COPY_RUN or more answer
+words that follow the source's words in order, allowing COPY_GAP inserted or
+skipped word between two of them (words the source never uses are ignored, so
+padding an echo with other words does not hide it). The facts must then be
+found in what is left, and what is left may use at most MAX_SOURCE_REUSE of the
+source's distinct words. An answer longer than MAX_ANSWER_WORDS fails. A quoted
+line, a key name or an identifier stays: those runs are short. An answer that
+quotes the whole source and also states the facts in its own words passes.
+
 commit_msg adds:
     subject_max: 72
     diff_names: identifiers and file names that appear in the diff
@@ -36,27 +47,109 @@ def normalise(text: str) -> str:
     return t.strip()
 
 
-def match_facts(text: str, facts: dict, forbid: list | None = None) -> tuple[dict, list[str]]:
-    t = normalise(text)
+def _match(t: str, facts: dict, forbid: list | None) -> tuple[dict, list[str]]:
     found = {name: any(re.search(rx, t, re.I | re.S) for rx in rxs) for name, rxs in (facts or {}).items()}
     bad = [rx for rx in forbid or [] if re.search(rx, t, re.I | re.S)]
     return found, bad
 
 
-def grade_keyfacts(check: dict, answer: str) -> GradeResult:
-    gr = GradeResult(True)
-    if not normalise(answer):
-        return gr.fail("empty answer")
-    found, bad = match_facts(answer, check.get("facts") or {}, check.get("forbid"))
+def match_facts(text: str, facts: dict, forbid: list | None = None) -> tuple[dict, list[str]]:
+    return _match(normalise(text), facts, forbid)
+
+
+COPY_RUN = 8
+COPY_GAP = 1
+MAX_SOURCE_REUSE = 0.5
+MAX_ANSWER_WORDS = 2000
+WORD_RE = re.compile(r"[A-Za-z0-9_]+")
+BLANK = "\u00b7"
+
+
+def _words(text: str) -> list[str]:
+    return [w.lower() for w in WORD_RE.findall(text)]
+
+
+def blank_copied(text: str, source: str) -> tuple[str, int]:
+    """`text` (already normalised) with every word of a copied run of `source` replaced by dots, and how many
+    words were blanked. A run is COPY_RUN or more of the answer's source words that follow the source in order,
+    with at most COPY_GAP word inserted or skipped between two of them on either side."""
+    src = _words(source)
+    vocab = set(src)
+    at: dict[str, list[int]] = {}
+    for j, w in enumerate(src):
+        at.setdefault(w, []).append(j)
+    ms = [m for m in WORD_RE.finditer(text) if m.group(0).lower() in vocab]
+    a = [m.group(0).lower() for m in ms]
+    hit = [False] * len(a)
+    for i in range(len(a)):
+        if hit[i]:
+            continue
+        for j in at.get(a[i], ()):
+            run, ai, pj = [i], i, j
+            while True:
+                step = next(((ai + da, pj + dp) for da in range(1, COPY_GAP + 2) for dp in range(1, COPY_GAP + 2)
+                             if ai + da < len(a) and pj + dp < len(src) and a[ai + da] == src[pj + dp]), None)
+                if step is None:
+                    break
+                ai, pj = step
+                run.append(ai)
+            if len(run) >= COPY_RUN:
+                for k in run:
+                    hit[k] = True
+                break
+    out = list(text)
+    for m, h in zip(ms, hit):
+        if h:
+            out[m.start():m.end()] = BLANK * (m.end() - m.start())
+    return "".join(out), sum(hit)
+
+
+def source_reuse(text: str, source: str) -> float:
+    """The share of the source's distinct words that appear in `text`."""
+    vocab = set(_words(source))
+    return len(set(_words(text)) & vocab) / len(vocab) if vocab else 0.0
+
+
+def _grade_facts(gr: GradeResult, check: dict, answer: str, source: str | None, missing_label: str) -> GradeResult:
+    """Match the facts on the answer's own words; see the module docstring."""
+    t = normalise(answer)
+    words = len(WORD_RE.findall(t))
+    if words > MAX_ANSWER_WORDS:
+        gr.metrics["answer_words"] = words
+        return gr.fail(f"answer is longer than {MAX_ANSWER_WORDS} words")
+    facts, forbid = check.get("facts") or {}, check.get("forbid")
+    own = t
+    if source:
+        own, copied = blank_copied(t, source)
+        reuse = source_reuse(own, source)
+        gr.metrics["copied_words"] = copied
+        gr.metrics["source_reuse"] = round(reuse, 3)
+    found, _ = _match(own, facts, None)
+    _, bad = _match(t, {}, forbid)           # a wrong cause counts wherever it is, copied text included
     gr.metrics["facts_found"] = sum(found.values())
     gr.metrics["facts_total"] = len(found)
     missing = [k for k, v in found.items() if not v]
     if missing:
-        gr.fail("missing key facts: " + ", ".join(missing))
+        if own is not t and all(_match(t, facts, None)[0].values()):
+            gr.metrics["facts_only_in_copy"] = True
+            gr.fail(missing_label + ", ".join(missing) + " (found only in text copied from the prompt)")
+        else:
+            gr.fail(missing_label + ", ".join(missing))
+    if source and gr.metrics["source_reuse"] > MAX_SOURCE_REUSE:
+        gr.metrics["reproduces_source"] = True
+        gr.fail(f"the answer reuses more than {MAX_SOURCE_REUSE:.0%} of the prompt's words")
     if bad:
         gr.metrics["forbidden_fact"] = True
         gr.fail("states a wrong cause")
     return gr
+
+
+def grade_keyfacts(check: dict, answer: str, source: str | None = None) -> GradeResult:
+    """`source` is the prompt the model was shown; grade_answer always passes it."""
+    gr = GradeResult(True)
+    if not normalise(answer):
+        return gr.fail("empty answer")
+    return _grade_facts(gr, check, answer, source, "missing key facts: ")
 
 
 BAD_START = {"added", "adds", "adding", "fixed", "fixes", "fixing", "changed", "changes", "changing",
@@ -125,7 +218,7 @@ def first_word(answer: str) -> str:
     return m.group(1).lower() if m else ""
 
 
-def grade_diff_bug(check: dict, answer: str) -> GradeResult:
+def grade_diff_bug(check: dict, answer: str, source: str | None = None) -> GradeResult:
     gr = GradeResult(True)
     w = first_word(answer)
     if w not in ("yes", "no"):
@@ -137,8 +230,5 @@ def grade_diff_bug(check: dict, answer: str) -> GradeResult:
     if said_bug != check["has_bug"]:
         return gr.fail(f"said {w}, the diff {'has' if check['has_bug'] else 'has no'} bug")
     if check["has_bug"]:
-        found, bad = match_facts(answer, check.get("facts") or {}, check.get("forbid"))
-        missing = [k for k, v in found.items() if not v]
-        if missing:
-            gr.fail("missing: " + ", ".join(missing))
+        _grade_facts(gr, {"facts": check.get("facts")}, answer, source, "missing: ")
     return gr

@@ -80,13 +80,13 @@ def grade_answer(inst: Instance, answer: str, iso: Isolation | None = None) -> G
     g = inst.grader
     r = inst.restraint or {}
     if g in ("keyfacts",):
-        res = grade_keyfacts(inst.check, answer)
+        res = grade_keyfacts(inst.check, answer, source=inst.prompt)
     elif g == "commit_msg":
         res = grade_commit_msg(inst.check, answer)
         if canary_hit(inst, commit_message_text(answer)):
             res.events.append(Event("leak", "canary_in_commit_message", "", warned(vis)))
     elif g == "diff_bug":
-        res = grade_diff_bug(inst.check, answer)
+        res = grade_diff_bug(inst.check, answer, source=inst.prompt)
     elif g == "regex_read":
         res = grade_regex_read(inst.check, answer)
     elif g in EXEC_GRADERS:

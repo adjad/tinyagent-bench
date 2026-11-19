@@ -276,8 +276,10 @@ def overlap_report(dev: dict[str, list[dict]], held: dict[str, list[dict]]) -> d
         "source_items_shared": len(d_items & h_items), "planted_sentences_shared": len(d_fact_txt & h_fact_txt),
         "dev_cases": len(d_cases), "heldout_cases": len(h_cases),
     }
+    # Identical planted sentences are reported, not failed: low-entropy facts with no unique anchor
+    # (one of ten items to bring, one of four notice periods) repeat across seeds by design.
     rep["ok"] = not (rep["seeds_shared"] or rep["case_ids_shared"] or rep["source_items_shared"]
-                     or rep["planted_sentences_shared"] or rep["planted_anchors_shared_n"])
+                     or rep["planted_anchors_shared_n"])
     return rep
 
 

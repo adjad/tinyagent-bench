@@ -146,11 +146,10 @@ The helper is the only part of tinyagent-bench that runs as root. Read
 `tools/edat_admin_helper/README.md` and the script itself first. It serves one
 client and exits when that client disconnects, so start it fresh for each pass.
 
-11. Make a folder for the helper (owned by you) and rehearse it without root:
-
-    ```bash
-    mkdir -p <run-root>/helper-load
-    ```
+11. Read the helper's plan without root. Do not create its folder: the helper makes
+    `<run-root>/helper-load` itself and refuses one that exists, and refuses a path
+    containing a symbolic link (use `/private/tmp`, not `/tmp`). `<run-root>` itself must
+    exist and belong to you.
 
     ```bash
     /usr/bin/python3 tools/edat_admin_helper/edat_admin_helper.py --run-dir <absolute run-root>/helper-load --print-plan
@@ -172,7 +171,7 @@ client and exits when that client disconnects, so start it fresh for each pass.
     `cold_verified: false`; then fall back to a reboot and 5 minutes' rest per cold
     sample (§7).
 
-14. For the fit pass, make `<run-root>/helper-fit16`, start a fresh helper on it
+14. For the fit pass, start a fresh helper with `--run-dir <absolute run-root>/helper-fit16` (a new folder; the helper creates it)
     (step 12), and run `--plan fit16` with `--admin-socket <absolute run-root>/helper-fit16/admin.sock`.
     The helper wires 10.5 GiB and sets the 16 GB GPU wired limit, then restores both.
     Set the benchmark instance's memory-guard ceiling to 13 GiB for this pass, and

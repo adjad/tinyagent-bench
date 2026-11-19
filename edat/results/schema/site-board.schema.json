@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/adjad/Edge_device_agentic_testing/edat/results/schema/site-board.schema.json",
-  "title": "EDAT website board file (edat.site-board/1.0)",
+  "title": "tinyagent-bench website board file (edat.site-board/1.0)",
   "description": "site/data/<board_version>/<device_id>.json (or cloud.json): the compact data the website reads, shaped after 06-ui-design.md section 4. Rates are percentages (0-100); memory is bytes; times are seconds.",
   "type": "object",
   "additionalProperties": false,

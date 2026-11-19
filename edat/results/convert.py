@@ -104,7 +104,7 @@ def convert_toolbench(src: Path | str, store: Path | str, *, board_version: str,
                       default_thinking: str | None = None, weights: dict[str, str] | None = None,
                       quant: dict[str, str] | None = None, run_dir: Path | str | None = None,
                       sample: bool = False) -> Path:
-    """Toolbench run directory -> one EDAT run. Returns the new run directory.
+    """Toolbench run directory -> one tinyagent-bench run. Returns the new run directory.
 
     `weights` / `quant` map model id -> fingerprint or sha256 / scheme, for
     legacy runs whose rows carry no `key`."""
@@ -287,7 +287,7 @@ def perf_sample_metrics(s: dict) -> dict:
 def convert_perf(doc_path: Path | str, store: Path | str, *, board_version: str, device_id: str | None = None,
                  sampling_source: str = "engine_default", harness_commit: str | None = None,
                  run_dir: Path | str | None = None, sample: bool = False) -> Path:
-    """edat.perf/1.0 run document -> one EDAT run of tier perf."""
+    """edat.perf/1.0 run document -> one tinyagent-bench run of tier perf."""
     doc_path = Path(doc_path).expanduser()
     doc = json.loads(doc_path.read_text())
     if doc.get("schema") != "edat.perf/1.0":
@@ -391,7 +391,7 @@ def convert_productbench(src: Path | str, store: Path | str, *, board_version: s
                          device_id: str | None = None, sampling_source: str = "author_recommended",
                          default_thinking: str | None = None, run_dir: Path | str | None = None,
                          sample: bool = False) -> Path:
-    """In-assistant results.jsonl (+ meta.json) -> one EDAT run of tier in_assistant."""
+    """In-assistant results.jsonl (+ meta.json) -> one tinyagent-bench run of tier in_assistant."""
     src = Path(src).expanduser()
     rows = [json.loads(line) for line in (src / "results.jsonl").read_text().splitlines() if line.strip()]
     meta = json.loads((src / "meta.json").read_text()) if (src / "meta.json").exists() else {}

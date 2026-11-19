@@ -1,4 +1,4 @@
-/* Edge agent bench, clickable mock-up. Hash routes keep every view's state in the URL. */
+/* tinyagent-bench, clickable mock-up. Hash routes keep every view's state in the URL. */
 (function () {
   "use strict";
   const B = window.BENCH, C = window.CHARTS, esc = C.esc, fmt = C.fmt;
@@ -750,7 +750,7 @@
     renderNav();
     $("#nav-links").classList.remove("open");
     const titles = { "": "Leaderboard", model: (modelById[p1] || {}).name, compare: "Compare", tests: "Tests", case: "Test case", capture: "Captured output", profiles: "Synthetic profiles", devices: "Devices", device: (devById[p1] || {}).name, methodology: "Methodology", vote: "Readability vote" };
-    document.title = (titles[p0 || ""] || "Not found") + " | Edge agent bench";
+    document.title = (titles[p0 || ""] || "Not found") + " | tinyagent-bench";
   }
 
   document.addEventListener("click", (e) => {

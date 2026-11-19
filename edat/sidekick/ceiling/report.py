@@ -188,6 +188,7 @@ def build_report(out: Path) -> tuple[str, str]:
           "**solid up to** is how far it holds with no gap below. Every answer was checked by hidden tests in a "
           "sealed sandbox.", "", "## The rungs", ""]
     md += [f"{r.n}. {r.title}" for r in RUNGS]
+    md += _quick_limits(entries)
     for name, e in entries.items():
         s = summaries[name]
         rows = s["rungs"]
@@ -237,6 +238,38 @@ def build_report(out: Path) -> tuple[str, str]:
         md += [f"- {what}: {why}" for what, why in skipped]
     text = "\n".join(md) + "\n"
     return text, _html(text)
+
+
+def _quick_limits(entries: dict) -> list[str]:
+    """For a quick look: what it cannot tell, stated plainly on the page."""
+    quick = [(n, _progress(e["store"])) for n, e in entries.items() if _progress(e["store"]).get("quick")]
+    if not quick:
+        return []
+    q = quick[0][1]["quick"]
+    per, rungs = q["per_rung"], q["rungs"]
+    understated = sorted({_label(n, entries[n]["store"]).split(" [")[0] for n, pg in quick
+                          if pg.get("ships_thinking") and pg["quick"]["thinking"] == "off"})
+    left = [r for r in RUNGS if r.mode == "answer_only" and r.n not in rungs]
+    out = ["", "## What this quick look cannot tell", "",
+           f"This was a quick look: {per} tasks a rung, one try each, answers only. Read it as a first sketch.", "",
+           f"- **No repeat tries.** Each task was tried once, so a lucky or unlucky answer counts fully, and a rung "
+           f"holds on {(per + 1) // 2} of {per} tasks. A ceiling here is good to about one rung either way.",
+           "- **Thinking.** " + (
+               "Every model ran with thinking off. Models that ship with thinking on are likely understated: "
+               + ", ".join(understated) + "." if understated else
+               "Each model ran in the mode it ships in." if q["thinking"] == "shipped" else
+               "Every model ran with thinking off; none of these ships with thinking on."),
+           "- **No tool mode.** Rung 9 (read, edit, run the tests, fix) was not run, so nothing here says how a "
+           "model does with tools.",
+           "- **No safety set.** The Restraint cases were not run, so nothing here says whether a model refuses "
+           "or flags unsafe requests.",
+           ]
+    if left:
+        out.append("- **Rungs left out:** " + ", ".join(f"{r.n} ({r.title.split(':')[0].lower()})" for r in left)
+                   + "; a ceiling cannot be above a rung that was not run.")
+    out += ["", "The first pass (12 tasks a rung, then repeat tries around each ceiling) and the full plan answer "
+            "these.", ""]
+    return out
 
 
 def _skipped(out: Path) -> list[tuple[str, str]]:

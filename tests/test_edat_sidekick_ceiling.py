@@ -8,7 +8,7 @@ import pytest
 from edat.sidekick.ceiling import models, rungs
 from edat.sidekick.ceiling.probe import extract_files
 from edat.sidekick.ceiling.report import build_report, entry_summary
-from edat.sidekick.ceiling.run import _entry_problem, plan_units, run_all, run_entry
+from edat.sidekick.ceiling.run import Quick, _entry_problem, parse_rungs, plan_units, quick_entries, run_all, run_entry
 from edat.sidekick.sandbox.run import SandboxUnavailable, SeatbeltIsolation
 
 
@@ -167,6 +167,30 @@ def test_first_pass_is_answer_only_and_samples_twelve_a_rung():
     assert all(n <= 12 for n in per.values())
     b = plan_units("first-pass", done_ceiling=5)
     assert {u.case.rung.n for u in b} == {4, 5, 6} and {u.trial for u in b} == {2, 3}
+
+
+def test_quick_plan_takes_its_choices_as_flags():
+    units = plan_units("quick")
+    assert len(units) == 8 * 4 and {u.trial for u in units} == {1}
+    assert {u.suite for u in units} <= {"answer_only", "ladder"}
+    q = Quick(per_rung=3, rungs=parse_rungs("1-3,5"), thinking="shipped")
+    assert sorted({u.case.rung.n for u in plan_units("quick", quick=q)}) == [1, 2, 3, 5]
+    assert len(plan_units("quick", quick=q)) == 12
+    assert parse_rungs("4-6,8,1") == (1, 4, 5, 6, 8)
+    for bad in (dict(rungs=(9,)), dict(rungs=()), dict(per_rung=0), dict(thinking="on")):
+        with pytest.raises(ValueError):
+            Quick(**bad)
+
+
+def test_quick_entries_force_thinking_off_or_keep_the_shipped_mode():
+    lfm = _model("LFM3-1.7B-MLX-oQ6e", "lfm3", thinking=(True, False), label="LFM3 1.7B", role="candidate", gb=1.5)
+    six = _model("Spark-X2.6-4B-MLX-6bit", "spark2_5", thinking=(True, False), standard=False, label="Spark", gb=3.3)
+    ms = [lfm, _model(), six]
+    off = quick_entries(ms, Quick(thinking="off"))
+    assert [e.model.engine_id for e in off] == ["gemma-4-E4B-it-oQ4e-mtp", "LFM3-1.7B-MLX-oQ6e"]   # reference first
+    assert all(not e.thinking and e.primary for e in off)
+    shipped = quick_entries(ms, Quick(thinking="shipped"))
+    assert [e.thinking for e in shipped] == [False, True]
 
 
 def test_full_plan_covers_the_sidekick_core_set_and_the_ladder():
@@ -375,8 +399,27 @@ def test_run_all_skips_a_forced_off_thinking_entry_and_runs_its_off_mode(tmp_pat
     assert rows[on]["result"] == "skipped" and "forced off" in rows[on]["why"] and rows[on]["replaced_by"] == off
     assert rows[off]["result"] == "done"
     assert not (tmp_path / "lock").exists()
-    md, _ = build_report(tmp_path / "out")
+    md, _ = build_report(tmp_path / "out" / "smoke")                 # smoke results and their log sit apart
     assert "## Not run" in md and "forced off" in md
+
+
+def test_quick_look_runs_apart_and_its_report_says_what_it_cannot_tell(tmp_path, iso, private):
+    from edat.sidekick.ceiling import estimate
+    lfm = _model("LFM3-1.7B-MLX-oQ6e", "lfm3", thinking=(True, False), label="LFM3 1.7B", role="candidate", gb=1.5)
+    q = Quick(per_rung=1, rungs=(1, 4), thinking="off")
+    log = run_all(tmp_path / "out", plan="quick", quick=q, client_kind="oracle", progress=None, iso=iso,
+                  models=[_model(), lfm])
+    assert [r["result"] for r in log["entries"]] == ["done", "done"] and log["quick"]["per_rung"] == 1
+    qdir = tmp_path / "out" / "quick"
+    assert (qdir / "run-all.json").exists() and not (tmp_path / "out" / "run-all.json").exists()
+    pg = json.loads((qdir / "LFM3-1.7B-MLX-oQ6e.think-off.author" / "progress.json").read_text())
+    assert pg["quick"]["rungs"] == [1, 4] and pg["ships_thinking"] is True and pg["summary"]["ceiling"] == 4
+    md, _ = build_report(qdir)
+    assert "What this quick look cannot tell" in md and "good to about one rung" in md
+    assert "likely understated: LFM3 1.7B" in md and "No tool mode" in md and "No safety set" in md
+    assert "Rungs left out:** 2 (" in md and "9 (" not in md.split("Rungs left out")[1].split("\n")[0]
+    rows = estimate.table(quick_entries([_model(), lfm], q), "quick", quick=q)
+    assert len(rows) == 2 and all(0 < h < 0.2 for _, h in rows)
 
 
 def test_report_from_records(tmp_path):

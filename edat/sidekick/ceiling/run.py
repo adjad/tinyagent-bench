@@ -95,8 +95,82 @@ def _suite(case: LadderCase, tool: bool = False) -> str:
     return "ladder_tool" if case.rung.mode == "tool" else "ladder"
 
 
-def plan_units(plan: str, *, done_ceiling: int | None = None, trials: int = TRIALS) -> list[Unit]:
+ANSWER_ONLY_RUNGS = tuple(r.n for r in RUNGS if r.mode == "answer_only")      # 1-8
+
+
+@dataclass(frozen=True)
+class Quick:
+    """A quick look: answer-only, one trial, a few cases a rung. The choices are flags, not a fixed recipe."""
+    per_rung: int = 4
+    rungs: tuple[int, ...] = ANSWER_ONLY_RUNGS
+    thinking: str = "off"              # "off": thinking off for every model; "shipped": each in the mode it ships in
+
+    def __post_init__(self):
+        if self.per_rung < 1:
+            raise ValueError("--per-rung must be at least 1")
+        bad = [n for n in self.rungs if n not in ANSWER_ONLY_RUNGS]
+        if bad or not self.rungs:
+            raise ValueError(f"a quick look takes answer-only rungs {ANSWER_ONLY_RUNGS[0]}-{ANSWER_ONLY_RUNGS[-1]}"
+                             + (f"; not {bad}" if bad else ""))
+        if self.thinking not in ("off", "shipped"):
+            raise ValueError("--thinking is off or shipped")
+
+    def to_dict(self) -> dict:
+        return {"per_rung": self.per_rung, "rungs": list(self.rungs), "thinking": self.thinking, "trials": 1,
+                "mode": "answer_only"}
+
+
+def parse_rungs(text: str) -> tuple[int, ...]:
+    """'1-8', '1,2,3,5' or '4-6,8'."""
+    out: list[int] = []
+    for part in text.split(","):
+        part = part.strip()
+        if "-" in part:
+            a, b = part.split("-", 1)
+            out += list(range(int(a), int(b) + 1))
+        elif part:
+            out.append(int(part))
+    return tuple(sorted(set(out)))
+
+
+def add_quick_args(ap: argparse.ArgumentParser) -> None:
+    g = ap.add_argument_group("quick look (with --plan quick)")
+    g.add_argument("--per-rung", type=int, default=Quick.per_rung, help="cases a rung (default 4)")
+    g.add_argument("--rungs", default=f"{ANSWER_ONLY_RUNGS[0]}-{ANSWER_ONLY_RUNGS[-1]}",
+                   help="answer-only rungs to include, e.g. 1-8 or 1,3,5-8 (default 1-8)")
+    g.add_argument("--thinking", choices=("off", "shipped"), default=Quick.thinking,
+                   help="off: thinking off for every model (default); shipped: each model in the mode it ships in")
+
+
+def quick_from_args(a) -> Quick:
+    return Quick(per_rung=a.per_rung, rungs=parse_rungs(a.rungs), thinking=a.thinking)
+
+
+def results_dir(out: Path, plan: str) -> Path:
+    """Smoke and quick-look results sit in their own folders, apart from the first pass and the full plan."""
+    return out / plan if plan in ("smoke", "quick") else out
+
+
+def quick_entries(models: list[LocalModel], q: Quick) -> list[Entry]:
+    """One entry a model (standard quantisations only), references first, then smallest first."""
+    out = []
+    for m in models:
+        if not m.standard:
+            continue
+        th = False if q.thinking == "off" else m.thinking[0]
+        out.append(next(e for e in m.entries() if e.thinking == th and e.primary))
+    from edat.sidekick.ceiling.models import FIRST
+    rank = {mid: i for i, mid in enumerate(FIRST)}
+    return sorted(out, key=lambda e: (rank.get(e.model.engine_id, len(FIRST)), e.model.disk_gb, e.key))
+
+
+def plan_units(plan: str, *, done_ceiling: int | None = None, trials: int = TRIALS,
+               quick: Quick | None = None) -> list[Unit]:
     """The units of a plan, in order. first-pass pass B needs the ceiling from pass A."""
+    if plan == "quick":
+        q = quick or Quick()
+        return [Unit(c, _suite(c), 1) for r in RUNGS if r.n in q.rungs
+                for c in _spread(ladder_cases((r.id,)), q.per_rung)]
     if plan == "smoke":
         out = []
         for r in RUNGS:
@@ -371,7 +445,7 @@ def _records(store: Path) -> list[dict]:
 
 def run_entry(entry: Entry | str, out: Path, *, plan: str, client_kind: str = "omlx", base_url: str | None = None,
               device_id: str = "this-mac", weights_sha256: str | None = None, max_minutes: float | None = None,
-              progress=print, iso=None, lock: str | None = None) -> dict:
+              progress=print, iso=None, lock: str | None = None, quick: Quick | None = None) -> dict:
     """Run one entry. `entry` is an Entry, or its key ('<engine id>|thinking-on|author'), looked up in the
     model folder."""
     if isinstance(entry, str):
@@ -393,15 +467,17 @@ def run_entry(entry: Entry | str, out: Path, *, plan: str, client_kind: str = "o
     try:
         return _run_entry(entry, out, plan=plan, client_kind=client_kind, base_url=base_url,
                           device_id=device_id, weights_sha256=weights_sha256, max_minutes=max_minutes,
-                          progress=progress, iso=iso)
+                          progress=progress, iso=iso, quick=quick)
     finally:
         if created_lock:
             os.rmdir(lock)
 
 
 def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
-               weights_sha256, max_minutes, progress, iso) -> dict:
+               weights_sha256, max_minutes, progress, iso, quick: Quick | None = None) -> dict:
     model, thinking, profile = e.model, e.thinking, e.profile
+    if plan == "quick":
+        quick = quick or Quick()
     scripted = client_kind in ("null", "oracle")
     if not scripted:
         if not weights_sha256:
@@ -409,13 +485,13 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
         problem = engine_check(model, base_url or "http://127.0.0.1:8000")
         if problem:
             raise RuntimeError(problem)
-    if any(u.case.sidekick_case is not None and u.case.sidekick_case.split != "dev" for u in plan_units(plan)):
+    if any(u.case.sidekick_case is not None and u.case.sidekick_case.split != "dev" for u in plan_units(plan, quick=quick)):
         master_seed("heldout")                   # the private seed first, so each refusal names its own cause
     selftest = require_sandbox()                 # refuses to run unless the sealed sandbox is proven
     iso = iso or get_isolation()
     client = make_client(client_kind, model, base_url, thinking)
     slug = e.slug
-    store = (out / "smoke" / slug) if plan == "smoke" else (out / slug)
+    store = results_dir(out, plan) / slug
     store.mkdir(parents=True, exist_ok=True)
     commit, dirty = harness_commit()
     import hashlib
@@ -432,7 +508,8 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
     state = {"entry": key, "label": e.label, "plan": plan, "started_at": utc_now(), "selftest_passed": selftest.passed,
              "stopped": None, "skipped": None, "written": 0, "sampling_sent": dict(profile.sampling),
              "sampling_basis": profile.basis, "quant": dict(model.quant), "bits_per_weight": model.bits_per_weight,
-             "engine_context_window": None if scripted else engine_context(model.engine_id)[0]}
+             "engine_context_window": None if scripted else engine_context(model.engine_id)[0],
+             "ships_thinking": model.thinking[0], "quick": quick.to_dict() if plan == "quick" else None}
     first_ok: list[dict] = []          # the first answer-only results: is thinking really on, does the engine run it?
     first_status: list[str] = []
     phases = ["A", "B"] if plan == "first-pass" else ["all"]
@@ -450,7 +527,7 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
                 from edat.sidekick.ceiling.report import entry_summary
                 ceiling = entry_summary(_records(store))["ceiling"]
                 state["pass_a_ceiling"] = ceiling
-            units = plan_units(plan, done_ceiling=ceiling)
+            units = plan_units(plan, done_ceiling=ceiling, quick=quick)
             done = _done_units(store)
             todo = [u for u in units if (u.case.id, u.trial) not in done.get(u.suite, set())]
             state[f"phase_{phase}"] = {"units": len(units), "todo": len(todo)}
@@ -515,7 +592,8 @@ HOST_STOPS = ("the STOP file", "minute limit", "free memory", "engine or transpo
 
 def run_all(out: Path, *, plan: str, tiers: tuple[int, ...] = (0,), only: tuple[str, ...] = (), client_kind: str = "omlx",
             base_url: str = "http://127.0.0.1:8000", device_id: str = "this-mac", lock: str | None = None,
-            max_minutes: float | None = None, progress=print, iso=None, models: list[LocalModel] | None = None) -> dict:
+            max_minutes: float | None = None, progress=print, iso=None, models: list[LocalModel] | None = None,
+            quick: Quick | None = None) -> dict:
     """Every entry of the chosen tiers, in run order, one model resident at a time. An entry the engine cannot
     serve (or whose thinking mode turns out to be forced off) is recorded as skipped and the run goes on;
     a host-level stop (memory, STOP file, time, engine faults) ends the whole run."""
@@ -530,7 +608,11 @@ def run_all(out: Path, *, plan: str, tiers: tuple[int, ...] = (0,), only: tuple[
         models, skipped = scan(mdir)
     else:
         skipped = []
-    entries = [e for e in ordered_entries(models, tiers=tiers) if not only or e.model.engine_id in only]
+    if plan == "quick":
+        quick = quick or Quick()
+        entries = [e for e in quick_entries(models, quick) if not only or e.model.engine_id in only]
+    else:
+        entries = [e for e in ordered_entries(models, tiers=tiers) if not only or e.model.engine_id in only]
     every = {e.key: e for m in models for e in m.entries()}
     created = False
     if lock:
@@ -539,8 +621,12 @@ def run_all(out: Path, *, plan: str, tiers: tuple[int, ...] = (0,), only: tuple[
             created = True
         except FileExistsError:
             raise SystemExit(f"{lock} exists: another heavy job is running; not starting") from None
-    log = {"plan": plan, "tiers": list(tiers), "started_at": utc_now(), "skipped_folders": skipped, "entries": []}
+    log = {"plan": plan, "tiers": None if plan == "quick" else list(tiers),
+           "quick": quick.to_dict() if plan == "quick" else None,
+           "started_at": utc_now(), "skipped_folders": skipped, "entries": []}
     out.mkdir(parents=True, exist_ok=True)
+    log_file = results_dir(out, plan) / "run-all.json"
+    log_file.parent.mkdir(parents=True, exist_ok=True)
     started = time.monotonic()
     try:
         current = None
@@ -562,7 +648,7 @@ def run_all(out: Path, *, plan: str, tiers: tuple[int, ...] = (0,), only: tuple[
                 sha = weights_for(out, mdir, e.model)
             try:
                 st = _run_entry(e, out, plan=plan, client_kind=client_kind, base_url=base_url, device_id=device_id,
-                                weights_sha256=sha, max_minutes=left, progress=progress, iso=iso)
+                                weights_sha256=sha, max_minutes=left, progress=progress, iso=iso, quick=quick)
             except RuntimeError as exc:
                 row.update(result="skipped", why=str(exc))
                 if progress:
@@ -583,10 +669,10 @@ def run_all(out: Path, *, plan: str, tiers: tuple[int, ...] = (0,), only: tuple[
                     break
             else:
                 row.update(result="done", ceiling=st["summary"]["ceiling"], solid=st["summary"]["solid"])
-            _write_progress_file(out / "run-all.json", log)
+            _write_progress_file(log_file, log)
     finally:
         log["finished_at"] = utc_now()
-        _write_progress_file(out / "run-all.json", log)
+        _write_progress_file(log_file, log)
         if created:
             os.rmdir(lock)
     return log
@@ -639,8 +725,9 @@ def _write_progress(store: Path, state: dict) -> None:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="python -m edat.sidekick.ceiling run")
     ap.add_argument("--entry", required=True, help="'<engine id>|thinking-on' or '...|thinking-off'")
-    ap.add_argument("--plan", choices=("smoke", "first-pass", "full"), required=True)
+    ap.add_argument("--plan", choices=("smoke", "quick", "first-pass", "full"), required=True)
     ap.add_argument("--out", required=True, help="private results folder, outside the repository")
+    add_quick_args(ap)
     ap.add_argument("--client", choices=("omlx", "null", "oracle"), default="omlx")
     ap.add_argument("--base-url", default="http://127.0.0.1:8000")
     ap.add_argument("--device-id", default="this-mac")
@@ -650,8 +737,9 @@ def main(argv: list[str] | None = None) -> int:
     a = ap.parse_args(argv)
     try:
         run_entry(a.entry, Path(a.out), plan=a.plan, client_kind=a.client, base_url=a.base_url, device_id=a.device_id,
-                  weights_sha256=a.weights_sha256, max_minutes=a.max_minutes, lock=a.lock)
-    except RuntimeError as exc:
+                  weights_sha256=a.weights_sha256, max_minutes=a.max_minutes, lock=a.lock,
+                  quick=quick_from_args(a) if a.plan == "quick" else None)
+    except (RuntimeError, ValueError) as exc:
         print(f"not started: {exc}", file=sys.stderr)
         return 2
     return 0
@@ -800,7 +888,8 @@ def preflight_main(argv: list[str] | None = None) -> int:
 
 def run_all_main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="python -m edat.sidekick.ceiling run-all")
-    ap.add_argument("--plan", choices=("smoke", "first-pass", "full"), required=True)
+    ap.add_argument("--plan", choices=("smoke", "quick", "first-pass", "full"), required=True)
+    add_quick_args(ap)
     ap.add_argument("--tiers", default="0", help="entry tiers, e.g. 0 or 0,1,2,3 (0 standard, 1 other thinking mode, "
                                                   "2 second sampling setting, 3 other quantisations)")
     ap.add_argument("--only", action="append", default=[], help="engine ids to run (default: all found)")
@@ -814,8 +903,8 @@ def run_all_main(argv: list[str] | None = None) -> int:
     try:
         log = run_all(Path(a.out), plan=a.plan, tiers=tuple(int(t) for t in a.tiers.split(",")), only=tuple(a.only),
                       client_kind=a.client, base_url=a.base_url, device_id=a.device_id, lock=a.lock,
-                      max_minutes=a.max_minutes)
-    except RuntimeError as exc:
+                      max_minutes=a.max_minutes, quick=quick_from_args(a) if a.plan == "quick" else None)
+    except (RuntimeError, ValueError) as exc:
         print(f"not started: {exc}", file=sys.stderr)
         return 2
     for r in log["entries"]:

@@ -151,6 +151,13 @@ def _norm(v, ftype: str, lenient: bool):
 
 
 def _same(pred, gold, ftype: str, lenient: bool) -> bool:
+    if ftype == "text_loose":
+        # free-text labels ("what", "description"): every content word of the gold appears in the answer
+        if not isinstance(gold, str) or not isinstance(pred, str):
+            return pred == gold
+        gw = [x for x in re.findall(r"[a-z0-9]+", fold(gold)) if len(x) >= 3]
+        pw = set(re.findall(r"[a-z0-9]+", fold(pred)))
+        return bool(gw) and all(x in pw for x in gw)
     g = _norm(gold, ftype, True)
     if g is None:
         # gold itself is null / unnormalizable: exact JSON equality

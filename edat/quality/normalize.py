@@ -238,7 +238,19 @@ _NUM_EU = r"[-\u2212]?\d{1,3}(?:\.\d{3})+,\d{2}"
 _AMOUNT_RX = re.compile(
     rf"(?:(?P<pre>{_CUR_SYM})\s?(?P<n1>{_NUM_EU}|{_NUM}))|(?:(?P<n2>{_NUM_EU}|{_NUM})\s?(?P<post>{_CUR_SYM}|euros?|dollars?|pounds?)\b)",
     re.I)
-_PLAIN_NUM_RX = re.compile(rf"(?<![\w.,:/-])(?P<n>{_NUM_EU}|{_NUM})(?![\w:/]|[.,]\d)")
+_PLAIN_NUM_RX = re.compile(rf"(?<![\w.:/])(?<![A-Za-z]-)(?P<n>{_NUM_EU}|{_NUM})(?![\w:/]|[.,]\d)")
+
+
+def _thousands_tail(t: str, start: int) -> bool:
+    """True when a number starting at `start` is the tail of "1,250" (a thousands group)."""
+    if start < 2 or t[start - 1] != ",":
+        return False
+    j = start - 1
+    k = j
+    while k > 0 and t[k - 1].isdigit():
+        k -= 1
+    run = j - k
+    return 1 <= run <= 3 and (k == 0 or not (t[k - 1].isalnum() or t[k - 1] == "-"))
 
 
 def parse_decimal(s: str) -> Decimal | None:
@@ -274,7 +286,7 @@ def find_numbers(text: str, *, words_too: bool = True) -> list[Atom]:
     out = []
     for m in _PLAIN_NUM_RX.finditer(t):
         a, b = m.span("n")
-        if any(not (b <= s or a >= e) for s, e in blocked):
+        if any(not (b <= s or a >= e) for s, e in blocked) or _thousands_tail(t, a):
             continue
         val = parse_decimal(m.group("n"))
         if val is not None:
@@ -360,7 +372,7 @@ _CODE_RX = re.compile(r"\b(?=[A-Za-z0-9-]*\d)(?=[A-Za-z0-9-]*[A-Za-z])[A-Za-z]{1
                       r"|\b\d{2,6}-[A-Z]{1,4}\b")
 _PHONE_RX = re.compile(r"(?<![\w])\+?\(?\d{1,4}\)?(?:[ .-]?\d{2,4}){2,4}(?![\w])")
 _EMAIL_RX = re.compile(r"\b[\w.+-]+@[\w-]+(?:\.[\w-]+)+\b")
-_URL_RX = re.compile(r"\b(?:https?://|www\.)[^\s<>()\"']+[^\s<>()\"'.,;:!?]")
+_URL_RX = re.compile(r"\b(?:https?://|www\.)[^\s<>()\"',;]+[^\s<>()\"'.,;:!?]")
 
 
 def norm_code(s: str) -> str:
@@ -426,8 +438,10 @@ def find_names(text: str) -> list[Atom]:
         lw = w.lower()
         if lw in COMMON_CAPITALIZED or lw in MONTHS or lw in WEEKDAYS or lw.rstrip("s") in WEEKDAYS:
             continue
-        before = t[:m.start()].rstrip(" *_\"'\u201c(")
-        if not before or before[-1] in ".!?:\n-\u2022" or re.search(r"(^|\n)\s*(?:[-*+]|\d+[.)])?\s*$", t[:m.start()]):
+        ls = t.rfind("\n", 0, m.start()) + 1
+        prefix = t[ls:m.start()]
+        before = prefix.rstrip(" *_\"'\u201c(")
+        if not before or before[-1] in ".!?:-\u2022" or re.fullmatch(r"\s*(?:[-*+]|\d+[.)])?\s*[*_\"'\u201c(]*", prefix):
             continue
         out.append(Atom("name", fold(w), m.start(), m.end(), w, "name"))
     return out
@@ -495,6 +509,10 @@ def atom_keys(text: str) -> set[tuple]:
         keys.add(("name", w))
     for a in find_durations(text):
         keys.add(("duration", a.value))
+    # cells of CSV rows and pipe tables ("...,254.40,...") are numbers too
+    for tok in re.split(r"[\s,|;()]+", nfkc(text)):
+        if re.fullmatch(r"-?\d+(?:\.\d+)?", tok):
+            keys.add(("num", Decimal(tok).normalize()))
     return keys
 
 
@@ -549,11 +567,12 @@ def anchor_spans(text: str, atype: str, value, *, aliases=(), case_year: int | N
         m = re.search(_NUM_EU + "|" + _NUM, str(value))
         want = parse_decimal(m.group(0)) if m else None
         if want is not None:
+            want = abs(want)   # a refund written "-9.10" in a sheet is the amount 9.10
             for a in find_amounts(text):
-                if a.value[0] == want:
+                if abs(a.value[0]) == want:
                     spans.append((a.start, a.end))
             for a in find_numbers(text, words_too=False):
-                if a.value == want and all(not (a.start >= s and a.end <= e) for s, e in spans):
+                if abs(a.value) == want and all(not (a.start >= s and a.end <= e) for s, e in spans):
                     spans.append((a.start, a.end))
     elif atype == "number":
         want = parse_decimal(str(value)) if not isinstance(value, (int, Decimal)) else Decimal(value)

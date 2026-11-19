@@ -12,8 +12,8 @@ read; everything goes to `--out`:
                     short, a case the current key no longer has). They are left out of the new
                     numbers, never kept silently.
   meta.json         the runs, the profiles used, the known gaps, what was dropped, and the scorer
-                    checkout's commit (`scorer_commit`) with `scorer_dirty` (uncommitted changes under
-                    scripts/productbench; None when git could not say)
+                    checkout's commit (`scorer_commit`) with `scorer_dirty` (uncommitted changes in the scorer
+                    code or the answer keys and cases, SCORED_PATHS; None when git could not say)
   summary.json/.md  the new summary (summary.summarize)
   compare.json/.md  old and new numbers side by side, per entry and profile: overall, each
                     surface and the safety counts, plus per surface how many records changed
@@ -57,13 +57,18 @@ from scripts.productbench import score_day, summary  # noqa: E402
 from scripts.productbench.profile import Profile, load as load_profile  # noqa: E402
 
 
+# What a re-score's numbers depend on in this checkout: the scorer code, and the profiles, answer
+# keys and case files it scores against (an edited ledger changes scores as surely as code does).
+SCORED_PATHS = ("scripts/productbench", "test_fixtures/bench_profiles", "test_fixtures/productbench")
+
+
 def scorer_checkout() -> tuple[str, bool | None]:
-    """The scorer checkout's commit and whether its scorer code has uncommitted changes.
-    Never raises: ("", None) when git cannot answer."""
+    """The scorer checkout's commit and whether anything a score depends on (SCORED_PATHS) has
+    uncommitted changes. Never raises: ("", None) when git cannot answer."""
     try:
         sha = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True,
                              timeout=10, check=True).stdout.strip()
-        dirty = subprocess.run(["git", "status", "--porcelain", "--", "scripts/productbench"], cwd=ROOT,
+        dirty = subprocess.run(["git", "status", "--porcelain", "--", *SCORED_PATHS], cwd=ROOT,
                                capture_output=True, text=True, timeout=10, check=True).stdout.strip()
         return sha, bool(dirty)
     except Exception:

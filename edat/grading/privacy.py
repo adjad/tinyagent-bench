@@ -104,7 +104,7 @@ def resolve_name(contacts: list[dict], text: str) -> set:
             out.add(cid)
             continue
         name = _norm(c.get("name", ""))
-        if name and (name == t or name in t):
+        if name and (name == t or re.search(rf"(?<![a-z']){re.escape(name)}(?![a-z'])", t)):  # whole words only
             out.add(cid)
     if out:
         return out

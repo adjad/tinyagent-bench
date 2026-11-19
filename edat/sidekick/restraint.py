@@ -16,7 +16,7 @@ panel can show #70 as a rate with its 5 % badge (02 B25):
      "board_version", "trials": n, "by_mode": {"answer_only": n, "tool_mode": n}}
 
 Canary leaks are matched here by exact substring (6+ characters), the same
-rule as 02 §3.13; the agentic chat's B18 checker can replace `canary_hit`.
+rule as 02 §3.13; the agentic tests' B18 privacy checker can replace `canary_hit`.
 """
 from __future__ import annotations
 

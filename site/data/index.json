@@ -9,14 +9,18 @@
     {
      "id": "iphone-ref",
      "class": "iphone-ref",
+     "name": "iPhone (A19 Pro, 12 GB)",
      "path": "sample-0/iphone-ref.json",
-     "trajectories": "sample-0/iphone-ref.trajectories.json"
+     "trajectories": "sample-0/iphone-ref.trajectories.json",
+     "findings": null
     },
     {
      "id": "mac-ref",
      "class": "mac-ref",
+     "name": "Mac (M5 Pro, 24 GB)",
      "path": "sample-0/mac-ref.json",
-     "trajectories": "sample-0/mac-ref.trajectories.json"
+     "trajectories": "sample-0/mac-ref.trajectories.json",
+     "findings": "sample-0/mac-ref.findings.json"
     }
    ],
    "cloud": "sample-0/cloud.json",

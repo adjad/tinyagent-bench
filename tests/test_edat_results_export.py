@@ -74,6 +74,9 @@ def test_sample_files_validate_against_their_schemas(sample_export):
     for board_file in (root / "site" / "sample-0").glob("*.json"):
         if board_file.name.endswith(".trajectories.json"):
             continue
+        if board_file.name.endswith(".findings.json"):
+            validate(json.loads(board_file.read_text()), "site_findings")
+            continue
         validate(json.loads(board_file.read_text()), "site_board")
     for snap in (root / "data" / "sample-0").glob("*/snapshot.json"):
         validate(json.loads(snap.read_text()), "snapshot")
@@ -328,3 +331,75 @@ def test_cli_convert_reports_missing_information(tmp_path, capsys):
     code, out = _cli(capsys, "convert", "toolbench", src, "--board-version", "b1", "--store", tmp_path / "st",
                      "--weights", f"cand-a={H}", "--default-thinking", "off")
     assert code == cli.OK and "1 records" in out
+
+
+# --- findings file and device labels ----------------------------------------
+
+from edat.results.export import device_labels, findings_file  # noqa: E402
+
+
+def finding(outcome, section="brief", trial=1, split="dev", zone=None, unsafe=0):
+    r = rec(tier="in_assistant", case=f"student/findings/{section}/item-{outcome}", trial=trial, split=split,
+            unsafe=unsafe)
+    r["suite"] = "productbench-findings"
+    r["facets"] = {"surface": "brief", "profile": "student", "family": section}
+    if zone:
+        r["facets"]["zone"] = zone
+    r["metrics"] = {"outcome": outcome, "found": outcome == "found"}
+    if outcome == "unsafe":
+        r["status"] = "not_applicable"
+    return r
+
+
+def test_findings_file_marks_sections_and_skips_heldout():
+    recs = [finding("found", zone="card"), finding("wrongly_raised"), finding("missed"),
+            finding("unsafe", section="act", unsafe=1), finding("found", split="heldout")]
+    raw = {"text": "Sample text at /Users/someone/x", "item": "x", "now": "08:00"}
+    out = findings_file(recs, lambda r: raw, board="b1", device_id="mac-ref", sample=True, notice="SAMPLE",
+                        now="2026-11-18T10:00:00Z")
+    assert out["schema"] == "edat.site-findings/0.1" and out["profiles"] == ["student"]
+    (run,) = out["runs"]
+    marks = sorted(i["mark"] for items in run["sections"].values() for i in items)
+    assert marks == ["found", "missed", "unsafe", "wrong"]
+    assert run["counts"] == {"found": 1, "wrong": 1, "missed": 1, "unsafe": 1}
+    wrong = next(i for i in run["sections"]["brief"] if i["mark"] == "wrong")
+    assert wrong["outcome"] == "wrongly_raised"
+    assert next(i for i in run["sections"]["brief"] if i["mark"] == "found")["zone"] == "card"
+    act = run["sections"]["act"][0]
+    assert act["unsafe"] is True and act["scored"] is False
+    assert "someone" not in json.dumps(out)
+
+
+def test_findings_file_absent_without_findings_records():
+    assert findings_file([rec()], lambda r: None, board="b1", device_id="mac-ref", sample=False, notice=None,
+                         now="2026-11-18T10:00:00Z") is None
+
+
+def test_device_labels():
+    mac = device_labels("mac-ref", {"class": "mac-ref", "soc": "M9", "ram_bytes": 24 * 2**30})
+    assert mac == {"name": "Mac (M9, 24 GB)", "short": "Mac 24 GB", "kind": "laptop", "fit_label": "fits a 16 GB Mac"}
+    phone = device_labels("iphone-ref", {"class": "iphone-ref"})
+    assert phone["kind"] == "phone" and phone["fit_label"] == "fits the iPhone Air" and phone["name"] == "iPhone"
+    assert device_labels("sim", {"class": "simulator"})["kind"] == "simulator"
+
+
+def test_sample_index_lists_device_names_and_findings(sample_export):
+    root, _ = sample_export
+    index = json.loads((root / "site" / "index.json").read_text())
+    devices = {d["id"]: d for b in index["boards"] for d in b["devices"]}
+    assert devices["mac-ref"]["name"].startswith("Mac") and devices["mac-ref"]["findings"]
+    assert (root / "site" / devices["mac-ref"]["findings"]).is_file()
+
+
+def test_sample_loops_export_both_columns_the_gap_and_empty_reasons(sample_export):
+    root, _ = sample_export
+    mac = json.loads((root / "site" / "sample-0" / "mac-ref.json").read_text())
+    rows = [r for r in mac["loops"] if r["tier"] == "agentic"]
+    assert rows and all(r["second"] and r["gap"] and "delta" in r["gap"] for r in rows)
+    assert all(r["headline"]["metric"] == "agentic_score" for r in rows)
+    neutral = [r for r in mac["results"] if r["tier"] == "agentic_harbor_loop" and r["facet"] == "lane=neutral"]
+    assert neutral and all(r["value"] is None and r["empty_reason"] for r in neutral)
+    for name, word in (("cloud", "cloud"), ("iphone-ref", "phone")):
+        board = json.loads((root / "site" / "sample-0" / f"{name}.json").read_text())
+        rows = [r for r in board["loops"] if r["tier"] == "agentic"]
+        assert rows and all(r["second"] is None and r["gap"] is None and word in r["empty_reason"] for r in rows)

@@ -1,0 +1,73 @@
+{
+  "counts": {
+    "cases": 89,
+    "second_turns": 2
+  },
+  "counts_by_kind": {
+    "W1/bio": 2,
+    "W1/email": 3,
+    "W1/invite": 2,
+    "W1/note": 3,
+    "W1/reply": 3,
+    "W1/section": 2,
+    "W1/text": 3,
+    "W2/apologize": 2,
+    "W2/ask": 2,
+    "W2/bad_news": 2,
+    "W2/decline": 2,
+    "W2/feedback": 2,
+    "W2/follow_up": 2,
+    "W3/expand": 2,
+    "W3/restructure": 2,
+    "W3/shorten": 3,
+    "W3/simplify": 2,
+    "W3/to_bullets": 1,
+    "W3/to_prose": 1,
+    "W3/tone_casual": 1,
+    "W3/tone_firm": 1,
+    "W3/tone_formal": 1,
+    "W3/tone_warm": 1,
+    "W4/ambiguous": 2,
+    "W4/minimal": 5,
+    "W4/protected": 3,
+    "W5/conventions": 2,
+    "W5/exact_count": 3,
+    "W5/one_off": 3,
+    "W5/standing_pref": 3,
+    "W5/voice": 3,
+    "W6/register": 12,
+    "W7/consistency": 3,
+    "W7/outline": 2,
+    "W7/title": 3
+  },
+  "counts_by_profile": {
+    "mixed": 12,
+    "neutral": 55,
+    "student": 9,
+    "tech": 13
+  },
+  "counts_by_sub": {
+    "W1": 18,
+    "W2": 12,
+    "W3": 15,
+    "W4": 10,
+    "W5": 14,
+    "W6": 12,
+    "W7": 8
+  },
+  "files": {
+    "writing.jsonl": "d45c295881ac53fb6f034c2bc13926e4e838cdde9d7b2e2b94d3bc7166601f72"
+  },
+  "generators": [
+    "writing_gen_draft/1",
+    "writing_gen_edit/1",
+    "writing_gen_style/1"
+  ],
+  "schema": "edat.quality.writing-manifest/1",
+  "seeds": {
+    "base": 20280000
+  },
+  "split": "dev",
+  "splits_version": "edat-quality-splits/1",
+  "writing": "edat-writing/1"
+}

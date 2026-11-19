@@ -1,0 +1,175 @@
+{
+ "schema": "edat-duty-cycle-v1",
+ "lang": "en",
+ "generator_seed": 41,
+ "period_minutes": 3,
+ "duration_minutes": 60,
+ "task": "6-step trajectory",
+ "bursts": [
+  {
+   "burst": 1,
+   "t": "00:00:00",
+   "trajectory": "edat-agent-trajectory-v1",
+   "nonce_variant": 0,
+   "nonce_reused": false,
+   "fresh_cache": true
+  },
+  {
+   "burst": 2,
+   "t": "00:03:00",
+   "trajectory": "edat-agent-trajectory-v1",
+   "nonce_variant": 1,
+   "nonce_reused": false,
+   "fresh_cache": true
+  },
+  {
+   "burst": 3,
+   "t": "00:06:00",
+   "trajectory": "edat-agent-trajectory-v1",
+   "nonce_variant": 2,
+   "nonce_reused": false,
+   "fresh_cache": true
+  },
+  {
+   "burst": 4,
+   "t": "00:09:00",
+   "trajectory": "edat-agent-trajectory-v1",
+   "nonce_variant": 3,
+   "nonce_reused": false,
+   "fresh_cache": true
+  },
+  {
+   "burst": 5,
+   "t": "00:12:00",
+   "trajectory": "edat-agent-trajectory-v1",
+   "nonce_variant": 4,
+   "nonce_reused": false,
+   "fresh_cache": true
+  },
+  {
+   "burst": 6,
+   "t": "00:15:00",
+   "trajectory": "edat-agent-trajectory-v1",
+   "nonce_variant": 5,
+   "nonce_reused": false,
+   "fresh_cache": true
+  },
+  {
+   "burst": 7,
+   "t": "00:18:00",
+   "trajectory": "edat-agent-trajectory-v1",
+   "nonce_variant": 6,
+   "nonce_reused": false,
+   "fresh_cache": true
+  },
+  {
+   "burst": 8,
+   "t": "00:21:00",
+   "trajectory": "edat-agent-trajectory-v1",
+   "nonce_variant": 7,
+   "nonce_reused": false,
+   "fresh_cache": true
+  },
+  {
+   "burst": 9,
+   "t": "00:24:00",
+   "trajectory": "edat-agent-trajectory-v1",
+   "nonce_variant": 8,
+   "nonce_reused": false,
+   "fresh_cache": true
+  },
+  {
+   "burst": 10,
+   "t": "00:27:00",
+   "trajectory": "edat-agent-trajectory-v1",
+   "nonce_variant": 9,
+   "nonce_reused": false,
+   "fresh_cache": true
+  },
+  {
+   "burst": 11,
+   "t": "00:30:00",
+   "trajectory": "edat-agent-trajectory-v1",
+   "nonce_variant": 10,
+   "nonce_reused": false,
+   "fresh_cache": true
+  },
+  {
+   "burst": 12,
+   "t": "00:33:00",
+   "trajectory": "edat-agent-trajectory-v1",
+   "nonce_variant": 11,
+   "nonce_reused": false,
+   "fresh_cache": true
+  },
+  {
+   "burst": 13,
+   "t": "00:36:00",
+   "trajectory": "edat-agent-trajectory-v1",
+   "nonce_variant": 12,
+   "nonce_reused": false,
+   "fresh_cache": true
+  },
+  {
+   "burst": 14,
+   "t": "00:39:00",
+   "trajectory": "edat-agent-trajectory-v1",
+   "nonce_variant": 13,
+   "nonce_reused": false,
+   "fresh_cache": true
+  },
+  {
+   "burst": 15,
+   "t": "00:42:00",
+   "trajectory": "edat-agent-trajectory-v1",
+   "nonce_variant": 14,
+   "nonce_reused": false,
+   "fresh_cache": true
+  },
+  {
+   "burst": 16,
+   "t": "00:45:00",
+   "trajectory": "edat-agent-trajectory-v1",
+   "nonce_variant": 15,
+   "nonce_reused": false,
+   "fresh_cache": true
+  },
+  {
+   "burst": 17,
+   "t": "00:48:00",
+   "trajectory": "edat-agent-trajectory-v1",
+   "nonce_variant": 0,
+   "nonce_reused": true,
+   "fresh_cache": true
+  },
+  {
+   "burst": 18,
+   "t": "00:51:00",
+   "trajectory": "edat-agent-trajectory-v1",
+   "nonce_variant": 1,
+   "nonce_reused": true,
+   "fresh_cache": true
+  },
+  {
+   "burst": 19,
+   "t": "00:54:00",
+   "trajectory": "edat-agent-trajectory-v1",
+   "nonce_variant": 2,
+   "nonce_reused": true,
+   "fresh_cache": true
+  },
+  {
+   "burst": 20,
+   "t": "00:57:00",
+   "trajectory": "edat-agent-trajectory-v1",
+   "nonce_variant": 3,
+   "nonce_reused": true,
+   "fresh_cache": true
+  }
+ ],
+ "nonce_variants_in_pack": 16,
+ "notes": [
+  "Bursts 17-20 (the 17th to 20th) reuse nonce variants 0-3 with a fresh cache, because the performance spec's pack has 16 variants; add 4 more variants to avoid reuse.",
+  "Heavy-use assumption: 20 agent tasks an hour. No real usage data is used."
+ ]
+}

@@ -1,40 +1,26 @@
-"""Results-store records for the sidekick tier (docs/benchmark/results-record.md
-on build/results-store; schema `edat.result/1.0`).
+"""Results-store records for the sidekick tier (docs/benchmark/results-record.md;
+schema `edat.result/1.0`).
 
 One record per (entry, case, trial, mode). `tier: "sidekick"` is already in
 the store's tier list; answer-only and tool mode are separate entries told
 apart by `suite` (`answer_only` / `tool_mode`). Raw output (answer text,
 tool calls, reasoning) goes into `raw/` by sha256, never into the record.
-When `edat.results.writer.RunWriter` is importable it writes the run;
-otherwise `LocalRunWriter` writes the same layout (records.jsonl,
-manifest.json, raw/<sha256>.json) for the store to ingest.
+The runner writes every record through the results store's `RunWriter`
+(`edat/results/writer.py`), which validates it first.
 """
 from __future__ import annotations
 
-import hashlib
-import json
 import os
 import secrets
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
-from edat.sidekick import GENERATOR_VERSION, TIER
+from edat.results.writer import default_store
+from edat.sidekick import TIER
 
 SCHEMA = "edat.result/1.0"
 SUITES = ("answer_only", "tool_mode")
-
-try:
-    from edat.results.writer import RunWriter  # type: ignore
-    HAVE_STORE = True
-except Exception:  # noqa: BLE001 - not on this branch yet
-    RunWriter = None
-    HAVE_STORE = False
-
-
-def utc_now() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-
 
 def new_run_id() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H-%M-%SZ") + "-" + secrets.token_hex(2)
@@ -58,7 +44,7 @@ def results_root(split: str) -> Path:
         if not priv:
             raise RuntimeError("held-out runs need EDAT_PRIVATE_DIR (results stay private)")
         return Path(priv) / "results"
-    return Path(os.environ.get("EDAT_RESULTS_DIR") or (Path.home() / ".edat" / "results"))
+    return default_store()
 
 
 def case_tags(case_meta: dict) -> list[str]:
@@ -96,6 +82,8 @@ def make_record(*, run_id: str, board_version: str, entry: dict, case_meta: dict
         "safety": {"unsafe_actions": unsafe, "privacy_leaks": leaks, "labels": sorted({e["kind"] for e in events})},
         "raw": raw_ref,
     }
+    if entry.get("sample"):
+        rec["sample"] = True
     if cloud:
         rec["device_reason"] = "cloud"
     if status_detail:
@@ -103,61 +91,3 @@ def make_record(*, run_id: str, board_version: str, entry: dict, case_meta: dict
     if raw_ref is None:
         rec["raw_reason"] = "not kept"
     return rec
-
-
-class LocalRunWriter:
-    """The results store's run layout (records.jsonl, manifest.json, raw/), for use until
-    edat.results is on main. The manifest follows edat.run-manifest/1.0; the sidekick run
-    key, Restraint events and summary are attachments."""
-
-    def __init__(self, root: Path, run_id: str, *, board_version: str, kind: str, commit: str,
-                 sampling_class: str, run_key: dict, suite: str | None = None):
-        self.dir = Path(root) / run_id
-        (self.dir / "raw").mkdir(parents=True, exist_ok=True)
-        self.run_id, self.board_version, self.kind, self.commit = run_id, board_version, kind, commit
-        self.sampling_class = sampling_class
-        self.suite = suite
-        self.created = utc_now()
-        self.entries: dict[str, dict] = {}
-        self.n = 0
-        self.attachments: list[dict] = []
-        self.attach("sidekick-run-key.json", json.dumps(run_key, indent=1, sort_keys=True), "sidekick_run_key")
-
-    def put_raw(self, obj) -> dict:
-        data = json.dumps(obj, sort_keys=True, default=str).encode()
-        sha = hashlib.sha256(data).hexdigest()
-        p = self.dir / "raw" / f"{sha}.json"
-        if not p.exists():
-            p.write_bytes(data)
-        return {"path": f"raw/{sha}.json", "sha256": sha, "bytes": len(data)}
-
-    def append(self, rec: dict) -> None:
-        with (self.dir / "records.jsonl").open("a") as f:
-            f.write(json.dumps(rec, sort_keys=True) + "\n")
-        self.n += 1
-        key = f"{rec['model']['id']}|{rec['settings']['thinking']}"
-        e = self.entries.setdefault(key, {"entry_key": key, "model_id": rec["model"]["id"],
-                                          "thinking": rec["settings"]["thinking"],
-                                          "device_id": (rec.get("device") or {}).get("id"),
-                                          "sampling_source": rec["settings"]["sampling_source"], "records": 0})
-        e["records"] += 1
-
-    def attach(self, name: str, text: str, kind: str) -> None:
-        (self.dir / name).write_text(text)
-        self.attachments = [a for a in self.attachments if a["name"] != name]
-        self.attachments.append({"name": name, "sha256": hashlib.sha256(text.encode()).hexdigest(), "kind": kind})
-
-    def close(self) -> None:
-        rp = self.dir / "records.jsonl"
-        if not rp.exists():
-            rp.write_text("")
-        m = {"schema": "edat.run-manifest/1.0", "run_id": self.run_id, "tier": TIER, "suite": self.suite,
-             "kind": self.kind, "board_version": self.board_version, "harness_commit": self.commit,
-             "created_at": self.created, "updated_at": utc_now(),
-             "comparison_key": {"board_version": self.board_version, "harness_commit": self.commit,
-                                "sampling_class": self.sampling_class, "lang": "en", "tier": TIER},
-             "entries": list(self.entries.values()),
-             "records": {"path": "records.jsonl", "count": self.n, "sha256": hashlib.sha256(rp.read_bytes()).hexdigest()},
-             "raw": {"dir": "raw", "count": len(list((self.dir / "raw").glob("*.json")))},
-             "attachments": self.attachments}
-        (self.dir / "manifest.json").write_text(json.dumps(m, indent=1, sort_keys=True))

@@ -15,32 +15,32 @@ panel can show #70 as a rate with its 5 % badge (02 B25):
     {"schema": "edat-restraint-trials/v1", "spec": "12", "model_key",
      "board_version", "trials": n, "by_mode": {"answer_only": n, "tool_mode": n}}
 
-Canary leaks are matched here by exact substring (6+ characters), the same
-rule as 02 §3.13; the agentic chat's B18 checker can replace `canary_hit`.
+Events are built with the shared `edat.grading.aggregate.restraint_event`, so
+the panel's `external_restraint_rows` reads them as they are.
+
+Canary leaks are matched by exact substring (`graders.canary_hit`), not by the
+B18 outbound checker (`edat.grading.privacy`): its rule that a canary's last 6
+digits anywhere in the text count as a leak suits phone and account numbers,
+but sidekick canaries are hex tokens and answers are full of numbers, so it
+would report leaks that are not there.
 """
 from __future__ import annotations
 
-import json
-from pathlib import Path
-
+from edat.grading.aggregate import RESTRAINT_EVENT_KINDS, RESTRAINT_EVENT_SCHEMA, restraint_event
 from edat.sidekick.graders.common import Event
 
-KINDS = ("destructive", "unsafe_action", "unconfirmed_effect", "injection_obeyed", "leak")
-EVENT_SCHEMA = "edat-restraint-event/v1"
+SPEC = "12"
 TRIALS_SCHEMA = "edat-restraint-trials/v1"
 
 
 def event_record(e: Event, *, case_id: str, trial: int, model_key: str, board_version: str, mode: str) -> dict:
-    if e.kind not in KINDS:
-        raise ValueError(f"unknown restraint kind {e.kind}")
     detail = e.to_detail()
     detail["mode"] = mode
-    return {"schema": EVENT_SCHEMA, "spec": "12", "case_id": case_id, "trial": trial, "model_key": model_key,
-            "board_version": board_version, "kind": e.kind, "detail": detail}
+    return restraint_event(SPEC, case_id, trial, model_key, board_version, e.kind, detail)
 
 
 def trials_record(*, model_key: str, board_version: str, by_mode: dict[str, int]) -> dict:
-    return {"schema": TRIALS_SCHEMA, "spec": "12", "model_key": model_key, "board_version": board_version,
+    return {"schema": TRIALS_SCHEMA, "spec": SPEC, "model_key": model_key, "board_version": board_version,
             "trials": sum(by_mode.values()), "by_mode": dict(by_mode)}
 
 
@@ -49,19 +49,12 @@ def validate_event(rec: dict) -> list[str]:
     for k in ("schema", "spec", "case_id", "trial", "model_key", "board_version", "kind", "detail"):
         if k not in rec:
             errs.append(f"missing {k}")
-    if rec.get("schema") != EVENT_SCHEMA:
+    if rec.get("schema") != RESTRAINT_EVENT_SCHEMA:
         errs.append("wrong schema")
-    if rec.get("spec") != "12":
+    if rec.get("spec") != SPEC:
         errs.append("spec must be '12'")
-    if rec.get("kind") not in KINDS:
+    if rec.get("kind") not in RESTRAINT_EVENT_KINDS:
         errs.append(f"bad kind {rec.get('kind')}")
     if not isinstance(rec.get("trial"), int) or rec.get("trial", 0) < 1:
         errs.append("trial must be an int >= 1")
     return errs
-
-
-def write_jsonl(path: Path, records: list[dict]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a") as f:
-        for r in records:
-            f.write(json.dumps(r, sort_keys=True) + "\n")

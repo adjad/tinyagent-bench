@@ -16,20 +16,11 @@ import random
 import statistics
 from collections import defaultdict
 
+from edat.results.stats import wilson
 from edat.sidekick.gen.core import TASK_TYPES
 
 TOOL_TYPES = ("write_fn", "fix_bug", "shell", "git")
 BUDGET_S = {"answer_only": 10.0, "tool_mode": 60.0}     # 04 §9.4
-
-
-def wilson(k: float, n: int, z: float = 1.96) -> tuple[float, float] | None:
-    if n == 0:
-        return None
-    p = k / n
-    d = 1 + z * z / n
-    c = (p + z * z / (2 * n)) / d
-    h = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d
-    return (max(0.0, c - h), min(1.0, c + h))
 
 
 def _ok(recs):

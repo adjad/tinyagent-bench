@@ -6,7 +6,7 @@ import json
 import pytest
 
 from edat.sidekick.gen.core import PUBLIC_MASTER_SEED, materialize
-from edat.sidekick.loop_glue import StubClient
+from edat.models import NullClient, ScriptedClient
 from edat.sidekick.report import macro, summarize, type_rates, wilson
 from edat.sidekick.restraint import validate_event
 from edat.sidekick.runner import Entry, ReferenceClient, RunConfig, run, select_cases
@@ -23,6 +23,16 @@ def iso():
             pytest.skip("nested Seatbelt sandbox")
         raise
     return i
+
+
+def always(turn, n=5000):
+    """A ScriptedClient that gives the same (callable) turn every time."""
+    return ScriptedClient([turn] * n, name="always")
+
+
+def stub(model_id, **kw):
+    """An entry for a scripted client: stand-in device and weights, records marked sample."""
+    return Entry(model={"id": model_id, "role": "candidate"}, sample=True, **kw)
 
 
 def _lines(out, name):
@@ -45,7 +55,7 @@ def test_reference_client_passes_and_records_validate(tmp_path, iso):
     for c in cases:
         inst = materialize(c, 1, PUBLIC_MASTER_SEED)
         prompts[inst.prompt] = inst
-    out = run(ReferenceClient(prompts), Entry(model={"id": "oracle", "role": "candidate"}), cfg, iso=iso, progress=None)
+    out = run(ReferenceClient(prompts), stub("oracle"), cfg, iso=iso, progress=None)
     recs = _lines(out, "records.jsonl")
     assert recs and all(r["metrics"]["pass"] for r in recs), [(r["case_id"], r["suite"]) for r in recs if not r["metrics"]["pass"]]
     assert {r["suite"] for r in recs} == {"answer_only", "tool_mode"}
@@ -53,6 +63,7 @@ def test_reference_client_passes_and_records_validate(tmp_path, iso):
         assert r["schema"] == "edat.result/1.0" and r["tier"] == "sidekick" and r["status"] == "ok"
         assert r["raw"]["path"].startswith("raw/") and "answer" not in r["metrics"]
         assert r["safety"] == {"unsafe_actions": 0, "privacy_leaks": 0, "labels": []}
+        assert r["sample"] is True and r["device"]["id"] == "stub-host" and r["model"]["weights_fingerprint"]
     trials = _lines(out, "restraint-trials.jsonl")
     assert all(t["schema"] == "edat-restraint-trials/v1" for t in trials)
     assert sum(t["trials"] for t in trials) == len(recs)
@@ -60,20 +71,23 @@ def test_reference_client_passes_and_records_validate(tmp_path, iso):
         man = json.load(open(f"{d}/manifest.json"))
         assert man["schema"] == "edat.run-manifest/1.0" and man["suite"] in ("answer_only", "tool_mode")
         assert man["records"]["count"] == sum(1 for r in recs if r["suite"] == man["suite"])
+        assert d.startswith(str(tmp_path / "runs"))       # the store's layout: <store>/runs/<run_id>/
+        assert {a["name"] for a in man["attachments"]} >= {"sidekick-run-key.json", "restraint-events.jsonl",
+                                                           "restraint-trials.jsonl", "sidekick-summary.json"}
     assert out["events"] == 0
 
 
 def test_null_model_fails_everything(tmp_path, iso):
     cfg = _cfg(tmp_path, types=("shell", "regex", "explain_error"), modes=("answer_only",))
-    out = run(StubClient([]), Entry(model={"id": "null", "role": "candidate"}), cfg, iso=iso, progress=None)
+    out = run(NullClient(), stub("null"), cfg, iso=iso, progress=None)
     recs = _lines(out, "records.jsonl")
     assert recs and not any(r["metrics"]["pass"] for r in recs)
 
 
 def test_destructive_answer_becomes_restraint_event(tmp_path, iso):
     cfg = _cfg(tmp_path, types=("git",), modes=("answer_only",), limit=12)
-    client = StubClient(lambda m, t, i: {"text": "```zsh\ngit reset --hard HEAD~1\ngit clean -fdx\n```"})
-    out = run(client, Entry(model={"id": "reckless", "role": "candidate"}), cfg, iso=iso, progress=None)
+    client = always(lambda m, t, i: {"text": "```zsh\ngit reset --hard HEAD~1\ngit clean -fdx\n```"})
+    out = run(client, stub("reckless"), cfg, iso=iso, progress=None)
     events = _lines(out, "restraint-events.jsonl")
     assert events
     for e in events:
@@ -87,7 +101,7 @@ def test_destructive_answer_becomes_restraint_event(tmp_path, iso):
 
 def test_engine_errors_are_excluded(tmp_path, iso):
     cfg = _cfg(tmp_path, types=("commit_msg",), modes=("answer_only",))
-    out = run(StubClient(lambda m, t, i: {"engine_error": "server"}), Entry(model={"id": "down", "role": "candidate"}),
+    out = run(always({"engine_error": "server"}), stub("down"),
               cfg, iso=iso, progress=None)
     recs = _lines(out, "records.jsonl")
     assert recs and all(r["status"] == "excluded" for r in recs)
@@ -98,13 +112,19 @@ def test_heldout_needs_private_dir(tmp_path, monkeypatch, iso):
     monkeypatch.delenv("EDAT_PRIVATE_DIR", raising=False)
     cfg = _cfg(tmp_path, split="heldout", types=("commit_msg",), modes=("answer_only",))
     with pytest.raises(RuntimeError, match="EDAT_PRIVATE_DIR"):
-        run(StubClient([]), Entry(model={"id": "x", "role": "candidate"}), cfg, iso=iso, progress=None)
+        run(NullClient(), stub("x"), cfg, iso=iso, progress=None)
+
+
+def test_local_run_needs_device_and_weights(tmp_path):
+    cfg = _cfg(tmp_path, types=("commit_msg",), modes=("answer_only",))
+    with pytest.raises(RuntimeError, match="device"):
+        run(NullClient(), Entry(model={"id": "real", "role": "candidate"}), cfg, progress=None)
 
 
 def test_cloud_reference_dev_only(tmp_path):
     cfg = _cfg(tmp_path, split="heldout")
     with pytest.raises(RuntimeError, match="development split"):
-        run(StubClient([]), Entry(model={"id": "c", "role": "cloud_reference"}, kind="cloud_reference"), cfg, progress=None)
+        run(NullClient(), Entry(model={"id": "c", "role": "cloud_reference"}, kind="cloud_reference"), cfg, progress=None)
 
 
 # ---------------------------------------------------------------- scoring on synthetic records

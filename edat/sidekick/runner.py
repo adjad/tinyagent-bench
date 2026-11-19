@@ -12,35 +12,39 @@ The runner:
    `edat-restraint-event/v1` events and the trial count, and a summary with
    SK-1 to SK-27.
 
-Models come through the shared adapter (`edat/models/`): any client with
-`chat(messages, *, tools, sampling, seed, max_tokens, thinking)`. The `stub:`
-and `null` clients here follow that contract; real clients load from
-`edat.models` only when it is installed.
+Models come through the shared adapter (`edat/models/`, see
+docs/benchmark/model-adapter.md): `null` is its `NullClient`, `stub:` its
+`ScriptedClient`, `omlx:` its `OmlxClient`. Records go through the results
+store's `RunWriter` (`edat/results/writer.py`), one run per mode.
 """
 from __future__ import annotations
 
 import argparse
 import json
 import os
-import secrets
 import time
-from dataclasses import dataclass, field
+from contextlib import ExitStack
+from dataclasses import dataclass, field, fields
 from pathlib import Path
+
+from edat.models import EngineError, NullClient, Sampling, ScriptedClient
+from edat.models.base import SAMPLING_SOURCES
+from edat.results.writer import RunWriter, utc_now
 
 from edat.sidekick import GENERATOR_VERSION
 from edat.sidekick.extract import visible_answer
 from edat.sidekick.gen.core import PUBLIC_MASTER_SEED, Case, Instance, build_cases, materialize
 from edat.sidekick.graders import grade_answer
-from edat.sidekick.loop_glue import MiniSettings, StubClient, is_engine_error
 from edat.sidekick.prescreen import rules_version
-from edat.sidekick.records import LocalRunWriter, harness_commit, make_record, new_run_id, results_root, utc_now
+from edat.sidekick import TIER
+from edat.sidekick.records import harness_commit, make_record, new_run_id, results_root
 from edat.sidekick.report import summarize
 from edat.sidekick.restraint import event_record, trials_record
 from edat.sidekick.sandbox.denials import read_denials
 from edat.sidekick.sandbox.run import ExecResult, Isolation, TrialArea, get_isolation
 from edat.sidekick.sandbox.selftest import require_sandbox
 from edat.sidekick.toolchain import find_toolchain
-from edat.sidekick.tools_dev import MAX_CALLS, SYSTEM_PROMPT, TOOLSET
+from edat.sidekick.tools_dev import SYSTEM_PROMPT, TOOLSET
 
 TRIALS = 3
 ANSWER_MAX_TOKENS = 1024
@@ -96,6 +100,7 @@ class Entry:
     device: dict | None = None
     sampling: dict | None = None
     sampling_source: str = "author_recommended"
+    sample: bool = False              # a scripted client: records are marked sample, never ranked
 
     @property
     def key(self) -> str:
@@ -103,7 +108,29 @@ class Entry:
 
     def to_dict(self) -> dict:
         return {"model": self.model, "thinking": self.thinking, "kind": self.kind, "runtime": self.runtime,
-                "device": self.device, "sampling": self.sampling, "sampling_source": self.sampling_source}
+                "device": self.device, "sampling": self.sampling, "sampling_source": self.sampling_source,
+                "sample": self.sample}
+
+
+STUB_DEVICE = {"id": "stub-host", "class": "stub", "ram_bytes": None, "os": None}
+
+
+def check_identity(entry: Entry) -> Entry:
+    """The results store needs a device and a weights hash on every local record.
+    A scripted entry (sample) gets a stand-in device and a fingerprint of its name."""
+    if entry.kind != "local":
+        return entry
+    has_weights = bool(entry.model.get("weights_sha256") or entry.model.get("weights_fingerprint"))
+    if entry.sample:
+        import hashlib
+        if not has_weights:
+            entry.model = dict(entry.model, weights_fingerprint=hashlib.sha256(
+                f"sidekick-stub:{entry.model['id']}".encode()).hexdigest())
+        entry.device = entry.device or dict(STUB_DEVICE)
+        return entry
+    if entry.device is None or not has_weights:
+        raise RuntimeError("a local run needs a device (--device-id) and the weights' sha256 or fingerprint")
+    return entry
 
 
 def _chat_with_retry(client, messages, *, tools, seed, max_tokens, thinking, sampling):
@@ -112,11 +139,9 @@ def _chat_with_retry(client, messages, *, tools, seed, max_tokens, thinking, sam
         try:
             return client.chat(messages, tools=tools, sampling=sampling, seed=seed, max_tokens=max_tokens,
                                thinking=thinking), None
-        except Exception as exc:  # noqa: BLE001
-            if not is_engine_error(exc):
-                raise
-            last = f"{exc.kind}: {getattr(exc, 'detail', '')}"
-            if not getattr(exc, "retryable", True):
+        except EngineError as exc:
+            last = f"{exc.kind}: {exc.detail}"
+            if not exc.retryable:
                 break
     return None, last
 
@@ -152,15 +177,14 @@ def run_tool_trial_full(client, inst: Instance, *, seed: int, thinking: bool, sa
     from edat.sidekick.tool_mode import grade_tool_trial, prepare, run_tool_trial
     with TrialArea() as area:
         env, before = prepare(iso, area, inst)
-        s = MiniSettings(max_steps=MAX_CALLS + 2, max_tokens=ANSWER_MAX_TOKENS, thinking=thinking, seed=seed,
-                         sampling=sampling)
-        tt = run_tool_trial(client, inst, env, settings=s)
+        tt = run_tool_trial(client, inst, env, max_tokens=ANSWER_MAX_TOKENS, thinking=thinking, seed=seed,
+                            sampling=sampling)
         if tt.excluded:
             return {}, {"error": tt.engine_error}, [], "excluded", f"engine_error: {tt.engine_error}"
         g = grade_tool_trial(iso, area, inst, env, before, tt)
     metrics = {"pass": g.passed, **{k: v for k, v in g.metrics.items() if isinstance(v, (bool, int, float, str)) or v is None}}
     metrics["time_to_answer_s"] = round(tt.wall_s, 4)
-    raw = {"final_text": tt.final_text, "turns": [t.__dict__ for t in tt.turns], "grade": g.to_record(),
+    raw = {"final_text": tt.final_text, "turns": [t.to_record() for t in tt.turns], "grade": g.to_record(),
            "commands": [c.__dict__ for c in env.commands], "loop": tt.turns[0].loop if tt.turns else None}
     return metrics, raw, g.events, "ok", None
 
@@ -192,6 +216,7 @@ def select_cases(cfg: RunConfig) -> list[Case]:
 def run(client, entry: Entry, cfg: RunConfig, *, iso: Isolation | None = None, progress=print) -> dict:
     if entry.kind == "cloud_reference" and cfg.split != "dev":
         raise RuntimeError("cloud references run on the development split only")
+    entry = check_identity(entry)
     selftest = require_sandbox()                       # refuses unless the sandbox is proven
     rec_iso = RecordingIsolation(iso or get_isolation())
     cases = select_cases(cfg)
@@ -207,13 +232,21 @@ def run(client, entry: Entry, cfg: RunConfig, *, iso: Isolation | None = None, p
         denial_log = calibrate(rec_iso.inner, TrialArea)
         run_key["denial_log"] = "available" if denial_log else "unavailable (profile denials not in the unified log)"
     root = cfg.out_root or results_root(cfg.split)
-    sampling_class = "fixed_sensitivity" if entry.sampling_source == "fixed_sensitivity" else "recommended"
-    # One run directory per mode: answer-only and tool mode are separate entries (spec §3.5),
-    # and the store keys a trial by entry, device, case and trial number.
-    writers = {mode: LocalRunWriter(root, f"{run_id}-{'ao' if mode == 'answer_only' else 'tm'}",
-                                    board_version=cfg.board_version, kind=entry.kind, commit=commit,
-                                    sampling_class=sampling_class, run_key=dict(run_key, mode=mode), suite=mode)
-               for mode in cfg.modes}
+    sampling = entry_sampling(entry)
+    with ExitStack() as stack:
+        # One run directory per mode: answer-only and tool mode are separate entries (spec §3.5),
+        # and the store keys a trial by entry, device, case and trial number.
+        writers = {mode: stack.enter_context(RunWriter.open(root, f"{run_id}-{'ao' if mode == 'answer_only' else 'tm'}",
+                                                            tier=TIER, suite=mode))
+                   for mode in cfg.modes}
+        for mode, writer in writers.items():
+            writer.attach("sidekick-run-key.json", json.dumps(dict(run_key, mode=mode), indent=1, sort_keys=True),
+                          "sidekick_run_key")
+        return _run_cases(client, entry, cfg, cases, writers, rec_iso, denial_log, sampling, commit, dirty, progress)
+
+
+def _run_cases(client, entry: Entry, cfg: RunConfig, cases: list[Case], writers: dict, rec_iso, denial_log,
+               sampling, commit: str, dirty: bool, progress) -> dict:
     thinking = entry.thinking == "on"
     by_mode = {m: 0 for m in cfg.modes}
     events_out: dict[str, list[dict]] = {m: [] for m in cfg.modes}
@@ -230,7 +263,7 @@ def run(client, entry: Entry, cfg: RunConfig, *, iso: Isolation | None = None, p
                 rec_iso.take()
                 fn = run_answer_trial if mode == "answer_only" else run_tool_trial_full
                 metrics, raw, events, status, detail = fn(client, inst, seed=seed, thinking=thinking,
-                                                          sampling=entry.sampling, iso=rec_iso)
+                                                          sampling=sampling, iso=rec_iso)
                 execs = rec_iso.take()
                 if denial_log is False and status == "ok":
                     metrics["sandbox_denials"] = None
@@ -248,7 +281,7 @@ def run(client, entry: Entry, cfg: RunConfig, *, iso: Isolation | None = None, p
                                    board_version=cfg.board_version, mode=mode) for e in events]
                 events_out[mode].extend(ev)
                 by_mode[mode] += 1
-                raw_ref = writer.put_raw(raw)
+                raw_ref = writer.put_raw(json.loads(json.dumps(raw, default=str)))
                 rec = make_record(run_id=writer.run_id, board_version=cfg.board_version, entry=entry.to_dict(),
                                   case_meta=case.meta(), trial=trial, suite=mode, grade=None, status=status,
                                   status_detail=detail, metrics=metrics if status == "ok" else {},
@@ -267,7 +300,6 @@ def run(client, entry: Entry, cfg: RunConfig, *, iso: Isolation | None = None, p
                                                                          by_mode={mode: by_mode[mode]}), sort_keys=True) + "\n",
                       "edat-restraint-trials/v1")
         writer.attach("sidekick-summary.json", json.dumps(summary, indent=1, default=str), "sidekick_summary")
-        writer.close()
     n_events = sum(len(v) for v in events_out.values())
     return {"run_dirs": {m: str(w.dir) for m, w in writers.items()}, "run_dir": str(writers[cfg.modes[0]].dir),
             "records": len(records), "events": n_events, "summary": summary}
@@ -275,13 +307,28 @@ def run(client, entry: Entry, cfg: RunConfig, *, iso: Isolation | None = None, p
 
 # ------------------------------------------------------------------ clients
 
-class ReferenceClient(StubClient):
-    """Answers every case with its first reference answer (tests and dry runs only)."""
+def entry_sampling(entry: Entry) -> Sampling | None:
+    """The entry's sampling as the adapter's `Sampling`, tagged with its source."""
+    if not entry.sampling:
+        return None
+    names = {f.name for f in fields(Sampling)} - {"source"}
+    source = entry.sampling_source if entry.sampling_source in SAMPLING_SOURCES else "unspecified"
+    return Sampling(**{k: v for k, v in entry.sampling.items() if k in names}, source=source)
+
+
+class ReferenceClient(ScriptedClient):
+    """Answers every case with its first reference answer (tests and dry runs only).
+
+    A `ScriptedClient` whose next turn is always `_turn`, a callable turn."""
 
     def __init__(self, instances_by_prompt: dict[str, Instance]):
-        super().__init__(self._turn, model_id="reference-oracle")
+        super().__init__([], name="reference-oracle")
         self.by_prompt = instances_by_prompt
         self._tool_turns: dict[str, list] = {}
+
+    def chat(self, messages, **kw):
+        self.turns.append(self._turn)
+        return super().chat(messages, **kw)
 
     def _turn(self, messages, tools, index):
         user = next(m["content"] for m in messages if m["role"] == "user")
@@ -298,17 +345,15 @@ class ReferenceClient(StubClient):
 
 def client_from_spec(spec: str, base_url: str | None = None):
     if spec == "null":
-        return StubClient([]), {"id": "null-model", "role": "candidate"}, {"name": "stub", "version": "0"}
+        return NullClient(), {"id": "null-model", "role": "candidate"}, {"name": "stub", "version": "0"}
     if spec.startswith("stub:"):
         turns = json.loads(Path(spec[5:]).read_text())
-        return StubClient(turns), {"id": "stub-model", "role": "candidate"}, {"name": "stub", "version": "0"}
+        return (ScriptedClient(turns, name="stub-model", on_exhaust="stop"), {"id": "stub-model", "role": "candidate"},
+                {"name": "stub", "version": "0"})
     kind, _, mid = spec.partition(":")
-    try:
-        import edat.models as M  # type: ignore
-    except ImportError as exc:
-        raise SystemExit("real model clients need edat/models (build/agentic); not on this branch") from exc
     if kind == "omlx":
-        return M.OmlxClient(mid, base_url=base_url), {"id": mid, "role": "candidate"}, {"name": "omlx"}
+        from edat.models import OmlxClient
+        return OmlxClient(mid, base_url=base_url), {"id": mid, "role": "candidate"}, {"name": "omlx"}
     if kind == "openrouter":
         raise SystemExit("cloud references: build the OpenRouterClient with its pinned provider in code (edat/hosted/catalog.py)")
     raise SystemExit(f"unknown model spec {spec!r}")
@@ -329,10 +374,22 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--read-denials", action="store_true", help="read Seatbelt denials from the unified log (SK-22)")
     ap.add_argument("--out", default=None)
     ap.add_argument("--limit", type=int, default=None)
+    ap.add_argument("--device-id", help="device id from the results store's device list (local runs)")
+    ap.add_argument("--device-class")
+    ap.add_argument("--ram-gb", type=int)
+    ap.add_argument("--os")
+    ap.add_argument("--weights-sha256")
+    ap.add_argument("--weights-fingerprint")
     a = ap.parse_args(argv)
     client, model, runtime = client_from_spec(a.model, a.base_url)
     model["role"] = a.role
-    entry = Entry(model=model, thinking=a.thinking, runtime=runtime)
+    for k in ("weights_sha256", "weights_fingerprint"):
+        if getattr(a, k):
+            model[k] = getattr(a, k)
+    device = ({"id": a.device_id, "class": a.device_class or a.device_id,
+               "ram_bytes": a.ram_gb * 2**30 if a.ram_gb else None, "os": a.os} if a.device_id else None)
+    scripted = a.model == "null" or a.model.startswith("stub:")
+    entry = Entry(model=model, thinking=a.thinking, runtime=runtime, device=device, sample=scripted)
     modes = ("answer_only", "tool_mode") if a.mode == "both" else (a.mode,)
     cfg = RunConfig(split=a.split, set=a.set, modes=modes, types=tuple(a.type), trials=a.trials,
                     board_version=a.board_version, read_denials=a.read_denials,

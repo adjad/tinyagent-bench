@@ -163,7 +163,7 @@ ABOUT_LIMITS = {"about": 600, "goals": 5, "goal": 200, "struggles": 6, "struggle
 def about_patch(profile: Profile) -> dict:
     """PATCH /profile body: the "About you" answers this persona would give.
 
-    A shared (EDAT) profile carries Harbor's own fields in person.about_you
+    A shared (tinyagent-bench) profile carries Harbor's own fields in person.about_you
     (service/memory/profile.py: about, goals, struggles, people, tone, detail,
     boundaries, notes); stored standing preferences live in several of them.
     Values are cut to Harbor's limits so the PATCH is never refused."""

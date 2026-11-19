@@ -1,4 +1,4 @@
-"""Adapt a profile in the shared EDAT schema (09-profile-schema.md, v1) to productbench/1.
+"""Adapt a profile in the shared tinyagent-bench schema (09-profile-schema.md, v1) to productbench/1.
 
 The shared profile is two files: profile.json (what Harbor sees) and
 ledger.json (the answer key, never shown to the model). This module:

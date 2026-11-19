@@ -1,6 +1,6 @@
-# EDAT results record
+# tinyagent-bench results record
 
-The one record every EDAT test tier writes, the run directory it lives in, and
+The one record every tinyagent-bench test tier writes, the run directory it lives in, and
 the rules the results store applies when it reads, merges, aggregates and
 exports results.
 
@@ -53,10 +53,10 @@ a reader would expect to be filled carries a reason (`raw_reason`, `device_reaso
 | `runtime` | object | `{name, version, backend?, commit?}`, e.g. `{"name": "omlx", "version": "0.7.3"}`, `{"name": "mlx-swift"}`, `{"name": "openrouter"}`, `{"name": "stub"}` |
 | `device` | object \| null | `{id, class, ram_bytes, os, model_id?, soc?, os_build?}`. `null` only for cloud rows, with `device_reason: "cloud"` |
 | `settings` | object | §2.2 |
-| `harness_commit` | hex, 7–40 | The EDAT commit that produced the record. `harness_dirty` (optional bool) says whether the tree had changes |
+| `harness_commit` | hex, 7–40 | The tinyagent-bench commit that produced the record. `harness_dirty` (optional bool) says whether the tree had changes |
 | `started_at` | ISO 8601 UTC with `Z` | When the trial started |
 | `case_id` | string | Stable case id. Perf uses `<test>/<level_tokens>`; fit verdicts use `fit/16gb_mac` and `fit/iphone_air` |
-| `split` | `dev` \| `heldout` \| `public_dataset` | EDAT split. `heldout` records never leave the private store (§7) |
+| `split` | `dev` \| `heldout` \| `public_dataset` | tinyagent-bench split. `heldout` records never leave the private store (§7) |
 | `trial` | int ≥ 1 | 1–3 in routine runs. Perf maps `rep` to `trial` |
 | `status` | enum | §3 |
 | `status_detail` | string, optional | The tier's own status word, kept verbatim (e.g. `oom_killed_at_load`) |
@@ -308,9 +308,9 @@ unless marked:
    under `raw/`.
 7. **Perf** keeps `edat.perf/1.0` as a run attachment and also writes per-sample and
    per-verdict records (§4.2), so every tier reads through one store.
-8. **`split`** takes EDAT's `dev` / `heldout` / `public_dataset`. Toolbench's own
+8. **`split`** takes tinyagent-bench's `dev` / `heldout` / `public_dataset`. Toolbench's own
    `gate` / `dev` / `voice` goes to `facets.source_split`. **Toolbench's `gate` is
-   Harbor's training hold-out, not EDAT's held-out split**; every imported Toolbench
+   Harbor's training hold-out, not tinyagent-bench's held-out split**; every imported Toolbench
    case is public and therefore `dev`.
 9. **Changed:** `status` is one shared vocabulary (§3) instead of each tier's own.
 

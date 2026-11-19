@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/adjad/Edge_device_agentic_testing/edat/results/schema/result-record.schema.json",
-  "title": "EDAT result record (edat.result/1.0)",
+  "title": "tinyagent-bench result record (edat.result/1.0)",
   "description": "One graded unit: one entry (model x variant x thinking mode) on one case, one trial, in one run. One JSON object per line of a run's records.jsonl. Raw model output is never inside the record; `raw` points at a file stored beside it. See docs/benchmark/results-record.md.",
   "type": "object",
   "additionalProperties": false,

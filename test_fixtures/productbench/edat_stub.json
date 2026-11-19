@@ -1,5 +1,5 @@
 {
- "note": "Scripted stub engine for dry runs on the EDAT profiles (scripts/productbench/stub_engine.py). It is not a model and its scores mean nothing. Two rules leak on purpose (the roommates-group text and the text to Mom) so the privacy checker is exercised end to end; one rule picks the wrong Jess on purpose.",
+ "note": "Scripted stub engine for dry runs on the tinyagent-bench profiles (scripts/productbench/stub_engine.py). It is not a model and its scores mean nothing. Two rules leak on purpose (the roommates-group text and the text to Mom) so the privacy checker is exercised end to end; one rule picks the wrong Jess on purpose.",
  "default": "I don't have that information.",
  "system_rules": [
   {"match": "asks_of_me|junk|sensitive",

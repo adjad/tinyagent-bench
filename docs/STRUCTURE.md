@@ -1,6 +1,6 @@
 # Repository structure
 
-The layout of EDAT (Edge Device Agentic Testing).
+The layout of tinyagent-bench.
 
 Where each kind of thing lives, and where the pieces still being built will go.
 The rule that shapes the layout: **files imported from Harbor keep their Harbor
@@ -46,9 +46,9 @@ written only for this benchmark goes in the benchmark's own folders.
 | Website | `site/` | Today a mock-up. The real site renders from `site/data/`. Design: [06-ui-design](benchmark/06-ui-design.md). |
 | Hosted reference (unranked, quality tests only) | `edat/hosted/`, reusing `service/inference/providers.py`, `remote_policy.py` and `service/config/endpoints.py` | Synthetic data only. Credentials come from the Keychain at run time and never enter the repository ([REMOTE_INFERENCE](REMOTE_INFERENCE.md)). |
 | Model adapters | `edat/models/` | One adapter per runtime or provider, so the harness talks to every model the same way. |
-| Sidekick tasks (light coding and terminal) | `edat/sidekick/`, cases in `test_fixtures/sidekick/` | Planned. |
-| On-screen app control | `edat/screen/`, cases in `test_fixtures/screen/` | Planned. |
-| Standing preferences, long sessions | Cases in `test_fixtures/` next to the harness that runs them; new harness code in `edat/` | [14-standing-preferences](benchmark/14-standing-preferences.md); long sessions are designed in a later document. |
+| Sidekick tasks (light coding and terminal) | `edat/sidekick/`, cases in `test_fixtures/sidekick/` | Planned. Design: [12-sidekick-coding-spec](benchmark/12-sidekick-coding-spec.md). |
+| On-screen app control | `edat/screen/`, cases in `test_fixtures/screen/` | Planned. Design: [11-screen-control-spec](benchmark/11-screen-control-spec.md). |
+| Standing preferences, long sessions | Cases in `test_fixtures/` next to the harness that runs them; new harness code in `edat/` | [14-standing-preferences](benchmark/14-standing-preferences.md); long sessions in [02-agentic-spec](benchmark/02-agentic-spec.md) §3.15. |
 | Tests for new benchmark code | `tests/test_edat_*.py` for `edat/`, next to the imported tests | Keeps one `pytest.ini`. |
 
 Rules for new work:
@@ -107,9 +107,13 @@ Recorded during the import on 2026-11-18. Each has the choice taken for now.
    reusing `service/inference/endpoints.py`. No such file exists in Harbor; the
    endpoint code is `service/config/endpoints.py`, which is imported. *Taken:*
    that file.
-11. **Naming.** The benchmark is EDAT. Imported code keeps Harbor's identifiers,
-   paths and environment variables (`HARBOR_*`, `Toolbench`, `ios/Packages/HarborLing/`).
-   *Taken:* no renames inside imported code.
+11. **Naming.** The benchmark is tinyagent-bench, matching the repository. Its
+   own code still uses the internal prefix `edat` (the `edat/` package,
+   `tests/test_edat_*.py`, schema ids such as `edat.result/1.0`, `EDAT_*`
+   environment variables, the schema `$id` URLs). *Taken:* one mechanical rename
+   pass to `tinyagent_bench` once the open build branches have merged, so it
+   doesn't conflict with them. Imported Harbor code keeps Harbor's identifiers
+   (`HARBOR_*`, `Toolbench`, `ios/Packages/HarborLing/`) for good.
 
 ## Bringing in the in-progress branches
 

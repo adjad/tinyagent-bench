@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""EDAT in-assistant evaluation: judge a model inside Harbor on Ask, Brief and Day.
+"""tinyagent-bench in-assistant evaluation: judge a model inside Harbor on Ask, Brief and Day.
 
 For each model entry, profile and trial this starts a fresh isolated Harbor
 (backend on 8775, sandbox on 8766, a scratch HARBOR_HOME, the clock pinned to

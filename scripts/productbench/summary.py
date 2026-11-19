@@ -1,6 +1,6 @@
 """Roll per-case records up into per-surface scores and one score per entry and profile. Pure.
 
-EDAT in-assistant evaluation. Records are the JSON lines run_productbench.py
+tinyagent-bench in-assistant evaluation. Records are the JSON lines run_productbench.py
 writes: one per entry, profile, surface, case and trial. For each (entry, profile):
 
   ask     mean case score x100, by family; readability (0-100) kept apart
@@ -34,7 +34,7 @@ from scripts.productbench import autonomy, preferences
 
 WEIGHTS = {"ask": 0.5, "brief": 0.25, "day": 0.25}
 SURFACES = ("ask", "brief", "day")
-TITLE = "EDAT in-assistant evaluation"
+TITLE = "tinyagent-bench in-assistant evaluation"
 
 
 def _mean(xs):

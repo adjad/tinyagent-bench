@@ -1,6 +1,6 @@
 """The assistant lane: Harbor's tool names and schemas over Toolbench's fakes.
 
-`AssistantEnvironment` implements `edat.state.env.ToolEnvironment` for EDAT's
+`AssistantEnvironment` implements `edat.state.env.ToolEnvironment` for tinyagent-bench's
 own reference loop. It never runs Harbor's agent loop: the loop hands it one
 call at a time and it runs the matching Toolbench fake against a private
 Toolbench `World`.

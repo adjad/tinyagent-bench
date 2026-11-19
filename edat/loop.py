@@ -1,4 +1,4 @@
-"""Agent loops. The reference loop is EDAT's minimal, published-track loop.
+"""Agent loops. The reference loop is tinyagent-bench's minimal, published-track loop.
 
 Spec 02 §2.1. The reference loop, per user turn:
 
@@ -21,7 +21,7 @@ Spec 02 §2.1. The reference loop, per user turn:
 
 Loops are pluggable behind `AgentLoop`. Which loop the board publishes is not
 decided by this module: callers choose one by name from `LOOPS`, and nothing
-else in EDAT depends on that choice.
+else in tinyagent-bench depends on that choice.
 
 Extension points (docs/benchmark/agent-loop.md), all off by default so the
 reference loop is unchanged: the tool set is whatever `ToolEnvironment` the

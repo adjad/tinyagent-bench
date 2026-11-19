@@ -31,7 +31,7 @@ def new_run_id() -> str:
     return f"{datetime.now(timezone.utc).strftime('%Y-%m-%dT%H-%M-%SZ')}-{secrets.token_hex(2)}"
 
 
-# EDAT Sampling.source -> the store's sampling_source vocabulary.
+# tinyagent-bench Sampling.source -> the store's sampling_source vocabulary.
 SAMPLING_SOURCE = {"author_recommended": "author_recommended", "fixed_sensitivity": "fixed_sensitivity",
                    "provider_default": "provider_default", "unspecified": "engine_default",
                    "greedy_diagnostic": "engine_default"}

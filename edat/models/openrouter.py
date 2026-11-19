@@ -146,7 +146,7 @@ class OpenRouterClient:
         reasoning, reasoning_label = self.reasoning_option(thinking)
         payload["reasoning"] = reasoning
         headers = {"Content-Type": "application/json", "Authorization": f"Bearer {self._key()}",
-                   "X-Title": "EDAT benchmark"}
+                   "X-Title": "tinyagent-bench"}
         started = self._utc_now()
         result = run_request(transport=self.transport, url=f"{self.base_url}/chat/completions",
                              headers=headers, payload=payload, stream=self.stream,

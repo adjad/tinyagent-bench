@@ -4,7 +4,7 @@ The Mac sends each item's messages and tools through the model adapter (one
 generation, no loop, no tool execution) and writes `edat-phone-result/v1`
 lines. `regrade` reads result lines from either device and grades them with
 the same checks (edat/phone/checks.py), so there is one scorer. It also
-re-parses `raw_text` with EDAT's Gemma 4 text parser; a disagreement with
+re-parses `raw_text` with tinyagent-bench's Gemma 4 text parser; a disagreement with
 `parsed_calls` is a parser difference, not a model difference (§6.3, #44).
 
 The phone's own `local_pass` is for display only; the Mac's verdict counts.

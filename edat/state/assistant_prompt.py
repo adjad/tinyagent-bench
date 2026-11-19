@@ -23,7 +23,7 @@ What Harbor's agent loop sends on an agent turn (service/agent/loop.py, the
    They are either per-install state or loop behaviour the reference loop
    does not have.
 
-EDAT then appends the case's `policy` paragraph and a "User preferences" block.
+tinyagent-bench then appends the case's `policy` paragraph and a "User preferences" block.
 Nothing here contains private data: every value is Harbor's public prompt text
 or Toolbench's invented user.
 """
@@ -62,7 +62,7 @@ def now_line(clock: Clock) -> str:
 
 def build_prompt(offered: set[str], clock: Clock, *, policy: str | None = None,
                  preferences: list[str] | None = None) -> str:
-    """Harbor's agent-turn prompt for `offered` tools, plus EDAT's policy and preferences."""
+    """Harbor's agent-turn prompt for `offered` tools, plus tinyagent-bench's policy and preferences."""
     from service.agent.loop import build_system
     from service.memory.identity import identity_prompt_block
 

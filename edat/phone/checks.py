@@ -125,7 +125,7 @@ def _gemma_value(text: str):
 def parse_gemma4(raw_text: str) -> list[dict]:
     """Calls written in Gemma 4's `<|tool_call>call:name{key:<|"|>v<|"|>,...}<tool_call|>` form.
 
-    EDAT's own reading of the format, used to compare call lists (parser
+    tinyagent-bench's own reading of the format, used to compare call lists (parser
     agreement, §5.3 #44). It is not oMLX's parser; values that hold a comma
     outside quotes are split naively and reported as a parse error.
     """

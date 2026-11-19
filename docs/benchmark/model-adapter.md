@@ -1,6 +1,6 @@
 # The model adapter
 
-Every part of EDAT that asks a model something (the agentic reference loop,
+Every part of tinyagent-bench that asks a model something (the agentic reference loop,
 the output-quality tests, the vision and audio tests, the performance runner)
 goes through one method, `chat()`, in `edat/models/`. A result means the same
 thing whichever runtime produced it.
@@ -46,7 +46,7 @@ temperature 0.6, top-p 0.95.
 | `text` | The assistant content exactly as returned. Leftover tool-call markup or thinking tags stay in it, so graders can label `text_tool_call`, `markup_leak` and `think_leak`. |
 | `tool_calls` | A list of `ToolCall` (below), in emitted order. Several calls in one result are one model step (parallel calls). |
 | `reasoning` | Separated reasoning text, when the runtime splits it (`reasoning_content` on oMLX, `reasoning` on OpenRouter). |
-| `finish_reason` | As returned (`stop`, `tool_calls`, `length`, ...). `provider_rejected_tool_call` is EDAT's own (below). |
+| `finish_reason` | As returned (`stop`, `tool_calls`, `length`, ...). `provider_rejected_tool_call` is tinyagent-bench's own (below). |
 | `usage` | `prompt_tokens`, `completion_tokens`, `reasoning_tokens`, `cached_prompt_tokens`, and `cost_usd` (hosted only). |
 | `timing` | `ttft_s` (request sent to first generated token: content, reasoning or tool-call delta; `None` when not streaming) and `total_s`, measured by the client in seconds. |
 | `raw` | The raw response body, or the list of stream chunks. Always kept: hosted output is not reproducible, so raw output is the record. |
@@ -94,7 +94,7 @@ Each turn is `{"text", "calls": [{"name", "arguments"} or {"name",
 "arguments_raw"}], "reasoning", "finish_reason"}`, or `{"engine_error":
 "<kind>"}`, or a callable `(messages, tools, index) -> turn`. It records every
 request in `.requests`. `NullClient` always answers "OK." with no calls: the
-"do nothing" model that every EDAT case must fail under. Timings are zero.
+"do nothing" model that every tinyagent-bench case must fail under. Timings are zero.
 
 ### `OmlxClient` (`edat/models/omlx.py`)
 

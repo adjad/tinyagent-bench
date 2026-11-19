@@ -1,6 +1,6 @@
 """Value matchers for arguments, records and answers.
 
-EDAT's copy of Toolbench's matcher language (scripts/toolbench/matchers.py),
+tinyagent-bench's copy of Toolbench's matcher language (scripts/toolbench/matchers.py),
 with the same meaning for every shared key, plus the matchers the agentic spec
 adds (§2.4, §3.17). A spec is a bare value (shorthand for `eq`) or a mapping
 with ONE key:

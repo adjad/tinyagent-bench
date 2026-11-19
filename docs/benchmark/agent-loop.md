@@ -1,6 +1,6 @@
 # Agent loop: the reference loop and its extension points
 
-`edat/loop.py` holds EDAT's reference loop, `edat-reference-v1` (spec 02 §2.1).
+`edat/loop.py` holds tinyagent-bench's reference loop, `edat-reference-v1` (spec 02 §2.1).
 Other build chats (screen control, spec 11; sidekick coding, spec 12) reuse it
 **without editing it**: everything they change is a setting or an object they
 pass in. With no settings changed, the loop behaves exactly as spec 02 describes.

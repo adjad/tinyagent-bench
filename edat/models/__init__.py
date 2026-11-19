@@ -1,4 +1,4 @@
-"""EDAT's model adapter. See docs/benchmark/model-adapter.md."""
+"""tinyagent-bench's model adapter. See docs/benchmark/model-adapter.md."""
 from edat.models.base import (ADAPTER_SCHEMA, FIXED_SENSITIVITY, ChatResult, ConfigurationError,
                               EngineError, ModelClient, Sampling, Timing, ToolCall, Usage,
                               parse_arguments)

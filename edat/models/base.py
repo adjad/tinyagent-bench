@@ -1,4 +1,4 @@
-"""The model adapter: one `chat()` interface for every runtime EDAT drives.
+"""The model adapter: one `chat()` interface for every runtime tinyagent-bench drives.
 
 Every client (the scripted stub, oMLX on the Mac, the hosted OpenRouter
 reference) implements `ModelClient.chat` and returns a `ChatResult`. The
@@ -6,7 +6,7 @@ reference loop, the quality tests, the vision and audio tests and the
 performance runner all call this one method, so a result means the same thing
 whichever runtime produced it. See docs/benchmark/model-adapter.md.
 
-Two rules the rest of EDAT relies on:
+Two rules the rest of tinyagent-bench relies on:
 
 * **A malformed tool call is the model's failure, never an engine fault.** If
   the arguments a model wrote are not a JSON object, the call still comes back
@@ -167,7 +167,7 @@ class EngineError(RuntimeError):
 
 
 class ConfigurationError(ValueError):
-    """The client was set up in a way EDAT forbids (wrong origin, missing key)."""
+    """The client was set up in a way tinyagent-bench forbids (wrong origin, missing key)."""
 
 
 @runtime_checkable

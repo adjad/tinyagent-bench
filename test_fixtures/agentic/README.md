@@ -1,6 +1,6 @@
 # Agentic cases
 
-EDAT's agentic and tool-calling cases (spec 02). Everything here is synthetic
+tinyagent-bench's agentic and tool-calling cases (spec 02). Everything here is synthetic
 and invented: names, phones (+1 555 01xx), addresses and URLs on reserved
 domains, and every injection payload.
 

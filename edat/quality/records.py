@@ -1,7 +1,7 @@
 """The quality tier's one record writer (shared envelope `edat.result/1.0`).
 
-The results-store chat owns docs/benchmark/results-record.md and
-`edat/results/writer.py`. This module builds records in that envelope and,
+The results store (docs/benchmark/results-record.md and
+`edat/results/writer.py`) defines that envelope. This module builds records in that envelope and,
 when `edat.results.writer.RunWriter` is importable, writes through it (schema
 checks, locking, content-addressed raw files, manifest). Until that branch is
 on `main`, a small fallback writes the same layout:

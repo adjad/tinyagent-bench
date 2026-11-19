@@ -22,7 +22,7 @@ need its key, an open Harbor, or an existing heavy-job lock (removed only if thi
 Each sitting saves what is resident (loaded and pinned) to OUT/engine-state.json, and refuses to start
 if an earlier sitting's state was never restored. One model is resident at a time. Between trials it
 stops on the STOP file, the minute limit, free memory under 15%, Harbor opening, or over 2% of trials
-lost to engine faults. On every exit, including errors, Ctrl-C, SIGTERM and SIGHUP, it restores the
+lost to engine faults. On every exit, including errors, Ctrl-C, SIGTERM, SIGHUP and SIGQUIT, it restores the
 resident models and then releases the lock. Only a hard kill (SIGKILL, power loss) skips that; then
 `restore --out OUT` puts the models back. A rerun of the same command resumes: recorded trials are never
 redone.
@@ -366,7 +366,7 @@ def keyless_engine(settings_path: Path | None = None) -> str | None:
 
 def _engine(base_url: str):
     import httpx
-    return httpx.Client(base_url=engine_url(base_url), timeout=120)
+    return httpx.Client(base_url=engine_url(base_url), timeout=120, trust_env=False)   # no proxy, ever
 
 
 def engine_rows(base_url: str) -> list[dict]:
@@ -417,8 +417,11 @@ def engine_keep(base_url: str, keep: str) -> None:
 
 
 def engine_restore(state_file: Path, base_url: str | None = None) -> dict:
-    """Back to the saved state: unload what the run loaded, load what was resident (pinned ones included)."""
+    """Back to the saved state: unload what the run loaded, load what was resident (pinned ones included).
+    Not while Harbor runs (it shares the engine): the state stays unrestored and the next sitting refuses."""
     from scripts.productbench.engine_prep import plan_restore
+    if harbor_running():
+        raise RuntimeError("Harbor is running, so the engine was not touched; close it and run `restore --out`")
     state = json.loads(state_file.read_text())
     url = engine_url(base_url or state["base_url"])
     before = [r["id"] for r in state["rows"] if r["loaded"] or r["is_loading"]]
@@ -485,8 +488,8 @@ def run(out: Path, *, plan: str, tracks: tuple[str, ...] = TRACKS, only: tuple[s
     saved = False
     previous = {}
     try:
-        # SIGTERM and SIGHUP become SystemExit, so the finally below runs; Ctrl-C is already KeyboardInterrupt.
-        for sig in (signal.SIGTERM, signal.SIGHUP):
+        # SIGTERM, SIGHUP and SIGQUIT become SystemExit, so the finally below runs; Ctrl-C is KeyboardInterrupt.
+        for sig in (signal.SIGTERM, signal.SIGHUP, signal.SIGQUIT):
             previous[sig] = signal.signal(sig, _raise_on)
         if lock:
             try:

@@ -220,8 +220,8 @@ live.run(Path({out!r}), plan="smoke", tracks=("ax_text",), client_kind="oracle",
 """
 
 
-@pytest.mark.parametrize("sig", [signal.SIGTERM, signal.SIGHUP])
-def test_sigterm_and_sighup_restore_the_engine_and_release_the_lock(tmp_path, eng, sig):
+@pytest.mark.parametrize("sig", [signal.SIGTERM, signal.SIGHUP, signal.SIGQUIT])
+def test_sigterm_sighup_and_sigquit_restore_the_engine_and_release_the_lock(tmp_path, eng, sig):
     ready, lock = tmp_path / "ready", tmp_path / "heavy.lock"
     code = DRIVER.format(root=str(ROOT), ready=str(ready), out=str(tmp_path / "out"), url=eng.url, lock=str(lock))
     p = subprocess.Popen([sys.executable, "-c", code], cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
@@ -240,3 +240,33 @@ def test_sigterm_and_sighup_restore_the_engine_and_release_the_lock(tmp_path, en
     assert eng.loaded() == {"user-chat-a", "user-chat-b", "bge-embed-small"}
     assert not lock.exists()
     assert json.loads((tmp_path / "out" / "engine-state.json").read_text())["restored"] is True
+
+
+def test_engine_calls_ignore_proxy_settings(tmp_path, eng, host, monkeypatch):
+    for v in ("HTTP_PROXY", "http_proxy", "ALL_PROXY", "all_proxy"):
+        monkeypatch.setenv(v, "http://proxy.invalid:3128")
+    monkeypatch.setenv("NO_PROXY", "")
+    log = go(tmp_path, eng)
+    assert live.run_ok(log) and eng.loaded() == {"user-chat-a", "user-chat-b", "bge-embed-small"}
+
+
+def test_restore_waits_while_harbor_runs_and_the_next_sitting_refuses(tmp_path, eng, monkeypatch):
+    monkeypatch.setattr(live, "memory_free_pct", lambda: 60)
+    state = {"harbor": False}
+    monkeypatch.setattr(live, "harbor_running", lambda: state["harbor"])
+    real = live.run_trial
+
+    def harbor_opens(*a, **k):
+        state["harbor"] = True
+        return real(*a, **k)
+    monkeypatch.setattr(live, "run_trial", harbor_opens)
+    log = go(tmp_path, eng)
+    assert "Harbor" in str(log["restored"]) and not live.run_ok(log)
+    assert not any(c.endswith("/load") for c in eng.calls)                 # the engine was left alone
+    assert not (tmp_path / "heavy.lock").exists()
+    state["harbor"] = False                                                  # Harbor closed again
+    monkeypatch.setattr(live, "run_trial", real)
+    with pytest.raises(SystemExit, match="never restored"):
+        go(tmp_path, eng)
+    assert live.main(["restore", "--out", str(tmp_path / "out"), "--base-url", eng.url]) == 0
+    assert eng.loaded() == {"user-chat-a", "user-chat-b", "bge-embed-small"}

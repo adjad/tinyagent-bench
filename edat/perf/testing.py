@@ -116,8 +116,10 @@ class FakeEngine:
             if not self.loaded.get(mid):
                 dur = m.cold_load_s if mid in self.cold else m.load_s
                 t0 = self.clock.t
+                # Activity is recorded before time moves, so samplers listening to the fake
+                # clock see the power of the phase they are inside.
+                self.activity.append(Activity(t0, t0 + int(round(dur * 1e9)), "load", mid))
                 self.clock.advance(dur)
-                self.activity.append(Activity(t0, self.clock.t, "load", mid))
                 if mid in self.cold:
                     self.disk_read_bytes += m.weights_bytes
                     self.cold.discard(mid)
@@ -168,10 +170,13 @@ class FakeEngine:
             self.clock.advance(0.05)
             self.alive = False
             raise ConnectionResetError("engine died")
-        self.clock.advance((n_prompt - cached) / m.prefill_tps)
-        self.activity.append(Activity(t0, self.clock.t, "prefill", mid))
+        pre = (n_prompt - cached) / m.prefill_tps
+        self.activity.append(Activity(t0, t0 + int(round(pre * 1e9)), "prefill", mid))
+        self.clock.advance(pre)
         n_out = body["max_tokens"]
         t1 = self.clock.t
+        dec = (0.5 + (n_out - 1)) / m.decode_tps
+        self.activity.append(Activity(t1, t1 + int(round(dec * 1e9)) + 1, "decode", mid))
         for i in range(n_out):
             if i > 0:
                 self.clock.advance(1.0 / m.decode_tps)
@@ -184,7 +189,6 @@ class FakeEngine:
             else:
                 delta = {"choices": [{"text": f"t{i} "}]}
             yield self.clock.t, "data: " + json.dumps(delta)
-        self.activity.append(Activity(t1, self.clock.t, "decode", mid))
         usage = {"prompt_tokens": n_prompt, "completion_tokens": n_out,
                  "prompt_tokens_details": {"cached_tokens": cached},
                  "completion_tokens_details": {"reasoning_tokens": min(m.reasoning_tokens, n_out)}}

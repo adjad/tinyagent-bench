@@ -1,0 +1,67 @@
+{
+  "counts": {
+    "noisy": 20,
+    "numeric": 15,
+    "schema": 15,
+    "source": 60
+  },
+  "counts_by_source_type": {
+    "calendar/L": 3,
+    "calendar/M": 3,
+    "calendar/S": 3,
+    "calendar/XL": 3,
+    "document/L": 3,
+    "document/M": 3,
+    "document/S": 3,
+    "document/XL": 3,
+    "email/L": 3,
+    "email/M": 3,
+    "email/S": 3,
+    "email/XL": 3,
+    "sheet/L": 3,
+    "sheet/M": 3,
+    "sheet/S": 3,
+    "sheet/XL": 3,
+    "thread/L": 3,
+    "thread/M": 3,
+    "thread/S": 3,
+    "thread/XL": 3
+  },
+  "counts_noisy_by_kind": {
+    "casual": 5,
+    "self_correction": 5,
+    "typos": 5,
+    "voice": 5
+  },
+  "counts_numeric_by_kind": {
+    "comparison": 3,
+    "count": 3,
+    "date_arith": 3,
+    "free_slots": 3,
+    "sum": 3
+  },
+  "counts_schema_by_kind": {
+    "array_of_objects": 2,
+    "date_formats": 2,
+    "enum_classification": 2,
+    "flat_object": 3,
+    "nested_object": 2,
+    "numbers_vs_strings": 2,
+    "optional_fields": 2
+  },
+  "files": {
+    "noisy.jsonl": "2e8df21f76b195271367e20cca023e97c05028f4b7b9a683ebb38a5422a4103f",
+    "numeric.jsonl": "71e749674827faeb9db4338f02af9fb5d2bd426aab6778f1996c354ae34d8096",
+    "schema.jsonl": "64ab86fc5b4bb19a6ba6b00e7fb56e3026ba5a05bbfed702d44078d90f2a4ce6",
+    "source.jsonl": "0370a30e26896b5c3d37287a0fc15d6d683c21cc0e84c6ea8568e1fd2d8c7310"
+  },
+  "generator": "edat-quality-gen/1",
+  "schema": "edat.quality.split-manifest/1",
+  "seeds": {
+    "base": 20270000,
+    "count": 119
+  },
+  "split": "dev",
+  "splits_version": "edat-quality-splits/1",
+  "tasks": 293
+}

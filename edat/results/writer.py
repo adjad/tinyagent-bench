@@ -1,4 +1,4 @@
-"""Append EDAT result records to a run directory, safely.
+"""Append tinyagent-bench result records to a run directory, safely.
 
     <store>/runs/<run_id>/records.jsonl   one edat.result/1.0 per line
     <store>/runs/<run_id>/manifest.json   edat.run-manifest/1.0

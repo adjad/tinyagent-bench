@@ -1,4 +1,4 @@
-/* Edge agent bench, mock-up sample data.
+/* tinyagent-bench, mock-up sample data.
  * EVERYTHING HERE IS SAMPLE DATA. Model, runtime and device names are invented;
  * no number describes a real model. Facts are written out by hand; results are
  * generated from a seeded function so the same page always shows the same numbers.

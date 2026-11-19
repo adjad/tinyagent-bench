@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/adjad/Edge_device_agentic_testing/edat/results/schema/snapshot.schema.json",
-  "title": "EDAT published snapshot (edat.snapshot/1.0)",
+  "title": "tinyagent-bench published snapshot (edat.snapshot/1.0)",
   "description": "data/results/<board_version>/<device_id>/snapshot.json: the runs a published snapshot is built from and every aggregate computed from them. Case-level records of the held-out split are never included. See docs/benchmark/results-record.md section 7.",
   "type": "object",
   "additionalProperties": false,

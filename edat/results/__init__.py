@@ -1,4 +1,4 @@
-"""EDAT results store: one record family for every test tier, its statistics and the website export.
+"""tinyagent-bench results store: one record family for every test tier, its statistics and the website export.
 
 See docs/benchmark/results-record.md. Modules:
 - schema: validation of records, manifests and export files;

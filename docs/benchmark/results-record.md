@@ -8,14 +8,19 @@ exports results.
   ([`edat/results/schema/result-record.schema.json`](../../edat/results/schema/result-record.schema.json))
 - Run manifest: **`edat.run-manifest/1.0`**
   ([`run-manifest.schema.json`](../../edat/results/schema/run-manifest.schema.json))
-- Published snapshot: **`edat.snapshot/1.0`**; website files: **`edat.site-board/1.0`** and
-  **`edat.site-index/1.0`** ([`snapshot.schema.json`](../../edat/results/schema/snapshot.schema.json),
-  [`site-board.schema.json`](../../edat/results/schema/site-board.schema.json))
+- Published snapshot: **`edat.snapshot/1.0`**; website files: **`edat.site-board/1.0`**,
+  **`edat.site-index/1.0`** and the draft **`edat.site-findings/0.1`** ([`snapshot.schema.json`](../../edat/results/schema/snapshot.schema.json),
+  [`site-board.schema.json`](../../edat/results/schema/site-board.schema.json),
+  [`site-findings.schema.json`](../../edat/results/schema/site-findings.schema.json))
 - Code: [`edat/results/`](../../edat/results/). Command line: `python -m edat.results --help`.
 
-Status: draft 1, 2026-11-18. It reconciles spec 02 (§2.3, §4.4, §5), 03 (§1.5,
-§6.1, §13), 04 (§3), 05 (§11), 06 (§4, §6, §12, §13), 08 (§6, §7) and 10 (§8.3).
-Where the specs disagree, §9 lists each disagreement and the choice made.
+Status: draft 2, 2026-11-18. It reconciles spec 02 (§2.3, §3.14–3.16, §4.4, §5), 03 (§1.5,
+§6.1, §9, §13), 04 (§3, §14), 05 (§11), 06 (§4, §6, §12, §13), 08 (§6, §7), 10 (§8.3),
+11 and 12. Where the specs disagree, §10 lists each disagreement and the choice made;
+§12 lists what is registered but still moving.
+
+Identifiers keep the `edat` prefix (`edat.result/1.0`, `edat/results/`); the
+benchmark's reader-facing name is tinyagent-bench.
 
 ## 1. The model in one screen
 
@@ -60,7 +65,7 @@ a reader would expect to be filled carries a reason (`raw_reason`, `device_reaso
 | `trial` | int ≥ 1 | 1–3 in routine runs. Perf maps `rep` to `trial` |
 | `status` | enum | §3 |
 | `status_detail` | string, optional | The tier's own status word, kept verbatim (e.g. `oom_killed_at_load`) |
-| `facets` | object, optional | Grouping keys: `lane`, `family`, `category`, `surface`, `profile`, `test`, `level_tokens`, `step`, `source_split`, `tags[]` |
+| `facets` | object, optional | Grouping keys: `lane`, `family`, `category`, `surface`, `profile`, `test`, `level_tokens`, `step`, `source_split`, `tags[]`; and for the newer tiers `level` (0–99), `track`, `mode`, `zone` (slugs), `band` (`early`/`middle`/`late`), `dimension` (`persistence`/`override`/`supersession`/`scope`/`no_waiver`), `arrival` (`stored`/`stated`) |
 | `metrics` | object | §4. Flat map of `snake_case` name → number, bool, short string (≤ 64 chars) or null |
 | `safety` | object | §5. `{unsafe_actions, privacy_leaks, labels[]}` |
 | `raw` | object \| null | `{path: "raw/<sha256>.json", sha256, bytes}`. `null` needs `raw_reason` |
@@ -77,7 +82,8 @@ a reader would expect to be filled carries a reason (`raw_reason`, `device_reaso
 | `weights_sha256` | one of these two | null | Full-content hash: sha256 over the sorted list of `<file name>\0<file sha256>` lines of every weight file |
 | `weights_fingerprint` | one of these two | null | Toolbench's fast fingerprint (name, size, first and last MiB of each file). Tells files apart; not a content hash |
 | `weights_bytes` | optional | null | |
-| `quant` | yes for ranked rows | null | `{scheme, bits?, group_size?, mixed?}`, e.g. `{"scheme": "oQ4e", "bits": 4.5}` |
+| `quant` | yes for ranked rows | null | `{scheme, bits?, group_size?, mixed?}`, e.g. `{"scheme": "oQ4e", "bits": 4.5}`. `mixed` is a boolean, null, or 04 §14's bit-width → layer-count map for mixed-bit weights, e.g. `{"5": 84, "6": 18}` (an empty map: the runner looked and found one width) |
+| `speculation` | optional | null | `none`, `mtp`, `draft_model`: how the engine decodes (04 §3.4) |
 | `architecture` | optional | `unknown` | `dense`, `moe`, `dense_ple`, `hybrid_ssm`, `unknown` |
 | `params_total`, `params_active` | optional | null | Integers (parameters, not billions). Active = total for dense models |
 | `template_sha256` | optional | null | Chat template hash |
@@ -143,8 +149,14 @@ Every name below is the spec's own; the list is the minimum each tier writes.
 | Tier | Metrics (per record) | Facets |
 |---|---|---|
 | `agentic` (02 §5) | `pass`, `score` (progress G), `plan_ok`, `execute_ok`, `verify_ok` (null if not applicable), `selection_ok`, `args_ok`, `format_ok`, `parallel_strict`, `steps`, `model_calls`, `optimal_steps`, `optimal_calls`, `pass_within_budget`, `wall_s`, `prompt_tokens`, `completion_tokens`, `reasoning_tokens`, `toolcall_tokens`, `cost_usd` (cloud) | `lane`, `family`, `tags` |
-| `preferences`, `long_session`, `memory` (02 §3.14–3.16) | `pass`, plus `dimension`, `arrival`, `band` (`early`/`late`) as short strings | `family`, `tags` |
-| `quality` (03 §13.1) | `pass` or `score`, and the per-answer inputs of 03 §13.1: `core_recall`, `secondary_recall`, `fabricated_atoms`, `atoms`, `extraction_field_acc`, `numeric_ok`, `json_parse_ok`, `schema_valid`, `hygiene`, `visible_tokens`, `reasoning_tokens`, `ref_tokens`, `visible_words`, `verbosity_ratio`, `token_source` (`model_tokenizer`, `provider_usage`) | `family` (qtype or task kind), `tags` |
+| `preferences` (02 §3.14, #57) | `pass` | `family`, `dimension`, `arrival` (facets preferred; the composite also reads `metrics.dimension`), `tags` |
+| `long_session` (02 §3.15) | `pass` | `family`, `band`, `tags` (`fact_probe`, `tool_probe`) |
+| `memory` (02 §3.16) | `pass` | `family`, `tags` (the sub-type: `remember`, `update`, `forget`, `gate`) |
+| `quality` (03 §13.1) | `pass` or `score`, and the per-answer inputs of 03 §13.1: `core_recall`, `secondary_recall`, `fabricated_atoms`, `atoms`, `trap_count`, `trap_failures`, `extraction_field_acc`, `numeric_ok`, `json_parse_ok`, `schema_valid`, `hygiene` (**0–100**, 03's scale), `visible_tokens`, `reasoning_tokens`, `ref_tokens`, `visible_words`, `verbosity_ratio`, `token_source` (`model_tokenizer`, `provider_usage`). Writing (03 §9): `point_recall`, `invented_atoms`, `forbidden_rate`, `constraint_ok`, `fact_keep_rate` (W3), `fix_rate`, `flag_rate`, `overedit` (W4), `grammar_errors_per_100w` | `family` (`summary`, `point`, `extraction`, `schema`, `numeric`, `noisy`, `writing`), `category` (`W1`…`W7` for writing), `tags` |
+| `quality` entry-level records | `case_id` starting `entry/`: `entry/readability_judge`, `entry/writing_judge` with `pref_style_ctrl` (0–100), `judge_validated` (bool), `grammar_reference_per_100w` | `family: judge`. Never counted as cases (§7.2) |
+| `app_control` (spec 11, suite `screen-world`) | `pass`, `score` | `family` (`ground`, `form`, `flow`, `read`, `disrupt`, `cross`, `guard`, `pixel`), `track` (`ax_text`, `screenshot_som`; `category` carries the same word), `level` |
+| `sidekick` (spec 12; suites `answer_only`, `tool_mode`) | `pass`, `score` | `family` (the nine types: `explain_error`, `write_fn`, `fix_bug`, `shell`, `git`, `regex`, `write_test`, `commit_msg`, `diff_review`), `mode` |
+| `in_assistant` findings (08, suite `productbench-findings`) | `outcome` (`found`, `missed`, `wrongly_raised`, `stale`, `right`, `done_wrongly`, `should_not`, `not_done`, `unsafe`, …), `found` (bool), `pass`/`score` when the outcome is scored; unscored outcomes have status `not_applicable`; unsafe ones count in `safety.unsafe_actions` | `surface` (`brief`, `ask`; null for actions), `profile`, `family` (= section), `zone` when known. `case_id` `<profile>/findings/<section>/<slug>` |
 | `vision`, `audio` (05 §11.1) | `pass` or `score` (`field_exact`, `anls`, `wer`, `cer`), `image_tokens`, `ttft_s`, `audio_tokens` | `family` (suite: `v1`, `a3`, …), `tags` |
 | `in_assistant` (08 §6) | `score` (surface score 0–1), `pass` (score = 1.0), `readability`, `invented`, `brief_recall`, `brief_false_alarms`, `day_valid`, `day_covered`, `wall_s`, `prompt_tokens`, `completion_tokens` | `surface`, `profile`, `family` |
 | `perf` (04 §3.6, 10 §8.3) | `ttft_s`, `prefill_tps`, `decode_tps`, `e2e_s`, `prompt_tokens`, `output_tokens`, `reasoning_tokens`, `footprint_peak_bytes`, `footprint_steady_bytes`, `swap_delta_bytes`, `energy_J` (when windowed); cloud: `net_ttft_s`, `net_total_s`, `cost_usd` | `test`, `level_tokens`, `step` |
@@ -168,7 +180,25 @@ run **attachment** and derives records from it:
   or `fit/iphone_air`, carrying the verdict.
 
 Warm-up samples, `events` and raw timing arrays (`token_times_ns`) stay in the
-attachment.
+attachment. A sample's `load` block (`t_load_start_ns`, `t_ready_ns`,
+`t_first_token_possible_ns`) becomes `load_s` and `load_to_first_token_s`.
+
+**The iPhone runner's export.** `convert perf` also reads
+`tinyagent-bench-<run_id>.zip` (or the folder it unpacks to):
+
+- exactly one `manifest-<run_id>.json` (`edat.export-manifest/1`,
+  `record_schema: edat.perf/1.0`) listing each file with its sha256 and size;
+  every listed file is checked, and a changed, truncated or missing file refuses the
+  whole export. Archive entries with absolute paths or `..` are refused;
+- `run-<run_id>.json` is the `edat.perf/1.0` document converted as above;
+- `mem-<run_id>.jsonl` (footprint log) and `phone-<run_id>.jsonl`
+  (`edat-phone-result/v1`) are kept as attachments (`footprint_log`,
+  `phone_results`). The phone's own grades are for display on the phone and are not
+  turned into records: the Mac re-grader of 02 §6.4 writes `phone_parity`.
+
+The usual refusals still apply: an export built from uncommitted runner code needs
+`--harness-commit`, and one whose weight files carry no sha256 has no weights hash
+and is refused.
 
 ## 5. Safety
 
@@ -241,11 +271,75 @@ repository.
 - `excluded` and its rate; above 2 % the entry is marked `invalid`.
 - Safety as in §5.
 
+### 7.1 Views
+
+An entry's `tiers` are keyed by **view**, normally the tier. Two suites share a tier
+but must not be averaged into its score, so each is its own view
+(`aggregate.SUITE_VIEWS`):
+
+| Tier, suite | View |
+|---|---|
+| `in_assistant`, `productbench-findings` | `in_assistant_findings` |
+| `agentic`, `toolbench` | `toolbench` |
+
+`preferences`, `long_session`, `memory`, `app_control`, `sidekick` and `quality` are
+their own tiers and so their own columns: none of them feeds the Agentic Score.
+
+### 7.2 Composites
+
+Each view's `composites` holds every composite it has; `composite` is the first
+(the headline). Stratified composites (`aggregate.COMPOSITE_DEFS`) are weighted means
+of per-stratum means of per-case means, with a stratified case bootstrap interval;
+weights renormalise over the strata present, and a composite with a fixed list of
+strata reports `present`, `complete` and, when strata are missing, `missing` and
+`label: partial`.
+
+| View | Composite | Metric | Strata and weights |
+|---|---|---|---|
+| `agentic` | `agentic_score` | `pass` | 7 families × 2 lanes (02 §5.3) |
+| `in_assistant` | `assistant_score` | `score` | surface: ask .50, brief .25, day .25 |
+| `preferences` | `preferences_score` | `pass` | the 5 dimensions, equal |
+| `memory` | `memory_score`, `forget_compliance` | `pass` | all cases; cases tagged `forget` |
+| `long_session` | `late_retention` | `pass` | `band: late` with tag `fact_probe` |
+| `app_control` | `screen_score` (SC1), `screen_score_screenshot` | `pass` | `ground`, `form`, `flow`, `read`, `disrupt`, `cross` on track `ax_text` (resp. `screenshot_som`), equal. `guard` and `pixel` are reported apart |
+| `sidekick` | `sidekick_score` (SK-1), `sidekick_tool_mode` | `pass` | the 9 types in `answer_only`, equal; all `tool_mode` cases |
+
+**Quality headlines** (`edat.results.composites`, 03 §13.2) are computed from
+per-case means, not strata. The interval is a case bootstrap; beyond-window cases are
+left out and counted in `does_not_fit`. Values are fractions; `hygiene` is divided
+by 100.
+
+- **Text understanding** = .30 core recall (summary/point) + .20 mean(extraction
+  field accuracy, numeric ok) + .25 faithfulness + .15 trap resistance + .10 schema
+  valid, where faithfulness = max(0, 1 − 2·Σfabricated/Σatoms) and trap resistance =
+  1 − Σtrap failures/Σtraps. Missing parts renormalise and label it `partial`.
+- **Readability** = .35 hygiene + .65 judge preference (`entry/readability_judge`,
+  `pref_style_ctrl`/100) when `judge_validated` is true (`label: judge`, the judge
+  value held fixed in the interval); otherwise hygiene alone, `label: structure only`.
+- **Writing** (03 §9) = .25 point recall + .20 faithfulness + .15 constraints + .10
+  editing + .30 judge preference (`entry/writing_judge`), where faithfulness =
+  max(0, 1 − 2·(invented + forbidden + fact change)), invented = Σinvented
+  atoms/Σatoms, fact change = 1 − mean `fact_keep_rate` over W3; constraints = mean
+  `constraint_ok` − 0.01·max(0, grammar errors per 100 words − the judge record's
+  reference); editing = mean(fix rate, flag rate, max(0, 1 − 50·overedit)) over W4.
+  Without a validated judge it renormalises and is labelled `checks only`.
+
+The headline of `quality` is Text understanding, then Readability, then Writing,
+whichever exists first. Entry-level `entry/` records feed only the headlines; they
+are never cases, so they are not in `records`, `pass1` or any interval's case count.
+
+### 7.3 Differences, fit and publication
+
 **Differences from references.** For each entry, Δ to the tuned baseline and to the
 base reference: paired bootstrap over the cases both have (10,000 resamples, fixed
 seed), mean difference of per-case pass rates, 95 % percentile interval, tag
 `better` / `worse` when the interval excludes 0, else `no_clear_difference`, plus
-win and loss counts. Rare events (unsafe, leaks) also get a ratio.
+win and loss counts. Rare events (unsafe, leaks) also get a ratio. Every composite
+gets the same paired Δ (per-stratum paired differences; for quality headlines, the
+cases both sides answered, beyond-window cases dropped from both). A quality Δ whose
+two sides are labelled differently (judge on one, checks or structure only on the
+other) carries a `warning`. Rank ranges are computed for every composite
+(`rank_ranges`), `rank_range` stays the headline's.
 
 **Fit gate.** An entry's `fits_16gb_mac` comes from the perf verdict record
 (`case_id: fit/16gb_mac`) with the same model id and quantisation scheme, whatever
@@ -271,8 +365,11 @@ first real export.
 
 Shaped after 06 §4 so pages do not need to know about records:
 
-- `index.json` (`edat.site-index/1.0`): boards, devices, file paths, `sample` flag.
-- `<board>/<device>.json` (`edat.site-board/1.0`): `device`, `references`,
+- `index.json` (`edat.site-index/1.0`): boards, devices (with `name` and the path of
+  their `findings` file, or null), file paths, `sample` flag.
+- `<board>/<device>.json` (`edat.site-board/1.0`): `device` (with display labels
+  `name`, `short`, `kind` = `laptop`/`phone`/`simulator`/`device`, and `fit_label`
+  such as "fits a 16 GB Mac"), `references`,
   `models[]`, `variants[]`, `runs[]` (one per variant: status, fit, ranked, rank
   group, run ids), `results[]` (variant × tier × metric → value, interval, n,
   interval kind, `vs.tuned`, `vs.base`), `safety[]`, `curves[]` (variant × metric →
@@ -282,6 +379,17 @@ Shaped after 06 §4 so pages do not need to know about records:
   `{who, call, args, result, error}`, final answer, checks, outcome
   `pass`/`fail`/`unsafe`. `dev` split only.
 - `<board>/cloud.json`: the same shape for cloud rows, all `ranked: false`.
+- `<board>/<device>.findings.json` (`edat.site-findings/0.1`, draft): what each model
+  found in the assistant, per variant × profile × trial, grouped by section
+  (`brief`, `brief_todos`, `todo`, `inbox`, `messages`, `act`, `window@<time>`, …).
+  Each item has `mark` (the site's word: `found`, `missed`, `wrong`, `stale`,
+  `right`, `unsafe`, …), `outcome` (the record's word, e.g. `wrongly_raised`),
+  `text` and `item` (scrubbed), `at`, `case_id`, `scored`, `unsafe`, and `zone`
+  when the record has one; `counts` per mark. `dev` split only.
+
+Composite rows in `results[]` carry `label` (`partial`, `judge`, `structure only`,
+`checks only`) where there is one; `vs` rows carry `warning` when the two sides'
+labels differ.
 
 Rates in website files are percentages (0–100); everything else keeps the record's
 unit. [`site/data/`](../../site/data/) holds a synthetic sample export, labelled
@@ -326,7 +434,7 @@ unless marked:
 | D6 | quantisation | 04 `quant {scheme, bits, group_size, mixed}`; Toolbench `quantization` string; 08 `quantisation` string | 04's object |
 | D7 | start time | 04 `started_utc` (ISO); 08 `date` (date only); Toolbench `started` (epoch seconds) | `started_at`, ISO 8601 UTC with `Z` |
 | D8 | memory units | 04 bytes (`footprint_peak_bytes`); iPhone export MiB (`peak_MiB`, `loaded_MiB`); 06 GB | Bytes in records; the site converts |
-| D9 | iPhone export schema | 10 §8.3 `edgebench.run/0.1` and `edgebench.perf/0.1`, cells pre-aggregated; 04 `edat.perf/1.0` with raw samples | `edat.perf/1.0`. The iPhone export should be renamed and carry samples; until then the store does not read it |
+| D9 | iPhone export schema | 10 §8.3 `edgebench.run/0.1` and `edgebench.perf/0.1`, cells pre-aggregated; 04 `edat.perf/1.0` with raw samples | `edat.perf/1.0`. The runner now exports `edat.perf/1.0` with samples inside `tinyagent-bench-<run_id>.zip` and an `edat.export-manifest/1`; the store reads it (§4.2) |
 | D10 | failure statuses | 04 (`oom_killed`, `not_run_above_oom`, `exceeds_native_window`, …); 10 (`killed`, `skipped_after_oom`, `ok_memory_warning`, `invalid_not_on_battery`); 06 (`ok`, `oom`, `not_run`, `failed`, `no_variant`, `nofit`) | One vocabulary (§3) plus `status_detail` |
 | D11 | fit verdict | 04 four values (+ `not_applicable` for cloud); 08 `fits_16gb: bool`; 06 `run.fit.verdict` and status `nofit`; 10 `fits` empty | 04's values |
 | D12 | device | 04 `device.class` (`mac-ref`), `ram_bytes`; 08 `{model, chip, memory_gb, arch, os}`; 06 slug ids (`mac24`), `ram` in GB | `device.id` slug + `class` + `ram_bytes` |
@@ -338,6 +446,14 @@ unless marked:
 | D18 | baseline aliases | Toolbench treats `Gemma-Wisp` and `gemma-4-E4B-it-r5-step-01800-oQ4e-mtp` as the same baseline | The board version names each reference by model id and weights; aliases are listed there |
 | D19 | run id | 04 `<UTC>-<4 hex>`; Toolbench `%Y%m%d-%H%M%S`; 08 `edat-iae-<date>-<time>` | Any id matching the pattern; 04's form recommended for new writers |
 | D20 | tokens | 03 §6.1 `visible_tokens`…; 04 `output_tokens`; 04 cloud `tokens_in`/`tokens_out`; 08 `prompt_tokens`/`completion_tokens` | 03 §6.1 names for re-tokenized counts, `prompt_tokens`/`completion_tokens` for engine usage, `output_tokens` kept in perf |
+| D21 | mixed-bit quantisation | 04 §3.4 `mixed: bool`; 04 §14 and the iPhone runner a bit-width → layer-count map | Both: boolean, null or the map |
+| D22 | hygiene scale | 03 §13.1 hygiene 0–100; every other rate 0–1 (D13) | Kept 0–100 as 03 writes it; the Readability headline divides by 100 |
+| D23 | screen-control tier id | spec 11 and its harness `app_control`; the website branch `screen` | `app_control`; the site maps it to its column name |
+| D24 | findings marks | in-assistant records `wrongly_raised`, `done_wrongly`, `should_not`; the website `wrong` | Records keep their word as `outcome`; the findings file adds the site's `mark` |
+| D25 | day-question answers | the website groups them as `day`; the in-assistant records give them `surface: ask` (section `window@<time>`) | The record's `surface: ask`; the findings file groups by section, so the site reads `window@…` as its day questions |
+| D26 | long-session band | 02 §3.15 and the website read a `band` per case; the long-session harness does not write it yet | Registered as facet `band` and tag `fact_probe`; `late_retention` stays empty until the harness writes them |
+| D27 | judge preferences | 03 §13.2 keeps the judge's style-controlled preference in a separate JSON file | Written as `entry/readability_judge` and `entry/writing_judge` records, so the headline is computed and compared inside the store |
+| D28 | sidekick writer | spec 12's harness writes through its own `LocalRunWriter` | Must produce `edat.result/1.0` runs (tier `sidekick`, suites `answer_only` / `tool_mode`); `RunWriter` recommended |
 
 ## 11. How a tier writes records
 
@@ -378,8 +494,35 @@ python -m edat.results convert perf run-<run_id>.json --board-version 2027.1 --d
 ```
 
 ```bash
+python -m edat.results convert perf tinyagent-bench-<run_id>.zip --board-version 2027.1 --device-id iphone-ref
+```
+
+```bash
 python -m edat.results convert productbench <in-assistant run dir> --board-version 2027.1 --device-id mac-ref
 ```
 
 Exit codes of every command: 0 ok, 1 invalid or damaged, 2 refused (results not
 comparable), 3 usage or conversion error.
+
+## 12. Registered, but still moving
+
+These names are in the schema and the aggregator so runs can be written now; the
+parts listed may change in a later draft.
+
+- **In-assistant findings** (`edat.site-findings/0.1`): the Brief `zone` (card,
+  needs attention, to-do) and the answer-key text (`key_id`, `key_type`,
+  `key_text`, `why`) are not in the records yet, so the findings file has `zone`
+  only when a record carries it and no answer-key fields. The site's `missed[]`,
+  `actions[]` and `day[]` lists are derived from sections rather than stored.
+- **Long sessions**: `band` and the `fact_probe` / `tool_probe` tags are not written
+  by the harness yet (02 #59–#61 unimplemented); `late_retention` is empty until then.
+- **Quality**: the quality branch's family names (`summary`, `point`, `extraction`,
+  `numeric`, `writing` with `W1`…`W7`) and the `entry/…_judge` records are this
+  draft's proposal; the judge is not validated yet, so every published headline is
+  `structure only` or `checks only` until it is.
+- **Sidekick**: the tier and suites are registered; its harness is uncommitted and
+  writes through its own writer (D28).
+- **Website**: the site branch still uses `screen` and the older quality facets
+  (`readability`, `email_summary`); it also asks for a profiles export, a case
+  catalogue, vote pairs, a sustained-load curve and `planned` metrics, none of which
+  the store writes yet.

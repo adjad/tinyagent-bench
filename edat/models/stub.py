@@ -20,6 +20,7 @@ from __future__ import annotations
 import json
 from typing import Any, Callable, Iterable
 
+from edat.models.media import media_parts, summarise_message
 from edat.models.base import (ChatResult, EngineError, Sampling, Timing, Usage, make_tool_call,
                               tool_names)
 
@@ -62,7 +63,8 @@ class ScriptedClient:
     def chat(self, messages: list[dict], *, tools: list[dict] | None = None,
              sampling: Sampling | None = None, seed: int | None = None,
              max_tokens: int, thinking: bool) -> ChatResult:
-        self.requests.append({"messages": [dict(m) for m in messages], "tools": tool_names(tools),
+        self.requests.append({"messages": [summarise_message(m) for m in messages], "tools": tool_names(tools),
+                              "media": media_parts(messages),
                               "sampling": sampling.to_record() if sampling else None, "seed": seed,
                               "max_tokens": max_tokens, "thinking": thinking})
         if self.index >= len(self.turns):
@@ -89,7 +91,7 @@ class NullClient(ScriptedClient):
         self.text = text
 
     def chat(self, messages, *, tools=None, sampling=None, seed=None, max_tokens, thinking):
-        self.requests.append({"messages": len(messages), "tools": tool_names(tools)})
+        self.requests.append({"messages": len(messages), "tools": tool_names(tools), "media": media_parts(messages)})
         r = turn_to_result({"text": self.text}, len(self.requests) - 1)
         r.request = self.requests[-1]
         return r

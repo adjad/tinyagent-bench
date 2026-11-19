@@ -342,3 +342,35 @@ def test_httpx_transport_against_a_loopback_fake_server():
         server.shutdown()
     assert r.tool_calls[0].arguments == {"location": "Oslo"}
     assert server.seen[0]["chat_template_kwargs"] == {"enable_thinking": False}
+
+
+# ------------------------------------------------------------------ image and audio parts
+
+def test_media_parts_reach_the_stub_as_summaries_and_pass_through_payloads(tmp_path):
+    import base64
+    from edat.models import ScriptedClient, audio_part, image_part, message_text, user_message
+    from edat.models.openai_compat import build_payload
+    png = b"\x89PNG\r\n\x1a\n" + b"0" * 32
+    (tmp_path / "shot.png").write_bytes(png)
+    msg = user_message("What is on screen?", image_part(tmp_path / "shot.png"), audio_part(b"RIFFfake", "wav"))
+    assert msg["content"][1]["image_url"]["url"].startswith("data:image/png;base64,")
+    assert base64.b64decode(msg["content"][2]["input_audio"]["data"]) == b"RIFFfake"
+    assert message_text(msg) == "What is on screen?"
+    c = ScriptedClient([{"text": "A calendar."}])
+    c.chat([msg], tools=None, max_tokens=16, thinking=False)
+    media = c.requests[0]["media"]
+    assert [m["type"] for m in media] == ["image_url", "input_audio"]
+    assert media[0]["mime"] == "image/png" and media[0]["bytes"] == len(png) and len(media[0]["sha256"]) == 64
+    assert "base64" not in str(c.requests[0]["messages"])
+    payload = build_payload("sample-model", [msg], tools=None, sampling=None, seed=None, max_tokens=16,
+                            stream=False)
+    assert payload["messages"][0]["content"] == msg["content"]
+
+
+def test_media_part_validation():
+    import pytest
+    from edat.models import audio_part, image_part
+    with pytest.raises(ValueError):
+        image_part(b"x")
+    with pytest.raises(ValueError):
+        audio_part(b"x", "aiff")

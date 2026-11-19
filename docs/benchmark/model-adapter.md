@@ -155,12 +155,36 @@ Hosted runs send only the public development split (spec 02 §4.4). The guard
 that refuses anything else lives with the runner (`edat/hosted/`), not in the
 client, because the client never sees case ids.
 
+## Image and audio parts
+
+A message's `content` may be a list of OpenAI-style parts instead of a string:
+
+```python
+from edat.models import user_message, image_part, audio_part
+msg = user_message("What does this say?", image_part("shot.png"), audio_part(wav_bytes, "wav"))
+# {"role": "user", "content": [{"type": "text", ...},
+#   {"type": "image_url", "image_url": {"url": "data:image/png;base64,..."}},
+#   {"type": "input_audio", "input_audio": {"data": "<base64>", "format": "wav"}}]}
+```
+
+- `image_part(bytes | path, mime=None)` builds a data URL. `image_url_part(url)` is for hosted models only.
+- `audio_part(bytes | path, fmt=None)` accepts wav, mp3, flac, ogg or m4a.
+- `message_text(msg)` gives the text parts only.
+- The stub (`ScriptedClient`, `NullClient`) records each media part in `requests[i]["media"]` as `{type, mime | format, bytes, sha256}`, and it stores messages with the base64 replaced by that summary. Scripted turns that are callables still receive the full messages.
+- The oMLX and OpenRouter clients pass the list through unchanged. Whether a given server or model accepts images or audio is **untested**: no real server was called while building this.
+- Tool messages stay strings in the reference loop. A loop that returns screenshots as observations (spec 11) puts the image in a user message after the tool result, because servers differ on media inside `role: tool`.
+
 ## Adding a runtime
 
 Implement `describe()` and `chat()` with the same signature and the two rules
 above. An OpenAI-compatible server can reuse `edat/models/openai_compat.py`
 (`build_payload`, `run_request`, a `Transport`). Other runtimes are out of
 scope for version 1 (spec 02 §4.3).
+
+## The loop
+
+The reference loop and its extension points (observation policy, per-case step
+limit, call cap, stop tools, pre-run guard) are documented in `agent-loop.md`.
 
 ## Tests
 

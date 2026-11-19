@@ -65,8 +65,8 @@ class RunConfig:
     recogniser: dict | None = None            # {"id": ...} of the shared recogniser, if used
     max_tokens: dict = field(default_factory=lambda: dict(MAX_TOKENS))
     run_id: str = ""
-    # The selection tier (spec 05 §17): core, extended or full. Every record carries its
-    # name, the manifest's sha256, the item n and the 95 % half-width; tiers never pool.
+    # The selection tier (spec 05 §17): core, extended or full. Every record carries it in
+    # the results store's `selection` field (tier, manifest sha256, item n, 95 % half-width).
     tier_run: Any = None                      # edat.media.tiers.TierRun
 
     def __post_init__(self) -> None:
@@ -183,7 +183,7 @@ def base_record(cfg: RunConfig, *, tier: str, suite: str, case_id: str, trial: i
         "raw": raw,
     }
     if cfg.tier_run is not None:
-        rec["metrics"].update(cfg.tier_run.stamp(facets.get("family", suite), facets.get("category")))
+        rec["selection"] = cfg.tier_run.selection(facets.get("family", suite), facets.get("category"))
         rec["facets"]["tags"] = list(dict.fromkeys(
             rec["facets"].get("tags", []) + [f"tier-{cfg.tier_run.tier}"]))[:32]
     if cfg.device is None:

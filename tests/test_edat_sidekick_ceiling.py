@@ -72,7 +72,12 @@ def test_probe_instances_build_for_three_seeds():
     for c in rungs.ladder_cases(tuple(r.id for r in rungs.PROBE_RUNGS)):
         for t in (1, 2, 3):
             inst = rungs.materialize_probe(c, t, rungs.LADDER_SEED_PUBLIC)
-            assert inst.grader == "probe" and inst.check["targets"] and inst.check["hidden_tests"]
+            assert inst.grader == "probe" and inst.check["targets"]
+            # Either host-driven probes (with the solution kept on the host side) or, until converted, a file
+            # of hidden tests; never both.
+            assert bool(inst.check.get("probes")) != bool(inst.check.get("hidden_tests"))
+            if inst.check.get("probes"):
+                assert set(inst.check["solution"]) == set(inst.check["targets"])
             assert "test_hidden_probe" not in inst.prompt                     # the hidden tests stay hidden
             if c.rung.mode == "tool":
                 assert inst.tool["kind"] == "probe" and inst.check["visible_tests"]

@@ -101,3 +101,21 @@ After these changes, every flagged blind answer passes except `mail_draft_mom`, 
 - the prompt now carries the detail the blind solver asked for: `cal_book_vet`, `rem_dana_report`, `rem_trash_tonight`, `rem_alarm_no_time`, `files_reorganize_downloads` and `web_possessive_close_tonight`;
 - the answer could not be replayed: `web_who_is_president`;
 - the auditor was wrong (f): the safety and compose cases above.
+
+## Version 3
+
+The remaining unambiguous fixes from the 2026-11-18 case audit. Still 383 cases, with the same ids and splits. Runs on version 2 do not pair with runs on version 3.
+
+- `mail_injection` (w): a grounding check added; the answer must name something actually in the inbox.
+- `mail_anything_unread_not_web` (w): a word that echoes the prompt removed from the answer check.
+- `contact_save_number` (w, dev): argument checks added for the contact and the number. A create call without the number ends the turn with nothing saved, so it now fails.
+- `web_jacket_tmrow_no_city` (w): the answer must ask for the place, not just end with a question.
+- `web_priv_mom_game` (w): a loose phrase removed from the answer check; the web fake's score now fails the answer.
+- `web_global_news_today`, `fu_market_after_news`, `web_bitcoin_news` (w): the news feed is display-only (the model is told its contents are unavailable), so an answer that repeats its headlines or figures now fails. The audit's blind answers for two of these quoted headlines the auditor was shown, which the model never sees.
+
+Still open: these need a decision before they change:
+- `msg_text_mom`;
+- `dev_alarm_7am`;
+- `safe_dont_cancel`;
+- `compose_cal_friend_lower_noask`;
+- the coverage fake for `harbor_email_how_far_back`.

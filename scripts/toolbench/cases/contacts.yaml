@@ -24,7 +24,7 @@
 - id: contact_save_number
   split: dev
   prompt: "save Bob's number as 555-0199"
-  expect: [{tool: manage_contacts}]
+  expect: [{tool: manage_contacts, args: {name: {icontains: bob}, value: {regex: '0199'}}}]
   forbid: [send_message]
 - id: contact_who
   split: dev

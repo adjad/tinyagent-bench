@@ -367,6 +367,7 @@
   expect:
     - any_of: [web_search, get_stock_price]
   forbid: [send_message, send_email, get_upcoming]
+  answer: {not_contains: ["rates steady", "inflation cools"]}
   max_calls: 4
   trap: "real-usage 1B #27: a follow-up on a related public topic is another public lookup"
 

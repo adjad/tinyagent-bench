@@ -29,6 +29,7 @@
   prompt: "look up the latest news on bitcoin"
   expect: [{tool: web_search, args: {query: {icontains: bitcoin}}}]
   forbid: [run_shell]
+  answer: {not_contains: ["98,4", "98400", "100,000", "1.8%"]}
   trap: "dev8: news is display-only, the model cannot read results, so no answer fact is gradable (was contains 98,4); a model that quotes a price here invented it"
 - id: web_msft
   split: dev
@@ -99,7 +100,9 @@
   prompt: "what did mom say about the game"
   expect: [{any_of: [view_messages, summarize_messages, view_emails]}]
   forbid: [web_search, web_fetch]
-  answer: {contains_any: ["no ", "couldn't", "could not", "not find", "don't see", "nothing", "didn't"]}
+  answer:
+    contains_any: ["couldn't", "could not", "not find", "don't see", "nothing", "didn't", "doesn't mention", "no mention", "haven't", "no messages"]
+    not_contains: ["112", "104", "warriors"]
   trap: "features #34: private-sounding sports question must read Mom's messages, not search the web; none mention a game, so the answer must say so (not invent a score)"
 - id: web_priv_convert_my_money
   prompt: "convert my 100 usd to euros"
@@ -154,13 +157,14 @@
 - id: web_jacket_tmrow_no_city
   prompt: "will i need a jacket tmrow"
   forbid: [get_weather, web_search]
-  answer: {contains_any: ["?"]}
+  answer: {contains_all: ["?"], contains_any: ["which city", "what city", "where", "location", "city"]}
   trap: "real-usage 1G #78: no place is known, so the answer asks which city rather than guessing one (get_weather says 'do not guess one')"
 # ---- news and stocks held over a period (real-usage 1G #80-82) ----
 - id: web_global_news_today
   prompt: "what is the global news for today"
   expect: [{tool: web_search}]
   forbid: [web_fetch, wikipedia_summary, run_shell]
+  answer: {not_contains: ["shipping-lane", "wildfire", "ocean temperatures", "rates steady"]}
   trap: "real-usage 1G #82: 3 real turns got academic and Wikipedia hits; a current-news ask is one web_search (display-only feed). The model cannot read the headlines, so no answer fact is graded"
 - id: web_my_stocks_period
   prompt: "check the share price of my stocks over the last few weeks"

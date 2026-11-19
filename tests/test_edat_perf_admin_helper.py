@@ -8,6 +8,7 @@ import os
 import shutil
 import signal
 import socket
+import stat
 import tempfile
 import threading
 import time
@@ -27,7 +28,9 @@ spec.loader.exec_module(H)
 class FakePopen:
     instances = []
 
-    def __init__(self, argv):
+    def __init__(self, argv, stdout=None):
+        self.stdout_fd = stdout
+        self.stdout_mode = os.fstat(stdout).st_mode if isinstance(stdout, int) else None
         self.argv, self.pid, self.signals, self.returncode = argv, 4242 + len(FakePopen.instances), [], None
         self.terminated = False
         FakePopen.instances.append(self)
@@ -80,12 +83,20 @@ needs_unix_socket = pytest.mark.skipif(not _unix_bind_allowed(),
 
 
 @pytest.fixture
-def rundir():
+def parent_dir():
     base = tempfile.gettempdir()  # AF_UNIX paths are limited to ~104 bytes: fall back to /tmp when $TMPDIR is long
-    d = tempfile.mkdtemp(dir=base if len(base) < 50 else "/tmp", prefix="edat")
-    assert len(os.path.join(d, "admin.sock")) < 100
+    # realpath: the helper refuses links anywhere in --run-dir, and on macOS /tmp is a link.
+    d = os.path.realpath(tempfile.mkdtemp(dir=base if len(base) < 50 else "/tmp", prefix="edat"))
     yield d
     shutil.rmtree(d, ignore_errors=True)
+
+
+@pytest.fixture
+def rundir(parent_dir):
+    """A run folder that does not exist yet: the helper creates it."""
+    d = os.path.join(parent_dir, "run")
+    assert len(os.path.join(d, "admin.sock")) < 100
+    return d
 
 
 @pytest.fixture(autouse=True)
@@ -134,8 +145,12 @@ def test_powermetrics_start_stop(rundir, interval):
     assert r["ok"]
     assert FakePopen.instances[0].argv == [
         "/usr/bin/powermetrics", "--samplers", "cpu_power,gpu_power,ane_power,thermal", "-i", str(interval),
-        "-f", "plist", "-o", os.path.join(rundir, "powermetrics-1.plist")]
+        "-f", "plist"]                               # no output path: it writes to the descriptor we opened
     assert r["result"]["path"] == os.path.join(rundir, "powermetrics-1.plist")
+    assert isinstance(FakePopen.instances[0].stdout_fd, int)
+    assert stat.S_ISREG(FakePopen.instances[0].stdout_mode)
+    st = os.lstat(os.path.join(rundir, "powermetrics-1.plist"))
+    assert stat.S_ISREG(st.st_mode) and (st.st_mode & 0o777) == 0o600 and st.st_uid == os.getuid()
     assert isinstance(r["result"]["t_ns"], int) and r["result"]["t_wall_utc"].endswith("+00:00")
     assert req(h, "status")["result"]["powermetrics_running"]
     assert req(h, "powermetrics_stop")["ok"]
@@ -255,15 +270,108 @@ def test_dry_run_reports_balloon_size(rundir):
 
 
 # ------------------------------------------------------------------ startup checks
-def test_run_dir_checks(rundir, tmp_path):
-    me = os.getuid()
-    H.check_run_dir(rundir, me)
+def test_run_dir_is_created_private(rundir):
+    h, _ = make(rundir)
+    st = os.lstat(rundir)
+    assert stat.S_ISDIR(st.st_mode) and (st.st_mode & 0o777) == 0o700 and st.st_uid == os.getuid()
+    a = os.lstat(os.path.join(rundir, "admin-audit.jsonl"))
+    assert stat.S_ISREG(a.st_mode) and (a.st_mode & 0o777) == 0o600
+
+
+@pytest.mark.parametrize("bad", ["relative/dir", "/a/../b", "/a/./b", "//double"])
+def test_run_dir_must_be_plain_absolute(bad):
     with pytest.raises(H.Refusal):
-        H.check_run_dir(rundir, me + 1)
+        H.create_run_dir(bad, os.getuid(), os.getgid())
+
+
+def test_existing_run_dir_refused(rundir):
+    os.mkdir(rundir)
+    with pytest.raises(H.Refusal, match="already exists"):
+        make(rundir)
+
+
+def test_missing_parent_refused(parent_dir):
+    with pytest.raises(H.Refusal, match="does not exist"):
+        make(os.path.join(parent_dir, "missing", "run"))
+
+
+# ------------------------------------------------------------------ links are refused, never followed
+def test_link_in_parent_path_refused(parent_dir):
+    real = os.path.join(parent_dir, "real")
+    os.mkdir(real)
+    os.symlink(real, os.path.join(parent_dir, "linked"))
+    with pytest.raises(H.Refusal, match="symbolic link"):
+        make(os.path.join(parent_dir, "linked", "run"))
+    assert os.listdir(real) == []                     # nothing was created through the link
+
+
+def test_link_at_run_dir_refused(parent_dir):
+    target = os.path.join(parent_dir, "elsewhere")
+    os.mkdir(target)
+    os.symlink(target, os.path.join(parent_dir, "run"))
     with pytest.raises(H.Refusal):
-        H.check_run_dir("relative/dir", me)
+        make(os.path.join(parent_dir, "run"))
+    assert os.listdir(target) == []
+
+
+def test_planted_link_at_audit_log_refused(parent_dir, rundir):
+    victim = os.path.join(parent_dir, "victim.txt")
+    with open(victim, "w") as f:
+        f.write("untouched")
+    h = H.Helper(rundir, 6, False, run=lambda a: 0, read_sysctl=lambda: 5000, balloon_factory=FakeBalloon,
+                 popen=FakePopen, out=io.StringIO())
+    h.prepare()                                       # the folder exists; a link is planted before the first write
+    os.symlink(victim, os.path.join(rundir, "admin-audit.jsonl"))
+    with pytest.raises(H.Refusal, match="admin-audit.jsonl"):
+        h.start()
+    with open(victim) as f:
+        assert f.read() == "untouched"
+    assert os.lstat(victim).st_uid == os.getuid()
+
+
+def test_planted_link_at_power_sample_file_refused(parent_dir, rundir):
+    victim = os.path.join(parent_dir, "victim.plist")
+    with open(victim, "w") as f:
+        f.write("untouched")
+    h, _ = make(rundir)
+    os.symlink(victim, os.path.join(rundir, "powermetrics-1.plist"))
+    r = req(h, "powermetrics_start", interval_ms=1000)
+    assert not r["ok"] and "powermetrics-1.plist" in r["error"]
+    assert FakePopen.instances == []                  # powermetrics was never started
+    with open(victim) as f:
+        assert f.read() == "untouched"
+    assert any(x.get("event") == "refused" or x.get("ok") is False for x in audit_lines(rundir))
+
+
+def test_run_dir_swapped_for_a_link_before_the_socket_is_made(parent_dir, rundir):
+    h, _ = make(rundir)
+    moved = os.path.join(parent_dir, "moved")
+    os.rename(rundir, moved)
+    os.symlink(moved, rundir)                         # the path now leads elsewhere through a link
+    h.serve()                                         # refuses before bind: no socket anywhere
+    assert not os.path.exists(os.path.join(moved, "admin.sock"))
+    lines = [json.loads(x) for x in open(os.path.join(moved, "admin-audit.jsonl"))]
+    assert any(x.get("event") == "refused" for x in lines)
+    assert lines[-1]["event"] == "exit" and lines[-1]["reason"] == "refused"
+
+
+def test_same_dir_and_safe_name():
     with pytest.raises(H.Refusal):
-        H.check_run_dir(os.path.join(rundir, "missing"), me)
+        H.safe_name("../x")
+    with pytest.raises(H.Refusal):
+        H.safe_name("a/b")
+    assert H.safe_name("admin.sock") == "admin.sock"
+
+
+def test_source_never_writes_or_chowns_by_following_a_path():
+    src = Path(H.__file__).read_text()
+    assert " open(" not in src.replace("os.open(", "")          # no builtin open of a path
+    assert "os.chmod(" not in src
+    for line in src.splitlines():
+        if "os.chown(" in line:
+            assert "follow_symlinks=False" in line and "dir_fd=" in line
+        if "O_CREAT" in line:
+            assert "O_EXCL" in line and "O_NOFOLLOW" in line
 
 
 def test_main_refuses_non_root_and_missing_sudo_uid(rundir, capsys):

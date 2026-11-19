@@ -17,6 +17,7 @@
   const GiB = 1 / 1073741824;
 
   const groups = [
+    { id: "safety", name: "Safety", fixed: true, desc: "Unsafe actions and privacy leaks: always shown beside the score, never in it." },
     { id: "agentic", name: "Agentic", main: true, desc: "Tool use across seven families, each half assistant lane and half neutral lane, three trials per case." },
     { id: "families", name: "Agentic families", main: true, desc: "Pass rate in each of the seven families that make up the agentic score." },
     { id: "assistant", name: "In the assistant", main: true, desc: "Ask, Brief and Day inside the assistant, across three synthetic people." },
@@ -37,7 +38,9 @@
 
   const metrics = [
     /* headline and fixed columns */
-    P("agentic_score", "agentic", "Agentic score", "Agentic score", "%", "high", 1, { r: "agentic", m: "agentic_score" }, { headline: true, tierLink: "agentic", desc: "Mean of the seven family pass rates; each family is the mean of its two lanes." }),
+    P("agentic_score", "agentic", "Agentic score", "Agentic score", "%", "high", 1, { r: "agentic", m: "agentic_score" }, { headline: true, tierLink: "agentic", desc: "From the benchmark's own minimal loop, which never repairs a model's mistakes. Mean of the seven family pass rates; each family is the mean of its two lanes." }),
+    P("assistant_loop_score", "agentic", "Score in the assistant's own loop", "Assistant loop", "%", "high", 1, { r: "agentic", m: "assistant_loop_score", f: "lane=assistant" }, { planned: true, na: { cloud: "na_loop_cloud", phone: "na_loop_phone" }, desc: "The same assistant-lane cases run through the assistant's own loop, which re-prompts and repairs mistakes." }),
+    P("repair_gain", "agentic", "What the assistant's repairs add", "Repairs add", "points", null, 1, { r: "agentic", m: "repair_gain", f: "lane=assistant" }, { planned: true, format: "signed", na: { cloud: "na_loop_cloud", phone: "na_loop_phone" }, desc: "The assistant's loop score minus the minimal loop's score on the same assistant-lane cases, with its 95% interval." }),
     P("unsafe", "safety", "Unsafe actions", "Unsafe", "per 100 trials", "low", 1, { s: "agentic", k: "unsafe_per_100" }, { safety: true, rateKey: "unsafe_rate", desc: "Forbidden or unconfirmed actions per 100 agentic trials. Counted on its own, never in a score." }),
     P("leaks", "safety", "Privacy leaks", "Leaks", "per 100 trials", "low", 1, { s: "agentic", k: "leaks_per_100" }, { safety: true, rateKey: "leak_rate", desc: "Wrong recipients or leaked private details per 100 agentic trials. Counted on its own, never in a score." }),
 
@@ -97,6 +100,9 @@
     /* energy (spec 04): Mac only in version 1 */
     P("j_task", "energy", "Energy per completed task", "J per task", "J", "low", 0, { r: "perf", m: "energy_task_J" }, { on: "local", planned: true, macOnly: true }),
     P("mj_prefill", "energy", "Energy per prefill token at 2k", "mJ prefill", "mJ/token", "low", 2, { r: "perf", m: "energy_prefill_mJ_per_token" }, { on: "local", planned: true, macOnly: true }),
+    P("j_task_prefill", "energy", "Energy per task: prefill", "J prefill", "J", "low", 0, { r: "perf", m: "energy_task_prefill_J" }, { on: "local", planned: true, macOnly: true, split: true }),
+    P("j_task_decode", "energy", "Energy per task: decode", "J decode", "J", "low", 0, { r: "perf", m: "energy_task_decode_J" }, { on: "local", planned: true, macOnly: true, split: true }),
+    P("j_task_tools", "energy", "Energy per task: tool waits", "J tools", "J", "low", 0, { r: "perf", m: "energy_task_tools_J" }, { on: "local", planned: true, macOnly: true, split: true }),
     P("mj_decode", "energy", "Energy per decode token at 2k", "mJ decode", "mJ/token", "low", 1, { r: "perf", m: "energy_decode_mJ_per_token" }, { on: "local", planned: true }),
 
     /* simulated day (spec 04 §5) */
@@ -152,6 +158,8 @@
     not_run: { text: "Not run yet", icon: "clock", tip: "Queued or skipped. Never treated as zero." },
     invalid: { text: "Invalid run", icon: "warn", bad: true, tip: "More than 2% of trials were excluded, so the entry is listed but not ranked." },
     not_measured: { text: "Fit not measured", icon: "clock", tip: "No fit verdict yet, so the entry is listed but not ranked." },
+    na_loop_cloud: { text: "Not applicable (cloud)", icon: "dash", tip: "Cloud references run only the benchmark's minimal loop, not the assistant's own loop." },
+    na_loop_phone: { text: "Not run on the iPhone", icon: "dash", tip: "The iPhone runs the parity subset in the minimal loop only." },
     not_in_board: { text: "Not in this board yet", icon: "dash", tip: "This test area has no published results in this board version." },
     no_value: { text: "No value", icon: "dash", tip: "The store has the row but no value." }
   };
@@ -164,7 +172,7 @@
     group: Object.fromEntries(groups.map((g) => [g.id, g])),
     tier: Object.fromEntries(tiers.map((t) => [t.id, t])),
     /* the always-on columns beside every agentic score */
-    fixed: ["agentic_score", "unsafe", "leaks"],
+    fixed: ["agentic_score", "assistant_loop_score", "repair_gain", "unsafe", "leaks"],
     facetLabel(facet) {
       if (!facet) return "All";
       const [k, v] = facet.split("=");

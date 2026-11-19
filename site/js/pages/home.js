@@ -23,11 +23,17 @@
     return { all, rankedAll, ranked, listed, nofit };
   }
 
+  /* the two agentic loops, explained where the columns are read */
+  const LOOPS_HOW = `<details class="howto"><summary>${I.chev}How to read the two agentic columns</summary><ul>
+      <li>The agentic score comes from the benchmark's own minimal loop: it sends the cases to the model and takes its tool calls as they come, with no second tries. It is the headline because it measures the model alone.</li>
+      <li>"Assistant's loop" runs the same assistant-lane cases through the assistant's own loop, which re-prompts the model and repairs malformed or failed calls. "Repairs add" is the gap between the two, read as what the assistant's repairs add for this model, with its 95% interval.</li>
+      <li>Both are empty for the neutral lane (it has no assistant loop), for cloud references (they run the minimal loop only) and on the iPhone (its parity subset runs the minimal loop only). Hover an empty cell for the reason.</li></ul></details>`;
+
   function render(ctx) {
     const q = ctx.q, board = ctx.device, cloud = ctx.cloud, d = board.device, phone = d.kind === "phone";
     const f = filtersFromQ(q), every = q.get("rows") === "all", showNofit = q.get("nf") === "1", showCloud = q.get("cl") !== "0";
     const vs = ["tuned", "base"].includes(q.get("vs")) ? q.get("vs") : "";
-    let groups = (q.get("g") || "agentic").split(",").filter((g) => R.group[g]);
+    let groups = (q.get("g") || "agentic").split(",").filter((g) => R.group[g] && !R.group[g].fixed);
     if (!groups.length) groups = ["agentic"];
 
     const B = bands(board, f, every);
@@ -122,13 +128,13 @@
       return `<th scope="col" class="num ${extra || ""}"${on ? ` aria-sort="${order === "asc" ? "ascending" : "descending"}"` : ""}><button type="button" data-sort="${id}" title="${esc(m.name + (m.desc ? ". " + m.desc : ""))}">${esc(label)}${on ? (order === "asc" ? " ↑" : " ↓") : ""}</button>${sub ? `<span class="vline">${esc(sub)}</span>` : ""}</th>`;
     };
     const unitTxt = (m) => (m.unit === "%" ? "%" : m.unit || "") + (m.better === "low" ? (m.unit ? ", " : "") + "lower is better" : "");
-    const nCols = 6 + gm.length;
-    const head = `<thead><tr><th scope="col" class="sticky">Rank and entry</th>${thSort(HEAD, "Agentic score", "0 to 100, ±95% interval")}<th scope="col" class="num col-delta">Against tuned<span class="vline">difference</span></th><th scope="col" class="num col-delta">Against base<span class="vline">difference</span></th>${thSort("unsafe", "Unsafe actions", "per 100 trials", "col-unsafe")}${thSort("leaks", "Privacy leaks", "per 100 trials", "col-unsafe")}${gm.map(({ m, first }) => thSort(m.id, m.short, (vs ? "difference, " : "") + unitTxt(m), first ? "group-start" : "")).join("")}</tr></thead>`;
+    const nCols = 8 + gm.length;
+    const head = `<thead><tr><th scope="col" class="sticky">Rank and entry</th>${thSort(HEAD, "Agentic score", "minimal loop, 0 to 100, ±95%")}${thSort("assistant_loop_score", "Assistant's loop", "assistant lane, repairs on", "col-loop")}${thSort("repair_gain", "Repairs add", "points, loop minus minimal", "col-loop")}<th scope="col" class="num col-delta">Against tuned<span class="vline">difference</span></th><th scope="col" class="num col-delta">Against base<span class="vline">difference</span></th>${thSort("unsafe", "Unsafe actions", "per 100 trials", "col-unsafe")}${thSort("leaks", "Privacy leaks", "per 100 trials", "col-unsafe")}${gm.map(({ m, first }) => thSort(m.id, m.short, (vs ? "difference, " : "") + unitTxt(m), first ? "group-start" : "")).join("")}</tr></thead>`;
 
     const refBoardFor = (e) => (e.cloud ? board : null);
     const cellFor = (e, id) => (vs && e.refRole !== vs ? U.deltaCell(e, id, vs, refBoardFor(e)) : U.cell(e, id));
     const nameCell = (e, rank) => `<th scope="row" class="sticky"><div style="display:flex;gap:12px;align-items:baseline"><span class="rank" style="min-width:2.6em">${rank}</span><span><span class="mname"><a href="${mlink(e)}">${esc(e.name)}</a></span><span class="vline">${esc(U.entryLine(e))} ${U.refBadge(e)} ${U.fitBadge(e)}</span></span></div></th>`;
-    const rowHtml = (e, cls) => `<tr class="${e === top ? "is-top " : ""}${cls || ""}">${nameCell(e, e.cloud ? "" : rankLabel(e))}<td class="num">${U.scoreCell(e, HEAD)}<span class="unsafe-inline">${U.cell(e, "unsafe")} ${U.cell(e, "leaks")}</span></td><td class="num col-delta">${U.deltaCell(e, HEAD, "tuned", refBoardFor(e))}</td><td class="num col-delta">${U.deltaCell(e, HEAD, "base", refBoardFor(e))}</td><td class="num col-unsafe">${U.cell(e, "unsafe")}</td><td class="num col-unsafe">${U.cell(e, "leaks")}</td>${gm.map(({ m, first }) => `<td class="num ${first ? "group-start" : ""}">${cellFor(e, m.id)}</td>`).join("")}</tr>`;
+    const rowHtml = (e, cls) => `<tr class="${e === top ? "is-top " : ""}${cls || ""}">${nameCell(e, e.cloud ? "" : rankLabel(e))}<td class="num">${U.scoreCell(e, HEAD)}<span class="unsafe-inline">${U.cell(e, "unsafe")} ${U.cell(e, "leaks")}</span></td><td class="num col-loop">${U.cell(e, "assistant_loop_score")}</td><td class="num col-loop">${U.cell(e, "repair_gain")}</td><td class="num col-delta">${U.deltaCell(e, HEAD, "tuned", refBoardFor(e))}</td><td class="num col-delta">${U.deltaCell(e, HEAD, "base", refBoardFor(e))}</td><td class="num col-unsafe">${U.cell(e, "unsafe")}</td><td class="num col-unsafe">${U.cell(e, "leaks")}</td>${gm.map(({ m, first }) => `<td class="num ${first ? "group-start" : ""}">${cellFor(e, m.id)}</td>`).join("")}</tr>`;
     const divider = (title, sub, id) => `<tr class="divider-row"${id ? ` id="${id}"` : ""}><td colspan="${nCols}">${title}${sub ? `<span>${sub}</span>` : ""}</td></tr>`;
     const listedRow = (e) => {
       const why = e.group === "invalid"
@@ -159,8 +165,8 @@
     /* ---------- group and view controls ---------- */
     const hasData = (g) => R.metrics.some((m) => m.group === g.id && !m.planned);
     const groupBtn = (g) => `<button type="button" data-gt="${g.id}" aria-pressed="${groups.includes(g.id)}">${esc(g.name)}</button>`;
-    const shownGroups = R.groups.filter((g) => g.main || groups.includes(g.id));
-    const moreGroups = R.groups.filter((g) => !g.main && !groups.includes(g.id));
+    const shownGroups = R.groups.filter((g) => !g.fixed && (g.main || groups.includes(g.id)));
+    const moreGroups = R.groups.filter((g) => !g.fixed && !g.main && !groups.includes(g.id));
     const controls = `<div class="toolbar">
         <div class="field"><span id="lbl-g">Columns: add or remove groups</span><div class="tray-scroll"><div class="tray" role="group" aria-labelledby="lbl-g">${shownGroups.map(groupBtn).join("")}</div></div></div>
         ${moreGroups.length ? `<label class="field"><span>More groups</span><select class="select" data-gadd="1"><option value="">Add a group</option>${moreGroups.map((g) => `<option value="${g.id}">${esc(g.name)}${hasData(g) ? "" : " (not in this board yet)"}</option>`).join("")}</select></label>` : ""}
@@ -209,6 +215,7 @@
       ${plannedGroups.length ? `<p class="note-planned">${I.info}<span>${plannedGroups.map((g) => esc(R.group[g].name)).join(", ")}: no results in this board yet. The columns are shown so you can see what will be measured; every cell says so rather than showing a blank or a zero.</span></p>` : ""}
       ${table}
       <p class="small muted" style="margin-top:8px">Unsafe actions and privacy leaks are counted on their own and never blended into any score. The agentic score is the mean of seven families, each half assistant lane and half neutral lane, three trials per case${phone ? "; the iPhone runs a smaller parity subset, so its intervals are wider" : ""}. Differences marked ≈ are unpaired estimates; the rest are paired over the same cases. <a class="link" href="${ctx.link("/methodology")}">How scores are built</a>.</p>
+      ${LOOPS_HOW}
       ${U.secHead("Quality against cost", "Up and to the left is better.", U.tray("x", "Cost axis", xOpts, xKey), "cost")}
       ${scatter}
     </div>`;

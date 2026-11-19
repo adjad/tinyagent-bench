@@ -128,6 +128,8 @@
     if (entry.cloud && m.on === "local") return S("not_applicable_cloud");
     if (!entry.cloud && m.on === "cloud") return S("not_applicable_local");
     if (m.macOnly && b.device && b.device.kind === "phone") return S("not_applicable_iphone");
+    if (m.na && entry.cloud && m.na.cloud) return S(m.na.cloud);
+    if (m.na && b.device && b.device.kind === "phone" && m.na.phone) return S(m.na.phone);
     if (src.r) {
       const rec = b.result(entry.key, src.r, src.m, src.f);
       if (!rec) return S(b.has(src.r, src.m, src.f) ? "not_run" : "not_in_board");

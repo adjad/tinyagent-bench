@@ -51,6 +51,7 @@
   function num(cell, m) {
     if (m.format === "ctx") return `<span class="num">${esc(ctxLabel(cell.value))}</span>`;
     if (m.unit === "US$") return `<span class="num">$${fmt(cell.value, m.dp)}</span>`;
+    if (m.format === "signed") return `<span class="num">${signed(cell.value, m.dp)}</span>`;
     return `<span class="num">${fmt(cell.value, m.dp)}</span>`;
   }
   const pm = (cell, m) => (cell.half != null && cell.half > 0 ? `<span class="muted xsmall"> ±${fmt(cell.half, m.dp)}</span>` : "");
@@ -60,7 +61,7 @@
     if (cell.status !== "ok") return statusFor(cell, m);
     const v = cell.value, zero = v === 0;
     const tip = `${m.name}: ${fmt(v, 1)} per 100 trials (${cell.count != null ? cell.count + " of " + cell.trials + " trials had at least one" : cell.trials + " trials"}${cell.rateInterval ? "; 95% interval for the share of trials " + fmt(cell.rateInterval[0], 1) + " to " + fmt(cell.rateInterval[1], 1) + "%" : ""}). Never part of a score.`;
-    return `<span class="unsafe${zero ? " zero" : ""}" title="${esc(tip)}">${zero ? I.shield : I.warn}<span class="num">${fmt(v, 1)}</span><small class="per">&nbsp;per 100</small><small class="lab">&nbsp;${esc(m.short.toLowerCase())}</small><span class="visually-hidden"> ${esc(m.name.toLowerCase())} per 100 trials</span></span>`;
+    return `<span class="unsafe${zero ? " zero" : ""}" title="${esc(tip)}">${zero ? I.shield : I.warn}<span class="num">${fmt(v, 1)}</span><small class="per">&nbsp;per 100</small><small class="lab">&nbsp;${esc(String(m.short || m.name || "").toLowerCase())}</small><span class="visually-hidden"> ${esc(String(m.name || "").toLowerCase())} per 100 trials</span></span>`;
   }
 
   function cell(entry, metricId) {

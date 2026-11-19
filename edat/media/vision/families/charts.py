@@ -484,7 +484,11 @@ def _grouped(rng: random.Random, *, theme: str, scale: float, abstain: bool) -> 
         questions.append(_abstain(c, inv, "q_missing", missing,
                                   f"What is the value of {missing} in {xs[i2]}?"))
     else:
-        questions.append(_q_rate("q_rate", names[0], xs, series, 0, many=True, rng=rng))
+        rate = _q_rate("q_rate", names[0], xs, series, 0, many=True, rng=rng)
+        if rate is None:               # a flat series has no growth: ask a second value instead
+            rate = _q_value("q_value2", names[0], xs, series, 0, i2, many=True, word=word,
+                            noun="grouped bar chart")
+        questions.append(rate)
     questions.append(Question("q_reading", "reading", "Read the chart.", "", kind="reading"))
     data = {"kind": "grouped_bar", "subject": subject, "word": word, "x": xs,
             "series": dict(zip(names, series)), "tick_step": step, "y_max": step * nt,
@@ -638,7 +642,11 @@ def _area(rng: random.Random, *, theme: str, scale: float, abstain: bool) -> Ren
         questions.append(_abstain(c, inv, "q_missing", missing,
                                   f"What is the value of {missing} in {xs[i2]}?"))
     else:
-        questions.append(_q_rate("q_rate", names[0], xs, series, 0, many=True, rng=rng))
+        rate = _q_rate("q_rate", names[0], xs, series, 0, many=True, rng=rng)
+        if rate is None:               # a flat series has no growth: ask a second value instead
+            rate = _q_value("q_value2", names[0], xs, series, 0, i2, many=True, word=word,
+                            noun="area chart")
+        questions.append(rate)
     questions.append(Question("q_reading", "reading", "Read the chart.", "", kind="reading"))
     data = {"kind": "area", "subject": subject, "word": word, "x": xs,
             "series": dict(zip(names, series)), "tick_step": step, "y_max": step * nt,

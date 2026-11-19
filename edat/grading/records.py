@@ -60,13 +60,16 @@ def _thinking(settings, client_meta: dict) -> str:
 
 def trial_record(result, *, run_id: str, board_version: str, harness_commit: str, model: dict,
                  runtime: dict, device: dict | None, kind: str = "local", started_at: str | None = None,
-                 raw_ref: dict | None = None, sample: bool = False, seed_supported: bool = True) -> dict:
+                 raw_ref: dict | None = None, sample: bool = False, seed_supported: bool = True,
+                 selection: dict | None = None) -> dict:
     """One `edat.result/1.0` record for a TrialResult (edat.cases.runner).
 
     `kind` is "local" or "cloud_reference". A cloud record gets `device: null`
     with `device_reason: "cloud"`, and `model` must carry requested_model,
     resolved_model, upstream_provider and run_date (the store checks them).
     `seed_supported=False` records the seed as "unsupported".
+    `selection` ({tier, manifest_sha256, n_items, ci95_half_width_pts}) names the
+    case selection the record belongs to; the store never pools two selections.
     """
     v = result.verdict
     c = result.case
@@ -131,6 +134,8 @@ def trial_record(result, *, run_id: str, board_version: str, harness_commit: str
         engine = next((t.trace.engine_error for t in result.run.turns if t.trace.engine_error), "") or ""
         rec["status_detail"] = "harbor_error" if engine.startswith("harbor") else "engine_error"
         rec["metrics"] = {"pass": None, "loop": result.loop}
+    if selection:
+        rec["selection"] = dict(selection)
     if sample:
         rec["sample"] = True
     return rec

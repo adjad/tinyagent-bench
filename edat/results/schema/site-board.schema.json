@@ -97,7 +97,7 @@
             }
           },
           "ranked": {"type": "boolean"},
-          "rank_group": {"enum": ["ranked", "does_not_fit", "not_measured", "cloud"]},
+          "rank_group": {"enum": ["ranked", "invalid", "does_not_fit", "not_measured", "cloud"]},
           "excluded_rate": {"type": ["number", "null"]},
           "run_ids": {"type": "array", "items": {"type": "string"}},
           "harness_commit": {"type": ["string", "null"]},

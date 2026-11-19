@@ -2910,7 +2910,7 @@
    },
    "invalid": true,
    "ranked": false,
-   "rank_group": "ranked",
+   "rank_group": "invalid",
    "flags": [
     "invalid_excluded_over_2pct"
    ],

@@ -415,7 +415,8 @@ def aggregate(records: list[dict], options: Options | None = None) -> dict:
         else:
             verdict = e["fit"]["verdict"]
             e["ranked"] = verdict in RANKED_FITS and not invalid
-            e["rank_group"] = ("ranked" if verdict in RANKED_FITS
+            e["rank_group"] = ("invalid" if invalid and verdict in RANKED_FITS
+                               else "ranked" if verdict in RANKED_FITS
                                else "does_not_fit" if verdict == "does_not_fit" else "not_measured")
             e["flags"] = ["invalid_excluded_over_2pct"] if invalid else []
     # References and differences.

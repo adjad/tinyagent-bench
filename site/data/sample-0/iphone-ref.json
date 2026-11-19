@@ -186,7 +186,7 @@
     "budget_bytes": 10737418240
    },
    "ranked": false,
-   "rank_group": "ranked",
+   "rank_group": "invalid",
    "excluded_rate": 4.76,
    "run_ids": [
     "sample-agentic-phone",

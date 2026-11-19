@@ -26,7 +26,8 @@ Conventions:
 - `vs.<role>` is `{delta, interval, tag, n_cases, wins, losses}`, `{self: true}` on
   the reference's own row, `{refused: "<reason>"}` when the two are not comparable,
   or `null` when there is nothing to compare.
-- `runs[].rank_group`: `ranked` (fits or fits with small context), `does_not_fit`
+- `runs[].rank_group`: `ranked` (fits or fits with small context), `invalid` (fits, but
+  over 2 % of trials excluded), `does_not_fit`
   and `not_measured` (listed, never ranked), `cloud`.
 - `curves[].points[].status`: `ok`, `out_of_memory` (with `need_bytes`),
   `beyond_window`, `not_run`, … never a silent gap.

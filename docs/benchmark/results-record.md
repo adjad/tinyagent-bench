@@ -124,8 +124,8 @@ One status vocabulary for every tier. The tier's own word goes in `status_detail
 
 ## 4. Metrics
 
-- **Names** are `snake_case`; **units are in the name** where they are not
-  obvious (`ttft_s`, `footprint_peak_bytes`, `energy_J`, `cost_usd`).
+- **Names** start with a lower-case letter and use letters, digits and `_`;
+  **units are in the name** where they are not obvious, keeping the unit's case (`ttft_s`, `footprint_peak_bytes`, `energy_J`, `cost_usd`).
 - **Rates** are stored as fractions 0–1 or booleans, never percentages. The
   website export converts to percent.
 - **Bytes**, never MiB or GB, for memory. **Seconds** for durations, except where a

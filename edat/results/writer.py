@@ -209,10 +209,15 @@ class RunWriter:
         recs = list(recs)
         if not recs:
             return 0
+        decided = self.sample
         if self.sample is None:
             self.sample = bool(recs[0].get("sample"))
-        for rec in recs:
-            self._check(rec)
+        try:
+            for rec in recs:
+                self._check(rec)
+        except Exception:
+            self.sample = decided       # a refused batch decides nothing
+            raise
         saved = (set(self._seen), {k: dict(v) for k, v in self._entries.items()}, self._key, self._head,
                  self._count)
         try:
@@ -220,6 +225,7 @@ class RunWriter:
                 self._note(rec, where=f"record {i + 1} of this append")
         except Exception:
             self._seen, self._entries, self._key, self._head, self._count = saved
+            self.sample = decided
             raise
         data = b"".join(record_line(r) for r in recs)
         fd = os.open(self.dir / RECORDS, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o644)

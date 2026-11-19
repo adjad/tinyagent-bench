@@ -141,7 +141,7 @@
     "metrics": {
       "type": "object",
       "maxProperties": 200,
-      "propertyNames": {"pattern": "^[a-z][a-z0-9_]{0,63}$"},
+      "propertyNames": {"pattern": "^[a-z][A-Za-z0-9_]{0,63}$"},
       "additionalProperties": {
         "anyOf": [
           {"type": "number"},

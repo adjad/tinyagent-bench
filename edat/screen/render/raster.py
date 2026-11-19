@@ -40,10 +40,19 @@ def ascii_label(s: str) -> str:
     return "".join(out)
 
 
+MAX_LABEL = 200          # no box is wider than the screen: 200 characters is always more than fits
+
+
 def _fit(d: ImageDraw.ImageDraw, text: str, f, width: float) -> str:
-    while text and d.textlength(text, font=f) > width:
-        text = text[:-1]
-    return text
+    text = text[:MAX_LABEL]
+    lo, hi = 0, len(text)                 # the longest prefix that fits (binary search)
+    while lo < hi:
+        mid = (lo + hi + 1) // 2
+        if d.textlength(text[:mid], font=f) <= width:
+            lo = mid
+        else:
+            hi = mid - 1
+    return text[:lo]
 
 
 def draw(vis, boxes=None, *, marks: bool = True) -> bytes:

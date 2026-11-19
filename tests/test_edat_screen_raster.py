@@ -71,3 +71,13 @@ def test_ascii_label_mappings():
 def test_every_drawn_label_is_ascii():
     vis = observe()
     assert all(raster.ascii_label(b.label).isascii() for b in som.layout(vis))
+
+
+def test_a_very_long_label_draws_quickly():
+    import time
+    vis = observe()
+    boxes = som.layout(vis)
+    boxes[0].label = "x" * 20000
+    t = time.perf_counter()
+    raster.draw(vis, boxes)
+    assert time.perf_counter() - t < 2.0

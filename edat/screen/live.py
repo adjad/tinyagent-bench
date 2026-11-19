@@ -13,15 +13,19 @@ What a model can touch: only Screen World, the pure-Python simulator in `edat/sc
 `edat/screen/apps/` (no OS automation, no network, no clock; tests/test_edat_screen_safety.py checks
 it). A model's `click`, `type_text` and the other tools change that simulated state and nothing else.
 This module is the harness around it: the only things it does outside Python are read-only host
-checks (`pgrep`, `memory_pressure`, disk space), loopback HTTP to oMLX (chat requests, and
-`engine_prep`'s unload/restore of resident models) and writing results to OUT.
+checks (`pgrep`, `memory_pressure`, disk space), HTTP to oMLX on a loopback address only (chat requests,
+and listing, unloading and reloading resident models; never with the engine key, which is not read) and
+writing results to OUT.
 
-Safety wrapper: refuses OUT inside the repository; refuses to start while Harbor runs or the heavy-job
-lock exists (it removes the lock only if it created it); one model resident at a time (`engine_prep
-keep`, which saves what was loaded before, once); between trials it stops on the STOP file, the minute
-limit, free memory under 15%, Harbor opening, or over 2% of trials lost to engine faults; on any exit,
-error included, it restores the resident models (`engine_prep restore`) and then the lock. A rerun of
-the same command resumes: recorded trials are never redone.
+Safety wrapper: refuses OUT inside the repository, a non-loopback engine address, an engine that would
+need its key, an open Harbor, or an existing heavy-job lock (removed only if this command created it).
+Each sitting saves what is resident (loaded and pinned) to OUT/engine-state.json, and refuses to start
+if an earlier sitting's state was never restored. One model is resident at a time. Between trials it
+stops on the STOP file, the minute limit, free memory under 15%, Harbor opening, or over 2% of trials
+lost to engine faults. On every exit, including errors, Ctrl-C, SIGTERM and SIGHUP, it restores the
+resident models and then releases the lock. Only a hard kill (SIGKILL, power loss) skips that; then
+`restore --out OUT` puts the models back. A rerun of the same command resumes: recorded trials are never
+redone.
 """
 from __future__ import annotations
 
@@ -161,9 +165,22 @@ def run_id_for(plan: str, engine_id: str, track: str) -> str:
 
 # ------------------------------------------------------------------ host checks
 
+HARBOR_PATTERNS = ("MacOS/Harbor", "MacOS/Wisp")      # the app's binary, under either of its names
+
+
 def harbor_running() -> bool:
-    from edat.sidekick.ceiling.run import harbor_running as _h
-    return _h()
+    """True when Harbor (or Wisp, its old name) runs. Fails closed: if pgrep cannot answer, say it runs."""
+    import subprocess
+    for pat in HARBOR_PATTERNS:
+        try:
+            r = subprocess.run(["pgrep", "-f", pat], capture_output=True, text=True, timeout=10)
+        except Exception:  # noqa: BLE001
+            return True
+        if r.returncode == 0:
+            return True
+        if r.returncode != 1:             # 1 = nothing matched; anything else is an error
+            return True
+    return False
 
 
 def memory_free_pct() -> int | None:
@@ -278,6 +295,7 @@ def run_unit(client, entry: Entry, sampling: Sampling, thinking: bool, cases: li
                 break
         _finish_attachments(w, side, track, board_version, entry)
     state["recorded"] = len(statuses)
+    state["excluded"] = statuses.count("excluded")
     state["complete"] = not state["stopped"] and not state["skipped"] and len(statuses) >= len(cases) * trials
     return state
 
@@ -318,38 +336,168 @@ def _why_failed(v) -> str:
     return v.stop or "failed"
 
 
+# ------------------------------------------------------------------ the engine (loopback only, no key)
+#
+# oMLX on the reference Mac listens on 127.0.0.1 with `skip_api_key_verification` on, so every call here
+# goes without a key: the engine key is never read or sent by the screen tier. `engine_url` refuses any
+# address that is not loopback before anything is sent. The preflight fails if the engine would need a key.
+
+def engine_url(base_url: str) -> str:
+    from edat.models.omlx import assert_loopback
+    assert_loopback(base_url)
+    return base_url.rstrip("/")
+
+
+def keyless_engine(settings_path: Path | None = None) -> str | None:
+    """None when oMLX serves loopback requests without a key; otherwise why not (read from its settings)."""
+    p = settings_path or Path.home() / ".omlx" / "settings.json"
+    try:
+        s = json.loads(p.read_text())
+    except (OSError, ValueError):
+        return "oMLX's settings file cannot be read"
+    host = (s.get("server") or {}).get("host", "127.0.0.1")
+    auth = s.get("auth") or {}
+    if host not in ("127.0.0.1", "localhost", "::1"):
+        return f"oMLX listens on {host}, not only on loopback"
+    if not (auth.get("skip_api_key_verification") or auth.get("allow_unauthenticated_inference") or not auth.get("api_key")):
+        return "oMLX requires its API key; the screen tier sends none"
+    return None
+
+
+def _engine(base_url: str):
+    import httpx
+    return httpx.Client(base_url=engine_url(base_url), timeout=120)
+
+
+def engine_rows(base_url: str) -> list[dict]:
+    with _engine(base_url) as c:
+        r = c.get("/v1/models/status")
+        r.raise_for_status()
+        return [{"id": m["id"], "loaded": bool(m.get("loaded")), "pinned": bool(m.get("pinned")),
+                 "is_loading": bool(m.get("is_loading"))} for m in r.json().get("models", []) if m.get("id")]
+
+
+def engine_check(engine_id: str, base_url: str) -> str | None:
+    """Read only: the engine lists the id and no other chat model is loaded. None when fine."""
+    from scripts.productbench.engine_prep import is_aux
+    try:
+        rows = engine_rows(base_url)
+    except Exception as exc:  # noqa: BLE001
+        return f"the engine did not answer ({exc.__class__.__name__})"
+    if engine_id not in {r["id"] for r in rows}:
+        return f"the engine does not list {engine_id}"
+    others = [r["id"] for r in rows if (r["loaded"] or r["is_loading"]) and r["id"] != engine_id and not is_aux(r["id"])]
+    return f"other chat models are loaded ({', '.join(others)})" if others else None
+
+
+def engine_save(state_file: Path, base_url: str, sitting: str) -> dict:
+    """Save what is resident, for this sitting. Refuses when an earlier sitting's state was never restored."""
+    if state_file.exists():
+        old = json.loads(state_file.read_text())
+        if not old.get("restored"):
+            raise SystemExit(f"the engine state saved by sitting {old.get('sitting')} was never restored: run "
+                             f"`python -m edat.screen.live restore --out <OUT>` first; nothing was changed")
+    rows = engine_rows(base_url)
+    state = {"schema": "edat-screen-engine-state/v1", "sitting": sitting, "saved_at": utc_now(),
+             "base_url": engine_url(base_url), "rows": rows, "restored": False}
+    _write_json(state_file, state)
+    return state
+
+
+def engine_keep(base_url: str, keep: str) -> None:
+    """Unload every chat model except `keep` (helper models stay); the engine loads `keep` on first request."""
+    from scripts.productbench.engine_prep import plan_keep
+    now = [r["id"] for r in engine_rows(base_url) if r["loaded"]]
+    with _engine(base_url) as c:
+        for mid in plan_keep(now, keep):
+            c.post(f"/v1/models/{mid}/unload").raise_for_status()
+    left = engine_check(keep, base_url)
+    if left:
+        raise RuntimeError(f"could not make {keep} the only chat model: {left}")
+
+
+def engine_restore(state_file: Path, base_url: str | None = None) -> dict:
+    """Back to the saved state: unload what the run loaded, load what was resident (pinned ones included)."""
+    from scripts.productbench.engine_prep import plan_restore
+    state = json.loads(state_file.read_text())
+    url = engine_url(base_url or state["base_url"])
+    before = [r["id"] for r in state["rows"] if r["loaded"] or r["is_loading"]]
+    now = [r["id"] for r in engine_rows(url) if r["loaded"]]
+    unload, load = plan_restore(now, before)
+    with _engine(url) as c:
+        for mid in unload:
+            c.post(f"/v1/models/{mid}/unload").raise_for_status()
+        for mid in load:
+            c.post(f"/v1/models/{mid}/load").raise_for_status()
+    after = {r["id"]: r for r in engine_rows(url)}
+    missing = [mid for mid in before if not after.get(mid, {}).get("loaded")]
+    state.update(restored=not missing, restored_at=utc_now(), unloaded=unload, loaded=load,
+                 pinned_before=[r["id"] for r in state["rows"] if r["pinned"]], not_back=missing)
+    _write_json(state_file, state)
+    if missing:
+        raise RuntimeError(f"restore incomplete: {', '.join(missing)} not loaded again")
+    return state
+
+
 # ------------------------------------------------------------------ the whole run
+
+class _Terminated(SystemExit):
+    pass
+
+
+def _raise_on(signum, _frame):
+    raise _Terminated(128 + signum)
+
 
 def run(out: Path, *, plan: str, tracks: tuple[str, ...] = TRACKS, only: tuple[str, ...] = (),
         lock: str | None = None, max_minutes: float | None = None, client_kind: str = "omlx",
         base_url: str = BASE_URL, board_version: str = "dev", progress=print, models=None,
-        dev: list[dict] | None = None, heldout: list[dict] | None = None) -> dict:
+        dev: list[dict] | None = None, heldout: list[dict] | None = None, engine: bool | None = None) -> dict:
+    """`engine` (default: a real client) manages the resident models through oMLX; tests set it with a stub
+    client and a fake engine."""
+    import signal
     out = outside_repo(out)
     if plan not in PLANS:
         raise SystemExit(f"unknown plan {plan!r}")
     scripted = client_kind != "omlx"
+    engine = (not scripted) if engine is None else engine
+    if engine:
+        base_url = engine_url(base_url)              # before anything is sent anywhere
+    if not scripted:
+        why = keyless_engine()
+        if why:
+            raise SystemExit(f"{why}; not starting")
     case_lists = {t: plan_cases(plan, t, dev=dev, heldout=heldout) for t in tracks}   # held-out refusal first
     if models is None:
         mdir, models = reference_models(only)
     else:
         mdir = None
-    if not scripted and harbor_running():
+    if engine and harbor_running():
         raise SystemExit("Harbor is running (it shares oMLX): close it first; nothing was changed")
     created = False
-    if lock:
-        try:
-            os.mkdir(lock)
-            created = True
-        except FileExistsError:
-            raise SystemExit(f"{lock} exists: another heavy job is running; not starting") from None
-    store = out / plan
-    store.mkdir(parents=True, exist_ok=True)
     log = {"plan": plan, "tracks": list(tracks), "started_at": utc_now(), "max_minutes": max_minutes,
            "units": [], "restored": None}
-    log_file = store / f"sitting-{log['started_at'].replace(':', '-')}.json"
-    stopper = Stopper(out, max_minutes, host=not scripted)
-    kept = False
+    sitting = log["started_at"].replace(":", "-")
+    store = out / plan
+    log_file = store / f"sitting-{sitting}.json"
+    state_file = out / "engine-state.json"
+    stopper = Stopper(out, max_minutes, host=engine)
+    saved = False
+    previous = {}
     try:
+        # SIGTERM and SIGHUP become SystemExit, so the finally below runs; Ctrl-C is already KeyboardInterrupt.
+        for sig in (signal.SIGTERM, signal.SIGHUP):
+            previous[sig] = signal.signal(sig, _raise_on)
+        if lock:
+            try:
+                os.mkdir(lock)
+                created = True
+            except FileExistsError:
+                raise SystemExit(f"{lock} exists: another heavy job is running; not starting") from None
+        store.mkdir(parents=True, exist_ok=True)
+        if engine:
+            engine_save(state_file, base_url, sitting)
+            saved = True
         device = _device(scripted)
         runtime_version = None if scripted else _omlx_version()
         for m in models:
@@ -358,15 +506,13 @@ def run(out: Path, *, plan: str, tracks: tuple[str, ...] = TRACKS, only: tuple[s
                 log["stopped"] = why
                 break
             sha = None
-            if not scripted:
-                from scripts.productbench import engine_prep
-                from edat.sidekick.ceiling.run import engine_check, weights_for
-                kept = True                     # set first: a keep that fails half way is still put back
-                if engine_prep.main(["keep", m.engine_id, "--save", str(out / "resident-before.json")]) != 0:
-                    raise RuntimeError(f"could not make {m.engine_id} the only chat model; stopping")
-                problem = engine_check(m, base_url)
+            if engine:
+                engine_keep(base_url, m.engine_id)
+                problem = engine_check(m.engine_id, base_url)
                 if problem:
                     raise RuntimeError(problem)
+            if mdir is not None and not scripted:
+                from edat.sidekick.ceiling.run import weights_for
                 sha = weights_for(out, mdir, m)
             entry, sampling, thinking = entry_for(m, weights_sha256=sha, runtime_version=runtime_version,
                                                   device=device, scripted=scripted)
@@ -380,7 +526,13 @@ def run(out: Path, *, plan: str, tracks: tuple[str, ...] = TRACKS, only: tuple[s
                     continue
                 st = run_unit(client(), entry, sampling, thinking, case_lists[track], plan=plan, track=track,
                               store=store, stopper=stopper, board_version=board_version, progress=progress)
-                row.update(st, result="done" if st["complete"] else ("skipped" if st["skipped"] else "stopped"))
+                if st["recorded"] and st["excluded"] == st["recorded"] and not st["skipped"]:
+                    result = "failed: every trial was an engine fault"
+                elif st["complete"]:
+                    result = "done"
+                else:
+                    result = "skipped" if st["skipped"] else "stopped"
+                row.update(st, result=result)
                 _write_json(log_file, log)
                 if st["stopped"]:
                     log["stopped"] = st["stopped"]
@@ -388,25 +540,37 @@ def run(out: Path, *, plan: str, tracks: tuple[str, ...] = TRACKS, only: tuple[s
             if log.get("stopped"):
                 break
     finally:
-        if kept:
-            from scripts.productbench import engine_prep
+        for sig in previous:                         # a second signal must not cut the restore short
+            signal.signal(sig, signal.SIG_IGN)
+        if saved:
             try:
-                log["restored"] = engine_prep.main(["restore", str(out / "resident-before.json")]) == 0
-            except Exception as exc:  # noqa: BLE001 - report it, still release the lock
+                engine_restore(state_file, base_url)
+                log["restored"] = True
+            except BaseException as exc:  # noqa: BLE001 - report it, still release the lock
                 log["restored"] = f"restore failed: {exc.__class__.__name__}: {exc}"
         if created:
             os.rmdir(lock)
         log["finished_at"] = utc_now()
-        _write_json(log_file, log)
+        if store.exists():
+            _write_json(log_file, log)
+        for sig, handler in previous.items():
+            signal.signal(sig, handler)
     if progress:
         for r in log["units"]:
             progress(f"{r['model']} {r['track']}: {r.get('result')}"
                      + (f" ({r.get('stopped') or r.get('skipped')})" if r.get("stopped") or r.get("skipped") else ""))
         if log.get("stopped"):
             progress(f"stopped: {log['stopped']}")
-        progress("done" if log["units"] and not log.get("stopped") and all(r.get("result") in ("done",) or
-                 str(r.get("result")).startswith("skipped") for r in log["units"]) else "not complete: rerun to resume")
+        if saved:
+            progress(f"engine restored: {log['restored']}")
+        progress("done" if run_ok(log) else "not complete: rerun to resume")
     return log
+
+
+def run_ok(log: dict) -> bool:
+    """Every unit done (or skipped for a known reason), nothing stopped, and the engine back as it was."""
+    return (bool(log["units"]) and not log.get("stopped") and log.get("restored") in (None, True)
+            and all(r.get("result") == "done" or str(r.get("result")).startswith("skipped") for r in log["units"]))
 
 
 def _client(kind: str, m, base_url: str):
@@ -506,7 +670,21 @@ def preflight(out: Path, *, lock: str, engine: bool = False, weights: bool = Fal
         out = outside_repo(out)
         check(True, f"results folder is outside the repository ({out.name})", "")
     except SystemExit as exc:
-        check(False, "", str(exc))
+        check(False, "", f"{exc}; no further checks (nothing is written)")
+        return False
+    try:
+        base_url = engine_url(base_url)
+        check(True, f"engine address is loopback ({base_url})", "")
+    except Exception as exc:  # noqa: BLE001
+        check(False, "", f"{exc}; no further checks (nothing is sent)")
+        return False
+    why = keyless_engine()
+    check(why is None, "oMLX answers loopback requests without a key (none is read or sent)", str(why))
+    state_file = out / "engine-state.json"
+    if state_file.exists():
+        old = json.loads(state_file.read_text())
+        check(bool(old.get("restored")), "the last sitting's engine state was restored",
+              f"sitting {old.get('sitting')} never restored the engine: run `restore --out` first")
     try:
         ho = load_cases(heldout_dir())
         check(True, f"held-out split found ({len(ho)} cases)", "")
@@ -544,8 +722,7 @@ def preflight(out: Path, *, lock: str, engine: bool = False, weights: bool = Fal
             from edat.sidekick.ceiling.run import weights_for
             check(True, f"{m.engine_id}: weights_sha256 {weights_for(out, mdir, m)}", "")
         if engine:
-            from edat.sidekick.ceiling.run import engine_check
-            problem = engine_check(m, base_url)
+            problem = engine_check(m.engine_id, base_url)
             check(problem is None or "other chat models are loaded" in problem,
                   f"{m.engine_id}: the engine lists it" + (f" (note: {problem}; the run unloads them)" if problem else ""),
                   f"{m.engine_id}: {problem}")
@@ -607,6 +784,9 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--base-url", default=BASE_URL)
     r.add_argument("--board-version", default="dev")
     r.add_argument("--client", default="omlx", help=argparse.SUPPRESS)      # stubs, for tests
+    rs = sub.add_parser("restore", help="put the resident models back after a sitting that was killed hard")
+    rs.add_argument("--out", required=True)
+    rs.add_argument("--base-url", default=None)
     o = sub.add_parser("report")
     o.add_argument("out")
     o.add_argument("--plan", default="core", choices=PLANS)
@@ -625,7 +805,11 @@ def main(argv: list[str] | None = None) -> int:
         only = tuple(a.only) or ((REFERENCES[0],) if a.plan == "smoke" else ())
         log = run(Path(a.out), plan=a.plan, tracks=tracks, only=only, lock=a.lock, max_minutes=a.max_minutes,
                   client_kind=a.client, base_url=a.base_url, board_version=a.board_version)
-        return 0 if log["units"] and not log.get("stopped") and all(u.get("result") == "done" for u in log["units"]) else 2
+        return 0 if run_ok(log) else 2
+    if a.cmd == "restore":
+        st = engine_restore(outside_repo(Path(a.out)) / "engine-state.json", a.base_url)
+        print(f"restored the state saved by sitting {st['sitting']}: unloaded {st['unloaded']}, loaded {st['loaded']}")
+        return 0
     print(json.dumps(report(Path(a.out), a.plan), indent=1, default=str))
     return 0
 

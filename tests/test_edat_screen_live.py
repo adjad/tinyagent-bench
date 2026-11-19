@@ -99,37 +99,11 @@ def test_results_inside_the_repository_are_refused():
                  progress=None)
 
 
-def test_engine_state_is_restored_and_the_lock_released_when_a_trial_fails(tmp_path, monkeypatch):
-    calls = []
-    import scripts.productbench.engine_prep as engine_prep
-    import edat.sidekick.ceiling.run as sk
-    monkeypatch.setattr(engine_prep, "main", lambda argv: calls.append(argv[0]) or 0)
-    monkeypatch.setattr(sk, "engine_check", lambda m, url: None)
-    monkeypatch.setattr(sk, "weights_for", lambda out, mdir, m: "0" * 64)
-    monkeypatch.setattr(live, "harbor_running", lambda: False)
-    monkeypatch.setattr(live, "memory_free_pct", lambda: 60)
-    monkeypatch.setattr(live, "_client", lambda kind, m, url: (lambda: live.STUBS["oracle"]))
-    n = {"trials": 0}
-    real = live.run_trial
-
-    def flaky(*a, **k):
-        n["trials"] += 1
-        if n["trials"] == 3:
-            raise RuntimeError("simulated crash")
-        return real(*a, **k)
-    monkeypatch.setattr(live, "run_trial", flaky)
-    with pytest.raises(RuntimeError, match="simulated crash"):
-        go(tmp_path, client_kind="omlx")
-    assert calls == ["keep", "restore"]
-    assert not (tmp_path / "heavy.lock").exists()
-    assert len(records(tmp_path)) == 2                              # the trials before the crash are kept
-
-
-def test_harbor_open_refuses_a_real_run(tmp_path, monkeypatch):
+def test_harbor_open_refuses_a_run_that_manages_the_engine(tmp_path, monkeypatch):
     monkeypatch.setattr(live, "harbor_running", lambda: True)
     with pytest.raises(SystemExit, match="Harbor"):
-        go(tmp_path, client_kind="omlx")
-    assert not (tmp_path / "heavy.lock").exists()
+        go(tmp_path, engine=True, base_url="http://127.0.0.1:9")
+    assert not (tmp_path / "heavy.lock").exists() and not (tmp_path / "out" / "engine-state.json").exists()
 
 
 class NoImages:

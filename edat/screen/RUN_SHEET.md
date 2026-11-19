@@ -47,8 +47,12 @@ smoke run.
   with Pillow, from the same layout as the text observation (1,280 × 800, numbered marks, Pillow's
   embedded font). Nothing in this tier reads the Mac's display.
 - **What the harness does outside Python** (`edat/screen/live.py`):
-  - loopback HTTP to oMLX (chat requests, and `engine_prep` unloading and restoring resident models);
-  - read-only host checks (`pgrep` for Harbor, `memory_pressure`, free disk);
+  - HTTP to oMLX on a loopback address only, refused before anything is sent otherwise: chat requests, and
+    listing, unloading and reloading resident models. The engine's API key is never read or sent. oMLX here
+    listens on 127.0.0.1 with key checks skipped for loopback, and the preflight and the run refuse to
+    start if that changes;
+  - read-only host checks (`pgrep` for Harbor or its old name Wisp, failing closed if `pgrep` errors;
+    `memory_pressure`; free disk);
   - results written under `$OUT`.
 - **Run it outside Claude Code's sandbox.** A sandboxed `pgrep` cannot see other processes, so the
   Harbor check would always pass, and the sandbox may block the loopback port.
@@ -59,7 +63,7 @@ smoke run.
 |---|---|---|
 | Harbor | must be closed. The run refuses to start while it is open, and stops between trials if it opens. The run never opens or quits it | nothing |
 | oMLX | used as it is: never started, stopped, restarted or reconfigured | nothing |
-| Resident model | `engine_prep keep <id> --save $OUT/resident-before.json` before each model. It unloads every other chat model; the first call saves what was loaded and never overwrites it | `engine_prep restore`, run automatically when the command ends for any reason (done, stopped, Ctrl-C, error), before the error is reported. The sitting log records `restored` |
+| Resident model | at the start of each sitting, what is loaded and pinned is saved to `$OUT/engine-state.json` (fresh for the sitting; a sitting refuses to start if the last one's state was never restored). Before each model every other chat model is unloaded; helper models are left alone; the engine loads the model under test on its first request | restored automatically when the command ends: done, stopped, error, Ctrl-C, SIGTERM or SIGHUP (a second signal cannot cut the restore short). Every model loaded before is loaded again and checked; the state file and the sitting log record `restored`. Only SIGKILL or power loss skips it: see "Put things back by hand" |
 | Heavy-job lock | `mkdir $LOCK` once per command; the command refuses to start if it exists | removed at the end, only if this command created it |
 | Keep awake | `caffeinate -i` around the command | ends with the command |
 
@@ -86,7 +90,9 @@ export EDAT_PRIVATE_DIR=<the private folder>
 ```
 
 - **It checks:**
-  - `$OUT` is outside the repository;
+  - `$OUT` is outside the repository, and the engine address is loopback (if either fails, it stops
+    there and writes or sends nothing);
+  - oMLX answers loopback requests without its key, and the last sitting's engine state was restored;
   - the held-out split is present, and the core has 200 text and 100 screenshot cases;
   - the lock is free and Harbor is closed;
   - at least 30% memory and 5 GB of disk are free;
@@ -137,11 +143,11 @@ caffeinate -i .venv/bin/python -m edat.screen.live run --plan core --only gemma-
 .venv/bin/python -m edat.screen.live report $OUT
 ```
 
-**Put things back by hand** only if a sitting was killed hard (`kill -9`, power loss), so that its
-automatic restore never ran:
+**Put things back by hand** only if a sitting was killed hard (SIGKILL, power loss), so that its
+automatic restore never ran. The next sitting refuses to start until this has been done:
 
 ```bash
-.venv/bin/python -m scripts.productbench.engine_prep restore $OUT/resident-before.json
+.venv/bin/python -m edat.screen.live restore --out $OUT
 ```
 
 Then remove `$LOCK`, if that sitting created it.

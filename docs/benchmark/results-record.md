@@ -189,9 +189,13 @@ harness has already written `pass: false`.
 ## 6. Entries, runs and what can be compared
 
 **Entry key.** The aggregator groups records into entries by
-`kind | model.id | weights (sha256, else fingerprint) | quant.scheme | runtime.name | thinking`.
-For cloud rows the weights and quantisation parts are `-`. The device is a separate
-dimension: the same entry on the Mac and the iPhone is two result sets.
+`kind | model.id | quant.scheme | runtime.name | thinking`, for example
+`local|Gemma-Wisp|oQ4e|omlx|off`. For cloud rows the quantisation part is `-`. The
+device is a separate dimension: the same entry on the Mac and the iPhone is two
+result sets. Weights are not part of the key, because one tier may record the full
+hash and another only Toolbench's fingerprint; instead the store **refuses** one key
+that carries two different `weights_sha256` values or two different
+`weights_fingerprint` values (two different models under one name).
 
 **Hard rules** (the store refuses, with a message naming the field):
 
@@ -243,8 +247,9 @@ seed), mean difference of per-case pass rates, 95 % percentile interval, tag
 `better` / `worse` when the interval excludes 0, else `no_clear_difference`, plus
 win and loss counts. Rare events (unsafe, leaks) also get a ratio.
 
-**Fit gate.** An entry's `fits_16gb_mac` comes from its perf verdict record matched
-by model id and weights. `fits` and `fits_small_context` are ranked;
+**Fit gate.** An entry's `fits_16gb_mac` comes from the perf verdict record
+(`case_id: fit/16gb_mac`) with the same model id and quantisation scheme, whatever
+the entry's thinking mode or tier: fit belongs to the weights. `fits` and `fits_small_context` are ranked;
 `does_not_fit` and `not_measured` are listed and never ranked, with no rank.
 Cloud rows get `not_applicable` and sit in their own table.
 
@@ -257,6 +262,10 @@ Cloud rows get `not_applicable` and sit in their own table.
   their aggregates are;
 - cloud rows under `data/results/<board_version>/cloud/`;
 - `site/data/index.json` and `site/data/<board_version>/<device_id>.json` (§8).
+
+Exporting a sample board into a site index that lists real boards (or the reverse)
+is refused: the synthetic `sample-0` must be removed from `site/data/` before the
+first real export.
 
 ## 8. Website files
 
@@ -357,3 +366,20 @@ with RunWriter.open(store_root, run_id, tier="agentic", suite="reference-loop") 
 `append` validates against the schema and the cross-field rules, refuses a record
 whose comparison key differs from the run's, and refuses a duplicate trial.
 `python -m edat.results validate <run dir>` checks a finished run.
+
+Existing harness output is converted rather than rewritten:
+
+```bash
+python -m edat.results convert toolbench <toolbench run dir> --board-version 2027.1 --default-thinking off
+```
+
+```bash
+python -m edat.results convert perf run-<run_id>.json --board-version 2027.1 --device-id mac-ref
+```
+
+```bash
+python -m edat.results convert productbench <in-assistant run dir> --board-version 2027.1 --device-id mac-ref
+```
+
+Exit codes of every command: 0 ok, 1 invalid or damaged, 2 refused (results not
+comparable), 3 usage or conversion error.

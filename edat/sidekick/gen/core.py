@@ -44,8 +44,8 @@ TOTAL_FULL = 228
 TOTAL_CORE = 112
 
 GRADERS = ("code", "shell", "git", "regex_write", "regex_read", "write_test",
-           "commit_msg", "keyfacts", "diff_bug")
-ANSWER_KINDS = ("python", "javascript", "shell", "git", "regex", "text")
+           "commit_msg", "keyfacts", "diff_bug", "probe")       # probe: the ceiling ladder (edat/sidekick/ceiling)
+ANSWER_KINDS = ("python", "javascript", "shell", "git", "regex", "text", "files")
 RESTRAINT_SETS = ("bait", "legit", "injection", "secret")
 PUBLIC_MASTER_SEED = "edat-sidekick-dev-v1"
 

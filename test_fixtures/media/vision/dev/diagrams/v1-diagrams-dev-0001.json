@@ -1,0 +1,884 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-diagrams-dev-0001",
+ "family": "diagrams",
+ "template": "org_chart",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 1,
+ "variant": {
+  "theme": "light",
+  "dpr": 1,
+  "abstain": false,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-diagrams-dev-0001.png",
+  "sha256": "72f044cb19f9ce9e07dac2d44eeb23d3e19ce7ac958e96768ee2f94bfac815dd",
+  "width": 1040,
+  "height": 640,
+  "logical": [
+   1040,
+   640
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "template": "org_chart",
+  "org": "Rosmere Arts Center",
+  "root": {
+   "name": "Mehdi Holard",
+   "title": "Head of Operations"
+  },
+  "managers": [
+   {
+    "name": "Lior Belmore",
+    "title": "Volunteer Coordinator",
+    "reports": [
+     {
+      "name": "Hana Galero",
+      "title": "Coordinator"
+     }
+    ]
+   },
+   {
+    "name": "Ximena Telrow",
+    "title": "Facilities Lead",
+    "reports": [
+     {
+      "name": "Priya Kelmere",
+      "title": "Designer"
+     }
+    ]
+   },
+   {
+    "name": "Farah Verham",
+    "title": "Events Manager",
+    "reports": [
+     {
+      "name": "Kavya Galquist",
+      "title": "Associate"
+     }
+    ]
+   },
+   {
+    "name": "Jonas Zananu",
+    "title": "Events Manager",
+    "reports": [
+     {
+      "name": "Jun Telmore",
+      "title": "Associate"
+     },
+     {
+      "name": "Kofi Galero",
+      "title": "Analyst"
+     }
+    ]
+   }
+  ]
+ },
+ "fields": {
+  "diagram_title": {
+   "name": "diagram_title",
+   "kind": "text",
+   "value": "Rosmere Arts Center - team structure",
+   "text": "Rosmere Arts Center - team structure",
+   "bbox": [
+    39,
+    28,
+    346,
+    43
+   ],
+   "size_px": 18,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c8622f072bfe319fb0119203de3081fd5b6f1e9c12ba4d4e4a28fea6d2a2432b",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "root": {
+   "name": "root",
+   "kind": "text",
+   "value": "Mehdi Holard",
+   "text": "Mehdi Holard",
+   "bbox": [
+    475,
+    81,
+    563,
+    94
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b510f267b053da329af8836c93c6056a3b3a70aeccfa01ecb9fa26b94ff76d8b",
+   "fg": [
+    255,
+    255,
+    255
+   ],
+   "plot_value": false
+  },
+  "root_title": {
+   "name": "root_title",
+   "kind": "text",
+   "value": "Head of Operations",
+   "text": "Head of Operations",
+   "bbox": [
+    469,
+    102,
+    571,
+    113
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "461a9162e2d566bfc78a9f7c71f7b3ac6b63ac72640bffa88c977807cc91f402",
+   "fg": [
+    255,
+    255,
+    255
+   ],
+   "plot_value": false
+  },
+  "mgr_0": {
+   "name": "mgr_0",
+   "kind": "text",
+   "value": "Lior Belmore",
+   "text": "Lior Belmore",
+   "bbox": [
+    117,
+    191,
+    200,
+    204
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ebdb52d8e461b6ba23015860a84dc39efbbcbf7f2156f11137e25d32f1c3dcfd",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "mgr_0_title": {
+   "name": "mgr_0_title",
+   "kind": "text",
+   "value": "Volunteer Coordinator",
+   "text": "Volunteer Coordinator",
+   "bbox": [
+    100,
+    213,
+    219,
+    221
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "13cfe1f745a7a3ce897d0190ce27f2864628773f6ffff03689e47ec46c0b1728",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "mgr_1": {
+   "name": "mgr_1",
+   "kind": "text",
+   "value": "Ximena Telrow",
+   "text": "Ximena Telrow",
+   "bbox": [
+    351,
+    191,
+    447,
+    204
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "6c65e9dab09fa143ff2889835667cd6bacac5758e5814018146b388f336bd03e",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "mgr_1_title": {
+   "name": "mgr_1_title",
+   "kind": "text",
+   "value": "Facilities Lead",
+   "text": "Facilities Lead",
+   "bbox": [
+    362,
+    213,
+    438,
+    221
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "a6ac73065f71c86c48b9c8a2c444d94a16f8181a64cf75fb2547597a0252d3d2",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "mgr_2": {
+   "name": "mgr_2",
+   "kind": "text",
+   "value": "Farah Verham",
+   "text": "Farah Verham",
+   "bbox": [
+    595,
+    191,
+    684,
+    204
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0f813411cc8c386529561462d0da2e015f0e07d3af1f67279f016d6c6dcd7ca2",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "mgr_2_title": {
+   "name": "mgr_2_title",
+   "kind": "text",
+   "value": "Events Manager",
+   "text": "Events Manager",
+   "bbox": [
+    597,
+    213,
+    683,
+    223
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1244b14a23c8ec7aefb8ffc00f45e5ce8941d82fbe7a6a32fa01928ce30d147a",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "mgr_3": {
+   "name": "mgr_3",
+   "kind": "text",
+   "value": "Jonas Zananu",
+   "text": "Jonas Zananu",
+   "bbox": [
+    832,
+    192,
+    926,
+    204
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ca547b45f3c02df73b0c56a8f6f4ed67d67b8f83474253a8681cb013adb5b1c4",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "mgr_3_title": {
+   "name": "mgr_3_title",
+   "kind": "text",
+   "value": "Events Manager",
+   "text": "Events Manager",
+   "bbox": [
+    837,
+    213,
+    923,
+    223
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1244b14a23c8ec7aefb8ffc00f45e5ce8941d82fbe7a6a32fa01928ce30d147a",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "rep_0_0": {
+   "name": "rep_0_0",
+   "kind": "text",
+   "value": "Hana Galero",
+   "text": "Hana Galero",
+   "bbox": [
+    129,
+    301,
+    210,
+    314
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "a4b1dcb752529887d25e110e93fbf1a4df764e5981c94059cbffe0b65221798b",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "rep_0_0_title": {
+   "name": "rep_0_0_title",
+   "kind": "text",
+   "value": "Coordinator",
+   "text": "Coordinator",
+   "bbox": [
+    138,
+    323,
+    203,
+    331
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "80faee8cbefcd267ae9a0e06e7152f11e035c7363461f2757d5c542125b61e3d",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "rep_1_0": {
+   "name": "rep_1_0",
+   "kind": "text",
+   "value": "Priya Kelmere",
+   "text": "Priya Kelmere",
+   "bbox": [
+    365,
+    301,
+    452,
+    317
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "8b13954da08bb17580efb39cc32e1bd4a3a5975ed6c7fee0e6c6284c40332d09",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "rep_1_0_title": {
+   "name": "rep_1_0_title",
+   "kind": "text",
+   "value": "Designer",
+   "text": "Designer",
+   "bbox": [
+    386,
+    323,
+    434,
+    333
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "2eef418bac600c1e39d6fa61b8690973ee46e8eb95c155784b09d7193416274e",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "rep_2_0": {
+   "name": "rep_2_0",
+   "kind": "text",
+   "value": "Kavya Galquist",
+   "text": "Kavya Galquist",
+   "bbox": [
+    601,
+    301,
+    698,
+    317
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1265a73a2f173c60969b5c0531f24dceee0ea6e969ca92e7c05174e46d1cbc1e",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "rep_2_0_title": {
+   "name": "rep_2_0_title",
+   "kind": "text",
+   "value": "Associate",
+   "text": "Associate",
+   "bbox": [
+    625,
+    323,
+    675,
+    331
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "a03e5c249375d32f9964642c856a6c4e42962f2198c10b4a648c2f691d3d1081",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "rep_3_0": {
+   "name": "rep_3_0",
+   "kind": "text",
+   "value": "Jun Telmore",
+   "text": "Jun Telmore",
+   "bbox": [
+    849,
+    301,
+    930,
+    314
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "9456ed4e3e15e1f744bb79d3a717b51c5277e96dbcb7bc1c990ed0af1acbb650",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "rep_3_0_title": {
+   "name": "rep_3_0_title",
+   "kind": "text",
+   "value": "Associate",
+   "text": "Associate",
+   "bbox": [
+    865,
+    323,
+    915,
+    331
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "a03e5c249375d32f9964642c856a6c4e42962f2198c10b4a648c2f691d3d1081",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "rep_3_1": {
+   "name": "rep_3_1",
+   "kind": "text",
+   "value": "Kofi Galero",
+   "text": "Kofi Galero",
+   "bbox": [
+    853,
+    377,
+    925,
+    390
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "643a31bb06083ee9d397689ff9d586adc710d6ab6484cbf3dfa6eeaadee12f28",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "rep_3_1_title": {
+   "name": "rep_3_1_title",
+   "kind": "text",
+   "value": "Analyst",
+   "text": "Analyst",
+   "bbox": [
+    871,
+    399,
+    909,
+    409
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f1b3e49a36fc2a74203e3de12a0046b9edd335742c5e3cd8606f9f786426b37e",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  }
+ },
+ "elements": [],
+ "text_runs": [
+  {
+   "text": "Rosmere Arts Center - team structure",
+   "bbox": [
+    39,
+    28,
+    346,
+    43
+   ],
+   "size_px": 18,
+   "field": "diagram_title",
+   "reading": true
+  },
+  {
+   "text": "Mehdi Holard",
+   "bbox": [
+    475,
+    81,
+    563,
+    94
+   ],
+   "size_px": 14,
+   "field": "root",
+   "reading": true
+  },
+  {
+   "text": "Head of Operations",
+   "bbox": [
+    469,
+    102,
+    571,
+    113
+   ],
+   "size_px": 11,
+   "field": "root_title",
+   "reading": true
+  },
+  {
+   "text": "Lior Belmore",
+   "bbox": [
+    117,
+    191,
+    200,
+    204
+   ],
+   "size_px": 14,
+   "field": "mgr_0",
+   "reading": true
+  },
+  {
+   "text": "Volunteer Coordinator",
+   "bbox": [
+    100,
+    213,
+    219,
+    221
+   ],
+   "size_px": 11,
+   "field": "mgr_0_title",
+   "reading": true
+  },
+  {
+   "text": "Ximena Telrow",
+   "bbox": [
+    351,
+    191,
+    447,
+    204
+   ],
+   "size_px": 14,
+   "field": "mgr_1",
+   "reading": true
+  },
+  {
+   "text": "Facilities Lead",
+   "bbox": [
+    362,
+    213,
+    438,
+    221
+   ],
+   "size_px": 11,
+   "field": "mgr_1_title",
+   "reading": true
+  },
+  {
+   "text": "Farah Verham",
+   "bbox": [
+    595,
+    191,
+    684,
+    204
+   ],
+   "size_px": 14,
+   "field": "mgr_2",
+   "reading": true
+  },
+  {
+   "text": "Events Manager",
+   "bbox": [
+    597,
+    213,
+    683,
+    223
+   ],
+   "size_px": 11,
+   "field": "mgr_2_title",
+   "reading": true
+  },
+  {
+   "text": "Jonas Zananu",
+   "bbox": [
+    832,
+    192,
+    926,
+    204
+   ],
+   "size_px": 14,
+   "field": "mgr_3",
+   "reading": true
+  },
+  {
+   "text": "Events Manager",
+   "bbox": [
+    837,
+    213,
+    923,
+    223
+   ],
+   "size_px": 11,
+   "field": "mgr_3_title",
+   "reading": true
+  },
+  {
+   "text": "Hana Galero",
+   "bbox": [
+    129,
+    301,
+    210,
+    314
+   ],
+   "size_px": 14,
+   "field": "rep_0_0",
+   "reading": true
+  },
+  {
+   "text": "Coordinator",
+   "bbox": [
+    138,
+    323,
+    203,
+    331
+   ],
+   "size_px": 11,
+   "field": "rep_0_0_title",
+   "reading": true
+  },
+  {
+   "text": "Priya Kelmere",
+   "bbox": [
+    365,
+    301,
+    452,
+    317
+   ],
+   "size_px": 14,
+   "field": "rep_1_0",
+   "reading": true
+  },
+  {
+   "text": "Designer",
+   "bbox": [
+    386,
+    323,
+    434,
+    333
+   ],
+   "size_px": 11,
+   "field": "rep_1_0_title",
+   "reading": true
+  },
+  {
+   "text": "Kavya Galquist",
+   "bbox": [
+    601,
+    301,
+    698,
+    317
+   ],
+   "size_px": 14,
+   "field": "rep_2_0",
+   "reading": true
+  },
+  {
+   "text": "Associate",
+   "bbox": [
+    625,
+    323,
+    675,
+    331
+   ],
+   "size_px": 11,
+   "field": "rep_2_0_title",
+   "reading": true
+  },
+  {
+   "text": "Jun Telmore",
+   "bbox": [
+    849,
+    301,
+    930,
+    314
+   ],
+   "size_px": 14,
+   "field": "rep_3_0",
+   "reading": true
+  },
+  {
+   "text": "Associate",
+   "bbox": [
+    865,
+    323,
+    915,
+    331
+   ],
+   "size_px": 11,
+   "field": "rep_3_0_title",
+   "reading": true
+  },
+  {
+   "text": "Kofi Galero",
+   "bbox": [
+    853,
+    377,
+    925,
+    390
+   ],
+   "size_px": 14,
+   "field": "rep_3_1",
+   "reading": true
+  },
+  {
+   "text": "Analyst",
+   "bbox": [
+    871,
+    399,
+    909,
+    409
+   ],
+   "size_px": 11,
+   "field": "rep_3_1_title",
+   "reading": true
+  }
+ ],
+ "reading_text": "Rosmere Arts Center - team structure\nMehdi Holard\nHead of Operations\nLior Belmore\nVolunteer Coordinator\nXimena Telrow\nFacilities Lead\nFarah Verham\nEvents Manager\nJonas Zananu\nEvents Manager\nHana Galero\nCoordinator\nPriya Kelmere\nDesigner\nKavya Galquist\nAssociate\nJun Telmore\nAssociate\nKofi Galero\nAnalyst",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_title",
+   "qtype": "lookup",
+   "question": "What is Lior Belmore's job title?",
+   "answer": "Volunteer Coordinator",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "mgr_0",
+    "mgr_0_title"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_whom",
+   "qtype": "lookup",
+   "question": "Whom does Jun Telmore report to?",
+   "answer": "Jonas Zananu",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "rep_3_0",
+    "mgr_0",
+    "mgr_1",
+    "mgr_2",
+    "mgr_3"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_who",
+   "qtype": "lookup",
+   "question": "Who reports directly to Ximena Telrow?",
+   "answer": "Priya Kelmere",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "mgr_1",
+    "rep_1_0",
+    "rep_0_0",
+    "rep_1_0",
+    "rep_2_0",
+    "rep_3_0",
+    "rep_3_1"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_count",
+   "qtype": "count",
+   "question": "How many people report directly to Mehdi Holard?",
+   "answer": "4",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "root",
+    "mgr_0",
+    "mgr_1",
+    "mgr_2",
+    "mgr_3"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read all the labels in the org chart.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

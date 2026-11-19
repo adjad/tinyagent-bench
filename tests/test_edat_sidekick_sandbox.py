@@ -1,6 +1,8 @@
 """Sandbox: the self-test passes, and the harness refuses to run without it (spec 12 §3.4, S11)."""
 from __future__ import annotations
 
+import re
+
 import pytest
 
 from edat.sidekick.sandbox import run as sbrun
@@ -58,7 +60,7 @@ def test_profile_renders_without_placeholders():
     from edat.sidekick.toolchain import find_toolchain
     with TrialArea() as area:
         text = render_profile(area.root, find_toolchain())
-    assert "@" not in text.replace("(version 1)", "")
+    assert not re.search(r"@[A-Z_]+@", text)          # paths may hold "@" (a Homebrew node@22, say)
     assert "(deny default)" in text and "(deny network*)" in text
 
 
@@ -102,3 +104,29 @@ def test_denial_line_parsing():
     ds = parse_lines(lines, {4242, 4243})
     assert [(d.pid, d.op) for d in ds] == [(4242, "network-outbound"), (4243, "file-write-create")]
     assert all(d.is_escape for d in ds)
+
+
+def test_a_cpu_limit_kill_is_reported_as_stopped():
+    import signal
+    from edat.sidekick.sandbox.run import cpu_limit_kill
+    assert cpu_limit_kill(-signal.SIGXCPU) == "cpu_time" and cpu_limit_kill(-signal.SIGKILL) == "cpu_time"
+    assert cpu_limit_kill(128 + signal.SIGXCPU) == "cpu_time"          # the shell's view of its child's signal
+    assert cpu_limit_kill(0) is None and cpu_limit_kill(1) is None and cpu_limit_kill(None) is None
+
+
+def test_cpu_limit_stops_a_busy_loop(iso):
+    with TrialArea() as area:
+        r = iso.run(area, "python3 -c 'while True: pass'", limits=Limits(wall_s=30, cpu_s=1))
+    assert r.killed == "cpu_time" and not r.ok, (r.exit_code, r.stderr[-200:])
+
+
+def test_a_tool_loading_libraries_from_elsewhere_is_refused(monkeypatch):
+    from edat.sidekick import toolchain
+    monkeypatch.setattr(toolchain, "_linked", lambda b: {"/opt/x/bin/node": ["/usr/lib/libc++.1.dylib",
+                                                                            "/opt/homebrew/opt/libuv/lib/libuv.1.dylib"]}.get(b, []))
+    monkeypatch.setattr(toolchain, "_real", lambda p: p)
+    monkeypatch.setattr(toolchain.os, "access", lambda p, m: True)
+    assert toolchain.foreign_libraries("/opt/x/bin/node", ("/opt/x",)) == ["/opt/homebrew/opt/libuv/lib/libuv.1.dylib"]
+    with pytest.raises(toolchain.ToolchainError, match="outside its own folder.*EDAT_SIDEKICK_NODE"):
+        toolchain._require_self_contained("node", "/opt/x/bin/node", ("/opt/x",), "EDAT_SIDEKICK_NODE")
+    assert toolchain.foreign_libraries("/opt/x/bin/other", ("/opt/x",)) == []

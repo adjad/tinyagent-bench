@@ -11,6 +11,13 @@ Override with environment variables:
   EDAT_SIDEKICK_NODE    a Node LTS binary
   EDAT_SIDEKICK_GIT     a git binary (default: the real binary behind /usr/bin/git)
 
+A tool must be self-contained: every library its binary loads has to live in its
+own folder or in the system's (/usr/lib, /System). The sandbox lets model code
+read only those, so a build that loads libraries from elsewhere (a Homebrew Node
+linking /opt/homebrew/opt/libuv, say) is refused here with the reason, instead
+of failing the sandbox self-test later. Use the official nodejs.org Node and a
+python.org or uv-managed CPython.
+
 Versions go in the run key; local paths never leave the machine.
 """
 from __future__ import annotations
@@ -78,6 +85,63 @@ def _real(p: str) -> str:
     return os.path.realpath(p)
 
 
+SYSTEM_LIB_ROOTS = ("/usr/lib/", "/System/")
+OTOOL = "/usr/bin/otool"
+
+
+def _linked(binary: str) -> list[str]:
+    """Libraries a Mach-O binary links (absolute paths; @rpath-style entries are inside the tool)."""
+    out = subprocess.run([OTOOL, "-L", binary], capture_output=True, text=True, timeout=20,
+                         env={"PATH": "/usr/bin:/bin"})
+    libs = []
+    for line in out.stdout.splitlines():
+        if not line.startswith(("\t", " ")):
+            continue                                   # "<binary> (architecture ...):" headers
+        lib = line.strip().split(" (compatibility", 1)[0].strip()
+        if lib and not lib.startswith("@"):
+            libs.append(lib)
+    return sorted(set(libs))
+
+
+def foreign_libraries(binary: str, own_roots: tuple[str, ...]) -> list[str] | None:
+    """Libraries the binary (or a library of its own) loads from outside its own folders and the system's.
+    None when this cannot be checked (no otool)."""
+    if not os.access(OTOOL, os.X_OK):
+        return None
+    roots = tuple(r.rstrip("/") + "/" for r in own_roots)
+    seen, todo, foreign = set(), [_real(binary)], []
+    while todo and len(seen) < 64:
+        b = todo.pop()
+        if b in seen:
+            continue
+        seen.add(b)
+        try:
+            libs = _linked(b)
+        except (OSError, subprocess.TimeoutExpired):
+            continue
+        for lib in libs:
+            if lib.startswith(SYSTEM_LIB_ROOTS):
+                continue
+            real = _real(lib)
+            if real.startswith(roots) or lib.startswith(roots):
+                todo.append(real)                      # its own library: check what that one loads
+            else:
+                foreign.append(lib)
+    return sorted(set(foreign))
+
+
+def _require_self_contained(name: str, binary: str, own_roots: tuple[str, ...], env_var: str) -> None:
+    foreign = foreign_libraries(binary, own_roots)
+    if foreign:
+        raise ToolchainError(
+            f"{name} at {binary} loads {foreign[0]}"
+            + (f" (and {len(foreign) - 1} more)" if len(foreign) > 1 else "")
+            + " from outside its own folder; the sealed sandbox does not let model code read there, so this "
+            f"{name} cannot run inside it. Use a self-contained build "
+            + ("(the official nodejs.org Node)" if name == "node" else "(a python.org or uv-managed CPython)")
+            + f" and point {env_var} at it.")
+
+
 def _python() -> Tool:
     exe = os.environ.get("EDAT_SIDEKICK_PYTHON") or sys.executable
     if not exe or not os.path.exists(exe):
@@ -93,6 +157,7 @@ def _python() -> Tool:
     roots.add(str(Path(_real(exe)).parent.parent))
     # A venv's interpreter is a symlink into the base install: allow both.
     roots.add(str(Path(exe).parent.parent))
+    _require_self_contained("python", _real(exe), tuple(sorted(roots)), "EDAT_SIDEKICK_PYTHON")
     return Tool("python", exe, f"{version} (pytest {pytest_v})", tuple(sorted(roots)), tuple(sorted(roots)))
 
 
@@ -103,8 +168,10 @@ def _node() -> Tool | None:
     real = _real(exe)
     version = _run([real, "--version"])
     root = str(Path(real).parent.parent)
-    # Homebrew-style installs keep the binary under <prefix>/bin and libraries next to it.
-    return Tool("node", real, version, (root,) if root not in ("/usr", "/") else (real,), (real,))
+    # Self-contained installs keep the binary under <prefix>/bin and anything it loads next to it.
+    roots = (root,) if root not in ("/usr", "/") else (real,)
+    _require_self_contained("node", real, roots, "EDAT_SIDEKICK_NODE")
+    return Tool("node", real, version, roots, (real,))
 
 
 def _git() -> Tool:

@@ -217,6 +217,8 @@ def run(client, entry: Entry, cfg: RunConfig, *, iso: Isolation | None = None, p
     if entry.kind == "cloud_reference" and cfg.split != "dev":
         raise RuntimeError("cloud references run on the development split only")
     entry = check_identity(entry)
+    if cfg.split != "dev":
+        master_seed(cfg.split)                         # the private seed first, so each refusal names its own cause
     selftest = require_sandbox()                       # refuses unless the sandbox is proven
     rec_iso = RecordingIsolation(iso or get_isolation())
     cases = select_cases(cfg)

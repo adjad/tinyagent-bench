@@ -1,0 +1,47 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "ami-test-ihm-sdm",
+ "group": "asr_eval",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "A1",
+  "A4",
+  "A7"
+ ],
+ "split": "test (ihm 4 shards, sdm 4 shards)",
+ "homepage": "https://groups.inf.ed.ac.uk/ami/corpus/",
+ "licence": "CC-BY-4.0",
+ "licence_note": "CC BY 4.0",
+ "licence_url": "https://huggingface.co/datasets/edinburghcstr/ami",
+ "licence_verified": true,
+ "verified": true,
+ "redistributable": "yes",
+ "attribution": "AMI Meeting Corpus, CC BY 4.0",
+ "access": "http",
+ "hf": {
+  "repo": "edinburghcstr/ami",
+  "config": [
+   "ihm",
+   "sdm"
+  ],
+  "split": "test"
+ },
+ "status": "ready",
+ "needed_v1": "yes",
+ "pinned_revision": "46f28f2503e2ec48f8867a84eef356c70476beab",
+ "checksum_kind": "sha256 equals the Git LFS oid (a content hash); files without a published hash say so per file",
+ "bytes_total": 2531140667,
+ "file_count": 8,
+ "eval_size": "about 9 h each",
+ "notes": "HF repo sha 46f28f2503e2ec48f8867a84eef356c70476beab; licence page https://groups.inf.ed.ac.uk/ami/corpus/license.shtml (earlier notes). Same repo and sha as IHM.",
+ "files": [
+  {"url": "https://huggingface.co/datasets/edinburghcstr/ami/resolve/46f28f2503e2ec48f8867a84eef356c70476beab/ihm/test-00000-of-00004.parquet", "bytes": 241989739, "sha256": "d95920dccc6924c15215239461bf5d1152fe07c9c61add073bd12da26dd602e0"},
+  {"url": "https://huggingface.co/datasets/edinburghcstr/ami/resolve/46f28f2503e2ec48f8867a84eef356c70476beab/ihm/test-00001-of-00004.parquet", "bytes": 292473974, "sha256": "07a2b1c407cf36bc1e66c1362b0248ed32c897edc2a116549d1dc6b456dc2325"},
+  {"url": "https://huggingface.co/datasets/edinburghcstr/ami/resolve/46f28f2503e2ec48f8867a84eef356c70476beab/ihm/test-00002-of-00004.parquet", "bytes": 426034962, "sha256": "83cde21e55fc884295585327b0ee334cba47ad53bdb787dd5f97437067aca5f8"},
+  {"url": "https://huggingface.co/datasets/edinburghcstr/ami/resolve/46f28f2503e2ec48f8867a84eef356c70476beab/ihm/test-00003-of-00004.parquet", "bytes": 332016187, "sha256": "3312bb79400ddef62d5a0097e124dfabe86a693b4643e7fef7d72a62588280d7"},
+  {"url": "https://huggingface.co/datasets/edinburghcstr/ami/resolve/46f28f2503e2ec48f8867a84eef356c70476beab/sdm/test-00000-of-00004.parquet", "bytes": 257024744, "sha256": "90eaf6b410dff4ab03a90af0ed6377c7e0947df55d08645382d4f5e36fd8a864"},
+  {"url": "https://huggingface.co/datasets/edinburghcstr/ami/resolve/46f28f2503e2ec48f8867a84eef356c70476beab/sdm/test-00001-of-00004.parquet", "bytes": 299368045, "sha256": "e8c9b3539a3c074a5ac99c8c9a00ba672da5ea95501fc3ef515c23db2ba8771f"},
+  {"url": "https://huggingface.co/datasets/edinburghcstr/ami/resolve/46f28f2503e2ec48f8867a84eef356c70476beab/sdm/test-00002-of-00004.parquet", "bytes": 391552263, "sha256": "40b5ecf718d528f5695288a6fe67076492020c1e761aabb6cdc778cdd5fb6129"},
+  {"url": "https://huggingface.co/datasets/edinburghcstr/ami/resolve/46f28f2503e2ec48f8867a84eef356c70476beab/sdm/test-00003-of-00004.parquet", "bytes": 290680753, "sha256": "f0bceadc1368be231fd6c4f6e688750aa39742f6c364fba7ef3790b74d709372"}
+ ]
+}

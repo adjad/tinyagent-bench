@@ -1,0 +1,6 @@
+{"schema": "edat.power-samples/1", "source": "battery_accumulator", "scope": "whole_device_internal", "rate_hz": 0.5, "clock": "mach_continuous_time", "is_estimate": false, "note": "SYNTHETIC test fixture, not a measurement"}
+{"t_ns": 1000000000000, "watts": 4.0}
+{"t_ns": 1002000000000, "watts": 4.0}
+{"t_ns": 1004000000000, "watts": 7.0}
+{"t_ns": 1006000000000, "watts": 7.0}
+{"t_ns": 1008000000000, "watts": 4.0}

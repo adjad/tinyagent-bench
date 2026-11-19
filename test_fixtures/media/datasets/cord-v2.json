@@ -1,0 +1,33 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "cord-v2",
+ "group": "vision_eval",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "V2"
+ ],
+ "split": "test (100)",
+ "homepage": "https://huggingface.co/datasets/naver-clova-ix/cord-v2",
+ "licence": "CC-BY-4.0",
+ "licence_note": "CC BY 4.0",
+ "licence_url": "https://huggingface.co/datasets/naver-clova-ix/cord-v2",
+ "licence_verified": true,
+ "verified": true,
+ "redistributable": "yes",
+ "attribution": "CORD-v2, Naver Clova, CC BY 4.0",
+ "access": "http",
+ "hf": {
+  "repo": "naver-clova-ix/cord-v2",
+  "split": "test"
+ },
+ "status": "ready",
+ "needed_v1": "yes",
+ "pinned_revision": "7f0115a4b758a71d6473b8d085751692da2fef98",
+ "checksum_kind": "sha256 equals the Git LFS oid (a content hash); files without a published hash say so per file",
+ "bytes_total": 234202795,
+ "file_count": 1,
+ "notes": "HF repo sha 7f0115a4b758a71d6473b8d085751692da2fef98. Only the test shard is needed (the repo is 2.31 GB with train and validation).",
+ "files": [
+  {"url": "https://huggingface.co/datasets/naver-clova-ix/cord-v2/resolve/7f0115a4b758a71d6473b8d085751692da2fef98/data/test-00000-of-00001-9c204eb3f4e11791.parquet", "bytes": 234202795, "sha256": "51c65f1788faff392abe2a0b55b023eb23e9be551c509138eaa3a832514224e7"}
+ ]
+}

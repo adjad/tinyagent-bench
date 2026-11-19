@@ -1,0 +1,34 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "earnings22-segmented",
+ "group": "asr_eval",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "A1"
+ ],
+ "split": "ESB / open-asr-leaderboard earnings22 test, 2,741 segmented clips, about 5 h",
+ "homepage": "https://huggingface.co/datasets/hf-audio/open-asr-leaderboard",
+ "licence": "CC-BY-SA-4.0",
+ "licence_note": "CC BY-SA 4.0 (ESB section of the card)",
+ "licence_url": "https://huggingface.co/datasets/hf-audio/open-asr-leaderboard",
+ "licence_verified": true,
+ "verified": true,
+ "redistributable": "share-alike",
+ "attribution": "Earnings-22, Rev.com, CC BY-SA 4.0",
+ "access": "http",
+ "status": "ready",
+ "needed_v1": "no",
+ "pinned_revision": "de79e57adf9983993bcc72586d7313460825f5eb",
+ "checksum_kind": "sha256 equals the Git LFS oid (a content hash); files without a published hash say so per file",
+ "bytes_total": 1103772123,
+ "file_count": 5,
+ "eval_size": "about 5 h",
+ "notes": "hf-audio/esb-datasets-test-only-sorted now redirects (HTTP 307) to hf-audio/open-asr-leaderboard. This is the 5 h segmented test slice, NOT the spec's 119 h, so it does not satisfy the spec; kept only as a cheap smoke-test alternative.",
+ "files": [
+  {"url": "https://huggingface.co/datasets/hf-audio/open-asr-leaderboard/resolve/de79e57adf9983993bcc72586d7313460825f5eb/earnings22/test-00000-of-00005.parquet", "bytes": 488970668, "sha256": "053d32a0034542cd729b70ac012132478cdeb4503434caba7328fdf8c470101b"},
+  {"url": "https://huggingface.co/datasets/hf-audio/open-asr-leaderboard/resolve/de79e57adf9983993bcc72586d7313460825f5eb/earnings22/test-00001-of-00005.parquet", "bytes": 277801959, "sha256": "8b3fe4ff6a2237090cdab69c21f162cf52613fcf8689ff9b8a37de35fa96cb49"},
+  {"url": "https://huggingface.co/datasets/hf-audio/open-asr-leaderboard/resolve/de79e57adf9983993bcc72586d7313460825f5eb/earnings22/test-00002-of-00005.parquet", "bytes": 187720260, "sha256": "19fa47efc4052e7ffa175d1f332f23b80b1a97646a5742eedb0dd00e81e3a5b2"},
+  {"url": "https://huggingface.co/datasets/hf-audio/open-asr-leaderboard/resolve/de79e57adf9983993bcc72586d7313460825f5eb/earnings22/test-00003-of-00005.parquet", "bytes": 110616676, "sha256": "635eb9d3521fbd06aaed8f16bab56263bf5d372ffb56f56441aba0f99a679c9d"},
+  {"url": "https://huggingface.co/datasets/hf-audio/open-asr-leaderboard/resolve/de79e57adf9983993bcc72586d7313460825f5eb/earnings22/test-00004-of-00005.parquet", "bytes": 38662560, "sha256": "aa13fae925b7a4ba276c0318b47090c249ae0a0298f000d896e8e834579b2106"}
+ ]
+}

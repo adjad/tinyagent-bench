@@ -1,0 +1,595 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-charts-dev-0099",
+ "family": "charts",
+ "template": "bar",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 99,
+ "variant": {
+  "theme": "dark",
+  "dpr": 1,
+  "abstain": true,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-charts-dev-0099.png",
+  "sha256": "06e9734087619f1b9accaeed94714ad3bd413c78367f450ed515666a83604374",
+  "width": 640,
+  "height": 480,
+  "logical": [
+   640,
+   480
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "kind": "bar",
+  "subject": "Units sold",
+  "word": "store",
+  "x": [
+   "Fennix",
+   "Ruvaora",
+   "Brenova",
+   "Nexoent",
+   "Oakenova",
+   "Gildum"
+  ],
+  "series": {
+   "Units sold": [
+    50,
+    100,
+    60,
+    50,
+    50,
+    30
+   ]
+  },
+  "tick_step": 20,
+  "y_max": 100,
+  "data_labels": false
+ },
+ "fields": {
+  "x_0": {
+   "name": "x_0",
+   "kind": "text",
+   "value": "Fennix",
+   "text": "Fennix",
+   "bbox": [
+    98,
+    431,
+    135,
+    440
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "fe85f5abda13ea148ccb07bdf3eeea43626232b404a18e9babb27d2ca1bd4f3b",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "x_1": {
+   "name": "x_1",
+   "kind": "text",
+   "value": "Ruvaora",
+   "text": "Ruvaora",
+   "bbox": [
+    185,
+    431,
+    230,
+    440
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ee786d437f42b7422a665a68f7f6bc239ca03be27ea0474d032555130b26d5ec",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "x_2": {
+   "name": "x_2",
+   "kind": "text",
+   "value": "Brenova",
+   "text": "Brenova",
+   "bbox": [
+    276,
+    431,
+    321,
+    440
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "2cfb1a381479881b7f4a697613f26c60118b157e13d5b3884837a72b7d45eaaa",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "x_3": {
+   "name": "x_3",
+   "kind": "text",
+   "value": "Nexoent",
+   "text": "Nexoent",
+   "bbox": [
+    366,
+    431,
+    412,
+    440
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "844c58117481658033f7c36283d9179d524ec731a9b48964c6784a4a3b68c253",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "x_4": {
+   "name": "x_4",
+   "kind": "text",
+   "value": "Oakenova",
+   "text": "Oakenova",
+   "bbox": [
+    452,
+    431,
+    508,
+    440
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "322459166ff882cc4f87e3169967836d87e8c4e9613ef1362b3bbd906e9b0f6f",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "x_5": {
+   "name": "x_5",
+   "kind": "text",
+   "value": "Gildum",
+   "text": "Gildum",
+   "bbox": [
+    550,
+    431,
+    591,
+    440
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d43777eadc192d11f2cf2f12b302f5237e1f6a526fc066d56e9bf432c5193c68",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "pt_0_0": {
+   "name": "pt_0_0",
+   "kind": "number",
+   "value": "50",
+   "text": "",
+   "bbox": [
+    92,
+    260,
+    143,
+    420
+   ],
+   "size_px": 160,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "bf4379409aad80453f0dafbb18f7b8fa2a57b4ebf3832f906fcd82e46b10a8f2",
+   "fg": [
+    90,
+    210,
+    120
+   ],
+   "plot_value": true
+  },
+  "pt_0_1": {
+   "name": "pt_0_1",
+   "kind": "number",
+   "value": "100",
+   "text": "",
+   "bbox": [
+    183,
+    100,
+    233,
+    420
+   ],
+   "size_px": 320,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "40318869d11721b33abf7619ba3d35b96edb7e89a8ea7aaf2cc7312d4f29bede",
+   "fg": [
+    90,
+    210,
+    120
+   ],
+   "plot_value": true
+  },
+  "pt_0_2": {
+   "name": "pt_0_2",
+   "kind": "number",
+   "value": "60",
+   "text": "",
+   "bbox": [
+    273,
+    228,
+    324,
+    420
+   ],
+   "size_px": 192,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "734fa503abd832d54653806fa69f89dcf567dae4c649bec31bbc03ec2cb9193c",
+   "fg": [
+    90,
+    210,
+    120
+   ],
+   "plot_value": true
+  },
+  "pt_0_3": {
+   "name": "pt_0_3",
+   "kind": "number",
+   "value": "50",
+   "text": "",
+   "bbox": [
+    364,
+    260,
+    415,
+    420
+   ],
+   "size_px": 160,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "bf4379409aad80453f0dafbb18f7b8fa2a57b4ebf3832f906fcd82e46b10a8f2",
+   "fg": [
+    90,
+    210,
+    120
+   ],
+   "plot_value": true
+  },
+  "pt_0_4": {
+   "name": "pt_0_4",
+   "kind": "number",
+   "value": "50",
+   "text": "",
+   "bbox": [
+    455,
+    260,
+    505,
+    420
+   ],
+   "size_px": 160,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "a2a7eace70f801a88bcf90823dda0666d45a6a8e242041049cfa91932e84f9e7",
+   "fg": [
+    90,
+    210,
+    120
+   ],
+   "plot_value": true
+  },
+  "pt_0_5": {
+   "name": "pt_0_5",
+   "kind": "number",
+   "value": "30",
+   "text": "",
+   "bbox": [
+    545,
+    324,
+    596,
+    420
+   ],
+   "size_px": 96,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b17c4db861721311b439d89e88f51961e145864e44c73a7df54aba7ea2d54e52",
+   "fg": [
+    90,
+    210,
+    120
+   ],
+   "plot_value": true
+  },
+  "missing": {
+   "name": "missing",
+   "kind": "text",
+   "value": "Tavar",
+   "text": "",
+   "bbox": null,
+   "size_px": 0,
+   "visible": false,
+   "obscured": "absent",
+   "crop_sha256": null,
+   "fg": null,
+   "plot_value": false
+  }
+ },
+ "elements": [],
+ "text_runs": [
+  {
+   "text": "Units sold by store, 2027",
+   "bbox": [
+    23,
+    21,
+    226,
+    41
+   ],
+   "size_px": 18,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Units sold per store",
+   "bbox": [
+    24,
+    47,
+    123,
+    57
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "100",
+   "bbox": [
+    46,
+    96,
+    64,
+    104
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "80",
+   "bbox": [
+    52,
+    160,
+    64,
+    168
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "60",
+   "bbox": [
+    52,
+    224,
+    64,
+    232
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "40",
+   "bbox": [
+    52,
+    288,
+    64,
+    296
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "20",
+   "bbox": [
+    52,
+    352,
+    64,
+    360
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "0",
+   "bbox": [
+    58,
+    416,
+    64,
+    424
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Fennix",
+   "bbox": [
+    98,
+    431,
+    135,
+    440
+   ],
+   "size_px": 12,
+   "field": "x_0",
+   "reading": true
+  },
+  {
+   "text": "Ruvaora",
+   "bbox": [
+    185,
+    431,
+    230,
+    440
+   ],
+   "size_px": 12,
+   "field": "x_1",
+   "reading": true
+  },
+  {
+   "text": "Brenova",
+   "bbox": [
+    276,
+    431,
+    321,
+    440
+   ],
+   "size_px": 12,
+   "field": "x_2",
+   "reading": true
+  },
+  {
+   "text": "Nexoent",
+   "bbox": [
+    366,
+    431,
+    412,
+    440
+   ],
+   "size_px": 12,
+   "field": "x_3",
+   "reading": true
+  },
+  {
+   "text": "Oakenova",
+   "bbox": [
+    452,
+    431,
+    508,
+    440
+   ],
+   "size_px": 12,
+   "field": "x_4",
+   "reading": true
+  },
+  {
+   "text": "Gildum",
+   "bbox": [
+    550,
+    431,
+    591,
+    440
+   ],
+   "size_px": 12,
+   "field": "x_5",
+   "reading": true
+  }
+ ],
+ "reading_text": "Units sold by store, 2027\nUnits sold per store\n100\n80\n60\n40\n20\n0\nFennix\nRuvaora\nBrenova\nNexoent\nOakenova\nGildum",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_value",
+   "qtype": "lookup",
+   "question": "Reading the bar chart, what is the value for Gildum?",
+   "answer": "30",
+   "kind": "relaxed",
+   "canon": "number",
+   "fields": [
+    "x_5",
+    "pt_0_5"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_max",
+   "qtype": "max",
+   "question": "Which store has the highest value in the bar chart?",
+   "answer": "Ruvaora",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "x_0",
+    "x_1",
+    "x_2",
+    "x_3",
+    "x_4",
+    "x_5",
+    "pt_0_0",
+    "pt_0_1",
+    "pt_0_2",
+    "pt_0_3",
+    "pt_0_4",
+    "pt_0_5"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_min",
+   "qtype": "min",
+   "question": "Which store has the lowest value in the bar chart?",
+   "answer": "Gildum",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "x_0",
+    "x_1",
+    "x_2",
+    "x_3",
+    "x_4",
+    "x_5",
+    "pt_0_0",
+    "pt_0_1",
+    "pt_0_2",
+    "pt_0_3",
+    "pt_0_4",
+    "pt_0_5"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_missing",
+   "qtype": "absence",
+   "question": "What value does the bar chart show for Tavar?",
+   "answer": "not shown",
+   "kind": "abstain",
+   "canon": "text",
+   "fields": [
+    "missing"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the chart.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

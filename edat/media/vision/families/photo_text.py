@@ -1,4 +1,5 @@
-"""Photos with text: flyers, posters, signs and menus photographed at an angle (spec 05 §7.1).
+"""Photos with text: flyers, posters, signs, menus, product and parcel labels, whiteboards, event
+tickets and a laptop screen, photographed at an angle (spec 05 §7.1).
 
 The printed piece is drawn on a clean canvas (every field planted there, in clean
 canvas coordinates), then composited onto a procedurally generated "photo"
@@ -12,8 +13,14 @@ perspective warp, then damaged by level:
 
 ``Rendered.damage["field_boxes"]`` maps each planted field's clean box through the
 same placement and warp to its bounding box in the final image.
-Planted fields: event title, date, start time, venue, ticket or dish prices, phone.
-Question types: event (title, date, time, venue), lookup (price, phone), absence, reading.
+Planted fields: event title, date, start time, venue, ticket or dish prices, phone; product
+name, price, best-before date and net weight on a product label; meeting title, time, room and
+task owners on a whiteboard; recipient, tracking number, weight and ship date on a parcel label;
+unread count, senders, subjects and times on a photographed screen; seat on a ticket.
+Question types: event (title, date, time, venue), lookup (price, phone, weight, owner...),
+absence, reading.
+
+Nine templates (a count coprime with 10). The screen is photographed at a stronger angle.
 """
 from __future__ import annotations
 
@@ -30,9 +37,13 @@ from edat.media.vision.canvas import Canvas
 from edat.media.vision.items import ABSTAIN_ANSWER, Question, Rendered
 
 FAMILY = "photo_text"
-TEMPLATES = ("flyer", "poster", "sign", "menu")
+TEMPLATES = ("flyer", "poster", "sign", "menu", "product_label", "whiteboard", "parcel",
+             "screen", "ticket")
+LEGACY = ("flyer", "poster", "sign", "menu")
 LOGICAL_SIZES = {"flyer": (420, 594), "poster": (480, 640), "sign": (560, 360),
-                 "menu": (420, 640)}
+                 "menu": (420, 640), "product_label": (420, 560), "whiteboard": (560, 400),
+                 "parcel": (420, 600), "screen": (560, 420), "ticket": (560, 240)}
+TILT = {"screen": 1.8}              # photograph jitter factor: the screen is shot at a steeper angle
 YEAR = 2027
 BASE_DATE = date(2027, 1, 8)
 PHOTO_MARGIN = 1.25                 # the photo is 1.25x the printed piece on each side
@@ -66,6 +77,14 @@ def render(rng: random.Random, *, template: str, theme: str, scale: float, absta
     if not 0 <= level <= 3:
         raise ValueError(f"damage level {damage!r} is not 0-3")
     inv = Inventor(rng)
+    if template not in LEGACY:
+        c = Canvas(*LOGICAL_SIZES[template], scale=scale, theme=theme)
+        questions, data = {"product_label": _product_label, "whiteboard": _whiteboard,
+                           "parcel": _parcel, "screen": _screen,
+                           "ticket": _ticket}[template](c, rng, inv, abstain)
+        final, dmg = _photograph(c, rng, level, TILT.get(template, 1.0))
+        return Rendered(c, template, questions, data, default_year=YEAR, clean_image=c.image,
+                        damage=dmg, final_image=final)
     ev = _event(rng, inv, template)
     c = Canvas(*LOGICAL_SIZES[template], scale=scale, theme=theme)
     band = rng.choice(BANDS[theme])
@@ -76,10 +95,10 @@ def render(rng: random.Random, *, template: str, theme: str, scale: float, absta
                  fields=["title"]),
         Question("q_date", "event", "On what date is the event? Give the date.", ev["date"],
                  canon="date", fields=["date"]),
-        Question("q_time", "event", "What time does the event start?", ev["start"],
-                 canon="time", fields=["time"]),
-        Question("q_venue", "event", "Where is the event held? Give the venue name.",
-                 ev["venue"], fields=["venue"]),
+        (Question("q_time", "event", "What time does the event start?", ev["start"],
+                  canon="time", fields=["time"]) if rng.random() < 0.5 else
+         Question("q_venue", "event", "Where is the event held? Give the venue name.",
+                  ev["venue"], fields=["venue"])),
         Question("q_reading", "reading", "Read all the text on the " + template + ".", "",
                  kind="reading"),
     ]
@@ -263,6 +282,288 @@ def _abstain(c: Canvas, rng: random.Random, ev: dict, template: str, last: Quest
                     ABSTAIN_ANSWER, kind="abstain", fields=["phone"])
 
 
+# ------------------------------------------------------------------ the new printed pieces
+
+def _tail(c: Canvas, rng: random.Random, abstain: bool, qs: list, normal: Question,
+          blur: str, absent: tuple) -> None:
+    """The last scored question: normal, or an abstention (blurred field or an absent field)."""
+    if not abstain:
+        qs.append(normal)
+        return
+    if rng.random() < 0.5:
+        c.blur_field(blur, radius=7)
+        qs.append(Question(normal.qid + "_abstain", "absence", normal.question, ABSTAIN_ANSWER,
+                           kind="abstain", fields=[blur]))
+        return
+    qid, text, name, value, kind = absent
+    c.absent(name, value, kind)
+    qs.append(Question(qid, "absence", text, ABSTAIN_ANSWER, kind="abstain", fields=[name]))
+
+
+def _reading(what: str) -> Question:
+    return Question("q_reading", "reading", f"Read all the text on the {what}.", "", kind="reading")
+
+
+def _barcode(c: Canvas, rng: random.Random, x0: float, x1: float, y0: float, y1: float,
+             digits: str) -> None:
+    x = x0
+    while x < x1 - 4:
+        bw = max(rng.choice((1, 1, 2, 3)), 1.5 / c.scale)
+        if rng.random() < 0.6:
+            c.rect(x, y0, x + bw, y1, fill="fg")
+        x += bw + rng.choice((1, 2))
+    c.text_center((x0 + x1) / 2, y1 + 8, digits, size=12, color="muted")
+
+
+_PRODUCT_NOUNS = ("Oat Granola", "Olive Oil", "Green Tea", "Tomato Soup", "Wild Honey",
+                  "Rye Crackers", "Lentil Chips", "Apple Butter")
+
+
+def _product_label(c: Canvas, rng: random.Random, inv: Inventor, abstain: bool):
+    w, h = c.logical
+    band = rng.choice(BANDS[c.theme])
+    brand = inv.brand()
+    product = rng.choice(_PRODUCT_NOUNS)
+    price = rng.choice((2, 3, 4, 5, 6, 8, 9, 12)) + rng.choice((0.29, 0.49, 0.99, 0.0))
+    grams = rng.choice((150, 200, 250, 340, 400, 500, 750))
+    day = inv.day(BASE_DATE, 330)
+    lot = f"L-{rng.randint(10000, 99999)}"
+    c.rect(10, 10, w - 10, h - 10, outline="border", width=2)
+    c.rect(22, 22, w - 22, 128, fill=band)
+    c.text_center(w / 2, 36, brand.upper(), size=14, color="accent_fg")
+    ps = _fit(c, product, 30, w - 72, bold=True, lo=16)
+    c.text_center(w / 2, 90 - ps / 2, product, size=ps, bold=True, color="accent_fg",
+                  field="product")
+    c.text_center(w / 2, 162, f"Net wt {grams} g", size=18, field="weight", kind="number",
+                  value=str(grams))
+    ptxt = money_str(price)
+    c.text_center(w / 2, 212, ptxt, size=38, bold=True, color=band, field="price", kind="money",
+                  value=f"{price:.2f}")
+    c.text_center(w / 2, 280, f"Best before {date_short(day)}", size=16, field="best",
+                  kind="date", value=day.isoformat())
+    c.text_center(w / 2, 314, f"Lot {lot}", size=13, color="muted", field="lot", value=lot)
+    c.text_center(w / 2, 348, "Keep cool and dry. Reseal after opening.", size=12, color="muted")
+    digits = "".join(str(rng.randint(0, 9)) for _ in range(12))
+    _barcode(c, rng, 70, w - 70, 394, 470, f"{digits[0]} {digits[1:7]} {digits[7:]}")
+    qs = [
+        Question("q_product", "lookup", "What is the name of the product on the label?", product,
+                 fields=["product"]),
+        Question("q_price", "lookup", "What price is printed on the label?", f"{price:.2f}",
+                 canon="money", fields=["price"]),
+        Question("q_best", "lookup", "What is the best-before date?", day.isoformat(),
+                 canon="date", fields=["best"]),
+    ]
+    _tail(c, rng, abstain, qs,
+          Question("q_weight", "lookup", "What is the net weight in grams? Give the number.",
+                   str(grams), canon="number", fields=["weight"]),
+          "weight", ("q_kcal", "How many calories per serving are printed on the label?",
+                     "kcal", f"{rng.randint(90, 480)} kcal", "text"))
+    qs.append(_reading("label"))
+    return qs, {"brand": brand, "product": product, "price": price, "grams": grams,
+                "best_before": day.isoformat(), "lot": lot}
+
+
+_BOARD_TOPICS = ("Sprint plan", "Launch review", "Kitchen refit", "Event setup", "Budget talk",
+                 "Roadmap sync")
+_TASKS = ("Slides", "Venue", "Catering", "Invites", "Budget", "Signage", "Tickets", "Demo")
+
+
+def _whiteboard(c: Canvas, rng: random.Random, inv: Inventor, abstain: bool):
+    w, h = c.logical
+    title = rng.choice(_BOARD_TOPICS)
+    day = inv.day(BASE_DATE, 330)
+    start = inv.clock(9, 17, 15)
+    room = rng.choice((f"Studio {rng.randint(1, 9)}", f"Room {rng.choice('ABCD')}{rng.randint(1, 9)}",
+                       f"Lab {rng.randint(1, 6)}"))
+    n = 3
+    tasks = rng.sample(_TASKS, n)
+    owners = []
+    while len(owners) < n:
+        g = inv.given()
+        if g not in owners:
+            owners.append(g)
+    date_text = f"{WEEKDAYS[day.weekday()][:3]} {MONTHS[day.month - 1][:3]} {day.day}"
+    c.rect(0, 0, w, h, fill=(196, 198, 204))
+    c.rect(12, 12, w - 12, h - 42, fill="bg", outline=(150, 152, 160), width=2)
+    c.rect(70, h - 34, w - 70, h - 16, fill=(160, 162, 170), radius=3)
+    c.text(40, 34, title, size=30, bold=False, field="title", color="accent")
+    c.line(40, 78, 40 + c.text_width(title, 30) + 20, 78, color="accent", width=2)
+    c.text(40, 96, f"Date: {date_text}", size=18, field="date", kind="date", value=day.isoformat())
+    c.text(40, 128, f"Time: {time_12h(start)}", size=18, field="time", kind="time", value=start)
+    c.text(40, 160, f"Room: {room}", size=18, field="room", value=room)
+    c.text(40, 206, "To do", size=16, color="danger")
+    for i in range(n):
+        y = 238 + i * 34
+        c.text(52, y, tasks[i], size=17, field=f"task_{i}", value=tasks[i])
+        c.text(220, y, "-", size=17, color="muted")
+        c.text(240, y, owners[i], size=17, color="ok", field=f"owner_{i}", value=owners[i])
+    i = rng.randrange(n)
+    qs = [
+        Question("q_title", "lookup", "What is written as the heading of the whiteboard?", title,
+                 fields=["title"]),
+        Question("q_time", "event", "At what time is the meeting?", start, canon="time",
+                 fields=["time"]),
+        Question("q_room", "event", "In which room is the meeting?", room, fields=["room"]),
+    ]
+    _tail(c, rng, abstain, qs,
+          Question("q_owner", "lookup", f'Who is responsible for "{tasks[i]}"?', owners[i],
+                   fields=[f"task_{i}", f"owner_{i}"]),
+          f"owner_{i}", ("q_budget", "What budget is written on the whiteboard?", "budget",
+                         f"{rng.randint(2, 9)}00.00 USD", "money"))
+    qs.append(_reading("whiteboard"))
+    return qs, {"title": title, "date": day.isoformat(), "time": start, "room": room,
+                "tasks": [{"task": t, "owner": o} for t, o in zip(tasks, owners)]}
+
+
+def _parcel(c: Canvas, rng: random.Random, inv: Inventor, abstain: bool):
+    w, h = c.logical
+    to_name = inv.person()
+    street = inv.street_address()
+    town = inv.town()
+    sender = inv.merchant()
+    kg = f"{rng.randint(1, 19)}.{rng.randint(0, 9)}"
+    day = inv.day(BASE_DATE, 330)
+    track = inv.code(2, 8)
+    service = rng.choice(("EXPRESS", "STANDARD", "PRIORITY"))
+    c.rect(10, 10, w - 10, h - 10, outline="fg", width=3)
+    c.rect(10, 10, w - 10, 70, fill="fg")
+    c.text(26, 26, service, size=26, bold=True, color="bg", field="service", value=service)
+    c.text_right(w - 26, 34, f"Ship date {date_short(day)}", size=13, color="bg", field="ship",
+                 kind="date", value=day.isoformat())
+    c.text(26, 86, "FROM", size=11, color="muted")
+    c.text(26, 102, sender, size=15)
+    c.line(10, 134, w - 10, 134, color="fg", width=2)
+    c.text(26, 148, "TO", size=11, color="muted")
+    c.text(26, 166, to_name, size=24, field="to_name", value=to_name)
+    c.text(26, 202, street, size=16)
+    c.text(26, 228, town, size=16)
+    c.line(10, 270, w - 10, 270, color="fg", width=2)
+    c.text(26, 284, "WEIGHT", size=11, color="muted")
+    c.text(26, 302, f"{kg} kg", size=24, field="weight", kind="number", value=kg)
+    c.rect(w - 150, 284, w - 26, 332, outline="danger", width=3, radius=4)
+    c.text_center(w - 88, 298, "FRAGILE", size=18, color="danger")
+    c.line(10, 350, w - 10, 350, color="fg", width=2)
+    _barcode(c, rng, 40, w - 40, 368, 450, f"{track}")
+    c.text_center(w / 2, 482, f"Tracking {track}", size=18, field="tracking", value=track)
+    c.text_center(w / 2, 520, "Handle with care. Do not stack.", size=12, color="muted")
+    qs = [
+        Question("q_to", "lookup", "Who is the parcel addressed to?", to_name, fields=["to_name"]),
+        Question("q_track", "lookup", "What is the tracking number on the label?", track,
+                 fields=["tracking"]),
+        Question("q_service", "lookup", "Which service level is printed at the top of the label?",
+                 service, fields=["service"]),
+    ]
+    _tail(c, rng, abstain, qs,
+          Question("q_weight", "lookup", "How many kilograms does the parcel weigh?", kg,
+                   canon="number", fields=["weight"]),
+          "weight", ("q_phone", "What phone number is printed for the recipient?", "to_phone",
+                     inv.phone(), "phone"))
+    qs.append(_reading("parcel label"))
+    return qs, {"to": to_name, "street": street, "town": town, "sender": sender, "kg": kg,
+                "ship_date": day.isoformat(), "tracking": track, "service": service}
+
+
+def _screen(c: Canvas, rng: random.Random, inv: Inventor, abstain: bool):
+    w, h = c.logical
+    n = 3
+    names = []
+    while len(names) < n:
+        p = inv.person()
+        if p not in names:
+            names.append(p)
+    subjects = rng.sample(("Your invoice is ready", "Schedule for next week", "Photos from the trip",
+                           "Question about the draft", "Updated agenda", "Shipping confirmation",
+                           "Draft budget attached", "Venue options"), n)
+    unread = [rng.random() < 0.5 for _ in range(n)]
+    unread[rng.randrange(n)] = True
+    cnt = sum(unread)
+    minute = rng.randint(8 * 60, 19 * 60)
+    times = []
+    for _ in range(n):
+        times.append(f"{minute // 60:02d}:{minute % 60:02d}")
+        minute -= rng.randint(9, 80)
+    c.rect(0, 0, w, h, fill=(22, 22, 26), radius=14)
+    c.rect(22, 20, w - 22, h - 56, fill="bg")
+    c.rect(0, h - 44, w, h, fill=(70, 70, 76))
+    c.rect(w / 2 - 50, h - 44, w / 2 + 50, h - 34, fill=(48, 48, 52), radius=4)
+    c.rect(22, 20, w - 22, 68, fill="surface")
+    c.text(40, 34, f"{inv.brand()} Mail", size=16, color="accent")
+    c.text_right(w - 96, 38, "Unread", size=12, color="muted")
+    c.rect(w - 84, 31, w - 40, 59, fill="accent", radius=14)
+    c.text_center(w - 62, 36, str(cnt), size=15, color="accent_fg", field="unread", kind="number",
+                  value=str(cnt))
+    y = 84
+    for i in range(n):
+        c.text(40, y, names[i], size=14, color="fg" if unread[i] else "muted", field=f"sender_{i}",
+               value=names[i])
+        c.text_right(w - 40, y + 1, time_12h(times[i]), size=12, color="muted",
+                     field=f"time_{i}", kind="time", value=times[i])
+        c.text(40, y + 24, subjects[i], size=13, field=f"subject_{i}", value=subjects[i])
+        c.line(40, y + 56, w - 40, y + 56, color="grid")
+        y += 70
+    ia, ib, ic = rng.sample(range(n), 3)
+    qs = [
+        Question("q_unread", "count", "How many unread emails does the badge show?", str(cnt),
+                 canon="number", fields=["unread"]),
+        Question("q_from", "who_said", f'Who sent the email with the subject "{subjects[ia]}"?',
+                 names[ia], fields=[f"subject_{ia}", f"sender_{ia}"]),
+        Question("q_time", "lookup", f"At what time was the email from {names[ib]} received?",
+                 times[ib], canon="time", fields=[f"sender_{ib}", f"time_{ib}"]),
+    ]
+    _tail(c, rng, abstain, qs,
+          Question("q_subject", "lookup", f"What is the subject of the email from {names[ic]}?",
+                   subjects[ic], fields=[f"sender_{ic}", f"subject_{ic}"]),
+          f"subject_{ic}", ("q_attach", "What is the name of the attached file?", "attachment",
+                            inv.code(3, 3) + ".pdf", "text"))
+    qs.append(_reading("screen"))
+    return qs, {"unread": cnt, "emails": [{"sender": names[i], "subject": subjects[i],
+                                           "time": times[i], "unread": unread[i]}
+                                          for i in range(n)]}
+
+
+def _ticket(c: Canvas, rng: random.Random, inv: Inventor, abstain: bool):
+    w, h = c.logical
+    ev = _event(rng, inv, "flyer")
+    band = rng.choice(BANDS[c.theme])
+    row, seat = rng.choice("ABCDEFGH"), rng.randint(1, 40)
+    num = inv.code(2, 7)
+    c.rect(8, 8, w - 8, h - 8, fill="surface", outline=band, radius=14, width=3)
+    c.rect(8, 8, 18, h - 8, fill=band)
+    for k in range(10):                    # perforation between the ticket and its stub
+        c.ellipse(398, 20 + k * 21, 404, 26 + k * 21, fill="bg")
+    ts = _fit(c, ev["title"], 28, 340, bold=True, lo=16)
+    c.text(40, 28, ev["title"], size=ts, bold=True, field="title")
+    c.text(40, 76, ev["date_text"], size=_fit(c, ev["date_text"], 18, 340, bold=True),
+           field="date", kind="date", value=ev["date"])
+    c.text(40, 108, ev["time_text"], size=_fit(c, ev["time_text"], 16, 340), field="time",
+           kind="time", value=ev["start"])
+    c.text(40, 142, ev["venue"], size=_fit(c, ev["venue"], 16, 340), field="venue")
+    c.text(40, 190, f"Ticket {num}", size=12, color="muted", field="number", value=num)
+    c.text(420, 36, "ROW", size=11, color="muted")
+    c.text(420, 52, row, size=30, bold=True, color=band, field="row", value=row)
+    c.text(420, 108, "SEAT", size=11, color="muted")
+    c.text(420, 124, str(seat), size=30, bold=True, color=band, field="seat", kind="number",
+           value=str(seat))
+    c.text(420, 184, money_str(ev["price"]), size=16, field="price", kind="money",
+           value=f"{ev['price']:.2f}")
+    qs = [
+        Question("q_title", "event", "What is the name of the event on the ticket?", ev["title"],
+                 fields=["title"]),
+        Question("q_date", "event", "On what date is the event? Give the date.", ev["date"],
+                 canon="date", fields=["date"]),
+        Question("q_row", "lookup", "Which row letter is printed on the ticket?", row,
+                 fields=["row"]),
+    ]
+    _tail(c, rng, abstain, qs,
+          Question("q_seat", "lookup", "Which seat number is printed on the ticket?", str(seat),
+                   canon="number", fields=["seat"]),
+          "seat", ("q_gate", "Which gate is printed on the ticket?", "gate",
+                   f"{rng.choice('ABCD')}{rng.randint(1, 12)}", "text"))
+    qs.append(_reading("ticket"))
+    return qs, {"title": ev["title"], "date": ev["date"], "time": ev["start"], "venue": ev["venue"],
+                "row": row, "seat": seat, "number": num, "price": ev["price"]}
+
+
 # ------------------------------------------------------------------ the photograph
 
 def _solve(a: list[list[float]], b: list[float]) -> list[float]:
@@ -350,14 +651,14 @@ def _glare(img: Image.Image, rng: random.Random, avoid: list) -> tuple[Image.Ima
                  "soft": round(soft, 2)}
 
 
-def _photograph(c: Canvas, rng: random.Random, level: int) -> tuple[Image.Image, dict]:
+def _photograph(c: Canvas, rng: random.Random, level: int, tilt: float = 1.0) -> tuple[Image.Image, dict]:
     pw, ph = c.size
     size = (round(pw * PHOTO_MARGIN), round(ph * PHOTO_MARGIN))
     W, H = size
     bg = _background(rng, size)
     mx = (W - pw) / 2 + rng.uniform(-0.03, 0.03) * pw
     my = (H - ph) / 2 + rng.uniform(-0.03, 0.03) * ph
-    j = 0.035 * min(pw, ph)
+    j = 0.035 * min(pw, ph) * tilt
     src = [(0, 0), (pw, 0), (pw, ph), (0, ph)]
     dst = [(mx + x + rng.uniform(-j, j), my + y + rng.uniform(-j, j)) for x, y in src]
     shadow = Image.new("L", size, 0)

@@ -2,8 +2,12 @@
 
 Seven templates (expenses, inventory, roster, orders, grades, timesheet, sales) share one
 drawing engine and differ in columns; formulas are shown as their values and an optional totals
-row is drawn. Every cell is a planted field named like its address (``C7``).
-Question types: cell, sum, max or min, count (and the reading).
+row is drawn. Every cell is a planted field named like its address (``C7``). Some sheets have
+frozen headers (the header row and the label column are set off by a heavy rule), and every
+sheet highlights one data row or one cell in yellow ("which row is highlighted?" is answered
+with its row number, "which cell is highlighted?" with its reference). A toolbar of labelled
+buttons (Bold, Italic, Sort, Filter, Sum, Chart) and the Sheet1 tab are recorded as elements.
+Question types: cell, sum, max or min, count, lookup (highlight) (and the reading).
 
 Seven templates keep every template reachable in each theme, scale and abstention slot (the
 generator picks template = index % len(TEMPLATES)).
@@ -43,8 +47,9 @@ SPECS = {
                                  ("Quarter", "cat", ("Q1", "Q2", "Q3", "Q4"))]),
 }
 TEMPLATES = tuple(SPECS)
-LOGICAL_SIZES = {t: (1000, 720) for t in TEMPLATES}
-ROW_H, TOP = 28, 64
+LOGICAL_SIZES = {t: (1000, 780) for t in TEMPLATES}
+ROW_H, TOP = 28, 104
+HIGHLIGHT = {"light": (255, 232, 140), "dark": (96, 78, 10)}
 
 
 def render(rng: random.Random, *, template: str, theme: str, scale: float,
@@ -154,12 +159,22 @@ def _sheet(rng, template, theme, scale, abstain):
     ncell_rows = n + 1 + (1 if totals else 0)
 
     c.rect(0, 0, w, 40, fill="surface")
-    c.rect(10, 7, 70, 33, fill="bg", outline="border", radius=4)
-    c.text(22, 13, "A1", size=13, color="muted")
-    c.text(88, 13, "fx", size=13, color="muted")
-    c.rect(0, 40, w, TOP, fill="surface")
+    bx = 12
+    for tb_label in ("Bold", "Italic", "Sort", "Filter", "Sum", "Chart"):
+        bw = max(52.0, c.text_width(tb_label, 12) + 24)
+        c.rect(bx, 7, bx + bw, 33, fill="bg", outline="border", radius=6)
+        c.text_center(bx + bw / 2, 20, tb_label, size=12, anchor="lm")
+        c.element(tb_label, bx, 7, bx + bw, 33, role="button")
+        bx += bw + 8
+    c.rect(0, 40, w, 80, fill="bg")
+    c.line(0, 79, w, 79, color="grid")
+    c.rect(10, 47, 70, 73, fill="bg", outline="border", radius=4)
+    c.text(22, 53, "A1", size=13, color="muted")
+    c.text(88, 53, "fx", size=13, color="muted")
+    c.rect(0, 80, w, TOP, fill="surface")
     for j in range(nc):
-        c.text_center((xs[j] + xs[j + 1]) / 2, 45, letters[j], size=12, color="muted")
+        c.text_center((xs[j] + xs[j + 1]) / 2, 85, letters[j], size=12, color="muted",
+                      field=f"col_{j}", value=letters[j])
 
     def row_chrome(r, y, band):
         if band:
@@ -168,13 +183,19 @@ def _sheet(rng, template, theme, scale, abstain):
         c.line(0, y + ROW_H, xs[-1], y + ROW_H, color="grid")
         for x in xs:
             c.line(x, y, x, y + ROW_H, color="grid")
-        c.text_center(22, y + 8, str(r), size=11, color="muted")
+        c.text_center(22, y + 8, str(r), size=11, color="muted", field=f"rn_{r}", kind="number",
+                      value=str(r))
 
     def put(j, y, text, dk, **kw):
         if dk in ("int", "money"):
             return c.text_right(xs[j + 1] - 14, y + 7, text, size=13, **kw)
         return c.text(xs[j] + 14, y + 7, text, size=13, **kw)
 
+    frozen = rng.random() < 0.6
+    hl_cell = rng.random() < 0.4
+    hr_row = rng.randrange(n)
+    hc_col = rng.randrange(nc)
+    hl = HIGHLIGHT[theme]
     y = TOP
     row_chrome(1, y, True)
     for j, k in enumerate(cols):
@@ -182,6 +203,12 @@ def _sheet(rng, template, theme, scale, abstain):
     for r in range(n):
         y = TOP + (r + 1) * ROW_H
         row_chrome(r + 2, y, r % 2 == 1)
+        if r == hr_row:
+            if hl_cell:
+                c.rect(xs[hc_col] + 1, y + 1, xs[hc_col + 1], y + ROW_H, fill=hl)
+                c.rect(xs[hc_col] + 1, y + 1, xs[hc_col + 1], y + ROW_H, outline="accent", width=2)
+            else:
+                c.rect(45, y + 1, xs[-1], y + ROW_H, fill=hl)
         for j, k in enumerate(cols):
             txt, val = cells[r][j]
             put(j, y, txt, k["kind"], field=f"{letters[j]}{r + 2}",
@@ -195,7 +222,11 @@ def _sheet(rng, template, theme, scale, abstain):
             if k["kind"] in ("int", "money"):
                 txt, val = _fmt(k["kind"], sum(k["vals"]))
                 put(j, y, txt, k["kind"], field=f"tot_{letters[j]}", kind=k["kind"], value=val)
+    if frozen:
+        c.line(0, TOP + ROW_H, xs[-1], TOP + ROW_H, color="muted", width=2)
+        c.line(xs[1], TOP, xs[1], TOP + ncell_rows * ROW_H, color="muted", width=2)
     c.text(16, h - 28, "Sheet1", size=12, color="muted")
+    c.element("Sheet1", 8, h - 34, 84, h - 6, role="tab")
 
     # ---- questions
     def cell_name(j, r):
@@ -220,19 +251,31 @@ def _sheet(rng, template, theme, scale, abstain):
     metric_h = cols[met]["head"]
     mq = (f"Which {cols[label]['head']} has the {'highest' if mode == 'max' else 'lowest'} "
           f"{metric_h}?")
+    use_extreme = rng.random() < 0.5
+    q_extreme = Question("q_extreme", mode, mq, cols[label]["vals"][win],
+                         fields=[cell_name(met, r) for r in range(n)] + [cell_name(label, win)])
+    q_count = Question("q_count", "count", cq, str(cnt), canon="number",
+                       fields=[cell_name(j_cnt, r) for r in range(n)])
+    rows_f = [f"rn_{r}" for r in range(n + 2)]
+    if hl_cell:
+        ref = f"{letters[hc_col]}{hr_row + 2}"
+        q_hl = Question("q_highlight", "lookup", "Which cell is highlighted in yellow? Give its "
+                        "cell reference, such as B4.", ref,
+                        fields=[f"col_{j}" for j in range(nc)] + [f"rn_{hr_row + 2}"])
+    else:
+        q_hl = Question("q_highlight", "lookup", "Which row is highlighted in yellow? Give its "
+                        "row number.", str(hr_row + 2), canon="number", fields=[f"rn_{hr_row + 2}"])
     qs = [
         Question("q_sum", "sum", f"What is the total of column {letters[j_sum]}?",
                  f"{total / 100:.2f}" if sum_money else str(total),
                  canon="money" if sum_money else "number",
                  fields=[cell_name(j_sum, r) for r in range(n)]),
-        Question("q_extreme", mode, mq, cols[label]["vals"][win],
-                 fields=[cell_name(met, r) for r in range(n)] + [cell_name(label, win)]),
-        Question("q_count", "count", cq, str(cnt), canon="number",
-                 fields=[cell_name(j_cnt, r) for r in range(n)]),
+        q_extreme if use_extreme else q_count,
+        q_hl,
     ]
-    busy = {j_sum, met, j_cnt}
+    busy = {j_sum} | ({met} if use_extreme else {j_cnt})
     free = [(j, r) for j in range(nc) for r in range(n)
-            if j not in busy and not (j == label and r == win)]
+            if j not in busy and not (use_extreme and j == label and r == win)]
     if not free:
         free = [(j, r) for j in range(nc) for r in range(n) if j == label and r != win]
     jt, rt = rng.choice(free)

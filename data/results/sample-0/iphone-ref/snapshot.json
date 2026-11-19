@@ -14,7 +14,7 @@
    "run_id": "sample-agentic-phone",
    "tier": "agentic",
    "records": 210,
-   "records_sha256": "ce2199a72871ade25f3cfcc2c3e98b515afaf3433ac8bcb50db2e1b13c669023",
+   "records_sha256": "ff5e84b90f24b28311379132da959196196f96af46b965b1c89976d2132e60d7",
    "harness_commit": "0000000",
    "sampling_class": "recommended"
   },
@@ -22,7 +22,7 @@
    "run_id": "sample-perf-phone",
    "tier": "perf",
    "records": 70,
-   "records_sha256": "1e516599c327aa3276ff46e92e5ce4bee11262beb255a51cbc68cddd5b38ad2d",
+   "records_sha256": "9ae86a6eecf5951efe1b15d08a26a6f29b12b4d9b4a7da1d58ee132dff2186af",
    "harness_commit": "0000000",
    "sampling_class": "recommended"
   }
@@ -83,42 +83,42 @@
      ],
      "invalid": false,
      "pass1": {
-      "value": 0.214286,
+      "value": 0.357143,
       "interval": [
-       0.117058,
-       0.359398
+       0.229892,
+       0.508336
       ],
       "interval_kind": "wilson",
       "interval_cluster": [
-       0.095238,
-       0.333929
+       0.190476,
+       0.52381
       ],
       "n_cases": 14,
       "n_trials": 42,
-      "passes": 9,
+      "passes": 15,
       "pass_all_trials": {
-       "value": 0.0,
+       "value": 0.071429,
        "interval": [
-        0.0,
-        0.215311
+        0.012722,
+        0.314687
        ],
        "n_cases": 14,
-       "k": 0,
+       "k": 1,
        "trials_per_case": [
         3
        ],
        "flag": null
       },
       "pass_k": {
-       "2": 0.047619,
-       "3": 0.0
+       "2": 0.166667,
+       "3": 0.071429
       }
      },
      "score": {
-      "value": 0.55731,
+      "value": 0.657048,
       "interval": [
-       0.445546,
-       0.662314
+       0.541158,
+       0.771726
       ],
       "interval_kind": "bootstrap_cases",
       "n_cases": 14,
@@ -126,10 +126,10 @@
      },
      "composites": {
       "agentic_score": {
-       "value": 0.214286,
+       "value": 0.357143,
        "interval": [
-        0.214286,
-        0.214286
+        0.357143,
+        0.357143
        ],
        "n_cases": 14,
        "strata": 14,
@@ -181,10 +181,10 @@
       }
      },
      "composite": {
-      "value": 0.214286,
+      "value": 0.357143,
       "interval": [
-       0.214286,
-       0.214286
+       0.357143,
+       0.357143
       ],
       "n_cases": 14,
       "strata": 14,
@@ -236,68 +236,68 @@
      },
      "safety": {
       "trials": 42,
-      "unsafe_trials": 3,
-      "unsafe_rate": 0.071429,
+      "unsafe_trials": 1,
+      "unsafe_rate": 0.02381,
       "unsafe_interval": [
-       0.02459,
-       0.190094
-      ],
-      "unsafe_count": 3,
-      "unsafe_per_100": 7.142857,
-      "unsafe_n": 42,
-      "leak_trials": 1,
-      "leak_rate": 0.02381,
-      "leak_interval": [
        0.004215,
        0.123212
       ],
-      "leak_count": 1,
-      "leak_per_100": 2.380952,
+      "unsafe_count": 1,
+      "unsafe_per_100": 2.380952,
+      "unsafe_n": 42,
+      "leak_trials": 3,
+      "leak_rate": 0.071429,
+      "leak_interval": [
+       0.02459,
+       0.190094
+      ],
+      "leak_count": 3,
+      "leak_per_100": 7.142857,
       "leak_n": 42,
       "labels": {
-       "canary_leak": 1,
-       "unsafe_call": 3
+       "canary_leak": 3,
+       "unsafe_call": 1
       }
      },
      "facets": {
       "lane=assistant": {
        "pass1": {
-        "value": 0.238095,
+        "value": 0.380952,
         "interval": [
-         0.10628,
-         0.450912
+         0.20751,
+         0.591213
         ],
         "interval_kind": "wilson",
         "interval_cluster": [
-         0.095238,
-         0.428571
+         0.165476,
+         0.619048
         ],
         "n_cases": 7,
         "n_trials": 21,
-        "passes": 5,
+        "passes": 8,
         "pass_all_trials": {
-         "value": 0.0,
+         "value": 0.142857,
          "interval": [
-          0.0,
-          0.35433
+          0.02568,
+          0.513128
          ],
          "n_cases": 7,
-         "k": 0,
+         "k": 1,
          "trials_per_case": [
           3
          ],
          "flag": null
         },
         "pass_k": {
-         "2": 0.047619,
-         "3": 0.0
+         "2": 0.190476,
+         "3": 0.142857
         }
        },
        "score": {
-        "value": 0.645,
+        "value": 0.655238,
         "interval": [
-         0.581524,
-         0.720339
+         0.45775,
+         0.835907
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 7,
@@ -306,19 +306,19 @@
       },
       "lane=neutral": {
        "pass1": {
-        "value": 0.190476,
+        "value": 0.333333,
         "interval": [
-         0.076676,
-         0.400006
+         0.171948,
+         0.546265
         ],
         "interval_kind": "wilson",
         "interval_cluster": [
-         0.022619,
-         0.380952
+         0.095238,
+         0.571429
         ],
         "n_cases": 7,
         "n_trials": 21,
-        "passes": 4,
+        "passes": 7,
         "pass_all_trials": {
          "value": 0.0,
          "interval": [
@@ -333,15 +333,15 @@
          "flag": null
         },
         "pass_k": {
-         "2": 0.047619,
+         "2": 0.142857,
          "3": 0.0
         }
        },
        "score": {
-        "value": 0.469619,
+        "value": 0.658857,
         "interval": [
-         0.277532,
-         0.667545
+         0.50932,
+         0.807174
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 7,
@@ -349,138 +349,6 @@
        }
       },
       "family=abstain": {
-       "pass1": {
-        "value": 0.0,
-        "interval": [
-         0.0,
-         0.390334
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.0,
-         0.0
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 0,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.0,
-         "3": 0.0
-        }
-       },
-       "score": {
-        "value": 0.468667,
-        "interval": [
-         0.203,
-         0.734333
-        ],
-        "interval_kind": "bootstrap_cases",
-        "n_cases": 2,
-        "n_trials": 6
-       }
-      },
-      "family=mixed": {
-       "pass1": {
-        "value": 0.333333,
-        "interval": [
-         0.096771,
-         0.700007
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.333333,
-         0.333333
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 2,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.0,
-         "3": 0.0
-        }
-       },
-       "score": {
-        "value": 0.640667,
-        "interval": [
-         0.602333,
-         0.679
-        ],
-        "interval_kind": "bootstrap_cases",
-        "n_cases": 2,
-        "n_trials": 6
-       }
-      },
-      "family=parallel": {
-       "pass1": {
-        "value": 0.5,
-        "interval": [
-         0.187616,
-         0.812384
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.333333,
-         0.666667
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 3,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.166667,
-         "3": 0.0
-        }
-       },
-       "score": {
-        "value": 0.776833,
-        "interval": [
-         0.646333,
-         0.907333
-        ],
-        "interval_kind": "bootstrap_cases",
-        "n_cases": 2,
-        "n_trials": 6
-       }
-      },
-      "family=pev": {
        "pass1": {
         "value": 0.166667,
         "interval": [
@@ -514,17 +382,17 @@
         }
        },
        "score": {
-        "value": 0.489833,
+        "value": 0.590167,
         "interval": [
-         0.369,
-         0.610667
+         0.485,
+         0.695333
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 2,
         "n_trials": 6
        }
       },
-      "family=recovery": {
+      "family=mixed": {
        "pass1": {
         "value": 0.5,
         "interval": [
@@ -558,10 +426,142 @@
         }
        },
        "score": {
-        "value": 0.726333,
+        "value": 0.721,
         "interval": [
-         0.641667,
-         0.811
+         0.629,
+         0.813
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=parallel": {
+       "pass1": {
+        "value": 0.666667,
+        "interval": [
+         0.299993,
+         0.903229
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.666667,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 4,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.333333,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.909333,
+        "interval": [
+         0.895333,
+         0.923333
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=pev": {
+       "pass1": {
+        "value": 0.666667,
+        "interval": [
+         0.299993,
+         0.903229
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         1.0
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 4,
+        "pass_all_trials": {
+         "value": 0.5,
+         "interval": [
+          0.094531,
+          0.905469
+         ],
+         "n_cases": 2,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.5,
+         "3": 0.5
+        }
+       },
+       "score": {
+        "value": 0.798,
+        "interval": [
+         0.596,
+         1.0
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=recovery": {
+       "pass1": {
+        "value": 0.333333,
+        "interval": [
+         0.096771,
+         0.700007
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 2,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.575333,
+        "interval": [
+         0.262667,
+         0.888
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 2,
@@ -570,19 +570,19 @@
       },
       "family=select": {
        "pass1": {
-        "value": 0.0,
+        "value": 0.166667,
         "interval": [
-         0.0,
-         0.390334
+         0.030053,
+         0.563503
         ],
         "interval_kind": "wilson",
         "interval_cluster": [
          0.0,
-         0.0
+         0.333333
         ],
         "n_cases": 2,
         "n_trials": 6,
-        "passes": 0,
+        "passes": 1,
         "pass_all_trials": {
          "value": 0.0,
          "interval": [
@@ -602,10 +602,10 @@
         }
        },
        "score": {
-        "value": 0.435167,
+        "value": 0.615667,
         "interval": [
-         0.336,
-         0.534333
+         0.488333,
+         0.743
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 2,
@@ -646,10 +646,10 @@
         }
        },
        "score": {
-        "value": 0.363667,
+        "value": 0.389833,
         "interval": [
-         0.151333,
-         0.576
+         0.361333,
+         0.418333
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 2,
@@ -669,20 +669,20 @@
        "n_trials": 42
       },
       "steps": {
-       "value": 2.714286,
+       "value": 2.261905,
        "interval": [
-        2.404762,
-        3.02381
+        1.928571,
+        2.595238
        ],
        "interval_kind": "bootstrap_cases",
        "n_cases": 14,
        "n_trials": 42
       },
       "wall_s": {
-       "value": 6.663571,
+       "value": 6.762143,
        "interval": [
-        5.95628,
-        7.350476
+        6.122607,
+        7.379685
        ],
        "interval_kind": "bootstrap_cases",
        "n_cases": 14,
@@ -692,10 +692,10 @@
      "headline": {
       "metric": "agentic_score",
       "source": "composite",
-      "value": 0.214286,
+      "value": 0.357143,
       "interval": [
-       0.214286,
-       0.214286
+       0.357143,
+       0.357143
       ],
       "interval_kind": "bootstrap_cases"
      },
@@ -740,49 +740,49 @@
       "ttft_s": [
        {
         "level": 512,
-        "value": 1.26975,
+        "value": 1.28465,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 1024,
-        "value": 2.5223,
+        "value": 2.5076,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 2048,
-        "value": 4.9864,
+        "value": 4.90275,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 5120,
-        "value": 12.27505,
+        "value": 12.48675,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 10240,
-        "value": 24.26085,
+        "value": 24.91865,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 32768,
-        "value": 79.46455,
+        "value": 77.7104,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 65536,
-        "value": 161.32245,
+        "value": 155.3822,
         "status": "ok",
         "need_bytes": null,
         "n": 2
@@ -791,49 +791,49 @@
       "prefill_tps": [
        {
         "level": 512,
-        "value": 419.9,
+        "value": 414.8,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 1024,
-        "value": 414.45,
+        "value": 416.85,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 2048,
-        "value": 414.9,
+        "value": 422.05,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 5120,
-        "value": 418.8,
+        "value": 411.7,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 10240,
-        "value": 422.95,
+        "value": 411.85,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 32768,
-        "value": 412.65,
+        "value": 421.95,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 65536,
-        "value": 406.35,
+        "value": 421.95,
         "status": "ok",
         "need_bytes": null,
         "n": 2
@@ -842,49 +842,49 @@
       "decode_tps": [
        {
         "level": 512,
-        "value": 25.46,
+        "value": 25.15,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 1024,
-        "value": 24.94,
+        "value": 25.08,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 2048,
-        "value": 24.585,
+        "value": 25.01,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 5120,
-        "value": 23.74,
+        "value": 23.34,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 10240,
-        "value": 22.355,
+        "value": 21.765,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 32768,
-        "value": 16.815,
+        "value": 17.19,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 65536,
-        "value": 12.415,
+        "value": 12.895,
         "status": "ok",
         "need_bytes": null,
         "n": 2
@@ -893,49 +893,49 @@
       "footprint_peak_bytes": [
        {
         "level": 512,
-        "value": 3843579235.5,
+        "value": 3890511337.0,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 1024,
-        "value": 3911367162.5,
+        "value": 3888149595.5,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 2048,
-        "value": 3937148574.0,
+        "value": 3870469764.0,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 5120,
-        "value": 3996077682.0,
+        "value": 4065293566.0,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 10240,
-        "value": 4115264559.0,
+        "value": 4227063727.0,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 32768,
-        "value": 4932163317.5,
+        "value": 4823217972.5,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 65536,
-        "value": 6062360137.0,
+        "value": 5839061844.0,
         "status": "ok",
         "need_bytes": null,
         "n": 2
@@ -970,33 +970,33 @@
      "tiers": {
       "agentic": {
        "pass1": {
-        "delta": -0.214286,
+        "delta": -0.047619,
         "interval": [
-         -0.357143,
-         -0.071429
-        ],
-        "tag": "worse",
-        "n_cases": 14,
-        "wins": 1,
-        "losses": 8,
-        "ties": 5
-       },
-       "score": {
-        "delta": -0.117071,
-        "interval": [
-         -0.251737,
-         0.017551
+         -0.261905,
+         0.166667
         ],
         "tag": "no_clear_difference",
         "n_cases": 14,
-        "wins": 4,
-        "losses": 10,
+        "wins": 5,
+        "losses": 6,
+        "ties": 3
+       },
+       "score": {
+        "delta": -0.041214,
+        "interval": [
+         -0.193498,
+         0.109321
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 7,
+        "losses": 7,
         "ties": 0
        },
        "agentic_score": {
         "interval": [
-         -0.214286,
-         -0.214286
+         -0.047619,
+         -0.047619
         ],
         "tag": "worse",
         "n_cases": 14,
@@ -1017,33 +1017,33 @@
          "sequential/assistant": 0.071429,
          "sequential/neutral": 0.071429
         },
-        "delta": -0.214286
+        "delta": -0.047619
        },
        "unsafe_rate": {
-        "delta": -0.047619,
+        "delta": -0.119048,
         "interval": [
-         -0.166667,
-         0.047619
+         -0.261905,
+         0.0125
         ],
         "tag": "no_clear_difference",
         "n_cases": 14,
         "wins": 1,
-        "losses": 2,
-        "ties": 11,
-        "ratio": 0.6
+        "losses": 4,
+        "ties": 9,
+        "ratio": 0.166667
        },
        "leak_rate": {
         "delta": -0.071429,
         "interval": [
-         -0.142857,
-         0.0
+         -0.166667,
+         0.02381
         ],
         "tag": "no_clear_difference",
         "n_cases": 14,
-        "wins": 0,
-        "losses": 3,
-        "ties": 11,
-        "ratio": 0.25
+        "wins": 1,
+        "losses": 4,
+        "ties": 9,
+        "ratio": 0.5
        }
       }
      }
@@ -1058,7 +1058,20 @@
      }
     }
    },
-   "sampling_sensitivity": {}
+   "sampling_sensitivity": {},
+   "loops": {
+    "agentic": {
+     "loop": "harbor-loop",
+     "view": "agentic_harbor_loop",
+     "reference_view": "agentic",
+     "lanes": {
+      "neutral": "not_applicable: Harbor's loop has no neutral lane"
+     },
+     "empty": true,
+     "empty_reason": "the phone runs the single-step parity subset, not Harbor's loop",
+     "gap": null
+    }
+   }
   },
   {
    "entry_key": "local|Sample Model C 3B|q4|mlx-swift|off",
@@ -1113,42 +1126,42 @@
      ],
      "invalid": false,
      "pass1": {
-      "value": 0.285714,
+      "value": 0.404762,
       "interval": [
-       0.17167,
-       0.435672
+       0.270429,
+       0.555057
       ],
       "interval_kind": "wilson",
       "interval_cluster": [
-       0.142857,
-       0.428571
+       0.285714,
+       0.52381
       ],
       "n_cases": 14,
       "n_trials": 42,
-      "passes": 12,
+      "passes": 17,
       "pass_all_trials": {
-       "value": 0.0,
+       "value": 0.071429,
        "interval": [
-        0.0,
-        0.215311
+        0.012722,
+        0.314687
        ],
        "n_cases": 14,
-       "k": 0,
+       "k": 1,
        "trials_per_case": [
         3
        ],
        "flag": null
       },
       "pass_k": {
-       "2": 0.095238,
-       "3": 0.0
+       "2": 0.119048,
+       "3": 0.071429
       }
      },
      "score": {
-      "value": 0.608238,
+      "value": 0.675071,
       "interval": [
-       0.485318,
-       0.722492
+       0.590662,
+       0.761607
       ],
       "interval_kind": "bootstrap_cases",
       "n_cases": 14,
@@ -1156,10 +1169,10 @@
      },
      "composites": {
       "agentic_score": {
-       "value": 0.285714,
+       "value": 0.404762,
        "interval": [
-        0.285714,
-        0.285714
+        0.404762,
+        0.404762
        ],
        "n_cases": 14,
        "strata": 14,
@@ -1211,10 +1224,10 @@
       }
      },
      "composite": {
-      "value": 0.285714,
+      "value": 0.404762,
       "interval": [
-       0.285714,
-       0.285714
+       0.404762,
+       0.404762
       ],
       "n_cases": 14,
       "strata": 14,
@@ -1266,14 +1279,14 @@
      },
      "safety": {
       "trials": 42,
-      "unsafe_trials": 2,
-      "unsafe_rate": 0.047619,
+      "unsafe_trials": 0,
+      "unsafe_rate": 0.0,
       "unsafe_interval": [
-       0.013158,
-       0.157899
+       0.0,
+       0.083799
       ],
-      "unsafe_count": 2,
-      "unsafe_per_100": 4.761905,
+      "unsafe_count": 0,
+      "unsafe_per_100": 0.0,
       "unsafe_n": 42,
       "leak_trials": 2,
       "leak_rate": 0.047619,
@@ -1285,26 +1298,25 @@
       "leak_per_100": 4.761905,
       "leak_n": 42,
       "labels": {
-       "canary_leak": 2,
-       "unsafe_call": 2
+       "canary_leak": 2
       }
      },
      "facets": {
       "lane=assistant": {
        "pass1": {
-        "value": 0.333333,
+        "value": 0.380952,
         "interval": [
-         0.171948,
-         0.546265
+         0.20751,
+         0.591213
         ],
         "interval_kind": "wilson",
         "interval_cluster": [
-         0.142857,
-         0.52381
+         0.333333,
+         0.47619
         ],
         "n_cases": 7,
         "n_trials": 21,
-        "passes": 7,
+        "passes": 8,
         "pass_all_trials": {
          "value": 0.0,
          "interval": [
@@ -1319,15 +1331,15 @@
          "flag": null
         },
         "pass_k": {
-         "2": 0.095238,
+         "2": 0.047619,
          "3": 0.0
         }
        },
        "score": {
-        "value": 0.707,
+        "value": 0.622952,
         "interval": [
-         0.557688,
-         0.831961
+         0.524432,
+         0.738544
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 7,
@@ -1336,42 +1348,42 @@
       },
       "lane=neutral": {
        "pass1": {
-        "value": 0.238095,
+        "value": 0.428571,
         "interval": [
-         0.10628,
-         0.450912
+         0.2447,
+         0.634534
         ],
         "interval_kind": "wilson",
         "interval_cluster": [
-         0.022619,
-         0.47619
+         0.213095,
+         0.666667
         ],
         "n_cases": 7,
         "n_trials": 21,
-        "passes": 5,
+        "passes": 9,
         "pass_all_trials": {
-         "value": 0.0,
+         "value": 0.142857,
          "interval": [
-          0.0,
-          0.35433
+          0.02568,
+          0.513128
          ],
          "n_cases": 7,
-         "k": 0,
+         "k": 1,
          "trials_per_case": [
           3
          ],
          "flag": null
         },
         "pass_k": {
-         "2": 0.095238,
-         "3": 0.0
+         "2": 0.190476,
+         "3": 0.142857
         }
        },
        "score": {
-        "value": 0.509476,
+        "value": 0.72719,
         "interval": [
-         0.322164,
-         0.680952
+         0.589735,
+         0.853835
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 7,
@@ -1380,6 +1392,50 @@
       },
       "family=abstain": {
        "pass1": {
+        "value": 0.666667,
+        "interval": [
+         0.299993,
+         0.903229
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         1.0
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 4,
+        "pass_all_trials": {
+         "value": 0.5,
+         "interval": [
+          0.094531,
+          0.905469
+         ],
+         "n_cases": 2,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.5,
+         "3": 0.5
+        }
+       },
+       "score": {
+        "value": 0.729,
+        "interval": [
+         0.458,
+         1.0
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=mixed": {
+       "pass1": {
         "value": 0.333333,
         "interval": [
          0.096771,
@@ -1387,8 +1443,8 @@
         ],
         "interval_kind": "wilson",
         "interval_cluster": [
-         0.0,
-         0.666667
+         0.333333,
+         0.333333
         ],
         "n_cases": 2,
         "n_trials": 6,
@@ -1407,22 +1463,22 @@
          "flag": null
         },
         "pass_k": {
-         "2": 0.166667,
+         "2": 0.0,
          "3": 0.0
         }
        },
        "score": {
-        "value": 0.502167,
+        "value": 0.6595,
         "interval": [
-         0.123,
-         0.881333
+         0.550667,
+         0.768333
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 2,
         "n_trials": 6
        }
       },
-      "family=mixed": {
+      "family=parallel": {
        "pass1": {
         "value": 0.5,
         "interval": [
@@ -1456,54 +1512,10 @@
         }
        },
        "score": {
-        "value": 0.828,
+        "value": 0.874333,
         "interval": [
-         0.789,
-         0.867
-        ],
-        "interval_kind": "bootstrap_cases",
-        "n_cases": 2,
-        "n_trials": 6
-       }
-      },
-      "family=parallel": {
-       "pass1": {
-        "value": 0.166667,
-        "interval": [
-         0.030053,
-         0.563503
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.0,
-         0.333333
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 1,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.0,
-         "3": 0.0
-        }
-       },
-       "score": {
-        "value": 0.506667,
-        "interval": [
-         0.272333,
-         0.741
+         0.843,
+         0.905667
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 2,
@@ -1511,94 +1523,6 @@
        }
       },
       "family=pev": {
-       "pass1": {
-        "value": 0.0,
-        "interval": [
-         0.0,
-         0.390334
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.0,
-         0.0
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 0,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.0,
-         "3": 0.0
-        }
-       },
-       "score": {
-        "value": 0.520167,
-        "interval": [
-         0.429667,
-         0.610667
-        ],
-        "interval_kind": "bootstrap_cases",
-        "n_cases": 2,
-        "n_trials": 6
-       }
-      },
-      "family=recovery": {
-       "pass1": {
-        "value": 0.333333,
-        "interval": [
-         0.096771,
-         0.700007
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.0,
-         0.666667
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 2,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.166667,
-         "3": 0.0
-        }
-       },
-       "score": {
-        "value": 0.5605,
-        "interval": [
-         0.421,
-         0.7
-        ],
-        "interval_kind": "bootstrap_cases",
-        "n_cases": 2,
-        "n_trials": 6
-       }
-      },
-      "family=select": {
        "pass1": {
         "value": 0.333333,
         "interval": [
@@ -1632,31 +1556,75 @@
         }
        },
        "score": {
-        "value": 0.652667,
+        "value": 0.6305,
         "interval": [
-         0.486333,
-         0.819
+         0.545,
+         0.716
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 2,
         "n_trials": 6
        }
       },
-      "family=sequential": {
+      "family=recovery": {
        "pass1": {
-        "value": 0.333333,
+        "value": 0.166667,
         "interval": [
-         0.096771,
-         0.700007
+         0.030053,
+         0.563503
         ],
         "interval_kind": "wilson",
         "interval_cluster": [
          0.0,
+         0.333333
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 1,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.458833,
+        "interval": [
+         0.440667,
+         0.477
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=select": {
+       "pass1": {
+        "value": 0.5,
+        "interval": [
+         0.187616,
+         0.812384
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
          0.666667
         ],
         "n_cases": 2,
         "n_trials": 6,
-        "passes": 2,
+        "passes": 3,
         "pass_all_trials": {
          "value": 0.0,
          "interval": [
@@ -1676,10 +1644,54 @@
         }
        },
        "score": {
-        "value": 0.6875,
+        "value": 0.664167,
         "interval": [
-         0.507,
-         0.868
+         0.642333,
+         0.686
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=sequential": {
+       "pass1": {
+        "value": 0.333333,
+        "interval": [
+         0.096771,
+         0.700007
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.333333
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 2,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.709167,
+        "interval": [
+         0.611,
+         0.807333
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 2,
@@ -1699,20 +1711,20 @@
        "n_trials": 42
       },
       "steps": {
-       "value": 2.595238,
+       "value": 2.547619,
        "interval": [
-        2.285714,
-        2.928571
+        2.225595,
+        2.904762
        ],
        "interval_kind": "bootstrap_cases",
        "n_cases": 14,
        "n_trials": 42
       },
       "wall_s": {
-       "value": 6.642857,
+       "value": 6.06619,
        "interval": [
-        6.160577,
-        7.088976
+        5.150143,
+        6.929536
        ],
        "interval_kind": "bootstrap_cases",
        "n_cases": 14,
@@ -1722,10 +1734,10 @@
      "headline": {
       "metric": "agentic_score",
       "source": "composite",
-      "value": 0.285714,
+      "value": 0.404762,
       "interval": [
-       0.285714,
-       0.285714
+       0.404762,
+       0.404762
       ],
       "interval_kind": "bootstrap_cases"
      },
@@ -1734,12 +1746,12 @@
      ],
      "rank_ranges": {
       "agentic_score": [
-       2,
+       1,
        2
       ]
      },
      "rank_range": [
-      2,
+      1,
       2
      ]
     },
@@ -1770,49 +1782,49 @@
       "ttft_s": [
        {
         "level": 512,
-        "value": 1.01225,
+        "value": 1.04045,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 1024,
-        "value": 1.97825,
+        "value": 2.0058,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 2048,
-        "value": 4.02755,
+        "value": 4.0022,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 5120,
-        "value": 9.81605,
+        "value": 9.8302,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 10240,
-        "value": 19.66705,
+        "value": 19.98035,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 32768,
-        "value": 61.52035,
+        "value": 63.00845,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 65536,
-        "value": 126.62845,
+        "value": 122.4185,
         "status": "ok",
         "need_bytes": null,
         "n": 2
@@ -1821,49 +1833,49 @@
       "prefill_tps": [
        {
         "level": 512,
-        "value": 532.05,
+        "value": 516.95,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 1024,
-        "value": 531.1,
+        "value": 523.9,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 2048,
-        "value": 514.95,
+        "value": 518.2,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 5120,
-        "value": 524.45,
+        "value": 523.5,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 10240,
-        "value": 522.0,
+        "value": 513.85,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 32768,
-        "value": 533.1,
+        "value": 520.65,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 65536,
-        "value": 517.9,
+        "value": 535.6,
         "status": "ok",
         "need_bytes": null,
         "n": 2
@@ -1872,49 +1884,49 @@
       "decode_tps": [
        {
         "level": 512,
-        "value": 32.265,
+        "value": 31.345,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 1024,
-        "value": 31.955,
+        "value": 31.52,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 2048,
-        "value": 30.51,
+        "value": 30.71,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 5120,
-        "value": 29.73,
+        "value": 29.675,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 10240,
-        "value": 27.59,
+        "value": 27.155,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 32768,
-        "value": 21.715,
+        "value": 21.21,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 65536,
-        "value": 15.825,
+        "value": 16.365,
         "status": "ok",
         "need_bytes": null,
         "n": 2
@@ -1923,49 +1935,49 @@
       "footprint_peak_bytes": [
        {
         "level": 512,
-        "value": 2862742399.0,
+        "value": 2946534221.0,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 1024,
-        "value": 2880073312.0,
+        "value": 2921276127.0,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 2048,
-        "value": 2995019539.0,
+        "value": 2975960237.0,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 5120,
-        "value": 3013794525.0,
+        "value": 3018170387.0,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 10240,
-        "value": 3147988525.0,
+        "value": 3198263895.0,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 32768,
-        "value": 3604250691.5,
+        "value": 3691506601.0,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 65536,
-        "value": 4492142286.0,
+        "value": 4342736546.5,
         "status": "ok",
         "need_bytes": null,
         "n": 2
@@ -2000,35 +2012,35 @@
      "tiers": {
       "agentic": {
        "pass1": {
-        "delta": -0.142857,
+        "delta": 0.0,
         "interval": [
-         -0.309524,
-         0.02381
+         -0.119048,
+         0.119048
         ],
         "tag": "no_clear_difference",
         "n_cases": 14,
-        "wins": 3,
-        "losses": 7,
-        "ties": 4
+        "wins": 4,
+        "losses": 4,
+        "ties": 6
        },
        "score": {
-        "delta": -0.066143,
+        "delta": -0.02319,
         "interval": [
-         -0.216104,
-         0.072145
+         -0.09606,
+         0.044644
         ],
         "tag": "no_clear_difference",
         "n_cases": 14,
-        "wins": 6,
-        "losses": 8,
+        "wins": 7,
+        "losses": 7,
         "ties": 0
        },
        "agentic_score": {
         "interval": [
-         -0.142857,
-         -0.142857
+         0.0,
+         0.0
         ],
-        "tag": "worse",
+        "tag": "no_clear_difference",
         "n_cases": 14,
         "strata": 14,
         "weights": {
@@ -2047,33 +2059,33 @@
          "sequential/assistant": 0.071429,
          "sequential/neutral": 0.071429
         },
-        "delta": -0.142857
+        "delta": 0.0
        },
        "unsafe_rate": {
-        "delta": -0.071429,
+        "delta": -0.142857,
         "interval": [
-         -0.179167,
-         0.0
+         -0.261905,
+         -0.02381
         ],
-        "tag": "no_clear_difference",
+        "tag": "better",
         "n_cases": 14,
         "wins": 0,
-        "losses": 2,
-        "ties": 12,
-        "ratio": 0.4
+        "losses": 4,
+        "ties": 10,
+        "ratio": 0.0
        },
        "leak_rate": {
-        "delta": -0.047619,
+        "delta": -0.095238,
         "interval": [
-         -0.142857,
-         0.047619
+         -0.214286,
+         0.02381
         ],
         "tag": "no_clear_difference",
         "n_cases": 14,
-        "wins": 1,
-        "losses": 3,
-        "ties": 10,
-        "ratio": 0.5
+        "wins": 2,
+        "losses": 6,
+        "ties": 6,
+        "ratio": 0.333333
        }
       }
      }
@@ -2084,33 +2096,33 @@
      "tiers": {
       "agentic": {
        "pass1": {
-        "delta": 0.071429,
+        "delta": 0.047619,
         "interval": [
-         -0.142857,
-         0.261905
+         -0.190476,
+         0.285714
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 5,
+        "losses": 4,
+        "ties": 5
+       },
+       "score": {
+        "delta": 0.018024,
+        "interval": [
+         -0.112387,
+         0.150487
         ],
         "tag": "no_clear_difference",
         "n_cases": 14,
         "wins": 6,
-        "losses": 3,
-        "ties": 5
-       },
-       "score": {
-        "delta": 0.050929,
-        "interval": [
-         -0.100281,
-         0.177903
-        ],
-        "tag": "no_clear_difference",
-        "n_cases": 14,
-        "wins": 10,
-        "losses": 4,
+        "losses": 8,
         "ties": 0
        },
        "agentic_score": {
         "interval": [
-         0.071429,
-         0.071429
+         0.047619,
+         0.047619
         ],
         "tag": "better",
         "n_cases": 14,
@@ -2131,39 +2143,52 @@
          "sequential/assistant": 0.071429,
          "sequential/neutral": 0.071429
         },
-        "delta": 0.071429
+        "delta": 0.047619
        },
        "unsafe_rate": {
         "delta": -0.02381,
         "interval": [
-         -0.095238,
-         0.047619
+         -0.071429,
+         0.0
         ],
         "tag": "no_clear_difference",
         "n_cases": 14,
-        "wins": 1,
-        "losses": 2,
-        "ties": 11,
-        "ratio": 0.666667
+        "wins": 0,
+        "losses": 1,
+        "ties": 13,
+        "ratio": 0.0
        },
        "leak_rate": {
-        "delta": 0.02381,
+        "delta": -0.02381,
         "interval": [
-         0.0,
-         0.071429
+         -0.119048,
+         0.083929
         ],
         "tag": "no_clear_difference",
         "n_cases": 14,
-        "wins": 1,
-        "losses": 0,
-        "ties": 13,
-        "ratio": 2.0
+        "wins": 2,
+        "losses": 3,
+        "ties": 9,
+        "ratio": 0.666667
        }
       }
      }
     }
    },
-   "sampling_sensitivity": {}
+   "sampling_sensitivity": {},
+   "loops": {
+    "agentic": {
+     "loop": "harbor-loop",
+     "view": "agentic_harbor_loop",
+     "reference_view": "agentic",
+     "lanes": {
+      "neutral": "not_applicable: Harbor's loop has no neutral lane"
+     },
+     "empty": true,
+     "empty_reason": "the phone runs the single-step parity subset, not Harbor's loop",
+     "gap": null
+    }
+   }
   },
   {
    "entry_key": "local|Sample Model F 1B|q4|mlx-swift|off",
@@ -2219,19 +2244,19 @@
      ],
      "invalid": true,
      "pass1": {
-      "value": 0.130952,
+      "value": 0.071429,
       "interval": [
-       0.054595,
-       0.261121
+       0.025836,
+       0.198642
       ],
       "interval_kind": "wilson",
       "interval_cluster": [
-       0.047619,
-       0.22619
+       0.0,
+       0.190476
       ],
       "n_cases": 14,
       "n_trials": 40,
-      "passes": 5,
+      "passes": 3,
       "pass_all_trials": {
        "value": 0.0,
        "interval": [
@@ -2247,15 +2272,15 @@
        "flag": "unequal_trials"
       },
       "pass_k": {
-       "2": 0.0,
+       "2": 0.02381,
        "3": 0.0
       }
      },
      "score": {
-      "value": 0.516107,
+      "value": 0.405893,
       "interval": [
-       0.42259,
-       0.611824
+       0.334502,
+       0.482657
       ],
       "interval_kind": "bootstrap_cases",
       "n_cases": 14,
@@ -2263,10 +2288,10 @@
      },
      "composites": {
       "agentic_score": {
-       "value": 0.130952,
+       "value": 0.071429,
        "interval": [
-        0.130952,
-        0.130952
+        0.071429,
+        0.071429
        ],
        "n_cases": 14,
        "strata": 14,
@@ -2318,10 +2343,10 @@
       }
      },
      "composite": {
-      "value": 0.130952,
+      "value": 0.071429,
       "interval": [
-       0.130952,
-       0.130952
+       0.071429,
+       0.071429
       ],
       "n_cases": 14,
       "strata": 14,
@@ -2373,76 +2398,31 @@
      },
      "safety": {
       "trials": 40,
-      "unsafe_trials": 3,
-      "unsafe_rate": 0.075,
+      "unsafe_trials": 5,
+      "unsafe_rate": 0.125,
       "unsafe_interval": [
-       0.025836,
-       0.198642
+       0.054595,
+       0.261121
       ],
-      "unsafe_count": 3,
-      "unsafe_per_100": 7.5,
+      "unsafe_count": 5,
+      "unsafe_per_100": 12.5,
       "unsafe_n": 40,
-      "leak_trials": 10,
-      "leak_rate": 0.25,
+      "leak_trials": 8,
+      "leak_rate": 0.2,
       "leak_interval": [
-       0.141871,
-       0.40194
+       0.105,
+       0.347573
       ],
-      "leak_count": 10,
-      "leak_per_100": 25.0,
+      "leak_count": 8,
+      "leak_per_100": 20.0,
       "leak_n": 40,
       "labels": {
-       "canary_leak": 10,
-       "unsafe_call": 3
+       "canary_leak": 8,
+       "unsafe_call": 5
       }
      },
      "facets": {
       "lane=assistant": {
-       "pass1": {
-        "value": 0.166667,
-        "interval": [
-         0.052369,
-         0.360419
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.022619,
-         0.309524
-        ],
-        "n_cases": 7,
-        "n_trials": 20,
-        "passes": 3,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.35433
-         ],
-         "n_cases": 7,
-         "k": 0,
-         "trials_per_case": [
-          2,
-          3
-         ],
-         "flag": "unequal_trials"
-        },
-        "pass_k": {
-         "2": 0.0,
-         "3": 0.0
-        }
-       },
-       "score": {
-        "value": 0.543976,
-        "interval": [
-         0.46587,
-         0.630209
-        ],
-        "interval_kind": "bootstrap_cases",
-        "n_cases": 7,
-        "n_trials": 20
-       }
-      },
-      "lane=neutral": {
        "pass1": {
         "value": 0.095238,
         "interval": [
@@ -2452,11 +2432,56 @@
         "interval_kind": "wilson",
         "interval_cluster": [
          0.0,
-         0.190476
+         0.285714
         ],
         "n_cases": 7,
         "n_trials": 20,
         "passes": 2,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.35433
+         ],
+         "n_cases": 7,
+         "k": 0,
+         "trials_per_case": [
+          2,
+          3
+         ],
+         "flag": "unequal_trials"
+        },
+        "pass_k": {
+         "2": 0.047619,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.368857,
+        "interval": [
+         0.247905,
+         0.511871
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 7,
+        "n_trials": 20
+       }
+      },
+      "lane=neutral": {
+       "pass1": {
+        "value": 0.047619,
+        "interval": [
+         0.008881,
+         0.236131
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.142857
+        ],
+        "n_cases": 7,
+        "n_trials": 20,
+        "passes": 1,
         "pass_all_trials": {
          "value": 0.0,
          "interval": [
@@ -2477,10 +2502,10 @@
         }
        },
        "score": {
-        "value": 0.488238,
+        "value": 0.442929,
         "interval": [
-         0.29755,
-         0.659857
+         0.37066,
+         0.51211
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 7,
@@ -2489,19 +2514,19 @@
       },
       "family=abstain": {
        "pass1": {
-        "value": 0.333333,
+        "value": 0.0,
         "interval": [
-         0.096771,
-         0.700007
+         0.0,
+         0.390334
         ],
         "interval_kind": "wilson",
         "interval_cluster": [
-         0.333333,
-         0.333333
+         0.0,
+         0.0
         ],
         "n_cases": 2,
         "n_trials": 6,
-        "passes": 2,
+        "passes": 0,
         "pass_all_trials": {
          "value": 0.0,
          "interval": [
@@ -2521,10 +2546,10 @@
         }
        },
        "score": {
-        "value": 0.548167,
+        "value": 0.326667,
         "interval": [
-         0.533333,
-         0.563
+         0.300333,
+         0.353
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 2,
@@ -2565,10 +2590,10 @@
         }
        },
        "score": {
-        "value": 0.691833,
+        "value": 0.5185,
         "interval": [
-         0.467,
-         0.916667
+         0.465667,
+         0.571333
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 2,
@@ -2576,94 +2601,6 @@
        }
       },
       "family=parallel": {
-       "pass1": {
-        "value": 0.333333,
-        "interval": [
-         0.096771,
-         0.700007
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.333333,
-         0.333333
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 2,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.0,
-         "3": 0.0
-        }
-       },
-       "score": {
-        "value": 0.625333,
-        "interval": [
-         0.566,
-         0.684667
-        ],
-        "interval_kind": "bootstrap_cases",
-        "n_cases": 2,
-        "n_trials": 6
-       }
-      },
-      "family=pev": {
-       "pass1": {
-        "value": 0.25,
-        "interval": [
-         0.045587,
-         0.699358
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.0,
-         0.5
-        ],
-        "n_cases": 2,
-        "n_trials": 4,
-        "passes": 1,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          2
-         ],
-         "flag": "fewer_than_3_trials"
-        },
-        "pass_k": {
-         "2": 0.0,
-         "3": null
-        }
-       },
-       "score": {
-        "value": 0.38675,
-        "interval": [
-         0.066,
-         0.7075
-        ],
-        "interval_kind": "bootstrap_cases",
-        "n_cases": 2,
-        "n_trials": 4
-       }
-      },
-      "family=recovery": {
        "pass1": {
         "value": 0.0,
         "interval": [
@@ -2697,10 +2634,98 @@
         }
        },
        "score": {
-        "value": 0.376833,
+        "value": 0.340667,
         "interval": [
-         0.331667,
-         0.422
+         0.223333,
+         0.458
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=pev": {
+       "pass1": {
+        "value": 0.0,
+        "interval": [
+         0.0,
+         0.489891
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.0
+        ],
+        "n_cases": 2,
+        "n_trials": 4,
+        "passes": 0,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          2
+         ],
+         "flag": "fewer_than_3_trials"
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": null
+        }
+       },
+       "score": {
+        "value": 0.39175,
+        "interval": [
+         0.32,
+         0.4635
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 4
+       }
+      },
+      "family=recovery": {
+       "pass1": {
+        "value": 0.5,
+        "interval": [
+         0.187616,
+         0.812384
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 3,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.655,
+        "interval": [
+         0.558,
+         0.752
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 2,
@@ -2741,10 +2766,10 @@
         }
        },
        "score": {
-        "value": 0.481,
+        "value": 0.343167,
         "interval": [
-         0.456667,
-         0.505333
+         0.299,
+         0.387333
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 2,
@@ -2785,10 +2810,10 @@
         }
        },
        "score": {
-        "value": 0.502833,
+        "value": 0.2655,
         "interval": [
-         0.498667,
-         0.507
+         0.169,
+         0.362
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 2,
@@ -2798,30 +2823,30 @@
      },
      "metrics": {
       "format_ok": {
-       "value": 0.975,
+       "value": 0.95,
        "interval": [
-        0.871186,
-        0.995573
+        0.834961,
+        0.986179
        ],
        "interval_kind": "wilson",
        "n_cases": 14,
        "n_trials": 40
       },
       "steps": {
-       "value": 2.619048,
+       "value": 2.369048,
        "interval": [
-        2.392857,
-        2.869048
+        2.01131,
+        2.690476
        ],
        "interval_kind": "bootstrap_cases",
        "n_cases": 14,
        "n_trials": 40
       },
       "wall_s": {
-       "value": 5.905,
+       "value": 6.345833,
        "interval": [
-        5.193435,
-        6.562583
+        5.600464,
+        7.044253
        ],
        "interval_kind": "bootstrap_cases",
        "n_cases": 14,
@@ -2831,10 +2856,10 @@
      "headline": {
       "metric": "agentic_score",
       "source": "composite",
-      "value": 0.130952,
+      "value": 0.071429,
       "interval": [
-       0.130952,
-       0.130952
+       0.071429,
+       0.071429
       ],
       "interval_kind": "bootstrap_cases"
      },
@@ -2870,42 +2895,42 @@
       "ttft_s": [
        {
         "level": 512,
-        "value": 0.52525,
+        "value": 0.5253,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 1024,
-        "value": 0.98115,
+        "value": 0.98,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 2048,
-        "value": 1.95495,
+        "value": 1.90045,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 5120,
-        "value": 4.77585,
+        "value": 4.708,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 10240,
-        "value": 9.42785,
+        "value": 9.61015,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 32768,
-        "value": 29.79195,
+        "value": 30.4505,
         "status": "ok",
         "need_bytes": null,
         "n": 2
@@ -2921,42 +2946,42 @@
       "prefill_tps": [
        {
         "level": 512,
-        "value": 1077.65,
+        "value": 1077.25,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 1024,
-        "value": 1099.9,
+        "value": 1101.35,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 2048,
-        "value": 1075.2,
+        "value": 1106.8,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 5120,
-        "value": 1083.45,
+        "value": 1099.2,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 10240,
-        "value": 1092.55,
+        "value": 1071.15,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 32768,
-        "value": 1101.75,
+        "value": 1078.05,
         "status": "ok",
         "need_bytes": null,
         "n": 2
@@ -2972,42 +2997,42 @@
       "decode_tps": [
        {
         "level": 512,
-        "value": 65.345,
+        "value": 65.32,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 1024,
-        "value": 66.18,
+        "value": 66.275,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 2048,
-        "value": 63.715,
+        "value": 65.59,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 5120,
-        "value": 61.41,
+        "value": 62.305,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 10240,
-        "value": 57.745,
+        "value": 56.61,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 32768,
-        "value": 44.885,
+        "value": 43.92,
         "status": "ok",
         "need_bytes": null,
         "n": 2
@@ -3023,42 +3048,42 @@
       "footprint_peak_bytes": [
        {
         "level": 512,
-        "value": 1632873122.5,
+        "value": 1633102107.0,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 1024,
-        "value": 1604432070.5,
+        "value": 1602462925.5,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 2048,
-        "value": 1650986098.5,
+        "value": 1603812179.5,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 5120,
-        "value": 1667496678.5,
+        "value": 1643546107.0,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 10240,
-        "value": 1702644637.5,
+        "value": 1735752532.5,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 32768,
-        "value": 1897631917.5,
+        "value": 1939652340.0,
         "status": "ok",
         "need_bytes": null,
         "n": 2
@@ -3153,10 +3178,10 @@
      "tiers": {
       "agentic": {
        "pass1": {
-        "delta": -0.297619,
+        "delta": -0.333333,
         "interval": [
-         -0.452381,
-         -0.154762
+         -0.5,
+         -0.166667
         ],
         "tag": "worse",
         "n_cases": 14,
@@ -3165,21 +3190,21 @@
         "ties": 3
        },
        "score": {
-        "delta": -0.158274,
+        "delta": -0.292369,
         "interval": [
-         -0.272214,
-         -0.055439
+         -0.42724,
+         -0.1594
         ],
         "tag": "worse",
         "n_cases": 14,
-        "wins": 4,
-        "losses": 10,
+        "wins": 3,
+        "losses": 11,
         "ties": 0
        },
        "agentic_score": {
         "interval": [
-         -0.297619,
-         -0.297619
+         -0.333333,
+         -0.333333
         ],
         "tag": "worse",
         "n_cases": 14,
@@ -3200,33 +3225,33 @@
          "sequential/assistant": 0.071429,
          "sequential/neutral": 0.071429
         },
-        "delta": -0.297619
+        "delta": -0.333333
        },
        "unsafe_rate": {
-        "delta": -0.047619,
+        "delta": -0.02381,
         "interval": [
          -0.190476,
-         0.142857
+         0.119048
         ],
         "tag": "no_clear_difference",
         "n_cases": 14,
         "wins": 2,
-        "losses": 4,
-        "ties": 8,
-        "ratio": 0.6
+        "losses": 2,
+        "ties": 10,
+        "ratio": 0.833333
        },
        "leak_rate": {
-        "delta": 0.142857,
+        "delta": 0.059524,
         "interval": [
-         -0.047619,
-         0.309524
+         -0.059524,
+         0.178571
         ],
         "tag": "no_clear_difference",
         "n_cases": 14,
-        "wins": 7,
-        "losses": 2,
+        "wins": 6,
+        "losses": 3,
         "ties": 5,
-        "ratio": 2.5
+        "ratio": 1.416667
        }
       }
      }
@@ -3237,33 +3262,33 @@
      "tiers": {
       "agentic": {
        "pass1": {
-        "delta": -0.083333,
+        "delta": -0.285714,
         "interval": [
-         -0.22619,
-         0.047619
+         -0.47619,
+         -0.071429
         ],
-        "tag": "no_clear_difference",
+        "tag": "worse",
         "n_cases": 14,
-        "wins": 3,
-        "losses": 5,
-        "ties": 6
+        "wins": 1,
+        "losses": 9,
+        "ties": 4
        },
        "score": {
-        "delta": -0.041202,
+        "delta": -0.251155,
         "interval": [
-         -0.164871,
-         0.08584
+         -0.389907,
+         -0.093443
         ],
-        "tag": "no_clear_difference",
+        "tag": "worse",
         "n_cases": 14,
-        "wins": 6,
-        "losses": 8,
+        "wins": 1,
+        "losses": 13,
         "ties": 0
        },
        "agentic_score": {
         "interval": [
-         -0.083333,
-         -0.083333
+         -0.285714,
+         -0.285714
         ],
         "tag": "worse",
         "n_cases": 14,
@@ -3284,39 +3309,52 @@
          "sequential/assistant": 0.071429,
          "sequential/neutral": 0.071429
         },
-        "delta": -0.083333
+        "delta": -0.285714
        },
        "unsafe_rate": {
-        "delta": 0.0,
+        "delta": 0.095238,
         "interval": [
-         -0.095238,
-         0.119048
-        ],
-        "tag": "no_clear_difference",
-        "n_cases": 14,
-        "wins": 1,
-        "losses": 2,
-        "ties": 11,
-        "ratio": 1.0
-       },
-       "leak_rate": {
-        "delta": 0.214286,
-        "interval": [
-         0.071429,
-         0.357143
+         0.02381,
+         0.179167
         ],
         "tag": "worse",
         "n_cases": 14,
-        "wins": 7,
-        "losses": 1,
-        "ties": 6,
-        "ratio": 10.0
+        "wins": 4,
+        "losses": 0,
+        "ties": 10,
+        "ratio": 5.0
+       },
+       "leak_rate": {
+        "delta": 0.130952,
+        "interval": [
+         0.059524,
+         0.214286
+        ],
+        "tag": "worse",
+        "n_cases": 14,
+        "wins": 6,
+        "losses": 0,
+        "ties": 8,
+        "ratio": 2.833333
        }
       }
      }
     }
    },
-   "sampling_sensitivity": {}
+   "sampling_sensitivity": {},
+   "loops": {
+    "agentic": {
+     "loop": "harbor-loop",
+     "view": "agentic_harbor_loop",
+     "reference_view": "agentic",
+     "lanes": {
+      "neutral": "not_applicable: Harbor's loop has no neutral lane"
+     },
+     "empty": true,
+     "empty_reason": "the phone runs the single-step parity subset, not Harbor's loop",
+     "gap": null
+    }
+   }
   },
   {
    "entry_key": "local|Sample Model H 6B|q4|mlx-swift|off",
@@ -3371,42 +3409,42 @@
      ],
      "invalid": false,
      "pass1": {
-      "value": 0.380952,
+      "value": 0.309524,
       "interval": [
-       0.249997,
-       0.53186
+       0.190711,
+       0.46026
       ],
       "interval_kind": "wilson",
       "interval_cluster": [
-       0.238095,
-       0.52381
+       0.166667,
+       0.452381
       ],
       "n_cases": 14,
       "n_trials": 42,
-      "passes": 16,
+      "passes": 13,
       "pass_all_trials": {
-       "value": 0.071429,
+       "value": 0.0,
        "interval": [
-        0.012722,
-        0.314687
+        0.0,
+        0.215311
        ],
        "n_cases": 14,
-       "k": 1,
+       "k": 0,
        "trials_per_case": [
         3
        ],
        "flag": null
       },
       "pass_k": {
-       "2": 0.142857,
-       "3": 0.071429
+       "2": 0.095238,
+       "3": 0.0
       }
      },
      "score": {
-      "value": 0.594595,
+      "value": 0.6095,
       "interval": [
-       0.471026,
-       0.714482
+       0.490094,
+       0.72296
       ],
       "interval_kind": "bootstrap_cases",
       "n_cases": 14,
@@ -3414,10 +3452,10 @@
      },
      "composites": {
       "agentic_score": {
-       "value": 0.380952,
+       "value": 0.309524,
        "interval": [
-        0.380952,
-        0.380952
+        0.309524,
+        0.309524
        ],
        "n_cases": 14,
        "strata": 14,
@@ -3469,10 +3507,10 @@
       }
      },
      "composite": {
-      "value": 0.380952,
+      "value": 0.309524,
       "interval": [
-       0.380952,
-       0.380952
+       0.309524,
+       0.309524
       ],
       "n_cases": 14,
       "strata": 14,
@@ -3533,17 +3571,17 @@
       "unsafe_count": 3,
       "unsafe_per_100": 7.142857,
       "unsafe_n": 42,
-      "leak_trials": 3,
-      "leak_rate": 0.071429,
+      "leak_trials": 5,
+      "leak_rate": 0.119048,
       "leak_interval": [
-       0.02459,
-       0.190094
+       0.051938,
+       0.250004
       ],
-      "leak_count": 3,
-      "leak_per_100": 7.142857,
+      "leak_count": 5,
+      "leak_per_100": 11.904762,
       "leak_n": 42,
       "labels": {
-       "canary_leak": 3,
+       "canary_leak": 5,
        "unsafe_call": 3
       }
      },
@@ -3557,8 +3595,8 @@
         ],
         "interval_kind": "wilson",
         "interval_cluster": [
-         0.238095,
-         0.52381
+         0.190476,
+         0.571429
         ],
         "n_cases": 7,
         "n_trials": 21,
@@ -3577,15 +3615,15 @@
          "flag": null
         },
         "pass_k": {
-         "2": 0.095238,
+         "2": 0.142857,
          "3": 0.0
         }
        },
        "score": {
-        "value": 0.66881,
+        "value": 0.718905,
         "interval": [
-         0.508058,
-         0.810286
+         0.56769,
+         0.853892
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 7,
@@ -3594,42 +3632,42 @@
       },
       "lane=neutral": {
        "pass1": {
-        "value": 0.380952,
+        "value": 0.238095,
         "interval": [
-         0.20751,
-         0.591213
+         0.10628,
+         0.450912
         ],
         "interval_kind": "wilson",
         "interval_cluster": [
-         0.165476,
-         0.619048
+         0.095238,
+         0.428571
         ],
         "n_cases": 7,
         "n_trials": 21,
-        "passes": 8,
+        "passes": 5,
         "pass_all_trials": {
-         "value": 0.142857,
+         "value": 0.0,
          "interval": [
-          0.02568,
-          0.513128
+          0.0,
+          0.35433
          ],
          "n_cases": 7,
-         "k": 1,
+         "k": 0,
          "trials_per_case": [
           3
          ],
          "flag": null
         },
         "pass_k": {
-         "2": 0.190476,
-         "3": 0.142857
+         "2": 0.047619,
+         "3": 0.0
         }
        },
        "score": {
-        "value": 0.520381,
+        "value": 0.500095,
         "interval": [
-         0.344345,
-         0.717063
+         0.347737,
+         0.647633
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 7,
@@ -3638,19 +3676,19 @@
       },
       "family=abstain": {
        "pass1": {
-        "value": 0.5,
+        "value": 0.333333,
         "interval": [
-         0.187616,
-         0.812384
+         0.096771,
+         0.700007
         ],
         "interval_kind": "wilson",
         "interval_cluster": [
-         0.333333,
+         0.0,
          0.666667
         ],
         "n_cases": 2,
         "n_trials": 6,
-        "passes": 3,
+        "passes": 2,
         "pass_all_trials": {
          "value": 0.0,
          "interval": [
@@ -3670,10 +3708,10 @@
         }
        },
        "score": {
-        "value": 0.683,
+        "value": 0.6045,
         "interval": [
-         0.448333,
-         0.917667
+         0.344667,
+         0.864333
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 2,
@@ -3682,19 +3720,19 @@
       },
       "family=mixed": {
        "pass1": {
-        "value": 0.5,
+        "value": 0.166667,
         "interval": [
-         0.187616,
-         0.812384
+         0.030053,
+         0.563503
         ],
         "interval_kind": "wilson",
         "interval_cluster": [
-         0.333333,
-         0.666667
+         0.0,
+         0.333333
         ],
         "n_cases": 2,
         "n_trials": 6,
-        "passes": 3,
+        "passes": 1,
         "pass_all_trials": {
          "value": 0.0,
          "interval": [
@@ -3709,15 +3747,15 @@
          "flag": null
         },
         "pass_k": {
-         "2": 0.166667,
+         "2": 0.0,
          "3": 0.0
         }
        },
        "score": {
-        "value": 0.711333,
+        "value": 0.563333,
         "interval": [
-         0.678,
-         0.744667
+         0.368667,
+         0.758
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 2,
@@ -3726,50 +3764,6 @@
       },
       "family=parallel": {
        "pass1": {
-        "value": 0.166667,
-        "interval": [
-         0.030053,
-         0.563503
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.0,
-         0.333333
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 1,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.0,
-         "3": 0.0
-        }
-       },
-       "score": {
-        "value": 0.449833,
-        "interval": [
-         0.208667,
-         0.691
-        ],
-        "interval_kind": "bootstrap_cases",
-        "n_cases": 2,
-        "n_trials": 6
-       }
-      },
-      "family=pev": {
-       "pass1": {
         "value": 0.333333,
         "interval": [
          0.096771,
@@ -3802,10 +3796,54 @@
         }
        },
        "score": {
-        "value": 0.543333,
+        "value": 0.57,
         "interval": [
-         0.281333,
-         0.805333
+         0.295667,
+         0.844333
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=pev": {
+       "pass1": {
+        "value": 0.0,
+        "interval": [
+         0.0,
+         0.390334
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.0
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 0,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.4235,
+        "interval": [
+         0.239333,
+         0.607667
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 2,
@@ -3813,50 +3851,6 @@
        }
       },
       "family=recovery": {
-       "pass1": {
-        "value": 0.666667,
-        "interval": [
-         0.299993,
-         0.903229
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.333333,
-         1.0
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 4,
-        "pass_all_trials": {
-         "value": 0.5,
-         "interval": [
-          0.094531,
-          0.905469
-         ],
-         "n_cases": 2,
-         "k": 1,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.5,
-         "3": 0.5
-        }
-       },
-       "score": {
-        "value": 0.673833,
-        "interval": [
-         0.347667,
-         1.0
-        ],
-        "interval_kind": "bootstrap_cases",
-        "n_cases": 2,
-        "n_trials": 6
-       }
-      },
-      "family=select": {
        "pass1": {
         "value": 0.333333,
         "interval": [
@@ -3890,10 +3884,54 @@
         }
        },
        "score": {
-        "value": 0.675167,
+        "value": 0.512,
         "interval": [
-         0.56,
-         0.790333
+         0.482,
+         0.542
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=select": {
+       "pass1": {
+        "value": 0.666667,
+        "interval": [
+         0.299993,
+         0.903229
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.666667,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 4,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.333333,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.808,
+        "interval": [
+         0.723667,
+         0.892333
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 2,
@@ -3902,19 +3940,19 @@
       },
       "family=sequential": {
        "pass1": {
-        "value": 0.166667,
+        "value": 0.333333,
         "interval": [
-         0.030053,
-         0.563503
+         0.096771,
+         0.700007
         ],
         "interval_kind": "wilson",
         "interval_cluster": [
-         0.0,
+         0.333333,
          0.333333
         ],
         "n_cases": 2,
         "n_trials": 6,
-        "passes": 1,
+        "passes": 2,
         "pass_all_trials": {
          "value": 0.0,
          "interval": [
@@ -3934,10 +3972,10 @@
         }
        },
        "score": {
-        "value": 0.425667,
+        "value": 0.785167,
         "interval": [
-         0.385,
-         0.466333
+         0.657333,
+         0.913
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 2,
@@ -3947,30 +3985,30 @@
      },
      "metrics": {
       "format_ok": {
-       "value": 0.97619,
+       "value": 0.952381,
        "interval": [
-        0.876788,
-        0.995785
+        0.842101,
+        0.986842
        ],
        "interval_kind": "wilson",
        "n_cases": 14,
        "n_trials": 42
       },
       "steps": {
-       "value": 2.5,
+       "value": 2.309524,
        "interval": [
-        2.142857,
-        2.941071
+        2.047619,
+        2.52381
        ],
        "interval_kind": "bootstrap_cases",
        "n_cases": 14,
        "n_trials": 42
       },
       "wall_s": {
-       "value": 6.07,
+       "value": 6.036429,
        "interval": [
-        5.47394,
-        6.659786
+        5.419994,
+        6.585946
        ],
        "interval_kind": "bootstrap_cases",
        "n_cases": 14,
@@ -3980,10 +4018,10 @@
      "headline": {
       "metric": "agentic_score",
       "source": "composite",
-      "value": 0.380952,
+      "value": 0.309524,
       "interval": [
-       0.380952,
-       0.380952
+       0.309524,
+       0.309524
       ],
       "interval_kind": "bootstrap_cases"
      },
@@ -4019,35 +4057,35 @@
       "ttft_s": [
        {
         "level": 512,
-        "value": 1.75515,
+        "value": 1.75665,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 1024,
-        "value": 3.55405,
+        "value": 3.46665,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 2048,
-        "value": 6.8626,
+        "value": 6.89915,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 5120,
-        "value": 16.8336,
+        "value": 16.74665,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 10240,
-        "value": 34.3632,
+        "value": 34.07665,
         "status": "ok",
         "need_bytes": null,
         "n": 2
@@ -4070,35 +4108,35 @@
       "prefill_tps": [
        {
         "level": 512,
-        "value": 300.45,
+        "value": 300.0,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 1024,
-        "value": 292.25,
+        "value": 299.8,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 2048,
-        "value": 300.65,
+        "value": 299.15,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 5120,
-        "value": 305.15,
+        "value": 306.65,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 10240,
-        "value": 298.45,
+        "value": 300.95,
         "status": "ok",
         "need_bytes": null,
         "n": 2
@@ -4121,35 +4159,35 @@
       "decode_tps": [
        {
         "level": 512,
-        "value": 18.22,
+        "value": 18.19,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 1024,
-        "value": 17.585,
+        "value": 18.04,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 2048,
-        "value": 17.815,
+        "value": 17.725,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 5120,
-        "value": 17.295,
+        "value": 17.385,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 10240,
-        "value": 15.775,
+        "value": 15.91,
         "status": "ok",
         "need_bytes": null,
         "n": 2
@@ -4172,35 +4210,35 @@
       "footprint_peak_bytes": [
        {
         "level": 512,
-        "value": 5074751218.0,
+        "value": 5079168721.5,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 1024,
-        "value": 5239136672.5,
+        "value": 5108476211.0,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 2048,
-        "value": 5141235901.0,
+        "value": 5168849704.5,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 5120,
-        "value": 5209194605.0,
+        "value": 5182220516.0,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 10240,
-        "value": 5568244474.5,
+        "value": 5521743694.0,
         "status": "ok",
         "need_bytes": null,
         "n": 2
@@ -4295,27 +4333,111 @@
      "tiers": {
       "agentic": {
        "pass1": {
-        "delta": -0.047619,
+        "delta": -0.095238,
+        "interval": [
+         -0.285714,
+         0.095238
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 3,
+        "losses": 6,
+        "ties": 5
+       },
+       "score": {
+        "delta": -0.088762,
+        "interval": [
+         -0.217598,
+         0.050394
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 3,
+        "losses": 11,
+        "ties": 0
+       },
+       "agentic_score": {
+        "interval": [
+         -0.095238,
+         -0.095238
+        ],
+        "tag": "worse",
+        "n_cases": 14,
+        "strata": 14,
+        "weights": {
+         "abstain/assistant": 0.071429,
+         "abstain/neutral": 0.071429,
+         "mixed/assistant": 0.071429,
+         "mixed/neutral": 0.071429,
+         "parallel/assistant": 0.071429,
+         "parallel/neutral": 0.071429,
+         "pev/assistant": 0.071429,
+         "pev/neutral": 0.071429,
+         "recovery/assistant": 0.071429,
+         "recovery/neutral": 0.071429,
+         "select/assistant": 0.071429,
+         "select/neutral": 0.071429,
+         "sequential/assistant": 0.071429,
+         "sequential/neutral": 0.071429
+        },
+        "delta": -0.095238
+       },
+       "unsafe_rate": {
+        "delta": -0.071429,
         "interval": [
          -0.214286,
+         0.071429
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 2,
+        "losses": 4,
+        "ties": 8,
+        "ratio": 0.5
+       },
+       "leak_rate": {
+        "delta": -0.02381,
+        "interval": [
+         -0.155357,
          0.119048
         ],
         "tag": "no_clear_difference",
         "n_cases": 14,
-        "wins": 5,
-        "losses": 6,
-        "ties": 3
-       },
-       "score": {
-        "delta": -0.079786,
+        "wins": 4,
+        "losses": 5,
+        "ties": 5,
+        "ratio": 0.833333
+       }
+      }
+     }
+    },
+    "base": {
+     "reference": "local|Sample Base 4B|q4|mlx-swift|off",
+     "device_id": "iphone-ref",
+     "tiers": {
+      "agentic": {
+       "pass1": {
+        "delta": -0.047619,
         "interval": [
-         -0.211696,
-         0.05161
+         -0.285714,
+         0.166667
         ],
         "tag": "no_clear_difference",
         "n_cases": 14,
-        "wins": 7,
-        "losses": 7,
+        "wins": 6,
+        "losses": 6,
+        "ties": 2
+       },
+       "score": {
+        "delta": -0.047548,
+        "interval": [
+         -0.217024,
+         0.116373
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 6,
+        "losses": 8,
         "ties": 0
        },
        "agentic_score": {
@@ -4345,120 +4467,49 @@
         "delta": -0.047619
        },
        "unsafe_rate": {
-        "delta": -0.047619,
+        "delta": 0.047619,
         "interval": [
-         -0.190476,
-         0.071429
+         0.0,
+         0.119048
         ],
         "tag": "no_clear_difference",
         "n_cases": 14,
         "wins": 2,
-        "losses": 3,
-        "ties": 9,
-        "ratio": 0.6
-       },
-       "leak_rate": {
-        "delta": -0.02381,
-        "interval": [
-         -0.142857,
-         0.095238
-        ],
-        "tag": "no_clear_difference",
-        "n_cases": 14,
-        "wins": 2,
-        "losses": 2,
-        "ties": 10,
-        "ratio": 0.75
-       }
-      }
-     }
-    },
-    "base": {
-     "reference": "local|Sample Base 4B|q4|mlx-swift|off",
-     "device_id": "iphone-ref",
-     "tiers": {
-      "agentic": {
-       "pass1": {
-        "delta": 0.166667,
-        "interval": [
-         -0.02381,
-         0.333333
-        ],
-        "tag": "no_clear_difference",
-        "n_cases": 14,
-        "wins": 8,
-        "losses": 2,
-        "ties": 4
-       },
-       "score": {
-        "delta": 0.037286,
-        "interval": [
-         -0.125942,
-         0.173956
-        ],
-        "tag": "no_clear_difference",
-        "n_cases": 14,
-        "wins": 9,
-        "losses": 5,
-        "ties": 0
-       },
-       "agentic_score": {
-        "interval": [
-         0.166667,
-         0.166667
-        ],
-        "tag": "better",
-        "n_cases": 14,
-        "strata": 14,
-        "weights": {
-         "abstain/assistant": 0.071429,
-         "abstain/neutral": 0.071429,
-         "mixed/assistant": 0.071429,
-         "mixed/neutral": 0.071429,
-         "parallel/assistant": 0.071429,
-         "parallel/neutral": 0.071429,
-         "pev/assistant": 0.071429,
-         "pev/neutral": 0.071429,
-         "recovery/assistant": 0.071429,
-         "recovery/neutral": 0.071429,
-         "select/assistant": 0.071429,
-         "select/neutral": 0.071429,
-         "sequential/assistant": 0.071429,
-         "sequential/neutral": 0.071429
-        },
-        "delta": 0.166667
-       },
-       "unsafe_rate": {
-        "delta": 0.0,
-        "interval": [
-         -0.071429,
-         0.071429
-        ],
-        "tag": "no_clear_difference",
-        "n_cases": 14,
-        "wins": 1,
-        "losses": 1,
+        "losses": 0,
         "ties": 12,
-        "ratio": 1.0
+        "ratio": 3.0
        },
        "leak_rate": {
         "delta": 0.047619,
         "interval": [
-         -0.02381,
-         0.131548
+         -0.060119,
+         0.166667
         ],
         "tag": "no_clear_difference",
         "n_cases": 14,
-        "wins": 3,
-        "losses": 1,
-        "ties": 10,
-        "ratio": 3.0
+        "wins": 4,
+        "losses": 2,
+        "ties": 8,
+        "ratio": 1.666667
        }
       }
      }
     }
    },
-   "sampling_sensitivity": {}
+   "sampling_sensitivity": {},
+   "loops": {
+    "agentic": {
+     "loop": "harbor-loop",
+     "view": "agentic_harbor_loop",
+     "reference_view": "agentic",
+     "lanes": {
+      "neutral": "not_applicable: Harbor's loop has no neutral lane"
+     },
+     "empty": true,
+     "empty_reason": "the phone runs the single-step parity subset, not Harbor's loop",
+     "gap": null
+    }
+   }
   },
   {
    "entry_key": "local|Sample Tuned 4B|q4|mlx-swift|off",
@@ -4513,19 +4564,19 @@
      ],
      "invalid": false,
      "pass1": {
-      "value": 0.428571,
+      "value": 0.404762,
       "interval": [
-       0.291177,
-       0.577938
+       0.270429,
+       0.555057
       ],
       "interval_kind": "wilson",
       "interval_cluster": [
-       0.285714,
-       0.571429
+       0.285119,
+       0.547619
       ],
       "n_cases": 14,
       "n_trials": 42,
-      "passes": 18,
+      "passes": 17,
       "pass_all_trials": {
        "value": 0.071429,
        "interval": [
@@ -4540,15 +4591,15 @@
        "flag": null
       },
       "pass_k": {
-       "2": 0.166667,
+       "2": 0.142857,
        "3": 0.071429
       }
      },
      "score": {
-      "value": 0.674381,
+      "value": 0.698262,
       "interval": [
-       0.586214,
-       0.763321
+       0.609945,
+       0.780029
       ],
       "interval_kind": "bootstrap_cases",
       "n_cases": 14,
@@ -4556,10 +4607,10 @@
      },
      "composites": {
       "agentic_score": {
-       "value": 0.428571,
+       "value": 0.404762,
        "interval": [
-        0.428571,
-        0.428571
+        0.404762,
+        0.404762
        ],
        "n_cases": 14,
        "strata": 14,
@@ -4611,10 +4662,10 @@
       }
      },
      "composite": {
-      "value": 0.428571,
+      "value": 0.404762,
       "interval": [
-       0.428571,
-       0.428571
+       0.404762,
+       0.404762
       ],
       "n_cases": 14,
       "strata": 14,
@@ -4666,89 +4717,45 @@
      },
      "safety": {
       "trials": 42,
-      "unsafe_trials": 5,
-      "unsafe_rate": 0.119048,
+      "unsafe_trials": 6,
+      "unsafe_rate": 0.142857,
       "unsafe_interval": [
-       0.051938,
-       0.250004
+       0.06716,
+       0.278411
       ],
-      "unsafe_count": 5,
-      "unsafe_per_100": 11.904762,
+      "unsafe_count": 6,
+      "unsafe_per_100": 14.285714,
       "unsafe_n": 42,
-      "leak_trials": 4,
-      "leak_rate": 0.095238,
+      "leak_trials": 6,
+      "leak_rate": 0.142857,
       "leak_interval": [
-       0.037662,
-       0.220651
+       0.06716,
+       0.278411
       ],
-      "leak_count": 4,
-      "leak_per_100": 9.52381,
+      "leak_count": 6,
+      "leak_per_100": 14.285714,
       "leak_n": 42,
       "labels": {
-       "canary_leak": 4,
-       "unsafe_call": 5
+       "canary_leak": 6,
+       "unsafe_call": 6
       }
      },
      "facets": {
       "lane=assistant": {
        "pass1": {
-        "value": 0.333333,
+        "value": 0.428571,
         "interval": [
-         0.171948,
-         0.546265
+         0.2447,
+         0.634534
         ],
         "interval_kind": "wilson",
         "interval_cluster": [
-         0.190476,
-         0.47619
+         0.213095,
+         0.666667
         ],
         "n_cases": 7,
         "n_trials": 21,
-        "passes": 7,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.35433
-         ],
-         "n_cases": 7,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.047619,
-         "3": 0.0
-        }
-       },
-       "score": {
-        "value": 0.610667,
-        "interval": [
-         0.535995,
-         0.686268
-        ],
-        "interval_kind": "bootstrap_cases",
-        "n_cases": 7,
-        "n_trials": 21
-       }
-      },
-      "lane=neutral": {
-       "pass1": {
-        "value": 0.52381,
-        "interval": [
-         0.323695,
-         0.71656
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.285714,
-         0.761905
-        ],
-        "n_cases": 7,
-        "n_trials": 21,
-        "passes": 11,
+        "passes": 9,
         "pass_all_trials": {
          "value": 0.142857,
          "interval": [
@@ -4763,15 +4770,59 @@
          "flag": null
         },
         "pass_k": {
-         "2": 0.285714,
+         "2": 0.190476,
          "3": 0.142857
         }
        },
        "score": {
-        "value": 0.738095,
+        "value": 0.709286,
         "interval": [
-         0.583643,
-         0.865048
+         0.533026,
+         0.858102
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 7,
+        "n_trials": 21
+       }
+      },
+      "lane=neutral": {
+       "pass1": {
+        "value": 0.380952,
+        "interval": [
+         0.20751,
+         0.591213
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.238095,
+         0.52381
+        ],
+        "n_cases": 7,
+        "n_trials": 21,
+        "passes": 8,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.35433
+         ],
+         "n_cases": 7,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.095238,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.687238,
+        "interval": [
+         0.585568,
+         0.776998
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 7,
@@ -4780,19 +4831,19 @@
       },
       "family=abstain": {
        "pass1": {
-        "value": 0.5,
+        "value": 0.333333,
         "interval": [
-         0.187616,
-         0.812384
+         0.096771,
+         0.700007
         ],
         "interval_kind": "wilson",
         "interval_cluster": [
-         0.333333,
+         0.0,
          0.666667
         ],
         "n_cases": 2,
         "n_trials": 6,
-        "passes": 3,
+        "passes": 2,
         "pass_all_trials": {
          "value": 0.0,
          "interval": [
@@ -4812,10 +4863,10 @@
         }
        },
        "score": {
-        "value": 0.7225,
+        "value": 0.587,
         "interval": [
-         0.557667,
-         0.887333
+         0.323,
+         0.851
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 2,
@@ -4823,94 +4874,6 @@
        }
       },
       "family=mixed": {
-       "pass1": {
-        "value": 0.666667,
-        "interval": [
-         0.299993,
-         0.903229
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.333333,
-         1.0
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 4,
-        "pass_all_trials": {
-         "value": 0.5,
-         "interval": [
-          0.094531,
-          0.905469
-         ],
-         "n_cases": 2,
-         "k": 1,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.5,
-         "3": 0.5
-        }
-       },
-       "score": {
-        "value": 0.733,
-        "interval": [
-         0.466,
-         1.0
-        ],
-        "interval_kind": "bootstrap_cases",
-        "n_cases": 2,
-        "n_trials": 6
-       }
-      },
-      "family=parallel": {
-       "pass1": {
-        "value": 0.666667,
-        "interval": [
-         0.299993,
-         0.903229
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.666667,
-         0.666667
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 4,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.333333,
-         "3": 0.0
-        }
-       },
-       "score": {
-        "value": 0.694833,
-        "interval": [
-         0.687333,
-         0.702333
-        ],
-        "interval_kind": "bootstrap_cases",
-        "n_cases": 2,
-        "n_trials": 6
-       }
-      },
-      "family=pev": {
        "pass1": {
         "value": 0.333333,
         "interval": [
@@ -4944,10 +4907,98 @@
         }
        },
        "score": {
-        "value": 0.640167,
+        "value": 0.7295,
         "interval": [
-         0.636333,
-         0.644
+         0.718667,
+         0.740333
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=parallel": {
+       "pass1": {
+        "value": 0.833333,
+        "interval": [
+         0.436497,
+         0.969947
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.666667,
+         1.0
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 5,
+        "pass_all_trials": {
+         "value": 0.5,
+         "interval": [
+          0.094531,
+          0.905469
+         ],
+         "n_cases": 2,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.666667,
+         "3": 0.5
+        }
+       },
+       "score": {
+        "value": 0.8845,
+        "interval": [
+         0.769,
+         1.0
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=pev": {
+       "pass1": {
+        "value": 0.166667,
+        "interval": [
+         0.030053,
+         0.563503
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.333333
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 1,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.541833,
+        "interval": [
+         0.474667,
+         0.609
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 2,
@@ -4955,6 +5006,94 @@
        }
       },
       "family=recovery": {
+       "pass1": {
+        "value": 0.333333,
+        "interval": [
+         0.096771,
+         0.700007
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.333333
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 2,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.622333,
+        "interval": [
+         0.525667,
+         0.719
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=select": {
+       "pass1": {
+        "value": 0.333333,
+        "interval": [
+         0.096771,
+         0.700007
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.333333
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 2,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.718,
+        "interval": [
+         0.681667,
+         0.754333
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 2,
+        "n_trials": 6
+       }
+      },
+      "family=sequential": {
        "pass1": {
         "value": 0.5,
         "interval": [
@@ -4988,98 +5127,10 @@
         }
        },
        "score": {
-        "value": 0.679167,
+        "value": 0.804667,
         "interval": [
-         0.466,
-         0.892333
-        ],
-        "interval_kind": "bootstrap_cases",
-        "n_cases": 2,
-        "n_trials": 6
-       }
-      },
-      "family=select": {
-       "pass1": {
-        "value": 0.166667,
-        "interval": [
-         0.030053,
-         0.563503
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.0,
-         0.333333
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 1,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.0,
-         "3": 0.0
-        }
-       },
-       "score": {
-        "value": 0.721667,
-        "interval": [
-         0.67,
-         0.773333
-        ],
-        "interval_kind": "bootstrap_cases",
-        "n_cases": 2,
-        "n_trials": 6
-       }
-      },
-      "family=sequential": {
-       "pass1": {
-        "value": 0.166667,
-        "interval": [
-         0.030053,
-         0.563503
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.0,
-         0.333333
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 1,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.0,
-         "3": 0.0
-        }
-       },
-       "score": {
-        "value": 0.529333,
-        "interval": [
-         0.378333,
-         0.680333
+         0.695667,
+         0.913667
         ],
         "interval_kind": "bootstrap_cases",
         "n_cases": 2,
@@ -5089,30 +5140,30 @@
      },
      "metrics": {
       "format_ok": {
-       "value": 0.952381,
+       "value": 1.0,
        "interval": [
-        0.842101,
-        0.986842
+        0.916201,
+        1.0
        ],
        "interval_kind": "wilson",
        "n_cases": 14,
        "n_trials": 42
       },
       "steps": {
-       "value": 2.5,
+       "value": 2.47619,
        "interval": [
-        2.095238,
-        2.904762
+        2.214286,
+        2.785714
        ],
        "interval_kind": "bootstrap_cases",
        "n_cases": 14,
        "n_trials": 42
       },
       "wall_s": {
-       "value": 6.741429,
+       "value": 6.619048,
        "interval": [
-        6.046536,
-        7.368905
+        5.940494,
+        7.28022
        ],
        "interval_kind": "bootstrap_cases",
        "n_cases": 14,
@@ -5122,10 +5173,10 @@
      "headline": {
       "metric": "agentic_score",
       "source": "composite",
-      "value": 0.428571,
+      "value": 0.404762,
       "interval": [
-       0.428571,
-       0.428571
+       0.404762,
+       0.404762
       ],
       "interval_kind": "bootstrap_cases"
      },
@@ -5135,12 +5186,12 @@
      "rank_ranges": {
       "agentic_score": [
        1,
-       1
+       2
       ]
      },
      "rank_range": [
       1,
-      1
+      2
      ]
     },
     "perf": {
@@ -5170,49 +5221,49 @@
       "ttft_s": [
        {
         "level": 512,
-        "value": 1.2882,
+        "value": 1.2986,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 1024,
-        "value": 2.5043,
+        "value": 2.4496,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 2048,
-        "value": 4.98155,
+        "value": 4.9444,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 5120,
-        "value": 12.18655,
+        "value": 12.2567,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 10240,
-        "value": 25.2763,
+        "value": 24.75535,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 32768,
-        "value": 79.41735,
+        "value": 78.0894,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 65536,
-        "value": 156.9838,
+        "value": 159.73635,
         "status": "ok",
         "need_bytes": null,
         "n": 2
@@ -5221,49 +5272,49 @@
       "prefill_tps": [
        {
         "level": 512,
-        "value": 413.55,
+        "value": 410.1,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 1024,
-        "value": 417.25,
+        "value": 426.75,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 2048,
-        "value": 415.35,
+        "value": 418.55,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 5120,
-        "value": 421.9,
+        "value": 419.5,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 10240,
-        "value": 405.95,
+        "value": 414.5,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 32768,
-        "value": 412.9,
+        "value": 419.95,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 65536,
-        "value": 417.9,
+        "value": 410.45,
         "status": "ok",
         "need_bytes": null,
         "n": 2
@@ -5272,49 +5323,49 @@
       "decode_tps": [
        {
         "level": 512,
-        "value": 25.075,
+        "value": 24.87,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 1024,
-        "value": 25.105,
+        "value": 25.68,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 2048,
-        "value": 24.61,
+        "value": 24.805,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 5120,
-        "value": 23.915,
+        "value": 23.78,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 10240,
-        "value": 21.455,
+        "value": 21.905,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 32768,
-        "value": 16.82,
+        "value": 17.11,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 65536,
-        "value": 12.77,
+        "value": 12.545,
         "status": "ok",
         "need_bytes": null,
         "n": 2
@@ -5323,49 +5374,49 @@
       "footprint_peak_bytes": [
        {
         "level": 512,
-        "value": 3901762647.5,
+        "value": 3934526148.0,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 1024,
-        "value": 3882872150.0,
+        "value": 3796396540.0,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 2048,
-        "value": 3933308365.5,
+        "value": 3903671118.0,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 5120,
-        "value": 3967153318.0,
+        "value": 3990088172.5,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 10240,
-        "value": 4287861456.5,
+        "value": 4199312384.0,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 32768,
-        "value": 4929231394.0,
+        "value": 4846757114.0,
         "status": "ok",
         "need_bytes": null,
         "n": 2
        },
        {
         "level": 65536,
-        "value": 5899266816.0,
+        "value": 6002737726.0,
         "status": "ok",
         "need_bytes": null,
         "n": 2
@@ -5409,33 +5460,33 @@
      "tiers": {
       "agentic": {
        "pass1": {
-        "delta": 0.214286,
+        "delta": 0.047619,
         "interval": [
-         0.071429,
-         0.357143
-        ],
-        "tag": "better",
-        "n_cases": 14,
-        "wins": 8,
-        "losses": 1,
-        "ties": 5
-       },
-       "score": {
-        "delta": 0.117071,
-        "interval": [
-         -0.020426,
-         0.254339
+         -0.142857,
+         0.238095
         ],
         "tag": "no_clear_difference",
         "n_cases": 14,
-        "wins": 10,
-        "losses": 4,
+        "wins": 6,
+        "losses": 5,
+        "ties": 3
+       },
+       "score": {
+        "delta": 0.041214,
+        "interval": [
+         -0.113587,
+         0.198413
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 14,
+        "wins": 7,
+        "losses": 7,
         "ties": 0
        },
        "agentic_score": {
         "interval": [
-         0.214286,
-         0.214286
+         0.047619,
+         0.047619
         ],
         "tag": "better",
         "n_cases": 14,
@@ -5456,39 +5507,52 @@
          "sequential/assistant": 0.071429,
          "sequential/neutral": 0.071429
         },
-        "delta": 0.214286
+        "delta": 0.047619
        },
        "unsafe_rate": {
-        "delta": 0.047619,
+        "delta": 0.119048,
         "interval": [
-         -0.047619,
-         0.166667
+         -0.0,
+         0.261905
         ],
         "tag": "no_clear_difference",
         "n_cases": 14,
-        "wins": 2,
+        "wins": 4,
         "losses": 1,
-        "ties": 11,
-        "ratio": 1.666667
+        "ties": 9,
+        "ratio": 6.0
        },
        "leak_rate": {
         "delta": 0.071429,
         "interval": [
-         0.0,
-         0.142857
+         -0.02381,
+         0.166667
         ],
         "tag": "no_clear_difference",
         "n_cases": 14,
-        "wins": 3,
-        "losses": 0,
-        "ties": 11,
-        "ratio": 4.0
+        "wins": 4,
+        "losses": 1,
+        "ties": 9,
+        "ratio": 2.0
        }
       }
      }
     }
    },
-   "sampling_sensitivity": {}
+   "sampling_sensitivity": {},
+   "loops": {
+    "agentic": {
+     "loop": "harbor-loop",
+     "view": "agentic_harbor_loop",
+     "reference_view": "agentic",
+     "lanes": {
+      "neutral": "not_applicable: Harbor's loop has no neutral lane"
+     },
+     "empty": true,
+     "empty_reason": "the phone runs the single-step parity subset, not Harbor's loop",
+     "gap": null
+    }
+   }
   }
  ]
 }

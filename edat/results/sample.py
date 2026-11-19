@@ -89,8 +89,11 @@ def build_sample_store(store: Path) -> list[Path]:
     omlx = {"name": "omlx", "version": "sample-0.7"}
     mlxs = {"name": "mlx-swift", "version": "sample-0.25"}
 
-    def agentic_run(run_id: str, entries, device, runtime, kind="local", n_cases=2):
-        with RunWriter.open(store, run_id, tier="agentic", suite="sample", sample=True) as w:
+    def agentic_run(run_id: str, entries, device, runtime, kind="local", n_cases=2, suite="sample"):
+        """`suite="harbor-loop"`: the same cases through Harbor's own loop (assistant lane only;
+        neutral-lane cases are recorded as not applicable)."""
+        harbor = suite == "harbor-loop"
+        with RunWriter.open(store, run_id, tier="agentic", suite=suite, sample=True) as w:
             recs = []
             for model, thinking, skill, safe in entries:
                 for fam in FAMILIES:
@@ -101,20 +104,27 @@ def build_sample_store(store: Path) -> list[Path]:
                             for t in (1, 2, 3):
                                 p_ok = max(0.02, min(0.98, skill + (0.06 if thinking == "on" else 0) - difficulty
                                                      + (0.05 if lane == "assistant" and model["id"].startswith(
-                                                         "Sample Tuned") else 0)))
+                                                         "Sample Tuned") else 0) + (0.08 if harbor else 0)))
                                 ok = rng.random() < p_ok
                                 unsafe = rng.random() > safe and fam in ("select", "sequential", "mixed")
                                 leak = rng.random() > (safe + 0.08)
                                 rec = _base(model, kind=kind, tier="agentic", run_id=run_id, device=device,
                                             thinking=thinking, case_id=case, trial=t, runtime=runtime)
+                                rec["suite"] = suite
                                 rec["facets"] = {"lane": lane, "family": fam}
+                                if harbor and lane != "assistant":
+                                    rec["status"], rec["status_detail"] = "not_applicable", "neutral lane"
+                                    rec["metrics"], rec["raw"], rec["raw_reason"] = {}, None, "not_applicable"
+                                    rec["safety"] = {"unsafe_actions": None, "privacy_leaks": None}
+                                    recs.append(rec)
+                                    continue
                                 rec["metrics"] = {"pass": ok and not unsafe, "score": 1.0 if ok else
                                                   round(rng.random() * 0.8, 3), "format_ok": rng.random() < 0.97,
                                                   "steps": 1 + rng.randrange(4), "wall_s": round(2 + rng.random() * 9, 2)}
                                 rec["safety"] = {"unsafe_actions": int(unsafe), "privacy_leaks": int(leak),
                                                  "labels": (["unsafe_call"] if unsafe else []) +
                                                  (["canary_leak"] if leak else [])}
-                                if model["id"] == "Sample Model F 1B" and fam == "pev" and t == 3:
+                                if model["id"] == "Sample Model F 1B" and fam == "pev" and t == 3 and not harbor:
                                     # Deliberate: 4 of 84 trials excluded (4.8 %) marks this entry invalid.
                                     rec["status"], rec["status_detail"] = "excluded", "engine_error"
                                     rec["metrics"] = {}
@@ -339,6 +349,7 @@ def build_sample_store(store: Path) -> list[Path]:
     runs.append(simple_run("sample-sidekick-mac", "sidekick", local_entries, MAC, omlx, side_cases,
                            suite="answer_only"))
     runs.append(findings_run("sample-findings-mac", local_entries, MAC, omlx))
+    runs.append(agentic_run("sample-agentic-harbor-mac", local_entries, MAC, omlx, suite="harbor-loop"))
     phone_entries = [(_local_model(m), "off", m[4] - 0.02, m[5]) for m in MODELS if m[6] <= 4.5]
     runs.append(agentic_run("sample-agentic-phone", phone_entries, PHONE, mlxs, n_cases=1))
     runs.append(perf_run("sample-perf-phone", PHONE, mlxs, 5.5, phone=True))

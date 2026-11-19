@@ -389,3 +389,17 @@ def test_sample_index_lists_device_names_and_findings(sample_export):
     devices = {d["id"]: d for b in index["boards"] for d in b["devices"]}
     assert devices["mac-ref"]["name"].startswith("Mac") and devices["mac-ref"]["findings"]
     assert (root / "site" / devices["mac-ref"]["findings"]).is_file()
+
+
+def test_sample_loops_export_both_columns_the_gap_and_empty_reasons(sample_export):
+    root, _ = sample_export
+    mac = json.loads((root / "site" / "sample-0" / "mac-ref.json").read_text())
+    rows = [r for r in mac["loops"] if r["tier"] == "agentic"]
+    assert rows and all(r["second"] and r["gap"] and "delta" in r["gap"] for r in rows)
+    assert all(r["headline"]["metric"] == "agentic_score" for r in rows)
+    neutral = [r for r in mac["results"] if r["tier"] == "agentic_harbor_loop" and r["facet"] == "lane=neutral"]
+    assert neutral and all(r["value"] is None and r["empty_reason"] for r in neutral)
+    for name, word in (("cloud", "cloud"), ("iphone-ref", "phone")):
+        board = json.loads((root / "site" / "sample-0" / f"{name}.json").read_text())
+        rows = [r for r in board["loops"] if r["tier"] == "agentic"]
+        assert rows and all(r["second"] is None and r["gap"] is None and word in r["empty_reason"] for r in rows)

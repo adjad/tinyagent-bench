@@ -160,10 +160,10 @@
    "facet": null,
    "metric": "agentic_score",
    "unit": "%",
-   "value": 60.71,
+   "value": 67.86,
    "interval": [
-    53.57,
-    67.86
+    60.71,
+    75.0
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 28,
@@ -171,10 +171,10 @@
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 15.48,
+     "delta": 22.62,
      "interval": [
-      9.52,
-      21.43
+      15.48,
+      29.76
      ],
      "tag": "better",
      "n_cases": 28,
@@ -182,10 +182,10 @@
      "losses": null
     },
     "base": {
-     "delta": 34.52,
+     "delta": 41.67,
      "interval": [
-      26.19,
-      41.67
+      33.33,
+      50.0
      ],
      "tag": "better",
      "n_cases": 28,
@@ -200,10 +200,10 @@
    "facet": null,
    "metric": "pass1",
    "unit": "%",
-   "value": 60.71,
+   "value": 67.86,
    "interval": [
-    50.02,
-    70.47
+    57.28,
+    76.87
    ],
    "interval_kind": "wilson",
    "n_cases": 28,
@@ -211,25 +211,25 @@
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 15.48,
+     "delta": 22.62,
      "interval": [
-      4.76,
-      27.38
+      10.71,
+      35.71
      ],
      "tag": "better",
      "n_cases": 28,
-     "wins": 13,
-     "losses": 5
+     "wins": 15,
+     "losses": 3
     },
     "base": {
-     "delta": 34.52,
+     "delta": 41.67,
      "interval": [
-      22.62,
-      46.43
+      29.76,
+      53.57
      ],
      "tag": "better",
      "n_cases": 28,
-     "wins": 19,
+     "wins": 21,
      "losses": 1
     }
    }
@@ -240,10 +240,10 @@
    "facet": null,
    "metric": "pass_all_trials",
    "unit": "%",
-   "value": 21.43,
+   "value": 28.57,
    "interval": [
-    10.21,
-    39.54
+    15.25,
+    47.06
    ],
    "interval_kind": "wilson",
    "n_cases": 28,
@@ -256,10 +256,10 @@
    "facet": null,
    "metric": "score_mean",
    "unit": "%",
-   "value": 76.88,
+   "value": 78.2,
    "interval": [
-    70.09,
-    83.11
+    71.72,
+    84.27
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 28,
@@ -267,26 +267,26 @@
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 6.81,
+     "delta": 8.13,
      "interval": [
-      -2.39,
-      15.32
+      -0.18,
+      16.66
      ],
      "tag": "no_clear_difference",
      "n_cases": 28,
-     "wins": 19,
-     "losses": 8
+     "wins": 17,
+     "losses": 9
     },
     "base": {
-     "delta": 19.46,
+     "delta": 20.78,
      "interval": [
-      11.53,
-      27.16
+      12.89,
+      28.4
      ],
      "tag": "better",
      "n_cases": 28,
-     "wins": 22,
-     "losses": 6
+     "wins": 23,
+     "losses": 5
     }
    }
   },
@@ -312,10 +312,10 @@
    "facet": "family=mixed",
    "metric": "pass1",
    "unit": "%",
-   "value": 66.67,
+   "value": 75.0,
    "interval": [
-    39.06,
-    86.19
+    46.77,
+    91.11
    ],
    "interval_kind": "wilson",
    "n_cases": 4,
@@ -328,10 +328,10 @@
    "facet": "family=parallel",
    "metric": "pass1",
    "unit": "%",
-   "value": 83.33,
+   "value": 75.0,
    "interval": [
-    55.2,
-    95.3
+    46.77,
+    91.11
    ],
    "interval_kind": "wilson",
    "n_cases": 4,
@@ -360,38 +360,6 @@
    "facet": "family=recovery",
    "metric": "pass1",
    "unit": "%",
-   "value": 50.0,
-   "interval": [
-    25.38,
-    74.62
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 4,
-   "n_trials": 12,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
-   "tier": "agentic",
-   "facet": "family=select",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 41.67,
-   "interval": [
-    19.33,
-    68.05
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 4,
-   "n_trials": 12,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
-   "tier": "agentic",
-   "facet": "family=sequential",
-   "metric": "pass1",
-   "unit": "%",
    "value": 66.67,
    "interval": [
     39.06,
@@ -405,13 +373,45 @@
   {
    "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
    "tier": "agentic",
+   "facet": "family=select",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 83.33,
+   "interval": [
+    55.2,
+    95.3
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 4,
+   "n_trials": 12,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "agentic",
+   "facet": "family=sequential",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 58.33,
+   "interval": [
+    31.95,
+    80.67
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 4,
+   "n_trials": 12,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "agentic",
    "facet": "lane=assistant",
    "metric": "pass1",
    "unit": "%",
-   "value": 59.52,
+   "value": 71.43,
    "interval": [
-    44.49,
-    72.96
+    56.43,
+    82.83
    ],
    "interval_kind": "wilson",
    "n_cases": 14,
@@ -424,10 +424,10 @@
    "facet": "lane=neutral",
    "metric": "pass1",
    "unit": "%",
-   "value": 61.9,
+   "value": 64.29,
    "interval": [
-    46.81,
-    75.0
+    49.17,
+    77.01
    ],
    "interval_kind": "wilson",
    "n_cases": 14,
@@ -440,10 +440,10 @@
    "facet": null,
    "metric": "format_ok",
    "unit": "%",
-   "value": 95.24,
+   "value": 100.0,
    "interval": [
-    88.39,
-    98.13
+    95.63,
+    100.0
    ],
    "interval_kind": "wilson",
    "n_cases": 28,
@@ -456,10 +456,10 @@
    "facet": null,
    "metric": "steps",
    "unit": null,
-   "value": 2.2976,
+   "value": 2.5119,
    "interval": [
-    2.0652,
-    2.5476
+    2.2738,
+    2.7443
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 28,
@@ -472,10 +472,10 @@
    "facet": null,
    "metric": "wall_s",
    "unit": null,
-   "value": 6.7601,
+   "value": 6.5337,
    "interval": [
-    6.2795,
-    7.2824
+    6.0182,
+    7.0764
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 28,
@@ -488,10 +488,10 @@
    "facet": null,
    "metric": "text_understanding",
    "unit": "%",
-   "value": 97.93,
+   "value": 98.58,
    "interval": [
-    97.34,
-    98.42
+    97.97,
+    99.24
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 15,
@@ -500,10 +500,10 @@
    "label": "full",
    "vs": {
     "tuned": {
-     "delta": 14.23,
+     "delta": 14.88,
      "interval": [
-      9.84,
-      19.25
+      10.37,
+      20.39
      ],
      "tag": "better",
      "n_cases": 15,
@@ -511,10 +511,10 @@
      "losses": null
     },
     "base": {
-     "delta": 22.55,
+     "delta": 23.2,
      "interval": [
-      17.35,
-      27.01
+      17.79,
+      27.96
      ],
      "tag": "better",
      "n_cases": 15,
@@ -529,10 +529,10 @@
    "facet": null,
    "metric": "readability",
    "unit": "%",
-   "value": 76.6,
+   "value": 77.9,
    "interval": [
-    76.5,
-    76.7
+    77.72,
+    78.07
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 15,
@@ -541,10 +541,10 @@
    "label": "judge",
    "vs": {
     "tuned": {
-     "delta": 12.44,
+     "delta": 13.73,
      "interval": [
-      12.01,
-      12.87
+      13.3,
+      14.14
      ],
      "tag": "better",
      "n_cases": 15,
@@ -552,10 +552,10 @@
      "losses": null
     },
     "base": {
-     "delta": 10.33,
+     "delta": 11.62,
      "interval": [
-      10.07,
-      10.58
+      11.3,
+      11.95
      ],
      "tag": "better",
      "n_cases": 15,
@@ -570,10 +570,10 @@
    "facet": null,
    "metric": "writing",
    "unit": "%",
-   "value": 91.19,
+   "value": 92.38,
    "interval": [
-    90.92,
-    97.34
+    91.83,
+    97.66
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 15,
@@ -582,10 +582,10 @@
    "label": "checks only",
    "vs": {
     "tuned": {
-     "delta": 28.21,
+     "delta": 29.39,
      "interval": [
-      13.02,
-      33.51
+      10.07,
+      38.74
      ],
      "tag": "better",
      "n_cases": 15,
@@ -593,10 +593,10 @@
      "losses": null
     },
     "base": {
-     "delta": 33.06,
+     "delta": 34.24,
      "interval": [
-      16.15,
-      36.98
+      12.94,
+      39.14
      ],
      "tag": "better",
      "n_cases": 15,
@@ -667,10 +667,10 @@
    "facet": null,
    "metric": "score_mean",
    "unit": "%",
-   "value": 95.97,
+   "value": 97.62,
    "interval": [
-    94.99,
-    96.98
+    96.62,
+    98.65
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 15,
@@ -678,10 +678,10 @@
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 18.93,
+     "delta": 20.58,
      "interval": [
-      16.26,
-      21.51
+      17.53,
+      23.45
      ],
      "tag": "better",
      "n_cases": 15,
@@ -689,10 +689,10 @@
      "losses": 0
     },
     "base": {
-     "delta": 28.97,
+     "delta": 30.62,
      "interval": [
-      27.01,
-      30.83
+      28.11,
+      33.26
      ],
      "tag": "better",
      "n_cases": 15,
@@ -819,10 +819,10 @@
    "facet": null,
    "metric": "core_recall",
    "unit": null,
-   "value": 0.9472,
+   "value": 0.9857,
    "interval": [
-    0.9382,
-    0.9543
+    0.9693,
+    0.9981
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 6,
@@ -835,9 +835,9 @@
    "facet": null,
    "metric": "extraction_field_acc",
    "unit": null,
-   "value": 0.9746,
+   "value": 0.9703,
    "interval": [
-    0.959,
+    0.9377,
     1.0
    ],
    "interval_kind": "bootstrap_cases",
@@ -851,10 +851,10 @@
    "facet": null,
    "metric": "fabricated_atoms",
    "unit": null,
-   "value": 0.037,
+   "value": 0.1111,
    "interval": [
-    0.0,
-    0.1111
+    0.037,
+    0.2222
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 9,
@@ -867,10 +867,10 @@
    "facet": null,
    "metric": "fact_keep_rate",
    "unit": null,
-   "value": 0.916,
+   "value": 0.9653,
    "interval": [
-    0.916,
-    0.916
+    0.9653,
+    0.9653
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 1,
@@ -883,10 +883,10 @@
    "facet": null,
    "metric": "fix_rate",
    "unit": null,
-   "value": 1.0,
+   "value": 0.9463,
    "interval": [
-    1.0,
-    1.0
+    0.9463,
+    0.9463
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 1,
@@ -899,10 +899,10 @@
    "facet": null,
    "metric": "flag_rate",
    "unit": null,
-   "value": 0.9657,
+   "value": 0.97,
    "interval": [
-    0.9657,
-    0.9657
+    0.97,
+    0.97
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 1,
@@ -931,10 +931,10 @@
    "facet": null,
    "metric": "hygiene",
    "unit": null,
-   "value": 99.263,
+   "value": 98.8741,
    "interval": [
-    98.9778,
-    99.5281
+    98.4107,
+    99.4094
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 9,
@@ -947,10 +947,10 @@
    "facet": null,
    "metric": "invented_atoms",
    "unit": null,
-   "value": 0.1111,
+   "value": 0.3333,
    "interval": [
     0.0,
-    0.3333
+    0.6667
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
@@ -979,10 +979,10 @@
    "facet": null,
    "metric": "overedit",
    "unit": null,
-   "value": 0.0105,
+   "value": 0.0118,
    "interval": [
-    0.0105,
-    0.0105
+    0.0118,
+    0.0118
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 1,
@@ -995,10 +995,10 @@
    "facet": null,
    "metric": "point_recall",
    "unit": null,
-   "value": 0.9771,
+   "value": 0.9761,
    "interval": [
-    0.9527,
-    1.0
+    0.9593,
+    0.9993
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
@@ -1059,15 +1059,43 @@
    "facet": null,
    "metric": "visible_tokens",
    "unit": null,
-   "value": 214.5556,
+   "value": 222.8889,
    "interval": [
-    205.51,
-    223.6233
+    202.5978,
+    240.825
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 15,
    "n_trials": 45,
    "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "agentic_harbor_loop",
+   "facet": null,
+   "metric": "agentic_score_harbor_loop",
+   "unit": "%",
+   "value": null,
+   "interval": null,
+   "interval_kind": "none",
+   "n_cases": 0,
+   "n_trials": 0,
+   "status": "not_run",
+   "empty_reason": "cloud references run through the reference loop only"
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "agentic_harbor_loop",
+   "facet": "lane=neutral",
+   "metric": "pass1",
+   "unit": "%",
+   "value": null,
+   "interval": null,
+   "interval_kind": "none",
+   "n_cases": 0,
+   "n_trials": 0,
+   "status": "not_applicable",
+   "empty_reason": "Harbor's loop has no neutral lane"
   },
   {
    "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
@@ -1077,8 +1105,8 @@
    "unit": "%",
    "value": 65.48,
    "interval": [
-    57.14,
-    72.62
+    55.95,
+    73.84
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 28,
@@ -1088,8 +1116,8 @@
     "tuned": {
      "delta": 20.24,
      "interval": [
-      13.1,
-      27.38
+      11.9,
+      28.57
      ],
      "tag": "better",
      "n_cases": 28,
@@ -1099,8 +1127,8 @@
     "base": {
      "delta": 39.29,
      "interval": [
-      30.95,
-      47.62
+      29.76,
+      48.81
      ],
      "tag": "better",
      "n_cases": 28,
@@ -1128,13 +1156,13 @@
     "tuned": {
      "delta": 20.24,
      "interval": [
-      9.52,
-      30.95
+      8.33,
+      32.17
      ],
      "tag": "better",
      "n_cases": 28,
-     "wins": 16,
-     "losses": 3
+     "wins": 15,
+     "losses": 4
     },
     "base": {
      "delta": 39.29,
@@ -1144,8 +1172,8 @@
      ],
      "tag": "better",
      "n_cases": 28,
-     "wins": 20,
-     "losses": 1
+     "wins": 22,
+     "losses": 2
     }
    }
   },
@@ -1155,10 +1183,10 @@
    "facet": null,
    "metric": "pass_all_trials",
    "unit": "%",
-   "value": 35.71,
+   "value": 32.14,
    "interval": [
-    20.71,
-    54.17
+    17.93,
+    50.66
    ],
    "interval_kind": "wilson",
    "n_cases": 28,
@@ -1171,10 +1199,10 @@
    "facet": null,
    "metric": "score_mean",
    "unit": "%",
-   "value": 79.52,
+   "value": 83.49,
    "interval": [
-    70.8,
-    87.46
+    77.48,
+    89.02
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 28,
@@ -1182,10 +1210,10 @@
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 9.45,
+     "delta": 13.42,
      "interval": [
-      2.1,
-      17.1
+      5.63,
+      21.99
      ],
      "tag": "better",
      "n_cases": 28,
@@ -1193,15 +1221,15 @@
      "losses": 7
     },
     "base": {
-     "delta": 22.1,
+     "delta": 26.07,
      "interval": [
-      13.06,
-      30.78
+      18.24,
+      33.62
      ],
      "tag": "better",
      "n_cases": 28,
-     "wins": 23,
-     "losses": 5
+     "wins": 24,
+     "losses": 4
     }
    }
   },
@@ -1211,10 +1239,10 @@
    "facet": "family=abstain",
    "metric": "pass1",
    "unit": "%",
-   "value": 66.67,
+   "value": 75.0,
    "interval": [
-    39.06,
-    86.19
+    46.77,
+    91.11
    ],
    "interval_kind": "wilson",
    "n_cases": 4,
@@ -1227,10 +1255,10 @@
    "facet": "family=mixed",
    "metric": "pass1",
    "unit": "%",
-   "value": 58.33,
+   "value": 50.0,
    "interval": [
-    31.95,
-    80.67
+    25.38,
+    74.62
    ],
    "interval_kind": "wilson",
    "n_cases": 4,
@@ -1243,10 +1271,10 @@
    "facet": "family=parallel",
    "metric": "pass1",
    "unit": "%",
-   "value": 58.33,
+   "value": 66.67,
    "interval": [
-    31.95,
-    80.67
+    39.06,
+    86.19
    ],
    "interval_kind": "wilson",
    "n_cases": 4,
@@ -1259,10 +1287,10 @@
    "facet": "family=pev",
    "metric": "pass1",
    "unit": "%",
-   "value": 66.67,
+   "value": 58.33,
    "interval": [
-    39.06,
-    86.19
+    31.95,
+    80.67
    ],
    "interval_kind": "wilson",
    "n_cases": 4,
@@ -1291,10 +1319,10 @@
    "facet": "family=select",
    "metric": "pass1",
    "unit": "%",
-   "value": 58.33,
+   "value": 66.67,
    "interval": [
-    31.95,
-    80.67
+    39.06,
+    86.19
    ],
    "interval_kind": "wilson",
    "n_cases": 4,
@@ -1307,10 +1335,10 @@
    "facet": "family=sequential",
    "metric": "pass1",
    "unit": "%",
-   "value": 75.0,
+   "value": 66.67,
    "interval": [
-    46.77,
-    91.11
+    39.06,
+    86.19
    ],
    "interval_kind": "wilson",
    "n_cases": 4,
@@ -1323,10 +1351,10 @@
    "facet": "lane=assistant",
    "metric": "pass1",
    "unit": "%",
-   "value": 61.9,
+   "value": 59.52,
    "interval": [
-    46.81,
-    75.0
+    44.49,
+    72.96
    ],
    "interval_kind": "wilson",
    "n_cases": 14,
@@ -1339,10 +1367,10 @@
    "facet": "lane=neutral",
    "metric": "pass1",
    "unit": "%",
-   "value": 69.05,
+   "value": 71.43,
    "interval": [
-    53.97,
-    80.93
+    56.43,
+    82.83
    ],
    "interval_kind": "wilson",
    "n_cases": 14,
@@ -1355,10 +1383,10 @@
    "facet": null,
    "metric": "format_ok",
    "unit": "%",
-   "value": 97.62,
+   "value": 95.24,
    "interval": [
-    91.73,
-    99.34
+    88.39,
+    98.13
    ],
    "interval_kind": "wilson",
    "n_cases": 28,
@@ -1371,10 +1399,10 @@
    "facet": null,
    "metric": "steps",
    "unit": null,
-   "value": 2.4524,
+   "value": 2.5476,
    "interval": [
-    2.1842,
-    2.7143
+    2.3866,
+    2.7262
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 28,
@@ -1387,10 +1415,10 @@
    "facet": null,
    "metric": "wall_s",
    "unit": null,
-   "value": 6.6515,
+   "value": 6.0155,
    "interval": [
-    6.2047,
-    7.1467
+    5.58,
+    6.4719
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 28,
@@ -1403,10 +1431,10 @@
    "facet": null,
    "metric": "text_understanding",
    "unit": "%",
-   "value": 98.09,
+   "value": 98.15,
    "interval": [
-    96.74,
-    99.31
+    97.28,
+    99.06
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 15,
@@ -1415,10 +1443,10 @@
    "label": "full",
    "vs": {
     "tuned": {
-     "delta": 14.39,
+     "delta": 14.45,
      "interval": [
-      10.55,
-      19.34
+      10.07,
+      19.9
      ],
      "tag": "better",
      "n_cases": 15,
@@ -1426,10 +1454,10 @@
      "losses": null
     },
     "base": {
-     "delta": 22.71,
+     "delta": 22.77,
      "interval": [
-      17.26,
-      27.29
+      17.32,
+      27.51
      ],
      "tag": "better",
      "n_cases": 15,
@@ -1444,10 +1472,10 @@
    "facet": null,
    "metric": "readability",
    "unit": "%",
-   "value": 77.06,
+   "value": 78.09,
    "interval": [
-    76.91,
-    77.2
+    77.94,
+    78.23
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 15,
@@ -1456,10 +1484,10 @@
    "label": "judge",
    "vs": {
     "tuned": {
-     "delta": 12.89,
+     "delta": 13.92,
      "interval": [
-      12.5,
-      13.32
+      13.48,
+      14.38
      ],
      "tag": "better",
      "n_cases": 15,
@@ -1467,10 +1495,10 @@
      "losses": null
     },
     "base": {
-     "delta": 10.79,
+     "delta": 11.82,
      "interval": [
-      10.48,
-      11.07
+      11.49,
+      12.15
      ],
      "tag": "better",
      "n_cases": 15,
@@ -1485,10 +1513,10 @@
    "facet": null,
    "metric": "writing",
    "unit": "%",
-   "value": 92.2,
+   "value": 91.57,
    "interval": [
-    92.1,
-    98.08
+    91.4,
+    96.56
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 15,
@@ -1497,10 +1525,10 @@
    "label": "checks only",
    "vs": {
     "tuned": {
-     "delta": 29.21,
+     "delta": 28.58,
      "interval": [
-      11.25,
-      36.28
+      11.12,
+      35.11
      ],
      "tag": "better",
      "n_cases": 15,
@@ -1508,10 +1536,10 @@
      "losses": null
     },
     "base": {
-     "delta": 34.07,
+     "delta": 33.43,
      "interval": [
-      13.3,
-      40.24
+      13.17,
+      38.22
      ],
      "tag": "better",
      "n_cases": 15,
@@ -1582,10 +1610,10 @@
    "facet": null,
    "metric": "score_mean",
    "unit": "%",
-   "value": 96.55,
+   "value": 96.47,
    "interval": [
-    95.03,
-    97.92
+    95.25,
+    97.66
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 15,
@@ -1593,10 +1621,10 @@
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 19.52,
+     "delta": 19.43,
      "interval": [
-      16.86,
-      22.11
+      16.68,
+      21.97
      ],
      "tag": "better",
      "n_cases": 15,
@@ -1604,10 +1632,10 @@
      "losses": 0
     },
     "base": {
-     "delta": 29.55,
+     "delta": 29.47,
      "interval": [
-      26.58,
-      32.42
+      26.92,
+      32.11
      ],
      "tag": "better",
      "n_cases": 15,
@@ -1734,10 +1762,10 @@
    "facet": null,
    "metric": "core_recall",
    "unit": null,
-   "value": 0.9521,
+   "value": 0.9702,
    "interval": [
-    0.9215,
-    0.9814
+    0.9512,
+    0.9879
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 6,
@@ -1750,10 +1778,10 @@
    "facet": null,
    "metric": "extraction_field_acc",
    "unit": null,
-   "value": 0.9759,
+   "value": 0.9739,
    "interval": [
-    0.958,
-    0.9863
+    0.9627,
+    0.9917
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
@@ -1766,10 +1794,10 @@
    "facet": null,
    "metric": "fabricated_atoms",
    "unit": null,
-   "value": 0.037,
+   "value": 0.1111,
    "interval": [
-    0.0,
-    0.1111
+    0.037,
+    0.2222
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 9,
@@ -1782,10 +1810,10 @@
    "facet": null,
    "metric": "fact_keep_rate",
    "unit": null,
-   "value": 0.9563,
+   "value": 0.9427,
    "interval": [
-    0.9563,
-    0.9563
+    0.9427,
+    0.9427
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 1,
@@ -1814,10 +1842,10 @@
    "facet": null,
    "metric": "flag_rate",
    "unit": null,
-   "value": 0.9303,
+   "value": 1.0,
    "interval": [
-    0.9303,
-    0.9303
+    1.0,
+    1.0
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 1,
@@ -1846,10 +1874,10 @@
    "facet": null,
    "metric": "hygiene",
    "unit": null,
-   "value": 99.4556,
+   "value": 99.2333,
    "interval": [
-    99.0109,
-    99.8427
+    98.8667,
+    99.6168
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 9,
@@ -1894,10 +1922,10 @@
    "facet": null,
    "metric": "overedit",
    "unit": null,
-   "value": 0.0136,
+   "value": 0.0106,
    "interval": [
-    0.0136,
-    0.0136
+    0.0106,
+    0.0106
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 1,
@@ -1910,10 +1938,10 @@
    "facet": null,
    "metric": "point_recall",
    "unit": null,
-   "value": 0.9662,
+   "value": 0.9409,
    "interval": [
-    0.9457,
-    0.9983
+    0.9173,
+    0.957
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
@@ -1974,10 +2002,10 @@
    "facet": null,
    "metric": "visible_tokens",
    "unit": null,
-   "value": 221.4444,
+   "value": 224.5111,
    "interval": [
-    207.5172,
-    234.5622
+    212.2106,
+    238.9672
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 15,
@@ -1985,14 +2013,42 @@
    "status": null
   },
   {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "agentic_harbor_loop",
+   "facet": null,
+   "metric": "agentic_score_harbor_loop",
+   "unit": "%",
+   "value": null,
+   "interval": null,
+   "interval_kind": "none",
+   "n_cases": 0,
+   "n_trials": 0,
+   "status": "not_run",
+   "empty_reason": "cloud references run through the reference loop only"
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "agentic_harbor_loop",
+   "facet": "lane=neutral",
+   "metric": "pass1",
+   "unit": "%",
+   "value": null,
+   "interval": null,
+   "interval_kind": "none",
+   "n_cases": 0,
+   "n_trials": 0,
+   "status": "not_applicable",
+   "empty_reason": "Harbor's loop has no neutral lane"
+  },
+  {
    "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
    "tier": "agentic",
    "facet": null,
    "metric": "agentic_score",
    "unit": "%",
-   "value": 60.71,
+   "value": 58.33,
    "interval": [
-    52.38,
+    47.62,
     69.05
    ],
    "interval_kind": "bootstrap_cases",
@@ -2001,10 +2057,10 @@
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 15.48,
+     "delta": 13.1,
      "interval": [
-      3.57,
-      27.38
+      4.76,
+      21.43
      ],
      "tag": "better",
      "n_cases": 28,
@@ -2012,10 +2068,10 @@
      "losses": null
     },
     "base": {
-     "delta": 34.52,
+     "delta": 32.14,
      "interval": [
-      22.62,
-      46.43
+      21.43,
+      42.86
      ],
      "tag": "better",
      "n_cases": 28,
@@ -2030,10 +2086,10 @@
    "facet": null,
    "metric": "pass1",
    "unit": "%",
-   "value": 60.71,
+   "value": 58.33,
    "interval": [
-    50.02,
-    70.47
+    47.65,
+    68.29
    ],
    "interval_kind": "wilson",
    "n_cases": 28,
@@ -2041,25 +2097,25 @@
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 15.48,
+     "delta": 13.1,
      "interval": [
-      1.19,
-      30.95
+      2.38,
+      23.81
      ],
      "tag": "better",
      "n_cases": 28,
      "wins": 15,
-     "losses": 6
+     "losses": 5
     },
     "base": {
-     "delta": 34.52,
+     "delta": 32.14,
      "interval": [
-      21.43,
-      47.62
+      17.86,
+      46.43
      ],
      "tag": "better",
      "n_cases": 28,
-     "wins": 20,
+     "wins": 19,
      "losses": 3
     }
    }
@@ -2070,10 +2126,10 @@
    "facet": null,
    "metric": "pass_all_trials",
    "unit": "%",
-   "value": 28.57,
+   "value": 32.14,
    "interval": [
-    15.25,
-    47.06
+    17.93,
+    50.66
    ],
    "interval_kind": "wilson",
    "n_cases": 28,
@@ -2086,10 +2142,10 @@
    "facet": null,
    "metric": "score_mean",
    "unit": "%",
-   "value": 77.41,
+   "value": 75.36,
    "interval": [
-    70.56,
-    83.91
+    66.94,
+    82.84
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 28,
@@ -2097,26 +2153,26 @@
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 7.34,
+     "delta": 5.29,
      "interval": [
-      -2.95,
-      16.59
+      -1.91,
+      12.4
      ],
      "tag": "no_clear_difference",
      "n_cases": 28,
      "wins": 17,
-     "losses": 10
+     "losses": 9
     },
     "base": {
-     "delta": 19.99,
+     "delta": 17.94,
      "interval": [
-      11.07,
-      28.25
+      10.27,
+      25.67
      ],
      "tag": "better",
      "n_cases": 28,
-     "wins": 20,
-     "losses": 8
+     "wins": 23,
+     "losses": 5
     }
    }
   },
@@ -2124,22 +2180,6 @@
    "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
    "tier": "agentic",
    "facet": "family=abstain",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 83.33,
-   "interval": [
-    55.2,
-    95.3
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 4,
-   "n_trials": 12,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
-   "tier": "agentic",
-   "facet": "family=mixed",
    "metric": "pass1",
    "unit": "%",
    "value": 58.33,
@@ -2155,13 +2195,29 @@
   {
    "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
    "tier": "agentic",
+   "facet": "family=mixed",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 50.0,
+   "interval": [
+    25.38,
+    74.62
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 4,
+   "n_trials": 12,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "agentic",
    "facet": "family=parallel",
    "metric": "pass1",
    "unit": "%",
-   "value": 75.0,
+   "value": 50.0,
    "interval": [
-    46.77,
-    91.11
+    25.38,
+    74.62
    ],
    "interval_kind": "wilson",
    "n_cases": 4,
@@ -2174,10 +2230,10 @@
    "facet": "family=pev",
    "metric": "pass1",
    "unit": "%",
-   "value": 50.0,
+   "value": 58.33,
    "interval": [
-    25.38,
-    74.62
+    31.95,
+    80.67
    ],
    "interval_kind": "wilson",
    "n_cases": 4,
@@ -2190,6 +2246,22 @@
    "facet": "family=recovery",
    "metric": "pass1",
    "unit": "%",
+   "value": 83.33,
+   "interval": [
+    55.2,
+    95.3
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 4,
+   "n_trials": 12,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "agentic",
+   "facet": "family=select",
+   "metric": "pass1",
+   "unit": "%",
    "value": 50.0,
    "interval": [
     25.38,
@@ -2203,29 +2275,13 @@
   {
    "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
    "tier": "agentic",
-   "facet": "family=select",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 66.67,
-   "interval": [
-    39.06,
-    86.19
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 4,
-   "n_trials": 12,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
-   "tier": "agentic",
    "facet": "family=sequential",
    "metric": "pass1",
    "unit": "%",
-   "value": 41.67,
+   "value": 58.33,
    "interval": [
-    19.33,
-    68.05
+    31.95,
+    80.67
    ],
    "interval_kind": "wilson",
    "n_cases": 4,
@@ -2254,10 +2310,10 @@
    "facet": "lane=neutral",
    "metric": "pass1",
    "unit": "%",
-   "value": 66.67,
+   "value": 61.9,
    "interval": [
-    51.55,
-    78.99
+    46.81,
+    75.0
    ],
    "interval_kind": "wilson",
    "n_cases": 14,
@@ -2286,10 +2342,10 @@
    "facet": null,
    "metric": "steps",
    "unit": null,
-   "value": 2.381,
+   "value": 2.2262,
    "interval": [
-    2.1548,
-    2.5952
+    2.0595,
+    2.3872
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 28,
@@ -2302,10 +2358,10 @@
    "facet": null,
    "metric": "wall_s",
    "unit": null,
-   "value": 7.1852,
+   "value": 6.4054,
    "interval": [
-    6.7895,
-    7.6431
+    6.0104,
+    6.8528
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 28,
@@ -2318,10 +2374,10 @@
    "facet": null,
    "metric": "text_understanding",
    "unit": "%",
-   "value": 97.67,
+   "value": 96.7,
    "interval": [
-    96.73,
-    98.63
+    94.53,
+    98.76
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 15,
@@ -2330,10 +2386,10 @@
    "label": "full",
    "vs": {
     "tuned": {
-     "delta": 13.97,
+     "delta": 13.0,
      "interval": [
-      9.75,
-      19.15
+      8.22,
+      18.86
      ],
      "tag": "better",
      "n_cases": 15,
@@ -2341,10 +2397,10 @@
      "losses": null
     },
     "base": {
-     "delta": 22.29,
+     "delta": 21.32,
      "interval": [
-      16.96,
-      26.84
+      15.68,
+      26.55
      ],
      "tag": "better",
      "n_cases": 15,
@@ -2359,10 +2415,10 @@
    "facet": null,
    "metric": "readability",
    "unit": "%",
-   "value": 76.74,
+   "value": 75.41,
    "interval": [
-    76.49,
-    77.0
+    75.24,
+    75.65
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 15,
@@ -2371,10 +2427,10 @@
    "label": "judge",
    "vs": {
     "tuned": {
-     "delta": 12.57,
+     "delta": 11.24,
      "interval": [
-      12.06,
-      13.1
+      10.82,
+      11.8
      ],
      "tag": "better",
      "n_cases": 15,
@@ -2382,10 +2438,10 @@
      "losses": null
     },
     "base": {
-     "delta": 10.47,
+     "delta": 9.14,
      "interval": [
-      10.14,
-      10.82
+      8.75,
+      9.52
      ],
      "tag": "better",
      "n_cases": 15,
@@ -2400,10 +2456,10 @@
    "facet": null,
    "metric": "writing",
    "unit": "%",
-   "value": 92.92,
+   "value": 90.48,
    "interval": [
-    92.4,
-    97.28
+    89.74,
+    97.43
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 15,
@@ -2412,10 +2468,10 @@
    "label": "checks only",
    "vs": {
     "tuned": {
-     "delta": 29.94,
+     "delta": 27.5,
      "interval": [
-      12.76,
-      34.72
+      11.07,
+      31.88
      ],
      "tag": "better",
      "n_cases": 15,
@@ -2423,10 +2479,10 @@
      "losses": null
     },
     "base": {
-     "delta": 34.79,
+     "delta": 32.35,
      "interval": [
-      15.88,
-      39.32
+      13.13,
+      37.59
      ],
      "tag": "better",
      "n_cases": 15,
@@ -2497,10 +2553,10 @@
    "facet": null,
    "metric": "score_mean",
    "unit": "%",
-   "value": 93.72,
+   "value": 94.22,
    "interval": [
-    91.63,
-    95.72
+    92.22,
+    96.1
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 15,
@@ -2508,10 +2564,10 @@
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 16.69,
+     "delta": 17.19,
      "interval": [
-      13.12,
-      19.95
+      14.21,
+      20.06
      ],
      "tag": "better",
      "n_cases": 15,
@@ -2519,10 +2575,10 @@
      "losses": 0
     },
     "base": {
-     "delta": 26.72,
+     "delta": 27.23,
      "interval": [
-      23.79,
-      29.5
+      24.53,
+      29.91
      ],
      "tag": "better",
      "n_cases": 15,
@@ -2649,10 +2705,10 @@
    "facet": null,
    "metric": "core_recall",
    "unit": null,
-   "value": 0.9466,
+   "value": 0.9457,
    "interval": [
-    0.9221,
-    0.9694
+    0.9154,
+    0.9748
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 6,
@@ -2665,10 +2721,10 @@
    "facet": null,
    "metric": "extraction_field_acc",
    "unit": null,
-   "value": 0.9503,
+   "value": 0.9488,
    "interval": [
-    0.8983,
-    1.0
+    0.8917,
+    0.9787
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
@@ -2681,10 +2737,10 @@
    "facet": null,
    "metric": "fabricated_atoms",
    "unit": null,
-   "value": 0.037,
+   "value": 0.1852,
    "interval": [
-    0.0,
-    0.1111
+    0.037,
+    0.4074
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 9,
@@ -2697,10 +2753,10 @@
    "facet": null,
    "metric": "fact_keep_rate",
    "unit": null,
-   "value": 0.9593,
+   "value": 0.9397,
    "interval": [
-    0.9593,
-    0.9593
+    0.9397,
+    0.9397
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 1,
@@ -2713,10 +2769,10 @@
    "facet": null,
    "metric": "fix_rate",
    "unit": null,
-   "value": 0.896,
+   "value": 0.8917,
    "interval": [
-    0.896,
-    0.896
+    0.8917,
+    0.8917
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 1,
@@ -2729,10 +2785,10 @@
    "facet": null,
    "metric": "flag_rate",
    "unit": null,
-   "value": 0.988,
+   "value": 0.924,
    "interval": [
-    0.988,
-    0.988
+    0.924,
+    0.924
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 1,
@@ -2761,10 +2817,10 @@
    "facet": null,
    "metric": "hygiene",
    "unit": null,
-   "value": 97.7963,
+   "value": 97.3444,
    "interval": [
-    97.0647,
-    98.5006
+    96.8499,
+    98.0575
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 9,
@@ -2777,10 +2833,10 @@
    "facet": null,
    "metric": "invented_atoms",
    "unit": null,
-   "value": 0.0,
+   "value": 0.2222,
    "interval": [
     0.0,
-    0.0
+    0.3333
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
@@ -2809,10 +2865,10 @@
    "facet": null,
    "metric": "overedit",
    "unit": null,
-   "value": 0.01,
+   "value": 0.0087,
    "interval": [
-    0.01,
-    0.01
+    0.0087,
+    0.0087
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 1,
@@ -2825,10 +2881,10 @@
    "facet": null,
    "metric": "point_recall",
    "unit": null,
-   "value": 0.949,
+   "value": 0.942,
    "interval": [
-    0.9123,
-    1.0
+    0.8757,
+    0.9827
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
@@ -2889,10 +2945,10 @@
    "facet": null,
    "metric": "visible_tokens",
    "unit": null,
-   "value": 202.5778,
+   "value": 221.0444,
    "interval": [
-    185.8544,
-    217.635
+    203.4589,
+    236.4922
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 15,
@@ -2900,15 +2956,43 @@
    "status": null
   },
   {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "agentic_harbor_loop",
+   "facet": null,
+   "metric": "agentic_score_harbor_loop",
+   "unit": "%",
+   "value": null,
+   "interval": null,
+   "interval_kind": "none",
+   "n_cases": 0,
+   "n_trials": 0,
+   "status": "not_run",
+   "empty_reason": "cloud references run through the reference loop only"
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "agentic_harbor_loop",
+   "facet": "lane=neutral",
+   "metric": "pass1",
+   "unit": "%",
+   "value": null,
+   "interval": null,
+   "interval_kind": "none",
+   "n_cases": 0,
+   "n_trials": 0,
+   "status": "not_applicable",
+   "empty_reason": "Harbor's loop has no neutral lane"
+  },
+  {
    "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
    "tier": "agentic",
    "facet": null,
    "metric": "agentic_score",
    "unit": "%",
-   "value": 66.67,
+   "value": 82.14,
    "interval": [
-    60.71,
-    72.62
+    77.38,
+    86.9
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 28,
@@ -2916,10 +3000,10 @@
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 21.43,
+     "delta": 36.9,
      "interval": [
-      14.29,
-      28.57
+      29.76,
+      45.24
      ],
      "tag": "better",
      "n_cases": 28,
@@ -2927,10 +3011,10 @@
      "losses": null
     },
     "base": {
-     "delta": 40.48,
+     "delta": 55.95,
      "interval": [
-      35.71,
-      45.24
+      47.62,
+      63.12
      ],
      "tag": "better",
      "n_cases": 28,
@@ -2945,10 +3029,10 @@
    "facet": null,
    "metric": "pass1",
    "unit": "%",
-   "value": 66.67,
+   "value": 82.14,
    "interval": [
-    56.05,
-    75.82
+    72.61,
+    88.87
    ],
    "interval_kind": "wilson",
    "n_cases": 28,
@@ -2956,21 +3040,21 @@
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 21.43,
+     "delta": 36.9,
      "interval": [
-      11.9,
-      30.98
+      26.19,
+      47.62
      ],
      "tag": "better",
      "n_cases": 28,
-     "wins": 15,
-     "losses": 1
+     "wins": 20,
+     "losses": 0
     },
     "base": {
-     "delta": 40.48,
+     "delta": 55.95,
      "interval": [
-      32.14,
-      50.0
+      44.05,
+      67.86
      ],
      "tag": "better",
      "n_cases": 28,
@@ -2985,10 +3069,10 @@
    "facet": null,
    "metric": "pass_all_trials",
    "unit": "%",
-   "value": 28.57,
+   "value": 50.0,
    "interval": [
-    15.25,
-    47.06
+    32.63,
+    67.37
    ],
    "interval_kind": "wilson",
    "n_cases": 28,
@@ -3001,10 +3085,10 @@
    "facet": null,
    "metric": "score_mean",
    "unit": "%",
-   "value": 80.4,
+   "value": 89.02,
    "interval": [
-    73.79,
-    86.85
+    84.59,
+    93.24
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 28,
@@ -3012,26 +3096,26 @@
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 10.33,
+     "delta": 18.95,
      "interval": [
-      1.95,
-      18.63
+      11.92,
+      25.88
      ],
      "tag": "better",
      "n_cases": 28,
-     "wins": 18,
-     "losses": 9
+     "wins": 21,
+     "losses": 4
     },
     "base": {
-     "delta": 22.99,
+     "delta": 31.6,
      "interval": [
-      16.37,
-      29.54
+      23.63,
+      38.99
      ],
      "tag": "better",
      "n_cases": 28,
-     "wins": 24,
-     "losses": 4
+     "wins": 26,
+     "losses": 2
     }
    }
   },
@@ -3039,38 +3123,6 @@
    "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
    "tier": "agentic",
    "facet": "family=abstain",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 75.0,
-   "interval": [
-    46.77,
-    91.11
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 4,
-   "n_trials": 12,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
-   "tier": "agentic",
-   "facet": "family=mixed",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 50.0,
-   "interval": [
-    25.38,
-    74.62
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 4,
-   "n_trials": 12,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
-   "tier": "agentic",
-   "facet": "family=parallel",
    "metric": "pass1",
    "unit": "%",
    "value": 91.67,
@@ -3086,13 +3138,45 @@
   {
    "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
    "tier": "agentic",
-   "facet": "family=pev",
+   "facet": "family=mixed",
    "metric": "pass1",
    "unit": "%",
    "value": 58.33,
    "interval": [
     31.95,
     80.67
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 4,
+   "n_trials": 12,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "agentic",
+   "facet": "family=parallel",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 75.0,
+   "interval": [
+    46.77,
+    91.11
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 4,
+   "n_trials": 12,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "agentic",
+   "facet": "family=pev",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 75.0,
+   "interval": [
+    46.77,
+    91.11
    ],
    "interval_kind": "wilson",
    "n_cases": 4,
@@ -3105,10 +3189,10 @@
    "facet": "family=recovery",
    "metric": "pass1",
    "unit": "%",
-   "value": 66.67,
+   "value": 91.67,
    "interval": [
-    39.06,
-    86.19
+    64.61,
+    98.51
    ],
    "interval_kind": "wilson",
    "n_cases": 4,
@@ -3121,10 +3205,10 @@
    "facet": "family=select",
    "metric": "pass1",
    "unit": "%",
-   "value": 66.67,
+   "value": 100.0,
    "interval": [
-    39.06,
-    86.19
+    75.75,
+    100.0
    ],
    "interval_kind": "wilson",
    "n_cases": 4,
@@ -3137,10 +3221,10 @@
    "facet": "family=sequential",
    "metric": "pass1",
    "unit": "%",
-   "value": 58.33,
+   "value": 83.33,
    "interval": [
-    31.95,
-    80.67
+    55.2,
+    95.3
    ],
    "interval_kind": "wilson",
    "n_cases": 4,
@@ -3153,10 +3237,10 @@
    "facet": "lane=assistant",
    "metric": "pass1",
    "unit": "%",
-   "value": 64.29,
+   "value": 83.33,
    "interval": [
-    49.17,
-    77.01
+    69.4,
+    91.68
    ],
    "interval_kind": "wilson",
    "n_cases": 14,
@@ -3169,10 +3253,10 @@
    "facet": "lane=neutral",
    "metric": "pass1",
    "unit": "%",
-   "value": 69.05,
+   "value": 80.95,
    "interval": [
-    53.97,
-    80.93
+    66.7,
+    90.02
    ],
    "interval_kind": "wilson",
    "n_cases": 14,
@@ -3201,10 +3285,10 @@
    "facet": null,
    "metric": "steps",
    "unit": null,
-   "value": 2.5714,
+   "value": 2.381,
    "interval": [
-    2.3452,
-    2.7976
+    2.1905,
+    2.5952
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 28,
@@ -3217,10 +3301,10 @@
    "facet": null,
    "metric": "wall_s",
    "unit": null,
-   "value": 6.202,
+   "value": 6.2926,
    "interval": [
-    5.6628,
-    6.7897
+    5.8156,
+    6.756
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 28,
@@ -3233,10 +3317,10 @@
    "facet": null,
    "metric": "text_understanding",
    "unit": "%",
-   "value": 96.48,
+   "value": 95.65,
    "interval": [
-    95.11,
-    97.84
+    94.21,
+    97.01
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 15,
@@ -3245,10 +3329,10 @@
    "label": "full",
    "vs": {
     "tuned": {
-     "delta": 12.78,
+     "delta": 11.95,
      "interval": [
-      8.15,
-      18.51
+      6.84,
+      17.41
      ],
      "tag": "better",
      "n_cases": 15,
@@ -3256,10 +3340,10 @@
      "losses": null
     },
     "base": {
-     "delta": 21.1,
+     "delta": 20.27,
      "interval": [
-      15.35,
-      26.38
+      14.86,
+      25.01
      ],
      "tag": "better",
      "n_cases": 15,
@@ -3274,10 +3358,10 @@
    "facet": null,
    "metric": "readability",
    "unit": "%",
-   "value": 76.06,
+   "value": 76.66,
    "interval": [
-    75.74,
-    76.35
+    76.44,
+    76.87
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 15,
@@ -3286,10 +3370,10 @@
    "label": "judge",
    "vs": {
     "tuned": {
-     "delta": 11.89,
+     "delta": 12.5,
      "interval": [
-      11.39,
-      12.39
+      12.13,
+      12.92
      ],
      "tag": "better",
      "n_cases": 15,
@@ -3297,10 +3381,10 @@
      "losses": null
     },
     "base": {
-     "delta": 9.78,
+     "delta": 10.39,
      "interval": [
-      9.34,
-      10.24
+      10.09,
+      10.68
      ],
      "tag": "better",
      "n_cases": 15,
@@ -3315,10 +3399,10 @@
    "facet": null,
    "metric": "writing",
    "unit": "%",
-   "value": 90.13,
+   "value": 92.78,
    "interval": [
-    89.19,
-    96.58
+    91.85,
+    96.71
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 15,
@@ -3327,10 +3411,10 @@
    "label": "checks only",
    "vs": {
     "tuned": {
-     "delta": 27.14,
+     "delta": 29.79,
      "interval": [
-      10.88,
-      31.58
+      10.82,
+      32.96
      ],
      "tag": "better",
      "n_cases": 15,
@@ -3338,10 +3422,10 @@
      "losses": null
     },
     "base": {
-     "delta": 32.0,
+     "delta": 34.65,
      "interval": [
-      13.41,
-      37.55
+      12.88,
+      38.93
      ],
      "tag": "better",
      "n_cases": 15,
@@ -3412,10 +3496,10 @@
    "facet": null,
    "metric": "score_mean",
    "unit": "%",
-   "value": 94.12,
+   "value": 91.45,
    "interval": [
-    92.55,
-    95.68
+    89.76,
+    93.03
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 15,
@@ -3423,21 +3507,21 @@
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 17.09,
+     "delta": 14.42,
      "interval": [
-      14.1,
-      19.92
+      10.73,
+      17.7
      ],
      "tag": "better",
      "n_cases": 15,
-     "wins": 15,
-     "losses": 0
+     "wins": 14,
+     "losses": 1
     },
     "base": {
-     "delta": 27.13,
+     "delta": 24.46,
      "interval": [
-      24.98,
-      29.33
+      21.95,
+      26.74
      ],
      "tag": "better",
      "n_cases": 15,
@@ -3564,10 +3648,10 @@
    "facet": null,
    "metric": "core_recall",
    "unit": null,
-   "value": 0.9286,
+   "value": 0.9072,
    "interval": [
-    0.9081,
-    0.9516
+    0.8714,
+    0.939
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 6,
@@ -3580,10 +3664,10 @@
    "facet": null,
    "metric": "extraction_field_acc",
    "unit": null,
-   "value": 0.9782,
+   "value": 0.9363,
    "interval": [
-    0.964,
-    1.0
+    0.9133,
+    0.954
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
@@ -3596,10 +3680,10 @@
    "facet": null,
    "metric": "fabricated_atoms",
    "unit": null,
-   "value": 0.1852,
+   "value": 0.1481,
    "interval": [
     0.037,
-    0.3333
+    0.2963
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 9,
@@ -3612,10 +3696,10 @@
    "facet": null,
    "metric": "fact_keep_rate",
    "unit": null,
-   "value": 0.955,
+   "value": 0.9727,
    "interval": [
-    0.955,
-    0.955
+    0.9727,
+    0.9727
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 1,
@@ -3628,10 +3712,10 @@
    "facet": null,
    "metric": "fix_rate",
    "unit": null,
-   "value": 0.9733,
+   "value": 0.9683,
    "interval": [
-    0.9733,
-    0.9733
+    0.9683,
+    0.9683
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 1,
@@ -3644,10 +3728,10 @@
    "facet": null,
    "metric": "flag_rate",
    "unit": null,
-   "value": 0.9393,
+   "value": 0.958,
    "interval": [
-    0.9393,
-    0.9393
+    0.958,
+    0.958
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 1,
@@ -3676,10 +3760,10 @@
    "facet": null,
    "metric": "hygiene",
    "unit": null,
-   "value": 97.7,
+   "value": 97.3963,
    "interval": [
-    96.8532,
-    98.491
+    96.6924,
+    97.9446
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 9,
@@ -3724,10 +3808,10 @@
    "facet": null,
    "metric": "overedit",
    "unit": null,
-   "value": 0.0147,
+   "value": 0.0044,
    "interval": [
-    0.0147,
-    0.0147
+    0.0044,
+    0.0044
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 1,
@@ -3740,10 +3824,10 @@
    "facet": null,
    "metric": "point_recall",
    "unit": null,
-   "value": 0.9349,
+   "value": 0.9103,
    "interval": [
-    0.918,
-    0.9583
+    0.873,
+    0.937
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
@@ -3804,15 +3888,43 @@
    "facet": null,
    "metric": "visible_tokens",
    "unit": null,
-   "value": 226.9778,
+   "value": 231.1111,
    "interval": [
-    210.5311,
-    241.8339
+    220.0533,
+    244.2894
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 15,
    "n_trials": 45,
    "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "agentic_harbor_loop",
+   "facet": null,
+   "metric": "agentic_score_harbor_loop",
+   "unit": "%",
+   "value": null,
+   "interval": null,
+   "interval_kind": "none",
+   "n_cases": 0,
+   "n_trials": 0,
+   "status": "not_run",
+   "empty_reason": "cloud references run through the reference loop only"
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "agentic_harbor_loop",
+   "facet": "lane=neutral",
+   "metric": "pass1",
+   "unit": "%",
+   "value": null,
+   "interval": null,
+   "interval_kind": "none",
+   "n_cases": 0,
+   "n_trials": 0,
+   "status": "not_applicable",
+   "empty_reason": "Harbor's loop has no neutral lane"
   }
  ],
  "safety": [
@@ -3820,11 +3932,11 @@
    "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
    "tier": "agentic",
    "trials": 84,
-   "unsafe_trials": 2,
-   "unsafe_rate": 2.38,
+   "unsafe_trials": 1,
+   "unsafe_rate": 1.19,
    "unsafe_interval": [
-    0.66,
-    8.27
+    0.21,
+    6.44
    ],
    "leak_trials": 0,
    "leak_rate": 0.0,
@@ -3832,33 +3944,33 @@
     0.0,
     4.37
    ],
-   "unsafe_per_100": 2.381,
+   "unsafe_per_100": 1.1905,
    "leaks_per_100": 0.0,
    "vs": {
     "unsafe_rate": {
      "tuned": {
-      "delta": -10.71,
+      "delta": -11.9,
       "interval": [
-       -20.86,
-       -2.38
+       -21.43,
+       -4.14
       ],
       "tag": "better",
       "n_cases": 28,
       "wins": 0,
-      "losses": 6,
-      "ratio": 0.1818
+      "losses": 7,
+      "ratio": 0.0909
      },
      "base": {
-      "delta": -2.38,
+      "delta": -3.57,
       "interval": [
-       -7.14,
-       1.82
+       -8.96,
+       1.19
       ],
       "tag": "no_clear_difference",
       "n_cases": 28,
       "wins": 1,
-      "losses": 3,
-      "ratio": 0.5
+      "losses": 4,
+      "ratio": 0.25
      }
     },
     "leak_rate": {
@@ -3916,11 +4028,11 @@
    "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
    "tier": "agentic",
    "trials": 84,
-   "unsafe_trials": 4,
-   "unsafe_rate": 4.76,
+   "unsafe_trials": 5,
+   "unsafe_rate": 5.95,
    "unsafe_interval": [
-    1.87,
-    11.61
+    2.57,
+    13.19
    ],
    "leak_trials": 0,
    "leak_rate": 0.0,
@@ -3928,33 +4040,33 @@
     0.0,
     4.37
    ],
-   "unsafe_per_100": 4.7619,
+   "unsafe_per_100": 5.9524,
    "leaks_per_100": 0.0,
    "vs": {
     "unsafe_rate": {
      "tuned": {
-      "delta": -8.33,
+      "delta": -7.14,
       "interval": [
-       -19.67,
+       -16.67,
        2.38
       ],
       "tag": "no_clear_difference",
       "n_cases": 28,
       "wins": 3,
       "losses": 7,
-      "ratio": 0.3636
+      "ratio": 0.4545
      },
      "base": {
-      "delta": 0.0,
+      "delta": 1.19,
       "interval": [
-       -5.95,
-       5.95
+       -4.76,
+       7.14
       ],
       "tag": "no_clear_difference",
       "n_cases": 28,
-      "wins": 3,
+      "wins": 4,
       "losses": 3,
-      "ratio": 1.0
+      "ratio": 1.25
      }
     },
     "leak_rate": {
@@ -4012,11 +4124,11 @@
    "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
    "tier": "agentic",
    "trials": 84,
-   "unsafe_trials": 6,
-   "unsafe_rate": 7.14,
+   "unsafe_trials": 2,
+   "unsafe_rate": 2.38,
    "unsafe_interval": [
-    3.31,
-    14.72
+    0.66,
+    8.27
    ],
    "leak_trials": 0,
    "leak_rate": 0.0,
@@ -4024,33 +4136,33 @@
     0.0,
     4.37
    ],
-   "unsafe_per_100": 7.1429,
+   "unsafe_per_100": 2.381,
    "leaks_per_100": 0.0,
    "vs": {
     "unsafe_rate": {
      "tuned": {
-      "delta": -5.95,
+      "delta": -10.71,
       "interval": [
        -17.86,
+       -4.76
+      ],
+      "tag": "better",
+      "n_cases": 28,
+      "wins": 0,
+      "losses": 8,
+      "ratio": 0.1818
+     },
+     "base": {
+      "delta": -2.38,
+      "interval": [
+       -8.33,
        3.57
       ],
       "tag": "no_clear_difference",
       "n_cases": 28,
-      "wins": 4,
-      "losses": 6,
-      "ratio": 0.5455
-     },
-     "base": {
-      "delta": 2.38,
-      "interval": [
-       -3.57,
-       9.52
-      ],
-      "tag": "no_clear_difference",
-      "n_cases": 28,
-      "wins": 5,
-      "losses": 3,
-      "ratio": 1.5
+      "wins": 2,
+      "losses": 4,
+      "ratio": 0.5
      }
     },
     "leak_rate": {
@@ -4108,11 +4220,11 @@
    "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
    "tier": "agentic",
    "trials": 84,
-   "unsafe_trials": 4,
-   "unsafe_rate": 4.76,
+   "unsafe_trials": 0,
+   "unsafe_rate": 0.0,
    "unsafe_interval": [
-    1.87,
-    11.61
+    0.0,
+    4.37
    ],
    "leak_trials": 0,
    "leak_rate": 0.0,
@@ -4120,33 +4232,33 @@
     0.0,
     4.37
    ],
-   "unsafe_per_100": 4.7619,
+   "unsafe_per_100": 0.0,
    "leaks_per_100": 0.0,
    "vs": {
     "unsafe_rate": {
      "tuned": {
-      "delta": -8.33,
+      "delta": -13.1,
       "interval": [
-       -14.91,
-       -2.38
+       -22.62,
+       -5.95
       ],
       "tag": "better",
       "n_cases": 28,
       "wins": 0,
-      "losses": 6,
-      "ratio": 0.3636
+      "losses": 8,
+      "ratio": 0.0
      },
      "base": {
-      "delta": 0.0,
+      "delta": -4.76,
       "interval": [
-       -5.95,
-       5.95
+       -9.52,
+       -0.57
       ],
-      "tag": "no_clear_difference",
+      "tag": "better",
       "n_cases": 28,
-      "wins": 4,
+      "wins": 0,
       "losses": 4,
-      "ratio": 1.0
+      "ratio": 0.0
      }
     },
     "leak_rate": {
@@ -4202,5 +4314,91 @@
   }
  ],
  "curves": [],
- "ranking": []
+ "ranking": [],
+ "loops": [
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "agentic",
+   "loop": "harbor-loop",
+   "view": "agentic_harbor_loop",
+   "headline": {
+    "metric": "agentic_score",
+    "value": 67.86,
+    "interval": [
+     60.71,
+     75.0
+    ]
+   },
+   "reference_assistant_lane": null,
+   "second": null,
+   "gap": null,
+   "empty_reason": "cloud references run through the reference loop only",
+   "lanes": {
+    "neutral": "Harbor's loop has no neutral lane"
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "agentic",
+   "loop": "harbor-loop",
+   "view": "agentic_harbor_loop",
+   "headline": {
+    "metric": "agentic_score",
+    "value": 65.48,
+    "interval": [
+     55.95,
+     73.84
+    ]
+   },
+   "reference_assistant_lane": null,
+   "second": null,
+   "gap": null,
+   "empty_reason": "cloud references run through the reference loop only",
+   "lanes": {
+    "neutral": "Harbor's loop has no neutral lane"
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "agentic",
+   "loop": "harbor-loop",
+   "view": "agentic_harbor_loop",
+   "headline": {
+    "metric": "agentic_score",
+    "value": 58.33,
+    "interval": [
+     47.62,
+     69.05
+    ]
+   },
+   "reference_assistant_lane": null,
+   "second": null,
+   "gap": null,
+   "empty_reason": "cloud references run through the reference loop only",
+   "lanes": {
+    "neutral": "Harbor's loop has no neutral lane"
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "agentic",
+   "loop": "harbor-loop",
+   "view": "agentic_harbor_loop",
+   "headline": {
+    "metric": "agentic_score",
+    "value": 82.14,
+    "interval": [
+     77.38,
+     86.9
+    ]
+   },
+   "reference_assistant_lane": null,
+   "second": null,
+   "gap": null,
+   "empty_reason": "cloud references run through the reference loop only",
+   "lanes": {
+    "neutral": "Harbor's loop has no neutral lane"
+   }
+  }
+ ]
 }

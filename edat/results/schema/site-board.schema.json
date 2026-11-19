@@ -128,6 +128,7 @@
           "n_trials": {"type": "integer"},
           "status": {"type": ["string", "null"]},
           "label": {"type": "string", "description": "How a headline was computed: judge, structure only, checks only, partial, full"},
+          "empty_reason": {"type": "string", "maxLength": 200, "description": "Why the cell is empty (value null), e.g. a lane or device the second agent loop does not run"},
           "vs": {
             "type": "object",
             "additionalProperties": false,
@@ -201,6 +202,72 @@
           "tier": {"type": "string"},
           "metric": {"type": "string"},
           "rank_range": {"type": "array", "items": {"type": "integer"}, "minItems": 2, "maxItems": 2}
+        }
+      }
+    },
+    "loops": {
+      "description": "Columns from both agent loops: the reference-loop headline, the same assistant-lane cases through Harbor's loop (`second`), and the paired gap, Harbor loop minus reference loop, in percentage points. An empty second column carries empty_reason.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["variant", "tier", "loop", "view", "headline", "reference_assistant_lane", "second", "gap",
+                     "empty_reason", "lanes"],
+        "properties": {
+          "variant": {"type": "string"},
+          "tier": {"type": "string"},
+          "loop": {"type": "string"},
+          "view": {"type": "string"},
+          "headline": {
+            "type": ["object", "null"],
+            "additionalProperties": false,
+            "required": ["metric", "value", "interval"],
+            "properties": {
+              "metric": {"type": "string"},
+              "value": {"type": ["number", "null"]},
+              "interval": {"type": ["array", "null"], "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
+              "n_cases": {"type": ["integer", "null"]}
+            }
+          },
+          "reference_assistant_lane": {
+            "type": ["object", "null"],
+            "additionalProperties": false,
+            "required": ["metric", "value", "interval"],
+            "properties": {
+              "metric": {"type": "string"},
+              "value": {"type": ["number", "null"]},
+              "interval": {"type": ["array", "null"], "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
+              "n_cases": {"type": ["integer", "null"]}
+            }
+          },
+          "second": {
+            "type": ["object", "null"],
+            "additionalProperties": false,
+            "required": ["metric", "value", "interval"],
+            "properties": {
+              "metric": {"type": "string"},
+              "value": {"type": ["number", "null"]},
+              "interval": {"type": ["array", "null"], "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
+              "n_cases": {"type": ["integer", "null"]}
+            }
+          },
+          "gap": {
+            "type": ["object", "null"],
+            "additionalProperties": false,
+            "properties": {
+              "refused": {"type": "string"},
+              "metric": {"type": "string"},
+              "of": {"type": "string"},
+              "delta": {"type": ["number", "null"]},
+              "interval": {"type": ["array", "null"], "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
+              "tag": {"enum": ["better", "worse", "no_clear_difference"]},
+              "n_cases": {"type": ["integer", "null"]},
+              "wins": {"type": ["integer", "null"]},
+              "losses": {"type": ["integer", "null"]}
+            }
+          },
+          "empty_reason": {"type": ["string", "null"], "maxLength": 200},
+          "lanes": {"type": "object", "additionalProperties": {"type": "string", "maxLength": 200}}
         }
       }
     }

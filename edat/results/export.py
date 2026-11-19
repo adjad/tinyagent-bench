@@ -157,7 +157,57 @@ def site_rows(e: dict) -> tuple[list, list, list]:
             row["vs"] = {"unsafe_rate": _vs_row(e, tier, "unsafe_rate", True),
                          "leak_rate": _vs_row(e, tier, "leak_rate", True)}
             safety.append(row)
+    results += _loop_empty_rows(e)
     return results, safety, curves
+
+
+def _empty_row(e: dict, tier: str, metric: str, facet: str | None, status: str, reason: str) -> dict:
+    return {"variant": e["entry_key"], "tier": tier, "facet": facet, "metric": metric, "unit": "%",
+            "value": None, "interval": None, "interval_kind": "none", "n_cases": 0, "n_trials": 0,
+            "status": status, "empty_reason": reason}
+
+
+def _loop_empty_rows(e: dict) -> list[dict]:
+    """The second-loop column's empty cells, each with its reason (never a silent gap)."""
+    from edat.results.aggregate import COMPOSITE_DEFS
+    rows = []
+    for tier, lp in sorted((e.get("loops") or {}).items()):
+        metric = COMPOSITE_DEFS[lp["view"]][0].name
+        if lp.get("empty"):
+            status = "not_applicable" if lp["view"] in e["tiers"] else "not_run"
+            rows.append(_empty_row(e, lp["view"], metric, None, status, lp["empty_reason"]))
+        for lane, why in sorted((lp.get("lanes") or {}).items()):
+            rows.append(_empty_row(e, lp["view"], "pass1", f"lane={lane}", "not_applicable",
+                                   why.split(": ", 1)[-1]))
+    return rows
+
+
+def loop_rows(e: dict) -> list[dict]:
+    """Both loops' columns and the per-model gap, one row per entry and loop tier."""
+    from edat.results.aggregate import COMPOSITE_DEFS
+    rows = []
+    for tier, lp in sorted((e.get("loops") or {}).items()):
+        hb = e["tiers"].get(lp["view"]) or {}
+        head = (e["tiers"].get(tier) or {}).get("composite")
+        harbor = None if lp.get("empty") else hb.get("composite")
+        ref_al = lp.get("reference_assistant_lane")
+        gap = lp.get("gap")
+        if gap and not gap.get("refused"):
+            gap = {"metric": gap["metric"], "of": gap["of"], "delta": _pct(gap["delta"]),
+                   "interval": _pct(gap["interval"]), "tag": gap["tag"], "n_cases": gap.get("n_cases_paired"),
+                   "wins": gap.get("wins"), "losses": gap.get("losses")}
+        rows.append({
+            "variant": e["entry_key"], "tier": tier, "loop": lp["loop"], "view": lp["view"],
+            "headline": None if not head else {"metric": head["metric"], "value": _pct(head["value"]),
+                                               "interval": _pct(head["interval"])},
+            "reference_assistant_lane": None if not ref_al else {
+                "metric": ref_al["metric"], "value": _pct(ref_al["value"]), "interval": _pct(ref_al["interval"])},
+            "second": None if not harbor else {"metric": COMPOSITE_DEFS[lp["view"]][0].name,
+                                               "value": _pct(harbor["value"]), "interval": _pct(harbor["interval"]),
+                                               "n_cases": harbor.get("n_cases")},
+            "gap": gap, "empty_reason": lp.get("empty_reason"),
+            "lanes": {k: v.split(": ", 1)[-1] for k, v in (lp.get("lanes") or {}).items()}})
+    return rows
 
 
 def _run_row(e: dict) -> dict:
@@ -247,7 +297,7 @@ def findings_file(records: list[dict], raw_of, *, board: str, device_id: str, sa
 
 def site_board(agg: dict, device_id: str, entries: list[dict], *, sample: bool, notice: str | None,
                now: str | None = None) -> dict:
-    models, variants, runs, results, safety, curves, ranking = {}, [], [], [], [], [], []
+    models, variants, runs, results, safety, curves, ranking, loops = {}, [], [], [], [], [], [], []
     for e in entries:
         models.setdefault(e["model_id"], {
             "id": e["model_id"], "kind": e["kind"], "role": e["role"], "params_total": e.get("params_total"),
@@ -261,6 +311,7 @@ def site_board(agg: dict, device_id: str, entries: list[dict], *, sample: bool, 
                          "weights": e.get("weights"),
                          "sampling_source": (e.get("sampling_sources") or [None])[0]})
         runs.append(_run_row(e))
+        loops += loop_rows(e)
         r, s, c = site_rows(e)
         results += r
         safety += s
@@ -277,7 +328,7 @@ def site_board(agg: dict, device_id: str, entries: list[dict], *, sample: bool, 
              "board_version": agg["board_version"], "generated_at": now or utc_now(), "device": device,
              "references": {"tuned": refs.get("tuned"), "base": refs.get("base")},
              "models": list(models.values()), "variants": variants, "runs": runs, "results": results,
-             "safety": safety, "curves": curves, "ranking": ranking}
+             "safety": safety, "curves": curves, "ranking": ranking, "loops": loops}
     validate(board, "site_board")
     return board
 

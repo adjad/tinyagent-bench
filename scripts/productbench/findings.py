@@ -497,6 +497,23 @@ def html_page(views: list[dict], rep: Report, run_ids: list[str]) -> str:
 
 
 # ------------------------------------------------------------------ entry points
+def _trial(r: dict) -> tuple:
+    return (r.get("entry") or r.get("model"), r.get("profile"), r.get("trial"))
+
+
+def drop_resumed(loaded: list[list[dict]], metas: list[dict]) -> list[list[dict]]:
+    """A run that stopped part-way leaves a partial trial; when another run given alongside
+    repeats that trial (a resume, `--first-trial`), the stopped run's copy is dropped."""
+    out = []
+    for i, rows in enumerate(loaded):
+        if not metas[i].get("stopped"):
+            out.append(rows)
+            continue
+        elsewhere = {_trial(r) for j, other in enumerate(loaded) if j != i for r in other}
+        out.append([r for r in rows if _trial(r) not in elsewhere])
+    return out
+
+
 def build(run_dirs: list[Path], *, profiles: dict[str, Path] | None = None,
           references=REFERENCES) -> tuple[list[dict], Report, list[str]]:
     rep = Report()
@@ -506,6 +523,7 @@ def build(run_dirs: list[Path], *, profiles: dict[str, Path] | None = None,
         loaded.append(rows)
         metas.append(meta)
         ids.append(meta.get("run") or (rows[0]["run"] if rows else Path(d).name))
+    loaded = drop_resumed(loaded, metas)
     pids = {r["profile"] for rows in loaded for r in rows}
     profs = {pid: find_profile(pid, metas, profiles) for pid in pids}
     refs = list(dict.fromkeys([*(metas[0].get("references") or []), *references])) if metas else list(references)
@@ -529,15 +547,16 @@ def write(run_dir: Path, reference_runs: list[Path] | None = None, out: Path | N
 
 def main(argv: list[str] | None = None) -> None:
     ap = argparse.ArgumentParser(description="What the model found, from a stored run")
-    ap.add_argument("run_dir")
+    ap.add_argument("run_dir", nargs="+", help="one or more run directories (for example one per model and profile)")
     ap.add_argument("--reference-run", action="append", default=[], help="a pinned run holding the references")
     ap.add_argument("--out", default=None, help="where to write (default: the run directory)")
     ap.add_argument("--profile", action="append", default=[], help="id=path, when a profile moved")
     args = ap.parse_args(argv)
     profiles = dict(p.split("=", 1) for p in args.profile) if args.profile else None
-    md, page = write(Path(args.run_dir), [Path(x) for x in args.reference_run],
+    runs = [Path(x) for x in args.run_dir]
+    md, page = write(runs[0], runs[1:] + [Path(x) for x in args.reference_run],
                      Path(args.out) if args.out else None, profiles)
-    print(f"wrote {md.name} and {page.name}")
+    print(f"wrote {md} and {page}")
 
 
 if __name__ == "__main__":

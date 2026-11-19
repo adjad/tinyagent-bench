@@ -3,6 +3,7 @@
     python -m scripts.productbench.engine_prep status
     python -m scripts.productbench.engine_prep keep <engine id> --save <run folder>/resident-before.json
     python -m scripts.productbench.engine_prep restore <run folder>/resident-before.json
+    python -m scripts.productbench.engine_prep weights <model folder>
 
 `status` only reads (GET /v1/models/status). `keep` writes what was loaded to --save the first
 time (never overwrites it), then unloads every other loaded chat model, so only the model under
@@ -11,12 +12,17 @@ loads the model under test itself on the first request. `restore` unloads what t
 and loads back exactly what was resident before. Helper models (embedders, rerankers) are left
 alone. Only for an approved run window; it never starts, stops or restarts oMLX.
 
+`weights` reads a model folder's `*.safetensors` files and prints `weights_sha256` as the
+results record defines it (sha256 over the sorted `<file name>\0<file sha256>` lines); it never
+talks to the engine.
+
 The engine's key, when it has one, is read from oMLX's own settings file at call time, sent
 only to 127.0.0.1, and never printed or written.
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -55,6 +61,22 @@ def plan_keep(now_loaded: list[str], keep: str) -> list[str]:
     return [m for m in now_loaded if m != keep and not is_aux(m)]
 
 
+def weights_sha256(folder: Path | str) -> str:
+    """The results record's full-content weights hash for one model folder."""
+    folder = Path(folder)
+    files = sorted(p for p in folder.rglob("*.safetensors") if p.is_file())
+    if not files:
+        raise SystemExit(f"no .safetensors files in {folder}")
+    lines = []
+    for p in files:
+        h = hashlib.sha256()
+        with p.open("rb") as fh:
+            for chunk in iter(lambda: fh.read(1 << 22), b""):
+                h.update(chunk)
+        lines.append(f"{p.relative_to(folder).as_posix()}\0{h.hexdigest()}\n")
+    return hashlib.sha256("".join(sorted(lines)).encode()).hexdigest()
+
+
 def plan_restore(now_loaded: list[str], before: list[str]) -> tuple[list[str], list[str]]:
     """(unload, load) to return to `before`, helper models untouched."""
     chat_before = [m for m in before if not is_aux(m)]
@@ -71,7 +93,12 @@ def main(argv: list[str] | None = None) -> int:
     k.add_argument("--save", required=True)
     r = sub.add_parser("restore")
     r.add_argument("saved")
+    w = sub.add_parser("weights")
+    w.add_argument("folder")
     args = ap.parse_args(argv)
+    if args.cmd == "weights":
+        print(weights_sha256(args.folder))
+        return 0
     with _client() as c:
         now = loaded(c)
         if args.cmd == "status":

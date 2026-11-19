@@ -392,6 +392,13 @@ def test_findings_export_records(tmp_path, keys):
     assert graded and all(isinstance(r["metrics"]["pass"], bool) for r in graded)
     raw = out / graded[0]["raw"]["path"]
     assert "outcome" in json.loads(raw.read_text())
+    models = {r["model"]["id"] for r in recs}
+    sha = "ab" * 32
+    out2 = findings_export.export(d, tmp_path / "store2", board_version="dev1", sample=True,
+                                  weights={m: sha for m in models})
+    recs2 = [json.loads(x) for p in out2.glob("*.jsonl") for x in p.read_text().splitlines() if x.strip()]
+    recs2 = [r for r in recs2 if r.get("schema") == "edat.result/1.0"]
+    assert recs2 and all(r["model"].get("weights_sha256") == sha for r in recs2 if r["model"].get("role") != "cloud_reference")
 
 
 def test_summary_reports_questions_and_act_apart(tmp_path, keys):
@@ -411,3 +418,46 @@ def test_engine_prep_plans_one_resident_model():
     after = ["gemma-4-E4B-it-oQ4e-mtp", "bge-m3-embed"]
     assert ep.plan_restore(after, ["Ling-3.0-tiny-oQ6e", "bge-m3-embed"]) == (["gemma-4-E4B-it-oQ4e-mtp"], ["Ling-3.0-tiny-oQ6e"])
     assert ep.plan_restore(["Ling-3.0-tiny-oQ6e"], ["Ling-3.0-tiny-oQ6e"]) == ([], [])
+
+
+def test_stop_conditions(tmp_path):
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("rpb", ROOT / "scripts" / "run_productbench.py")
+    rpb = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(rpb)
+    log = tmp_path / "results.jsonl"
+
+    def rows(errors, n):
+        log.write_text("\n".join(json.dumps({"captured": {"error": "boom" if i < errors else ""}})
+                                 for i in range(n)) + "\n")
+
+    assert rpb.check_stop(log, stub=True) is None                       # no log yet
+    rows(1, 60)
+    assert rpb.check_stop(log, stub=True) is None                       # 1 of 60 is under 2%
+    rows(2, 60)
+    assert "2 of 60" in rpb.check_stop(log, stub=True)                  # 3.3% stops the run
+    rows(3, 20)
+    assert rpb.check_stop(log, stub=True) is None                       # too few records to judge
+    rows(0, 60)
+    assert "memory pressure" in rpb.check_stop(log, stub=False, free_pct=lambda: 8)
+    assert rpb.check_stop(log, stub=False, free_pct=lambda: 40) is None
+    assert rpb.check_stop(log, stub=True, free_pct=lambda: 8) is None    # a stub run never reads the host
+    assert rpb.check_stop(log, stub=False, free_pct=lambda: None) is None
+
+
+def test_weights_hash_matches_the_record_recipe(tmp_path):
+    import hashlib
+    from scripts.productbench import engine_prep as ep
+    (tmp_path / "b.safetensors").write_bytes(b"bb")
+    (tmp_path / "a.safetensors").write_bytes(b"aa")
+    (tmp_path / "config.json").write_text("{}")
+    lines = "".join(f"{n}\0{hashlib.sha256(d).hexdigest()}\n" for n, d in (("a.safetensors", b"aa"), ("b.safetensors", b"bb")))
+    assert ep.weights_sha256(tmp_path) == hashlib.sha256(lines.encode()).hexdigest()
+
+
+def test_resumed_trial_replaces_the_stopped_copy():
+    a = [{"entry": "M", "profile": "p", "trial": 1, "x": "old"}, {"entry": "M", "profile": "p", "trial": 2, "x": "partial"}]
+    b = [{"entry": "M", "profile": "p", "trial": 2, "x": "resumed"}, {"entry": "M", "profile": "p", "trial": 3, "x": "new"}]
+    kept = findings.drop_resumed([a, b], [{"stopped": "memory pressure"}, {}])
+    assert [r["x"] for r in kept[0]] == ["old"] and [r["x"] for r in kept[1]] == ["resumed", "new"]
+    assert findings.drop_resumed([a, b], [{}, {}]) == [a, b]

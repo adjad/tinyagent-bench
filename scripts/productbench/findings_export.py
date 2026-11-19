@@ -63,8 +63,10 @@ def item_records(records: list[dict], profiles: dict) -> list[tuple[dict, str, s
 
 def export(src: Path | str, store: Path | str, *, board_version: str, harness_commit: str | None = None,
            default_thinking: str | None = None, sample: bool = False, device_id: str | None = None,
-           run_dir: Path | str | None = None) -> Path:
+           run_dir: Path | str | None = None, weights: dict[str, str] | None = None) -> Path:
+    """`weights` maps an entry or engine id to its weights' sha256 (engine_prep weights <folder>)."""
     src = Path(src)
+    weights = weights or {}
     rows, meta = findings.load_records(src)
     if not rows:
         raise ConversionError(f"{src}/results.jsonl has no rows")
@@ -82,7 +84,8 @@ def export(src: Path | str, store: Path | str, *, board_version: str, harness_co
         model: dict = {"id": variant.get("model_id") or row["model"],
                        "role": "cloud_reference" if kind == "cloud_reference" else "candidate"}
         if kind == "local":
-            sha = variant.get("weights_sha256")
+            sha = (variant.get("weights_sha256") or weights.get(row.get("entry") or "") or weights.get(row["model"])
+                   or weights.get(variant.get("model_id") or ""))
             if sha and re.match(r"^[0-9a-f]{64}$", str(sha)):
                 model["weights_sha256"] = sha
             elif sample:
@@ -150,9 +153,12 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--harness-commit", default=None)
     ap.add_argument("--default-thinking", choices=("on", "off"), default=None)
     ap.add_argument("--sample", action="store_true", help="a stub dry run, marked sample")
+    ap.add_argument("--weights", action="append", default=[], metavar="ID=SHA256",
+                    help="weights hash for an entry (engine_prep weights <folder>); repeatable")
     args = ap.parse_args(argv)
+    weights = dict(w.split("=", 1) for w in args.weights)
     out = export(args.run_dir, args.store, board_version=args.board_version, harness_commit=args.harness_commit,
-                 default_thinking=args.default_thinking, sample=args.sample)
+                 default_thinking=args.default_thinking, sample=args.sample, weights=weights)
     print(f"wrote {out.name}")
 
 

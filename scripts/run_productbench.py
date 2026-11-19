@@ -39,6 +39,7 @@ import asyncio
 import json
 import os
 import platform
+import re
 import subprocess
 import sys
 import time
@@ -69,6 +70,40 @@ RUN_PREFIX = "edat-iae"
 
 class SpendLimit(RuntimeError):
     pass
+
+
+class StopRun(RuntimeError):
+    """A stop condition held between trials (host memory, the error share)."""
+
+
+MAX_ERROR_SHARE = 0.02          # as the agentic spec: over 2% excluded trials invalidates a run
+MIN_FREE_PCT = 15               # memory_pressure's free percentage below this stops the run
+
+
+def memory_free_pct() -> int | None:
+    """macOS memory_pressure's system-wide free percentage (read-only), or None."""
+    try:
+        out = subprocess.run(["memory_pressure", "-Q"], capture_output=True, text=True, timeout=10).stdout
+    except (OSError, subprocess.SubprocessError):
+        return None
+    m = re.search(r"free percentage:\s*(\d+)%", out)
+    return int(m.group(1)) if m else None
+
+
+def check_stop(log: Path, *, stub: bool, min_free: int = MIN_FREE_PCT, max_errors: float = MAX_ERROR_SHARE,
+               free_pct=memory_free_pct) -> str | None:
+    """Why the run must stop now, or None. Checked between trials."""
+    pct = None if stub else free_pct()
+    if pct is not None and pct < min_free:
+        return f"memory pressure: {pct}% free, under {min_free}%"
+    try:
+        rows = [json.loads(x) for x in log.read_text(encoding="utf-8").splitlines() if x.strip()]
+    except OSError:
+        rows = []
+    errors = sum(1 for r in rows if (r.get("captured") or {}).get("error"))
+    if len(rows) >= 50 and errors / len(rows) > max_errors:
+        return f"engine or transport errors in {errors} of {len(rows)} records, over {max_errors:.0%}"
+    return None
 
 
 def _git_sha() -> str:
@@ -685,6 +720,11 @@ def main() -> None:
                     if act_plan is not None and act_plan["expectations"]:
                         passes.append((None, True))
                     for at, act in passes:
+                        why = check_stop(log, stub=stub)
+                        if why:
+                            raise StopRun(f"{why}. Resume: the same command with --model {entry.id} "
+                                          f"--profile {profile.id} --first-trial {trial} --trials "
+                                          f"{args.first_trial + args.trials - trial} into a new --out")
                         label = (f"{entry.id} / {profile.id} / trial {trial}" + (f" / at {at}" if at else "")
                                  + (" / act-for-me" if act else ""))
                         print(f"\n== {label} ==")
@@ -728,7 +768,7 @@ def main() -> None:
                                                         "escapes": escapes})
                             if escapes:
                                 print(f"  guard refused {len(escapes)} attempt(s): {escapes[:3]}")
-    except SpendLimit as exc:
+    except (SpendLimit, StopRun) as exc:
         stopped = str(exc)
         print(f"\nSTOPPED: {stopped}")
     meta["stopped"] = stopped

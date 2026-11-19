@@ -1,4 +1,4 @@
-# Screen World (EDAT spec 11, on-screen app control)
+# Screen World (tinyagent-bench spec 11, on-screen app control)
 
 A simulated screen for testing small models as app-controlling agents. Nothing
 real is touched: no app, browser, window or screen of the machine is driven.

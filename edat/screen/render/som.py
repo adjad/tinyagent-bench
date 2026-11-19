@@ -46,7 +46,7 @@ TOP = HEADER_H + 12
 LEFT = 24
 INDENT = 24
 CHAR_W = 7.2          # 13 px text in the bundled font, measured once the font is pinned (estimate)
-FONT_STACK = "'EDAT Sans', 'Inter', sans-serif"
+FONT_STACK = "'Bench Sans', 'Inter', sans-serif"
 
 
 class RasterNotAvailable(RuntimeError):

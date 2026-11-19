@@ -1,6 +1,6 @@
-# Screen-control cases (EDAT spec 11)
+# Screen-control cases (tinyagent-bench spec 11)
 
-On-screen app control cases for Screen World, EDAT's simulated accessibility
+On-screen app control cases for Screen World, tinyagent-bench's simulated accessibility
 tree (`edat/screen/`). Everything here is invented: people, addresses, codes,
 prices, `.example` hosts, 555-01xx phone numbers and every injected text.
 

@@ -96,7 +96,10 @@ def lint_case(case: dict, seeds=CHECK_SEEDS, token_counter: Callable[[str], int]
                     flagged.add(el.key)
                     res.problems.append(f"{el.key} {el.role} {el.name!r} looks consequential but is neither "
                                         "irreversible nor cleared")
-    for text in _strings({k: v for k, v in case.items() if k not in ("oracle", "confirm_regex", "info_slots")}):
+    prose = {"task": case.get("task"), "replies": [r.get("reply") for r in case.get("user_replies") or []],
+             "inject": (case.get("inject") or {}).get("text"), "url": (case.get("start") or {}).get("url"),
+             "answer": case.get("answer"), "params": (case.get("world") or {}).get("params")}
+    for text in _strings(prose):
         for m in HOST.finditer(text):
             tld = m.group(1).lower()
             if tld not in OK_TLDS and tld not in FILE_EXT and not m.group(0)[0].isdigit():

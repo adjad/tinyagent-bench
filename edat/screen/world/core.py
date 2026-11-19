@@ -193,8 +193,11 @@ class World:
         root, parts = self._root(path)
         cur = root
         for p in parts[:-1]:
-            cur = cur.setdefault(p, {})
-        cur[parts[-1]] = value
+            cur = cur[int(p)] if isinstance(cur, list) else cur.setdefault(p, {})
+        if isinstance(cur, list):
+            cur[int(parts[-1])] = value
+        else:
+            cur[parts[-1]] = value
 
     def _root(self, path: str):
         if path.startswith("ui:"):

@@ -1,8 +1,9 @@
 """The routine-run tool (edat/cases/agentic_run.py), with stub clients only.
 
 No engine, no model, no isolate(): the run is given NullClient for both loops,
-a fake engine_prep, fake host checks, and neutral-lane cases (which Harbor's
-loop records as not applicable without a model call).
+the run guard's fake engine (tests/test_edat_runtime_run_guard.py), fake host
+checks, and neutral-lane cases (which Harbor's loop records as not applicable
+without a model call).
 """
 import json
 import os
@@ -10,7 +11,9 @@ import os
 import pytest
 
 from edat.cases import agentic_run as ar
-from edat.models import NullClient
+from edat.models import EngineError, NullClient
+from edat.runtime import run_guard as rg
+from tests.test_edat_runtime_run_guard import URL, FakeEngine
 
 SHA = "0" * 64
 
@@ -22,33 +25,32 @@ def neutral_cases(n=2):
     return sorted(cs, key=lambda c: c["id"])[:n]
 
 
-class FakePrep:
-    def __init__(self, rc=0):
-        self.calls, self.rc = [], rc
+TUNED = "gemma-4-E4B-it-r5-step-01800-oQ4e-mtp"
+BASE = "gemma-4-E4B-it-oQ4e-mtp"
 
-    def __call__(self, argv):
-        self.calls.append(argv[0] if argv[0] != "keep" else f"keep {argv[1]}")
-        if argv[0] == "keep":
-            open(argv[3], "w").write(json.dumps({"loaded": ["some-model"]}))
-        return self.rc
+
+class Faulting(NullClient):
+    def chat(self, *a, **k):
+        raise EngineError("server", "boom", retryable=False)
 
 
 @pytest.fixture
 def stubbed(monkeypatch, tmp_path):
     cases = neutral_cases()
     monkeypatch.setattr(ar, "select", lambda plan, splits=ar.SPLITS: list(cases))
-    prep = FakePrep()
+    fake = FakeEngine(models=(TUNED, BASE))
     out = tmp_path / "out"
 
     def go(**kw):
         args = dict(plan="smoke", board_version="test-board", lock=str(tmp_path / "lock"), isolate=False,
-                    clients=lambda m, loop: NullClient(), engine=ar.Engine(out, prep=prep),
+                    clients=lambda m, loop: NullClient(),
+                    engine=rg.Engine(URL, transport=fake.transport, sleep=lambda s: None),
                     weights=lambda m: SHA, device_id="test-mac", progress=None,
-                    host_free=lambda: 80, host_app=lambda: None,
+                    free_pct=lambda: 80, harbor=lambda: None,
                     column=lambda c: True)    # neutral cases through Harbor's loop: recorded not_applicable
         args.update(kw)
         return ar.run(out, **args)
-    return go, out, prep, cases
+    return go, out, fake, cases
 
 
 def records(out, plan="smoke"):
@@ -67,20 +69,8 @@ def test_references_tuned_first_shipped_thinking_and_author_sampling():
     assert s.to_record() == {"temperature": 1.0, "top_p": 0.95, "top_k": 64, "source": "author_recommended"}
 
 
-def test_lock_is_taken_and_only_removed_by_its_maker(tmp_path):
-    lock = tmp_path / "heavy.lock"
-    with ar.heavy_lock(str(lock)):
-        assert lock.is_dir()
-    assert not lock.exists()
-    lock.mkdir()
-    with pytest.raises(SystemExit):
-        with ar.heavy_lock(str(lock)):
-            pass
-    assert lock.is_dir()              # someone else's lock stays
-
-
 def test_run_writes_both_suites_with_selection_and_restores_the_engine(stubbed):
-    go, out, prep, cases = stubbed
+    go, out, fake, cases = stubbed
     rep = go(trials=2)
     rows = records(out)
     assert len(rows) == len(cases) * 2 * 2
@@ -95,66 +85,91 @@ def test_run_writes_both_suites_with_selection_and_restores_the_engine(stubbed):
     assert {(x["trial"], x["settings"]["world_seed"], x["settings"]["seed"]) for x in rows} == {(1, 1, 1001), (2, 2, 1002)}
     sel = json.loads((out / "smoke" / "selection.json").read_text())
     assert r["selection"]["manifest_sha256"] == sel["manifest_sha256"] and r["selection"]["tier"] == "smoke"
-    assert prep.calls == ["keep gemma-4-E4B-it-r5-step-01800-oQ4e-mtp", "restore"]
-    assert rep["engine"] == "engine restored" and rep["counts"]["ran"] == len(rows)
+    assert f"POST /v1/models/{TUNED}/load" in fake.calls
+    assert rep["engine"].startswith("engine restored") and rep["counts"]["ran"] == len(rows)
+    assert rep["outcome"] == "finished" and fake.loaded() == ["user-model", "user-pinned"]
     assert not (out.parent / "lock").exists()
     timing = [json.loads(x) for x in (out / "smoke" / "timing.jsonl").read_text().splitlines()]
     assert len(timing) == len(rows) and all(t["turns"] == 1 for t in timing)
 
 
-def test_resume_skips_recorded_trials(stubbed):
-    go, out, prep, cases = stubbed
+def test_resume_skips_recorded_trials_and_damaged_lines(stubbed):
+    go, out, fake, cases = stubbed
     go(trials=1)
     n1 = len(records(out))
     rep = go(trials=2)
     assert len(records(out)) == 2 * n1
     assert rep["counts"]["skipped_done"] == n1 and rep["counts"]["ran"] == n1
-    rep = go(trials=2)                # nothing left: the engine is not touched
-    assert rep["counts"]["ran"] == 0 and rep["engine"] == "engine untouched"
+    rep = go(trials=2)                # nothing left: no model is loaded
+    assert rep["counts"]["ran"] == 0 and fake.calls.count(f"POST /v1/models/{TUNED}/load") == 2
+    f = next((out / "smoke" / "store").glob("runs/*/records.jsonl"))
+    lines = f.read_text().splitlines()
+    f.write_text("\n".join(lines[:-1] + [lines[-1][:40]]) + "\n")     # killed mid-write
+    rep = go(trials=2)
+    assert rep["counts"]["damaged_record_lines"] == 1 and rep["counts"]["ran"] == 1
 
 
-def test_stop_file_time_limit_and_memory_stop_between_trials(stubbed, tmp_path):
-    go, out, prep, cases = stubbed
+def test_stop_file_time_limit_memory_and_harbor_stop_between_trials(stubbed, tmp_path):
+    go, out, fake, cases = stubbed
     (out / "smoke").mkdir(parents=True)
     (out / "smoke" / "STOP").write_text("")
     rep = go()
-    assert rep["stopped"] == "the STOP file exists" and records(out) == []
-    assert prep.calls[-1] == "restore"
+    assert rep["stopped"] == "the STOP file exists" and rep["outcome"] == "stopped" and records(out) == []
+    assert fake.loaded() == ["user-model", "user-pinned"]
     (out / "smoke" / "STOP").unlink()
     assert "minute limit" in go(max_minutes=1e-9)["stopped"]
-    assert "free memory" in go(host_free=lambda: 9)["stopped"]
-    assert "was opened" in go(host_app=lambda: "Harbor")["stopped"]
+    rep = go(free_pct=lambda: 9)
+    assert "free memory" in rep["stopped"] and rep["outcome"] == "failed"
+    opened = []
+
+    def client(m, loop):              # Harbor opens once the first trial has run
+        opened.append(1)
+        return NullClient()
+    with pytest.raises(rg.GuardError, match="not restoring"):                # restore refused, re-raised
+        go(clients=client, harbor=lambda: "process matching x" if opened else None, trials=3)  # 12 trials
+    rep = json.loads((out / "smoke" / "run-report.json").read_text())        # ...after the report
+    assert "Harbor" in rep["stopped"] and rep["outcome"] == "failed"
+    assert rep["engine"].startswith("restore FAILED") and "run_guard restore" in rep["restore_with"]
+    assert TUNED in fake.loaded() and not (tmp_path / "lock").exists()
 
 
 def test_failure_restores_the_engine_and_releases_the_lock(stubbed, tmp_path):
-    go, out, prep, cases = stubbed
+    go, out, fake, cases = stubbed
 
     def boom(m, loop):
         raise KeyboardInterrupt
     with pytest.raises(KeyboardInterrupt):
         go(clients=boom)
-    assert prep.calls[-1] == "restore"
+    assert fake.loaded() == ["user-model", "user-pinned"]
     assert not (tmp_path / "lock").exists()
     rep = json.loads((out / "smoke" / "run-report.json").read_text())
-    assert rep["failed"].startswith("KeyboardInterrupt") and rep["engine"] == "engine restored"
+    assert rep["failed"].startswith("KeyboardInterrupt") and rep["engine"].startswith("engine restored")
 
 
-def test_engine_that_cannot_clear_other_models_stops_the_run(stubbed):
-    go, out, prep, cases = stubbed
-    with pytest.raises(RuntimeError, match="still loaded"):
-        go(engine=ar.Engine(out, prep=FakePrep(rc=1)))
-    assert records(out) == []
+def test_a_smoke_of_only_engine_faults_fails(stubbed):
+    """The reviewer's case: every trial an engine fault reported 'finished' and exited 0."""
+    go, out, fake, cases = stubbed
+    rep = go(clients=lambda m, loop: Faulting(), column=lambda c: False)
+    assert {r["status"] for r in records(out)} == {"excluded"}
+    assert rep["outcome"] == "failed" and rep["exit_code"] == 1 and "every model trial" in rep["why"]
 
 
 def test_results_folder_rules(stubbed, tmp_path, monkeypatch):
-    go, out, prep, cases = stubbed
-    with pytest.raises(SystemExit, match="outside the repository"):
-        ar.run(ar.REPO / "results-here", plan="smoke", board_version="b", clients=lambda m, l: None)
+    go, out, fake, cases = stubbed
+    with pytest.raises(rg.GuardError, match="inside the repository"):
+        ar.run(ar.REPO / "results-here", plan="smoke", board_version="b", clients=lambda m, l: None,
+               lock=str(tmp_path / "l"))
+    assert not (ar.REPO / "results-here").exists()
     monkeypatch.setenv("EDAT_PRIVATE_DIR", str(tmp_path / "private"))
-    with pytest.raises(SystemExit, match="EDAT_PRIVATE_DIR"):
+    with pytest.raises(rg.GuardError, match="EDAT_PRIVATE_DIR"):
         ar.run(tmp_path / "elsewhere", plan="routine", board_version="b", clients=lambda m, l: None)
-    with pytest.raises(SystemExit, match="is running"):
-        ar.run(tmp_path / "private" / "r", plan="smoke", board_version="b", host_app=lambda: "Harbor")
+    with pytest.raises(rg.GuardError, match="Harbor"):
+        go(harbor=lambda: "process matching x")
+    with pytest.raises(rg.GuardError, match="lock path"):
+        go(lock="")
+    with pytest.raises(rg.GuardError, match="loopback"):
+        go(base_url="http://192.168.1.2:8000")
+    assert not (tmp_path / "out").exists() and fake.calls == []
 
 
 def test_harbor_column_excludes_neutral_lane_and_variants():
@@ -231,14 +246,13 @@ def test_omlx_client_sends_the_key_only_when_given():
 
 
 def test_preflight_rows_without_engine(tmp_path, monkeypatch):
-    monkeypatch.setattr(ar, "app_running", lambda: None)
-    monkeypatch.setattr(ar, "memory_free_pct", lambda: 50)
     monkeypatch.delenv("EDAT_PRIVATE_DIR", raising=False)
     import edat.sidekick.ceiling.models as cm
     import edat.sidekick.ceiling.run as cr
     monkeypatch.setattr(cm, "model_dir_from_settings", lambda: None)     # the host's model folder is not read
     monkeypatch.setattr(cr, "engine_context", lambda eid: (None, "not read"))
-    rows = {name: ok for name, ok, _ in ar.preflight(tmp_path / "out", lock=str(tmp_path / "lock"))}
+    rows = {name: ok for name, ok, _ in ar.preflight(tmp_path / "out", lock=str(tmp_path / "lock"),
+                                                        harbor=lambda: None, free_pct=lambda: 50)}
     assert rows["results folder outside the repository"] is True
     assert rows["results folder under $EDAT_PRIVATE_DIR (held-out records)"] is False
     assert rows["held-out cases present"] is False

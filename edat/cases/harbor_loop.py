@@ -145,7 +145,7 @@ def _throwaway_home_ok() -> bool:
 
 
 def open_session(model: str, *, home: str | Path | None = None, omlx_port: int | None = None,
-                 profile_as: str | None = None, scripted: bool = False) -> HarborModel:
+                 profile_as: str | None = None, scripted: bool = False, api_key: str | None = None) -> HarborModel:
     """Prepare this process for Harbor-loop trials and return the model handle.
 
     `home` (a throwaway directory) runs Toolbench's `isolate()`: it must be
@@ -154,6 +154,7 @@ def open_session(model: str, *, home: str | Path | None = None, omlx_port: int |
     Without `home`, `HARBOR_HOME` must already name a throwaway directory (as in
     the tests); only the endpoint is pinned. `scripted=True` uses Toolbench's
     ScriptedClient, which plays `client.plan` instead of calling oMLX.
+    `api_key` (oMLX's own) goes to the client directly, never into the environment.
     """
     from scripts.toolbench import runner
     port = omlx_port if omlx_port is not None else runner.DEFAULT_OMLX_PORT
@@ -166,7 +167,8 @@ def open_session(model: str, *, home: str | Path | None = None, omlx_port: int |
     from service.config.endpoints import role_target
     binding = runner.bind_model(model, profile_as=profile_as)
     base = runner.scripted_client_class() if scripted else runner.bench_client_class()
-    client = _client_class(base)(target=role_target("agent"))
+    kw = {"api_key": api_key} if api_key else {}
+    client = _client_class(base)(target=role_target("agent"), **kw)
     return HarborModel(model, client, profile_as=profile_as, binding=binding, scripted=scripted)
 
 
@@ -618,9 +620,27 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--device-class", required=True)
     ap.add_argument("--ram-bytes", type=int, default=None)
     ap.add_argument("--os", default=None)
+    ap.add_argument("--lock", default=None, help="the shared heavy-job lock (default: run_guard.LOCK)")
+    ap.add_argument("--max-minutes", type=float, default=None)
     a = ap.parse_args(argv)
-    hm = open_session(a.model, home=a.home or tempfile.mkdtemp(prefix="edat-harbor-"),
-                      omlx_port=a.omlx_port, profile_as=a.profile_as)
+    from edat.runtime import run_guard as rg
+    port = a.omlx_port or 8000
+    key = rg.read_engine_key()
+    guard = rg.RunGuard(Path(a.out) / "harbor-loop-cli", lock=a.lock or rg.LOCK, max_minutes=a.max_minutes,
+                        engine=rg.Engine(f"http://127.0.0.1:{port}", api_key=key))
+    try:
+        with guard as g:
+            hm = open_session(a.model, home=a.home or tempfile.mkdtemp(prefix="edat-harbor-"),
+                              omlx_port=port, profile_as=a.profile_as, api_key=key)
+            g.prepare(a.model)
+            _cli_trials(a, hm, g)
+    except (rg.GuardError, rg.RunInterrupted) as exc:
+        print(f"stopped by the run guard: {exc}", file=sys.stderr)
+        return 1
+    return guard.exit_code
+
+
+def _cli_trials(a, hm, g) -> None:
     from edat.cases.loader import load_split
     from edat.cases.runner import run_trial
     from edat.grading.records import RunWriter
@@ -633,10 +653,12 @@ def main(argv: list[str] | None = None) -> int:
     with RunWriter(a.out) as w:
         for c in cases:
             for t in range(1, a.trials + 1):
+                if g.should_stop():
+                    return
                 r = run_trial(c, hm, trial=t, loop=loop, settings=s)
-                w.append(r, board_version=a.board_version, harness_commit=a.harness_commit, model=model,
-                         runtime={"name": "harbor-omlx"}, device=device)
-    return 0
+                rec = w.append(r, board_version=a.board_version, harness_commit=a.harness_commit, model=model,
+                               runtime={"name": "harbor-omlx"}, device=device)
+                g.note(rec["status"])
 
 
 if __name__ == "__main__":

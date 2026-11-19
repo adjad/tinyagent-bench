@@ -428,12 +428,17 @@ def brief_names(case: dict) -> list[str]:
     return out
 
 
+_NAME_FUNCTION_WORDS = frozenset({"the", "and", "for", "von", "van", "der", "den", "del", "della", "les", "las",
+                                  "los", "with", "from", "into", "over", "upon"})
+
+
 def _name_words(names: list[str]) -> dict[str, set[str]]:
-    """folded form -> exact spellings"""
+    """folded form -> exact spellings (function words inside names, such as "The" in
+    "The Salt Road", are not name words)"""
     out: dict[str, set[str]] = {}
     for n in names:
         for w in _TOKEN.findall(n):
-            if len(w) >= 3:
+            if len(w) >= 3 and _fold_name(w) not in _NAME_FUNCTION_WORDS:
                 out.setdefault(_fold_name(w), set()).add(w)
     return out
 
@@ -442,15 +447,24 @@ def wd4(parsed: dict, case: dict) -> dict:
     text = parsed["raw"].strip()
     bad: list[str] = []
     words = _name_words(brief_names(case))
-    for m in _TOKEN.finditer(text):
-        tok = m.group(0)
+    toks = [m.group(0) for m in _TOKEN.finditer(text)]
+    folded = [_fold_name(re.sub(r"['’]s$", "", t)) for t in toks]
+    people = {_fold_name(w) for who in (case.get("sender") or {}, case.get("recipient") or {})
+              for w in str(who.get("name") or "").split() if len(w) > 1}
+    for i, tok in enumerate(toks):
         base = re.sub(r"['’]s$", "", tok)
-        f = _fold_name(base)
+        f = folded[i]
         exact = words.get(f)
         if not exact or base in exact or tok in exact:
             continue
-        if f in _COMMON_LOWER and base == base.lower() and _strip_accents(base) == base:
-            continue
+        if base == base.lower() and _strip_accents(base) == base:
+            # An all-lowercase word is usually the common noun ("the market", "my desk"), not a
+            # misspelt name; it counts only inside a name phrase such as "Dana okafor".
+            if f in _COMMON_LOWER:
+                continue
+            near = [j for j in (i - 1, i + 1) if 0 <= j < len(toks) and folded[j] in words and folded[j] != f]
+            if not near and f not in people:
+                continue
         bad.append(f"{tok!r} for {sorted(exact)[0]!r}")
     pref_fail: list[str] = []
     ap = [p.upper() for p in case.get("active_prefs") or []]

@@ -624,3 +624,19 @@ def test_empty_draft_never_crashes_on_any_shape():
     for c in (email_case(), w4_case(), w3_case(), w7_case(), w6("manager"), w5_voice()):
         r = K.score_writing("", c)
         assert r["score"] == 0 and not r["gate_pass"] or c["sub"] in ("W4",)
+
+
+def test_wd4_lowercase_common_noun_inside_a_place_name_is_not_a_name_error():
+    c = mk(points=[W.point("p1", "meet at Bramble Market on Mon 25 Nov", ["Bramble Market", MON])])
+    assert st(K.score_writing("Meet me at Bramble Market, by the market gate, Mon 25 Nov.", c), "WD4") == "pass"
+    assert st(K.score_writing("Meet me at Bramble market on Mon 25 Nov.", c), "WD4") == "fail"
+
+
+def test_wd4_function_words_inside_a_title_are_not_name_words():
+    c = mk(points=[W.point("p1", "the book is The Salt Road", ["The Salt Road"])])
+    assert st(K.score_writing("I finished the book you lent me, The Salt Road.", c), "WD4") == "pass"
+
+
+def test_wd4_lowercase_recipient_name_fails():
+    c = email_case()
+    assert st(K.score_writing("Hi dana, the review moves to Mon 25 Nov.", c), "WD4") == "fail"

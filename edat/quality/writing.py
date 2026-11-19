@@ -406,7 +406,7 @@ def _anchor_ok(a) -> bool:
     if isinstance(a, str):
         return bool(a.strip())
     if isinstance(a, dict):
-        return a.get("type") in ("date", "time", "amount", "number", "code", "text") and bool(str(a.get("value", "")))
+        return a.get("type") in ("date", "time", "amount", "number", "code", "phone", "text") and bool(str(a.get("value", "")))
     return False
 
 

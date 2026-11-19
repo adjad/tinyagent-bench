@@ -93,9 +93,13 @@ def test_cloud_entries_never_get_heldout_cases():
         run([dict(GROUND, split="heldout")], STUBS["null"], cloud, store=None, run_id="r3")
 
 
-def test_screenshot_track_is_skipped_until_rasterising_exists():
-    res = run([READ], STUBS["oracle"], ENTRY, store=None, run_id="r4", track="screenshot_som")
-    assert not res.records and "screenshot_som" in res.skipped[READ["id"]]
+def test_screenshot_track_runs_on_a_drawn_screenshot_and_skips_cases_without_it():
+    res = run([READ], STUBS["oracle"], ENTRY, store=None, run_id="r4", track="screenshot_som", trials=1)
+    assert len(res.records) == 1 and res.trials[0].verdict.success
+    sent = res.trials[0].episode.messages
+    images = [p for m in sent if isinstance(m.get("content"), list) for p in m["content"]
+              if p.get("type") == "image_url"]
+    assert images and images[-1]["image_url"]["url"].startswith("data:image/png;base64,")
     res = run([GROUND], STUBS["oracle"], ENTRY, store=None, run_id="r5", track="screenshot_som")
     assert "does not run on" in res.skipped[GROUND["id"]]
 

@@ -6,12 +6,14 @@ Every record is scored again from what it captured (results.jsonl). The run fold
 read; everything goes to `--out`:
 
   results.jsonl     the re-scored records: each keeps its captured output, gets the new score,
-                    `scorer` (this version), `old_score` and `rescored_from` (run, old scorer)
+                    `scorer` (this version), `scorer_commit`, `old_score` and `rescored_from` (run, old scorer)
   not_rescored.jsonl records that cannot be re-scored, each with why (a stated-preference Brief
                     check stored without its Brief, a long session whose answers were stored cut
                     short, a case the current key no longer has). They are left out of the new
                     numbers, never kept silently.
-  meta.json         the runs, the profiles used, the known gaps, and what was dropped
+  meta.json         the runs, the profiles used, the known gaps, what was dropped, and the scorer
+                    checkout's commit (`scorer_commit`) with `scorer_dirty` (uncommitted changes under
+                    scripts/productbench; None when git could not say)
   summary.json/.md  the new summary (summary.summarize)
   compare.json/.md  old and new numbers side by side, per entry and profile: overall, each
                     surface and the safety counts, plus per surface how many records changed
@@ -40,6 +42,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -52,6 +55,19 @@ from scripts.productbench import autonomy, cases as case_files, findings, known_
 from scripts.productbench import preferences, privacy, questions, score_ask, score_brief  # noqa: E402
 from scripts.productbench import score_day, summary  # noqa: E402
 from scripts.productbench.profile import Profile, load as load_profile  # noqa: E402
+
+
+def scorer_checkout() -> tuple[str, bool | None]:
+    """The scorer checkout's commit and whether its scorer code has uncommitted changes.
+    Never raises: ("", None) when git cannot answer."""
+    try:
+        sha = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True,
+                             timeout=10, check=True).stdout.strip()
+        dirty = subprocess.run(["git", "status", "--porcelain", "--", "scripts/productbench"], cwd=ROOT,
+                               capture_output=True, text=True, timeout=10, check=True).stdout.strip()
+        return sha, bool(dirty)
+    except Exception:
+        return "", None
 
 
 class NotRescorable(Exception):
@@ -271,11 +287,14 @@ def _num(row: dict | None, path: tuple) -> float | None:
 COMPARE = [
     ("overall", ("overall",)),
     ("Ask", ("surfaces", "ask", "score")),
-    ("Brief", ("surfaces", "brief", "score")),
+    ("Brief (the model's)", ("surfaces", "brief", "score")),
+    ("Brief as the user sees it", ("surfaces", "brief", "seen_score")),
+    ("Harbor showed a stale calendar slot", ("surfaces", "brief", "harbor_stale")),
     ("Brief recall", ("surfaces", "brief", "recall")),
     ("Brief model recall", ("surfaces", "brief", "model_recall")),
     ("Brief false alarms", ("surfaces", "brief", "false_alarms")),
-    ("Brief stale", ("surfaces", "brief", "stale")),
+    ("Brief stale (all items)", ("surfaces", "brief", "stale")),
+    ("Brief stale (model-written)", ("surfaces", "brief", "model_stale")),
     ("Brief not in the key (model items)", ("surfaces", "brief", "not_in_key_model_items")),
     ("Day", ("surfaces", "day", "score")),
     ("Day validity", ("surfaces", "day", "validity")),
@@ -317,8 +336,11 @@ def _f(v) -> str:
 
 
 def compare_markdown(rows: list[dict], meta: dict) -> str:
+    commit = meta.get("scorer_commit") or ""
+    at = (f" at commit {commit[:12]}" + (" (uncommitted changes)" if meta.get("scorer_dirty") is True else "")
+          if commit else "")
     out = ["# Re-scored: old and new numbers", "",
-           f"Scorer {meta['scorer']}; runs {', '.join(meta['runs'])}. Old numbers are the stored scores "
+           f"Scorer {meta['scorer']}{at}; runs {', '.join(meta['runs'])}. Old numbers are the stored scores "
            "of the same records (after resumed and superseded copies are dropped); new numbers are "
            "this scorer on the same captured output and the current answer key.", ""]
     if meta.get("stub"):
@@ -377,6 +399,7 @@ def rescore(run_dirs: list[Path], out: Path, overrides: dict[str, Path] | None =
     loaded, metas, ids, skipped = load_runs(run_dirs)
     if not loaded:
         raise SystemExit("no run with records")
+    commit, dirty = scorer_checkout()
     gaps: dict = {}
     native_dropped = 0
     cleaned = []
@@ -426,6 +449,7 @@ def rescore(run_dirs: list[Path], out: Path, overrides: dict[str, Path] | None =
             n["old_score"] = r.get("score")
             n["rescored_from"] = {"run": rid, "scorer": r.get("scorer") or summary.OLD_SCORER}
             n["scorer"] = summary.SCORER_VERSION
+            n["scorer_commit"] = commit
             known_faults.stamp(n)
             known_faults.stamp_writes(n, ctx.profile)        # clears an old stamp and recomputes it
             if n.get("native_replays_dropped"):
@@ -440,6 +464,7 @@ def rescore(run_dirs: list[Path], out: Path, overrides: dict[str, Path] | None =
     (out / "not_rescored.jsonl").write_text("".join(json.dumps(x) + "\n" for x in failed))
     refs = list(dict.fromkeys([*(metas[0].get("references") or []), *findings.REFERENCES]))
     meta = {"run": f"rescored-{'+'.join(ids)}", "title": summary.TITLE + ": re-scored", "scorer": summary.SCORER_VERSION,
+            "scorer_commit": commit, "scorer_dirty": dirty,
             "harness": summary.SCORER_VERSION, "runs": ids, "skipped": skipped, "profiles": used,
             "references": refs, "known_gaps": gaps, "superseded_dropped": superseded,
             "native_writes_dropped": native_dropped, "not_rescored": len(failed),

@@ -27,6 +27,15 @@ Every Brief item is classified against the key (`classify`, shared with the find
   not in the key   it matches no key entry at all. Reported, never penalised: the key is not
                    exhaustive, so an item it does not list is unjudged, not noise.
 
+Two figures (never one without the other):
+  score            the model's Brief: model recall, less 0.10 per false alarm and 0.15 per stale
+                   value in an item the model wrote (cards, needs attention, message and mail
+                   to-dos)
+  seen_score       the Brief as the user sees it: recall over everything on screen, less the same
+                   penalties for every item, Harbor's own calendar, reminders and notes rows
+                   included; `harbor_stale` lists the stale rows Harbor's code wrote ("Harbor
+                   showed a stale calendar slot")
+
 Measures:
   recall           expected attention items found
   hidden_recall    the subset with hidden=true (exists only inside mail/message text)
@@ -105,6 +114,14 @@ CHANGE_TYPES = {"calendar_correction", "changed_detail", "two_source_fact"}
 CHANGE_STATUSES = {"moved", "superseded", "cancelled", "changed"}
 
 
+_WEAK_VALUE = re.compile(r"^[\s$€£]*\d[\d:.,]*\s*(?:a\.?m\.?|p\.?m\.?|%)?\s*$", re.I)
+
+
+def _weak_value(anchors: list[str]) -> bool:
+    """The old value is only a time, date or number: on its own it names no item."""
+    return all(a.startswith(("@", "#")) or _WEAK_VALUE.match(a) for a in anchors)
+
+
 def records_a_change(it: dict) -> bool:
     """Whether this key item's `stale_anchors` are a replaced value. A productbench/1 item (no
     `edat_type`) always says so; a shared-profile entry when its type or status records a change."""
@@ -120,6 +137,9 @@ def shows_stale(it: dict, text: str, today) -> bool:
     said = matcher.any_hit(it.get("stale_anchors") or [], text, today) is not None
     if not records_a_change(it):
         return slot or (said and shows(it, text, today) and not _CHANGED.search(text))
+    if said and it.get("subject_words") and _weak_value(it.get("stale_anchors") or []):
+        # An old time or number ("9:00 AM") is stale only in an item about this entry.
+        said = matcher.any_hit(it["subject_words"], text, today) is not None
     old = slot or said
     return old and matcher.any_hit(it.get("current_anchors") or it.get("anchors", []), text, today) is None
 
@@ -143,14 +163,34 @@ def classify(items: list[dict], profile: Profile, checks: dict | None = None) ->
     noise = checks.get("noise") or [it["id"] for it in profile.ledger if it["type"] == "noise"]
     keyed = [it for it in profile.ledger if not it.get("generated")]
     marks: list[list[tuple[str, str | None]]] = [[] for _ in items]
+    # Stale first: an item that shows an entry's old slot is not also "found" for an entry about
+    # the same event (sharing its sources), e.g. the calendar's old P6 slot is not the move.
+    stale = []
+    stale_src: dict[int, set] = {}
+    for it in keyed:
+        if it["type"] == "noise" or not (it.get("stale_match") or it.get("stale_anchors")):
+            continue
+        for pos, row in enumerate(items):
+            if shows_stale(it, row["text"], today):
+                stale.append((it["id"], pos))
+                marks[pos].append(("stale", it["id"]))
+                stale_src.setdefault(pos, set()).update(it.get("sources") or [it["id"]])
+                break
     first_pos: dict[str, int] = {}
+    model_found: set[str] = set()
     for lid in expect:
         it = profile.item(lid)
+        own = set(it.get("sources") or [])
         for pos, row in enumerate(items):
+            if pos in stale_src and (own & stale_src[pos] or lid in {x for m, x in marks[pos] if m == "stale"}):
+                continue
             if shows(it, row["text"], today):
-                first_pos[lid] = pos
-                marks[pos].append(("found", lid))
-                break
+                if lid not in first_pos:
+                    first_pos[lid] = pos
+                    marks[pos].append(("found", lid))
+                if row["source"] == "model":
+                    model_found.add(lid)
+                    break
     false_alarms = []
     for lid in noise:
         it = profile.item(lid)
@@ -159,15 +199,6 @@ def classify(items: list[dict], profile: Profile, checks: dict | None = None) ->
             false_alarms.append(lid)
             for pos in hit:
                 marks[pos].append(("wrongly_raised", lid))
-    stale = []
-    for it in keyed:
-        if it["type"] == "noise" or not (it.get("stale_match") or it.get("stale_anchors")):
-            continue
-        for pos, row in enumerate(items):
-            if shows_stale(it, row["text"], today):
-                stale.append((it["id"], pos))
-                marks[pos].append(("stale", it["id"]))
-                break
     taken = set(expect) | set(noise)
     for it in keyed:
         if it["id"] in taken or it["id"] in unmatchable:
@@ -175,7 +206,7 @@ def classify(items: list[dict], profile: Profile, checks: dict | None = None) ->
         for pos, row in enumerate(items):
             if not marks[pos] and shows(it, row["text"], today):
                 marks[pos].append(("in_key", it["id"]))
-    return {"expect": expect, "unmatchable": unmatchable, "first_pos": first_pos,
+    return {"expect": expect, "unmatchable": unmatchable, "first_pos": first_pos, "model_found": model_found,
             "false_alarms": false_alarms, "stale": stale, "marks": marks,
             "not_in_key": [pos for pos, m in enumerate(marks) if not m]}
 
@@ -188,6 +219,10 @@ class BriefScore:
     hidden_recall: dict = field(default_factory=dict)
     false_alarms: list[str] = field(default_factory=list)
     stale: list[str] = field(default_factory=list)
+    model_false_alarms: list[str] = field(default_factory=list)
+    model_stale: list[str] = field(default_factory=list)
+    harbor_stale: list[str] = field(default_factory=list)
+    seen_score: float | None = None
     not_in_key: dict = field(default_factory=dict)
     unmatchable: list[str] = field(default_factory=list)
     order: dict = field(default_factory=dict)
@@ -216,13 +251,24 @@ def score_brief(snapshot: dict, profile: Profile, checks: dict) -> BriefScore:
     s.recall = _rate(found, expect)
     model_expect = [lid for lid in expect
                     if _source_kinds(profile, profile.item(lid)) & set(_MODEL_KINDS)]
-    s.model_recall = _rate([lid for lid in found if lid in model_expect], model_expect)
+    # The model's recall counts only items the model wrote; Harbor's own rows count in `recall`.
+    model_found = [lid for lid in model_expect if lid in c["model_found"]]
+    s.model_recall = _rate(model_found, model_expect)
     hidden = [lid for lid in expect if profile.item(lid).get("hidden")]
     s.hidden_recall = _rate([lid for lid in found if lid in hidden], hidden)
 
     all_text = "\n".join(it["text"] for it in items)
     s.false_alarms = c["false_alarms"]
     s.stale = [f"{lid}: {items[pos]['text'][:80]}" for lid, pos in c["stale"]]
+    # Who wrote what: the model's Brief is scored on the items the model wrote; the rows Harbor's
+    # own code writes (calendar, reminders and notes to-dos) count only in the Brief as seen.
+    raised_by_model = {lid for pos, row in enumerate(c["marks"]) if items[pos]["source"] == "model"
+                       for mark, lid in row if mark == "wrongly_raised"}
+    s.model_false_alarms = [lid for lid in c["false_alarms"] if lid in raised_by_model]
+    s.model_stale = [f"{lid}: {items[pos]['text'][:80]}" for lid, pos in c["stale"]
+                     if items[pos]["source"] == "model"]
+    s.harbor_stale = [f"{lid}: {items[pos]['text'][:80]}" for lid, pos in c["stale"]
+                      if items[pos]["source"] != "model"]
     nik = c["not_in_key"]
     model_items = sum(1 for it in items if it["source"] == "model")
     nik_model = sum(1 for pos in nik if items[pos]["source"] == "model")
@@ -247,11 +293,17 @@ def score_brief(snapshot: dict, profile: Profile, checks: dict) -> BriefScore:
                 "over": bool((checks.get("max_items") and len(items) > checks["max_items"])
                              or (checks.get("max_words") and words > checks["max_words"]))}
 
-    base = s.model_recall["rate"] if s.model_recall["rate"] is not None else (s.recall["rate"] or 0.0)
-    penalty = (0.1 * len(s.false_alarms) + 0.15 * len(s.stale)
-               + (0.05 if s.length["over"] else 0.0))
+    over = 0.05 if s.length["over"] else 0.0
     order_bonus = 0.0 if s.order["rate"] is None else 0.1 * (s.order["rate"] - 0.5)
-    s.score = round(max(0.0, min(1.0, base - penalty + order_bonus)), 3)
+
+    def _score(base: float, false_alarms: list, stale: list) -> float:
+        return round(max(0.0, min(1.0, base - 0.1 * len(false_alarms) - 0.15 * len(stale) - over + order_bonus)), 3)
+
+    # The model's Brief: recall of what the model writes, penalised only for items it wrote.
+    base = s.model_recall["rate"] if s.model_recall["rate"] is not None else (s.recall["rate"] or 0.0)
+    s.score = _score(base, s.model_false_alarms, s.model_stale)
+    # The Brief as the user sees it: everything on screen, Harbor's own rows included.
+    s.seen_score = _score(s.recall["rate"] or 0.0, s.false_alarms, s.stale)
     if s.state != "ready":
         s.notes.append(f"brief state {s.state!r}: scored as captured")
     return s

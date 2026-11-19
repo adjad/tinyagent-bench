@@ -66,7 +66,7 @@ from scripts.productbench.profile import load as load_profile  # noqa: E402
 
 SURFACES = ("ask", "brief", "day", "pref", "long", "act")
 DEFAULT_SURFACES = "ask,brief,day,pref,act"
-HARNESS_VERSION = summary.SCORER_VERSION     # edat-iae-0.3.1: the scorer audit fixes, key strings scoped
+HARNESS_VERSION = summary.SCORER_VERSION     # edat-iae-0.3.3: audit fixes, key strings scoped, two Brief figures, one Day mistake once, Day plans read by day and clause
 RUN_PREFIX = "edat-iae"
 
 
@@ -150,6 +150,12 @@ def _git_sha() -> str:
                               text=True, timeout=10).stdout.strip()
     except (OSError, subprocess.TimeoutExpired):
         return ""
+
+
+def sandbox_marks(root: Path = ROOT) -> dict:
+    """Run-meta marks read from the checkout's code (the meta's `git_sha`), so no run needs one set
+    by hand: whether its sandbox answers Calendar and Reminders writes (known_faults.py)."""
+    return {known_faults.NATIVE_FIXED_MARK: known_faults.sandbox_answers_native_writes(root)}
 
 
 def _sysctl(name: str) -> str | None:
@@ -619,7 +625,7 @@ def play_sim_day(args, chosen, run: str, run_dir: Path, device: dict, stub: bool
                   context_window=entry.context_window, credential_ref=args.credential_ref,
                   at=script.get("day_start", "08:00"), narration_thinking=entry.thinking == "narration-on")
     meta = {"run": run, "title": summary.TITLE + ": simulated day", "harness": HARNESS_VERSION,
-            known_faults.NATIVE_FIXED_MARK: known_faults.sandbox_answers_native_writes(ROOT),
+            **sandbox_marks(),
             "git_sha": _git_sha(), "date": time.strftime("%Y-%m-%d"), "entry": entry.id, "kind": entry.kind,
             "variant": entry.variant(), "device": device, "stub": stub, "profile": profile.id,
             "pace": args.pace, "gap_s": args.gap_s, "scale": args.scale, "events": len(script["events"]),
@@ -766,7 +772,7 @@ def main() -> None:
             "max_spend_usd": args.max_spend_usd, "started": time.time(), "trials_meta": [],
             "sync_preflight": preflight,
             # whether the sandbox here answers Calendar/Reminders writes (else replays: known_faults.py)
-            known_faults.NATIVE_FIXED_MARK: known_faults.sandbox_answers_native_writes(ROOT),
+            **sandbox_marks(),
             "supersedes": args.supersedes,
             "known_gaps": ({} if "act" in surfaces else {"act_not_run": known_faults.GAPS["act_not_run"]}),
             "sampling": "Harbor's own requests: model-only Ask sends no temperature, so a local model's "

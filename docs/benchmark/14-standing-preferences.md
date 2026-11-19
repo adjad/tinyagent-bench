@@ -2,7 +2,7 @@
 
 # 14 · Standing preferences (the instruction-following test)
 
-Standing preferences test instruction following: the agent must keep honouring what a person told it once, across a whole session. The list below is invented and generic. It describes no real person.
+Standing preferences are the saved habits and rules a person gives an assistant (tone, formats, hours, who to contact). This list exists to test instruction following: whether a small model keeps honouring a preference many turns later, handles a one-off override, and does not stretch it. The list is invented and generic and describes no real person.
 
 ## How preferences are used
 
@@ -53,9 +53,9 @@ Standing preferences test instruction following: the agent must keep honouring w
 23. One named deadline is the week's top priority.
 24. Focused work in the morning, errands after 16:00.
 
-## Where this file is used
+## Who uses this file
 
-- The synthetic profiles ([09-profile-schema](09-profile-schema.md)) bind a subset to each person and record the checks in the ledger.
-- The agentic spec ([02-agentic-spec](02-agentic-spec.md)) owns the case family and its scoring.
-- The output-quality spec ([03-output-quality-spec](03-output-quality-spec.md)) owns the shared checkers for the format and style items (1 to 9).
-- The in-assistant evaluation ([08-product-eval-design](08-product-eval-design.md)) applies the Brief and Day priorities and the format items inside the assistant.
+- [09 profiles](09-profile-schema.md): binds a subset to each synthetic person and records the checks in the ledger.
+- [02 agentic](02-agentic-spec.md): owns the family, its cases and its scoring.
+- [03 output quality](03-output-quality-spec.md): owns the shared checkers for the format and style items (1 to 9).
+- [08 in-assistant evaluation](08-product-eval-design.md): applies the Brief and Day priorities and the format items inside the assistant.

@@ -2,8 +2,8 @@
 
 # 09 · tinyagent-bench user profiles: schema and ledger
 
-Status: **v1, stable for consumers.** Owner: the bench-profiles work (branch `claude/bench-profiles`).
-Part of **tinyagent-bench**. The data is shaped for the Harbor assistant. Consumers: `scripts/productbench/` (the in-product evaluation), the profiles viewer (a planned page under `site/`).
+Status: **v1, stable for consumers.** Branch: `claude/bench-profiles`.
+Part of **tinyagent-bench**. The data is shaped for the Harbor assistant. Consumers: `scripts/productbench/` (the in-product evaluation), and a profiles viewer that is kept outside this repository.
 
 Everything described here is **synthetic test data**. Every person, organisation, product, address, domain (`.example`, `.test`) and phone number (`555-01xx`) is invented.
 
@@ -387,11 +387,11 @@ At least 5 `mention` and 4 `leave_out`, judged at `anchor.now` over the last day
 * **Message read state, reactions, tapbacks, images, voice memos**: the Messages wire format has no unread flag or media. `unread` is kept for Toolbench; reactions are written as text ("Liked “…”") the way iMessage exports them; no media.
 * **Event descriptions (`notes`)** are not synced by Harbor's calendar reader: viewer only.
 * **Not modelled at all:** scheduled sends, timers and alarms, learned behaviour patterns and predictions, past Harbor conversations, Google Drive files, running apps and Mac state, weather, stocks, web search results, knowledge notes/style examples (`save_knowledge`), Study tab data (excluded by request). Travel time is given as a fixed `travel` table rather than a routing service.
-* **Second-language content: none for now.** The user asked for English only (2026-11-18), so all three profiles are English; locale details (en-CA spelling, CAD, time zones) stay. The schema keeps an optional `lang` tag and the `:es` date tokens for later; nothing uses them.
+* **Second-language content: none for now.** The benchmark is English only (decided 2026-11-18), so all three profiles are English; locale details (en-CA spelling, CAD, time zones) stay. The schema keeps an optional `lang` tag and the `:es` date tokens for later; nothing uses them.
 
 ## 8. Volume per profile and why
 
-Targets were about 150–250 emails, 300–500 messages in 10–15 conversations, 40–70 events over five weeks, 20–40 notes, 15–30 reminders, 20–40 contacts and a handful of documents. Actual counts are in `test_fixtures/bench_profiles/index.json` and the handoff. Two deliberate adjustments:
+Targets were about 150–250 emails, 300–500 messages in 10–15 conversations, 40–70 events over five weeks, 20–40 notes, 15–30 reminders, 20–40 contacts and a handful of documents. Actual counts are in `test_fixtures/bench_profiles/index.json` and the profile index. Two deliberate adjustments:
 * **The calendar window is mostly days −28 … +12** (the validator allows −35 … +21 for a few outliers such as next month's rent or a conference). That covers the four weeks of history the inbox spans plus the week the Day planner looks ahead to. Recurring classes and standups are expanded within it.
 * **Old mail beyond 30 days is a small tail** (a few items flagged `deep` in the sandbox), because Harbor's sync treats it as history.
 
@@ -401,8 +401,8 @@ Targets were about 150–250 emails, 300–500 messages in 10–15 conversations
 2. **Identity on the real sync endpoint.** Provisional: placeholder domains, gap documented (§7). Using real-looking domains would break the "invented domains only" rule.
 3. **One `now` per profile.** The ledger is written for the morning (`anchor.now`). Questions asked "at 2 pm" need the clock advanced, with no new mail; the ledger's `today_agenda` stays valid but "what's next" changes. Provisional: the productbench owns any clock advance.
 4. **Rebasing to a different weekday** keeps the data consistent but not realistic (§2). Provisional: rebase to the same weekday.
-5. **Sandbox `end_ts` forwarding** is a one-line change in `sandbox/sync.py`, outside the profile work's files. Left for the in-assistant evaluation.
-6. **Second language.** Dropped by the user on 2026-11-18 ("test everything right now in english as well"). All content is English; re-adding a language later needs only `lang` tags and `:es` tokens, which the loader already supports.
+5. **Sandbox `end_ts` forwarding** is a one-line change in `sandbox/sync.py`, outside the profile files' own paths. Left for the productbench.
+6. **Second language.** Dropped on 2026-11-18 (English only for now). All content is English; re-adding a language later needs only `lang` tags and `:es` tokens, which the loader already supports.
 7. **Preferences in Toolbench.** Toolbench's `profile` carries only name and goals, so the preferences homed in `about_you.tone/detail/boundaries/notes/people` need the real `service.memory.profile` store seeded in an isolated home (the productbench owns that). Memory-homed preferences go through `seed_memory` as they are.
 8. **Public base.** The benchmark repository is seeded from Harbor's public main `46da8eb5`, not `stage-0.1.7`. The adapters touch no Harbor file; `to_toolbench_world` was checked against `46da8eb5:scripts/toolbench/world.py` (the only difference there is a fake's `cancel_event(title, when_iso=None)` signature, which the adapter does not use). `sandbox/outbound.py` also differs and is not used.
 9. **Labels that name real products.** Threads carry `service: "imessage|sms"` and browser visits `browser: "safari|chrome"`, because those are the values Harbor's own wire formats and sandbox use. Nothing else in the data names a real product.

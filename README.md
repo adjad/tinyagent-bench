@@ -25,10 +25,10 @@ only thing deciding what to do.
 | Privacy | Leaks of private details in what the agent sends: messages, emails, tool arguments | [02-agentic-spec](docs/benchmark/02-agentic-spec.md), [03-output-quality-spec](docs/benchmark/03-output-quality-spec.md) |
 | Output quality | Whether answers are correct, grounded in the sources the tools returned, and readable | [03-output-quality-spec](docs/benchmark/03-output-quality-spec.md) |
 | Speed, memory, energy | Prefill and decode speed, time to first token, peak memory and energy per task at fixed context sizes; battery and energy over a simulated day | [04-perf-energy-memory-spec](docs/benchmark/04-perf-energy-memory-spec.md) |
-| Long sessions | Whether behaviour holds up as a session grows long | Planned |
+| Long sessions | Whether behaviour holds up as a session grows long | [02-agentic-spec](docs/benchmark/02-agentic-spec.md) §3.15, [08-product-eval-design](docs/benchmark/08-product-eval-design.md) |
 | Vision and audio input | Image, document and speech inputs, for models that accept them | [05-vision-audio-spec](docs/benchmark/05-vision-audio-spec.md) |
-| Controlling apps on screen | Operating apps through what is on screen | Planned |
-| Sidekick tasks | Light coding and terminal tasks | Planned |
+| Controlling apps on screen | Operating apps through what is on screen | [11-screen-control-spec](docs/benchmark/11-screen-control-spec.md) |
+| Sidekick tasks | Light coding and terminal tasks | [12-sidekick-coding-spec](docs/benchmark/12-sidekick-coding-spec.md) |
 | Behaviour inside an assistant | The same model placed inside a full assistant backend, used by three synthetic people (a student, a tech worker, a mixed household) over a simulated day | [08-product-eval-design](docs/benchmark/08-product-eval-design.md), [09-profile-schema](docs/benchmark/09-profile-schema.md) |
 
 Not tested: video input, speech output, and embedding or reranker models.
@@ -83,6 +83,9 @@ code keeps its original names and paths.
 | On-screen app control (`edat/screen/`, cases in `test_fixtures/screen/`) and sidekick coding and terminal tasks (`edat/sidekick/`, cases in `test_fixtures/sidekick/`) | Planned |
 | Results store (`edat/results/`), published results (`data/results/`), website data (`site/data/`) | In progress; no results are published |
 | Public website | Designed; [`site/`](site/) is a clickable mock-up with sample data |
+
+An audit of the imported Toolbench cases is summarised in
+[13-case-audit](docs/benchmark/13-case-audit.md).
 
 [docs/STRUCTURE.md](docs/STRUCTURE.md) says where each piece lives and where the
 upcoming ones will go.

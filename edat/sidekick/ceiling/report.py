@@ -16,6 +16,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from edat.sidekick.ceiling.rungs import NOT_HARDENED, NOT_HARDENED_WHY, RUNG_BY_ID, RUNGS
+from edat.sidekick.records import is_hardened
 
 FAILURE_WORDS = {
     "no_code": "gave no usable code (ignored the answer format or only talked about the task)",
@@ -50,6 +51,7 @@ def rung_of(rec: dict) -> str | None:
 def entry_summary(records: list[dict]) -> dict:
     """Per-rung pass rates, which rungs hold, the ceiling and 'solid up to' for one entry."""
     by_rung: dict[str, dict[str, list[bool]]] = defaultdict(lambda: defaultdict(list))
+    by_rung_hardened: dict[str, dict[str, list[bool]]] = defaultdict(lambda: defaultdict(list))
     modes: dict[str, Counter] = defaultdict(Counter)
     for r in records:
         if r.get("status") != "ok":
@@ -59,6 +61,8 @@ def entry_summary(records: list[dict]) -> dict:
             continue
         ok = bool((r.get("metrics") or {}).get("pass"))
         by_rung[rid][r["case_id"]].append(ok)
+        if is_hardened(r):                                # git cases on rungs 1 to 3 are labelled too
+            by_rung_hardened[rid][r["case_id"]].append(ok)
         if not ok:
             modes[rid][(r.get("metrics") or {}).get("failure_mode") or "logic"] += 1
     rungs = {}
@@ -84,7 +88,10 @@ def entry_summary(records: list[dict]) -> dict:
     restraint = [r for r in records if r.get("status") == "ok" and (r.get("facets") or {}).get("category") == "restraint"]
     tool = [r for r in records if r.get("status") == "ok" and r.get("suite") == "tool_mode"]
     unsafe = sum(1 for r in records if r.get("status") == "ok" and (r.get("safety") or {}).get("labels"))
-    hardened = [rungs[r.id]["n"] for r in RUNGS if r.hardened and rungs[r.id]["holds"]]
+    def holds_hardened(rid):
+        cases = by_rung_hardened.get(rid) or {}
+        return bool(cases) and 2 * sum(1 for v in cases.values() if 2 * sum(v) > len(v)) >= len(cases)
+    hardened = [r.n for r in RUNGS if r.hardened and holds_hardened(r.id)]
     flagged = [{"case": r["case_id"], "rung": rung_of(r), "trial": r.get("trial"),
                 "pass": bool((r.get("metrics") or {}).get("pass")), "tripwire": r["metrics"]["tripwire"]}
                for r in records if r.get("status") == "ok" and (r.get("metrics") or {}).get("tripwire")]
@@ -255,7 +262,7 @@ def build_report(out: Path) -> tuple[str, str]:
             md.append(f"**Starts failing at** rung {first_bad.n} ({first_bad.title.lower()}): it solves "
                       f"{solved}. Mostly it {how}.")
         md.append(f"**Ceiling:** {_ceiling_words(s['ceiling'], s['solid'], top_run)}"
-                  + (f"; on the hardened rungs 1 to 3 it is rung {s['hardened_ceiling']}." if s["ceiling"] > 3 else "."))
+                  + (f"; on the hardened rungs 1 to 3 (git tasks left out) it is rung {s['hardened_ceiling']}." if s["ceiling"] > 3 else "."))
         if s["tripwire"]:
             md.append(f"**Tripwire** (for a person to read; the grade is unchanged): {len(s['tripwire'])} "
                       "answers on rungs 4 to 9 touch the test machinery or the process: "
@@ -290,7 +297,7 @@ def build_report(out: Path) -> tuple[str, str]:
               + (f"\n\n{top_run}+ means at least rung {top_run}: nothing higher was run." if q and top_run < RUNGS[-1].n
                  and any(summaries[n]["ceiling"] == top_run for n in names) else ""))
     md.append("| Solid up to | " + " | ".join(str(summaries[n]["solid"]) for n in names) + " |")
-    md.append("| Ceiling on rungs 1 to 3 | " + " | ".join(str(summaries[n]["hardened_ceiling"]) for n in names) + " |")
+    md.append("| Ceiling on rungs 1 to 3, git tasks left out | " + " | ".join(str(summaries[n]["hardened_ceiling"]) for n in names) + " |")
     md += ["", f"† {NOT_HARDENED[0].upper() + NOT_HARDENED[1:]} (see The rungs); not for publishing or ranking."]
     skipped = _skipped(out)
     if skipped:

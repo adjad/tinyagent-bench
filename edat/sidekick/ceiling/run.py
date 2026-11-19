@@ -44,7 +44,7 @@ from edat.sidekick.ceiling.rungs import (LADDER_SEED_PUBLIC, RUNG_BY_ID, RUNGS, 
                                          materialize_probe)
 from edat.sidekick.extract import visible_answer
 from edat.sidekick.gen.core import PUBLIC_MASTER_SEED, materialize
-from edat.sidekick.graders import grade_answer
+from edat.sidekick.graders import grade_answer, grading_label
 from edat.sidekick.graders.common import GradeResult
 from edat.sidekick.records import harness_commit, make_record
 from edat.sidekick.restraint import event_record
@@ -634,8 +634,9 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
                                   started_at=started, seed=seed, raw_ref=w.put_raw(json.loads(json.dumps(raw, default=str))),
                                   commit=commit, dirty=dirty)
                 rec["facets"]["tags"] += [f"rung-{u.case.rung.n}", f"sampling-{profile.name}"]
-                if not u.case.rung.hardened:
-                    rec["facets"]["tags"].append("grade-not-hardened")
+                if (not u.case.rung.hardened or not grading_label(inst.grader)["grade_hardened"]) \
+                        and "grade-not-hardened" not in rec["facets"]["tags"]:
+                    rec["facets"]["tags"].append("grade-not-hardened")      # by rung, and by how the case is graded
                 if status == "ok" and model.bits_per_weight is not None:
                     rec["metrics"]["bits_per_weight"] = model.bits_per_weight
                 w.append(rec)

@@ -75,6 +75,13 @@ def test_reference_client_passes_and_records_validate(tmp_path, iso):
         assert {a["name"] for a in man["attachments"]} >= {"sidekick-run-key.json", "restraint-events.jsonl",
                                                            "restraint-trials.jsonl", "sidekick-summary.json"}
     assert out["events"] == 0
+    for r in recs:                                      # labelled by how the case is graded
+        git = r["facets"]["family"] == "git"
+        assert ("grade-not-hardened" in r["facets"]["tags"]) == git, r["case_id"]
+        assert r["metrics"]["grade_hardened"] is (not git)
+        assert r["metrics"]["grading"] == ("git_on_copy" if git else r["metrics"]["grading"])
+    assert {t for t in out["summary"]["SK-2_type_pass_rate"]} == {"shell", "fix_bug", "commit_msg"}
+    assert out["summary"]["not_hardened"]["type_pass_rate"]["git"]["rate"] == 1.0
 
 
 def test_null_model_fails_everything(tmp_path, iso):
@@ -96,7 +103,23 @@ def test_destructive_answer_becomes_restraint_event(tmp_path, iso):
     recs = _lines(out, "records.jsonl")
     flagged = [r for r in recs if r["safety"]["labels"]]
     assert flagged and all(not r["metrics"]["pass"] for r in flagged)
-    assert out["summary"]["SK-19_terminal_violation_rate"] > 0
+    # git rows are labelled: their violations are reported apart, never in the ranked safety rate
+    assert all("grade-not-hardened" in r["facets"]["tags"] for r in recs)
+    assert out["summary"]["SK-19_terminal_violation_rate"] is None
+    assert out["summary"]["not_hardened"]["violation_rate"] > 0
+
+
+def test_a_grader_error_keeps_the_label(tmp_path, iso, monkeypatch):
+    """A git trial whose grading raises is still labelled: the label comes from the case's grader."""
+    import edat.sidekick.runner as runner_mod
+    def boom(*a, **k):
+        raise RuntimeError("grader broke")
+    monkeypatch.setattr(runner_mod, "grade_answer", boom)
+    cfg = _cfg(tmp_path, types=("git",), modes=("answer_only",), limit=1)
+    out = run(always(lambda m, t, i: {"text": "```zsh\ngit status\n```"}), stub("x"), cfg, iso=iso, progress=None)
+    recs = _lines(out, "records.jsonl")
+    assert recs and all(r["metrics"]["failure_mode"] == "grader_error" for r in recs)
+    assert all("grade-not-hardened" in r["facets"]["tags"] and r["metrics"]["grade_hardened"] is False for r in recs)
 
 
 def test_engine_errors_are_excluded(tmp_path, iso):
@@ -146,8 +169,10 @@ def _rec(case, typ, trial, ok, suite="answer_only", level="L1", **metrics):
             "metrics": {"pass": ok, **metrics}, "safety": {"labels": metrics.pop("labels", [])}}
 
 
-def test_sidekick_score_is_macro_over_nine_types():
+def test_sidekick_score_is_macro_over_the_ranked_types():
     from edat.sidekick.gen.core import TASK_TYPES
+    from edat.sidekick.report import RANKED_TYPES
+    assert set(TASK_TYPES) - set(RANKED_TYPES) == {"git"}
     recs = []
     for i, t in enumerate(TASK_TYPES):
         for tr in (1, 2, 3):
@@ -160,6 +185,36 @@ def test_sidekick_score_is_macro_over_nine_types():
     assert s["SK-4_consistency_gap"] == pytest.approx(s["SK-1_sidekick_score"] - 0.5)
     lo, hi = s["SK-1_bootstrap95"]
     assert lo <= s["SK-1_sidekick_score"] <= hi
+
+
+def test_labelled_rows_never_reach_a_ranked_metric():
+    """Each of the three marks keeps a row out alone (tag, metric, type), so stripping one cannot rank it;
+    the labelled rows are reported apart."""
+    from edat.sidekick.gen.core import TASK_TYPES
+    from edat.sidekick.records import is_hardened
+    base = [_rec(f"{t}_a", t, 1, True) for t in TASK_TYPES if t != "git"]
+    s0 = summarize(base)
+    tagged = dict(_rec("shell_z", "shell", 1, False)); tagged["facets"]["tags"] = ["grade-not-hardened"]
+    marked = _rec("shell_y", "shell", 1, False, grade_hardened=False)
+    stripped = _rec("git_x", "git", 1, False)                 # no tag, no metric: its type still keeps it out
+    for r in (tagged, marked, stripped):
+        assert not is_hardened(r)
+    s = summarize(base + [tagged, marked, stripped])
+    assert s["SK-1_sidekick_score"] == s0["SK-1_sidekick_score"] == 1.0
+    assert s["SK-2_type_pass_rate"] == s0["SK-2_type_pass_rate"] and s["trials"] == len(base)
+    assert s["not_hardened"]["trials"] == 3 and s["not_hardened"]["type_pass_rate"]["git"]["rate"] == 0.0
+
+
+def test_the_label_is_keyed_on_the_grader_both_ways():
+    """Every case of a labelled type is graded by a not-hardened grader, and no other case is."""
+    import random
+    from edat.sidekick.gen.registry import all_templates
+    from edat.sidekick.graders import LABELLED_TYPES, NOT_HARDENED_GRADERS, grading_label
+    for t in all_templates():
+        g = t.build(random.Random("label")).grader
+        assert (t.type in LABELLED_TYPES) == (g in NOT_HARDENED_GRADERS), t.id
+        assert grading_label(g)["grade_hardened"] is (g not in NOT_HARDENED_GRADERS)
+    assert grading_label("git") == {"grading": "git_on_copy", "grade_hardened": False}
 
 
 def test_missing_type_gives_no_headline():
@@ -175,7 +230,7 @@ def test_wilson():
 
 def test_time_budget_and_violations():
     recs = [_rec("a", "shell", 1, True, time_to_answer_s=4.0), _rec("b", "shell", 1, False, time_to_answer_s=14.0),
-            _rec("c", "git", 1, False, suite="tool_mode", time_to_answer_s=30.0, labels=["destructive"])]
+            _rec("c", "shell", 1, False, suite="tool_mode", time_to_answer_s=30.0, labels=["destructive"])]
     recs[2]["safety"]["labels"] = ["destructive"]
     s = summarize(recs)
     assert s["SK-25_time_to_answer"]["answer_only"]["within_budget"] == 0.5

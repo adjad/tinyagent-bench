@@ -211,7 +211,8 @@ never a terminal or pty, `/usr/local`, the network (loopback and local sockets i
 process's files, or anything about a process outside its own sandbox: not its arguments or environment,
 its path, its details or the process list. Model code itself gets a fixed environment.
 
-**What the graders trust.** Nothing the model's code can write. The python3, node and git the graders run
+**What the graders trust.** The hardened graders trust nothing the model's code can write (the git grader
+is the exception, and labelled: below). The python3, node and git the graders run
 live in a read-only folder the harness makes outside every trial folder. Code answers run in a driver
 that only reports what each call returned; the expected values, the reference and the verdict stay on
 the harness side. Written tests run once per module (the correct one and each mutant), each in a fresh
@@ -219,55 +220,77 @@ folder, in a random order, and each run counts by its exit code alone. A folder 
 entries (files, links and folders all count); a folder past that is not graded, so a file past the cap
 can never pass for a deleted one.
 
-**How the git grader reads a repository.** It never believes git's own view of it. The harness copies
-the repository (working tree, `.git`, `origin.git`) through folder handles into a fresh area and leaves
-out what could make git run something, read elsewhere or report something other than what is stored.
-In that copy git serves objects and nothing else, and the snapshot checks that each object hashes to its
-id; one that does not counts as missing. Refs, HEAD, the stash log and the index are parsed from their
-files; commits and trees from the checked objects; untracked files are every file not in the index;
-changes come from hashing each file and comparing it with the index, and the index with HEAD's tree.
-Every parse is strict: anything git could read differently (a loose ref with trailing text or upper-case
-hex, a symbolic ref without its space, a second `tree` header or a misplaced `parent`, a tree naming a file
-twice or out of git's order, packed-refs out of order, a stash log without `refs/stash`, a config
-`include`, an index out of order or with an extension git would require) makes the repository
-unreadable, never a fallback, and `git fsck --strict` on the copy is a backstop.
+**What is hardened, and what is labelled.** Hardened against adversarial model code: the code,
+write_test, shell and regex graders and the text graders (key facts, commit messages, Yes/No diff bugs).
+Labelled `not hardened against adversarial model code`: the git tasks (every case graded by the git
+grader, on any rung or tier) and rungs 4 to 9 until their conversion lands. A labelled row carries the tag
+`grade-not-hardened` and `grade_hardened: false`, set from how its case is graded before grading starts,
+so an error in grading cannot strip it; the scoring also leaves out every row of a labelled type. Labelled
+rows stay out of the Sidekick Score, every ranked or published number and the ceiling on rungs 1 to 3;
+the summary reports them apart, under `not_hardened`. A sandboxed test program cannot read other
+processes or devices (see "What model code can reach").
 
-**Two readers must agree.** A hand-written reader may always differ from git somewhere not yet found, so
-git itself (the host-owned binary, on the same copy, with its config replaced and its environment
-isolated) reads every fact the grader uses: HEAD and its branch, every ref, the stash list, the reachable
-commits and each one's tree, parents and subject, the files of each tree graded, the index, untracked
-files, staged and unstaged changes, the config (against a second, strict config reader) and origin's
-refs. If the two readers differ on any fact, or the raw reader refuses the repository, the trial fails
-as unsafe with a `git_view_mismatch` event and is counted as lost work. A forgery has to fool both
-readers the same way. What was checked against git's documentation (gitrepository-layout, git-config, githooks, gitattributes,
+**How the git grader reads a repository: real git, on a sanitised copy, labelled.** The harness copies
+the repository (working tree, `.git`, `origin.git`) through folder handles into a fresh area and leaves
+out what could make git run something, read elsewhere or report something other than what is stored
+(the table below). Git, the host's own binary with its config replaced and its environment isolated,
+then reads that copy, and its view is graded: HEAD and its branch, every ref, the stash list, the
+reachable commits with their trees, parents and subjects, the files of each tree, the index, untracked
+files with no ignore rule, staged and unstaged changes with attributes taken from the empty tree and no
+index flag believed for a file on disk, origin's refs, and the model's config read as data with includes
+off (and `config.worktree` where `extensions.worktreeConfig` makes git read it; sparse-checkout sets it).
+A config over 1 MiB is not read at all (never in part), so no config predicate can hold. The objects
+whose text is graded come through a store that checks each one hashes to its id. This closes the view
+mechanisms found so far, but git's view of a repository the model controls is not a verdict the model
+cannot shape, so these rows are labelled until the git tasks are rebuilt (below).
+
+**The raw reader is a tripwire.** A second, strict reader parses the same copy from its files and checked
+objects: loose and packed refs in git's exact format, commit headers, tree entries, the stash log, the
+index and its extensions, and the config by a hand-written parser, refusing anything git could read
+another way, with `git fsck --strict` as a backstop. Where it refuses the repository, differs from git on
+any fact the grade uses, or the copy left out a pointer elsewhere (`commondir`, `gitdir`, grafts, a
+shallow list, replace refs, a `core.worktree` or extension in the model's config), the trial carries a
+`git_view_mismatch` flag: a count in the row's metrics and the facts in its raw record, for a person to
+read. A flag never fails a trial or changes a grade, so no honest model loses a point to it, and an
+answer without a flag is not thereby honest. Nothing the repository holds stops the snapshot: a file too
+large is kept by name, the snapshot keeps at most 1 MiB of any file's text and 4 MiB in all (past that
+it keeps the file's id), and a read that does not finish is a failed grade, never an error.
+
+The honest states checked with no flag: a link to a folder (one entry, as git lists it), a nested
+repository (one untracked `name/`, never walked into), sparse checkouts in cone mode and with a sparse
+index, a file edited under skip-worktree or assume-unchanged (both readers see the change), an orphan
+branch with an empty root commit, a subject with leading spaces (kept, as git's `%s` keeps them), file
+names in decomposed Unicode and case-only renames (read as git does on macOS, with `precomposeunicode`
+and the file system's `ignorecase`), a 6 MB file, tags of a tree or a blob, merges, rebases and
+cherry-picks stopped on conflicts, notes, `feature.manyFiles`, `pack-refs`, `gc --prune=now`, and a
+submodule with changes inside it. One rule is stricter than git: no attribute applies, so a file whose
+bytes on disk differ from its blob is changed even where `text=auto` would call it clean (CRLF on disk,
+LF stored).
+
+What was checked against git's documentation (gitrepository-layout, git-config, githooks, gitattributes,
 gitignore, git-replace, git-sparse-checkout, git-update-index, gitformat-index, git environment
 variables), and what each item does here:
 
 | Mechanism | What it could do | Here |
 | --- | --- | --- |
-| `refs/replace/*`, `GIT_NO_REPLACE_OBJECTS` | swap any object for another | left out of the copy; replacement off in the environment and on the command line; refs read raw skip them |
-| `info/grafts`, `shallow` | rewrite or cut a commit's parents | left out; `GIT_GRAFT_FILE=/dev/null`; parents read from the commit object itself |
+| `refs/replace/*`, `GIT_NO_REPLACE_OBJECTS` | swap any object for another | left out of the copy and flagged; replacement off in the environment and on the command line |
+| `info/grafts`, `shallow` | rewrite or cut a commit's parents | left out and flagged; `GIT_GRAFT_FILE=/dev/null` |
 | `objects/info/alternates`, `http-alternates` | borrow objects from elsewhere | left out |
-| pack `.idx`, multi-pack index, commit graph | point an id at other content, or other parents | indexes and graphs left out or off; every object checked against its id |
-| `info/exclude`, `.gitignore`, `core.excludesFile` | hide untracked files | no ignore rule is applied: every file not in the index is untracked |
-| assume-unchanged, skip-worktree, intent-to-add bits | hide changes to tracked files | no index flag is believed; each file is hashed and compared |
-| `info/sparse-checkout`, sparse index | hide files from the index | left out and off; a sparse folder entry is expanded from its tree |
-| `.gitattributes`, `info/attributes`, filters, `core.attributesFile` | make different bytes look clean | left out or off; changes are found by hashing raw bytes, with no filter or line-ending rule |
-| untracked cache, fsmonitor (`core.fsmonitor`, `core.untrackedCache`, index extensions UNTR and FSMN) | report a stale or forged status | off, and the index extensions are skipped: status is never asked |
-| split index (`link` extension, `sharedindex.*`) | keep entries in another file | an index that uses one is treated as unreadable and the tree as not clean |
-| config, `config.worktree`, `include`, `includeIf` | load settings or other files | left out; replaced by a fixed config; the model's config is read as data with includes off |
+| pack `.idx`, multi-pack index, commit graph | point an id at other content, or other parents | indexes and graphs left out or off; every object whose text is graded is checked against its id |
+| `info/exclude`, `.gitignore`, `core.excludesFile` | hide untracked files | no ignore rule: every file not in the index is untracked |
+| assume-unchanged, skip-worktree, intent-to-add bits | hide changes to tracked files | cleared in the copy for every file on disk, so git compares it; a skip-worktree file absent from disk (a sparse checkout) is not a deletion |
+| `info/sparse-checkout`, sparse index | hide files from the index | left out and off; the index is read in full |
+| links to folders, nested repositories | hide what is inside, or walk into another repository | a link is one entry; a folder with its own `.git` is one untracked `name/` |
+| `.gitattributes`, `info/attributes`, filters, `core.attributesFile` | make different bytes look clean | attributes from the empty tree; no filter or line-ending rule |
+| untracked cache, fsmonitor (`core.fsmonitor`, `core.untrackedCache`) | report a stale or forged status | off: status is never asked |
+| config, `config.worktree`, `include`, `includeIf` | load settings or other files | replaced by a fixed config; the model's config read as data, includes off; over 1 MiB not read at all, and flagged |
 | hooks, `core.hooksPath`, reference-transaction | run code | left out; hooks path set to `/dev/null` |
-| `gitdir`, `commondir`, `worktrees`, `modules`, a `.git` file | point at another repository | left out; a `.git` that is a file is not copied |
-| `reftable` ref storage | keep refs where the raw reader does not look | left out; a repository that uses it has no refs here and fails |
+| `gitdir`, `commondir`, `worktrees`, `modules`, a `.git` file | point at another repository | left out (a `.git` that is a file is not copied); `commondir` and `gitdir` flagged |
+| `core.worktree`, `core.bare`, `extensions.*` (reftable, `objectFormat`) in the model's config | point git at another work tree, or other refs or objects | the fixed config has none of them; the raw reader refuses them, so the trial is flagged |
 | links inside `.git` | make git read outside the copy | never copied, and reported |
-| loose ref format (trailing text, upper-case hex, `ref:` without a space) | git and a lax reader see different refs | exactly git's format or unreadable; never a fallback to packed-refs |
-| commit headers (a second `tree`, `parent` out of place, repeated or unknown headers) | git and a lax reader see different trees or parents | first tree, parents straight after it, author, committer; anything else unreadable |
-| tree entries (a name twice, out of order, `.`, `..`, `.git`, a slash, an odd mode) | git and a lax reader see different files | unreadable |
-| packed-refs (out of order, a false "sorted" header, a name twice) | git misses a ref by bisection | unreadable |
-| stash log without `refs/stash` | a stash git no longer lists | counted only while `refs/stash` exists and ends the log |
-| config `include`, `includeIf` | git loads settings the reader skips | unreadable |
-| anything not yet found | a reader and git disagree | git reads every fact too; a difference is unsafe |
-| submodules (gitlinks) | pull in another repository | never looked into |
+| a ref, header, tree or index form git reads one way and a lax reader another | the readers see different repositories | git's reading is graded; the raw reader refuses it, so the trial is flagged |
+| submodules (gitlinks) | pull in another repository | never looked into, by either reader |
+| anything not yet found | git's view shaped by the model | the label: git tasks stay out of every ranked score |
 
 File metadata (sizes, dates, names by exact path) is readable anywhere on the Mac by design: path lookup
 needs it, and contents stay denied.
@@ -279,6 +302,11 @@ pass by accident. Their rows carry the tag `grade-not-hardened`, the report mark
 of any published or ranked score until they are rebuilt. A tripwire flags answers on those rungs whose
 code touches the test machinery or the process (`tripwire` in the row's metrics, listed in the report)
 for a person to read; it never changes a grade, and an answer it does not flag is not thereby honest.
+The git tasks on rungs 1 to 3 carry the same label and are left out of the ceiling on rungs 1 to 3.
+
+**Hardening the git tasks** is a later change, designed first: the host would rebuild what it grades
+from the candidate's objects into a fresh host-owned repository through a narrow, validated import,
+reading neither the model's repository nor a hand-written parse of it as the source of truth.
 
 `--weights` prints each model's `weights_sha256` for the records (cached in `$OUT/weights.json`;
 `run-all` computes any missing one itself); it reads about 75 GB in all. If a host check fails, the run

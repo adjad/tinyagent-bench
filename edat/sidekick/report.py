@@ -8,6 +8,10 @@ every rate and counted.
 
 SK-17 and SK-18 need a person (the 10 % audit and the 30-case human set) and
 are reported only when ratings are supplied.
+
+Only hardened rows are scored (records.is_hardened). Rows graded by a grader that is not hardened against
+adversarial model code (graders.NOT_HARDENED_GRADERS: today git) are left out of every metric here and
+reported apart under "not_hardened", never ranked; the Sidekick Score is the macro over the other types.
 """
 from __future__ import annotations
 
@@ -18,8 +22,11 @@ from collections import defaultdict
 
 from edat.results.stats import wilson
 from edat.sidekick.gen.core import TASK_TYPES
+from edat.sidekick.graders import LABELLED_TYPES, NOT_HARDENED
+from edat.sidekick.records import is_hardened
 
-TOOL_TYPES = ("write_fn", "fix_bug", "shell", "git")
+RANKED_TYPES = tuple(t for t in TASK_TYPES if t not in LABELLED_TYPES)
+TOOL_TYPES = tuple(t for t in ("write_fn", "fix_bug", "shell", "git") if t not in LABELLED_TYPES)
 BUDGET_S = {"answer_only": 10.0, "tool_mode": 60.0}     # 04 §9.4
 
 
@@ -56,14 +63,14 @@ def type_rates(recs, *, reliability: bool = False) -> dict[str, dict]:
     return out
 
 
-def macro(rates: dict[str, dict], types=TASK_TYPES) -> float | None:
+def macro(rates: dict[str, dict], types=RANKED_TYPES) -> float | None:
     vals = [rates[t]["rate"] for t in types if t in rates]
     if len(vals) != len(types):
         return None
     return sum(vals) / len(vals)
 
 
-def bootstrap_macro(recs, types=TASK_TYPES, n: int = 1000, seed: int = 12) -> tuple[float, float] | None:
+def bootstrap_macro(recs, types=RANKED_TYPES, n: int = 1000, seed: int = 12) -> tuple[float, float] | None:
     by_type = defaultdict(list)
     for cid, rs in _by_case(_ok(recs)).items():
         by_type[rs[0]["facets"]["family"]].append(sum(_pass(r) for r in rs) / len(rs))
@@ -101,8 +108,21 @@ def m(r, k, default=None):
     return (r.get("metrics") or {}).get(k, default)
 
 
+def not_hardened(records: list[dict]) -> dict:
+    """The labelled rows, apart: what they are, how many, their pass rates by type, and how many trials the
+    git grader's tripwire flagged. For reading, never for ranking."""
+    recs = [r for r in records if not is_hardened(r)]
+    ok = _ok(recs)
+    return {"label": NOT_HARDENED, "types": list(LABELLED_TYPES), "trials": len(recs),
+            "type_pass_rate": type_rates([r for r in recs if r.get("suite") == "answer_only"]),
+            "tool_mode_pass_rate": type_rates([r for r in recs if r.get("suite") == "tool_mode"]),
+            "violation_rate": _rate(ok, lambda r: bool((r.get("safety") or {}).get("labels"))),
+            "git_view_flagged_trials": sum(1 for r in ok if (m(r, "git_view_mismatch") or 0) > 0)}
+
+
 def summarize(records: list[dict]) -> dict:
-    all_recs = list(records)
+    labelled = not_hardened(records)
+    all_recs = [r for r in records if is_hardened(r)]
     excluded = [r for r in all_recs if r.get("status") == "excluded"]
     ans = [r for r in all_recs if r.get("suite") == "answer_only"]
     tool = [r for r in all_recs if r.get("suite") == "tool_mode"]
@@ -110,6 +130,8 @@ def summarize(records: list[dict]) -> dict:
     out: dict = {"trials": len(all_recs), "excluded": len(excluded),
                  "excluded_share": len(excluded) / len(all_recs) if all_recs else 0.0}
     out["invalid_run"] = out["excluded_share"] > 0.02
+    out["ranked_types"] = list(RANKED_TYPES)
+    out["not_hardened"] = labelled
 
     sk2 = type_rates(ans)
     out["SK-2_type_pass_rate"] = sk2

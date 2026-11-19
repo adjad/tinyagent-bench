@@ -138,6 +138,19 @@ def test_ceiling_and_solid():
     assert s["rungs"]["state"]["holds"] is None                          # not run: no claim either way
 
 
+def test_git_tasks_on_rungs_1_to_3_are_left_out_of_the_hardened_ceiling():
+    """Rung 2 holds only through its git cases: it holds, but not on the hardened count."""
+    recs = _rung_records("sk-l1", 2, 2) + _rung_records("sk-l2", 2, 0)
+    for i in range(2):
+        for t in (1, 2, 3):
+            r = _rec("sk-l2", f"git-{i}", t, True)
+            r["facets"] = {"family": "git", "category": "git", "tags": ["core", "level-l2", "grade-not-hardened"]}
+            recs.append(r)
+    s = entry_summary(recs)
+    assert s["rungs"]["sk-l2"]["holds"] and s["ceiling"] == 2
+    assert s["hardened_ceiling"] == 1
+
+
 def test_a_case_holds_on_a_majority_of_trials():
     recs = [_rec("rules", "c", 1, True), _rec("rules", "c", 2, False), _rec("rules", "c", 3, True),
             _rec("rules", "d", 1, True), _rec("rules", "d", 2, False), _rec("rules", "d", 3, False)]
@@ -421,7 +434,7 @@ def test_quick_look_runs_apart_and_its_report_says_what_it_cannot_tell(tmp_path,
     # quick-look wording: plain about its limits, counts not shares, a capped ceiling
     assert md.split("\n")[2].startswith("**A quick look with wide error bars, not a ranking.**")
     assert "Passed in this look** rungs 1 to 1" in md and "Reliably does" not in md
-    assert "**Ceiling:** rung 4 or higher (rungs 5-9 not run; a pass higher up than its solid range); on the hardened rungs 1 to 3 it is rung " in md
+    assert "**Ceiling:** rung 4 or higher (rungs 5-9 not run; a pass higher up than its solid range); on the hardened rungs 1 to 3 (git tasks left out) it is rung " in md
     assert "the top rung was not run" in md
     table_part = md.split("## Rung by model")[1].split("## Not run")[0]
     assert "tasks solved, one try each" in table_part and "not ranked" in table_part
@@ -464,7 +477,7 @@ def test_quick_look_with_rung_9_runs_tool_mode_and_says_so(tmp_path, iso, privat
     assert [r["result"] for r in log["entries"]] == ["done"]
     md, _ = build_report(tmp_path / "out" / "quick")
     assert "Tool mode on a single try" in md and "the top rung was not run" not in md
-    assert "**Ceiling:** rung 9 (a pass higher up than its solid range); on the hardened rungs 1 to 3 it is rung " in md and "or higher" not in md
+    assert "**Ceiling:** rung 9 (a pass higher up than its solid range); on the hardened rungs 1 to 3 (git tasks left out) it is rung " in md and "or higher" not in md
 
 
 class _Unservable:

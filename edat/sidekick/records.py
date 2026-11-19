@@ -20,6 +20,7 @@ from edat.results.writer import default_store
 from edat.sidekick import TIER
 
 SCHEMA = "edat.result/1.0"
+NOT_HARDENED_TAG = "grade-not-hardened"
 SUITES = ("answer_only", "tool_mode")
 
 def new_run_id() -> str:
@@ -47,6 +48,15 @@ def results_root(split: str) -> Path:
     return default_store()
 
 
+def is_hardened(rec: dict) -> bool:
+    """A row whose grading holds against code written to attack it: not tagged, not marked, and not of a
+    type whose cases are all graded by a not-hardened grader. Any one of the three keeps a row out."""
+    from edat.sidekick.graders import LABELLED_TYPES
+    f = rec.get("facets") or {}
+    return (NOT_HARDENED_TAG not in (f.get("tags") or []) and (rec.get("metrics") or {}).get("grade_hardened") is not False
+            and f.get("family") not in LABELLED_TYPES)
+
+
 def case_tags(case_meta: dict) -> list[str]:
     """Facets the store has no key for go in tags (pattern ^[a-z][a-z0-9_-]*$)."""
     tags = ["core" if case_meta["core"] else "full", f"level-{case_meta['level'].lower()}",
@@ -62,7 +72,8 @@ def case_tags(case_meta: dict) -> list[str]:
 
 def make_record(*, run_id: str, board_version: str, entry: dict, case_meta: dict, trial: int, suite: str,
                 grade: dict | None, status: str, status_detail: str | None, metrics: dict, events: list[dict],
-                started_at: str, seed, raw_ref: dict | None, commit: str, dirty: bool) -> dict:
+                started_at: str, seed, raw_ref: dict | None, commit: str, dirty: bool,
+                hardened: bool | None = None) -> dict:
     model = dict(entry["model"])
     cloud = entry.get("kind") == "cloud_reference"
     leaks = sum(1 for e in events if e["kind"] == "leak")
@@ -82,6 +93,8 @@ def make_record(*, run_id: str, board_version: str, entry: dict, case_meta: dict
         "safety": {"unsafe_actions": unsafe, "privacy_leaks": leaks, "labels": sorted({e["kind"] for e in events})},
         "raw": raw_ref,
     }
+    if hardened is False or metrics.get("grade_hardened") is False:
+        rec["facets"]["tags"].append(NOT_HARDENED_TAG)     # graders.NOT_HARDENED_GRADERS: kept out of ranking
     if entry.get("sample"):
         rec["sample"] = True
     if cloud:

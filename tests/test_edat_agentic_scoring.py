@@ -82,26 +82,61 @@ def test_reference_differences_refuse_mixed_pins():
         assert_same_board(m, {**m, "clock": "2026-10-29T08:30"})
 
 
-def test_record_writer_shape_and_heldout_guard(tmp_path, monkeypatch):
+SAMPLE_MODEL = {"id": "sample-model-1b", "role": "candidate", "weights_fingerprint": "0" * 64}
+SAMPLE_DEVICE = {"id": "sample-mac", "class": "mac", "ram_bytes": 0, "os": "sample"}
+
+
+def _rem_result(**kw):
     from edat.cases.runner import run_trial
-    from edat.grading.records import RunWriter
     from edat.models.stub import ScriptedClient
     from tests.test_edat_agentic_core import REM, factory
-    res = run_trial(REM, ScriptedClient([{"calls": [{"name": "add_reminder", "arguments": {
+    return run_trial({**REM, **kw}, ScriptedClient([{"calls": [{"name": "add_reminder", "arguments": {
         "title": "Call bank", "due": "2026-11-19T08:00"}}]}, {"text": "Done."}]), env_factory=factory)
-    w = RunWriter(tmp_path, "run-1")
-    rec = w.append(res, board_version="sample", harness_commit="0000000",
-                   model={"id": "sample-model-1b", "role": "candidate"}, runtime={"name": "stub"},
-                   device=None, sample=True)
+
+
+def test_record_writer_shape_and_heldout_guard(tmp_path, monkeypatch):
+    from edat.grading.records import RunWriter
+    w = RunWriter(tmp_path, "2026-11-18T10-00-00Z-ab12", prefer_store=False)
+    rec = w.append(_rem_result(), board_version="sample", harness_commit="0000000",
+                   model=SAMPLE_MODEL, runtime={"name": "stub"}, device=SAMPLE_DEVICE, sample=True)
     assert rec["schema"] == "edat.result/1.0" and rec["metrics"]["pass"] is True
+    assert rec["tier"] == "agentic" and rec["suite"] == "reference-loop"
     assert rec["safety"] == {"unsafe_actions": 0, "privacy_leaks": 0, "labels": []}
-    assert (tmp_path / "runs/run-1" / rec["raw"]["path"]).exists()
-    line = json.loads((tmp_path / "runs/run-1/records.jsonl").read_text().splitlines()[0])
+    assert rec["runtime"]["version"] == "unspecified" and rec["settings"]["sampling"] == {}
+    assert rec["settings"]["sampling_source"] == "engine_default" and rec["settings"]["thinking"] == "off"
+    assert "loop" not in rec["settings"] and rec["metrics"]["loop"] == "edat-reference-v1"
+    run = tmp_path / "runs/2026-11-18T10-00-00Z-ab12"
+    assert (run / rec["raw"]["path"]).exists()
+    assert json.loads((run / "manifest.json").read_text())["schema"] != "edat.run-manifest/1.0"
+    line = json.loads((run / "records.jsonl").read_text().splitlines()[0])
     assert line["case_id"] == "rem" and line["facets"] == {"lane": "neutral", "family": "select", "tags": []}
-    held = run_trial({**REM, "split": "heldout"}, ScriptedClient([{"text": "x"}]), env_factory=factory)
+    held = _rem_result(split="heldout")
     monkeypatch.delenv("EDAT_PRIVATE_DIR", raising=False)
     with pytest.raises(PermissionError):
-        w.append(held, board_version="s", harness_commit="0000000", model={}, runtime={}, device=None)
+        w.append(held, board_version="s", harness_commit="0000000", model=SAMPLE_MODEL, runtime={},
+                 device=SAMPLE_DEVICE)
+
+
+def test_cloud_record_fields():
+    from edat.grading.records import trial_record
+    model = {"id": "sample-hosted", "role": "cloud_reference", "requested_model": "sample/hosted",
+             "resolved_model": "sample/hosted-1", "upstream_provider": "sample",
+             "run_date": {"first": "2026-11-18", "last": "2026-11-18"}}
+    rec = trial_record(_rem_result(), run_id="r", board_version="s", harness_commit="0", model=model,
+                       runtime={"name": "openrouter"}, device={"id": "x"}, kind="cloud_reference",
+                       seed_supported=False)
+    assert rec["device"] is None and rec["device_reason"] == "cloud"
+    assert rec["settings"]["seed"] == "unsupported" and rec["settings"]["sampling_source"] == "provider_default"
+
+
+def test_records_pass_the_results_store_when_installed(tmp_path):
+    pytest.importorskip("edat.results.writer")
+    from edat.grading.records import RunWriter
+    with RunWriter(tmp_path, "2026-11-18T10-00-00Z-cd34") as w:
+        w.append(_rem_result(), board_version="sample", harness_commit="0000000", model=SAMPLE_MODEL,
+                 runtime={"name": "stub"}, device=SAMPLE_DEVICE, sample=True)
+    from edat.results.reader import read_set
+    assert read_set(tmp_path / "runs" / "2026-11-18T10-00-00Z-cd34").records
 
 
 def test_external_restraint_rows_are_not_pooled():

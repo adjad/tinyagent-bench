@@ -85,11 +85,17 @@ def test_every_variant_exact_under_formula_and_text(built):
 def test_level_metadata(built):
     for lvl, tools in zip(built["levels"], (2, 4, 6)):
         assert lvl["tools_count"] == tools
+        if lvl["level_tokens"] == 512:                  # trim null: no history, the system tail is cut
+            assert lvl["history_messages_kept"] == lvl["history_messages_total"] == 0
+            assert lvl["trim_target"] == "system_tail"
+            continue
+        assert lvl["trim_target"] == "history_tail"
         assert 0 < lvl["history_messages_kept"] < lvl["history_messages_total"]
         ct = lvl["content_tokens"]
         assert set(ct) == {"head", "menu", "history", "final", "other"}
         assert sum(ct.values()) == lvl["level_tokens"]
-        assert ct["head"] > 0 and ct["menu"] > 0 and ct["history"] > 0 and ct["final"] > 0
+        assert ct["head"] > 0 and ct["menu"] > 0 and ct["final"] > 0
+        assert (ct["history"] > 0) == (lvl["level_tokens"] != 512)
         assert lvl["text_chars"] == len(lvl["variants"][0]["text"])
 
 
@@ -120,9 +126,12 @@ def test_nonces_distinct_same_length_at_start_of_system(built):
 def test_history_trimmed_only_in_range_whole_records_first(built):
     recs = {r["level"]: r for r in _records()}
     for lvl in built["levels"]:
+        if lvl["level_tokens"] == 512:
+            continue
         rec = recs[lvl["level_tokens"]]
         msgs = rec["messages"]
-        history = msgs[2:-1]                      # range [2, -2], end inclusive
+        assert rec["trim"]["message_range"] == [1, -2]
+        history = msgs[1:-1]                      # range [1, -2], end inclusive
         kept = lvl["history_messages_kept"]
         assert lvl["history_messages_total"] == len(history)
         norm = " ".join(lvl["variants"][0]["text"].split())
@@ -130,9 +139,9 @@ def test_history_trimmed_only_in_range_whole_records_first(built):
         def n(s: str) -> str:
             return " ".join(s.split())
 
-        assert n(msgs[0]["content"]) in norm and n(msgs[1]["content"]) in norm and n(msgs[-1]["content"]) in norm
+        assert n(msgs[0]["content"]) in norm and n(msgs[-1]["content"]) in norm
         for m in history[:kept - 1]:
-            assert n(m["content"]) in norm
+            assert n(m["content"] or "") in norm
         tail = history[kept - 1]["content"].split()
         assert tail, "the last kept message must have content"
         m_words = max(m for m in range(len(tail) + 1) if m == 0 or " ".join(tail[:m]) in norm)
@@ -148,6 +157,7 @@ def test_history_trimmed_only_in_range_whole_records_first(built):
 def test_missing_level_reported_not_invented():
     pack = _build(levels=(512, 4096, 2048), replay_variants=1)
     assert pack["missing_levels"] == [4096]
+    assert pack["missing_reasons"] == [{"level": 4096, "reason": "absent"}]
     assert [lv["level_tokens"] for lv in pack["levels"]] == [512, 2048]
     pack = P.build_pack(_records(), None, StubTokenizer(), model_id="m", entry_id="e", thinking="off",
                         built_utc=BUILT)
@@ -155,13 +165,42 @@ def test_missing_level_reported_not_invented():
     assert "agent_replay" not in pack and pack["trajectory_sha256"] is None
 
 
-def test_unfillable_levels_fail_loudly():
-    recs = [_record(2000, ["w%d" % i for i in range(50)])]
-    with pytest.raises(P.PackError, match="too short"):
-        P.build_pack(recs, None, StubTokenizer(), model_id="m", entry_id="e", thinking="on", levels=(2000,))
-    recs = [_record(10, ["w%d" % i for i in range(50)])]
+def test_underfilled_level_is_reported_and_the_others_still_build():
+    recs = _records() + [_record(2000, ["w%d" % i for i in range(50)])]
+    pack = P.build_pack(recs, None, StubTokenizer(), model_id="m", entry_id="e", thinking="on",
+                        levels=(512, 2000, 1024), n_variants=2, built_utc=BUILT)
+    assert [lv["level_tokens"] for lv in pack["levels"]] == [512, 1024]
+    assert pack["missing_levels"] == [2000]
+    (reason,) = pack["missing_reasons"]
+    assert reason["reason"] == "underfilled" and reason["level"] == 2000
+    # the whole prompt of that record is the number of tokens it can reach; the shortfall is exact
+    tok = StubTokenizer()
+    msgs = _record(2000, ["w%d" % i for i in range(50)])["messages"]
+    reach = len(tok.encode(tok.apply_chat_template(msgs, None, add_generation_prompt=True, thinking=True))) + 8
+    assert reason["short_by_tokens"] == 2000 - reach
+    assert str(reason["short_by_tokens"]) in reason["detail"]
+    # a level whose fixed parts alone are over the target still raises
     with pytest.raises(P.PackError, match="fixed parts"):
-        P.build_pack(recs, None, StubTokenizer(), model_id="m", entry_id="e", thinking="on", levels=(10,))
+        P.build_pack([_record(10, ["w%d" % i for i in range(50)])], None, StubTokenizer(), model_id="m",
+                     entry_id="e", thinking="on", levels=(10,))
+
+
+def test_trim_null_cuts_the_system_tail_after_the_nonce(built):
+    rec = next(r for r in _records() if r["level"] == 512)
+    assert rec["trim"] is None and len(rec["messages"]) == 2
+    lvl = built["levels"][0]
+    head = rec["messages"][0]["content"]
+    for v in lvl["variants"]:
+        words = v["text"].split()
+        assert v["text"].startswith("<bos><turn>system " + v["nonce_text"])
+        assert v["roundtrip"] == "exact"
+        # the final user turn and the menu are whole; the head lost its end
+        assert " ".join(rec["messages"][-1]["content"].split()) in " ".join(words)
+    full = " ".join(head.split())
+    text = " ".join(lvl["variants"][0]["text"].split())
+    kept = max(m for m in range(len(head.split()) + 1) if m == 0 or " ".join(head.split()[:m]) in text)
+    assert 0 < kept < len(head.split())
+    assert full not in text and "current date and time" not in text      # the date line was in the cut tail
 
 
 # --------------------------------------------------------------------------- adjusted path
@@ -211,7 +250,7 @@ def test_replay_prefix_exact_steps_grow_nonce_scoping(built):
     tok = StubTokenizer()
     replay = built["agent_replay"]
     target = replay["prefix_tokens"]
-    assert target == 800 and len(replay["variants"]) == 32 and replay["tools_count"] == 12
+    assert target == 800 and len(replay["variants"]) == 32 and replay["tools_count"] == 6
     for v in replay["variants"]:
         steps = v["steps"]
         assert [s["step"] for s in steps] == [1, 2, 3, 4, 5, 6]
@@ -238,6 +277,30 @@ def test_replay_prefix_exact_steps_grow_nonce_scoping(built):
     assert P.replay_step(built, 32, 1) == P.replay_step(built, 0, 1)
     with pytest.raises(P.PackError):
         P.replay_step(built, 0, 7)
+
+
+def test_replay_follows_the_export_format(built):
+    traj = _trajectory()
+    assert set(traj["prefix"]) >= {"messages", "tools", "trim"} and "messages" in traj["steps"][0]
+    assert all(st["tools"] == traj["steps"][0]["tools"] for st in traj["steps"])
+    v = built["agent_replay"]["variants"][0]
+    # step k+1's input holds step k's canned assistant call and tool result (they are step k+1's messages)
+    for k in range(1, 6):
+        canned = traj["steps"][k - 1]["canned_assistant"]["tool_calls"][0]["id"]
+        later = " ".join(v["steps"][k]["text"].split())
+        earlier = " ".join(v["steps"][k - 1]["text"].split())
+        assert canned in later and canned not in earlier
+    # the request arrives with step 1 only, after the prefix
+    request = " ".join(traj["task"].split())
+    assert request in " ".join(v["steps"][0]["text"].split())
+    assert request not in " ".join(v["steps"][0]["text"].split()[:built["agent_replay"]["prefix_tokens"] - 5])
+    # the menu is filtered to the names in step.tools, in prefix.tools order
+    bad = copy.deepcopy(traj)
+    bad["steps"][0]["tools"] = bad["steps"][0]["tools"] + ["not_a_tool"]
+    for st in bad["steps"][1:]:
+        st["tools"] = bad["steps"][0]["tools"]
+    with pytest.raises(P.PackError, match="does not define"):
+        P.build_pack(_records(), bad, StubTokenizer(), model_id="m", entry_id="e", thinking="on", levels=(512,))
 
 
 def test_replay_prefix_override_and_trim_inside_earlier_exchange():
@@ -389,7 +452,7 @@ def test_cli_writes_a_loadable_pack(tmp_path, capsys):
     assert pack["missing_levels"] == [5120] and pack["model_id"] == "stub"
     assert len(pack["agent_replay"]["variants"]) == 2
     assert len(pack["corpus_sha256"]) == 64
-    assert "missing levels" in capsys.readouterr().err
+    assert "missing level 5120: absent" in capsys.readouterr().err
 
 
 def test_seven_spec_levels_constant():

@@ -33,8 +33,13 @@ DECISIONS THAT ARE CHOICES (the specs leave them open):
   turn header, where no content token can be cut), the last kept message that falls short is EXTENDED
   with the text of the history messages after it and trimmed as usual; the level (or replay prefix)
   records ``tail_padded: true``. This is the only case where text of a dropped message is used.
-* A level that the corpus cannot fill (fixed parts too long, or all history too short) raises
-  ``PackError``. A level that is simply absent from the corpus is listed in ``missing_levels``.
+* Corpus ``trim: null`` (no history, the generator's 512 level): the tail of the system message's content,
+  after the nonce, is what is cut to fit.
+* A level the corpus cannot REACH (all text together is short of it, which happens when the generator's
+  4-chars-per-token estimate sits below the level) is not built: it is listed in ``missing_levels`` and in
+  ``missing_reasons`` with ``reason: "underfilled"`` and ``short_by_tokens``; the other levels still build.
+  A level absent from the corpus has ``reason: "absent"``. Fixed parts already above the level raise
+  ``PackError``.
 * The nonce is ``"Session ref: <words/digits>"`` with NO trailing period, followed by a newline
   before the original system text, so it cannot merge with what follows. Its token count is fixed
   (``nonce_tokens``, default 8) in the model's own tokenizer; no nonce repeats anywhere in the pack
@@ -51,14 +56,14 @@ DECISIONS THAT ARE CHOICES (the specs leave them open):
 * ``first_token``: a short user message from a fixed sentence, cut by tokens, whose TOTAL templated
   length is 8 if reachable, else the closest (the shortest when the template overhead alone is
   above 8), with ``exact`` saying which.
-* Agent replay (trajectory format, the spec gives only the key names): ``steps[0].messages`` is the
-  whole starting conversation (system message, one or more earlier-exchange messages, and the user
-  request LAST); ``steps[k].messages`` is what step k adds before its model call (usually empty);
-  ``canned_assistant`` is the assistant message and ``canned_tool_results`` the tool messages that
-  follow it; ``tools`` comes from step 0. Step k's input = prefix + request + the canned messages of
-  steps 1..k-1. The shared prefix is everything up to the end of the last kept earlier-exchange
-  message (nonce included, no generation prompt); it is exactly ``prefix_tokens`` tokens (the
-  trajectory's value unless ``replay_prefix_tokens`` overrides it). The chat template must render
+* Agent replay (the agentic export's format, ``edat.cases.perf_inputs``): top-level ``prefix`` holds
+  ``messages`` (system + one earlier exchange), ``tools`` (the schemas) and ``trim``; ``steps[k].messages``
+  are APPENDED to the conversation before step k's generation (step 1: the user request; step k+1: step
+  k's canned assistant message and tool results); ``steps[k].tools`` names the menu out of ``prefix.tools``;
+  ``canned_*`` keys are not read (they arrive through the next step's ``messages``). The shared prefix is
+  everything up to the end of the last kept earlier-exchange message (nonce included, no generation
+  prompt); it is exactly ``prefix_tokens`` tokens (the trajectory's value unless ``replay_prefix_tokens``
+  overrides it). The chat template must render
   the prefix as a text prefix of every step (checked).
 * The pack's ``generator_seed`` is the BUILDER's seed (nonces); the corpus records carry their own.
 * ``chat template`` date functions are fixed (see ``edat.perf.tokenizer``).
@@ -96,6 +101,14 @@ FIRST_TOKEN_SENTENCE = "Please say hello to me in one short friendly sentence."
 
 class PackError(ValueError):
     """The corpus, trajectory or pack is unusable; the message says why."""
+
+
+class UnderfilledError(PackError):
+    """The corpus cannot reach the level: the whole text is ``short_by`` tokens short of it."""
+
+    def __init__(self, message: str, short_by: int) -> None:
+        super().__init__(message)
+        self.short_by = short_by
 
 
 # --------------------------------------------------------------------------- canonical hash
@@ -211,9 +224,10 @@ def validate_record(rec: dict[str, Any]) -> None:
     if not isinstance(msgs, list) or len(msgs) < 2 or msgs[0].get("role") != "system":
         raise PackError(f"level {rec['level']}: messages must start with a system message")
     trim = rec.get("trim")
-    if not isinstance(trim, dict) or trim.get("unit") != TRIM_UNIT:
-        raise PackError(f"level {rec['level']}: trim.unit must be {TRIM_UNIT!r}")
-    _resolve_range(trim.get("message_range", []), len(msgs))
+    if trim is not None:
+        if not isinstance(trim, dict) or trim.get("unit") != TRIM_UNIT:
+            raise PackError(f"level {rec['level']}: trim.unit must be {TRIM_UNIT!r} (or trim null)")
+        _resolve_range(trim.get("message_range", []), len(msgs))
     blob = json.dumps(msgs)
     if NONCE_SENTINEL in blob or TAIL_SENTINEL in blob:
         raise PackError(f"level {rec['level']}: corpus text contains a reserved marker")
@@ -234,6 +248,7 @@ class _Fit:
     lo: int
     hi: int
     padded: bool = False        # the tail message was extended with text of dropped messages
+    system_tail: bool = False   # trim null: the tail of the system message's content is what is cut
 
 
 def _render_segments(tok: ModelTokenizer, messages: list[dict], tools: Sequence[dict] | None, thinking: bool,
@@ -243,7 +258,9 @@ def _render_segments(tok: ModelTokenizer, messages: list[dict], tools: Sequence[
     msgs = [dict(m) for m in messages[:last_kept + 1]] + [dict(m) for m in messages[hi + 1:]]
     msgs[0]["content"] = NONCE_SENTINEL + "\n" + (msgs[0].get("content") or "")
     if kept_history:
-        base = "" if empty_tail else msgs[last_kept]["content"]
+        base = msgs[last_kept]["content"]
+        if empty_tail:
+            base = NONCE_SENTINEL + "\n" if last_kept == 0 else ""
         msgs[last_kept]["content"] = base + TAIL_SENTINEL
     text = tok.apply_chat_template(msgs, list(tools) if tools else None, add_generation_prompt=gen_prompt,
                                    thinking=thinking)
@@ -258,8 +275,11 @@ def _render_segments(tok: ModelTokenizer, messages: list[dict], tools: Sequence[
 
 
 def _fit(tok: ModelTokenizer, messages: list[dict], tools: Sequence[dict] | None, thinking: bool,
-         rng: tuple[int, int], level: int, nonce_tokens: int, gen_prompt: bool, what: str) -> _Fit:
-    lo, hi = rng
+         rng: tuple[int, int] | None, level: int, nonce_tokens: int, gen_prompt: bool, what: str) -> _Fit:
+    """``rng=None`` (corpus ``trim: null``): there is no history, and the tail of the system message's
+    content, after the nonce, is the part cut to fit."""
+    system_tail = rng is None
+    lo, hi = (0, 0) if rng is None else rng
     cache: dict[int, tuple[list[int], list[int], list[int]]] = {}
 
     def build(last_kept: int) -> tuple[list[int], list[int], list[int]]:
@@ -272,24 +292,6 @@ def _fit(tok: ModelTokenizer, messages: list[dict], tools: Sequence[dict] | None
         p, b, s = build(last_kept)
         return len(p) + nonce_tokens + len(b) + len(s)
 
-    base = total(lo - 1)
-    if base == level:
-        p, b, s = build(lo - 1)
-        return _Fit(level, nonce_tokens, p, b, s, 0, 0, lo - 1, lo, hi)
-    if base > level:
-        raise PackError(f"{what}: the fixed parts alone are {base} tokens, above the {level} target")
-    eligible = [i for i in range(lo, hi + 1)
-                if isinstance(messages[i].get("content"), str) and messages[i]["content"].strip()]
-    if not eligible or total(eligible[-1]) < level:
-        have = total(eligible[-1]) if eligible else base
-        raise PackError(f"{what}: the corpus is too short; all history gives {have} tokens, {level} needed")
-    a, b_ = 0, len(eligible) - 1                  # smallest eligible index whose intact total reaches level
-    while a < b_:
-        mid = (a + b_) // 2
-        if total(eligible[mid]) >= level:
-            b_ = mid
-        else:
-            a = mid + 1
     def attempt(msgs: list[dict], i: int, padded: bool) -> _Fit | None:
         pre, body, suffix = _render_segments(tok, msgs, tools, thinking, lo, hi, i, gen_prompt)
         p, b, s = tok.encode(pre), tok.encode(body), tok.encode(suffix)
@@ -300,6 +302,35 @@ def _fit(tok: ModelTokenizer, messages: list[dict], tools: Sequence[dict] | None
             return _Fit(level, nonce_tokens, p, b, s, n, floor, i, lo, hi, padded)
         return None
 
+    if system_tail:
+        have = total(0)
+        if have < level:
+            raise UnderfilledError(f"{what}: the corpus is too short; the whole prompt is {have} tokens, "
+                                   f"{level} needed (short by {level - have})", level - have)
+        fit = attempt(messages, 0, False)
+        if fit is None:
+            raise PackError(f"{what}: the fixed parts around the system text already reach {level} tokens")
+        fit.system_tail = True
+        return fit
+    base = total(lo - 1)
+    if base == level:
+        p, b, s = build(lo - 1)
+        return _Fit(level, nonce_tokens, p, b, s, 0, 0, lo - 1, lo, hi)
+    if base > level:
+        raise PackError(f"{what}: the fixed parts alone are {base} tokens, above the {level} target")
+    eligible = [i for i in range(lo, hi + 1)
+                if isinstance(messages[i].get("content"), str) and messages[i]["content"].strip()]
+    if not eligible or total(eligible[-1]) < level:
+        have = total(eligible[-1]) if eligible else base
+        raise UnderfilledError(f"{what}: the corpus is too short; all history gives {have} tokens, "
+                               f"{level} needed (short by {level - have})", level - have)
+    a, b_ = 0, len(eligible) - 1                  # smallest eligible index whose intact total reaches level
+    while a < b_:
+        mid = (a + b_) // 2
+        if total(eligible[mid]) >= level:
+            b_ = mid
+        else:
+            a = mid + 1
     for j in range(a, len(eligible)):
         fit = attempt(messages, eligible[j], False)
         if fit:
@@ -364,11 +395,11 @@ def _level_breakdown(tok: ModelTokenizer, fit: _Fit, messages: list[dict], tools
     def length(text: str) -> int:
         return len(tok.encode(text)) if text else 0
 
-    head = length(messages[0].get("content") or "")
+    head = (fit.n - fit.floor) if fit.system_tail else length(messages[0].get("content") or "")
     menu = _tools_overhead(tok, tools, thinking)
     final = sum(length((m.get("content") or "") + _calls_text(m)) for m in messages[fit.hi + 1:])
     history = 0
-    for i in range(fit.lo, fit.last_kept + 1):
+    for i in range(fit.lo, fit.last_kept + 1 if not fit.system_tail else fit.lo):
         m = messages[i]
         history += length(_calls_text(m))
         history += (fit.n - fit.floor) if i == fit.last_kept else length(m.get("content") or "")
@@ -381,8 +412,10 @@ def _build_level(tok: ModelTokenizer, rec: dict[str, Any], thinking: bool, nonce
     level = rec["level"]
     messages = _normalize_messages(rec["messages"])
     tools = rec.get("tools") or []
-    lo, hi = _resolve_range(rec["trim"]["message_range"], len(messages))
-    fit = _fit(tok, messages, tools, thinking, (lo, hi), level, nonces.nonce_tokens, True, f"level {level}")
+    trim = rec.get("trim")
+    rng = _resolve_range(trim["message_range"], len(messages)) if trim else None
+    fit = _fit(tok, messages, tools, thinking, rng, level, nonces.nonce_tokens, True, f"level {level}")
+    lo, hi = rng if rng else (0, -1)
     variants = []
     for _ in range(n_variants):
         ntext, nids = nonces.take()
@@ -396,8 +429,9 @@ def _build_level(tok: ModelTokenizer, rec: dict[str, Any], thinking: bool, nonce
         "prefix_ids": fit.prefix_ids, "body_ids": fit.body_ids, "suffix_ids": fit.suffix_ids,
         "variants": variants,
         "tools_count": len(tools),
-        "history_messages_kept": fit.last_kept - lo + 1,
+        "history_messages_kept": 0 if fit.system_tail else fit.last_kept - lo + 1,
         "history_messages_total": max(0, hi - lo + 1),
+        "trim_target": "system_tail" if fit.system_tail else "history_tail",
         "tail_padded": fit.padded,
         "content_tokens": _level_breakdown(tok, fit, messages, tools, thinking),
         "text_chars": len(variants[0]["text"]) if variants else 0,
@@ -410,6 +444,8 @@ def tokens_per_1k_chars(records: Sequence[dict[str, Any]], tok: ModelTokenizer) 
     tokens = chars = 0
     for rec in records:
         msgs = rec["messages"]
+        if not rec.get("trim"):
+            continue                                    # trim null: no history in this record
         lo, hi = _resolve_range(rec["trim"]["message_range"], len(msgs))
         for m in msgs[lo:hi + 1]:
             c = m.get("content")
@@ -453,26 +489,38 @@ def _build_replay(tok: ModelTokenizer, traj: dict[str, Any], thinking: bool, non
     steps = traj.get("steps")
     if not isinstance(steps, list) or len(steps) != REPLAY_STEPS:
         raise PackError(f"the trajectory must have exactly {REPLAY_STEPS} steps")
-    start = _normalize_messages(steps[0]["messages"])
-    tools = steps[0].get("tools") or []
-    if len(start) < 3 or start[0].get("role") != "system" or start[-1].get("role") != "user":
-        raise PackError("steps[0].messages must be [system, earlier exchange..., user request]")
+    prefix = traj.get("prefix")
+    if not isinstance(prefix, dict) or not prefix.get("messages"):
+        raise PackError("the trajectory needs a top-level prefix {messages, tools}")
+    prefix_msgs = _normalize_messages(prefix["messages"])
+    if prefix_msgs[0].get("role") != "system" or len(prefix_msgs) < 2:
+        raise PackError("prefix.messages must start with the system message and hold an earlier exchange")
+    if NONCE_SENTINEL in json.dumps(prefix_msgs) or TAIL_SENTINEL in json.dumps(prefix_msgs):
+        raise PackError("trajectory text contains a reserved marker")
+
+    def tool_name(t: dict) -> str:
+        return (t.get("function") or t).get("name", "")
+
+    menu = steps[0].get("tools")
     for k, st in enumerate(steps[1:], start=2):
-        if st.get("tools") and st["tools"] != tools:
-            raise PackError(f"step {k} changes the tool list; the shared prefix would not be shared")
-    prefix_msgs = start[:-1]
-    fit = _fit(tok, prefix_msgs, tools, thinking, (1, len(prefix_msgs) - 1), prefix_target,
+        if st.get("tools") != menu:
+            raise PackError(f"step {k} changes the tool menu; the shared prefix would not be shared")
+    schemas = prefix.get("tools") or []
+    tools = [t for t in schemas if tool_name(t) in set(menu)] if menu is not None else list(schemas)
+    if menu is not None and {tool_name(t) for t in tools} != set(menu):
+        raise PackError("step.tools names tools that prefix.tools does not define")
+    trim = prefix.get("trim") or {}
+    rng = _resolve_range(trim.get("message_range", [1, -1]), len(prefix_msgs))
+    fit = _fit(tok, prefix_msgs, tools, thinking, rng, prefix_target,
                nonces.nonce_tokens, False, "agent-replay prefix")
     kept = prefix_msgs[:fit.last_kept + 1]
     pre_text = tok.apply_chat_template(kept, list(tools) or None, add_generation_prompt=False, thinking=thinking)
-    conv = kept + [start[-1]]
+    conv = list(kept)
     rests: list[list[int]] = []
     for k, st in enumerate(steps):
-        if k > 0:
-            prev = steps[k - 1]
-            conv = conv + _normalize_messages([prev["canned_assistant"]]) \
-                + _normalize_messages(prev.get("canned_tool_results") or []) \
-                + _normalize_messages(st.get("messages") or [])
+        # step.messages are appended before the step's generation; the previous step's canned assistant
+        # message and tool results arrive as the next step's messages.
+        conv = conv + _normalize_messages(st.get("messages") or [])
         full = tok.apply_chat_template(conv, list(tools) or None, add_generation_prompt=True, thinking=thinking)
         if not full.startswith(pre_text):
             raise PackError(f"step {k + 1}: the chat template does not render the shared prefix as a text "
@@ -526,12 +574,19 @@ def build_pack(corpus_records: Sequence[dict[str, Any]], trajectory: dict[str, A
         by_level[rec["level"]] = rec
     wanted = sorted(set(levels))
     missing = [lv for lv in wanted if lv not in by_level]
+    reasons: list[dict[str, Any]] = [{"level": lv, "reason": "absent"} for lv in missing]
     nonces = _Nonces(tokenizer, seed, nonce_tokens)
     built = []
     for lv in wanted:
         if lv in by_level:
             say(f"level {lv}")
-            built.append(_build_level(tokenizer, by_level[lv], think, nonces, n_variants, window))
+            try:
+                built.append(_build_level(tokenizer, by_level[lv], think, nonces, n_variants, window))
+            except UnderfilledError as exc:
+                say(f"level {lv} UNDERFILLED: {exc}")
+                missing.append(lv)
+                reasons.append({"level": lv, "reason": "underfilled", "short_by_tokens": exc.short_by,
+                                "detail": str(exc)})
     name = corpus_name or next((r["corpus"] for r in corpus_records if isinstance(r.get("corpus"), str)),
                                AGENT_CORPUS_SCHEMA)
     pack: dict[str, Any] = {
@@ -549,7 +604,8 @@ def build_pack(corpus_records: Sequence[dict[str, Any]], trajectory: dict[str, A
         "trajectory_sha256": (trajectory_sha256 or sha256_hex(canonical_bytes(trajectory))) if trajectory else None,
         "nonce_tokens": nonce_tokens,
         "levels": built,
-        "missing_levels": missing,
+        "missing_levels": sorted(missing),
+        "missing_reasons": sorted(reasons, key=lambda r: r["level"]),
         "tokens_per_1k_chars": tokens_per_1k_chars(list(by_level.values()), tokenizer),
         "first_token": _build_first_token(tokenizer, think),
         "built_utc": built_utc or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -698,8 +754,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     digest = write_pack(pack, args.out)
     adjusted = sum(1 for lvl in pack["levels"] for v in lvl["variants"] if v["roundtrip"] == "adjusted")
     print(f"wrote {args.out}: {len(pack['levels'])} levels, {adjusted} adjusted variants, pack_sha256 {digest}")
-    if pack["missing_levels"]:
-        print(f"missing levels (not in the corpus): {pack['missing_levels']}", file=sys.stderr)
+    for r in pack["missing_reasons"]:
+        extra = f", short by {r['short_by_tokens']} tokens" if r["reason"] == "underfilled" else ""
+        print(f"missing level {r['level']}: {r['reason']}{extra}", file=sys.stderr)
     return 0
 
 

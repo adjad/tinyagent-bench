@@ -1,4 +1,4 @@
-"""Single-rater blind-vote tool for EDAT (spec 03 s4.3, s5, s13.1).
+"""Single-rater blind-vote tool for tinyagent-bench (spec 03 s4.3, s5, s9.4, s13.1).
 
 A local command-line tool plus importable functions. No server, no network.
 
@@ -572,7 +572,7 @@ def start_session(pairs: Sequence[Mapping] | str | Path, votes_path: str | Path,
     start = clock()
     shown = votes = 0
     stopped = "finished"
-    output_fn(f"EDAT blind vote, session {sid}. Keys: a = left better, b = right better, "
+    output_fn(f"tinyagent-bench blind vote, session {sid}. Keys: a = left better, b = right better, "
               "g = both good, x = both bad, q = save and quit.")
     output_fn("Which answer would you rather get on your phone or in a small side panel? "
               "Judge how easy it is to read and how well it is written. "
@@ -593,15 +593,20 @@ def start_session(pairs: Sequence[Mapping] | str | Path, votes_path: str | Path,
         is_probe = pair["block"] == "probe"
         shown += 1
         output_fn("")
-        output_fn(f"--- [{shown}/{max_pairs}] {pair['block']} ({profile}) ---")
-        output_fn("Request:")
-        output_fn(render_text(pair.get("request", ""), profile))
-        output_fn("")
-        output_fn("[A] " + "-" * max(4, width - 4))
-        output_fn(render_text(sides[left].get("text", ""), profile))
-        output_fn("")
-        output_fn("[B] " + "-" * max(4, width - 4))
-        output_fn(render_text(sides[right].get("text", ""), profile))
+        if pair.get("family") == "writing":
+            for line in render_writing_screen(pair, sides[left], sides[right],
+                                              shown=shown, max_pairs=max_pairs):
+                output_fn(line)
+        else:
+            output_fn(f"--- [{shown}/{max_pairs}] {pair['block']} ({profile}) ---")
+            output_fn("Request:")
+            output_fn(render_text(pair.get("request", ""), profile))
+            output_fn("")
+            output_fn("[A] " + "-" * max(4, width - 4))
+            output_fn(render_text(sides[left].get("text", ""), profile))
+            output_fn("")
+            output_fn("[B] " + "-" * max(4, width - 4))
+            output_fn(render_text(sides[right].get("text", ""), profile))
         output_fn("")
         record = {
             "vote_id": f"{sid}-{shown:03d}", "pair_id": pair["pair_id"], "session_id": sid,
@@ -870,6 +875,388 @@ def summarize(pairs: Sequence[Mapping], votes: Sequence[Mapping], *,
 
 
 # ---------------------------------------------------------------------------
+# Writing family (spec 03 s9.4): vote set, screen, summary
+# ---------------------------------------------------------------------------
+
+# Writing vote set, version 1: judge validation 120 + standing pair 40 + cloud spot
+# checks 30 (5 per cloud model) + repeats 15 = 205. W4 is never voted (WD8 scores it).
+V1_WRITING_PLAN = {
+    "validation_per_sub": {"W1": 24, "W2": 24, "W3": 24, "W5": 24, "W6": 24},
+    "validation_cand_cand_share": 0.20,  # of each sub-family's validation pairs
+    "standing": 40,                      # base Gemma against Gemma-Wisp
+    "cloud_per_model": 5,
+    "cloud_models": 6,
+    "repeats": 15,
+    "length_matched_share": 0.30,        # at least this share of shown pairs length-matched
+    "length_band": 0.15,                 # word counts within +-15 %
+    "min_validation_models": 6,
+}
+WRITING_SUBS = ("W1", "W2", "W3", "W5", "W6")   # W4 is never voted
+WRITING_RANK_BLOCKS = ("validation", "cloud", "standing", "spot")
+
+
+def writing_plan_total(plan: Mapping = V1_WRITING_PLAN) -> int:
+    """Shown pairs the plan asks for (205 for version 1)."""
+    return (sum(int(v) for v in plan["validation_per_sub"].values()) + int(plan["standing"])
+            + int(plan["cloud_per_model"]) * int(plan["cloud_models"]) + int(plan["repeats"]))
+
+
+def writing_length_matched(words_a: int, words_b: int, band: float = 0.15) -> bool:
+    """True when the two word counts are within +-band (the shorter is at least 1 - band
+    of the longer)."""
+    return length_matched(words_a, words_b, band)
+
+
+def writing_request_text(case: Mapping) -> str:
+    """The rendered brief: the user turn(s) the model saw."""
+    turns = [str(t) for t in (case.get("turns") or [])]
+    if len(turns) <= 1:
+        return turns[0] if turns else ""
+    return "\n\n".join(f"Turn {i + 1}:\n{t}" for i, t in enumerate(turns))
+
+
+def writing_recipient_text(case: Mapping) -> str:
+    rcp = case.get("recipient")
+    if rcp:
+        return f"{rcp.get('name', '')} ({rcp.get('relation', '')})"
+    return "none (for the sender's own use)"
+
+
+def writing_prefs(case: Mapping) -> list[str]:
+    return [str(p) for p in (case.get("active_prefs") or [])]
+
+
+def writing_limit_text(case: Mapping) -> str:
+    c = case.get("constraints") or {}
+    parts = []
+    if c.get("exact_words"):
+        parts.append(f"exactly {c['exact_words']} words")
+    else:
+        if c.get("min_words"):
+            parts.append(f"at least {c['min_words']} words")
+        if c.get("max_words"):
+            parts.append(f"at most {c['max_words']} words")
+    if c.get("exact_sentences"):
+        parts.append(f"exactly {c['exact_sentences']} sentences")
+    elif c.get("max_sentences"):
+        parts.append(f"at most {c['max_sentences']} sentences")
+    if c.get("max_chars"):
+        parts.append(f"at most {c['max_chars']} characters")
+    return ", ".join(parts) if parts else "no stated limit"
+
+
+def render_writing_screen(pair: Mapping, left: Mapping, right: Mapping, *, shown: int,
+                          max_pairs: int) -> list[str]:
+    """Lines of the vote screen for a writing pair: brief, recipient, preferences, A and B."""
+    case = pair.get("case") or {}
+    prefs = writing_prefs(case)
+    out = [f"--- [{shown}/{max_pairs}] {pair['block']} (writing {pair.get('sub', '')}) ---",
+           "Brief:", render_text(writing_request_text(case), "window"), "",
+           f"To: {writing_recipient_text(case)}",
+           "Standing preferences: " + (", ".join(prefs) if prefs else "none"),
+           f"Limit: {writing_limit_text(case)}",
+           "Which draft would you rather send?", ""]
+    width = PROFILE_WIDTH["window"]
+    out.append("[A] " + "-" * max(4, width - 4))
+    out.append(render_text(left.get("text", ""), "window"))
+    out.append("")
+    out.append("[B] " + "-" * max(4, width - 4))
+    out.append(render_text(right.get("text", ""), "window"))
+    return out
+
+
+def _wside(item: Mapping) -> dict:
+    wc = item.get("word_count")
+    if wc is None:
+        wc = len(str(item.get("draft", "")).split())
+    return {"answer_id": f"{item['model_id']}:{item['case']['case_id']}:{item.get('trial', 0)}",
+            "model_id": item["model_id"], "text": item.get("draft", ""),
+            "visible_tokens": max(1, int(wc)), "trial": item.get("trial", 0),
+            "gate_pass": bool(item.get("gate_pass"))}
+
+
+def _wpair(pair_id: str, block: str, ia: Mapping, ib: Mapping, band: float, **extra) -> dict:
+    case = ia["case"]
+    a, b = _wside(ia), _wside(ib)
+    pair = {
+        "pair_id": pair_id, "family": "writing", "case_id": case["case_id"],
+        "sub": case.get("sub"), "kind": case.get("kind"), "qtype": case.get("sub"),
+        "split": ia.get("split", ""), "block": block, "case": case,
+        "request": writing_request_text(case), "profile": "window",
+        "a": a, "b": b, "repeat_of": None,
+        "length_matched": writing_length_matched(a["visible_tokens"], b["visible_tokens"], band),
+    }
+    pair.update(extra)
+    return pair
+
+
+def _wdraw(rng, groups, n, *, a_models, b_models, subs, split_ok, usage, used, share, band):
+    """Draw up to n (item_a, item_b) with both drafts gated in. ``groups`` maps
+    (case_id, trial) -> {model: item}. Rotates over sub-families and A models."""
+    if n <= 0 or not a_models or not subs:
+        return []
+    by_sub: dict[str, list] = defaultdict(list)
+    for key in sorted(groups):
+        any_item = next(iter(groups[key].values()))
+        sub = any_item["case"].get("sub")
+        if sub in subs and split_ok(any_item.get("split")):
+            by_sub[sub].append(key)
+    out: list[tuple[dict, dict]] = []
+    matched = 0
+    k = 0
+    fails = 0
+    limit = len(subs) * len(a_models) * 2
+    while len(out) < n and fails <= limit:
+        sub = subs[k % len(subs)]
+        a_model = a_models[(k // len(subs)) % len(a_models)]
+        k += 1
+        cands = []
+        for key in by_sub.get(sub, []):
+            g = groups[key]
+            ia = g.get(a_model)
+            if ia is None or not ia.get("gate_pass"):
+                continue
+            others = [m for m in sorted(g) if m != a_model and m in b_models] if b_models \
+                else []
+            for m in others:
+                ib = g[m]
+                if ib.get("gate_pass") and (key, frozenset((a_model, m))) not in used:
+                    cands.append((key, ia, ib))
+        if not cands:
+            fails += 1
+            continue
+        fails = 0
+        need = matched < math.ceil(share * (len(out) + 1))
+        if need:
+            m_ = [c for c in cands if writing_length_matched(
+                _wside(c[1])["visible_tokens"], _wside(c[2])["visible_tokens"], band)]
+            if m_:
+                cands = m_
+        low = min(usage[(c[0], c[1]["model_id"])] + usage[(c[0], c[2]["model_id"])] for c in cands)
+        best = [c for c in cands
+                if usage[(c[0], c[1]["model_id"])] + usage[(c[0], c[2]["model_id"])] == low]
+        key, ia, ib = rng.choice(best)
+        used.add((key, frozenset((ia["model_id"], ib["model_id"]))))
+        usage[(key, ia["model_id"])] += 1
+        usage[(key, ib["model_id"])] += 1
+        if writing_length_matched(_wside(ia)["visible_tokens"], _wside(ib)["visible_tokens"], band):
+            matched += 1
+        out.append((ia, ib))
+    return out
+
+
+def build_writing_pairs(items: Sequence[Mapping], plan: Mapping = V1_WRITING_PLAN, seed: int = 0, *,
+                        baseline_id: str = BASELINE_ID, base_id: str = BASE_ID,
+                        candidate_ids: Sequence[str] | None = None, cloud_ids: Sequence[str] = (),
+                        heldout_split: str = "heldout", dev_split: str = "development",
+                        return_report: bool = False):
+    """Draw the writing vote set from draft items.
+
+    items: {case (brief dict), model_id, trial, draft, gate_pass, word_count, split}.
+    Drafts of the same case_id and trial are paired across models. Side A is the
+    candidate (base Gemma in the standing pair, the cloud model in a cloud pair), side
+    B the baseline. Validation is stratified over W1, W2, W3, W5, W6 on the held-out
+    split; standing is held-out; cloud pairs use the development split only. W4 is never
+    paired. A pair where exactly one draft fails the gate is not shown: it is recorded
+    with ``auto=True`` and ``auto_outcome`` (the gated draft wins). Both failing drops the
+    pair (counted in the report). Auto records cover candidate-against-baseline, standing
+    and cloud matchups; they are extra to the quotas. Length-matched pairs (within the
+    plan's band) are preferred while the share is below the plan's target.
+
+    Returns the pair list, or (pairs, report) with ``return_report``.
+    """
+    plan = {**V1_WRITING_PLAN, **dict(plan)}
+    rng = random.Random(seed)
+    band, share = float(plan["length_band"]), float(plan["length_matched_share"])
+    held = lambda s: _norm_split(s) == _norm_split(heldout_split)      # noqa: E731
+    dev = lambda s: _norm_split(s) == _norm_split(dev_split)           # noqa: E731
+    groups: dict[tuple, dict] = defaultdict(dict)
+    for it in items:
+        if it["case"].get("sub") == "W4":
+            continue
+        groups[(it["case"]["case_id"], it.get("trial", 0))][it["model_id"]] = it
+    all_models = sorted({m for g in groups.values() for m in g})
+    cloud = list(cloud_ids)
+    cands = list(candidate_ids) if candidate_ids is not None else \
+        [m for m in all_models if m != baseline_id and m not in cloud]
+    cands = [m for m in cands if m != baseline_id]
+
+    usage: Counter = Counter()
+    used: set = set()
+    counters: Counter = Counter()
+    pairs: list[dict] = []
+    shown: list[dict] = []
+
+    def emit(block, drawn, swap_ok=False):
+        for ia, ib in drawn:
+            if swap_ok and rng.random() < 0.5:
+                ia, ib = ib, ia
+            counters[block] += 1
+            pr = _wpair(f"w{block}-{counters[block]:03d}", block, ia, ib, band)
+            pairs.append(pr)
+            shown.append(pr)
+
+    sub_plan = plan["validation_per_sub"]
+    for sub, total in sub_plan.items():
+        if sub == "W4":
+            continue
+        n_cc = int(round(int(total) * float(plan["validation_cand_cand_share"])))
+        emit("validation", _wdraw(rng, groups, int(total) - n_cc, a_models=cands, b_models=[baseline_id],
+                                  subs=[sub], split_ok=held, usage=usage, used=used,
+                                  share=share, band=band))
+        cc = _wdraw_cc(rng, groups, n_cc, cands, sub, held, usage, used, share, band)
+        emit("validation", cc, swap_ok=True)
+    emit("standing", _wdraw(rng, groups, int(plan["standing"]), a_models=[base_id],
+                            b_models=[baseline_id], subs=list(WRITING_SUBS), split_ok=held,
+                            usage=usage, used=used, share=share, band=band))
+    for c in cloud:
+        emit("cloud", _wdraw(rng, groups, int(plan["cloud_per_model"]), a_models=[c],
+                             b_models=[baseline_id], subs=list(WRITING_SUBS), split_ok=dev,
+                             usage=usage, used=used, share=share, band=band))
+
+    n_rep = min(int(plan["repeats"]), len(shown))
+    for orig in rng.sample(sorted(shown, key=lambda p: p["pair_id"]), n_rep):
+        counters["repeat"] += 1
+        pairs.append({**orig, "pair_id": f"wrepeat-{counters['repeat']:03d}", "block": "repeat",
+                      "a": dict(orig["b"]), "b": dict(orig["a"]), "repeat_of": orig["pair_id"]})
+
+    # Gate losses (auto) and both-fail drops, for the matchups that drive preference.
+    dropped = auto_n = 0
+    matchups = [("standing", [base_id], held), ("validation", cands, held)] + \
+               [("cloud", [c], dev) for c in cloud]
+    seen: set = set()
+    for block, a_models, split_ok in matchups:
+        for key in sorted(groups):
+            g = groups[key]
+            ib = g.get(baseline_id)
+            if ib is None:
+                continue
+            any_item = next(iter(g.values()))
+            if any_item["case"].get("sub") == "W4" or not split_ok(any_item.get("split")):
+                continue
+            for am in a_models:
+                ia = g.get(am)
+                if ia is None or (key, am) in seen:
+                    continue
+                seen.add((key, am))
+                pa, pb = bool(ia.get("gate_pass")), bool(ib.get("gate_pass"))
+                if pa and pb:
+                    continue
+                if not pa and not pb:
+                    dropped += 1
+                    continue
+                auto_n += 1
+                pr = _wpair(f"wauto-{auto_n:03d}", block, ia, ib, band, auto=True,
+                            auto_outcome="A" if pa else "B", auto_reason="gate",
+                            length_matched=False)
+                pairs.append(pr)
+
+    if not return_report:
+        return pairs
+    return pairs, writing_plan_report(pairs, dropped_both_fail=dropped, plan=plan)
+
+
+def _wdraw_cc(rng, groups, n, cands, sub, held, usage, used, share, band):
+    """Candidate-against-candidate draws for one sub-family (A is arbitrary)."""
+    out = []
+    pool = list(cands)
+    for _ in range(max(0, n)):
+        got = None
+        for a_model in rng.sample(pool, len(pool)):
+            got = _wdraw(rng, groups, 1, a_models=[a_model], b_models=[m for m in pool if m != a_model],
+                         subs=[sub], split_ok=held, usage=usage, used=used,
+                         share=share, band=band)
+            if got:
+                break
+        if not got:
+            break
+        out += got
+    return out
+
+
+def writing_plan_report(pairs: Sequence[Mapping], *, dropped_both_fail: int | None = None,
+                        plan: Mapping = V1_WRITING_PLAN) -> dict:
+    """Counts of shown pairs per block and sub-family, auto outcomes, drops and the
+    length-matched share among shown pairs."""
+    shown = [p for p in pairs if not p.get("auto_outcome")]
+    blocks = Counter(p["block"] for p in shown)
+    val = [p for p in shown if p["block"] == "validation"]
+    matched = sum(1 for p in shown if p.get("length_matched"))
+    models = {m for p in val for m in (p["a"]["model_id"], p["b"]["model_id"])}
+    return {
+        "blocks": {b: blocks.get(b, 0) for b in ("validation", "standing", "cloud", "repeat")},
+        "validation_by_sub": dict(Counter(p.get("sub") for p in val)),
+        "n_shown": len(shown), "n_planned": writing_plan_total(plan),
+        "auto_gate": sum(1 for p in pairs if p.get("auto_outcome")),
+        "dropped_both_fail": dropped_both_fail,
+        "length_matched": matched,
+        "length_matched_share": (matched / len(shown)) if shown else None,
+        "validation_models": sorted(models),
+        "validation_models_ok": len(models) >= int(plan["min_validation_models"]),
+        "w4_pairs": sum(1 for p in pairs if p.get("sub") == "W4"),
+    }
+
+
+def writing_rank(items: Sequence[tuple], *, anchor: str = BASELINE_ID,
+                 matched_only: bool = False) -> dict:
+    """Rank models from (pair, outcome) items. Auto (gate) outcomes carry zero style terms.
+
+    Returns {"n", "models": {m: {bt_win_rate, style_ctrl_win_rate}}, "order": [best first]}
+    (win rates 0-100 against the anchor, ties half). ``matched_only`` keeps only
+    length-matched pairs.
+    """
+    comps = []
+    for pair, outcome in items:
+        if outcome is None or (matched_only and not pair.get("length_matched")):
+            continue
+        feats = ({k: 0.0 for k in S.STYLE_FEATURES} if pair.get("auto_outcome")
+                 else feature_diff(pair["a"], pair["b"]))
+        comps.append((pair["a"]["model_id"], pair["b"]["model_id"], _bt_outcome(outcome), feats))
+    if not comps:
+        return {"n": 0, "models": {}, "order": []}
+    strengths = S.bradley_terry([(a, b, o) for a, b, o, _ in comps], anchor=anchor)
+    ctrl = S.style_controlled_bt(comps, anchor=anchor)["win_rate"]
+    models = {m: {"bt_win_rate": S.strength_to_win_rate(s), "style_ctrl_win_rate": ctrl.get(m)}
+              for m, s in strengths.items()}
+    order = sorted(models, key=lambda m: -(models[m]["style_ctrl_win_rate"]
+                                           if models[m]["style_ctrl_win_rate"] is not None
+                                           else models[m]["bt_win_rate"]))
+    return {"n": len(comps), "models": models, "order": order}
+
+
+def writing_rankings(items: Sequence[tuple], *, anchor: str = BASELINE_ID) -> dict:
+    """The full ranking next to the length-matched ranking (spec 9.4, measure 5)."""
+    full = writing_rank(items, anchor=anchor)
+    lm = writing_rank(items, anchor=anchor, matched_only=True)
+    return {"full": full, "length_matched": lm,
+            "same_order": full["order"] == lm["order"]}
+
+
+def summarize_writing(pairs: Sequence[Mapping], votes: Sequence[Mapping], *,
+                      baseline_id: str = BASELINE_ID, base_id: str = BASE_ID) -> dict:
+    """Writing results: the general summary plus per-sub-family win rates against the
+    baseline and the full and length-matched rankings side by side."""
+    pairs = [p for p in pairs if p.get("family") == "writing"]
+    out = summarize(pairs, votes, baseline_id=baseline_id, base_id=base_id)
+    recs = [r for r in _vote_records(pairs, votes)
+            if r["outcome"] is not None and r["pair"]["block"] in WRITING_RANK_BLOCKS]
+    by_sub: dict[str, dict] = {}
+    for sub in WRITING_SUBS:
+        sub_recs = [r for r in recs if r["pair"].get("sub") == sub and _involves(r["pair"], baseline_id)]
+        models = sorted({m for r in sub_recs for m in (r["pair"]["a"]["model_id"], r["pair"]["b"]["model_id"])
+                         if m != baseline_id})
+        by_sub[sub] = {m: _rate_block([_perspective(r, m) for r in sub_recs if _involves(r["pair"], m)])
+                       for m in models}
+    out["by_sub"] = by_sub
+    out["ranking"] = writing_rankings([(r["pair"], r["outcome"]) for r in recs], anchor=baseline_id)
+    shown = [p for p in pairs if not p.get("auto_outcome")]
+    lm = sum(1 for p in shown if p.get("length_matched"))
+    out["length_matched_share"] = (lm / len(shown)) if shown else None
+    out["n_auto_gate"] = sum(1 for p in pairs if p.get("auto_outcome"))
+    return out
+
+
+# ---------------------------------------------------------------------------
 # Command line
 # ---------------------------------------------------------------------------
 
@@ -884,7 +1271,7 @@ def _default_path(name: str, given: str | None) -> Path:
 def main(argv: Sequence[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         prog="python -m edat.quality.votes",
-        description="Single-rater blind vote tool for EDAT (local files only, no network).")
+        description="Single-rater blind vote tool for tinyagent-bench (local files only, no network).")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     b = sub.add_parser("build", help="draw the vote set from an answers JSONL file")
@@ -898,6 +1285,21 @@ def main(argv: Sequence[str] | None = None) -> int:
     b.add_argument("--seed", type=int, default=0)
     b.add_argument("--heldout-split", default="heldout")
     b.add_argument("--allow-in-repo", action="store_true")
+
+    w = sub.add_parser("build-writing", help="draw the writing vote set (205 pairs) from a drafts JSONL file")
+    w.add_argument("--drafts", required=True,
+                   help="draft items, one JSON object per line: case, model_id, trial, draft, "
+                        "gate_pass, word_count, split")
+    w.add_argument("--out", help="pair file to write (default: <votes dir>/writing-pairs.jsonl)")
+    w.add_argument("--candidates", default="", help="comma-separated candidate model ids "
+                   "(default: every model that is not the baseline or a cloud model)")
+    w.add_argument("--baseline", default=BASELINE_ID)
+    w.add_argument("--base", default=BASE_ID, help="untuned base model id (standing pair)")
+    w.add_argument("--cloud", default="", help="comma-separated cloud model ids")
+    w.add_argument("--plan", help="JSON file overriding V1_WRITING_PLAN")
+    w.add_argument("--seed", type=int, default=0)
+    w.add_argument("--heldout-split", default="heldout")
+    w.add_argument("--allow-in-repo", action="store_true")
 
     v = sub.add_parser("vote", help="run one blind voting session in the terminal")
     v.add_argument("--pairs", help="pair file (default: <votes dir>/pairs.jsonl)")
@@ -913,6 +1315,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     s.add_argument("--votes")
     s.add_argument("--baseline", default=BASELINE_ID)
     s.add_argument("--base", default=BASE_ID)
+    s.add_argument("--writing", action="store_true",
+                   help="writing results: per sub-family, full and length-matched rankings")
 
     args = ap.parse_args(argv)
     try:
@@ -930,6 +1334,20 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"wrote {len(pairs)} pairs to {out}")
             print(json.dumps(plan_report(pairs), indent=2))
             return 0
+        if args.cmd == "build-writing":
+            out = check_output_path(_default_path("writing-pairs.jsonl", args.out),
+                                    allow_in_repo=args.allow_in_repo)
+            plan = dict(V1_WRITING_PLAN)
+            if args.plan:
+                plan.update(json.loads(Path(args.plan).read_text(encoding="utf-8")))
+            pairs, report = build_writing_pairs(
+                read_jsonl(args.drafts), plan, args.seed, baseline_id=args.baseline,
+                base_id=args.base, candidate_ids=_csv(args.candidates) or None,
+                cloud_ids=_csv(args.cloud), heldout_split=args.heldout_split, return_report=True)
+            write_jsonl(out, pairs)
+            print(f"wrote {len(pairs)} pairs to {out}")
+            print(json.dumps(report, indent=2))
+            return 0
         if args.cmd == "vote":
             pairs_p = check_output_path(_default_path("pairs.jsonl", args.pairs),
                                         allow_in_repo=args.allow_in_repo)
@@ -940,7 +1358,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 0 if res["stopped"] != "error" else 1
         pairs = read_jsonl(_default_path("pairs.jsonl", args.pairs))
         votes = read_jsonl(_default_path("votes.jsonl", args.votes))
-        print(json.dumps(summarize(pairs, votes, baseline_id=args.baseline, base_id=args.base),
+        fn = summarize_writing if args.writing else summarize
+        print(json.dumps(fn(pairs, votes, baseline_id=args.baseline, base_id=args.base),
                          indent=2, default=str))
         return 0
     except (ValueError, OSError) as exc:

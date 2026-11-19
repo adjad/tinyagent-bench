@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/adjad/Edge_device_agentic_testing/edat/results/schema/site-board.schema.json",
+  "title": "EDAT website board file (edat.site-board/1.0)",
+  "description": "site/data/<board_version>/<device_id>.json (or cloud.json): the compact data the website reads, shaped after 06-ui-design.md section 4. Rates are percentages (0-100); memory is bytes; times are seconds.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "sample", "board_version", "device", "generated_at", "references", "models", "variants",
+               "runs", "results", "safety", "curves", "ranking"],
+  "properties": {
+    "schema": {"const": "edat.site-board/1.0"},
+    "sample": {"type": "boolean"},
+    "notice": {"type": ["string", "null"]},
+    "board_version": {"type": "string"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "device": {
+      "type": ["object", "null"],
+      "description": "null for the cloud file",
+      "additionalProperties": false,
+      "required": ["id", "class"],
+      "properties": {
+        "id": {"type": "string"},
+        "class": {"type": "string"},
+        "ram_bytes": {"type": ["integer", "null"]},
+        "soc": {"type": ["string", "null"]},
+        "os": {"type": ["string", "null"]}
+      }
+    },
+    "references": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tuned", "base"],
+      "properties": {
+        "tuned": {"type": ["string", "null"]},
+        "base": {"type": ["string", "null"]}
+      }
+    },
+    "models": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind"],
+        "properties": {
+          "id": {"type": "string"},
+          "kind": {"enum": ["local", "cloud_reference"]},
+          "role": {"type": ["string", "null"]},
+          "params_total": {"type": ["integer", "null"]},
+          "params_active": {"type": ["integer", "null"]},
+          "architecture": {"type": ["string", "null"]},
+          "moe": {"type": ["boolean", "null"]},
+          "resolved_model": {"type": ["string", "null"]},
+          "upstream_provider": {"type": ["string", "null"]},
+          "run_date": {"type": ["object", "null"]}
+        }
+      }
+    },
+    "variants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key", "model_id", "thinking"],
+        "properties": {
+          "key": {"type": "string"},
+          "model_id": {"type": "string"},
+          "quant": {"type": ["string", "null"]},
+          "runtime": {"type": ["string", "null"]},
+          "runtime_version": {"type": ["string", "null"]},
+          "thinking": {"enum": ["on", "off", "minimal"]},
+          "headline_entry": {"type": ["boolean", "null"]},
+          "weights": {"type": ["string", "null"]},
+          "sampling_source": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "runs": {
+      "type": "array",
+      "description": "One per variant on this device.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["variant", "status", "fit", "ranked", "rank_group"],
+        "properties": {
+          "variant": {"type": "string"},
+          "status": {"enum": ["ok", "does_not_fit", "not_run", "failed", "invalid"]},
+          "fit": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["verdict"],
+            "properties": {
+              "verdict": {"enum": ["fits", "fits_small_context", "does_not_fit", "not_measured", "not_applicable"]},
+              "max_level_fits": {"type": ["integer", "null"]},
+              "peak_bytes_at_2048": {"type": ["integer", "null"]},
+              "peak_bytes_at_10240": {"type": ["integer", "null"]},
+              "budget_bytes": {"type": ["integer", "null"]}
+            }
+          },
+          "ranked": {"type": "boolean"},
+          "rank_group": {"enum": ["ranked", "does_not_fit", "not_measured", "cloud"]},
+          "excluded_rate": {"type": ["number", "null"]},
+          "run_ids": {"type": "array", "items": {"type": "string"}},
+          "harness_commit": {"type": ["string", "null"]},
+          "date": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["variant", "tier", "metric", "value", "interval", "interval_kind", "n_cases", "n_trials"],
+        "properties": {
+          "variant": {"type": "string"},
+          "tier": {"type": "string"},
+          "facet": {"type": ["string", "null"], "description": "e.g. lane=assistant or family=select; null for the tier total"},
+          "metric": {"type": "string"},
+          "unit": {"type": ["string", "null"]},
+          "value": {"type": ["number", "null"]},
+          "interval": {"type": ["array", "null"], "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
+          "interval_kind": {"enum": ["wilson", "bootstrap_cases", "exact", "none"]},
+          "n_cases": {"type": "integer"},
+          "n_trials": {"type": "integer"},
+          "status": {"type": ["string", "null"]},
+          "vs": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "tuned": {"type": ["object", "null"]},
+              "base": {"type": ["object", "null"]}
+            }
+          }
+        }
+      }
+    },
+    "safety": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["variant", "tier", "trials"],
+        "properties": {
+          "variant": {"type": "string"},
+          "tier": {"type": "string"},
+          "trials": {"type": "integer"},
+          "unsafe_trials": {"type": ["integer", "null"]},
+          "unsafe_rate": {"type": ["number", "null"]},
+          "unsafe_interval": {"type": ["array", "null"]},
+          "unsafe_per_100": {"type": ["number", "null"]},
+          "leak_trials": {"type": ["integer", "null"]},
+          "leak_rate": {"type": ["number", "null"]},
+          "leak_interval": {"type": ["array", "null"]},
+          "leaks_per_100": {"type": ["number", "null"]},
+          "vs": {"type": "object"}
+        }
+      }
+    },
+    "curves": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["variant", "metric", "points"],
+        "properties": {
+          "variant": {"type": "string"},
+          "metric": {"type": "string"},
+          "unit": {"type": ["string", "null"]},
+          "points": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["level", "status"],
+              "properties": {
+                "level": {"type": "integer"},
+                "value": {"type": ["number", "null"]},
+                "status": {"enum": ["ok", "out_of_memory", "beyond_window", "not_run", "failed", "excluded",
+                                    "unsupported_by_runtime", "not_applicable", "does_not_fit"]},
+                "need_bytes": {"type": ["integer", "null"]},
+                "n": {"type": "integer"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "ranking": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["variant", "tier", "metric", "rank_range"],
+        "properties": {
+          "variant": {"type": "string"},
+          "tier": {"type": "string"},
+          "metric": {"type": "string"},
+          "rank_range": {"type": "array", "items": {"type": "integer"}, "minItems": 2, "maxItems": 2}
+        }
+      }
+    }
+  }
+}

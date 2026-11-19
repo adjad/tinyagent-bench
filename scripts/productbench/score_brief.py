@@ -19,7 +19,10 @@ Every Brief item is classified against the key (`classify`, shared with the find
                    one of its anchors)
   wrongly raised   it shows a planted noise item (a key entry of type noise): a false alarm
   stale            it shows a superseded value (`stale_match`, or any `stale_anchors`) without
-                   the current one
+                   the current one. For a key entry that records no change (a request, an
+                   unknowable, two similar names...), its must_not_include is a trap for an
+                   answer about it, so it counts only in an item that shows that entry
+                   ("Tunde's wedding is in April" is not a stale date for Kofi's)
   in the key       it matches some other key entry (an Ask-only fact, a done or superseded item)
   not in the key   it matches no key entry at all. Reported, never penalised: the key is not
                    exhaustive, so an item it does not list is unjudged, not noise.
@@ -97,12 +100,27 @@ _CHANGED = re.compile(r"\b(moved|cancel+ed|cancels|instead|no longer|rescheduled
                       r"now (?:at|on|in))\b", re.I)
 
 
+# Shared-profile entry types whose must_not_include is a value the entry replaced.
+CHANGE_TYPES = {"calendar_correction", "changed_detail", "two_source_fact"}
+CHANGE_STATUSES = {"moved", "superseded", "cancelled", "changed"}
+
+
+def records_a_change(it: dict) -> bool:
+    """Whether this key item's `stale_anchors` are a replaced value. A productbench/1 item (no
+    `edat_type`) always says so; a shared-profile entry when its type or status records a change."""
+    return not it.get("edat_type") or it["edat_type"] in CHANGE_TYPES or it.get("status") in CHANGE_STATUSES
+
+
 def shows_stale(it: dict, text: str, today) -> bool:
     """The superseded value shown without the current one ("moved from 2pm to 3pm" is right).
-    A superseded calendar slot (`stale_match`) also needs no word saying it changed."""
+    A superseded calendar slot (`stale_match`) also needs no word saying it changed. For an entry
+    that records no change, its must_not_include counts only in an item that shows the entry."""
     slot = bool(it.get("stale_match")) and matcher.spec_hit(it["stale_match"], text, today) \
         and not _CHANGED.search(text)
-    old = slot or matcher.any_hit(it.get("stale_anchors") or [], text, today) is not None
+    said = matcher.any_hit(it.get("stale_anchors") or [], text, today) is not None
+    if not records_a_change(it):
+        return slot or (said and shows(it, text, today) and not _CHANGED.search(text))
+    old = slot or said
     return old and matcher.any_hit(it.get("current_anchors") or it.get("anchors", []), text, today) is None
 
 

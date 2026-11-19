@@ -14,6 +14,7 @@ rest are counted. The Dock line is always shown.
 """
 from __future__ import annotations
 
+import copy
 import hashlib
 
 from edat.screen.world.core import VIEWPORT_LINES, Visible
@@ -136,6 +137,13 @@ def _bound_value(world, el: El) -> None:
                 c.selected = c.selected or (c.name == v)
 
 
+def _fresh(el: El) -> El:
+    c = copy.copy(el)
+    c.meta = dict(el.meta)
+    c.children = [_fresh(x) for x in el.children]
+    return c
+
+
 def line_for(world, el: El, depth: int, focus: str | None) -> str:
     parts = [f"{'  ' * depth}[{world.id_for(el.key)}] {el.role} {_q(el.name)}"]
     if el.role == "switch":
@@ -208,8 +216,9 @@ def render(world) -> Visible:
     body: list[str] = []
     offset = 0
     if dialog is not None:
+        # fresh copies each render, so bound values (checked, value) are read again from state
         drows, dparents = flatten(world, [El(key=dialog.key, role=dialog.role, name=dialog.title,
-                                              children=dialog.elements)])
+                                              children=[_fresh(e) for e in dialog.elements])])
         parents.update(dparents)
         header += f" · Dialog open"
         for e, d in drows:

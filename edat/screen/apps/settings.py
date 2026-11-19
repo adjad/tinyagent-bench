@@ -255,7 +255,7 @@ class Settings(App):
             self._back(world, "settings.storage.back"), heading("settings.storage.title", "Storage"),
             text("settings.storage.used", f"Used: {st['used_gb']} GB of {st['total_gb']} GB"),
             El(key="settings.storage.list", role="list", name="Categories", children=rows),
-            switch("settings.storage.auto_empty", "Empty Trash automatically", "settings.storage.auto_empty_trash"),
+            switch("settings.storage.auto_empty", "Empty Trash automatically", "settings.storage.auto_empty_trash", cleared=True),
         ])
 
     def screen_general(self, world) -> Screen:
@@ -264,7 +264,7 @@ class Settings(App):
             textbox("settings.general.name", "Device name", "settings.general.name"),
             switch("settings.general.auto_update", "Automatic updates", "settings.general.auto_update"),
             El(key="settings.general.update", role="row", name="Software Update", on_click=self._open("software_update")),
-            El(key="settings.general.reset", role="row", name="Reset", on_click=self._open("reset")),
+            El(key="settings.general.reset", role="row", name="Reset", on_click=self._open("reset"), cleared=True),
         ])
 
     def screen_software_update(self, world) -> Screen:

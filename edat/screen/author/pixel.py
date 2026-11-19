@@ -49,7 +49,7 @@ def _stable_targets(start: dict, apps: list[str], extra: dict) -> list[tuple[str
         if vis.dialog is not None:
             return []
         cur = {e.key: (e.role, e.name) for e in vis.by_id.values()
-               if (e.clickable or e.typeable) and e.name and not e.meta.get("dock") and not e.disabled}
+               if e.clickable and e.name and not e.meta.get("dock") and not e.disabled}
         seen = cur if seen is None else {k: v for k, v in seen.items() if cur.get(k) == v}
     names = [v[1] for v in (seen or {}).values()]
     return sorted((k, r, n) for k, (r, n) in (seen or {}).items() if names.count(n) == 1)

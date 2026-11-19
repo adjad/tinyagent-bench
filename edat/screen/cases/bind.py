@@ -56,19 +56,21 @@ def load_scenarios() -> None:
                 raise
 
 
-def fill(obj: Any, slots: dict) -> Any:
-    """Replace `{slot}` in every string of a nested structure. Unknown slots are an error."""
+def fill(obj: Any, slots: dict, strict: bool = True) -> Any:
+    """Replace `{slot}` in every string of a nested structure. Unknown slots are an error when strict."""
     if isinstance(obj, str):
         def sub(m):
             k = m.group(1)
             if k not in slots:
-                raise KeyError(f"unknown slot {{{k}}}")
+                if strict:
+                    raise KeyError(f"unknown slot {{{k}}}")
+                return m.group(0)
             return str(slots[k])
         return SLOT.sub(sub, obj)
     if isinstance(obj, list):
-        return [fill(x, slots) for x in obj]
+        return [fill(x, slots, strict) for x in obj]
     if isinstance(obj, dict):
-        return {k: fill(v, slots) for k, v in obj.items()}
+        return {k: fill(v, slots, strict) for k, v in obj.items()}
     return obj
 
 
@@ -119,6 +121,14 @@ def bind(case: dict, world_seed: int) -> Bound:
     rng = random.Random(f"{case['id']}:{world_seed}")
     for a in apps:
         slots.update(get_app(a).seed(world, rng, dict(params.get(a) or {})))
+    for path, records in (w.get("seed_records") or {}).items():
+        # §3.12 seed_records: extra records appended to a collection, after the apps' own seeding
+        recs = fill(copy.deepcopy(list(records)), {**slots, **world.slots}, strict=False) if records else []
+        cur = world.get(path)
+        if isinstance(cur, list):
+            cur.extend(recs)
+        else:
+            world.set(path, recs)
     gen = w.get("generator") or "apps_v1"
     if gen not in SCENARIOS:
         raise KeyError(f"{case['id']}: unknown scenario {gen!r}")

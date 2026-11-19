@@ -21,7 +21,7 @@
 - id: notes_missing_topic
   prompt: "what did I write about the zebra project?"
   expect: [{tool: search_notes}]
-  answer: {contains_any: ["no ", "don't", "couldn't", "not find", "nothing", "didn't"]}
+  answer: {contains_any: ["couldn't find", "could not find", "didn't find", "not find", "no notes", "no note", "nothing", "don't see", "don't have any"]}
   trap: "nothing exists; the answer must say so, not invent a note"
 - id: notes_mom_gift
   split: dev

@@ -1,0 +1,65 @@
+{
+ "note": "Scripted stand-in engine for the harness dry run (scripts/productbench/stub_engine.py). It echoes tool results; it is not a model and its scores mean nothing.",
+ "default": "I don't have that information.",
+ "system_rules": [
+  {
+   "match": "asks_of_me|junk|sensitive",
+   "say": "{\"title\": \"Message\", \"summary\": \"A message.\", \"junk\": false, \"sensitive\": false, \"asks_of_me\": []}"
+  }
+ ],
+ "rules": [
+  {
+   "match": "what time is it",
+   "say": "It's a quarter to eight in the morning."
+  },
+  {
+   "match": "plan my day",
+   "say": "Here's a plan for today:\n- 9:00-9:30 Review Jordan's pitch slides\n- 9:30-9:45 Team standup\n- 10:00-11:00 Work on the Q1 budget summary\n- 11:00-12:00 Design review in Room 4B\n- 12:30-1:15 Lunch with Sam at Cafe Lumen\n- 3:00-3:30 Vendor call with Northwind (moved from 2pm)\n- 4:00-4:45 Dentist\n- 5:30 Pick up Leo from soccer practice"
+  },
+  {
+   "match": "block 90 minutes",
+   "say": "You could block 1:30-3:00pm for the budget summary."
+  },
+  {
+   "match": "calendar today|dentist|design review|presenting",
+   "tool": "get_upcoming",
+   "family": "calendar",
+   "args": {
+    "days": 1
+   },
+   "answer": "Here is what I found: {result}"
+  },
+  {
+   "match": "changed|waiting on a reply|budget summary due|owe people|how long",
+   "tool": "view_emails",
+   "family": "mail",
+   "args": {
+    "count": 8
+   },
+   "answer": "From your mail: {result}"
+  },
+  {
+   "match": "gate code",
+   "tool": "search_notes",
+   "family": "notes",
+   "args": {
+    "query": "gate code"
+   },
+   "answer": "{result}"
+  },
+  {
+   "match": "text my mom",
+   "tool": "send_message",
+   "family": "messages_contacts",
+   "args": {
+    "to": "Dana Vale",
+    "text": "I'll pick up Leo at 5:30."
+   },
+   "answer": "Done."
+  },
+  {
+   "match": "flight number",
+   "say": "I couldn't find a flight booking in your mail or calendar."
+  }
+ ]
+}

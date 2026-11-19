@@ -1,6 +1,6 @@
-# EDAT: Edge Device Agentic Testing
+# tinyagent-bench
 
-EDAT is a benchmark for **small language models (about 0.2B to 12B parameters)
+tinyagent-bench is a benchmark for **small language models (about 0.2B to 12B parameters)
 used as on-device agents**: on laptops and phones, offline, with the model as the
 only thing deciding what to do.
 
@@ -25,13 +25,16 @@ only thing deciding what to do.
 | Privacy | Leaks of private details in what the agent sends: messages, emails, tool arguments | [02-agentic-spec](docs/benchmark/02-agentic-spec.md), [03-output-quality-spec](docs/benchmark/03-output-quality-spec.md) |
 | Output quality | Whether answers are correct, grounded in the sources the tools returned, and readable | [03-output-quality-spec](docs/benchmark/03-output-quality-spec.md) |
 | Speed, memory, energy | Prefill and decode speed, time to first token, peak memory and energy per task at fixed context sizes; battery and energy over a simulated day | [04-perf-energy-memory-spec](docs/benchmark/04-perf-energy-memory-spec.md) |
-| Long sessions | Whether behaviour holds up as a session grows long | Planned |
+| Long sessions | Whether behaviour holds up as a session grows long | [02-agentic-spec](docs/benchmark/02-agentic-spec.md) §3.15, [08-product-eval-design](docs/benchmark/08-product-eval-design.md) |
 | Vision and audio input | Image, document and speech inputs, for models that accept them | [05-vision-audio-spec](docs/benchmark/05-vision-audio-spec.md) |
-| Controlling apps on screen | Operating apps through what is on screen | Planned |
-| Sidekick tasks | Light coding and terminal tasks | Planned |
+| Controlling apps on screen | Operating apps through what is on screen | [11-screen-control-spec](docs/benchmark/11-screen-control-spec.md) |
+| Sidekick tasks | Light coding and terminal tasks | [12-sidekick-coding-spec](docs/benchmark/12-sidekick-coding-spec.md) |
 | Behaviour inside an assistant | The same model placed inside a full assistant backend, used by three synthetic people (a student, a tech worker, a mixed household) over a simulated day | [08-product-eval-design](docs/benchmark/08-product-eval-design.md), [09-profile-schema](docs/benchmark/09-profile-schema.md) |
 
 Not tested: video input, speech output, and embedding or reranker models.
+
+The benchmark's own code uses the short internal prefix `edat` (the `edat/`
+package, `EDAT_*` environment variables, `edat.*` schema ids).
 
 The harness was built from parts of the [Harbor](https://github.com/adjad/Harbor)
 assistant (Apache-2.0), a local-first macOS assistant. [IMPORT.md](IMPORT.md)
@@ -54,7 +57,7 @@ code keeps its original names and paths.
   the two references shows the effect of the tuning.
 
   *Disclosure:* the primary reference was fine-tuned on data from real-life
-  testing of the assistant EDAT's harness comes from. It was not trained on this
+  testing of the assistant this benchmark's harness comes from. It was not trained on this
   benchmark's questions. The method includes checking its training data for
   overlap with the held-out questions. That check has not been run yet, so no
   result is claimed.
@@ -75,8 +78,14 @@ code keeps its original names and paths.
 | Three synthetic people and their standing preferences | In progress |
 | In-assistant evaluation | In progress |
 | iPhone runner (MLX Swift test app) | In progress; the imported MLX Swift package (`ios/Packages/HarborLing/`) is there for it |
-| Output-quality, vision and audio, on-screen control and sidekick tests | Designed or planned, not built |
-| Results store and public website | Designed; [`site/`](site/) is a clickable mock-up with sample data |
+| Model adapters (`edat/models/`) | In progress |
+| Output-quality, vision and audio tests | Designed, not built |
+| On-screen app control (`edat/screen/`, cases in `test_fixtures/screen/`) and sidekick coding and terminal tasks (`edat/sidekick/`, cases in `test_fixtures/sidekick/`) | Planned |
+| Results store (`edat/results/`), published results (`data/results/`), website data (`site/data/`) | In progress; no results are published |
+| Public website | Designed; [`site/`](site/) is a clickable mock-up with sample data |
+
+An audit of the imported Toolbench cases is summarised in
+[13-case-audit](docs/benchmark/13-case-audit.md).
 
 [docs/STRUCTURE.md](docs/STRUCTURE.md) says where each piece lives and where the
 upcoming ones will go.

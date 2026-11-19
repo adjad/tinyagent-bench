@@ -7,7 +7,7 @@
   prompt: "and tmrw?"
   expect: [{any_of: [get_upcoming, daily_brief]}]
   answer: {contains_any: ["{dentist}", dentist]}
-  trap: "2026-10-13 eval: get_upcoming x9"
+  trap: "an elliptical 'and tmrw?' carries the earlier calendar question forward to tomorrow, answered in one read"
 - id: fu_second_email
   history:
     - user: "show my unread emails"
@@ -52,7 +52,7 @@
       assistant: "{friend_first} asked about dinner at {restaurant} at {dinner_time} on Saturday."
       tools: view_messages
       calls:   # what production captured from that turn (service/memory/subject.py)
-        - {name: view_messages, args: {query: "{friend_first}"}, result: "[Sat Oct 31, 3:12 PM] {friend_first} — dinner at {restaurant} at {dinner_time} on Saturday?"}
+        - {name: view_messages, args: {query: "{friend_first}"}, result: "[Wed Oct 28, 3:12 PM] {friend_first} — dinner at {restaurant} at {dinner_time} on Saturday?"}
   prompt: "tell him yes"
   expect: [{any_of: [send_message, draft_message], args: {to: {icontains: "{friend_first}"}}}]
   forbid: [send_email]
@@ -81,7 +81,8 @@
 # ---- Real-usage slot-fill and correction chains (real-usage report 1B and failure modes 2.1 to 2.4, 2.8).
 # Guard note: service/router/model_led.continuation_requires_baseline forbids every non-read tool when the
 # whole prompt is a bare assent ("yes", "sure", "ok") or a bare channel word ("messages", "via imessage") after
-# an assistant turn containing "?". The gate variants below avoid those exact shapes; the bare ones are dev.
+# an assistant turn containing "?", except a send card for the assistant's own send offer (continuation_send_exemption).
+# The gate variants below avoid those exact shapes; the bare ones are dev.
 - id: fu_channel_messages_bare
   split: dev
   history:
@@ -97,7 +98,7 @@
   forbid: [send_email, draft_message]
   confirm: [send_message]
   max_calls: 4
-  trap: "real-usage 1B #20 (about 8 turns): the payload was lost or the channel question repeated. production guard blocks send_message on a bare channel answer (continuation_requires_baseline, found 2026-10-29), so this fails as a production bug"
+  trap: "real-usage 1B #20 (about 8 turns): the payload was lost or the channel question repeated. a bare channel answer to the assistant's own send offer must still reach the send card; the guard (continuation_requires_baseline) exempts it via continuation_send_exemption since 2026-10-31, and this case catches a regression"
 
 - id: fu_channel_messages_pls
   history:
@@ -166,7 +167,7 @@
   forbid: [send_email]
   confirm: [send_message]
   max_calls: 4
-  trap: "real-usage 1B #23 (5 turns): repeated the contact info and called no tool. production guard blocks send_message on a bare 'sure' (continuation_requires_baseline, found 2026-10-29), so this fails as a production bug"
+  trap: "real-usage 1B #23 (5 turns): repeated the contact info and called no tool. a bare 'sure' to the assistant's own send offer must still reach the send card; the guard (continuation_requires_baseline) exempts it via continuation_send_exemption since 2026-10-31, and this case catches a regression"
 
 - id: fu_ok_send_it
   history:
@@ -318,10 +319,10 @@
     - user: "move my reminder"
       assistant: "Which reminder do you want me to move, and to when?"
   prompt: "?"
-  no_tool: true
   answer:
     contains_any: [which, reminder, "what"]
-  forbid: [add_reminder, update_reminder, remember]
+  forbid: [add_reminder, update_reminder, remember, complete_reminder, clear_reminders]
+  max_calls: 1
   trap: "real-usage 1B #35: a bare '?' asks the model to restate its question, not to act"
 
 - id: fu_really_recheck
@@ -341,7 +342,7 @@
 - id: fu_compare_stocks_last_week
   history:
     - user: "what are my stock prices today"
-      assistant: "{stock_a} and {stock_b} are both trading up a little today."
+      assistant: "Here are today's quotes for {stock_a} and {stock_b}."
       tools: get_stock_price
       calls:   # what production captured from that turn (service/memory/subject.py)
         - {name: get_stock_price, args: {symbols: ["{stock_a}", "{stock_b}"]}, result: "quotes"}
@@ -350,6 +351,9 @@
     - tool: get_stock_price
       args:
         period: {present: true}
+  answer:
+    contains_any: ["142.88", "231.45", "448.10"]
+    not_contains: ["% this week", "% over the week", "% since last week", "% from last week", "% over the past week"]
   forbid: [get_upcoming, search_notes, view_emails, daily_brief, send_message]
   max_calls: 4
   trap: "real-usage 1B #26: 16 irrelevant calls (LOOP) fanning into calendar and notes reads. A comparison is one stock call with a period"

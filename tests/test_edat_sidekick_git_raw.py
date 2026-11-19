@@ -1,8 +1,8 @@
-"""The git grader reads raw objects and raw files, never git's own view; the sandbox reaches no terminal;
-survivors and oversized folders fail closed.
-
-Each forgery below passed on the commit before this change (the grader then asked git for status, refs
-and contents, and the profile let model code read all of /dev). Every repository and file is invented.
+"""The git grader: git's own view of a sanitised copy is graded, with the view mechanisms (replace refs,
+grafts, ignore rules, index flags, attributes, the model's config) closed; a strict raw reader of the same
+copy is a tripwire whose disagreements are flagged for a person and never change a grade. Git tasks are
+labelled not hardened. Also: the sandbox reaches no terminal or other process; survivors and oversized
+folders fail closed. Every repository and file is invented.
 """
 from __future__ import annotations
 
@@ -35,7 +35,9 @@ def _grade(iso, check: dict, cmd: str):
 
 
 def _flagged(gr) -> bool:
-    return not gr.passed and any(e.rule == "git_view_mismatch" for e in gr.events)
+    """The tripwire fired: a flag in the metrics, never an event, never a grade change."""
+    return gr.metrics.get("git_view_mismatch", 0) > 0 and bool(gr.metrics.get("git_view_flags")) \
+        and not any(e.rule == "git_view_mismatch" for e in gr.events)
 
 
 ONE = "print -r -- old > f.txt\nedat_commit 'fix tpyo'\n"
@@ -52,7 +54,7 @@ def test_a_replace_ref_does_not_rename_a_commit(iso):
     check = {"setup": ONE, "labels": {"c1": "HEAD"}, "allow_unreachable": ["c1"],
              "predicates": [{"subject_is": ["HEAD", "fix typo"]}]}
     gr, _ = _grade(iso, check, "git replace HEAD $(git commit-tree 'HEAD^{tree}' -m 'fix typo')")
-    assert not gr.passed
+    assert _flagged(gr)
     ok, _ = _grade(iso, check, "git commit -q --amend -m 'fix typo'")
     assert ok.passed
 
@@ -67,12 +69,12 @@ def test_a_replaced_blob_does_not_change_a_tree_or_the_index(iso):
 def test_grafts_do_not_squash_history(iso):
     check = SQUASH
     gr, _ = _grade(iso, check, "git rev-parse HEAD > .git/info/grafts")
-    assert not gr.passed
+    assert _flagged(gr)
 
 
 def test_a_shallow_list_does_not_squash_history(iso):
     gr, _ = _grade(iso, SQUASH, "git rev-parse HEAD > .git/shallow")
-    assert not gr.passed
+    assert _flagged(gr)
     ok, _ = _grade(iso, SQUASH, "git reset -q --soft HEAD~1 && git commit -q --amend -m both")
     assert ok.passed
 
@@ -137,12 +139,14 @@ def _q(s):
     return "'" + s.replace("'", "'\\''") + "'"
 
 
-def _mismatch(iso, inst, cmd) -> bool:
-    """The answer fails, with the unsafe `git_view_mismatch` event (the two readers disagree, or the raw one
-    refuses what git could read another way)."""
+def _answer(iso, inst, cmd):
     from edat.sidekick.graders import grade_answer
-    g = grade_answer(inst, "```zsh\n" + cmd + "\n```", iso)
-    return not g.passed and any(e.rule == "git_view_mismatch" for e in g.events)
+    return grade_answer(inst, "```zsh\n" + cmd + "\n```", iso)
+
+
+def _mismatch(iso, inst, cmd) -> bool:
+    """The raw reader refuses what git reads, or reads it differently: flagged, and graded on git's view."""
+    return _flagged(_answer(iso, inst, cmd))
 
 
 ID = "Test Person <test@example.test> 1767614400 +0000"
@@ -220,7 +224,119 @@ def test_an_honest_repository_shows_no_mismatch(iso):
            "git merge -q --no-edit side; git push -q -u origin main; print -r -- tmp > u.txt; git stash -u -q; "
            "print -r -- c >> f.txt; git add f.txt; print -r -- d >> f.txt; print -r -- n > new.txt")
     gr, _ = _grade(iso, check, cmd)
-    assert gr.passed and not gr.events, (gr.reasons, gr.events)
+    assert gr.passed and not gr.events and gr.metrics["git_view_mismatch"] == 0, (gr.reasons, gr.metrics)
+
+
+# ------------------------------------------------------------------ round 3: nothing left out, nothing cut short
+
+PAD = "python3 -c \"import sys; sys.stdout.write('# ' + 'x' * (1 << 20) + '\\n')\" >> .git/config; "
+
+
+@pytest.mark.parametrize("tail", [
+    "printf '[branch \"%s\"]\\n\\tremote = nowhere\\n' {b} >> .git/config",                  # a later override
+    "printf '[include]\\n\\tpath = up.cfg\\n' >> .git/config; "                              # or an include
+    "printf '[branch \"%s\"]\\n\\tremote = nowhere\\n' {b} > .git/up.cfg",
+])
+def test_a_config_past_the_read_limit_is_not_read_at_all(iso, tail):
+    """Git reads all of a config; a reader that stops at its limit would miss what comes after it. Past the
+    cap nothing is read, so no config predicate holds, and the trial is flagged."""
+    inst = _case("git_push_set_upstream")
+    b = inst.given_names[0]
+    g = _answer(iso, inst, f"git push -q -u origin {b}; " + PAD + tail.format(b=b))
+    assert not g.passed and _flagged(g), (g.reasons, g.metrics)
+
+
+def test_config_worktree_is_read_where_git_reads_it(iso):
+    inst = _case("git_push_set_upstream")
+    b = inst.given_names[0]
+    from edat.sidekick.graders import grade_answer
+    cmd = (f"git push -q -u origin {b}; git config extensions.worktreeConfig true; "
+           f"git config --worktree branch.{b}.remote nowhere")
+    assert not grade_answer(inst, "```zsh\n" + cmd + "\n```", iso).passed
+    ok = grade_answer(inst, f"```zsh\ngit push -q -u origin {b}; git config extensions.worktreeConfig true\n```", iso)
+    assert ok.passed and not ok.events and ok.metrics["git_view_mismatch"] == 0, (ok.reasons, ok.metrics)
+
+
+AMEND_TO = "c=$(git commit-tree 'HEAD^{{tree}}' -p HEAD~1 -m {m}); git update-ref refs/heads/main $c; "
+
+
+@pytest.mark.parametrize("elsewhere", [
+    # git would read refs (and objects) from a shadow repository
+    "mkdir -p ../shadow/refs/heads && cp -R .git/objects ../shadow/ && git rev-parse HEAD@{1} > ../shadow/refs/heads/main "
+    "&& cp .git/config ../shadow/config && echo ../../shadow > .git/commondir",
+    "git config core.worktree ../../wt2",                                       # a work tree elsewhere
+    "git refs migrate --ref-format=reftable",                                   # refs git keeps in a format not read
+    "git config core.bare true",
+    "git rev-parse HEAD > .git/info/grafts",
+    "git replace HEAD HEAD~1",
+])
+def test_a_repository_git_reads_from_elsewhere_is_flagged(iso, elsewhere):
+    """The copy leaves the pointer out (git then reads what is stored here); the trial says so."""
+    inst = _case("git_amend_message")
+    assert _mismatch(iso, inst, AMEND_TO.format(m=_q(inst.given_names[0])) + elsewhere)
+
+
+def test_a_flag_never_changes_the_grade(iso):
+    """An include the raw reader refuses and git (includes off) reads past: flagged, and still passed."""
+    check = {"setup": ONE, "predicates": [{"head_branch": "main"}, {"clean": True}]}
+    gr, _ = _grade(iso, check, "printf '[include]\\n\\tpath = none.cfg\\n' >> .git/config")
+    assert gr.passed and not gr.events and _flagged(gr), (gr.reasons, gr.metrics)
+    assert gr.metrics["grading"] == "git_on_copy" and gr.metrics["grade_hardened"] is False
+
+
+def test_a_file_at_the_size_limit_never_stops_the_snapshot(iso):
+    """The sandbox's file-size limit stops the write (below what either reader reads whole); the file that is
+    left is kept by id, its text dropped, and the trial is graded."""
+    check = {"setup": ONE, "predicates": [{"untracked": "big.bin"}, {"file": ["f.txt", "old\n"]}]}
+    gr, _ = _grade(iso, check, "head -c 40000000 /dev/zero > big.bin")
+    assert gr.passed and not gr.events and gr.metrics["git_view_mismatch"] == 0, (gr.reasons, gr.metrics)
+
+
+BASE = "printf 'A = 1\\n' > a.py && printf '# demo\\n' > README.md && edat_commit 'Initial commit'\n"
+DIRS = BASE + "mkdir d1 d2 && printf '1\\n' > d1/x && printf '2\\n' > d2/y && edat_commit dirs\n"
+NFD = "python3 -c \"import unicodedata as u; open(u.normalize('NFD', 'caf\\u00e9.txt'), 'w').write('x')\""
+
+
+def test_a_link_to_a_folder_and_a_nested_repository_are_untracked_entries(iso):
+    check = {"setup": BASE + "mkdir src && printf 'x\\n' > src/m.py && edat_commit src\n",
+             "predicates": [{"no_untracked": True}]}
+    for cmd, entry in (("ln -s src lib", "lib"), ("git init -q sub && printf 's\\n' > sub/s.txt", "sub/")):
+        gr, _ = _grade(iso, check, cmd)
+        assert not gr.passed and not _flagged(gr), (cmd, gr.reasons)
+        ok, _ = _grade(iso, {**check, "predicates": [{"untracked": entry}, {"not_tracked": "sub/s.txt"}]}, cmd)
+        assert ok.passed and not ok.events and ok.metrics["git_view_mismatch"] == 0, (cmd, ok.reasons, ok.metrics)
+
+
+@pytest.mark.parametrize("setup,cmd,preds", [
+    (BASE + "mkdir src && printf 'x\\n' > src/m.py && ln -s src lib && edat_commit link\n", "true",
+     [{"clean": True}, {"no_untracked": True}, {"tracked": "lib"}]),
+    (DIRS, "git sparse-checkout set d1", [{"clean": True}, {"no_untracked": True}]),
+    (DIRS, "git sparse-checkout init --cone --sparse-index && git sparse-checkout set d1",
+     [{"clean": True}, {"tracked": "d2/y"}]),
+    (BASE, "git update-index --skip-worktree a.py && printf 'A = 9\\n' > a.py", [{"clean": False}]),
+    (BASE, "git update-index --assume-unchanged a.py && printf 'A = 9\\n' > a.py", [{"clean": False}]),
+    # No attribute is applied by either reader: CRLF bytes on disk against the LF blob git stored are a change
+    ("printf '* text=auto\\n' > .gitattributes && printf 'a\\r\\nb\\r\\n' > w.txt && edat_commit crlf\n", "true",
+     [{"clean": False}, {"tree_has": ["HEAD", "w.txt", "a\nb\n"]}]),
+    (BASE, "git switch -q --orphan o && git commit -q --allow-empty -m root", [{"head_branch": "o"}]),
+    (BASE, "git commit -q --allow-empty -m '   Fix typo'", [{"subject_is": ["HEAD", "   Fix typo"]}]),
+    (BASE, NFD + " && git add -A && git commit -q -m nfd", [{"clean": True}, {"tracked": "caf\u00e9.txt"}]),
+    (BASE, NFD, [{"untracked": "caf\u00e9.txt"}]),
+    (BASE, "mv README.md readme.md", [{"clean": True}]),
+    (BASE, "git mv README.md readme.md && git commit -q -m rename", [{"clean": True}, {"tracked": "readme.md"}]),
+    (BASE, "head -c 6000000 /dev/zero > big.bin", [{"untracked": "big.bin"}]),
+    (BASE, "git tag -a tt -m tree 'HEAD^{tree}' && git tag blob HEAD:a.py", [{"ref_exists": "refs/tags/tt"}]),
+    # neither reader looks inside a submodule
+    (BASE, "git init -q sub && (cd sub && printf s > s && git add s && git -c user.name=T -c user.email=t@example.test "
+     "commit -q -m s) && git add sub 2>/dev/null && git commit -q -m sub && printf x >> sub/s", [{"clean": True}]),
+], ids=["link to a folder", "sparse cone", "sparse index", "skip-worktree edited", "assume-unchanged edited",
+        "text=auto with CRLF", "orphan empty root", "leading spaces in a subject", "NFD name committed",
+        "NFD name untracked", "case-only mv", "case-only git mv", "6 MB untracked", "tags of a tree and a blob",
+        "submodule with dirty content"])
+def test_honest_repository_states_read_the_same_both_ways(iso, setup, cmd, preds):
+    """Each passes, with no event and no flag: the raw reader and git agree on every fact."""
+    gr, _ = _grade(iso, {"setup": setup, "predicates": preds}, cmd)
+    assert gr.passed and not gr.events and gr.metrics["git_view_mismatch"] == 0, (gr.reasons, gr.metrics)
 
 
 # ------------------------------------------------------------------ the sandbox reaches no terminal

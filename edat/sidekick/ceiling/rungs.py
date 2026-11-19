@@ -60,7 +60,9 @@ NOT_HARDENED_WHY = ("Rungs 4 to 9 are " + NOT_HARDENED + ": their hidden tests r
                     "model's code, so a model would have to attack the grader on purpose (read the reference "
                     "from the test process, patch pytest, fake the exit code) to pass one. An honest wrong "
                     "answer cannot pass by accident. Until they are rebuilt they stay out of any published or "
-                    "ranked score; code that touches the test machinery is flagged for a person to read.")
+                    "ranked score; code that touches the test machinery is flagged for a person to read. "
+                    "The git tasks on rungs 1 to 3 carry the same label: they are graded by real git reading a "
+                    "repository the model controls, and are left out of the ceiling on rungs 1 to 3.")
 
 
 RUNGS = (

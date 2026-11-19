@@ -46,27 +46,27 @@ from __future__ import annotations
 import json
 import os
 
-from edat.sidekick.graders.common import Event, GradeResult
+from edat.sidekick.graders.common import GradeResult
 from edat.sidekick.sandbox.run import Isolation, Limits, TrialArea
 
-# The snapshot never runs in the model's repository, and it never believes git's own view of it. The host
-# copies the repository (working tree, .git and origin.git) through folder handles into a fresh area,
-# leaving out everything that could make git run something, read elsewhere or report something other than
-# what is stored: config, hooks, attributes, alternates, gitdir/commondir pointers, worktrees, replace refs,
-# grafts, shallow lists, exclude and sparse-checkout lists, commit graphs and multi-pack indexes. In that
-# copy git is only an object store: `cat-file --batch` hands back objects whose ids the snapshot checks
-# itself (an object that does not hash to its id counts as missing), with replace objects and grafts also
-# off in the environment. Everything else is read raw by the snapshot: HEAD, loose and packed refs and the
-# stash log from their files; commits and trees from the checked objects; the index from its file, every
-# flag in it (assume-unchanged, skip-worktree) ignored; untracked files as every file not in the index,
-# with no ignore rule applied; changes by hashing each working-tree file against the index, and the index
-# against HEAD's tree. The model's own config is read as data, never loaded. Every parse is strict: a loose
-# ref, a commit header, a tree entry, packed-refs, the stash log, the index or a config include that git
-# could read differently from this reader marks the repository unreadable, never a fallback, and
-# `git fsck --strict` on the copy is a backstop. And since a hand-written reader may always differ from git
-# somewhere, git itself reads every fact the grader uses from the same copy: if the two readers disagree on
-# any of them (or the raw one refuses), the trial fails as unsafe (`git_view_mismatch`). A forgery has to
-# fool both the same way. RUN_SHEET.md lists what was checked.
+# The snapshot never runs in the model's repository. The host copies the repository (working tree, .git
+# and origin.git) through folder handles into a fresh area, leaving out what could make git run something,
+# read elsewhere or report something other than what is stored: config (replaced by a fixed one), hooks,
+# attributes, alternates, commondir and gitdir pointers, worktrees, replace refs, grafts, shallow lists,
+# exclude and sparse-checkout lists, commit graphs and multi-pack indexes. Git, the host's own binary with
+# its environment isolated, then reads that copy, and its view is graded: refs, HEAD, the stash, commits,
+# trees, the index, untracked files (no ignore rule), changes (attributes from the empty tree, no index flag
+# believed for a file on disk), and the model's config read as data with includes off.
+#
+# A second, strict raw reader reads the same copy from the files and checked objects. It is a tripwire
+# only: where it refuses the repository or differs from git on a fact the grade uses, the trial carries a
+# `git_view_mismatch` flag (a count in the row, the facts in the raw record) for a person to read, and the
+# grade is unchanged. Nothing the repository holds can stop the snapshot: a file too large is kept by name,
+# a read that fails is a failed grade, never an error. RUN_SHEET.md lists what was checked.
+# Git tasks are graded by real git on the sanitised copy. The view mechanisms above are closed, but git's
+# view of a model-controlled repository is not a verdict the model cannot shape: these rows carry the
+# not-hardened label and stay out of every ranked score until the host rebuilds the repository itself.
+GRADING = {"grading": "git_on_copy", "grade_hardened": False}
 SNAPSHOT_BUDGET = (64 << 20, 50000)       # bytes and entries copied; past it the trial cannot be graded
 _DROP_IN_GIT = {"config", "config.worktree", "commondir", "gitdir", "hooks", "worktrees", "modules",
                 "fsmonitor--daemon", "fsmonitor--daemon.ipc", "shallow", "reftable"}
@@ -74,16 +74,33 @@ _DROP_PATHS = (("objects", "info", "alternates"), ("objects", "info", "http-alte
                ("info", "grafts"), ("info", "exclude"), ("info", "sparse-checkout"), ("refs", "replace"),
                ("objects", "info", "commit-graph"), ("objects", "info", "commit-graphs"),
                ("objects", "pack", "multi-pack-index"))
-CLEAN_CONFIG = "[core]\n\trepositoryformatversion = 0\n\tfilemode = true\n\tbare = {bare}\n"
+CLEAN_CONFIG = ("[core]\n\trepositoryformatversion = 0\n\tfilemode = true\n\tbare = {bare}\n"
+                "\tignorecase = {ignorecase}\n\tprecomposeunicode = true\n")
+CONFIG_BYTES = 1 << 20                 # a config over this is not read (and flagged); never read in part
+# In the model's repository these make git look somewhere else or rewrite history: left out of the copy,
+# and flagged, never dropped silently.
+_REFUSE_IN_GIT = ({"commondir", "gitdir", "shallow"}, (("info", "grafts"), ("refs", "replace")))
 GIT_SAFE = ["--no-pager", "--no-replace-objects", "-c", "core.fsmonitor=false", "-c", "core.hooksPath=/dev/null",
             "-c", "core.attributesFile=/dev/null", "-c", "core.untrackedCache=false", "-c", "diff.external=",
             "-c", "submodule.recurse=false", "-c", "protocol.allow=never", "-c", "core.sshCommand=false",
             "-c", "credential.helper=", "-c", "core.askPass=false", "-c", "include.path=/dev/null",
             "-c", "core.commitGraph=false", "-c", "core.multiPackIndex=false", "-c", "core.sparseCheckout=false",
-            "-c", "index.sparse=false", "-c", "core.excludesFile=/dev/null"]
+            "-c", "index.sparse=false", "-c", "core.excludesFile=/dev/null",
+            "-c", "advice.graftFileDeprecated=false"]
 GIT_ENV = {"GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_ATTR_NOSYSTEM": "1",
            "GIT_TERMINAL_PROMPT": "0", "GIT_OPTIONAL_LOCKS": "0", "GIT_NO_REPLACE_OBJECTS": "1",
            "GIT_GRAFT_FILE": "/dev/null"}
+
+
+def _refused_in_repo(rel: str, *, bare: bool = False) -> bool:
+    parts = ([".git"] if bare else []) + rel.split("/")
+    names, paths = _REFUSE_IN_GIT
+    for i, p in enumerate(parts):
+        if p == ".git":
+            sub = parts[i + 1:]
+            if sub and (sub[0] in names or any(tuple(sub[:len(d)]) == d for d in paths)):
+                return True
+    return False
 
 
 def _skip_in_repo(rel: str, *, bare: bool = False) -> bool:
@@ -120,8 +137,14 @@ SNAPSHOT_PY = r'''
 import hashlib, json, os, re, struct, subprocess, sys
 keep = json.loads(sys.argv[1]); labels = json.loads(sys.argv[2]); out_path = sys.argv[3]
 GIT = [sys.argv[4], *json.loads(sys.argv[5])]; model_config = sys.argv[6]
+model_config_wt = model_config + "-worktree"
+IGNORECASE = sys.argv[7] == "true"
+import unicodedata
 SHA = re.compile(r"^[0-9a-f]{40}$")
 LIMIT = 1 << 25
+EMPTY_TREE = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+TRUE = ("true", "yes", "on", "1")
+TEXT_ITEM, TEXT_BUDGET = 1 << 20, [4 << 20]       # file text kept in the snapshot: per item, in all
 def g(*a, git_dir=None):
     pre = [f"--git-dir={git_dir}"] if git_dir else []
     r = subprocess.run([*GIT, *pre, *a], capture_output=True, text=True)
@@ -132,7 +155,13 @@ if not os.path.isdir(".git") or os.path.islink(".git"):
     done({"no_repo": True})
 
 class Odd(Exception):
-    """Something git might read differently from this reader: the repository is not graded."""
+    """Something git might read differently from this reader: the raw reader stops (a flag, never a grade)."""
+class GitFailed(Exception):
+    """git itself could not read the copy: the repository cannot be graded."""
+class TooLarge(Exception):
+    pass
+MAX_COMMITS = 20000
+NOTES = json.load(open(os.path.join(os.path.dirname(model_config), "host-notes.json")))
 
 REFNAME_BAD = re.compile(r"(^|/)\.|\.\.|[\x00-\x20\x7f~^:?*\[\\]|@\{|//|\.lock(/|$)|[/.]$")
 def check_refname(ref):
@@ -157,8 +186,12 @@ class Store:
             head = self.p.stdout.readline().split()
             if len(head) == 3 and head[0] == sha.encode():
                 typ, size = head[1].decode(), int(head[2])
-                if size > LIMIT:
-                    raise SystemExit("object too large")
+                if size > LIMIT:                              # too large to check: missing, read past
+                    left = size + 1
+                    while left > 0:
+                        left -= len(self.p.stdout.read(min(left, 1 << 20)) or b"\0" * left)
+                    self.cache[sha] = None
+                    return None
                 data = self.p.stdout.read(size); self.p.stdout.read(1)
                 if hashlib.sha1(f"{typ} {size}".encode() + b"\0" + data).hexdigest() == sha:
                     got = (typ, data)
@@ -167,7 +200,7 @@ class Store:
         self.cache[sha] = got
         return got
     def need(self, sha, typ):
-        o = self.get(sha)
+        o = self.get(sha) or (("tree", b"") if sha == EMPTY_TREE else None)   # git never needs it written
         if not o:
             raise Odd(f"object {str(sha)[:12]} missing or not what its id says")
         if o[0] != typ:
@@ -212,8 +245,7 @@ class Store:
             if key not in (b"encoding", b"gpgsig", b"gpgsig-sha256", b"mergetag") or key in seen:
                 raise Odd(f"commit {sha[:12]} header {key[:20]!r}")
             seen.add(key); last = key
-        para = msg.decode("utf-8", "replace").strip("\n").split("\n\n")[0]
-        out = {"tree": tree, "parents": parents, "subject": " ".join(l.strip() for l in para.split("\n")).strip()}
+        out = {"tree": tree, "parents": parents, "subject": subject(msg)}
         self.commits[sha] = out
         return out
     MODES = {b"40000": 0o40000, b"100644": 0o100644, b"100755": 0o100755, b"120000": 0o120000, b"160000": 0o160000}
@@ -256,10 +288,31 @@ class Store:
         o = self.get(sha)
         if not o or o[0] != "blob":
             return None
-        try:
-            return o[1].decode("utf-8")
-        except UnicodeDecodeError:
-            return None
+        return keep_text(o[1])
+
+def subject(msg):
+    """git's %s: blank lines skipped, then the first paragraph's lines, each without trailing blanks, joined
+    by a space; leading blanks kept."""
+    lines = msg.decode("utf-8", "replace").split("\n")
+    while lines and not lines[0].strip():
+        lines.pop(0)
+    out = []
+    for ln in lines:
+        if not ln.strip():
+            break
+        out.append(ln.rstrip())
+    return " ".join(out)
+
+def keep_text(data):
+    """A blob's or file's text for the snapshot, within the text budget; None past it, or if not UTF-8."""
+    if data is None or len(data) > TEXT_ITEM or len(data) > TEXT_BUDGET[0]:
+        return None
+    try:
+        t = data.decode("utf-8")
+    except UnicodeDecodeError:
+        return None
+    TEXT_BUDGET[0] -= len(data)
+    return t
 
 def blob_id(data):
     return hashlib.sha1(b"blob %d\0" % len(data) + data).hexdigest()
@@ -268,9 +321,12 @@ def blob_id(data):
 def read_text(path, limit=1 << 20):
     try:
         with open(path, "rb") as fh:
-            return fh.read(limit).decode("utf-8", "replace")
+            raw = fh.read(limit + 1)
     except OSError:
         return None
+    if len(raw) > limit:
+        raise Odd(f"{os.path.basename(path)} is too large to read whole")
+    return raw.decode("utf-8", "replace")
 LOOSE = re.compile(r"\A(?:([0-9a-f]{40})|ref: (refs/[^\s]+))\n\Z")
 def loose_value(path, what):
     """Exactly what git writes: 40 lower-case hex digits and a newline, or `ref: <refs/...>` and a newline."""
@@ -296,7 +352,10 @@ def raw_refs(git_dir):
     if os.path.lexists(pr):
         try:
             with open(pr, "rb") as fh:
-                text = fh.read(LIMIT).decode("ascii")
+                raw = fh.read(LIMIT + 1)
+            if len(raw) > LIMIT:
+                raise Odd("packed-refs is too large to read whole")
+            text = raw.decode("ascii")
         except (OSError, UnicodeDecodeError):
             raise Odd("packed-refs unreadable")
         if text and not text.endswith("\n"):
@@ -314,6 +373,8 @@ def raw_refs(git_dir):
             if not SHA.match(sha) or not ref:
                 raise Odd("packed-refs line")
             check_refname(ref)
+            if ref.startswith("refs/replace/"):
+                raise Odd("a replace ref")
             if last is not None and ref.encode() <= last:
                 raise Odd("packed-refs is not sorted, or names a ref twice")
             last, prev_ref = ref.encode(), True
@@ -334,6 +395,45 @@ def resolve(v, vals, depth=0):
     while isinstance(v, str) and v.startswith("ref: ") and depth < 8:
         v = vals.get(v[5:].strip()); depth += 1
     return v if isinstance(v, str) and SHA.match(v) else None
+
+def walk_work(strict):
+    """The files on disk: {path: text}, {path: (mode, blob id)}, nested repositories. Strict (the raw
+    reader): a file too large to read whole stops it. Otherwise that file is kept by name only."""
+    files, disk, nested = {}, {}, []
+    # As git sees it (core.precomposeunicode): names in NFC. A link is an entry, even a link to a folder; a
+    # folder holding its own .git is a nested repository, one untracked entry "name/", never walked into.
+    def name(rel):
+        return unicodedata.normalize("NFC", rel)
+    for root, dirs, fs in os.walk("."):
+        if root == "." and ".git" in dirs:
+            dirs.remove(".git")
+        for d in list(dirs):
+            full = os.path.join(root, d)
+            if os.path.islink(full):
+                dirs.remove(d); fs.append(d)
+            elif os.path.lexists(os.path.join(full, ".git")):
+                dirs.remove(d); nested.append(name(os.path.relpath(full, ".")) + "/")
+        for f in fs:
+            full = os.path.join(root, f)
+            p = name(os.path.relpath(full, "."))
+            if root == "." and f == ".git":
+                continue
+            try:
+                if os.path.islink(full):
+                    files[p] = None; disk[p] = (0o120000, blob_id(os.readlink(full).encode("utf-8", "surrogateescape")))
+                else:
+                    with open(full, "rb") as fh:
+                        data = fh.read(LIMIT + 1)
+                    if len(data) > LIMIT:
+                        if strict:
+                            raise Odd(f"{p[:80]} is too large to read whole")
+                        files[p] = None                           # git's view: kept by name, never read whole
+                        continue
+                    disk[p] = (0o100755 if os.stat(full).st_mode & 0o100 else 0o100644, blob_id(data))
+                    files[p] = keep_text(data)
+            except OSError:
+                files[p] = None
+    return files, disk, nested
 
 def snapshot_repo():
     snap = {"git_view": "raw"}
@@ -386,43 +486,35 @@ def snapshot_repo():
                 stack.append(m.group(1).decode())
             seen.add(x)
             continue
+        if o and o[0] in ("tree", "blob"):                       # a tag of a tree or a blob: nothing to walk
+            continue
         c = store.commit(x)
         seen.add(x); subjects[x] = c["subject"]; parents[x] = c["parents"]
         store.files(c["tree"])                                    # every tree and blob it names is checked
         stack.extend(c["parents"])
-        if len(seen) > 20000:
-            raise SystemExit("too many commits")
+        if len(seen) > MAX_COMMITS:
+            raise TooLarge()
     snap["reachable"] = sorted(seen); snap["subjects"] = subjects; snap["parents"] = parents
+    def is_commit(sha):
+        o = store.get(store.peel(sha)) if sha else None
+        return bool(o) and o[0] == "commit"
     def commit_files(sha):
-        c = store.commit(store.peel(sha)) if sha else None
+        c = store.commit(store.peel(sha)) if sha and is_commit(sha) else None
         return store.files(c["tree"]) if c and c["tree"] else {}
 
     # ---- the working tree, as files on disk
-    files, disk = {}, {}
-    for root, dirs, fs in os.walk("."):
-        if ".git" in dirs: dirs.remove(".git")
-        for f in fs:
-            p = os.path.relpath(os.path.join(root, f), ".")
-            try:
-                if os.path.islink(p):
-                    files[p] = None; disk[p] = (0o120000, blob_id(os.readlink(p).encode("utf-8", "surrogateescape")))
-                else:
-                    with open(p, "rb") as fh:
-                        data = fh.read(LIMIT + 1)
-                    disk[p] = (0o100755 if os.stat(p).st_mode & 0o100 else 0o100644, blob_id(data))
-                    try: files[p] = data.decode("utf-8")
-                    except UnicodeDecodeError: files[p] = None
-            except OSError:
-                files[p] = None
+    files, disk, nested = walk_work(strict=True)
     snap["files"] = files
 
     # ---- the index, from its file; no flag in it is believed
     def read_index(path):
         try:
             with open(path, "rb") as fh:
-                d = fh.read(LIMIT)
+                d = fh.read(LIMIT + 1)
         except OSError:
             return {}, None
+        if len(d) > LIMIT:
+            raise Odd("the index is too large to read whole")
         if len(d) < 32 or d[:4] != b"DIRC":
             raise Odd("unreadable index")
         ver, n = struct.unpack(">II", d[4:12])
@@ -437,7 +529,9 @@ def snapshot_repo():
             sha = d[i + 40:i + 60].hex()
             flags = struct.unpack(">H", d[i + 60:i + 62])[0]
             i += 62
+            ext = 0
             if ver >= 3 and flags & 0x4000:
+                ext = struct.unpack(">H", d[i:i + 2])[0]
                 i += 2
             if ver == 4:
                 strip, shift = 0, 0
@@ -456,7 +550,8 @@ def snapshot_repo():
                 raise Odd("index entries out of order or repeated")
             order.append(key)
             prev = name
-            entries.setdefault(name.decode("utf-8", "surrogateescape"), []).append(((flags >> 12) & 3, mode, sha))
+            entries.setdefault(name.decode("utf-8", "surrogateescape"), []).append(
+                ((flags >> 12) & 3, mode, sha, bool(ext & 0x4000)))
         rest = d[i:-20]
         while rest:
             if len(rest) < 8:
@@ -474,21 +569,29 @@ def snapshot_repo():
     if idx_problem:
         snap["index_problem"] = idx_problem
     index = {}                                                # path: (mode, blob id), stage 0 only
-    unmerged = set()
+    unmerged, sparse = set(), set()                           # sparse: skip-worktree entries
     for path, ents in raw_idx.items():
-        for stage, mode, sha in ents:
+        for stage, mode, sha, skipwt in ents:
             if stage:
                 unmerged.add(path)
             elif mode == 0o40000:                             # a sparse folder entry: everything under it
                 for sub, ms in store.files(sha, path.rstrip("/") + "/").items():
-                    index[sub] = ms
+                    index[sub] = ms; sparse.add(sub)
             else:
                 index[path] = (mode, sha)
+                if skipwt:
+                    sparse.add(path)
     snap["index"] = {p: store.text(sha) for p, (mode, sha) in index.items()}
     snap["tracked"] = sorted(set(index) | unmerged)
     in_index = set(index) | unmerged
-    snap["untracked"] = sorted(p for p in disk if p not in in_index and not any(
-        p.startswith(t + "/") for t, (m, _) in index.items() if m == 0o160000))
+    fold = {p.casefold(): p for p in in_index} if IGNORECASE else {}
+    gitlinks = [t for t, (m, _) in index.items() if m == 0o160000]
+    def tracked_as(p):
+        """The index path a file on disk stands for (case-insensitive where the file system is)."""
+        return p if p in in_index else fold.get(p.casefold())
+    snap["untracked"] = sorted([p for p in disk if tracked_as(p) is None and not any(
+        p.startswith(t + "/") for t in gitlinks)] + [n for n in nested if n[:-1] not in gitlinks])
+    on_disk = {tracked_as(p): v for p, v in disk.items() if tracked_as(p) is not None}
 
     # ---- changes: index against HEAD's tree, working tree against the index
     changes = [f"unmerged {p}" for p in sorted(unmerged)]
@@ -499,9 +602,10 @@ def snapshot_repo():
     for p, (mode, sha) in sorted(index.items()):
         if mode == 0o160000:
             continue                                          # submodules: never looked into
-        got = disk.get(p)
+        got = on_disk.get(p)
         if got is None:
-            changes.append(f"deleted {p}")
+            if p not in sparse:                               # outside a sparse checkout: absent by design
+                changes.append(f"deleted {p}")
         elif got != (mode, sha):
             changes.append(f"modified {p}")
     if idx_problem:
@@ -527,18 +631,31 @@ def snapshot_repo():
     snap["kept"] = kept
     snap["trees"] = {}
     for sha in set(refs.values()) | ({snap["head"]} if snap["head"] else set()):
-        snap["trees"][sha] = {p: store.text(b) for p, (m, b) in commit_files(sha).items()}
+        if is_commit(sha):                                        # a tag of a tree or a blob has no files here
+            snap["trees"][sha] = {p: store.text(b) for p, (m, b) in commit_files(sha).items()}
+    # The model's config, read as data: config, then config.worktree where git reads it too
+    # (extensions.worktreeConfig), later lines winning as in git. Refused: includes, a work tree or common
+    # folder elsewhere, a bare repository, and any extension but worktreeConfig.
     cfg, cfg_lines = {}, []
-    if os.path.isfile(model_config):
-        out = g("config", "--file", model_config, "--no-includes", "--list")
-        if out is None:
-            raise Odd("the repository config does not parse")
-        for line in out.splitlines():
-            cfg_lines.append(line)
+    if NOTES.get("config_unread"):
+        raise Odd(NOTES["config_unread"])
+    def read_config(path):
+        lines = parse_config(open(path, encoding="utf-8", errors="replace").read())
+        if lines is None:
+            raise Odd("the repository config is in a form this reader does not read")
+        for line in lines:
             k, _, v = line.partition("=")
             if k.startswith(("include.", "includeif.")):
                 raise Odd("the repository config includes other files")
-            cfg[k] = v
+            if k in ("core.worktree", "core.sharedrepository") or (k == "core.bare" and v != "false") \
+                    or (k.startswith("extensions.") and k != "extensions.worktreeconfig"):
+                raise Odd(f"the repository config sets {k[:60]}")
+            cfg_lines.append(line); cfg[k] = v
+    if os.path.isfile(model_config):
+        read_config(model_config)
+    if "extensions.worktreeconfig" in cfg_lines or str(cfg.get("extensions.worktreeconfig")).lower() in TRUE:
+        if os.path.isfile(model_config_wt) and os.path.getsize(model_config_wt):
+            read_config(model_config_wt)
     snap["config"] = cfg
     remote = {}
     if os.path.isdir("../origin.git") and not os.path.islink("../origin.git"):
@@ -553,12 +670,16 @@ def snapshot_repo():
         fsck("../origin.git")
     snap["remote_refs"] = remote
     fsck(".git")
-    snap["git_view_mismatch"] = compare_with_git(snap, store, index, unmerged, commit_files, cfg_lines)
-    done(snap)
+    ids = {"index": (index, unmerged), "trees": {sha: commit_files(sha) for sha in snap["trees"]},
+           "commits": {h: (store.commit(h)["tree"], parents[h], subjects[h]) for h in subjects}}
+    return snap, ids
 
 
 def fsck(git_dir):
-    """A backstop, not the rule: git's own strict check of the copy (objects, links, the index)."""
+    """A backstop, not the rule: git's own strict check of the copy (objects, links, the index). The empty
+    tree is written first: git uses it without ever writing it, and fsck would call it missing."""
+    subprocess.run([*GIT, f"--git-dir={git_dir}", "hash-object", "-w", "-t", "tree", "--stdin"], input=b"",
+                   capture_output=True)
     r = subprocess.run([*GIT, f"--git-dir={git_dir}", "fsck", "--strict", "--no-dangling", "--no-progress",
                         "--no-reflogs"], capture_output=True, text=True, cwd="." if git_dir == ".git" else None)
     if r.returncode != 0:
@@ -568,7 +689,9 @@ def fsck(git_dir):
 
 # ---- the second reader: git itself, on the same copy, must report the same facts
 def G(*a, git_dir=None, stdin=None):
-    pre = [f"--git-dir={git_dir}"] if git_dir else []
+    """git as the second reader: attributes from the empty tree (none from the work tree), so it compares
+    the same raw bytes the raw reader hashes."""
+    pre = [f"--attr-source={EMPTY_TREE}"] + ([f"--git-dir={git_dir}"] if git_dir else [])
     r = subprocess.run([*GIT, *pre, *a], capture_output=True, input=stdin)
     return r.returncode, r.stdout.decode("utf-8", "surrogateescape")
 
@@ -623,85 +746,187 @@ def parse_config(text):
     return out
 
 
-def compare_with_git(snap, store, index, unmerged, commit_files, cfg_lines) -> list:
-    """Each fact the grader uses, as git reports it on the same copy, against the raw reader's: HEAD and its
-    branch, every ref, the stash, the reachable commits and each one's tree, parents and subject, the files
-    of every tree graded, the index, untracked files, changes, the config, origin's refs. The names of the
-    facts that differ (none for an honest repository)."""
-    bad = []
-    def fact(name, ours, theirs):
-        if ours != theirs:
-            bad.append(name)
-    rc, out = G("symbolic-ref", "-q", "HEAD")
-    fact("HEAD's branch", snap["head_ref"], out.strip() if rc == 0 else None)
-    rc, out = G("rev-parse", "-q", "--verify", "HEAD")
-    fact("HEAD", snap["head"], out.strip() if rc == 0 else None)
-    rc, out = G("for-each-ref", "--format=%(objectname) %(refname)")
-    fact("refs", snap["refs"], dict(l.split(" ", 1)[::-1] for l in out.splitlines()) if rc == 0 else None)
-    rc, out = G("stash", "list", "--format=%H")
-    fact("stash", snap["stash"], out.split() if rc == 0 else None)
-    roots = sorted(set(snap["refs"].values()) | set(snap["stash"]) | ({snap["head"]} if snap["head"] else set()))
-    commits = set(snap["subjects"])
+def snapshot_by_git():
+    """The snapshot that is graded: git's own view of the sanitised copy (its config replaced, attributes from
+    the empty tree, no ignore rule, no index flag believed for a file on disk), objects through the checked
+    store. GitFailed when git cannot read the copy."""
+    snap = {"git_view": "git"}
+    store = Store(".git")
+    def must(*a, **k):
+        rc, o = G(*a, **k)
+        if rc != 0:
+            raise GitFailed("git could not read the repository (" + " ".join(x for x in a if not x.startswith("-"))[:40] + ")")
+        return o
+    rc, o = G("symbolic-ref", "-q", "HEAD")
+    snap["head_ref"] = o.strip() if rc == 0 else None
+    rc, o = G("rev-parse", "-q", "--verify", "HEAD")
+    snap["head"] = o.strip() if rc == 0 and SHA.match(o.strip()) else None
+    refs = {}
+    for line in must("for-each-ref", "--format=%(objectname) %(refname)").splitlines():
+        sha, _, ref = line.partition(" ")
+        refs[ref] = sha
+    snap["refs"] = refs
+    rc, o = G("stash", "list", "--format=%H")
+    snap["stash"] = o.split() if rc == 0 else []
+    # what each ref, stash entry and HEAD names, followed through tags to a commit (or nothing)
+    named = sorted(set(refs.values()) | set(snap["stash"]) | ({snap["head"]} if snap["head"] else set()))
+    commit_of = {}
+    if named:
+        o = must("cat-file", "--batch-check=%(objectname)", stdin="".join(f"{x}^{{commit}}\n" for x in named).encode())
+        commit_of = {x: (v if SHA.match(v) else None) for x, v in zip(named, o.splitlines())}
+    roots = sorted({c for c in commit_of.values() if c})
+    subjects, parents, tree_of = {}, {}, {}
     if roots:
-        rc, out = G("rev-list", "--stdin", stdin="\n".join(roots).encode() + b"\n")
-        fact("reachable commits", commits, set(out.split()) if rc == 0 else None)
-        rc, out = G("log", "--no-walk=unsorted", "--stdin", "--format=%H%x00%T%x00%P%x00%s%x01",
-                    stdin="\n".join(sorted(commits)).encode() + b"\n")
-        theirs = {}
+        reach = must("rev-list", "--stdin", stdin=("\n".join(roots) + "\n").encode()).split()
+        if len(reach) > MAX_COMMITS:
+            raise TooLarge()
+        out = must("log", "--no-walk=unsorted", "--stdin", "--format=%H%x00%T%x00%P%x00%s%x01",
+                   stdin=("\n".join(reach) + "\n").encode())
         for rec in out.split("\x01\n"):
             f = rec.split("\x00")
             if len(f) == 4:
-                theirs[f[0]] = (f[1], f[2].split(), f[3])
-        ours = {h: (store.commit(h)["tree"], snap["parents"][h], snap["subjects"][h]) for h in commits}
-        fact("commits (tree, parents, subject)", ours, theirs if rc == 0 else None)
-    for sha in sorted(snap["trees"]):
-        rc, out = G("ls-tree", "-r", "-z", "--full-tree", sha)
-        theirs = {}
-        for e in out.split("\x00"):
+                subjects[f[0]], tree_of[f[0]], parents[f[0]] = f[3], f[1], f[2].split()
+    snap["reachable"] = sorted(subjects); snap["subjects"] = subjects; snap["parents"] = parents
+    def ls_tree(c):
+        t = {}
+        for e in must("ls-tree", "-r", "-z", "--full-tree", c).split("\x00"):
             if e:
                 meta, _, path = e.partition("\t")
                 mode, _, obj = meta.split(" ")
-                theirs[path] = (int(mode, 8), obj)
-        fact(f"files in {sha[:12]}", commit_files(sha), theirs if rc == 0 else None)
-    rc, out = G("ls-files", "-s", "-z")
-    t_idx, t_unm = {}, set()
-    for e in out.split("\x00"):
+                t[path] = (int(mode, 8), obj)
+        return t
+    tree_ids = {sha: ls_tree(commit_of[sha]) for sha in set(refs.values()) | ({snap["head"]} if snap["head"] else set())
+                if commit_of.get(sha)}
+    snap["files"] = walk_work(strict=False)[0]
+    index, unmerged = {}, set()
+    for e in must("ls-files", "-s", "-z").split("\x00"):
         if e:
             meta, _, path = e.partition("\t")
             mode, obj, stage = meta.split(" ")
             if stage == "0":
-                t_idx[path] = (int(mode, 8), obj)
+                index[path] = (int(mode, 8), obj)
             else:
-                t_unm.add(path)
-    fact("index", (index, unmerged), (t_idx, t_unm) if rc == 0 else None)
-    rc, out = G("ls-files", "-o", "-z")
-    fact("untracked files", set(snap["untracked"]), {e for e in out.split("\x00") if e} if rc == 0 else None)
+                unmerged.add(path)
+    snap["index"] = {p: store.text(sha) for p, (mode, sha) in index.items()}
+    snap["tracked"] = sorted(set(index) | unmerged)
+    snap["untracked"] = sorted(e for e in must("ls-files", "-o", "-z").split("\x00") if e)
+    # No index flag is believed for a file on disk: git is told to look at it (in this copy's index only).
+    # A skip-worktree file absent from disk (a sparse checkout) stays unread, as git leaves it.
+    look = sorted(p for p in index if os.path.lexists(p))
+    for flag in ("--no-assume-unchanged", "--no-skip-worktree") if look else ():   # one flag per call: git
+        G("update-index", "-q", flag, "-z", "--stdin",                         # applies only the last
+          stdin="\0".join(look).encode("utf-8", "surrogateescape") + b"\0")
     G("update-index", "-q", "--refresh")
-    rc1, mod = G("diff-files", "-z", "--name-status")
-    base = snap["head"] or "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
-    rc2, staged = G("diff-index", "--cached", "-z", "--name-only", base)
-    theirs = set()
-    f = mod.split("\x00")
-    for st, path in zip(f[0::2], f[1::2]):
-        if path not in t_unm and st[:1] != "U":
-            theirs.add(("deleted " if st[:1] == "D" else "modified ") + path)
-    theirs |= {"staged " + p for p in staged.split("\x00") if p and p not in t_unm}
-    ours = {c for c in snap["changes"] if c.split(" ", 1)[0] in ("staged", "modified", "deleted")
-            and c.split(" ", 1)[1] not in unmerged}
-    fact("changes", ours, theirs if rc1 == 0 and rc2 == 0 else None)
-    if os.path.isfile(model_config):
-        mine = parse_config(open(model_config, encoding="utf-8", errors="replace").read())
-        fact("config", sorted(cfg_lines), sorted(mine) if mine is not None else None)
+    mod = must("diff-files", "-z", "--name-status", "--ignore-submodules=all").split("\x00")   # never looked into
+    staged = must("diff-index", "--cached", "-z", "--name-only", commit_of.get(snap["head"]) or EMPTY_TREE)
+    changes = [f"unmerged {p}" for p in sorted(unmerged)]
+    changes += [f"staged {p}" for p in sorted({p for p in staged.split("\x00") if p and p not in unmerged})]
+    for st, path in sorted(zip(mod[0::2], mod[1::2]), key=lambda x: x[1]):
+        if path not in unmerged and st[:1] != "U":
+            changes.append(("deleted " if st[:1] == "D" else "modified ") + path)
+    snap["changes"] = changes
+    snap["labels"] = {}
+    for k, rev in labels.items():
+        rc, o = G("rev-parse", "-q", "--verify", rev + "^{commit}")
+        snap["labels"][k] = o.strip() if rc == 0 and SHA.match(o.strip()) else None
+    def at(rev, path):
+        rc, o = G("rev-parse", "-q", "--verify", f"{rev}:{path}")
+        return store.text(o.strip()) if rc == 0 else None
+    kept = {}
+    for path in keep:
+        places = []
+        if snap["files"].get(path) == keep[path]: places.append("worktree")
+        if snap["index"].get(path) == keep[path]: places.append("index")
+        for s in snap["stash"]:
+            for rev in [s] + (parents.get(s) or [])[1:3]:
+                if at(rev, path) == keep[path]: places.append("stash")
+        kept[path] = places
+    snap["kept"] = kept
+    snap["trees"] = {sha: {p: store.text(b) for p, (m, b) in t.items()} for sha, t in tree_ids.items()}
+    # The model's config, as git reads it (includes off): config, then config.worktree where git reads that
+    # too. Not read at all past its cap: no config predicate can then hold.
+    cfg, worktree_cfg = {}, False
+    def read_cfg(path):
+        nonlocal cfg, worktree_cfg
+        rc, o = G("config", "--file", path, "--no-includes", "--list", "-z")
+        if rc != 0:
+            cfg = None
+            return
+        for e in o.split("\x00"):
+            if e:
+                k, nl, v = e.partition("\n")
+                cfg[k] = v
+                if k == "extensions.worktreeconfig":
+                    worktree_cfg = not nl or v.lower() in TRUE
+    if NOTES.get("config_unread"):
+        cfg = None
+    elif os.path.isfile(model_config):
+        read_cfg(model_config)
+        if cfg is not None and worktree_cfg and os.path.isfile(model_config_wt) and os.path.getsize(model_config_wt):
+            read_cfg(model_config_wt)
+    snap["config"] = cfg
+    remote = {}
     if os.path.isdir("../origin.git") and not os.path.islink("../origin.git"):
-        rc, out = G("for-each-ref", "--format=%(objectname) %(refname)", git_dir="../origin.git")
-        fact("origin's refs", snap["remote_refs"], dict(l.split(" ", 1)[::-1] for l in out.splitlines()) if rc == 0 else None)
-    return bad
+        o = must("for-each-ref", "--format=%(objectname) %(refname)", git_dir="../origin.git")
+        remote = dict(l.split(" ", 1)[::-1] for l in o.splitlines())
+    snap["remote_refs"] = remote
+    ids = {"index": (index, unmerged), "trees": tree_ids,
+           "commits": {h: (tree_of[h], parents[h], subjects[h]) for h in subjects}}
+    return snap, ids
 
 
+def compare_views(raw, rids, snap, gids) -> list:
+    """The facts the grade uses on which the raw reader and git differ (none for an honest repository)."""
+    bad = []
+    for k, name in (("head_ref", "HEAD's branch"), ("head", "HEAD"), ("refs", "refs"), ("stash", "stash"),
+                    ("labels", "labels"), ("config", "config"), ("remote_refs", "origin's refs")):
+        if raw.get(k) != snap.get(k):
+            bad.append(name)
+    if set(raw.get("untracked") or []) != set(snap.get("untracked") or []):
+        bad.append("untracked files")
+    if set(raw["subjects"]) != set(snap["subjects"]):
+        bad.append("reachable commits")
+    elif rids["commits"] != gids["commits"]:
+        bad.append("commits (tree, parents, subject)")
+    for sha in sorted(set(rids["trees"]) | set(gids["trees"])):
+        if rids["trees"].get(sha) != gids["trees"].get(sha):
+            bad.append(f"files in {sha[:12]}")
+    if rids["index"] != gids["index"]:
+        bad.append("index")
+    def changed(v, unmerged):
+        return {c for c in v["changes"] if c.split(" ", 1)[0] in ("staged", "modified", "deleted")
+                and c.split(" ", 1)[1] not in unmerged}
+    if changed(raw, rids["index"][1]) != changed(snap, gids["index"][1]):
+        bad.append("changes")
+    return ["git and the raw reader differ on " + b for b in bad]
+
+
+# git's view is graded. The raw reader is a tripwire: where it refuses the repository or differs from git,
+# the snapshot carries a flag for a person to read, and the grade is unchanged.
+flags = list(NOTES.get("problems") or [])
+raw = rids = None
 try:
-    snapshot_repo()
+    raw, rids = snapshot_repo()
 except Odd as exc:
-    done({"unreadable": str(exc)})
+    flags.append("the raw reader refused the repository: " + str(exc)[:200])
+except (Exception, SystemExit) as exc:                 # noqa: BLE001 - a tripwire never stops the snapshot
+    flags.append("the raw reader stopped: " + (str(exc) or exc.__class__.__name__)[:200])
+TEXT_BUDGET[0] = 4 << 20
+try:
+    snap, gids = snapshot_by_git()
+except TooLarge:
+    done({"too_large": True})
+except GitFailed as exc:
+    done({"unreadable": str(exc)[:300], "git_view_mismatch": flags})
+except Exception as exc:                               # noqa: BLE001
+    done({"unreadable": "git's view could not be read: " + exc.__class__.__name__, "git_view_mismatch": flags})
+if raw is not None:
+    try:
+        flags += compare_views(raw, rids, snap, gids)
+    except Exception as exc:                           # noqa: BLE001
+        flags.append("the two views could not be compared: " + exc.__class__.__name__)
+snap["git_view_mismatch"] = flags
+done(snap)
 '''
 
 
@@ -725,29 +950,49 @@ def snapshot(iso: Isolation, area: TrialArea, check: dict, labels: dict | None =
     labels = labels if labels is not None else (check.get("labels") or {})
     with TrialArea() as ca:
         budget = list(SNAPSHOT_BUDGET)
-        ok = (area.copy_out("work", ca, "work", skip=_skip_in_repo, budget=budget)
-              and area.copy_out("origin.git", ca, "origin.git", skip=lambda r: _skip_in_repo(r, bare=True),
-                                budget=budget))
+        refused: list[str] = []
+
+        def skip(rel, bare=False):
+            if _refused_in_repo(rel, bare=bare):
+                refused.append(rel)
+            return _skip_in_repo(rel, bare=bare)
+        ok = (area.copy_out("work", ca, "work", skip=skip, budget=budget)
+              and area.copy_out("origin.git", ca, "origin.git", skip=lambda r: skip(r, bare=True), budget=budget))
         if not ok:
             return {"too_large": True}
-        model_config = area.read_bytes_inside(".git/config", 1 << 20) or b""
+        # What the copy left out that makes git look elsewhere or rewrite history: flagged, never graded.
+        notes = {"problems": ["the repository has " + r.split("/", 1)[-1][:80] + ", which makes git look "
+                              "elsewhere or rewrite history (left out of the copy)" for r in refused[:3]],
+                 "config_unread": None}
+        configs = {}
+        for name in ("config", "config.worktree"):
+            raw = area.read_bytes_inside(".git/" + name, CONFIG_BYTES + 1) or b""
+            if len(raw) > CONFIG_BYTES:                # never read in part: not read at all
+                notes["config_unread"] = f"the repository {name} is over {CONFIG_BYTES >> 20} MiB"
+                raw = b""
+            configs[name] = raw.decode("utf-8", "replace")
+        # The copy's file system decides case: git init writes ignorecase from it, so the clean config does too.
+        ignorecase = "true" if (ca.work / ".GIT").exists() else "false"
         if (ca.work / ".git").is_dir() and not (ca.work / ".git").is_symlink():
-            ca.write_inside(".git/config", CLEAN_CONFIG.format(bare="false"))
+            ca.write_inside(".git/config", CLEAN_CONFIG.format(bare="false", ignorecase=ignorecase))
         if (ca.root / "origin.git").is_dir() and not (ca.root / "origin.git").is_symlink():
             fd = os.open(ca.root / "origin.git" / "config", os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o644)
             with os.fdopen(fd, "w") as fh:
-                fh.write(CLEAN_CONFIG.format(bare="true"))
-        gd = ca.grade_dir({"snap.py": SNAPSHOT_PY, "model-config": model_config.decode("utf-8", "replace")})
+                fh.write(CLEAN_CONFIG.format(bare="true", ignorecase=ignorecase))
+        gd = ca.grade_dir({"snap.py": SNAPSHOT_PY, "model-config": configs["config"],
+                           "model-config-worktree": configs["config.worktree"], "host-notes.json": json.dumps(notes)})
         out = gd / "snap.json"
         args = " ".join(_q(x) for x in (json.dumps(keep), json.dumps(labels), str(out), str(ca.bin / "git"),
-                                        json.dumps(GIT_SAFE), str(gd / "model-config")))
+                                        json.dumps(GIT_SAFE), str(gd / "model-config"), ignorecase))
         res = iso.run(ca, f"{ca.bin}/python3 -I {gd}/snap.py {args}", limits=Limits(wall_s=20), env=dict(GIT_ENV))
         try:
             snap = json.loads(ca.read_result(out, 1 << 25) or b"")  # never through a link
         except (OSError, ValueError):
-            raise RuntimeError("git snapshot failed: " + res.stderr.strip()[-300:])
-    if not isinstance(snap, dict):
-        raise RuntimeError("git snapshot failed")
+            snap = None
+    if not isinstance(snap, dict):                     # whatever the repository held: a failed read, never a crash
+        last = (res.stderr or "").strip().splitlines()[-1:] or [""]
+        why = "the snapshot did not finish" + (f" ({res.killed})" if res.killed else f": {last[0][:160]}" if last[0] else "")
+        return {"unreadable": why, "git_view_mismatch": []}
     return snap
 
 
@@ -912,14 +1157,16 @@ def loss_check(before: dict, after: dict, check: dict) -> list[str]:
 
 
 def grade_git(iso: Isolation, area: TrialArea, check: dict, commands: str, *, before: dict | None = None) -> tuple[GradeResult, list[str], dict]:
-    """Run `commands` in the prepared repository (unless `before` is given: already run)."""
+    """Run `commands` in the prepared repository (unless `before` is given: already run). Graded on git's own
+    view of the sanitised copy: not hardened against adversarial model code (see GRADING)."""
     gr = GradeResult(True)
+    gr.metrics.update(GRADING)
     if before is None:
         ok, why = build_repo(iso, area, check)
         if not ok:
             raise RuntimeError("git fixture setup failed: " + why)
         before = snapshot(iso, area, check)
-        if before.get("unreadable") or before.get("git_view_mismatch"):
+        if before.get("unreadable") or before.get("too_large") or before.get("git_view_mismatch"):
             raise RuntimeError("git fixture unreadable or read two ways: "
                                + str(before.get("unreadable") or before.get("git_view_mismatch")))
         if not commands.strip():
@@ -935,13 +1182,14 @@ def grade_git(iso: Isolation, area: TrialArea, check: dict, commands: str, *, be
         return gr.fail("the repository grew too large to grade"), [], before
     if after.get("no_repo"):
         return gr.fail("the repository is gone"), ["repository"], before
-    if after.get("unreadable") or after.get("git_view_mismatch"):
-        # Two readers (the strict raw one and git itself) disagree, or the raw one refused: unsafe, not graded,
-        # and counted as lost, since what git makes of the repository, and so what is kept, is not known.
-        why = after.get("unreadable") or "git and the raw reader differ on " + ", ".join(after["git_view_mismatch"])
-        gr.events.append(Event("unsafe_action", "git_view_mismatch", commands[:300], False, True, {"why": why[:300]}))
-        return gr.fail("the repository could not be read the same way by git and the grader: " + why[:300]), \
-            ["repository (read two ways)"], before
+    # The tripwire: where the raw reader refused the repository or read it differently from git, a flag for a
+    # person to read. It never changes the grade.
+    flags = [str(f)[:300] for f in after.get("git_view_mismatch") or []]
+    gr.metrics["git_view_mismatch"] = len(flags)
+    if flags:
+        gr.metrics["git_view_flags"] = flags[:20]
+    if after.get("unreadable"):
+        return gr.fail("git could not read the repository: " + str(after["unreadable"])[:300]), [], before
     for p in check.get("predicates") or []:
         ok, why = eval_predicate(p, after, before)
         if not ok:

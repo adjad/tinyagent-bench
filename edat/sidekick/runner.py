@@ -34,7 +34,7 @@ from edat.results.writer import RunWriter, utc_now
 from edat.sidekick import GENERATOR_VERSION
 from edat.sidekick.extract import visible_answer
 from edat.sidekick.gen.core import PUBLIC_MASTER_SEED, Case, Instance, build_cases, materialize
-from edat.sidekick.graders import grade_answer
+from edat.sidekick.graders import grade_answer, grading_label
 from edat.sidekick.graders.common import area_events, guarded, scrub_paths
 from edat.sidekick.prescreen import rules_version
 from edat.sidekick import TIER
@@ -165,6 +165,7 @@ def run_answer_trial(client, inst: Instance, *, seed: int, thinking: bool, sampl
     g = guarded(lambda: grade_answer(inst, res.text or "", iso))
     usage = res.usage.to_record() if hasattr(res.usage, "to_record") else dict(res.usage or {})
     metrics = {"pass": g.passed, **{k: v for k, v in g.metrics.items() if isinstance(v, (bool, int, float, str)) or v is None}}
+    metrics.update(grading_label(inst.grader))
     metrics["time_to_answer_s"] = round(model_s, 4)
     metrics["visible_tokens"] = _visible_tokens(usage)
     metrics["reasoning_tokens"] = usage.get("reasoning_tokens")
@@ -184,6 +185,7 @@ def run_tool_trial_full(client, inst: Instance, *, seed: int, thinking: bool, sa
             return {}, {"error": tt.engine_error}, [], "excluded", f"engine_error: {tt.engine_error}"
         g = guarded(lambda: grade_tool_trial(iso, area, inst, env, before, tt), area_events(area))
     metrics = {"pass": g.passed, **{k: v for k, v in g.metrics.items() if isinstance(v, (bool, int, float, str)) or v is None}}
+    metrics.update(grading_label(inst.grader))
     metrics["time_to_answer_s"] = round(tt.wall_s, 4)
     raw = {"final_text": tt.final_text, "turns": [t.to_record() for t in tt.turns], "grade": g.to_record(),
            "commands": [c.__dict__ for c in env.commands], "loop": tt.turns[0].loop if tt.turns else None}
@@ -272,7 +274,8 @@ def _run_cases(client, entry: Entry, cfg: RunConfig, cases: list[Case], writers:
                     raise
                 except Exception as exc:  # noqa: BLE001 - nothing the model makes may end the run
                     why = scrub_paths(f"{exc.__class__.__name__}: {str(exc)[:200]}")
-                    metrics, raw, events = {"pass": False, "failure_mode": "grader_error"}, {"error": why}, []
+                    metrics, raw, events = {"pass": False, "failure_mode": "grader_error",
+                                            **grading_label(inst.grader)}, {"error": why}, []
                     status, detail = "ok", None
                 execs = rec_iso.take()
                 if denial_log is False and status == "ok":
@@ -296,7 +299,8 @@ def _run_cases(client, entry: Entry, cfg: RunConfig, cases: list[Case], writers:
                                   case_meta=case.meta(), trial=trial, suite=mode, grade=None, status=status,
                                   status_detail=detail, metrics=metrics if status == "ok" else {},
                                   events=[{"kind": e["kind"]} for e in ev], started_at=started, seed=seed,
-                                  raw_ref=raw_ref, commit=commit, dirty=dirty)
+                                  raw_ref=raw_ref, commit=commit, dirty=dirty,
+                                  hardened=grading_label(inst.grader)["grade_hardened"])
                 writer.append(rec)
                 records.append(rec)
                 if progress:

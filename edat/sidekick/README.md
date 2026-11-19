@@ -13,7 +13,7 @@ working copy is newer than the repository's `docs/benchmark/`).
 | `sandbox/selftest.py` | S11 | Proves network (loopback included) and reads/writes outside the folder are denied; the runner refuses to start unless it passes |
 | `prescreen.py`, `prescreen_rules.yaml` | S3 | zsh one-liner parser and the hard-deny / scoped-destructive rules |
 | `extract.py` | S4 | Answer extraction (fences, single line) and placeholder detection |
-| `graders/` | S5 | `code` (hidden tests + 200 differential inputs, Python and Node), `shell` (shown + hidden folder), `git` (plumbing predicates + loss check), `regex` (write and read), `write_test` (mutants), `text` (key facts, commit rules, Yes/No diff bugs) |
+| `graders/` | S5 | `code` (hidden tests + 200 differential inputs, Python and Node), `shell` (shown + hidden folder), `git` (predicates + loss check on real git's view of a sanitised copy; labelled, see Known limits), `regex` (write and read), `write_test` (mutants), `text` (key facts, commit rules, Yes/No diff bugs) |
 | `gen/` | S6, S7 | `core.py` (case model, counts, splits), `registry.py`, one `t_<type>.py` per task type plus `t_restraint.py` |
 | `validate.py` | S11 | Every reference passes; wrong, empty and "OK." answers fail; every mutant is caught; tool-mode references pass |
 | `tools_dev.py`, `tool_mode.py`, `loop_glue.py` | S8 | The `edat-dev-v1` tools (10 s per command, 60 s total), scripted approve/deny replies and last-command replay. Turns run through the shared reference loop (`edat/loop.py`) with its `max_calls=6` cap and the pre-screen as its `guard`; models come through `edat/models/` |
@@ -25,6 +25,25 @@ working copy is newer than the repository's `docs/benchmark/`).
 
 Cases: `test_fixtures/sidekick/cases/dev/` (development split, public).
 Tests: `tests/test_edat_sidekick_*.py`.
+
+## Known limits
+
+- **What is hardened against adversarial model code:** the code, write_test, shell and regex graders and
+  the text graders (key facts, commit messages, Yes/No diff bugs). A model's code runs in the sealed
+  sandbox; the expected values, references and verdicts stay on the harness side.
+- **What is labelled `not hardened against adversarial model code`:** the git tasks, and the ceiling
+  ladder's rungs 4 to 9 until their conversion lands. Git tasks are graded by real git reading a sanitised
+  copy of a repository the model controls; the known view mechanisms (replace refs, grafts, ignore rules,
+  index flags, attributes, the model's config, pointers elsewhere) are closed, but that view is not one
+  the model cannot shape. A strict raw reader of the same copy is a tripwire: where it disagrees with
+  git, the trial carries a `git_view_mismatch` flag for a person to read, and the grade is unchanged.
+  Labelled rows are tagged `grade-not-hardened` from how the case is graded, and stay out of the Sidekick
+  Score (the macro over the other eight types) and every ranked or published number; the summary reports
+  them apart under `not_hardened`. A later change rebuilds the repository on the host before grading.
+- **The sandbox:** a sandboxed test program cannot read other processes (their arguments, environment,
+  paths or the process list) or devices beyond `/dev/null`, `zero`, `random`, `urandom` and its own
+  descriptors; it has no network, loopback included. A process that outlives its command is stopped and
+  fails the trial (`ceiling/RUN_SHEET.md` says what "found" means there).
 
 ## Commands
 

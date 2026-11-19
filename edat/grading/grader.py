@@ -299,7 +299,7 @@ def grade(run: TrialRun) -> Verdict:
             v.labels.append("runaway")
         if t.trace.stop == "empty":
             v.labels.append("empty_response")
-        if not t.trace.calls and fmt.is_stall(t.trace.final_text):
+        if fmt.is_stall(t.trace.final_text):  # "one moment" ends the turn, with or without earlier calls
             v.labels.append("stall")
     v.format_ok = not any(l in fmt.FORMAT_LABELS for l in v.labels)
 

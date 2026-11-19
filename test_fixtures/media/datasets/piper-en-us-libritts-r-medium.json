@@ -1,0 +1,32 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "piper-en-us-libritts-r-medium",
+ "group": "speech_engine",
+ "licence_checked": "2026-11-18",
+ "suites": [],
+ "split": "en_US-libritts_r-medium, 904 speakers",
+ "homepage": "https://huggingface.co/rhasspy/piper-voices",
+ "licence": "CC-BY-4.0 (LibriTTS-R dataset); parent model risk",
+ "licence_note": "CC BY 4.0 (dataset: LibriTTS-R, OpenSLR 141)",
+ "licence_url": "https://huggingface.co/rhasspy/piper-voices/raw/main/en/en_US/libritts_r/medium/MODEL_CARD",
+ "licence_verified": true,
+ "verified": true,
+ "redistributable": "unverified",
+ "access": "http",
+ "hf": {
+  "repo": "rhasspy/piper-voices"
+ },
+ "status": "blocked_licence",
+ "status_reason": "fine-tuned from Piper lessac, whose Blizzard 2013 data is research-only; use only if the coordinator accepts that risk",
+ "needed_v1": "if_confirmed",
+ "pinned_revision": "04ca88f5685ca5253c701af3687e155b113bd512",
+ "checksum_kind": "sha256 equals the Git LFS oid (a content hash); files without a published hash say so per file",
+ "bytes_total": 78601316,
+ "file_count": 3,
+ "notes": "CAUTION: the card says 'Fine-tuned from English lessac medium'. The lessac parent comes from Blizzard 2013 data under a research-only licence, and Piper grants no licence over voices, so the weights carry a parent-model risk that the CC BY 4.0 dataset line does not remove. Per-speaker accent labels are not published (speaker ids are LibriTTS reader ids). Use only if the coordinator accepts that risk.",
+ "files": [
+  {"url": "https://huggingface.co/rhasspy/piper-voices/resolve/04ca88f5685ca5253c701af3687e155b113bd512/en/en_US/libritts_r/medium/en_US-libritts_r-medium.onnx", "bytes": 78580914, "sha256": "10bb85e071d616fcf4071f369f1799d0491492ab3c5d552ec19fb548fac13195"},
+  {"url": "https://huggingface.co/rhasspy/piper-voices/resolve/04ca88f5685ca5253c701af3687e155b113bd512/en/en_US/libritts_r/medium/en_US-libritts_r-medium.onnx.json", "bytes": 20123, "sha256": "b471dc60d2d8335e819c393d196d6fbf792817f40051257b269878505bc9afb3"},
+  {"url": "https://huggingface.co/rhasspy/piper-voices/resolve/04ca88f5685ca5253c701af3687e155b113bd512/en/en_US/libritts_r/medium/MODEL_CARD", "bytes": 279, "checksum": "none published"}
+ ]
+}

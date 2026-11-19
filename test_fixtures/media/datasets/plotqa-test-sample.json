@@ -1,18 +1,28 @@
 {
  "schema": "edat.media.dataset/1",
  "name": "plotqa-test-sample",
+ "group": "vision_eval",
  "licence_checked": "2026-11-18",
  "suites": [
   "V2"
  ],
- "split": "2,000 sampled from test",
+ "split": "2,000 sampled from test (images tarball plus qa_pairs_V1.json)",
  "homepage": "https://github.com/NiteshMethani/PlotQA",
  "licence": "CC-BY-4.0 (data), MIT (code)",
+ "licence_note": "CC BY 4.0 data, MIT code; CC BY 4.0",
  "licence_url": "https://github.com/NiteshMethani/PlotQA",
  "licence_verified": true,
+ "verified": true,
  "redistributable": "yes",
+ "attribution": "PlotQA, Methani et al., CC BY 4.0",
  "access": "http",
- "files": [],
- "notes": "Download links are listed in PlotQA_Dataset.md; sample 2,000 test items with a fixed seed.",
- "status": "needs_loader"
+ "status": "ready",
+ "needed_v1": "yes",
+ "bytes_total": 1258541250,
+ "file_count": 2,
+ "notes": "Download links are listed in PlotQA_Dataset.md; sample 2,000 test items with a fixed seed. Hosted on Google Drive (link list in PlotQA_Dataset.md at repo commit e0f5c34acbe92753f70798aafda99184e3e0cd8c). Size by HEAD Content-Length; no checksum published; Drive links can rate-limit. A 6.8 GB HF mirror Dodon/PlotQA_dataset (cc-by-4.0, sha 0d448b31e8b1868192e1cca19fe1dc991ea72551, PlotQA.zip 6,821,463,596 B, lfs sha256 bded3f0cdacfc425d15d3e7580d2af762620aa5ee8022b0c2e1b24703785d7c6) holds train, val and test together, so the Drive files are smaller. V1 file. The extended qa_pairs_V2.json is 1,226,819,569 B (id 1OQBkoe_dpvFs-jnWAdRdxzh1-hgNd9bO), not needed for 5,000 stratified questions. annotations.json for test (247,780,737 B, id 1ikiPqkDgxNilYsU5hbK03T4_x2eDmopP) is optional.",
+ "files": [
+  {"url": "https://drive.usercontent.google.com/download?id=1D_WPUy91vOrFl6cJUkE55n3ZuB6Qrc4u&export=download&confirm=t", "bytes": 875802275, "checksum": "none published", "path": "png.tar.gz"},
+  {"url": "https://drive.usercontent.google.com/download?id=1pKujAjE4yMpSJ8gEQWIxdEyGkorJHeFm&export=download&confirm=t", "bytes": 382738975, "checksum": "none published", "path": "qa_pairs_V1.json"}
+ ]
 }

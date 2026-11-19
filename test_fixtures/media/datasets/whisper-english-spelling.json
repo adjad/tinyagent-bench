@@ -1,27 +1,47 @@
 {
  "schema": "edat.media.dataset/1",
  "name": "whisper-english-spelling",
+ "group": "normaliser",
  "licence_checked": "2026-11-18",
  "suites": [
   "A1"
  ],
- "split": "normaliser spelling map",
+ "split": "normaliser at the spec-pinned commit ea1c2667 (english.py, basic.py, english.json, __init__.py)",
  "homepage": "https://github.com/openai/whisper",
  "licence": "MIT",
- "licence_url": "https://raw.githubusercontent.com/openai/whisper/main/LICENSE",
+ "licence_note": "MIT",
+ "licence_url": "https://raw.githubusercontent.com/openai/whisper/ea1c266709125f68a89acdc0c6ddbde6773eb0ed/LICENSE",
  "licence_verified": true,
+ "verified": true,
  "redistributable": "yes",
  "attribution": "openai/whisper, MIT",
  "access": "http",
- "files": [
+ "status": "ready",
+ "needed_v1": "yes",
+ "pinned_revision": "ea1c266709125f68a89acdc0c6ddbde6773eb0ed",
+ "pinned_commit": "ea1c266709125f68a89acdc0c6ddbde6773eb0ed",
+ "bytes_total": 78885,
+ "file_count": 4,
+ "known_changes": [
   {
-   "url": "https://raw.githubusercontent.com/openai/whisper/ea1c266709125f68a89acdc0c6ddbde6773eb0ed/whisper/normalizers/english.json",
-   "md5": null,
-   "checksum_source": null,
-   "approx_bytes": 56128,
-   "pinned_commit": "ea1c266709125f68a89acdc0c6ddbde6773eb0ed"
+   "commit": "86098128c0b4f24f0e2aa2994de830614b474227",
+   "date": "2026-08-31",
+   "file": "whisper/normalizers/english.py",
+   "effect": "Only spell out a standalone 1 in the English number normaliser; changes normalised numerals and therefore WER. Not adopted: published WERs stay comparable with ea1c2667.",
+   "manifest": "whisper-normaliser-86098128"
+  },
+  {
+   "commit": "26a7cacc83c2cfbbf743022da8331b29702ceedc",
+   "date": "2025-01-04",
+   "file": "whisper/normalizers/basic.py",
+   "effect": "last change to basic.py before the latest main"
   }
  ],
- "notes": "Optional: EnglishNormalizer(spelling_map=<this file>) uses the full map; the normaliser id then carries its sha256.",
- "status": "ready"
+ "notes": "english.json is optional: EnglishNormalizer(spelling_map=<this file>) uses the full map and the normaliser id then carries its sha256. Spec-pinned commit. english.json last changed at this commit (2023-01-18); basic.py last changed at 26a7cacc83c2cfbbf743022da8331b29702ceedc (2025-01-04); english.py last changed at 86098128c0b4f24f0e2aa2994de830614b474227 (2026-08-31). sha256 computed from the fetched bodies (about 80 KB total).",
+ "files": [
+  {"url": "https://raw.githubusercontent.com/openai/whisper/ea1c266709125f68a89acdc0c6ddbde6773eb0ed/whisper/normalizers/english.py", "bytes": 20793, "sha256": "d2944d4db1221a7ee3db453ae5597310bc01d45e683764c57476f514e25f4651"},
+  {"url": "https://raw.githubusercontent.com/openai/whisper/ea1c266709125f68a89acdc0c6ddbde6773eb0ed/whisper/normalizers/basic.py", "bytes": 1882, "sha256": "d75a266f48f8e3a2a1e9df0fa6fee2859818e1991fe6d18c5f0c5ba98851c927"},
+  {"url": "https://raw.githubusercontent.com/openai/whisper/ea1c266709125f68a89acdc0c6ddbde6773eb0ed/whisper/normalizers/english.json", "bytes": 56128, "sha256": "6607f948be9824d2e1b2fa2223cd94c06c45afa4e05ea0e3d5e1f2bdffde2465", "checksum_source": null},
+  {"url": "https://raw.githubusercontent.com/openai/whisper/ea1c266709125f68a89acdc0c6ddbde6773eb0ed/whisper/normalizers/__init__.py", "bytes": 82, "sha256": "678cbbf410bb76fcfe7edf90c6c26242c80c55e280bc831a1893b86999eeba2a"}
+ ]
 }

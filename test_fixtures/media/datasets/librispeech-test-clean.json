@@ -1,6 +1,7 @@
 {
  "schema": "edat.media.dataset/1",
  "name": "librispeech-test-clean",
+ "group": "asr_eval",
  "licence_checked": "2026-11-18",
  "suites": [
   "A1",
@@ -12,23 +13,20 @@
  "split": "test-clean",
  "homepage": "https://www.openslr.org/12/",
  "licence": "CC-BY-4.0",
+ "licence_note": "CC BY 4.0",
  "licence_url": "https://www.openslr.org/12/",
  "licence_verified": true,
+ "verified": true,
  "redistributable": "yes",
- "attribution": "LibriSpeech ASR corpus, Panayotov et al., CC BY 4.0",
+ "attribution": "LibriSpeech, CC BY 4.0",
  "access": "http",
+ "status": "ready",
+ "needed_v1": "yes",
+ "bytes_total": 346663984,
+ "file_count": 1,
+ "eval_size": "2,620 utterances",
+ "notes": "Size by HEAD. md5 from https://openslr.trmal.net/resources/12/md5sum.txt. 2,620 utterances.",
  "files": [
-  {
-   "url": "https://openslr.trmal.net/resources/12/test-clean.tar.gz",
-   "md5": "32fa31d27d2e1cad72775fee3f4849a9",
-   "checksum_source": "https://openslr.trmal.net/resources/12/md5sum.txt",
-   "approx_bytes": 346000000,
-   "mirrors": [
-    "https://openslr.elda.org/resources/12/test-clean.tar.gz",
-    "https://openslr.magicdatatech.com/resources/12/test-clean.tar.gz"
-   ]
-  }
- ],
- "eval_size": "5.4 h",
- "status": "ready"
+  {"url": "https://openslr.trmal.net/resources/12/test-clean.tar.gz", "bytes": 346663984, "md5": "32fa31d27d2e1cad72775fee3f4849a9", "mirrors": ["https://openslr.elda.org/resources/12/test-clean.tar.gz", "https://openslr.magicdatatech.com/resources/12/test-clean.tar.gz"], "checksum_source": "https://openslr.trmal.net/resources/12/md5sum.txt"}
+ ]
 }

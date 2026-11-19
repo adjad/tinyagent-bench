@@ -1,17 +1,33 @@
 {
  "schema": "edat.media.dataset/1",
  "name": "chartqapro",
+ "group": "vision_eval",
  "licence_checked": "2026-11-18",
  "suites": [
   "V2"
  ],
- "homepage": "https://github.com/vis-nlp/ChartQAPro",
- "licence": "unverified",
- "licence_url": "https://github.com/vis-nlp/ChartQAPro",
+ "split": "test, 1,948 questions, 1,341 charts",
+ "homepage": "https://huggingface.co/datasets/ahmed-masry/ChartQAPro",
+ "licence": "MIT (HF tag); chart image rights from 157 sources not covered",
+ "licence_note": "MIT (HF tag, API answered); image rights from 157 sources not covered, so fetch at run time",
+ "licence_url": "https://huggingface.co/datasets/ahmed-masry/ChartQAPro",
  "licence_verified": false,
+ "verified": false,
  "redistributable": "unverified",
- "access": "huggingface",
- "files": [],
- "notes": "no licence line found",
- "status": "blocked_licence"
+ "access": "http",
+ "hf": {
+  "repo": "ahmed-masry/ChartQAPro"
+ },
+ "status": "fetch_at_run_time",
+ "status_reason": "coordinator ruling: image provenance unverified, fetch at run time, never commit",
+ "needed_v1": "yes",
+ "never_commit": true,
+ "pinned_revision": "e27c2874825874d6767d2bbc538ed4f0dc2c64c2",
+ "checksum_kind": "sha256 equals the Git LFS oid (a content hash); files without a published hash say so per file",
+ "bytes_total": 193053989,
+ "file_count": 1,
+ "notes": "HF repo sha e27c2874825874d6767d2bbc538ed4f0dc2c64c2. The earlier 401 is gone: the API answers now. Coordinator ruled ChartQAPro unverified, so the chart-image provenance is UNVERIFIED.",
+ "files": [
+  {"url": "https://huggingface.co/datasets/ahmed-masry/ChartQAPro/resolve/e27c2874825874d6767d2bbc538ed4f0dc2c64c2/data/test-00000-of-00001.parquet", "bytes": 193053989, "sha256": "feb03a5579e49114b45350b75aed7f674e285f795a425c83e22f400095c91489"}
+ ]
 }

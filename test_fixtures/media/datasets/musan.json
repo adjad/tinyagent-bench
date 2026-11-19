@@ -1,6 +1,7 @@
 {
  "schema": "edat.media.dataset/1",
  "name": "musan",
+ "group": "noise_room",
  "licence_checked": "2026-11-18",
  "suites": [
   "A4",
@@ -9,19 +10,19 @@
  "split": "noise, music, speech",
  "homepage": "https://www.openslr.org/17/",
  "licence": "CC-BY-4.0",
+ "licence_note": "CC BY 4.0 on the OpenSLR page; noise folder has per-file licences (not read)",
  "licence_url": "https://www.openslr.org/17/",
  "licence_verified": true,
+ "verified": true,
  "redistributable": "yes",
  "attribution": "MUSAN, Snyder et al., CC BY 4.0",
  "access": "http",
+ "status": "ready",
+ "needed_v1": "no",
+ "bytes_total": 11086114085,
+ "file_count": 1,
+ "notes": "No checksum published: the fetch records the sha256 it got. Supplies the recorded noise types (music, babble/TV speech, ambient). Size by HEAD. No checksum on the page. 11 GB for a small noise folder; not worth it unless FSD50K does not cover the need.",
  "files": [
-  {
-   "url": "https://openslr.trmal.net/resources/17/musan.tar.gz",
-   "md5": null,
-   "checksum_source": null,
-   "approx_bytes": 11000000000
-  }
- ],
- "notes": "No checksum published: the fetch records the sha256 it got. Supplies the recorded noise types (music, babble/TV speech, ambient).",
- "status": "ready"
+  {"url": "https://openslr.trmal.net/resources/17/musan.tar.gz", "bytes": 11086114085, "checksum": "none published", "checksum_source": null}
+ ]
 }

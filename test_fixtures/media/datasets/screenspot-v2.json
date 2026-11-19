@@ -1,17 +1,35 @@
 {
  "schema": "edat.media.dataset/1",
  "name": "screenspot-v2",
+ "group": "vision_eval",
  "licence_checked": "2026-11-18",
  "suites": [
   "V2"
  ],
+ "split": "image zip plus 3 json",
  "homepage": "https://huggingface.co/datasets/OS-Copilot/ScreenSpot-v2",
- "licence": "unverified",
+ "licence": "Apache-2.0 (HF tag); third-party screenshots",
+ "licence_note": "Apache-2.0 (HF tag); third-party screenshots",
  "licence_url": "https://huggingface.co/datasets/OS-Copilot/ScreenSpot-v2",
- "licence_verified": false,
- "redistributable": "unverified",
- "access": "huggingface",
- "files": [],
- "notes": "Apache-2.0 tag, but third-party screenshots; offered to spec 11",
- "status": "blocked_licence"
+ "licence_verified": true,
+ "verified": true,
+ "redistributable": "no",
+ "access": "http",
+ "hf": {
+  "repo": "OS-Copilot/ScreenSpot-v2"
+ },
+ "status": "fetch_at_run_time",
+ "status_reason": "coordinator ruling: third-party screenshots, fetch at run time, never commit the images",
+ "needed_v1": "yes",
+ "never_commit": true,
+ "pinned_revision": "5efbb1f1b5463a575f2eb7bc30fe29e49c15f93c",
+ "bytes_total": 1331311903,
+ "file_count": 4,
+ "notes": "HF repo sha 5efbb1f1b5463a575f2eb7bc30fe29e49c15f93c. 1,331,012,233 B zip. Fetch at run time, never commit.",
+ "files": [
+  {"url": "https://huggingface.co/datasets/OS-Copilot/ScreenSpot-v2/resolve/5efbb1f1b5463a575f2eb7bc30fe29e49c15f93c/screenspot_desktop_v2.json", "bytes": 76936, "checksum": "none published"},
+  {"url": "https://huggingface.co/datasets/OS-Copilot/ScreenSpot-v2/resolve/5efbb1f1b5463a575f2eb7bc30fe29e49c15f93c/screenspot_mobile_v2.json", "bytes": 119098, "checksum": "none published"},
+  {"url": "https://huggingface.co/datasets/OS-Copilot/ScreenSpot-v2/resolve/5efbb1f1b5463a575f2eb7bc30fe29e49c15f93c/screenspot_web_v2.json", "bytes": 103636, "checksum": "none published"},
+  {"url": "https://huggingface.co/datasets/OS-Copilot/ScreenSpot-v2/resolve/5efbb1f1b5463a575f2eb7bc30fe29e49c15f93c/screenspotv2_image.zip", "bytes": 1331012233, "sha256": "750555b8b06e3898634c610cd904600feb7ec7ca530e625a00c1416a73d829ee"}
+ ]
 }

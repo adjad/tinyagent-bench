@@ -1,0 +1,8 @@
+.build/
+.swiftpm/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+Config/Local.xcconfig
+Packages/EdgeBenchMLX/.build/
+tools/__pycache__/

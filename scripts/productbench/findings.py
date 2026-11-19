@@ -321,6 +321,9 @@ def _section_order(s: str) -> tuple:
 def _section_title(s: str) -> str:
     base, _, at = s.partition("@")
     title = dict(SECTIONS).get(base, base)
+    if " " in at:
+        day, hhmm = at.split()
+        return f"{title} on day {day} at {hhmm}"
     return f"{title} at {at}" if at else title
 
 

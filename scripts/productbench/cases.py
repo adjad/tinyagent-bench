@@ -60,9 +60,9 @@ def check(data: dict, profile: Profile) -> None:
         for p in c.get("forbidden_patterns", []):
             re.compile(p)
         if c.get("at") is not None:
-            need(re.fullmatch(r"([01]\d|2[0-3]):[0-5]\d", str(c["at"])) is not None,
-                 f"{c['id']}: at must be HH:MM")
-            need(str(c["at"]) > profile.data["anchor"][11:16],
+            m = re.fullmatch(r"(?:\+([1-9]\d?) )?(([01]\d|2[0-3]):[0-5]\d)", str(c["at"]))
+            need(m is not None, f"{c['id']}: at must be HH:MM or +N HH:MM")
+            need(bool(m.group(1)) or m.group(2) > profile.data["anchor"][11:16],
                  f"{c['id']}: at {c['at']} must be later than the anchor's now")
 
     for c in data.get("ask", []):

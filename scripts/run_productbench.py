@@ -186,7 +186,7 @@ async def run_trial(bench: Bench, cases: dict, surfaces: list[str], base: dict, 
     rec_base["now"] = at or profile.data["anchor"][11:16]
     rules = dict(cases.get("day", {}).get("rules") or {})
     if at:
-        rules["now"] = at
+        rules["now"] = at.split()[-1]
     n = 0
 
     def write(rec: dict) -> None:
@@ -680,7 +680,8 @@ def main() -> None:
                         print(f"\n== {label} ==")
                         home = run_dir / "homes" / "-".join(
                             filter(None, [profile.id, entry.id.replace("/", "_"), str(trial),
-                                          at.replace(":", "") if at else None, "act" if act else None]))
+                                          at.replace(":", "").replace("+", "d").replace(" ", "-") if at else None,
+                                          "act" if act else None]))
                         home.parent.mkdir(parents=True, exist_ok=True)
                         bench = Bench(profile, entry.model_id, home, port=args.port,
                                       sandbox_port=args.sandbox_port, engine_port=args.engine_port,

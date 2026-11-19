@@ -25,6 +25,7 @@ import os
 import subprocess
 import sys
 import time
+from datetime import timedelta
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -40,6 +41,12 @@ STARTUP_S = 120.0
 SYNC_SOURCES = ("calendar", "reminders", "messages", "contacts", "email_headers", "email_raw", "notes")
 FORBIDDEN_PATH_PREFIXES = ("/study",)
 REAL_PORTS = frozenset({8765, 8000, 8791})
+
+
+def split_at(at: str) -> tuple[int, str]:
+    """("+2 14:00") -> (2, "14:00"); ("11:30") -> (0, "11:30")."""
+    parts = str(at).split()
+    return (int(parts[0]), parts[1]) if len(parts) == 2 else (0, parts[0])
 
 
 def _port_busy(port: int) -> bool:
@@ -105,7 +112,7 @@ class Bench:
     cloud: bool = False                 # a cloud reference: Harbor's remote mode, OpenRouter
     context_window: int | None = None
     credential_ref: str = "keychain:openrouter"
-    at: str | None = None               # "HH:MM": run this trial later on the anchor day
+    at: str | None = None               # "HH:MM" later on the anchor day, or "+N HH:MM" N days on
     home: PreparedHome | None = None
     procs: list[subprocess.Popen] = field(default_factory=list)
     offset: float = 0.0
@@ -122,8 +129,10 @@ class Bench:
         """The moment this trial calls "now": the anchor, or `at` on the anchor's day."""
         if not self.at:
             return self.profile.anchor_epoch
-        h, m = (int(x) for x in self.at.split(":"))
-        return self.profile.anchor.replace(hour=h, minute=m, second=0, microsecond=0).timestamp()
+        days, hhmm = split_at(self.at)
+        h, m = (int(x) for x in hhmm.split(":"))
+        day = self.profile.anchor + timedelta(days=days)
+        return day.replace(hour=h, minute=m, second=0, microsecond=0).timestamp()
 
     # ------------------------------------------------------------ usage
     @property

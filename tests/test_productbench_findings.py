@@ -238,6 +238,24 @@ def test_inbox_and_messages(keys):
     assert {r["ref"]: r["outcome"] for r in m["items"]} == {"msg-jess-0001": "missed", "msg-jess-0006": "found"}
 
 
+def test_later_day_windows_pin_that_days_clock(keys):
+    prof = load_profile(KEYS)
+    entry = next(e for e in prof.data["edat_entries"] if e["id"] == "L-edat_keys-19")
+    later = json.loads(json.dumps(entry))
+    later["id"] = "L-edat_keys-99"
+    later["expected"]["window"] = {"day": 2, "at": "14:00", "hours": 3}
+    prof.data["edat_entries"].append(later)
+    case = next(c for c in questions.cases_for(prof) if c["id"] == "TQ-window-d2-1400")
+    assert case["at"] == "+2 14:00" and case["window_at"] == "+2 14:00"
+    from scripts.productbench import cases as case_files
+    from scripts.productbench.capture import split_at
+    case_files.check({"ask": [case]}, prof)
+    assert split_at("+2 14:00") == (2, "14:00") and split_at("11:30") == (0, "11:30")
+    s = questions.score_question(case, "Your STAT Lecture is at 9:30.", prof)
+    assert s["at"] == "+2 14:00" and s["score"] == 1.0
+    assert findings._section_title("window@+2 14:00").endswith("on day +2 at 14:00")
+
+
 def test_time_windows(keys):
     wins = {w["at"]: w for w in questions.window_keys(keys)}
     s = questions.score_window("Your STAT Lecture is at 9:30.", keys, wins["07:45"])

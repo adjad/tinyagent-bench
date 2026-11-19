@@ -194,14 +194,15 @@ def fallback_highlights(profile: Profile, which: str, hours: int = 24) -> dict:
 
 
 def window_keys(profile: Profile) -> list[dict]:
-    """Every time window the key spells out (day 0 only: the harness pins the anchor day)."""
+    """Every time window the key spells out; a later day's window is asked on that day's clock."""
     out = []
     for e in profile.data.get("edat_entries") or []:
         if e.get("type") != "time_window":
             continue
         x = e.get("expected") or {}
         w = x.get("window") or {}
-        if int(w.get("day") or 0) != 0:
+        day = int(w.get("day") or 0)
+        if day < 0:
             continue
         stale = []
         cal = {r["id"]: r for r in profile.data.get("calendar", [])}
@@ -210,7 +211,7 @@ def window_keys(profile: Profile) -> list[dict]:
             if r:
                 stale.append({"ref": ref, "title": r["title"], "time": (r.get("start") or "")[11:16]})
         out.append({"source": e["id"], "approximate": False, "prompt": e.get("prompt") or PROMPTS["window"],
-                    "at": w.get("at"), "hours": w.get("hours", 3),
+                    "at": w.get("at"), "day": day, "hours": w.get("hours", 3),
                     "items": [{"ref": i.get("ref"), "title": i.get("title"), "time": i.get("time"),
                                "changed": bool(i.get("changed")), "location": i.get("location")}
                               for i in x.get("items") or []]
@@ -237,9 +238,13 @@ def fallback_windows(profile: Profile, points=("07:45", "11:30", "15:00"), hours
             e = datetime.fromisoformat(ev["end"]).replace(tzinfo=None) if ev.get("end") else s
             if (s < hi and e > lo) if e > s else lo <= s < hi:
                 items.append({"ref": ev["id"], "title": ev["title"], "time": ev["start"][11:16], "changed": False})
-        out.append({"source": "calendar", "approximate": True, "prompt": PROMPTS["window"], "at": at,
+        out.append({"source": "calendar", "approximate": True, "prompt": PROMPTS["window"], "at": at, "day": 0,
                     "hours": hours, "items": items, "all_day": [], "stale": []})
     return out
+
+
+def window_at(day: int, hhmm: str) -> str:
+    return f"+{day} {hhmm}" if day else hhmm
 
 
 def cases_for(profile: Profile) -> list[dict]:
@@ -251,13 +256,15 @@ def cases_for(profile: Profile) -> list[dict]:
            {"id": "TQ-messages", "family": "messages", "prompt": highlights_key(profile, "messages")["prompt"],
             "question": "messages"}]
     for w in window_keys(profile):
-        at = w["at"] if w["at"] and w["at"] > now else None
-        if w["at"] and w["at"] < now:
+        day, hhmm = w.get("day", 0), w["at"] or now
+        if day == 0 and hhmm < now:
             continue
+        at = f"+{day} {hhmm}" if day else (hhmm if hhmm > now else None)
         hours = w.get("hours", 3)
         prompt = w["prompt"] if hours == 3 else f"Is there anything in the next {hours:g} hours?"
-        out.append({"id": f"TQ-window-{(w['at'] or now).replace(':', '')}", "family": "window", "prompt": prompt,
-                    "question": "window", "window_at": w["at"] or now, **({"at": at} if at else {})})
+        cid = f"TQ-window-{'d' + str(day) + '-' if day else ''}{hhmm.replace(':', '')}"
+        out.append({"id": cid, "family": "window", "prompt": prompt, "question": "window",
+                    "window_at": window_at(day, hhmm), **({"at": at} if at else {})})
     return out
 
 
@@ -330,7 +337,7 @@ def score_window(text: str, profile: Profile, key: dict) -> dict:
     empty = not key["items"]
     said_nothing = bool(_NOTHING.search(text or ""))
     out = _total("window", key, [r for r in rows if not r.get("optional") or r["outcome"] == "found"], [], {})
-    out.update({"at": key.get("at"), "hours": key.get("hours"), "empty_window": empty,
+    out.update({"at": window_at(key.get("day", 0), key.get("at")), "hours": key.get("hours"), "empty_window": empty,
                 "said_nothing": said_nothing})
     if empty:
         out["score"] = 1.0 if said_nothing and not out["counts"]["stale"] else 0.0
@@ -354,8 +361,9 @@ def score_question(case: dict, answer: str, profile: Profile) -> dict:
         return score_todo(answer, profile)
     if q in ("inbox", "messages"):
         return score_highlights(answer, profile, q)
-    key = next((w for w in window_keys(profile) if (w["at"] or profile.data["anchor"][11:16]) == case["window_at"]),
-               None)
+    now = profile.data["anchor"][11:16]
+    key = next((w for w in window_keys(profile)
+                if window_at(w.get("day", 0), w["at"] or now) == case["window_at"]), None)
     if key is None:
         return {"question": "window", "score": None, "items": [], "counts": {}, "note": "no key for this time"}
     return score_window(answer, profile, key)

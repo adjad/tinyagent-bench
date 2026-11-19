@@ -98,7 +98,13 @@ def area_events(area: TrialArea) -> list[Event]:
 
 SNAPSHOT_FILE_BYTES = 1 << 20      # content read per file; above it the content is left out
 SNAPSHOT_TOTAL_BYTES = 16 << 20    # content read per snapshot
-SNAPSHOT_MAX_ENTRIES = 20000
+SNAPSHOT_MAX_ENTRIES = 20000      # files, links and folders together: empty folders cost a walk too
+TRUNCATED = "\0truncated"          # set (never a real path) when the walk stopped at the cap
+
+
+def snapshot_truncated(snap: dict) -> bool:
+    """A snapshot cut short at the entry cap: a file past the cap looks absent, so it is never graded."""
+    return TRUNCATED in snap
 
 
 def tree_snapshot(root: Path, *, skip_git: bool = True) -> dict[str, dict]:
@@ -117,16 +123,19 @@ def tree_snapshot(root: Path, *, skip_git: bool = True) -> dict[str, dict]:
 
 
 def _walk_into(out: dict, root: str, skip_git: bool) -> None:
-    total = 0
+    total, folders = 0, 0
     for dirpath, dirnames, filenames, dfd in os.fwalk(root, follow_symlinks=False):
-        if len(out) >= SNAPSHOT_MAX_ENTRIES:
+        folders += 1
+        if len(out) + folders > SNAPSHOT_MAX_ENTRIES:
+            out[TRUNCATED] = {"content": None, "mode": 0, "truncated": True}
             break
         if skip_git and ".git" in dirnames:
             dirnames.remove(".git")
         rel_dir = os.path.relpath(dirpath, root)
         for name in filenames:
-            if len(out) >= SNAPSHOT_MAX_ENTRIES:     # per entry: one folder may hold any number of files
-                break
+            if len(out) + folders >= SNAPSHOT_MAX_ENTRIES:     # per entry: one folder may hold any number of files
+                out[TRUNCATED] = {"content": None, "mode": 0, "truncated": True}
+                return
             rel = name if rel_dir == "." else os.path.join(rel_dir, name)
             try:
                 st = os.stat(name, dir_fd=dfd, follow_symlinks=False)

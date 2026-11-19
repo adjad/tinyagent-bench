@@ -235,7 +235,9 @@ def test_the_snapshot_entry_cap_holds_inside_one_folder(tmp_path, monkeypatch):
     monkeypatch.setattr(common, "SNAPSHOT_MAX_ENTRIES", 5)
     for i in range(40):
         (tmp_path / f"f{i}.txt").write_text("x")
-    assert len(common.tree_snapshot(tmp_path)) == 5
+    snap = common.tree_snapshot(tmp_path)
+    assert common.snapshot_truncated(snap)
+    assert len(snap) - 1 == 4                      # four files and the folder itself: five entries
 
 
 def test_reasons_carry_no_local_paths():

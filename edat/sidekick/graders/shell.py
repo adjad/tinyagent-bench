@@ -28,7 +28,7 @@ from __future__ import annotations
 
 import re
 
-from edat.sidekick.graders.common import GradeResult, lost_files, tree_snapshot
+from edat.sidekick.graders.common import GradeResult, lost_files, snapshot_truncated, tree_snapshot
 from edat.sidekick.sandbox.run import ExecResult, Isolation, Limits, TrialArea
 
 NUM_RE = re.compile(r"(?<![\w.])-?\d+(?:\.\d+)?(?![\w.])")
@@ -114,6 +114,8 @@ def judge_setup(res: ExecResult, before: dict, after: dict, expect: dict, check:
     """(ok, reasons, lost files) for one folder."""
     reasons = []
     ok = True
+    if snapshot_truncated(after) or snapshot_truncated(before):
+        return False, ["the folder grew too large to grade"], []
     if res.killed:
         ok = False
         reasons.append(f"command stopped: {res.killed}")

@@ -22,6 +22,7 @@ REASONS = {
     "prompt_echo": "echoing the prompt can pass (facts are matched anywhere in the answer's free text)",
     "guessable": "one constant answer passes every case (the Yes/No diffs without a bug, answered No)",
     "probe_in_process": "the hidden tests run in the same process as the model's code",
+    "host_probes_unreviewed": "host-driven probes, not on the allow-list until their review clears them",
     "not_allow_listed": "graded by a method not on the allow-list",
     "unmarked": "a graded row with no allow-listed hardened mark (default deny)",
 }
@@ -56,6 +57,8 @@ def grading_label(grader: str, check: dict | None = None) -> dict:
     """How a case's answer is graded and whether that grading holds against code written to attack it.
     Only an allow-listed method is marked hardened; anything else is labelled with its reason."""
     check = check or {}
+    if grader == "probe" and check.get("probes"):         # the ladder's host-driven probes (rungs 4 to 6)
+        return {"grading": "host_probes", "grade_hardened": False, "not_hardened_reason": "host_probes_unreviewed"}
     if grader in LABELLED_GRADERS:
         how, why = LABELLED_GRADERS[grader]
         return {"grading": how, "grade_hardened": False, "not_hardened_reason": why}

@@ -41,7 +41,7 @@ from edat.results.writer import RunWriter, utc_now
 from edat.sidekick import TIER
 from edat.sidekick.ceiling.models import Entry, LocalModel, find_entry, model_dir_from_settings, ordered_entries, scan
 from edat.sidekick.ceiling.rungs import (LADDER_SEED_PUBLIC, RUNG_BY_ID, RUNGS, LadderCase, ladder_cases,
-                                         materialize_probe)
+                                         materialize_probe, row_hardened)
 from edat.sidekick.extract import visible_answer
 from edat.sidekick.gen.core import PUBLIC_MASTER_SEED, materialize
 from edat.sidekick.graders import grade_answer, grading_label
@@ -332,7 +332,7 @@ def answer_trial(client, inst, *, suite: str, seed: int, thinking: bool, samplin
          "reasoning_tokens": usage.get("reasoning_tokens"), "max_tokens": budget, "model_calls": 1,
          "reasoned": bool((res.reasoning or "").strip() or (usage.get("reasoning_tokens") or 0) > 0
                           or re.search(r"<(think|thinking|reasoning)>", text, re.I))}
-    for k in ("partial", "hidden_passed", "hidden_total", "grade_hardened", "tripwire"):
+    for k in ("partial", "hidden_passed", "hidden_total", "grade_hardened", "grading", "tripwire"):
         if k in g.metrics:
             m[k] = g.metrics[k]
     raw = {"prompt_head": inst.prompt[:600], "answer": visible_answer(text)[:20000],
@@ -380,7 +380,7 @@ def tool_trial(client, inst, *, suite: str, seed: int, thinking: bool, sampling,
     m = {"pass": g.passed, "failure_mode": classify(g), "time_s": round(wall, 3), "model_calls": steps,
          "max_tokens": budget}
     for k in ("tool_calls", "refused_calls", "malformed_calls", "hallucinated_tools", "partial", "hidden_total",
-              "grade_hardened", "tripwire"):
+              "grade_hardened", "grading", "tripwire"):
         if k in g.metrics:
             m[k] = g.metrics[k]
     raw = {"prompt_head": inst.prompt[:600], "final_text": tt.final_text[:5000],
@@ -653,13 +653,14 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
                                   started_at=started, seed=seed, raw_ref=w.put_raw(json.loads(json.dumps(raw, default=str))),
                                   commit=commit, dirty=dirty)
                 rec["facets"]["tags"] += [f"rung-{u.case.rung.n}", f"sampling-{profile.name}"]
-                # Every graded row is marked, by rung and by how the case is graded (labels.may_score is default
-                # deny: a row without the mark is never scored). A tripwire's own `false` is kept.
+                # Every graded row is marked (labels.may_score is default deny: a row without the mark never
+                # scores): by its rung and grading method (rungs 4 to 9, row_hardened) and by how its case is
+                # graded (labels.grading_label). The grader's own method and a tripwire's own `false` are kept.
                 lab = grading_label(inst.grader, inst.check)
-                hardened = (u.case.rung.hardened and lab["grade_hardened"]
+                hardened = (row_hardened(u.case.rung, metrics if status == "ok" else {}) and lab["grade_hardened"]
                             and (rec["metrics"] or {}).get("grade_hardened") is not False)
                 if status == "ok":
-                    rec["metrics"]["grading"] = lab["grading"]
+                    rec["metrics"]["grading"] = (rec["metrics"] or {}).get("grading") or lab["grading"]
                     rec["metrics"]["grade_hardened"] = hardened
                 if not hardened:
                     if "grade-not-hardened" not in rec["facets"]["tags"]:

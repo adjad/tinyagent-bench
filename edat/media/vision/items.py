@@ -96,6 +96,7 @@ def item_json(*, item_id: str, family: str, split: str, seed_label: str, index: 
         "default_year": rendered.default_year,
         "data": rendered.data,
         "fields": {k: f.to_json() for k, f in c.fields.items()},
+        "elements": [e.to_json() for e in getattr(c, "elements", [])],
         "text_runs": c.text_runs(),
         "reading_text": c.reading_text(),
         "damage": rendered.damage,

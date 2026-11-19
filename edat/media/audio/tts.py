@@ -44,8 +44,14 @@ class SpeechEngine(Protocol):
 
     def voices(self) -> list[Voice]: ...
 
-    def synthesize(self, text: str, voice: str) -> Clip:
-        """Render ``text`` with ``voice`` as a 16 kHz mono clip whose ``eos_s`` is set."""
+    def synthesize(self, text: str, voice: str, *, rate: float = 1.0,
+                   pitch_semitones: float = 0.0) -> Clip:
+        """Render ``text`` with ``voice`` as a 16 kHz mono clip whose ``eos_s`` is set.
+
+        ``rate`` > 1 speaks faster; ``pitch_semitones`` shifts the voice (used for
+        calm versus rushed delivery in A7 urgency). The clip's ``meta`` carries
+        ``word_timings`` when the engine can give them.
+        """
         ...
 
 
@@ -69,35 +75,42 @@ class StubEngine:
     def voices(self) -> list[Voice]:
         return list(self._voices)
 
-    def synthesize(self, text: str, voice: str) -> Clip:
+    def synthesize(self, text: str, voice: str, *, rate: float = 1.0,
+                   pitch_semitones: float = 0.0) -> Clip:
         if voice not in {v.id for v in self._voices}:
             raise KeyError(f"unknown stub voice {voice!r}")
+        if rate <= 0:
+            raise ValueError("rate must be positive")
         words = text.split()
         sr = SAMPLE_RATE
         parts = [silence(LEAD_IN_S)]
         timings = []
         t = LEAD_IN_S
         vshift = int(voice.split("-")[1])
-        n = int(round(self.WORD_S * sr))
+        word_s, gap_s = self.WORD_S / rate, self.GAP_S / rate
+        pitch = 2 ** (pitch_semitones / 12)
+        n = int(round(word_s * sr))
         env = np.hanning(n).astype(np.float32)
         tt = np.arange(n) / sr
         for w in words:
             h = int.from_bytes(hashlib.sha256(f"{w.lower()}|{voice}".encode()).digest()[:4], "big")
-            f0 = 140 + (h % 220) + 6 * vshift
+            f0 = (140 + (h % 220) + 6 * vshift) * pitch
             burst = 0.35 * env * np.sin(2 * np.pi * f0 * tt).astype(np.float32)
             burst += 0.12 * env * np.sin(2 * np.pi * 2 * f0 * tt).astype(np.float32)
             parts.append(burst.astype(np.float32))
-            timings.append({"word": w, "start_s": round(t, 4), "end_s": round(t + self.WORD_S, 4)})
-            t += self.WORD_S
-            parts.append(silence(self.GAP_S))
-            t += self.GAP_S
+            timings.append({"word": w, "start_s": round(t, 4), "end_s": round(t + n / sr, 4)})
+            t += n / sr
+            g = silence(gap_s)
+            parts.append(g)
+            t += len(g) / sr
         audio = np.concatenate(parts) if parts else silence(0)
         eos = timings[-1]["end_s"] if timings else LEAD_IN_S
         # Drop the gap after the last word: end of speech is the end of the clip here.
         audio = audio[: int(round(eos * sr))]
         return Clip(audio.astype(np.float32), sr, speech_start_s=LEAD_IN_S if words else None,
                     eos_s=eos, meta={"engine": self.id, "voice": voice, "placeholder": True,
-                                     "text": text, "word_timings": timings})
+                                     "text": text, "word_timings": timings, "rate": rate,
+                                     "pitch_semitones": pitch_semitones})
 
 
 @dataclass(frozen=True)

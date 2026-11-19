@@ -20,6 +20,8 @@ without changing any family.
 """
 from __future__ import annotations
 
+import contextlib
+import contextvars
 import functools
 import hashlib
 import os
@@ -49,6 +51,20 @@ THEMES: dict[str, dict[str, tuple[int, int, int]]] = {
 }
 
 Color = tuple[int, int, int] | str
+
+# V5 "small text": every font size is multiplied by this factor while the layout stays put.
+_TEXT_SCALE: contextvars.ContextVar[float] = contextvars.ContextVar("edat_text_scale", default=1.0)
+BODY_TEXT_PX = 12.0          # the families' typical body size; small-text levels are set against it
+
+
+@contextlib.contextmanager
+def text_scale(factor: float):
+    """Render with every font ``factor`` times its normal size (V5 small-text condition)."""
+    token = _TEXT_SCALE.set(float(factor))
+    try:
+        yield
+    finally:
+        _TEXT_SCALE.reset(token)
 
 
 def render_stamp() -> dict:
@@ -119,6 +135,19 @@ class Field:
         return asdict(self)
 
 
+@dataclass
+class Element:
+    """A UI element a person might ask to find ("where is the Save button?"), V7."""
+
+    name: str                       # the label a question uses ("Save", "Wi-Fi toggle")
+    role: str                       # button, toggle, tab, link, field, icon, menu_item, row
+    bbox: list[int]                 # pixel box [x0, y0, x1, y1], end-exclusive
+    unique: bool = True             # no other element on the image shares this name
+
+    def to_json(self) -> dict:
+        return asdict(self)
+
+
 class Canvas:
     def __init__(self, width: int, height: int, *, scale: float = 1.0, theme: str = "light",
                  bg: Color = "bg") -> None:
@@ -133,6 +162,7 @@ class Canvas:
         self.draw = ImageDraw.Draw(self.image)
         self.runs: list[TextRun] = []
         self.fields: dict[str, Field] = {}
+        self.elements: list[Element] = []
 
     # ---------------------------------------------------------------- units
     def px(self, v: float) -> int:
@@ -142,7 +172,7 @@ class Canvas:
         return self.pal[c] if isinstance(c, str) else tuple(c)  # type: ignore[return-value]
 
     def font_px(self, size: float) -> int:
-        return max(1, round(size * self.scale))
+        return max(1, round(size * self.scale * _TEXT_SCALE.get()))
 
     def text_width(self, s: str, size: float = 14, bold: bool = False) -> float:
         """Width of ``s`` in logical pixels."""
@@ -240,6 +270,17 @@ class Canvas:
                                   size_px=max(box[3] - box[1], box[2] - box[0]), visible=True,
                                   crop_sha256=self.crop_sha256(box), fg=list(self.color(color)),
                                   plot_value=True)
+        return box
+
+    def element(self, name: str, x0: float, y0: float, x1: float, y1: float, *,
+                role: str = "button") -> list[int]:
+        """Record a named UI element's box (logical units) for V7 control location."""
+        box = [max(0, self.px(x0)), max(0, self.px(y0)), min(self.size[0], self.px(x1)),
+               min(self.size[1], self.px(y1))]
+        dup = [e for e in self.elements if e.name.casefold() == name.casefold()]
+        for e in dup:
+            e.unique = False
+        self.elements.append(Element(name, role, box, unique=not dup))
         return box
 
     def absent(self, name: str, value: str, kind: str = "text") -> None:

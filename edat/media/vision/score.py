@@ -50,6 +50,7 @@ class Score:
     abstained: bool = False
     false_answer: bool = False
     cer: float | None = None
+    line_recall: float | None = None
 
     def to_json(self) -> dict:
         return asdict(self)
@@ -112,7 +113,7 @@ def score_answer(q: dict, output: str | None, *, default_year: int | None = None
         c = counts.rate() if hyp else 1.0
         s = max(0.0, 1.0 - c)
         return Score(q["qid"], kind, s, c <= READING_PASS_CER and bool(hyp), extracted[:200],
-                     cer=c)
+                     cer=c, line_recall=line_recall(ref, hyp))
     if kind == "abstain":
         abst = is_abstention(extracted)
         return Score(q["qid"], kind, 1.0 if abst else 0.0, abst, extracted, abstained=abst,
@@ -141,6 +142,15 @@ def score_answer(q: dict, output: str | None, *, default_year: int | None = None
         ok = ok or (pred is not None and gc is not None and pred == gc)
     return Score(q["qid"], kind, 1.0 if ok else 0.0, ok, extracted, pred=pred,
                  gold=_canon(canon_kind, golds[0], default_year))
+
+
+def line_recall(ref: str, hyp: str) -> float:
+    """Share of reference lines found whole (spaces collapsed, case kept) in the reading."""
+    lines = [_reading_norm(l) for l in ref.splitlines() if l.strip()]
+    if not lines:
+        return 1.0
+    got = _reading_norm(hyp)
+    return sum(1 for l in lines if l in got) / len(lines)
 
 
 def _reading_norm(text: str) -> str:

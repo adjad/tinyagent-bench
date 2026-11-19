@@ -34,16 +34,20 @@ from edat.media.vision.canvas import render_stamp
 from edat.media.vision.items import Rendered, item_json
 
 DEV_SEED = "edat-media-dev-2027.1"
-FAMILY_MODULES = {
+FAMILY_MODULES = {          # spec 05 §7.1: eleven V1 families
     "app_screens": "edat.media.vision.families.app_screens",
     "web_pages": "edat.media.vision.families.web_pages",
     "documents": "edat.media.vision.families.documents",
-    "charts_tables": "edat.media.vision.families.charts_tables",
+    "receipts_forms": "edat.media.vision.families.receipts_forms",
+    "tables": "edat.media.vision.families.tables",
+    "charts": "edat.media.vision.families.charts",
+    "handwriting": "edat.media.vision.families.handwriting",
+    "photo_text": "edat.media.vision.families.photo_text",
     "calendar": "edat.media.vision.families.calendar",
     "spreadsheet": "edat.media.vision.families.spreadsheet",
-    "photo_text": "edat.media.vision.families.photo_text",
+    "diagrams": "edat.media.vision.families.diagrams",
 }
-FULL_SET_PER_FAMILY = 250            # spec 05 §7.1: about 250 images per family
+FULL_SET_PER_FAMILY = 500            # spec 05 §7.1: 500 images per family
 V5_LONG_SIDES = (512, 768, 1024, 1568, 2048, 3000)
 REPO_ROOT = Path(__file__).resolve().parents[3]
 

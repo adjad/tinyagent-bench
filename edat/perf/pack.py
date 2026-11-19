@@ -671,6 +671,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     ap.add_argument("--replay-variants", type=int, default=DEFAULT_REPLAY_VARIANTS)
     ap.add_argument("--replay-prefix-tokens", type=int)
     ap.add_argument("--corpus-name")
+    ap.add_argument("--variants", type=int, default=NONCE_VARIANTS,
+                    help="nonce variants per level (16 for the iPhone; the Mac's energy pairs need "
+                         "2K+11 fresh ones per level, so build Mac packs with 64)")
     args = ap.parse_args(argv)
     if args.stub_tokenizer:
         tok: ModelTokenizer = StubTokenizer()
@@ -684,6 +687,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         pack = build_pack(records, traj, tok, model_id=args.model_id, entry_id=args.entry_id,
                           thinking=args.thinking, levels=levels, seed=args.seed, nonce_tokens=args.nonce_tokens,
+                          n_variants=args.variants,
                           replay_variants=args.replay_variants, corpus_name=args.corpus_name,
                           corpus_sha256=corpus_sha, trajectory_sha256=traj_sha,
                           replay_prefix_tokens=args.replay_prefix_tokens,

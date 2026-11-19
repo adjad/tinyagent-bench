@@ -91,10 +91,11 @@ class RusageProbe:
             return True
 
 
-def find_engine_pid(exe_suffixes: tuple[str, ...] = ("omlx", "omlx-cli", "oMLX"),
+def find_engine_pid(exe_suffixes: tuple[str, ...] = ("omlx-server", "omlx", "omlx-cli", "oMLX"),
                     run: Callable = subprocess.run) -> int | None:
-    """Best-effort: the benchmark oMLX server's pid, from ``ps``. The runbook says to pass
-    ``--engine-pid`` explicitly when more than one engine is running."""
+    """Best-effort: the benchmark oMLX server's pid, from ``ps`` (oMLX's ``serve`` renames its
+    process ``omlx-server``). Returns None unless exactly one matches; the runbook says to pass
+    ``--engine-pid`` explicitly, since the user's own engine may be running too."""
     out = run(["/bin/ps", "-axo", "pid=,comm="], capture_output=True, text=True).stdout
     hits = [int(p) for p, c in (ln.strip().split(None, 1) for ln in out.splitlines() if ln.strip())
             if os.path.basename(c).split()[0] in exe_suffixes]

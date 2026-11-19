@@ -72,9 +72,14 @@ class Transport(Protocol):
 
 
 class HttpTransport:
-    def __init__(self, base_url: str, now_ns: Callable[[], int]):
+    def __init__(self, base_url: str, now_ns: Callable[[], int], api_key: str | None = None):
         self.host, self.port = check_base_url(base_url)
         self.now_ns = now_ns
+        # The benchmark instance's API key (oMLX keeps it in its 0600 settings.json). Read from
+        # the environment at run time, sent as a bearer token, never written anywhere.
+        self._headers = {"Content-Type": "application/json"}
+        if api_key:
+            self._headers["Authorization"] = f"Bearer {api_key}"
 
     def _conn(self, timeout: float) -> http.client.HTTPConnection:
         return http.client.HTTPConnection(self.host, self.port, timeout=timeout)
@@ -84,7 +89,7 @@ class HttpTransport:
         c = self._conn(timeout)
         try:
             payload = json.dumps(body).encode() if body is not None else None
-            c.request(method, path, body=payload, headers={"Content-Type": "application/json"})
+            c.request(method, path, body=payload, headers=self._headers)
             r = c.getresponse()
             raw = r.read(8 * 1024 * 1024)
             try:
@@ -99,7 +104,7 @@ class HttpTransport:
         c = self._conn(timeout)
         try:
             c.request("POST", path, body=json.dumps(body).encode(),
-                      headers={"Content-Type": "application/json", "Accept": "text/event-stream"})
+                      headers={**self._headers, "Accept": "text/event-stream"})
             r = c.getresponse()
             if r.status != 200:
                 raw = r.read(64 * 1024)
@@ -192,8 +197,12 @@ class OmlxPerfClient:
         self.thinking_end_marker = thinking_end_marker
 
     @classmethod
-    def connect(cls, base_url: str, *, now_ns: Callable[[], int], **kw) -> "OmlxPerfClient":
-        return cls(HttpTransport(base_url, now_ns), now_ns=now_ns, **kw)
+    def connect(cls, base_url: str, *, now_ns: Callable[[], int], api_key: str | None = None,
+                **kw) -> "OmlxPerfClient":
+        """``api_key`` defaults to the ``EDAT_OMLX_API_KEY`` environment variable."""
+        import os
+        key = api_key if api_key is not None else os.environ.get("EDAT_OMLX_API_KEY")
+        return cls(HttpTransport(base_url, now_ns, key), now_ns=now_ns, **kw)
 
     # -- residency (§7, §5.7) --
     def load(self, model: str) -> tuple[int, int]:

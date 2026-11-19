@@ -196,6 +196,15 @@ def cmd_run(args) -> int:
                    "kv_dtype": None, "prefix_cache": "defeated-by-nonce", "ssd_kv_cache": args.ssd_kv_cache,
                    "expert_offload": False, "gpu_power_cap_W": None,
                    "memory_guard_ceiling_gb": args.memory_guard_ceiling_gb, "engine_profile": {}}
+        if args.admin_socket:
+            import shutil
+            audit = Path(args.admin_socket).parent / "admin-audit.jsonl"
+            if audit.exists():
+                shutil.copy(audit, w.dir / "admin-audit.jsonl")
+                w.attach("admin-audit.jsonl", "admin_audit")
+            for pm in Path(args.admin_socket).parent.glob("powermetrics-*.plist"):
+                shutil.copy(pm, w.dir / pm.name)
+                w.attach(pm.name, "powermetrics")
         packs = {eid: p.info() for eid, p in prompts.items()}
         path = w.finalize(ended_utc=utc_now(), device=device, runtime=runtime, models=runner.finish_models(),
                           prompt_pack=packs, conditions_start=cond0, conditions_end=cond1)
@@ -203,7 +212,15 @@ def cmd_run(args) -> int:
     return 0
 
 
+PASSTHROUGH = {"aggregate": "edat.perf.aggregate", "import-iphone": "edat.perf.iphone_import",
+               "pack": "edat.perf.pack"}
+
+
 def main(argv: list[str] | None = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] in PASSTHROUGH:
+        import importlib
+        return importlib.import_module(PASSTHROUGH[argv[0]]).main(argv[1:])
     ap = argparse.ArgumentParser(prog="python -m edat.perf", description=__doc__.split("\n\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
 
@@ -249,15 +266,10 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--tokenizer-dir", help="model folder whose tokenizer the long session counts with")
     p.set_defaults(fn=cmd_run)
 
-    p = sub.add_parser("aggregate", help="raw samples -> cells and verdicts")
-    p.add_argument("rest", nargs=argparse.REMAINDER)
-    p.set_defaults(fn=lambda a: __import__("edat.perf.aggregate", fromlist=["main"]).main(a.rest))
-    p = sub.add_parser("import-iphone", help="import an iPhone export")
-    p.add_argument("rest", nargs=argparse.REMAINDER)
-    p.set_defaults(fn=lambda a: __import__("edat.perf.iphone_import", fromlist=["main"]).main(a.rest))
-    p = sub.add_parser("pack", help="build a prompt pack")
-    p.add_argument("rest", nargs=argparse.REMAINDER)
-    p.set_defaults(fn=lambda a: __import__("edat.perf.pack", fromlist=["main"]).main(a.rest))
+    for name, help_ in (("aggregate", "raw samples -> cells and verdicts (edat.perf.aggregate --help)"),
+                        ("import-iphone", "import an iPhone export (edat.perf.iphone_import --help)"),
+                        ("pack", "build a prompt pack (edat.perf.pack --help)")):
+        sub.add_parser(name, help=help_)
     ap.add_argument("--version", action="version", version=RUNNER_VERSION)
     args = ap.parse_args(argv)
     return args.fn(args)

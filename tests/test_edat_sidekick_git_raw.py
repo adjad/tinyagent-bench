@@ -266,12 +266,19 @@ AMEND_TO = "c=$(git commit-tree 'HEAD^{{tree}}' -p HEAD~1 -m {m}); git update-re
     "&& cp .git/config ../shadow/config && echo ../../shadow > .git/commondir",
     "git config core.worktree ../../wt2",                                       # a work tree elsewhere
     "git refs migrate --ref-format=reftable",                                   # refs git keeps in a format not read
+    # the same by hand, on any git (`refs migrate` needs 2.46): a reftable folder and the extension
+    "mkdir -p .git/reftable && print -r -- x > .git/reftable/tables.list && git config extensions.refStorage reftable "
+    "&& git config core.repositoryformatversion 1",
     "git config core.bare true",
     "git rev-parse HEAD > .git/info/grafts",
     "git replace HEAD HEAD~1",
 ])
 def test_a_repository_git_reads_from_elsewhere_is_flagged(iso, elsewhere):
     """The copy leaves the pointer out (git then reads what is stored here); the trial says so."""
+    from edat.sidekick.toolchain import find_toolchain, git_version
+    if elsewhere.startswith("git refs migrate") and git_version(find_toolchain().git.version) < (2, 46):
+        pytest.skip("`git refs migrate` needs git 2.46; this git cannot make a reftable repository that way "
+                    "(the hand-made variant runs on every git)")
     inst = _case("git_amend_message")
     assert _mismatch(iso, inst, AMEND_TO.format(m=_q(inst.given_names[0])) + elsewhere)
 

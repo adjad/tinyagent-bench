@@ -17,6 +17,7 @@ go-ahead, as every real run does. Held-out cases are refused for a
 from __future__ import annotations
 
 import argparse
+import contextlib
 import hashlib
 import json
 import random
@@ -89,10 +90,16 @@ def run(cases: list[dict], client, entry: Entry, *, store: Path | None, run_id: 
     if entry.kind == "cloud_reference" and any(c.get("split") == "heldout" for c in cases):
         raise ValueError("held-out cases are never sent to a hosted model")
     s = settings or ScreenSettings(thinking=(entry.thinking == "on"))
+    with contextlib.ExitStack() as stack:
+        writer = stack.enter_context(_writer(store, run_id)) if store is not None else None
+        return _run(cases, client, entry, writer=writer, run_id=run_id, board_version=board_version,
+                    trials=trials, track=track, settings=s)
+
+
+def _run(cases, client, entry: Entry, *, writer, run_id: str, board_version: str, trials: int, track: str,
+         settings: ScreenSettings) -> RunSummary:
+    s = settings
     summary = RunSummary(run_id=run_id)
-    writer = None
-    if store is not None:
-        writer = _writer(store, run_id)
     commit = harness_commit()
     counts = {"11": 0, "11_screenshot_som": 0}
     for case in cases:
@@ -141,11 +148,12 @@ def run(cases: list[dict], client, entry: Entry, *, store: Path | None, run_id: 
 
 
 def _writer(store: Path, run_id: str):
-    try:  # the results store's writer, once it is on main
+    """A context manager yielding the results store's writer, or the local one when it is not importable."""
+    try:
         from edat.results.writer import RunWriter  # type: ignore
-        return RunWriter.open(store, run_id, tier="app_control", suite="screen-world")
     except ImportError:
-        return LocalRunWriter(store, run_id)
+        return contextlib.nullcontext(LocalRunWriter(store, run_id))
+    return RunWriter.open(store, run_id, tier="app_control", suite="screen-world")
 
 
 def _attach(writer, name: str, data: str) -> None:

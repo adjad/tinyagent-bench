@@ -495,6 +495,8 @@ def _done_units(store: Path) -> dict[str, set[tuple[str, int, str]]]:
         for line in f.read_text().splitlines():
             if line.strip():
                 r = json.loads(line)
+                if r.get("status") == "ok" and "grade_hardened" not in (r.get("metrics") or {}):
+                    continue                     # graded before rows were marked: it never scores, so run it again
                 out.setdefault(r["suite"], set()).add((r["case_id"], r["trial"], r.get("split")))
     return out
 
@@ -634,12 +636,18 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
                                   started_at=started, seed=seed, raw_ref=w.put_raw(json.loads(json.dumps(raw, default=str))),
                                   commit=commit, dirty=dirty)
                 rec["facets"]["tags"] += [f"rung-{u.case.rung.n}", f"sampling-{profile.name}"]
-                lab = grading_label(inst.grader, inst.check)              # by rung, and by how the case is graded
-                if not u.case.rung.hardened or not lab["grade_hardened"]:
+                # Every graded row is marked, by rung and by how the case is graded (labels.may_score is default
+                # deny: a row without the mark is never scored). A tripwire's own `false` is kept.
+                lab = grading_label(inst.grader, inst.check)
+                hardened = (u.case.rung.hardened and lab["grade_hardened"]
+                            and (rec["metrics"] or {}).get("grade_hardened") is not False)
+                if status == "ok":
+                    rec["metrics"]["grading"] = lab["grading"]
+                    rec["metrics"]["grade_hardened"] = hardened
+                if not hardened:
                     if "grade-not-hardened" not in rec["facets"]["tags"]:
                         rec["facets"]["tags"].append("grade-not-hardened")
                     if status == "ok":
-                        rec["metrics"]["grade_hardened"] = False
                         rec["metrics"]["not_hardened_reason"] = lab.get("not_hardened_reason") or "probe_in_process"
                 if status == "ok" and model.bits_per_weight is not None:
                     rec["metrics"]["bits_per_weight"] = model.bits_per_weight

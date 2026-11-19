@@ -49,7 +49,7 @@ NOT_HARDENED_WHY = ("Rungs 4 to 9 are " + NOT_HARDENED + ": their hidden tests r
                     "answer cannot pass by accident. Until they are rebuilt they stay out of any published or "
                     "ranked score; code that touches the test machinery is flagged for a person to read. "
                     "On rungs 1 to 3 the labelled sidekick tasks (git, written tests, explanations matched by "
-                    "key facts, the shell and diff cases noted in the run sheet) carry the same label, so "
+                    "key facts, commit messages, the shell and diff cases noted in the run sheet) carry the same label, so "
                     "rungs 1 to 3 (and the ceiling) are worked out without them.")
 
 
@@ -148,12 +148,21 @@ def probe_templates() -> dict[str, list[Template]]:
     return out
 
 
+def _scored_case(case) -> bool:
+    """Whether a sidekick case's grading is on the allow-list (the label is the same on every seed)."""
+    from edat.sidekick.labels import grading_label
+    inst = case.template.build(random.Random(f"scored|{case.template.id}"))
+    return bool(grading_label(inst.grader, inst.check)["grade_hardened"])
+
+
 def ladder_cases(rungs: tuple[str, ...] | None = None) -> list[LadderCase]:
     """Every case of the selected rungs (default all), rung order then id."""
     from edat.sidekick.gen.core import build_cases
     want = set(rungs or RUNG_BY_ID)
     out: list[LadderCase] = []
-    sk = [c for c in build_cases(None) if c.core and c.group != "restraint"]
+    # Rungs 1 to 3 are worked out from scored rows only (labels.may_score), so their samples are drawn from
+    # the cases whose grading is on the allow-list; a labelled case would spend a trial that cannot count.
+    sk = [c for c in build_cases(None) if c.core and c.group != "restraint" and _scored_case(c)]
     by_t = probe_templates()
     for r in RUNGS:
         if r.id not in want:

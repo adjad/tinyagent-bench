@@ -110,14 +110,16 @@ def test_thinking_is_not_taken_as_the_answer():
 # ---------------------------------------------------------------- the ceiling rule
 
 def _rec(rung, case, trial, ok, mode=None):
+    metrics = {"pass": ok, "failure_mode": None if ok else (mode or "logic")}
     if rung.startswith("sk-"):
         facets = {"family": "shell", "category": "shell", "tags": ["core", f"level-{rung[3:]}"]}
         suite = "answer_only"
+        metrics.update(grading="shell", grade_hardened=True)          # as the runner marks a graded row
     else:
         facets = {"family": rung, "category": "ceiling", "tags": []}
         suite = "ladder_tool" if rung == "agent" else "ladder"
     return {"case_id": case, "trial": trial, "suite": suite, "status": "ok", "facets": facets,
-            "metrics": {"pass": ok, "failure_mode": None if ok else (mode or "logic")}, "safety": {"labels": []}}
+            "metrics": metrics, "safety": {"labels": []}}
 
 
 def _rung_records(rung, n_cases, passing_cases, trials=3):

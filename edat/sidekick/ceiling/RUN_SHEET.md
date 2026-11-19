@@ -220,28 +220,35 @@ folder, in a random order, and each run counts by its exit code alone. A folder 
 entries (files, links and folders all count); a folder past that is not graded, so a file past the cap
 can never pass for a deleted one.
 
-**What is hardened, and what is labelled.** Hardened against adversarial model code: the code and regex
-graders, the shell cases with an exact or forbidding output check, the commit-message grader and the
-Yes/No diff cases without a bug. Labelled `not hardened against adversarial model code` are
-the labelled task types and cases, each with its reason (the row's `not_hardened_reason`):
+**What is scored, and what is labelled.** Scored (the allow-list in `labels.py`): only rows graded by a
+method whose verdict holds against code written to attack the grader. That is the code grader (write_fn,
+fix_bug and their restraint cases: 58 of the 228 cases), the regex cases (pattern writing and reading: 24),
+and the 36 shell cases whose output check is exact, a number, a set or list of lines or a folder tree, or
+forbids an output (they held against nine spray commands): 118 of 228 cases, and nothing else. Labelled
+`not hardened against adversarial model code`, each with its reason (the row's `not_hardened_reason`):
 - git (`git_view`): graded by real git reading a repository the model controls;
 - write_test (`source_compare`): a test that compares the module against the shown source passes;
-- explanations matched by key facts, every explain_error case and the diff "what" cases (`prompt_echo`):
-  echoing the prompt can pass;
-- the Yes/No diff cases that have a bug (`prompt_echo`): their facts are matched by the same matcher;
+- every answer whose verdict comes from the fact matcher, which looks for the facts anywhere in the
+  answer's free text, so an answer that contains the prompt passes (`prompt_echo`): every explain_error
+  case, the diff "what" cases, the Yes/No diff cases that have a bug, and commit messages;
+- the Yes/No diff cases without a bug (`guessable`): "No." passes every one (so every diff_review case is
+  labelled);
 - the shell cases whose output check takes any line holding a name and its number, with no forbidden
   output (`task_blind_output`): task-blind output can pass;
 - the ceiling ladder's rungs 4 to 9 (`probe_in_process`) until their conversion lands.
 
 A labelled row carries the tag `grade-not-hardened`, `grade_hardened: false` and its reason, set from how
-its case is graded before grading starts, so an error in grading cannot strip it. One function
-(`labels.may_score`) decides whether a row may be scored, and every scorer uses it: the runner's summary,
-the results aggregate (labelled rows go to their own `sidekick_not_hardened` view, never ranked, with no
-difference from a reference), the export and the site data (no site figure or trajectory), and the
-ceiling report (rungs 1 to 3, the ceiling and "solid up to" are worked out without them). Labelled rows
-stay out of the Sidekick Score and every ranked or published number; the summary reports them apart,
-under `not_hardened`, with their reasons. Each is to be hardened in a small change of its own, and its
-label comes off only after that change has had its own adversarial pass. A sandboxed test program cannot read other
+its case is graded before grading starts, so an error in grading cannot strip it. Scoring is default deny:
+one function (`labels.may_score`) decides whether a row may be scored, and every scorer uses it. A graded
+row scores only when it is marked `grade_hardened: true` with an allow-listed `grading`, its type is on the
+scored list and it carries no label; a row with no mark, an old or resumed record (the ceiling runs it
+again rather than reuse it) or an unknown type never does. The scorers: the runner's summary, the results
+aggregate (rows not scored go to their own `sidekick_not_hardened` view, never ranked, with no difference
+from a reference, no sampling-sensitivity delta and no snapshot difference), the export and the site data
+(no site figure or trajectory), and the ceiling report (rungs 1 to 3, the ceiling, "solid up to" and the
+restraint and tool-mode rates are worked out without them). The summary reports them apart, under
+`not_hardened`, with their reasons. Each label comes off only after its own fix has had its own
+adversarial pass. A sandboxed test program cannot read other
 processes or devices (see "What model code can reach").
 
 **How the git grader reads a repository: real git, on a sanitised copy, labelled.** The harness copies

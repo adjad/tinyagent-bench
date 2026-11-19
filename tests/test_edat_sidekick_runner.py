@@ -81,7 +81,7 @@ def test_reference_client_passes_and_records_validate(tmp_path, iso):
         assert labelled == bool(r["metrics"].get("not_hardened_reason"))
         if r["facets"]["family"] == "git":
             assert labelled and r["metrics"]["grading"] == "git_on_copy" and r["metrics"]["not_hardened_reason"] == "git_view"
-    assert {t for t in out["summary"]["SK-2_type_pass_rate"]} == {"shell", "fix_bug", "commit_msg"}
+    assert {t for t in out["summary"]["SK-2_type_pass_rate"]} == {"shell", "fix_bug"}
     nh = out["summary"]["not_hardened"]
     assert nh["type_pass_rate"]["git"]["rate"] == 1.0 and nh["reasons"]["git_view"]["trials"] > 0
 
@@ -168,13 +168,17 @@ def test_cloud_reference_dev_only(tmp_path):
 def _rec(case, typ, trial, ok, suite="answer_only", level="L1", **metrics):
     return {"case_id": case, "trial": trial, "suite": suite, "status": "ok", "split": "dev",
             "facets": {"family": typ, "level": level, "variant": metrics.pop("variant", None)},
-            "metrics": {"pass": ok, **metrics}, "safety": {"labels": metrics.pop("labels", [])}}
+            "metrics": {"grade_hardened": True, "grading": _GRADING.get(typ, typ), "pass": ok, **metrics},
+            "safety": {"labels": metrics.pop("labels", [])}}
+
+
+_GRADING = {"write_fn": "code", "fix_bug": "code", "shell": "shell", "regex": "regex_write"}
 
 
 def test_sidekick_score_is_macro_over_the_ranked_types():
     from edat.sidekick.gen.core import TASK_TYPES
     from edat.sidekick.report import RANKED_TYPES
-    assert set(TASK_TYPES) - set(RANKED_TYPES) == {"git", "write_test", "explain_error"}
+    assert set(TASK_TYPES) - set(RANKED_TYPES) == {"git", "write_test", "explain_error", "commit_msg", "diff_review"}
     recs = []
     for i, t in enumerate(TASK_TYPES):
         for tr in (1, 2, 3):
@@ -230,9 +234,65 @@ def test_the_label_is_keyed_on_how_a_case_is_graded():
         assert len(set(marks)) == 1, t.id
     shell = {k for k, v in labelled.items() if v == "task_blind_output"}
     assert shell == {"shell_wc_csv", "shell_grep_count_errors"}
-    diff = {k for k in labelled if k.startswith("diff_")}
-    assert diff == {k for k in labelled if k.startswith("diff_what_")} | {k for k in labelled if k.startswith("diff_bug_")}
+    every = {t.id: t for t in all_templates()}
+    assert {k for k in labelled if every[k].type == "diff_review"} == {k for k, t in every.items() if t.type == "diff_review"}
+    assert {k for k, v in labelled.items() if v == "guessable"} == {
+        k for k, t in every.items() if t.type == "diff_review" and t.variant == "clean"}
+    assert {k for k, t in every.items() if t.type == "commit_msg"} <= {k for k, v in labelled.items() if v == "prompt_echo"}
     assert grading_label("git") == {"grading": "git_on_copy", "grade_hardened": False, "not_hardened_reason": "git_view"}
+
+
+def test_an_unmarked_graded_row_never_scores():
+    """Default deny: a graded row scores only when the runner marked it hardened, so a row written before the
+    marks existed (or with the mark stripped) stays out; a row that was not graded is routed by tag and type
+    as before, so it still counts towards its entry's exclusion rate."""
+    from edat.sidekick.labels import may_score, reason_of
+    marked = _rec("shell_a", "shell", 1, True)
+    old = _rec("shell_b", "shell", 1, True); del old["metrics"]["grade_hardened"]
+    assert may_score(marked) and not may_score(old) and reason_of(old) == "unmarked"
+    excluded = dict(old, status="excluded", metrics={})
+    assert may_score(excluded) and reason_of(excluded) is None
+    assert not may_score(dict(excluded, facets={"family": "git"}))
+    # the mark must name an allow-listed grading, and the type must be on the scored list
+    assert not may_score(_rec("shell_c", "shell", 1, True, grading="keyfacts"))
+    assert not may_score(_rec("x_a", "a_new_type", 1, True, grading="code"))
+    assert not may_score(_rec("git_a", "git", 1, True, grading="code"))
+    from edat.sidekick.gen.core import TASK_TYPES
+    from edat.sidekick.labels import LABELLED_TYPES
+    base = [_rec(f"{t}_a", t, 1, True) for t in TASK_TYPES if t not in LABELLED_TYPES]
+    s0 = summarize(base)
+    s = summarize(base + [old])
+    assert s["SK-1_sidekick_score"] == s0["SK-1_sidekick_score"] and s["trials"] == len(base)
+    assert s["not_hardened"]["trials"] == 1
+
+
+def test_the_allow_list_is_short_and_covers_every_type():
+    """Every task type is either scored or labelled, never both; a scored type's cases are graded by an
+    allow-listed method or labelled row by row; only an allow-listed method is ever marked hardened."""
+    import random
+    from edat.sidekick.gen.core import TASK_TYPES
+    from edat.sidekick.gen.registry import all_templates
+    from edat.sidekick.labels import HARDENED_GRADING, LABELLED_TYPES, SCORED_TYPES, grading_label
+    assert set(SCORED_TYPES) | set(LABELLED_TYPES) == set(TASK_TYPES) and not set(SCORED_TYPES) & set(LABELLED_TYPES)
+    assert SCORED_TYPES == ("write_fn", "fix_bug", "shell", "regex")
+    assert HARDENED_GRADING == ("code", "regex_write", "regex_read", "shell")
+    for t in all_templates():
+        inst = t.build(random.Random("allow"))
+        lab = grading_label(inst.grader, inst.check)
+        if lab["grade_hardened"]:
+            assert lab["grading"] in HARDENED_GRADING and t.type in SCORED_TYPES, t.id
+    for g in ("probe", "a_new_grader", "keyfacts", "commit_msg", "write_test", "git"):
+        assert grading_label(g)["grade_hardened"] is False
+
+
+def test_the_ceiling_runs_an_unmarked_row_again(tmp_path):
+    from edat.sidekick.ceiling.run import _done_units
+    runs = tmp_path / "runs" / "r1"
+    runs.mkdir(parents=True)
+    rows = [_rec("a", "shell", 1, True), _rec("b", "shell", 1, True), dict(_rec("c", "shell", 1, False), status="excluded", metrics={})]
+    del rows[1]["metrics"]["grade_hardened"]
+    (runs / "records.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rows))
+    assert _done_units(tmp_path) == {"answer_only": {("a", 1, "dev"), ("c", 1, "dev")}}
 
 
 def test_missing_type_gives_no_headline():

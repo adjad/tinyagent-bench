@@ -15,7 +15,9 @@
 - id: msg_hike_photos
   prompt: "did {friend2_first} send the hike photos?"
   expect: [{any_of: [view_messages, summarize_messages]}]
-  answer: {contains_any: [photos, "yes"]}
+  answer:
+    contains_any: ["yes", "sent you the photos", "6:15"]
+    not_contains: ["hasn't sent", "has not sent", "didn't send", "did not send", "no photos", "haven't received"]
 - id: msg_draft_friend
   prompt: "draft a text to {friend_first} saying 7 works for me"
   expect: [{tool: draft_message, args: {to: {icontains: "{friend_first}"}}}]
@@ -60,7 +62,7 @@
     - any_of: [view_messages, summarize_messages]
   answer:
     contains_all: ["{family_member}"]
-    not_contains: ["your post has {post_likes}", "your post got {post_likes}", "you have {post_likes}", "you got {post_likes}"]
+    not_contains: ["yes, your post", "your post got {post_likes}", "you have {post_likes}", "you got {post_likes}", "you received {post_likes}", "you've got {post_likes}"]
   forbid: [send_message]
   max_calls: 4
   trap: "dev8 2ba3ba8c / identity layer (features report case 27): Mom writes '@{family_member} - Your post has {post_likes} likes' to someone else. The likes belong to {family_member}'s post, never the user's"

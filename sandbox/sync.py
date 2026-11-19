@@ -108,13 +108,31 @@ def _browser_rows(world: World, browser: str) -> list[dict]:
 def _calendar_events(world: World, coll: dict) -> list[dict]:
     out = []
     for row in coll.values():
-        out.append({"source_id": row["source_id"], "kind": row["kind"],
-                    "title": row["title"], "context": row.get("context"),
-                    "organizer": row.get("organizer"), "account": row.get("account"),
-                    "when_ts": world.abs_ts(row["ts_off"]),
-                    "all_day": bool(row.get("all_day")),
-                    "location": row.get("location")})
+        event = {"source_id": row["source_id"], "kind": row["kind"],
+                 "title": row["title"], "context": row.get("context"),
+                 "organizer": row.get("organizer"), "account": row.get("account"),
+                 "when_ts": world.abs_ts(row["ts_off"]),
+                 "all_day": bool(row.get("all_day")),
+                 "location": row.get("location")}
+        # An end time, as EventKit gives one: only rows that carry `end_ts_off`
+        # (benchmark worlds) send it, so the seeded world's payload is unchanged.
+        if row.get("end_ts_off") is not None:
+            event["end_ts"] = world.abs_ts(row["end_ts_off"])
+        out.append(event)
     return out
+
+
+def _calendar_coverage(world: World) -> dict:
+    """The window the calendar read covered, as CalendarReader reports it.
+
+    Only a world that declares `calendar_coverage` ({"start_off", "end_off"},
+    benchmark worlds) sends it; the seeded world's diagnostics are unchanged.
+    Without it the Day planner treats the selected day as unconfirmed."""
+    cov = world.state.get("calendar_coverage")
+    if not isinstance(cov, dict):
+        return {}
+    return {"coverage_start": world.abs_ts(cov["start_off"]),
+            "coverage_end": world.abs_ts(cov["end_off"])}
 
 
 class SyncScheduler:
@@ -250,10 +268,10 @@ class SyncScheduler:
         elif source == "calendar":
             events = _calendar_events(world, world.state["calendar"])
             count = len(events)
+            diagnostics = {"authorized": True, "calendar_count": 1, "events_found": count}
+            diagnostics.update(_calendar_coverage(world))
             await self._post("/assistant/sync/calendar",
-                             {"events": events, "diagnostics": {"authorized": True,
-                                                                "calendar_count": 1,
-                                                                "events_found": count}})
+                             {"events": events, "diagnostics": diagnostics})
         elif source == "reminders":
             events = _calendar_events(world, world.state["reminders"])
             count = len(events)

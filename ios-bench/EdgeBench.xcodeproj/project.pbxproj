@@ -1,0 +1,101 @@
+// !$*UTF8*$!
+{ archiveVersion = 1; classes = {}; objectVersion = 60; objects = {
+44D670012E097E07AE4CCE47 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "App/AppModel.swift"; sourceTree = "<group>"; };
+C3A52D233F9FBF787D4E8C85 = { isa = PBXBuildFile; fileRef = 44D670012E097E07AE4CCE47; };
+4A28333F2FE347065102B60B = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "App/DeviceProbes.swift"; sourceTree = "<group>"; };
+F5A74D88BA9AF8143EBEBAC9 = { isa = PBXBuildFile; fileRef = 4A28333F2FE347065102B60B; };
+D56F51FDC16FE260E73208A7 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "App/EdgeBenchApp.swift"; sourceTree = "<group>"; };
+BDB9E029858A04FF98AD65B9 = { isa = PBXBuildFile; fileRef = D56F51FDC16FE260E73208A7; };
+41E50F47B38B796003E188B3 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "App/MLXGenerator.swift"; sourceTree = "<group>"; };
+8C60A191E9B5DBFD1F452FA9 = { isa = PBXBuildFile; fileRef = 41E50F47B38B796003E188B3; };
+4C817F96EA0C756288632F99 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "App/Views.swift"; sourceTree = "<group>"; };
+C1FA65CF4660B920705E30BF = { isa = PBXBuildFile; fileRef = 4C817F96EA0C756288632F99; };
+1A53B56888CF3D891C5E96E3 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources/EdgeBenchCore/BenchClock.swift"; sourceTree = "<group>"; };
+29387590F36B1C3A22F3D0EF = { isa = PBXBuildFile; fileRef = 1A53B56888CF3D891C5E96E3; };
+462B7EAE8F8DBE14F430868A = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources/EdgeBenchCore/Export.swift"; sourceTree = "<group>"; };
+B1988B129B287957C2D3DC46 = { isa = PBXBuildFile; fileRef = 462B7EAE8F8DBE14F430868A; };
+4EA632869839D52E07ABC34D = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources/EdgeBenchCore/Generator.swift"; sourceTree = "<group>"; };
+345BE15917021D0652E40247 = { isa = PBXBuildFile; fileRef = 4EA632869839D52E07ABC34D; };
+20DEEC48DF2AF3CC4B9FAD1D = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources/EdgeBenchCore/JSONValue.swift"; sourceTree = "<group>"; };
+2498F8051919434345CB23D5 = { isa = PBXBuildFile; fileRef = 20DEEC48DF2AF3CC4B9FAD1D; };
+DB45FE44BA99960F8F0A3EDD = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources/EdgeBenchCore/Measurement.swift"; sourceTree = "<group>"; };
+2B15E19813676E9E11D14993 = { isa = PBXBuildFile; fileRef = DB45FE44BA99960F8F0A3EDD; };
+C7399176B821EF0F9F645738 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources/EdgeBenchCore/ModelVariant.swift"; sourceTree = "<group>"; };
+A9FD1C6C7069CC18E13B0113 = { isa = PBXBuildFile; fileRef = C7399176B821EF0F9F645738; };
+AA0EC44C675DEFA037F55335 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources/EdgeBenchCore/PerfRecord.swift"; sourceTree = "<group>"; };
+55BD43787D803378223267B0 = { isa = PBXBuildFile; fileRef = AA0EC44C675DEFA037F55335; };
+9352CE2151603105636B7936 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources/EdgeBenchCore/PhoneItems.swift"; sourceTree = "<group>"; };
+C47B0E4DE08A0A04C0BE1961 = { isa = PBXBuildFile; fileRef = 9352CE2151603105636B7936; };
+616C762BCFBD498E2305FA73 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources/EdgeBenchCore/Plan.swift"; sourceTree = "<group>"; };
+57FC0A0B85C47B8394D2F65C = { isa = PBXBuildFile; fileRef = 616C762BCFBD498E2305FA73; };
+88484E533A0DFEA989EEEFFB = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources/EdgeBenchCore/Probes.swift"; sourceTree = "<group>"; };
+9355AB25CE8EA6F6217B8951 = { isa = PBXBuildFile; fileRef = 88484E533A0DFEA989EEEFFB; };
+09B68312485C3A6737CEEA5D = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources/EdgeBenchCore/PromptBuilder.swift"; sourceTree = "<group>"; };
+AA7DE8555131804B82DE1599 = { isa = PBXBuildFile; fileRef = 09B68312485C3A6737CEEA5D; };
+F302E9A46C331CCA943497E5 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources/EdgeBenchCore/PromptPack.swift"; sourceTree = "<group>"; };
+4B39BFABF24E4A88E67C5A38 = { isa = PBXBuildFile; fileRef = F302E9A46C331CCA943497E5; };
+D13CD604C898CBD3E94FDC0F = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources/EdgeBenchCore/Quality.swift"; sourceTree = "<group>"; };
+36D847A345D35AFE3140CACD = { isa = PBXBuildFile; fileRef = D13CD604C898CBD3E94FDC0F; };
+AD9E2D7B35B1096A15793507 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources/EdgeBenchCore/RunStore.swift"; sourceTree = "<group>"; };
+1DDFFAF97EB802977EDE4D99 = { isa = PBXBuildFile; fileRef = AD9E2D7B35B1096A15793507; };
+F9B0C16F9DADA73BCECB11AA = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources/EdgeBenchCore/Runner.swift"; sourceTree = "<group>"; };
+9A5F1A373585395AF224DCAF = { isa = PBXBuildFile; fileRef = F9B0C16F9DADA73BCECB11AA; };
+57A242BCBB8222890D1CFDD7 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources/EdgeBenchCore/Stats.swift"; sourceTree = "<group>"; };
+B87275DA8A9467D8CA2ADB41 = { isa = PBXBuildFile; fileRef = 57A242BCBB8222890D1CFDD7; };
+D77227FBB143D267943D4AB9 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sources/EdgeBenchCore/StubGenerator.swift"; sourceTree = "<group>"; };
+0047D30CE53690C6D94DD32F = { isa = PBXBuildFile; fileRef = D77227FBB143D267943D4AB9; };
+EAB41AF0AE6DC48572D8ABDA = { isa = PBXFileReference; lastKnownFileType = text; path = "Resources/corpus-agent-v0.txt"; sourceTree = "<group>"; };
+FD142A97B6029AECF0A429CD = { isa = PBXBuildFile; fileRef = EAB41AF0AE6DC48572D8ABDA; };
+9AC2D47FB46C0F1B11CC6870 = { isa = PBXFileReference; lastKnownFileType = text.json; path = "Resources/known-models.json"; sourceTree = "<group>"; };
+59ED02CF22FB6A76BE217982 = { isa = PBXBuildFile; fileRef = 9AC2D47FB46C0F1B11CC6870; };
+31FF9E517F993B23FEAD62F9 = { isa = PBXFileReference; lastKnownFileType = file; path = "Resources/phone-items-standin.jsonl"; sourceTree = "<group>"; };
+C3DA50DF6B630C8A4E797490 = { isa = PBXBuildFile; fileRef = 31FF9E517F993B23FEAD62F9; };
+46DAD1CC7A9245CF19F0F77B = { isa = PBXFileReference; lastKnownFileType = text.json; path = "Resources/phone-items-standin.manifest.json"; sourceTree = "<group>"; };
+335AE0E1C5048F110285208B = { isa = PBXBuildFile; fileRef = 46DAD1CC7A9245CF19F0F77B; };
+C4358BA6F82D4F9A6CEED82D = { isa = PBXFileReference; lastKnownFileType = text.json; path = "Resources/portable-cases.json"; sourceTree = "<group>"; };
+51D4F9F0DBDCA23F423D5EAE = { isa = PBXBuildFile; fileRef = C4358BA6F82D4F9A6CEED82D; };
+C887FAAA927E69CD03F43046 = { isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "App/Info.plist"; sourceTree = "<group>"; };
+58C33E899B08E91F8899AF0A = { isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "App/EdgeBench.entitlements"; sourceTree = "<group>"; };
+A734D93A8CC9211824B2E017 = { isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "App/EdgeBench-no-entitlements.entitlements"; sourceTree = "<group>"; };
+CD30A68B64C503429F45D3AB = { isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Config/EdgeBench.xcconfig"; sourceTree = "<group>"; };
+5330557CE4913C9FA219C78D = { isa = XCLocalSwiftPackageReference; relativePath = Packages/EdgeBenchMLX; };
+6EA156990D845B87749707A4 = { isa = XCSwiftPackageProductDependency; package = 5330557CE4913C9FA219C78D; productName = EdgeBenchMLX; };
+E5E4835A8247A27A2F5C00A2 = { isa = PBXBuildFile; productRef = 6EA156990D845B87749707A4; };
+E45F75CA3948CB6C39A089A4 = { isa = PBXFileReference; explicitFileType = wrapper.application; path = EdgeBench.app; sourceTree = BUILT_PRODUCTS_DIR; };
+304CEBFF9BAC96D0AE63F61D = { isa = PBXGroup; children = (E45F75CA3948CB6C39A089A4,); name = Products; sourceTree = "<group>"; };
+5E113A6046F89EBDE0263796 = { isa = PBXGroup; children = (44D670012E097E07AE4CCE47,4A28333F2FE347065102B60B,D56F51FDC16FE260E73208A7,41E50F47B38B796003E188B3,4C817F96EA0C756288632F99,1A53B56888CF3D891C5E96E3,462B7EAE8F8DBE14F430868A,4EA632869839D52E07ABC34D,20DEEC48DF2AF3CC4B9FAD1D,DB45FE44BA99960F8F0A3EDD,C7399176B821EF0F9F645738,AA0EC44C675DEFA037F55335,9352CE2151603105636B7936,616C762BCFBD498E2305FA73,88484E533A0DFEA989EEEFFB,09B68312485C3A6737CEEA5D,F302E9A46C331CCA943497E5,D13CD604C898CBD3E94FDC0F,AD9E2D7B35B1096A15793507,F9B0C16F9DADA73BCECB11AA,57A242BCBB8222890D1CFDD7,D77227FBB143D267943D4AB9,EAB41AF0AE6DC48572D8ABDA,9AC2D47FB46C0F1B11CC6870,31FF9E517F993B23FEAD62F9,46DAD1CC7A9245CF19F0F77B,C4358BA6F82D4F9A6CEED82D,C887FAAA927E69CD03F43046,58C33E899B08E91F8899AF0A,A734D93A8CC9211824B2E017,CD30A68B64C503429F45D3AB,304CEBFF9BAC96D0AE63F61D,); sourceTree = "<group>"; };
+20C79242310AA2CBD937B247 = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (C3A52D233F9FBF787D4E8C85,F5A74D88BA9AF8143EBEBAC9,BDB9E029858A04FF98AD65B9,8C60A191E9B5DBFD1F452FA9,C1FA65CF4660B920705E30BF,29387590F36B1C3A22F3D0EF,B1988B129B287957C2D3DC46,345BE15917021D0652E40247,2498F8051919434345CB23D5,2B15E19813676E9E11D14993,A9FD1C6C7069CC18E13B0113,55BD43787D803378223267B0,C47B0E4DE08A0A04C0BE1961,57FC0A0B85C47B8394D2F65C,9355AB25CE8EA6F6217B8951,AA7DE8555131804B82DE1599,4B39BFABF24E4A88E67C5A38,36D847A345D35AFE3140CACD,1DDFFAF97EB802977EDE4D99,9A5F1A373585395AF224DCAF,B87275DA8A9467D8CA2ADB41,0047D30CE53690C6D94DD32F,); runOnlyForDeploymentPostprocessing = 0; };
+8188392B18BA1273EC945F45 = { isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (E5E4835A8247A27A2F5C00A2); runOnlyForDeploymentPostprocessing = 0; };
+17AF901734DC6DD0B681FDCE = { isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (FD142A97B6029AECF0A429CD,59ED02CF22FB6A76BE217982,C3DA50DF6B630C8A4E797490,335AE0E1C5048F110285208B,51D4F9F0DBDCA23F423D5EAE,); runOnlyForDeploymentPostprocessing = 0; };
+2E7C3446AC0E70A5972EACAD = { isa = XCBuildConfiguration; name = Debug; buildSettings = { CLANG_ENABLE_MODULES = YES; SDKROOT = iphoneos; IPHONEOS_DEPLOYMENT_TARGET = 17.0; }; };
+E11B5A84315DA4C17C9D09B4 = { isa = XCBuildConfiguration; baseConfigurationReference = CD30A68B64C503429F45D3AB; name = Debug; buildSettings = {
+        PRODUCT_NAME = EdgeBench; PRODUCT_BUNDLE_IDENTIFIER = "$(EDGEBENCH_BUNDLE_ID)";
+        SWIFT_VERSION = 6.0; SWIFT_STRICT_CONCURRENCY = complete;
+        INFOPLIST_FILE = App/Info.plist; GENERATE_INFOPLIST_FILE = NO;
+        CODE_SIGN_ENTITLEMENTS = "$(EDGEBENCH_ENTITLEMENTS)";
+        TARGETED_DEVICE_FAMILY = 1; CODE_SIGN_STYLE = Automatic;
+        CURRENT_PROJECT_VERSION = 1; MARKETING_VERSION = 0.1.0;
+        ENABLE_USER_SCRIPT_SANDBOXING = NO;
+        SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+    }; };
+8AB7D21E24E18B47D6E1833A = { isa = XCBuildConfiguration; name = Release; buildSettings = { CLANG_ENABLE_MODULES = YES; SDKROOT = iphoneos; IPHONEOS_DEPLOYMENT_TARGET = 17.0; }; };
+01B958E2E4BFDE42D61A492D = { isa = XCBuildConfiguration; baseConfigurationReference = CD30A68B64C503429F45D3AB; name = Release; buildSettings = {
+        PRODUCT_NAME = EdgeBench; PRODUCT_BUNDLE_IDENTIFIER = "$(EDGEBENCH_BUNDLE_ID)";
+        SWIFT_VERSION = 6.0; SWIFT_STRICT_CONCURRENCY = complete;
+        INFOPLIST_FILE = App/Info.plist; GENERATE_INFOPLIST_FILE = NO;
+        CODE_SIGN_ENTITLEMENTS = "$(EDGEBENCH_ENTITLEMENTS)";
+        TARGETED_DEVICE_FAMILY = 1; CODE_SIGN_STYLE = Automatic;
+        CURRENT_PROJECT_VERSION = 1; MARKETING_VERSION = 0.1.0;
+        ENABLE_USER_SCRIPT_SANDBOXING = NO;
+        SWIFT_OPTIMIZATION_LEVEL = "-O";
+    }; };
+409EBAD37B1CCFBD1CB88775 = { isa = XCConfigurationList; buildConfigurations = (2E7C3446AC0E70A5972EACAD,8AB7D21E24E18B47D6E1833A,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+9C214C63944BD7A1A96AC44C = { isa = XCConfigurationList; buildConfigurations = (E11B5A84315DA4C17C9D09B4,01B958E2E4BFDE42D61A492D,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+38443BE657DC2F9C6A56A1E7 = { isa = PBXShellScriptBuildPhase; alwaysOutOfDate = 1; buildActionMask = 2147483647; files = (); inputPaths = ("$(TARGET_BUILD_DIR)/$(INFOPLIST_PATH)",); name = "Stamp git commit"; outputPaths = (); runOnlyForDeploymentPostprocessing = 0; shellPath = /bin/sh; shellScript = "C=$(git -C \"$SRCROOT\" rev-parse HEAD 2>/dev/null) || exit 0
+P=\"$TARGET_BUILD_DIR/$INFOPLIST_PATH\"
+/usr/libexec/PlistBuddy -c \"Delete :EDATCommit\" \"$P\" 2>/dev/null
+/usr/libexec/PlistBuddy -c \"Add :EDATCommit string $C\" \"$P\"
+"; showEnvVarsInLog = 0; };
+4AD5E857D2600125FE002335 = { isa = PBXNativeTarget; buildConfigurationList = 9C214C63944BD7A1A96AC44C; buildPhases = (20C79242310AA2CBD937B247,8188392B18BA1273EC945F45,17AF901734DC6DD0B681FDCE,38443BE657DC2F9C6A56A1E7,); buildRules = (); dependencies = (); name = EdgeBench; packageProductDependencies = (6EA156990D845B87749707A4); productName = EdgeBench; productReference = E45F75CA3948CB6C39A089A4; productType = "com.apple.product-type.application"; };
+3699B574DC377FE650901DE1 = { isa = PBXProject; attributes = { LastUpgradeCheck = 2700; }; buildConfigurationList = 409EBAD37B1CCFBD1CB88775; compatibilityVersion = "Xcode 15.0"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = (en,Base,); mainGroup = 5E113A6046F89EBDE0263796; packageReferences = (5330557CE4913C9FA219C78D); productRefGroup = 304CEBFF9BAC96D0AE63F61D; projectDirPath = ""; projectRoot = ""; targets = (4AD5E857D2600125FE002335,); };
+}; rootObject = 3699B574DC377FE650901DE1; }

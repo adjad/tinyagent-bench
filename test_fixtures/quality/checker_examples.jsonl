@@ -1,0 +1,473 @@
+{"id": "P1-p-01", "pref_id": "P1", "surface": "answer", "text": "Your ferry code is FX-20913.", "meta": {"answer_key": ["FX-20913"], "request": "What's my ferry code?"}, "expect": "pass", "note": "anchor in a plain first sentence"}
+{"id": "P1-p-02", "pref_id": "P1", "surface": "answer", "text": "Four things on Tuesday:\n- 09:30 Dentist\n- 12:00 Lunch with Ines\n- 15:00 Choir\n- 19:00 Gym", "meta": {"answer_key": ["09:30"]}, "expect": "pass", "note": "lead-in colon joined with first list item"}
+{"id": "P1-p-03", "pref_id": "P1", "surface": "answer", "text": "- 09:30 Dentist\n- 12:00 Lunch with Ines", "meta": {"answer_key": ["09:30"]}, "expect": "pass", "note": "answer opens with a list; anchor in first item"}
+{"id": "P1-p-04", "pref_id": "P1", "surface": "answer", "text": "The dentist is at 3 pm.", "meta": {"answer_key": ["15:00"]}, "expect": "pass", "note": "normalized: 3 pm matches 15:00"}
+{"id": "P1-p-05", "pref_id": "P1", "surface": "answer", "text": "The dentist is at 15:00.", "meta": {"answer_key": ["3 pm"]}, "expect": "pass", "note": "normalized: 15:00 matches key 3 pm"}
+{"id": "P1-p-06", "pref_id": "P1", "surface": "answer", "text": "It is on Tue 19 Nov.", "meta": {"answer_key": ["2024-11-19"], "case_year": 2024}, "expect": "pass", "note": "date anchor ISO matches Tue 19 Nov"}
+{"id": "P1-p-07", "pref_id": "P1", "surface": "answer", "text": "The invoice total is 1,250.40 EUR.", "meta": {"answer_key": ["1250.40"]}, "expect": "pass", "note": "amount anchor with thousands separator"}
+{"id": "P1-p-08", "pref_id": "P1", "surface": "answer", "text": "Your locker code is QX-4471.", "meta": {"answer_key": [{"type": "code", "value": "QX-4471"}]}, "expect": "pass", "note": "dict anchor"}
+{"id": "P1-p-09", "pref_id": "P1", "surface": "answer", "text": "Your locker code is qx 4471.", "meta": {"answer_key": [{"type": "code", "value": "QX-4471", "aliases": ["qx 4471"]}]}, "expect": "pass", "note": "dict anchor via alias"}
+{"id": "P1-p-10", "pref_id": "P1", "surface": "answer", "text": "Yes, the pharmacy opens at 10:00 on Sunday.", "meta": {"answer_key": ["10:00"]}, "expect": "pass", "note": "yes-prefixed answer is not filler"}
+{"id": "P1-p-11", "pref_id": "P1", "surface": "answer", "text": "Based on your calendar, the dentist is at 09:30.", "meta": {"answer_key": ["09:30"]}, "expect": "pass", "note": "short preamble then anchor, not a filler opener"}
+{"id": "P1-p-12", "pref_id": "P1", "surface": "answer", "text": "The meeting with the facilities team about the new parking arrangement is at 14:30.", "meta": {"answer_key": ["14:30"]}, "expect": "pass", "note": "anchor near word 14"}
+{"id": "P1-p-13", "pref_id": "P1", "surface": "answer", "text": "1. Dentist at 09:30\n2. Lunch at 12:00", "meta": {"answer_key": ["09:30"]}, "expect": "pass", "note": "numbered list, anchor in first item"}
+{"id": "P1-p-14", "pref_id": "P1", "surface": "answer", "text": "The locker is on level 2. Your code is QX-4471.", "meta": {"answer_key": ["QX-4471", "level 2"]}, "expect": "pass", "note": "one of several anchors is in the first sentence"}
+{"id": "P1-p-15", "pref_id": "P1", "surface": "answer", "text": "**QX-4471** is your locker code.", "meta": {"answer_key": ["QX-4471"]}, "expect": "pass", "note": "bold anchor"}
+{"id": "P1-p-16", "pref_id": "P1", "surface": "answer", "text": "Your dentist appointment is at 09:30.", "meta": {"answer_key": ["09:30"], "request": "What time is my dentist appointment?"}, "expect": "pass", "note": "anchor wins even when the sentence echoes the request"}
+{"id": "P1-p-17", "pref_id": "P1", "surface": "answer", "text": "Ines Varga owns the spare key.", "meta": {"answer_key": ["Ines Varga"]}, "expect": "pass", "note": "name anchor"}
+{"id": "P1-p-18", "pref_id": "P1", "surface": "answer", "text": "No, the shop closes at 18:00.", "meta": {"answer_key": ["18:00"]}, "expect": "pass", "note": "no-prefixed answer"}
+{"id": "P1-p-19", "pref_id": "P1", "surface": "answer", "text": "Your locker is 14B.", "meta": {"answer_key": ["14B"]}, "expect": "pass", "note": "short code anchor"}
+{"id": "P1-p-20", "pref_id": "P1", "surface": "answer", "text": "The ride takes 45 minutes.", "meta": {"answer_key": ["45 minutes"]}, "expect": "pass", "note": "duration anchor"}
+{"id": "P1-p-21", "pref_id": "P1", "surface": "answer", "text": "alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron pi rho sigma tau upsilon phi chi psi omega north south east west QX-4471.", "meta": {"answer_key": ["QX-4471"]}, "expect": "pass", "note": "anchor starts at word 29, still before word 30"}
+{"id": "P1-p-22", "pref_id": "P1", "surface": "answer", "text": "Plenty of seats remain and the code is QX-4471.", "meta": {"answer_key": ["QX-4471"], "case_year": 2027}, "expect": "pass", "note": "anchor in the middle of the first sentence"}
+{"id": "P1-f-01", "pref_id": "P1", "surface": "answer", "text": "Great question! Your ferry code is FX-20913.", "meta": {"answer_key": ["FX-20913"]}, "expect": "fail", "note": "filler: great question"}
+{"id": "P1-f-02", "pref_id": "P1", "surface": "answer", "text": "Certainly, your ferry code is FX-20913.", "meta": {"answer_key": ["FX-20913"]}, "expect": "fail", "note": "filler: certainly"}
+{"id": "P1-f-03", "pref_id": "P1", "surface": "answer", "text": "Sure! Here's the code: FX-20913.", "meta": {"answer_key": ["FX-20913"]}, "expect": "fail", "note": "filler: sure! here's"}
+{"id": "P1-f-04", "pref_id": "P1", "surface": "answer", "text": "Of course! Your ferry code is FX-20913.", "meta": {"answer_key": ["FX-20913"]}, "expect": "fail", "note": "filler: of course"}
+{"id": "P1-f-05", "pref_id": "P1", "surface": "answer", "text": "As an AI, I can tell you the code is FX-20913.", "meta": {"answer_key": ["FX-20913"]}, "expect": "fail", "note": "filler: as an AI"}
+{"id": "P1-f-06", "pref_id": "P1", "surface": "answer", "text": "I'd be happy to help. Your ferry code is FX-20913.", "meta": {"answer_key": ["FX-20913"]}, "expect": "fail", "note": "filler: I'd be happy to help"}
+{"id": "P1-f-07", "pref_id": "P1", "surface": "answer", "text": "Happy to help! Your ferry code is FX-20913.", "meta": {"answer_key": ["FX-20913"]}, "expect": "fail", "note": "filler: happy to help"}
+{"id": "P1-f-08", "pref_id": "P1", "surface": "answer", "text": "Thanks for asking! Your ferry code is FX-20913.", "meta": {"answer_key": ["FX-20913"]}, "expect": "fail", "note": "filler: thanks for asking"}
+{"id": "P1-f-09", "pref_id": "P1", "surface": "answer", "text": "No problem. Your ferry code is FX-20913.", "meta": {"answer_key": ["FX-20913"]}, "expect": "fail", "note": "filler: no problem"}
+{"id": "P1-f-10", "pref_id": "P1", "surface": "answer", "text": "Here's what I found: your ferry code is FX-20913.", "meta": {"answer_key": ["FX-20913"]}, "expect": "fail", "note": "filler: here's what I found"}
+{"id": "P1-f-11", "pref_id": "P1", "surface": "answer", "text": "Good question. The code is FX-20913.", "meta": {"answer_key": ["FX-20913"]}, "expect": "fail", "note": "filler: good question"}
+{"id": "P1-f-12", "pref_id": "P1", "surface": "answer", "text": "What a great question! The code is FX-20913.", "meta": {"answer_key": ["FX-20913"]}, "expect": "fail", "note": "filler: what a great question"}
+{"id": "P1-f-13", "pref_id": "P1", "surface": "answer", "text": "Absolutely! The code is FX-20913.", "meta": {"answer_key": ["FX-20913"]}, "expect": "fail", "note": "filler: absolutely"}
+{"id": "P1-f-14", "pref_id": "P1", "surface": "answer", "text": "", "meta": {"answer_key": ["FX-20913"]}, "expect": "fail", "note": "empty answer"}
+{"id": "P1-f-15", "pref_id": "P1", "surface": "answer", "text": "   \n  ", "meta": {"answer_key": ["FX-20913"]}, "expect": "fail", "note": "whitespace-only answer"}
+{"id": "P1-f-16", "pref_id": "P1", "surface": "answer", "text": "alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron pi rho sigma tau upsilon phi chi psi omega north south east west north south QX-4471.", "meta": {"answer_key": ["QX-4471"]}, "expect": "fail", "note": "anchor starts at word 31, too late"}
+{"id": "P1-f-17", "pref_id": "P1", "surface": "answer", "text": "You asked about your ferry. I looked through your emails. The code is FX-20913.", "meta": {"answer_key": ["FX-20913"]}, "expect": "fail", "note": "anchor only in the third sentence"}
+{"id": "P1-f-18", "pref_id": "P1", "surface": "answer", "text": "What is my ferry code? Let me see.", "meta": {"answer_key": ["FX-20913"], "request": "What is my ferry code?"}, "expect": "fail", "note": "restates the request, no anchor"}
+{"id": "P1-f-19", "pref_id": "P1", "surface": "answer", "text": "The ferry code is somewhere in your emails.", "meta": {"answer_key": ["FX-20913"]}, "expect": "fail", "note": "no anchor at all"}
+{"id": "P1-f-20", "pref_id": "P1", "surface": "answer", "text": "Here are your items:\n- Check the ferry\n- Code FX-20913", "meta": {"answer_key": ["FX-20913"]}, "expect": "fail", "note": "lead-in colon joined with the first item only; anchor in second item"}
+{"id": "P1-f-21", "pref_id": "P1", "surface": "answer", "text": "- Dentist, later today\n- 09:30 Dentist", "meta": {"answer_key": ["09:30"]}, "expect": "fail", "note": "list opening: anchor only in the second item"}
+{"id": "P1-f-22", "pref_id": "P1", "surface": "answer", "text": "The dentist is at 16:00.", "meta": {"answer_key": ["15:00"]}, "expect": "fail", "note": "wrong time is not the anchor"}
+{"id": "P1-f-23", "pref_id": "P1", "surface": "answer", "text": "The dentist is at 3 am.", "meta": {"answer_key": ["15:00"]}, "expect": "fail", "note": "3 am is not 15:00"}
+{"id": "P1-f-24", "pref_id": "P1", "surface": "answer", "text": "Hmm, let me think about that for a moment. The code is FX-20913.", "meta": {"answer_key": ["FX-20913"]}, "expect": "fail", "note": "preamble sentence without anchor"}
+{"id": "P1-n-01", "pref_id": "P1", "surface": "answer", "text": "Anything at all.", "meta": {}, "expect": "n/a", "note": "no answer key"}
+{"id": "P1-n-02", "pref_id": "P1", "surface": "answer", "text": "Anything at all.", "meta": {"answer_key": []}, "expect": "n/a", "note": "empty answer key"}
+{"id": "P1-n-03", "pref_id": "P1", "surface": "json", "text": "Your ferry code is FX-20913.", "meta": {"answer_key": ["FX-20913"]}, "expect": "n/a", "note": "json surface"}
+{"id": "P1-n-04", "pref_id": "P1", "surface": "draft_email", "text": "Hi,\nYour ferry code is FX-20913.\nBest,\nTest User", "meta": {"answer_key": ["FX-20913"]}, "expect": "n/a", "note": "draft_email out of scope"}
+{"id": "P1-n-05", "pref_id": "P1", "surface": "answer", "text": "Great question! Nothing here.", "meta": {"answer_key": ["FX-20913"], "active": false}, "expect": "n/a", "note": "override turn: inactive"}
+{"id": "P1-n-06", "pref_id": "P1", "surface": "tool_args", "text": "Your ferry code is FX-20913.", "meta": {"answer_key": ["FX-20913"]}, "expect": "n/a", "note": "tool_args surface"}
+{"id": "P2-p-01", "pref_id": "P2", "surface": "answer", "text": "The dentist is at 09:30. Bring your card. Parking is free.", "meta": {}, "expect": "pass", "note": "exactly three sentences"}
+{"id": "P2-p-02", "pref_id": "P2", "surface": "answer", "text": "The dentist is at 09:30.", "meta": {}, "expect": "pass", "note": "one sentence"}
+{"id": "P2-p-03", "pref_id": "P2", "surface": "answer", "text": "Yes. It opens at 10:00.", "meta": {}, "expect": "pass", "note": "two short sentences"}
+{"id": "P2-p-04", "pref_id": "P2", "surface": "answer", "text": "Three things today:\n- 09:30 Dentist\n- 12:00 Lunch\n- 19:00 Choir", "meta": {}, "expect": "pass", "note": "lead-in plus short list = 2 units"}
+{"id": "P2-p-05", "pref_id": "P2", "surface": "answer", "text": "Today:\n- 09:30 Dentist\n- 12:00 Lunch\n\nThat is all.", "meta": {}, "expect": "pass", "note": "lead-in sentence, short list, one sentence = 3"}
+{"id": "P2-p-06", "pref_id": "P2", "surface": "answer", "text": "```\nline one. line two. line three. line four.\n```\nThat is the log.", "meta": {}, "expect": "pass", "note": "code block not counted"}
+{"id": "P2-p-07", "pref_id": "P2", "surface": "answer", "text": "| Day | Time |\n| --- | --- |\n| Tue | 09:30 |\n| Wed | 11:00 |\n\nThose are the slots. Pick one.", "meta": {}, "expect": "pass", "note": "table counts as 1 unit"}
+{"id": "P2-p-08", "pref_id": "P2", "surface": "answer", "text": "1. Unplug it\n2. Wait ten seconds\n3. Plug it back in", "meta": {}, "expect": "pass", "note": "numbered short list = 1 unit"}
+{"id": "P2-p-09", "pref_id": "P2", "surface": "answer", "text": "- word word word word word word word word word word word word word word word word word word word word\n- Short one", "meta": {}, "expect": "pass", "note": "item with exactly 20 words is short"}
+{"id": "P2-p-10", "pref_id": "P2", "surface": "answer", "text": "Dr. Okafor sees you at 09:30. Bring your card.", "meta": {}, "expect": "pass", "note": "abbreviation does not split"}
+{"id": "P2-p-11", "pref_id": "P2", "surface": "answer", "text": "It costs 3.50 EUR. Pay at the desk.", "meta": {}, "expect": "pass", "note": "decimal point does not split"}
+{"id": "P2-p-12", "pref_id": "P2", "surface": "answer", "text": "Is it open? Yes. It opens at 10:00.", "meta": {}, "expect": "pass", "note": "question and answers"}
+{"id": "P2-p-13", "pref_id": "P2", "surface": "answer", "text": "It is open! Come by at 10:00!", "meta": {}, "expect": "pass", "note": "exclamations"}
+{"id": "P2-p-14", "pref_id": "P2", "surface": "answer", "text": "- word word word word word word word word word word word word word word word word word word word word word word word word word.\n- short\n- also short\n\nDone.", "meta": {}, "expect": "pass", "note": "one long item (1) + short items together (1) + one sentence = 3"}
+{"id": "P2-p-15", "pref_id": "P2", "surface": "answer", "text": "> The lease ends soon. It is final.\n\nOk.", "meta": {}, "expect": "pass", "note": "block quote sentences count; 3 total"}
+{"id": "P2-p-16", "pref_id": "P2", "surface": "answer", "text": "**Dentist:** 09:30\n**Lunch:** 12:00\n**Choir:** 19:00", "meta": {}, "expect": "pass", "note": "bold-label lines as one paragraph"}
+{"id": "P2-p-17", "pref_id": "P2", "surface": "answer", "text": "The dentist is at 09:30.\n\nLunch is at 12:00.\n\nChoir is at 19:00.", "meta": {}, "expect": "pass", "note": "three one-sentence paragraphs"}
+{"id": "P2-p-18", "pref_id": "P2", "surface": "answer", "text": "Leave at 09:30; the dentist is two streets away; bring your card.", "meta": {}, "expect": "pass", "note": "semicolons do not split sentences"}
+{"id": "P2-p-19", "pref_id": "P2", "surface": "answer", "text": "Yes.", "meta": {}, "expect": "pass", "note": "single word"}
+{"id": "P2-p-20", "pref_id": "P2", "surface": "answer", "text": "- Dentist 09:30\n- Lunch 12:00\n- Choir 19:00\n- Gym 20:00\n- Bed 22:30\n- Alarm 06:45", "meta": {}, "expect": "pass", "note": "six short items = 1 unit"}
+{"id": "P2-p-21", "pref_id": "P2", "surface": "answer", "text": "```python\nprint('a. b. c. d.')\n```", "meta": {}, "expect": "pass", "note": "only a code block"}
+{"id": "P2-p-22", "pref_id": "P2", "surface": "answer", "text": "Short intro.\n- one\n- two\n- three\n\nShort outro.", "meta": {}, "expect": "pass", "note": "intro + list + outro = 3"}
+{"id": "P2-p-23", "pref_id": "P2", "surface": "answer", "text": "Here is a list. It is long. It has many things.", "meta": {"detail_requested": false}, "expect": "pass", "note": "explicit detail_requested false"}
+{"id": "P2-f-01", "pref_id": "P2", "surface": "answer", "text": "One. Two. Three. Four.", "meta": {}, "expect": "fail", "note": "four sentences"}
+{"id": "P2-f-02", "pref_id": "P2", "surface": "answer", "text": "The dentist is at 09:30. Bring your card. Parking is free. The door code is 4471. Ring twice.", "meta": {}, "expect": "fail", "note": "five sentences"}
+{"id": "P2-f-03", "pref_id": "P2", "surface": "answer", "text": "First line. Second line.\n- a\n- b\nThird. Fourth.", "meta": {}, "expect": "fail", "note": "two sentences + list + two sentences"}
+{"id": "P2-f-04", "pref_id": "P2", "surface": "answer", "text": "- word word word word word word word word word word word word word word word word word word word word word word word word word. Another sentence here.\n- short\nEnd. More.", "meta": {}, "expect": "fail", "note": "long item with 2 sentences + short + prose"}
+{"id": "P2-f-05", "pref_id": "P2", "surface": "answer", "text": "- word word word word word word word word word word word word word word word word word word word word word word.\n- more more more more more more more more more more more more more more more more more more more more more more.\n- last last last last last last last last last last last last last last last last last last last last last last.\n- short", "meta": {}, "expect": "fail", "note": "three long items + short = 4"}
+{"id": "P2-f-06", "pref_id": "P2", "surface": "answer", "text": "- word word word word word word word word word word word word word word word word word word word word word word.\n- more more more more more more more more more more more more more more more more more more more more more more.\n- last last last last last last last last last last last last last last last last last last last last last last.\n- fine fine fine fine fine fine fine fine fine fine fine fine fine fine fine fine fine fine fine fine fine fine.", "meta": {}, "expect": "fail", "note": "four long items = 4"}
+{"id": "P2-f-07", "pref_id": "P2", "surface": "answer", "text": "- word word word word word word word word word word word word word word word word word word word word word.\n- short\n\nOne. Two. Three.", "meta": {}, "expect": "fail", "note": "long item + short group + three sentences"}
+{"id": "P2-f-08", "pref_id": "P2", "surface": "answer", "text": "Intro here.\n- a\n- b\nMiddle here.\n- c\n- d\nEnd here.", "meta": {}, "expect": "fail", "note": "two lists plus three sentences = 5"}
+{"id": "P2-f-09", "pref_id": "P2", "surface": "answer", "text": "```\ncode\n```\nOne. Two. Three. Four.", "meta": {}, "expect": "fail", "note": "code block ignored, four sentences remain"}
+{"id": "P2-f-10", "pref_id": "P2", "surface": "answer", "text": "| a | b |\n| - | - |\n| 1 | 2 |\n\nOne. Two. Three.", "meta": {}, "expect": "fail", "note": "table = 1 plus three sentences"}
+{"id": "P2-f-11", "pref_id": "P2", "surface": "answer", "text": "The dentist is at 09:30.\n\nLunch is at 12:00.\n\nChoir is at 19:00.\n\nBed is at 22:30.", "meta": {}, "expect": "fail", "note": "four one-sentence paragraphs"}
+{"id": "P2-f-12", "pref_id": "P2", "surface": "answer", "text": "Is it open? Yes! Opens at 10:00. Closes at 18:00.", "meta": {}, "expect": "fail", "note": "mixed terminators, four sentences"}
+{"id": "P2-f-13", "pref_id": "P2", "surface": "answer", "text": "> One. Two.\n\nThree. Four.", "meta": {}, "expect": "fail", "note": "quote sentences + prose = 4"}
+{"id": "P2-f-14", "pref_id": "P2", "surface": "answer", "text": "1. step step step step step step step step step step step step step step step step step step step step step step step step step step step step step step. Then more.\n2. next next next next next next next next next next next next next next next next next next next next next next next next next next next next next next. Then more.", "meta": {}, "expect": "fail", "note": "two long numbered items with two sentences each"}
+{"id": "P2-f-15", "pref_id": "P2", "surface": "answer", "text": "Intro.\n1. a\n2. b\n\nMiddle.\n\nEnd.\n\nOutro.", "meta": {}, "expect": "fail", "note": "list=1 + four sentences"}
+{"id": "P2-f-16", "pref_id": "P2", "surface": "answer", "text": "Sentence one. Sentence two. Sentence three. Sentence four. Sentence five. Sentence six.", "meta": {}, "expect": "fail", "note": "six sentences"}
+{"id": "P2-f-17", "pref_id": "P2", "surface": "answer", "text": "Dr. Okafor sees you at 09:30. Bring your card. Parking is free. Ring twice.", "meta": {}, "expect": "fail", "note": "abbreviation fine but four sentences"}
+{"id": "P2-f-18", "pref_id": "P2", "surface": "answer", "text": "**Dentist:** Be there at 09:30. **Lunch:** Be there at 12:00. **Choir:** Be there at 19:00. **Gym:** Be there at 20:00.", "meta": {}, "expect": "fail", "note": "four sentences with bold labels inline"}
+{"id": "P2-f-19", "pref_id": "P2", "surface": "answer", "text": "I checked. The slot is free. It is at 09:30. You can book it. It costs 3.50 EUR.", "meta": {}, "expect": "fail", "note": "decimal number among five sentences"}
+{"id": "P2-f-20", "pref_id": "P2", "surface": "answer", "text": "Wait.\nOne.\nTwo.\nThree.", "meta": {}, "expect": "fail", "note": "line breaks inside a paragraph still split sentences"}
+{"id": "P2-f-21", "pref_id": "P2", "surface": "answer", "text": "Good. Good. Good. Good. ", "meta": {}, "expect": "fail", "note": "four tiny sentences"}
+{"id": "P2-n-01", "pref_id": "P2", "surface": "answer", "text": "One. Two. Three. Four. Five.", "meta": {"detail_requested": true}, "expect": "n/a", "note": "detail requested"}
+{"id": "P2-n-02", "pref_id": "P2", "surface": "answer", "text": "", "meta": {}, "expect": "n/a", "note": "empty answer"}
+{"id": "P2-n-03", "pref_id": "P2", "surface": "json", "text": "One. Two. Three. Four. Five.", "meta": {}, "expect": "n/a", "note": "json surface"}
+{"id": "P2-n-04", "pref_id": "P2", "surface": "draft_email", "text": "One. Two. Three. Four. Five.", "meta": {}, "expect": "n/a", "note": "draft_email out of scope"}
+{"id": "P2-n-05", "pref_id": "P2", "surface": "answer", "text": "One. Two. Three. Four. Five.", "meta": {"active": false}, "expect": "n/a", "note": "inactive on override turn"}
+{"id": "P3-p-01", "pref_id": "P3", "surface": "answer", "text": "- Dentist\n- Lunch\n- Choir", "meta": {"expected_items": 3}, "expect": "pass", "note": "three dash items"}
+{"id": "P3-p-02", "pref_id": "P3", "surface": "answer", "text": "Today:\n* Dentist\n* Lunch\n* Choir\n* Gym", "meta": {"expected_items": 4}, "expect": "pass", "note": "star bullets, four expected"}
+{"id": "P3-p-03", "pref_id": "P3", "surface": "answer", "text": "Today:\n+ Dentist\n+ Lunch\n+ Choir", "meta": {"expected_items": 3}, "expect": "pass", "note": "plus bullets"}
+{"id": "P3-p-04", "pref_id": "P3", "surface": "answer", "text": "1. Unplug it\n2. Wait\n3. Plug it in", "meta": {"expected_items": 3, "qtype": "steps"}, "expect": "pass", "note": "numbered list counts for steps"}
+{"id": "P3-p-05", "pref_id": "P3", "surface": "answer", "text": "- **Ines:** 42.10 EUR\n- **Tomas:** 18.00 EUR\n- **Aiko:** 7.50 EUR", "meta": {"expected_items": 3}, "expect": "pass", "note": "bold-label list"}
+{"id": "P3-p-06", "pref_id": "P3", "surface": "answer", "text": "- a\n- b\n- c\n- d\n- e", "meta": {"expected_items": 3}, "expect": "pass", "note": "more items than expected"}
+{"id": "P3-p-07", "pref_id": "P3", "surface": "answer", "text": "Your three stops:\n\n- Harbour Road\n- Mill Lane\n- Quarry Hill", "meta": {"expected_items": 3}, "expect": "pass", "note": "lead-in then bullets"}
+{"id": "P3-p-08", "pref_id": "P3", "surface": "answer", "text": "- a\n  - sub one\n  - sub two\n- b\n- c", "meta": {"expected_items": 3}, "expect": "pass", "note": "nested items do not count but top level has three"}
+{"id": "P3-p-09", "pref_id": "P3", "surface": "answer", "text": "- Dentist\n- Lunch\n- Choir\n\nAll before 20:00.", "meta": {"expected_items": 3}, "expect": "pass", "note": "list then closing sentence"}
+{"id": "P3-p-10", "pref_id": "P3", "surface": "answer", "text": "- Dentist\n- Lunch\n- Choir\n- Gym\n- Bed", "meta": {"expected_items": 5}, "expect": "pass", "note": "five of five"}
+{"id": "P3-p-11", "pref_id": "P3", "surface": "answer", "text": "- Dentist\n- Lunch\n- Choir", "meta": {"expected_items": 3, "qtype": "steps"}, "expect": "pass", "note": "bullets also fine for steps"}
+{"id": "P3-p-12", "pref_id": "P3", "surface": "answer", "text": "- Dentist\n- Lunch\n- Choir", "meta": {"expected_items": 3, "qtype": "compare"}, "expect": "pass", "note": "bullets fine for compare"}
+{"id": "P3-p-13", "pref_id": "P3", "surface": "answer", "text": "Note first.\n\n- Dentist\n- Lunch\n- Choir", "meta": {"expected_items": 3}, "expect": "pass", "note": "prose before list"}
+{"id": "P3-p-14", "pref_id": "P3", "surface": "answer", "text": "1. Open the box\n2. Remove the foam\n3. Press the button\n4. Wait", "meta": {"expected_items": 4, "qtype": "steps"}, "expect": "pass", "note": "four steps"}
+{"id": "P3-p-15", "pref_id": "P3", "surface": "answer", "text": "- one\n- two\n- three\n\nand\n\n- x\n- y", "meta": {"expected_items": 3}, "expect": "pass", "note": "one of two lists is long enough"}
+{"id": "P3-p-16", "pref_id": "P3", "surface": "answer", "text": "- **Tue:** dentist\n- **Wed:** lunch\n- **Thu:** choir\n- **Fri:** gym", "meta": {"expected_items": 3}, "expect": "pass", "note": "bold-label list with four items, three expected"}
+{"id": "P3-p-17", "pref_id": "P3", "surface": "answer", "text": "* Harbour Road\n* Mill Lane\n* Quarry Hill\n* Tower Street\n* Bridge End\n* Gate Lane", "meta": {"expected_items": 6}, "expect": "pass", "note": "six"}
+{"id": "P3-p-18", "pref_id": "P3", "surface": "answer", "text": "- 09:30 Dentist\n- 12:00 Lunch\n- 15:00 Choir", "meta": {"expected_items": 3, "qtype": "set"}, "expect": "pass", "note": "qtype set with bullets"}
+{"id": "P3-p-19", "pref_id": "P3", "surface": "answer", "text": "- A\n- B\n- C", "meta": {"expected_items": 3}, "expect": "pass", "note": "single letters"}
+{"id": "P3-p-20", "pref_id": "P3", "surface": "answer", "text": "- Dentist 09:30\n\n- Lunch 12:00\n\n- Choir 15:00", "meta": {"expected_items": 3}, "expect": "pass", "note": "loose list: blank lines between items stay one Markdown list"}
+{"id": "P3-p-21", "pref_id": "P3", "surface": "answer", "text": "- Dentist\n- Lunch\n- Choir", "meta": {"expected_items": 3, "answer_key": ["09:30"]}, "expect": "pass", "note": "other meta ignored"}
+{"id": "P3-p-22", "pref_id": "P3", "surface": "answer", "text": "Steps:\n1. Pour\n2. Stir\n3. Serve", "meta": {"expected_items": 3, "qtype": "steps"}, "expect": "pass", "note": "steps with lead-in"}
+{"id": "P3-f-01", "pref_id": "P3", "surface": "answer", "text": "You have the dentist, lunch and choir.", "meta": {"expected_items": 3}, "expect": "fail", "note": "items inline in a sentence"}
+{"id": "P3-f-02", "pref_id": "P3", "surface": "answer", "text": "- Dentist\n- Lunch", "meta": {"expected_items": 3}, "expect": "fail", "note": "too few items"}
+{"id": "P3-f-03", "pref_id": "P3", "surface": "answer", "text": "1. Dentist\n2. Lunch\n3. Choir", "meta": {"expected_items": 3, "qtype": "set"}, "expect": "fail", "note": "numbered list outside steps"}
+{"id": "P3-f-04", "pref_id": "P3", "surface": "answer", "text": "1. Dentist\n2. Lunch\n3. Choir", "meta": {"expected_items": 3}, "expect": "fail", "note": "numbered list, no qtype"}
+{"id": "P3-f-05", "pref_id": "P3", "surface": "answer", "text": "1. Dentist\n2. Lunch\n3. Choir", "meta": {"expected_items": 3, "qtype": "compare"}, "expect": "fail", "note": "numbered for compare"}
+{"id": "P3-f-06", "pref_id": "P3", "surface": "answer", "text": "- a\n  - sub one\n  - sub two\n  - sub three\n- b", "meta": {"expected_items": 3}, "expect": "fail", "note": "three nested items, only two top-level"}
+{"id": "P3-f-07", "pref_id": "P3", "surface": "answer", "text": "- a\n- b\n\nbreak\n\n- c\n- d", "meta": {"expected_items": 4}, "expect": "fail", "note": "two separate lists of two"}
+{"id": "P3-f-08", "pref_id": "P3", "surface": "answer", "text": "First the dentist, second lunch, third choir.", "meta": {"expected_items": 3}, "expect": "fail", "note": "ordinals inline"}
+{"id": "P3-f-09", "pref_id": "P3", "surface": "answer", "text": "Dentist\nLunch\nChoir", "meta": {"expected_items": 3}, "expect": "fail", "note": "bare lines, no markers"}
+{"id": "P3-f-10", "pref_id": "P3", "surface": "answer", "text": "", "meta": {"expected_items": 3}, "expect": "fail", "note": "empty text"}
+{"id": "P3-f-11", "pref_id": "P3", "surface": "answer", "text": "- Dentist\n- Lunch\n- Choir", "meta": {"expected_items": 4}, "expect": "fail", "note": "three items, four expected"}
+{"id": "P3-f-12", "pref_id": "P3", "surface": "answer", "text": "1. Open\n2. Remove\n3. Press", "meta": {"expected_items": 4, "qtype": "steps"}, "expect": "fail", "note": "numbered steps, too few"}
+{"id": "P3-f-13", "pref_id": "P3", "surface": "answer", "text": "| a | b |\n| - | - |\n| 1 | 2 |\n| 3 | 4 |", "meta": {"expected_items": 3}, "expect": "fail", "note": "table instead of bullets"}
+{"id": "P3-f-14", "pref_id": "P3", "surface": "answer", "text": "Dentist, lunch, choir, gym.", "meta": {"expected_items": 4}, "expect": "fail", "note": "comma list"}
+{"id": "P3-f-15", "pref_id": "P3", "surface": "answer", "text": "- Dentist, lunch and choir", "meta": {"expected_items": 3}, "expect": "fail", "note": "one bullet holding three items"}
+{"id": "P3-f-16", "pref_id": "P3", "surface": "answer", "text": "1) Dentist\n2) Lunch\n3) Choir", "meta": {"expected_items": 3, "qtype": "set"}, "expect": "fail", "note": "paren numbering outside steps"}
+{"id": "P3-f-17", "pref_id": "P3", "surface": "answer", "text": "Items:\n\n1. Dentist\n\n2. Lunch\n\n3. Choir", "meta": {"expected_items": 3, "qtype": "records"}, "expect": "fail", "note": "numbered, qtype records"}
+{"id": "P3-f-18", "pref_id": "P3", "surface": "answer", "text": "Dentist: 09:30. Lunch: 12:00. Choir: 15:00.", "meta": {"expected_items": 3}, "expect": "fail", "note": "labelled sentences"}
+{"id": "P3-f-19", "pref_id": "P3", "surface": "answer", "text": "- 09:30 Dentist\n- 12:00 Lunch", "meta": {"expected_items": 5}, "expect": "fail", "note": "two of five"}
+{"id": "P3-f-20", "pref_id": "P3", "surface": "answer", "text": "```\n- a\n- b\n- c\n```", "meta": {"expected_items": 3}, "expect": "fail", "note": "bullets inside a code block"}
+{"id": "P3-f-21", "pref_id": "P3", "surface": "answer", "text": "The three are: the dentist; lunch; choir.", "meta": {"expected_items": 3}, "expect": "fail", "note": "semicolon list inline"}
+{"id": "P3-f-22", "pref_id": "P3", "surface": "answer", "text": "Yes.", "meta": {"expected_items": 3}, "expect": "fail", "note": "no list at all"}
+{"id": "P3-n-01", "pref_id": "P3", "surface": "answer", "text": "You have the dentist, lunch and choir.", "meta": {}, "expect": "n/a", "note": "no expected_items"}
+{"id": "P3-n-02", "pref_id": "P3", "surface": "answer", "text": "You have the dentist and lunch.", "meta": {"expected_items": 2}, "expect": "n/a", "note": "two items expected"}
+{"id": "P3-n-03", "pref_id": "P3", "surface": "answer", "text": "You have the dentist.", "meta": {"expected_items": 1}, "expect": "n/a", "note": "one item expected"}
+{"id": "P3-n-04", "pref_id": "P3", "surface": "answer", "text": "You have the dentist.", "meta": {"expected_items": 0}, "expect": "n/a", "note": "zero expected"}
+{"id": "P3-n-05", "pref_id": "P3", "surface": "draft_message", "text": "You have the dentist, lunch and choir.", "meta": {"expected_items": 3}, "expect": "n/a", "note": "draft_message out of scope"}
+{"id": "P3-n-06", "pref_id": "P3", "surface": "answer", "text": "You have the dentist, lunch and choir.", "meta": {"expected_items": 3, "active": false}, "expect": "n/a", "note": "inactive on override turn"}
+{"id": "P4-p-01", "pref_id": "P4", "surface": "answer", "text": "- **Ines:** 42.10 EUR\n- **Tomas:** 18.00 EUR", "meta": {}, "expect": "pass", "note": "bold-label list is not a table"}
+{"id": "P4-p-02", "pref_id": "P4", "surface": "answer", "text": "The rate is 3 | 4 depending on the plan.", "meta": {}, "expect": "pass", "note": "single pipe in prose"}
+{"id": "P4-p-03", "pref_id": "P4", "surface": "answer", "text": "Plain prose with  two  spaces in one line only.", "meta": {}, "expect": "pass", "note": "double spaces in one line"}
+{"id": "P4-p-04", "pref_id": "P4", "surface": "answer", "text": "Dentist at 09:30.\nLunch at 12:00.\nChoir at 15:00.", "meta": {}, "expect": "pass", "note": "three lines, single spaces"}
+{"id": "P4-p-05", "pref_id": "P4", "surface": "answer", "text": "| Day | Time |\n| Tue | 09:30 |", "meta": {}, "expect": "pass", "note": "pipe lines without a separator row"}
+{"id": "P4-p-06", "pref_id": "P4", "surface": "answer", "text": "Ines  42.10\nTomas  18.00", "meta": {}, "expect": "pass", "note": "two lines only cannot be a fake table"}
+{"id": "P4-p-07", "pref_id": "P4", "surface": "answer", "text": "Ines  42.10  EUR\nTomas 18.00\nAiko 7.50", "meta": {}, "expect": "pass", "note": "only the first line has spaced columns"}
+{"id": "P4-p-08", "pref_id": "P4", "surface": "answer", "text": "---\nDone.\n---", "meta": {}, "expect": "pass", "note": "horizontal rules"}
+{"id": "P4-p-09", "pref_id": "P4", "surface": "answer", "text": "```\n$ ls\nfile_a.txt\nfile_b.txt\n```", "meta": {}, "expect": "pass", "note": "code block with no columns"}
+{"id": "P4-p-10", "pref_id": "P4", "surface": "answer", "text": "a | b", "meta": {}, "expect": "pass", "note": "one pipe line"}
+{"id": "P4-p-11", "pref_id": "P4", "surface": "answer", "text": "- Dentist\n- Lunch\n- Choir", "meta": {}, "expect": "pass", "note": "plain list"}
+{"id": "P4-p-12", "pref_id": "P4", "surface": "draft_email", "text": "Hi Ines,\nSee you at 09:30.\nBest,\nTest User", "meta": {}, "expect": "pass", "note": "short email"}
+{"id": "P4-p-13", "pref_id": "P4", "surface": "draft_message", "text": "On my way, back by 18:00.", "meta": {}, "expect": "pass", "note": "chat message"}
+{"id": "P4-p-14", "pref_id": "P4", "surface": "answer", "text": "```\nIA  JB\n```", "meta": {}, "expect": "pass", "note": "one-line columns in code"}
+{"id": "P4-p-15", "pref_id": "P4", "surface": "answer", "text": "Ines    42.10\nTomas   18.00\nAiko    7.50", "meta": {}, "expect": "pass", "note": "three lines sharing only one column start"}
+{"id": "P4-p-16", "pref_id": "P4", "surface": "answer", "text": "Result: 3 | 4 | 5", "meta": {}, "expect": "pass", "note": "pipes in one line, no separator"}
+{"id": "P4-p-17", "pref_id": "P4", "surface": "answer", "text": "Use `a | b | c` to pipe.", "meta": {}, "expect": "pass", "note": "inline code with pipes"}
+{"id": "P4-p-18", "pref_id": "P4", "surface": "answer", "text": "The dash --- looks like a rule but is in prose.", "meta": {}, "expect": "pass", "note": "dashes in prose"}
+{"id": "P4-p-19", "pref_id": "P4", "surface": "answer", "text": "Row one has  a gap\nRow two has a different layout here\nRow three shifts it  again", "meta": {}, "expect": "pass", "note": "gaps in different positions"}
+{"id": "P4-p-20", "pref_id": "P4", "surface": "answer", "text": "Line one\n\nLine  two\n\nLine three", "meta": {}, "expect": "pass", "note": "blank-separated lines"}
+{"id": "P4-p-21", "pref_id": "P4", "surface": "answer", "text": "* a\n* b\n* c", "meta": {}, "expect": "pass", "note": "star list"}
+{"id": "P4-p-22", "pref_id": "P4", "surface": "answer", "text": "1. Open\n2. Close", "meta": {}, "expect": "pass", "note": "numbered list"}
+{"id": "P4-f-01", "pref_id": "P4", "surface": "answer", "text": "| Day | Time |\n| --- | --- |\n| Tue | 09:30 |\n| Wed | 11:00 |", "meta": {}, "expect": "fail", "note": "basic GFM table"}
+{"id": "P4-f-02", "pref_id": "P4", "surface": "answer", "text": "| Day | Time |\n|:---|---:|\n| Tue | 09:30 |", "meta": {}, "expect": "fail", "note": "GFM table with alignment colons"}
+{"id": "P4-f-03", "pref_id": "P4", "surface": "answer", "text": "Day | Time\n--- | ---\nTue | 09:30\nWed | 11:00", "meta": {}, "expect": "fail", "note": "GFM without outer pipes"}
+{"id": "P4-f-04", "pref_id": "P4", "surface": "answer", "text": "Here is the plan.\n\n| Day | Time |\n| --- | --- |\n| Tue | 09:30 |\n| Wed | 11:00 |", "meta": {}, "expect": "fail", "note": "table after prose"}
+{"id": "P4-f-05", "pref_id": "P4", "surface": "answer", "text": "| Day | Time |\n| --- | --- |\n| Tue | 09:30 |\n| Wed | 11:00 |\n\nThat is all.", "meta": {}, "expect": "fail", "note": "table before prose"}
+{"id": "P4-f-06", "pref_id": "P4", "surface": "answer", "text": "<table><tr><td>Tue</td><td>09:30</td></tr></table>", "meta": {}, "expect": "fail", "note": "HTML table"}
+{"id": "P4-f-07", "pref_id": "P4", "surface": "answer", "text": "<TABLE>\n<tr><td>a</td></tr>\n</TABLE>", "meta": {}, "expect": "fail", "note": "uppercase HTML table"}
+{"id": "P4-f-08", "pref_id": "P4", "surface": "answer", "text": "Text then <table border=1><tr><td>a</td></tr></table> end.", "meta": {}, "expect": "fail", "note": "HTML table with attributes"}
+{"id": "P4-f-09", "pref_id": "P4", "surface": "answer", "text": "Ines      42.10    Fri\nTomas     18.00    Sat\nAiko      7.50     Sun", "meta": {}, "expect": "fail", "note": "fake table: three lines, three aligned columns"}
+{"id": "P4-f-10", "pref_id": "P4", "surface": "answer", "text": "Tue     09:30  x\nWed     11:00  y\nThu     15:00  z", "meta": {}, "expect": "fail", "note": "fake table with a third column"}
+{"id": "P4-f-11", "pref_id": "P4", "surface": "answer", "text": "```\nInes      42.10    Fri\nTomas     18.00    Sat\nAiko      7.50     Sun\n```", "meta": {}, "expect": "fail", "note": "fake table inside a code block"}
+{"id": "P4-f-12", "pref_id": "P4", "surface": "answer", "text": "Ines\t42.10\tFri\nLena\t18.00\tSat\nAiko\t07.50\tSun", "meta": {}, "expect": "fail", "note": "tab-separated fake table (equal-width first column)"}
+{"id": "P4-f-13", "pref_id": "P4", "surface": "answer", "text": "Intro line.\n\nInes      42.10    Fri\nTomas     18.00    Sat\nAiko      7.50     Sun\nLena      3.00     Mon", "meta": {}, "expect": "fail", "note": "fake table with four rows after prose"}
+{"id": "P4-f-14", "pref_id": "P4", "surface": "draft_email", "text": "Hi Ines,\n\n| Day | Time |\n| --- | --- |\n| Tue | 09:30 |\n| Wed | 11:00 |\n\nBest,\nTest User", "meta": {}, "expect": "fail", "note": "table in a draft email"}
+{"id": "P4-f-15", "pref_id": "P4", "surface": "draft_message", "text": "| Day | Time |\n| --- | --- |\n| Tue | 09:30 |\n| Wed | 11:00 |", "meta": {}, "expect": "fail", "note": "table in a draft message"}
+{"id": "P4-f-16", "pref_id": "P4", "surface": "answer", "text": "```\n| a | b |\n| --- | --- |\n| 1 | 2 |\n```", "meta": {}, "expect": "fail", "note": "GFM table inside a code block"}
+{"id": "P4-f-17", "pref_id": "P4", "surface": "answer", "text": "| a | b |\n| - | - |\n| 1 | 2 |", "meta": {}, "expect": "fail", "note": "GFM table whose separator cells have a single hyphen (valid GFM)"}
+{"id": "P4-f-18", "pref_id": "P4", "surface": "answer", "text": "| a | b | c |\n|---|---|---|\n| 1 | 2 | 3 |", "meta": {}, "expect": "fail", "note": "three column GFM"}
+{"id": "P4-f-19", "pref_id": "P4", "surface": "answer", "text": "|a|b|\n|--|--|\n|1|2|", "meta": {}, "expect": "fail", "note": "compact GFM"}
+{"id": "P4-f-20", "pref_id": "P4", "surface": "answer", "text": "| Name | Owed |\n| ---- | ---- |\n| Ines | 42.10 EUR |\n| Tomas | 18.00 EUR |\n| Aiko | 7.50 EUR |", "meta": {}, "expect": "fail", "note": "five-line GFM"}
+{"id": "P4-f-21", "pref_id": "P4", "surface": "answer", "text": "Name    Owed   Due\nInes    42.10  Fri\nTomas   18.00  Sat", "meta": {}, "expect": "fail", "note": "fake table with header row"}
+{"id": "P4-p-23", "pref_id": "P4", "surface": "answer", "text": "Ines   42.10\nTomas  18.00\nAiko   7.50", "meta": {}, "expect": "pass", "note": "two aligned columns share only one column start, so the rule does not fire"}
+{"id": "P4-n-01", "pref_id": "P4", "surface": "json", "text": "| Day | Time |\n| --- | --- |\n| Tue | 09:30 |\n| Wed | 11:00 |", "meta": {}, "expect": "n/a", "note": "json surface"}
+{"id": "P4-n-02", "pref_id": "P4", "surface": "tool_args", "text": "| Day | Time |\n| --- | --- |\n| Tue | 09:30 |\n| Wed | 11:00 |", "meta": {}, "expect": "n/a", "note": "tool_args surface"}
+{"id": "P4-n-03", "pref_id": "P4", "surface": "answer", "text": "| Day | Time |\n| --- | --- |\n| Tue | 09:30 |\n| Wed | 11:00 |", "meta": {"active": false}, "expect": "n/a", "note": "inactive on override turn"}
+{"id": "P4-n-04", "pref_id": "P4", "surface": "answer", "text": "<table><tr><td>a</td></tr></table>", "meta": {"active": false}, "expect": "n/a", "note": "inactive, HTML table"}
+{"id": "P4-n-05", "pref_id": "P4", "surface": "json", "text": "| Day | Time |\n| --- | --- |\n| Tue | 09:30 |\n| Wed | 11:00 |", "meta": {}, "expect": "n/a", "note": "json surface repeated with table prose"}
+{"id": "P5-p-01", "pref_id": "P5", "surface": "answer", "text": "All done, see you at 18:00.", "meta": {}, "expect": "pass", "note": "plain"}
+{"id": "P5-p-02", "pref_id": "P5", "surface": "answer", "text": "Thanks :)", "meta": {}, "expect": "pass", "note": "emoticon is a note only"}
+{"id": "P5-p-03", "pref_id": "P5", "surface": "answer", "text": "See you ;) <3", "meta": {}, "expect": "pass", "note": "wink and heart emoticons"}
+{"id": "P5-p-04", "pref_id": "P5", "surface": "answer", "text": "She wrote \"great news 🎉\" in the chat.", "meta": {"source_text": "Ines: great news 🎉"}, "expect": "pass", "note": "quoted source exemption, straight quotes"}
+{"id": "P5-p-05", "pref_id": "P5", "surface": "answer", "text": "She wrote “great news 🎉” in the chat.", "meta": {"source_text": "Ines: great news 🎉"}, "expect": "pass", "note": "quoted source exemption, curly quotes"}
+{"id": "P5-p-06", "pref_id": "P5", "surface": "answer", "text": "> great news 🎉", "meta": {"source_text": "Ines: great news 🎉"}, "expect": "pass", "note": "block-quote exemption"}
+{"id": "P5-p-07", "pref_id": "P5", "surface": "answer", "text": "Copyright © 2027 and Trademark ™.", "meta": {}, "expect": "pass", "note": "text-presentation symbols without FE0F"}
+{"id": "P5-p-08", "pref_id": "P5", "surface": "answer", "text": "Call ☎ 555-0101.", "meta": {}, "expect": "pass", "note": "ExtPict telephone without FE0F is text"}
+{"id": "P5-p-09", "pref_id": "P5", "surface": "answer", "text": "Arrows → and check ✓ and star ★.", "meta": {}, "expect": "pass", "note": "dingbats that are not emoji"}
+{"id": "P5-p-10", "pref_id": "P5", "surface": "answer", "text": "Press 1, 2 and 3, then # and *.", "meta": {}, "expect": "pass", "note": "keycap bases without U+20E3"}
+{"id": "P5-p-11", "pref_id": "P5", "surface": "answer", "text": "Flag letters: 🇫 alone.", "meta": {}, "expect": "pass", "note": "single regional indicator is not a pair"}
+{"id": "P5-p-12", "pref_id": "P5", "surface": "answer", "text": "Heart ♥ suit symbol.", "meta": {}, "expect": "pass", "note": "card suit without FE0F"}
+{"id": "P5-p-13", "pref_id": "P5", "surface": "draft_message", "text": "Plain text.", "meta": {}, "expect": "pass", "note": "draft message"}
+{"id": "P5-p-14", "pref_id": "P5", "surface": "draft_email", "text": "Hi Ines,\nSee you then.\nBest,\nTest User", "meta": {}, "expect": "pass", "note": "draft email"}
+{"id": "P5-p-15", "pref_id": "P5", "surface": "answer", "text": "Use the :smile: shortcode in chat.", "meta": {}, "expect": "pass", "note": "shortcodes are plain text"}
+{"id": "P5-p-16", "pref_id": "P5", "surface": "answer", "text": "Score: 3-2 :-) :D", "meta": {}, "expect": "pass", "note": "emoticons"}
+{"id": "P5-p-17", "pref_id": "P5", "surface": "answer", "text": "Accents: café, naïve, über, ñ.", "meta": {}, "expect": "pass", "note": "accented letters"}
+{"id": "P5-p-18", "pref_id": "P5", "surface": "answer", "text": "Dash – and ellipsis … and bullet •.", "meta": {}, "expect": "pass", "note": "punctuation"}
+{"id": "P5-p-19", "pref_id": "P5", "surface": "answer", "text": "Currency € £ $ and math × ÷ ≤.", "meta": {}, "expect": "pass", "note": "symbols"}
+{"id": "P5-p-20", "pref_id": "P5", "surface": "answer", "text": "> 😀 from the source", "meta": {"source_text": "😀 from the source"}, "expect": "pass", "note": "block quote reproduces source"}
+{"id": "P5-p-21", "pref_id": "P5", "surface": "answer", "text": "Temperature rose.", "meta": {"source_text": "Temperature rose 😀"}, "expect": "pass", "note": "source has emoji, answer does not"}
+{"id": "P5-p-22", "pref_id": "P5", "surface": "answer", "text": "CJK 你好 is fine too.", "meta": {}, "expect": "pass", "note": "non-emoji CJK"}
+{"id": "P5-f-01", "pref_id": "P5", "surface": "answer", "text": "Great news 😀", "meta": {}, "expect": "fail", "note": "grinning face"}
+{"id": "P5-f-02", "pref_id": "P5", "surface": "answer", "text": "Party 🎉 tonight", "meta": {}, "expect": "fail", "note": "party popper"}
+{"id": "P5-f-03", "pref_id": "P5", "surface": "answer", "text": "Done ✅", "meta": {}, "expect": "fail", "note": "check mark button (Emoji_Presentation)"}
+{"id": "P5-f-04", "pref_id": "P5", "surface": "answer", "text": "Cancelled ❌", "meta": {}, "expect": "fail", "note": "cross mark"}
+{"id": "P5-f-05", "pref_id": "P5", "surface": "answer", "text": "Top ⭐", "meta": {}, "expect": "fail", "note": "star (Emoji_Presentation)"}
+{"id": "P5-f-06", "pref_id": "P5", "surface": "answer", "text": "Love ❤️", "meta": {}, "expect": "fail", "note": "red heart with FE0F"}
+{"id": "P5-f-07", "pref_id": "P5", "surface": "answer", "text": "Call ☎️ 555-0101", "meta": {}, "expect": "fail", "note": "telephone with FE0F"}
+{"id": "P5-f-08", "pref_id": "P5", "surface": "answer", "text": "Copyright ©️", "meta": {}, "expect": "fail", "note": "copyright with FE0F"}
+{"id": "P5-f-09", "pref_id": "P5", "surface": "answer", "text": "From 🇫🇷", "meta": {}, "expect": "fail", "note": "regional indicator pair flag"}
+{"id": "P5-f-10", "pref_id": "P5", "surface": "answer", "text": "From 🇯🇵 today", "meta": {}, "expect": "fail", "note": "another flag"}
+{"id": "P5-f-11", "pref_id": "P5", "surface": "answer", "text": "Press 1️⃣", "meta": {}, "expect": "fail", "note": "keycap 1 with FE0F"}
+{"id": "P5-f-12", "pref_id": "P5", "surface": "answer", "text": "Press #️⃣", "meta": {}, "expect": "fail", "note": "keycap # with FE0F"}
+{"id": "P5-f-13", "pref_id": "P5", "surface": "answer", "text": "Press *⃣", "meta": {}, "expect": "fail", "note": "keycap * without FE0F"}
+{"id": "P5-f-14", "pref_id": "P5", "surface": "answer", "text": "Press 5⃣", "meta": {}, "expect": "fail", "note": "keycap 5 without FE0F"}
+{"id": "P5-f-15", "pref_id": "P5", "surface": "answer", "text": "Thumbs 👍🏽", "meta": {}, "expect": "fail", "note": "emoji with skin tone"}
+{"id": "P5-f-16", "pref_id": "P5", "surface": "answer", "text": "Family 👨‍👩‍👧", "meta": {}, "expect": "fail", "note": "ZWJ family sequence"}
+{"id": "P5-f-17", "pref_id": "P5", "surface": "draft_email", "text": "Hi Ines,\nSee you 😀\nBest,\nTest User", "meta": {}, "expect": "fail", "note": "emoji in draft email"}
+{"id": "P5-f-18", "pref_id": "P5", "surface": "draft_message", "text": "On my way 🚗", "meta": {}, "expect": "fail", "note": "emoji in draft message"}
+{"id": "P5-f-19", "pref_id": "P5", "surface": "answer", "text": "Careful ⚠️", "meta": {}, "expect": "fail", "note": "warning sign with FE0F"}
+{"id": "P5-f-20", "pref_id": "P5", "surface": "answer", "text": "Alarm ⏰", "meta": {}, "expect": "fail", "note": "alarm clock (Emoji_Presentation)"}
+{"id": "P5-f-21", "pref_id": "P5", "surface": "answer", "text": "Sunny ☀️", "meta": {}, "expect": "fail", "note": "sun with FE0F"}
+{"id": "P5-f-22", "pref_id": "P5", "surface": "answer", "text": "Flight ✈️", "meta": {}, "expect": "fail", "note": "airplane with FE0F"}
+{"id": "P5-f-23", "pref_id": "P5", "surface": "answer", "text": "She wrote \"great news 🎉\" in the chat.", "meta": {"source_text": "Ines: great news"}, "expect": "fail", "note": "quoted emoji not in source: no exemption"}
+{"id": "P5-f-24", "pref_id": "P5", "surface": "answer", "text": "She wrote \"great news 🎉\" in the chat.", "meta": {}, "expect": "fail", "note": "quoted emoji, no source text at all"}
+{"id": "P5-f-25", "pref_id": "P5", "surface": "answer", "text": "Mixed :) and 😀", "meta": {}, "expect": "fail", "note": "emoticon note plus real emoji"}
+{"id": "P5-f-26", "pref_id": "P5", "surface": "answer", "text": "Train 🚆 at 15:40", "meta": {}, "expect": "fail", "note": "train"}
+{"id": "P5-n-01", "pref_id": "P5", "surface": "json", "text": "Great news 😀", "meta": {}, "expect": "n/a", "note": "json surface"}
+{"id": "P5-n-02", "pref_id": "P5", "surface": "tool_args", "text": "Great news 😀", "meta": {}, "expect": "n/a", "note": "tool_args surface"}
+{"id": "P5-n-03", "pref_id": "P5", "surface": "answer", "text": "Great news 😀", "meta": {"active": false}, "expect": "n/a", "note": "inactive on override turn"}
+{"id": "P5-n-04", "pref_id": "P5", "surface": "answer", "text": "Press 1️⃣", "meta": {"active": false}, "expect": "n/a", "note": "inactive, keycap"}
+{"id": "P5-n-05", "pref_id": "P5", "surface": "answer", "text": "From 🇫🇷", "meta": {"active": false}, "expect": "n/a", "note": "inactive, flag"}
+{"id": "P6-p-01", "pref_id": "P6", "surface": "answer", "text": "The train leaves at 15:40.", "meta": {"source_times": ["15:40"]}, "expect": "pass", "note": "matches source"}
+{"id": "P6-p-02", "pref_id": "P6", "surface": "answer", "text": "From 09:00 to 17:30.", "meta": {}, "expect": "pass", "note": "range in 24h"}
+{"id": "P6-p-03", "pref_id": "P6", "surface": "answer", "text": "Leave at 0:45 for the night bus.", "meta": {}, "expect": "pass", "note": "H:MM with hour 0"}
+{"id": "P6-p-04", "pref_id": "P6", "surface": "answer", "text": "Opens at 00:00 and closes at 23:59.", "meta": {}, "expect": "pass", "note": "bounds"}
+{"id": "P6-p-05", "pref_id": "P6", "surface": "answer", "text": "Dentist at 9:05.", "meta": {}, "expect": "pass", "note": "single digit hour"}
+{"id": "P6-p-06", "pref_id": "P6", "surface": "answer", "text": "Lunch at 12:00.", "meta": {"source_times": ["12:00"]}, "expect": "pass", "note": "12:00 with source 12:00"}
+{"id": "P6-p-07", "pref_id": "P6", "surface": "answer", "text": "Wake at 3:00.", "meta": {"source_times": ["03:00"]}, "expect": "pass", "note": "3:00 with source 03:00"}
+{"id": "P6-p-08", "pref_id": "P6", "surface": "answer", "text": "Choir at 15:00 and gym at 18:15.", "meta": {"source_times": ["15:00", "18:15"]}, "expect": "pass", "note": "two times match source"}
+{"id": "P6-n-01", "pref_id": "P6", "surface": "answer", "text": "Run `date +3pm` to test.", "meta": {}, "expect": "n/a", "note": "12-hour inside code span is ignored, so no time"}
+{"id": "P6-p-09", "pref_id": "P6", "surface": "answer", "text": "Quote: \"meet at 3 pm\" was in the mail; be there at 15:00.", "meta": {"source_text": "Please meet at 3 pm sharp.", "source_times": ["15:00"]}, "expect": "pass", "note": "quoted verbatim 3 pm exempt, 15:00 outside the quote"}
+{"id": "P6-n-02", "pref_id": "P6", "surface": "answer", "text": "> meet at 3 pm", "meta": {"source_text": "Please meet at 3 pm sharp."}, "expect": "n/a", "note": "block quote exempt, so no time left"}
+{"id": "P6-p-10", "pref_id": "P6", "surface": "draft_email", "text": "Hi Ines,\nLet's meet at 14:30.\nBest,\nTest User", "meta": {}, "expect": "pass", "note": "draft email"}
+{"id": "P6-p-11", "pref_id": "P6", "surface": "draft_message", "text": "Be there at 08:15.", "meta": {}, "expect": "pass", "note": "draft message"}
+{"id": "P6-p-12", "pref_id": "P6", "surface": "answer", "text": "Leave at 07:30 and return by 21:45.", "meta": {}, "expect": "pass", "note": "two times"}
+{"id": "P6-p-13", "pref_id": "P6", "surface": "answer", "text": "The flight is at 23:05.", "meta": {"source_times": ["23:05"]}, "expect": "pass", "note": "late evening"}
+{"id": "P6-p-14", "pref_id": "P6", "surface": "answer", "text": "Doors open at 18:30, music at 20:00.", "meta": {"source_times": ["18:30", "20:00"]}, "expect": "pass", "note": "two times with source"}
+{"id": "P6-p-15", "pref_id": "P6", "surface": "answer", "text": "Alarm at 06:00.", "meta": {"source_times": ["06:00"]}, "expect": "pass", "note": "morning"}
+{"id": "P6-p-16", "pref_id": "P6", "surface": "answer", "text": "Appointments: 09:30, 11:00, 14:15.", "meta": {}, "expect": "pass", "note": "list of times"}
+{"id": "P6-p-17", "pref_id": "P6", "surface": "answer", "text": "- 09:30 Dentist\n- 12:00 Lunch", "meta": {}, "expect": "pass", "note": "times in list"}
+{"id": "P6-p-18", "pref_id": "P6", "surface": "answer", "text": "At 10:10 sharp.", "meta": {"source_times": ["10:10"]}, "expect": "pass", "note": "repeated digits"}
+{"id": "P6-p-19", "pref_id": "P6", "surface": "answer", "text": "Meeting from 13:00 to 14:00 on level 2.", "meta": {}, "expect": "pass", "note": "range with room number"}
+{"id": "P6-p-20", "pref_id": "P6", "surface": "answer", "text": "At 15:00 or at 3:00 early.", "meta": {"source_times": ["15:00", "03:00"]}, "expect": "pass", "note": "both values exist in source, no 12h conflict"}
+{"id": "P6-f-01", "pref_id": "P6", "surface": "answer", "text": "The train leaves at 3pm.", "meta": {}, "expect": "fail", "note": "3pm"}
+{"id": "P6-f-02", "pref_id": "P6", "surface": "answer", "text": "The train leaves at 3 PM.", "meta": {}, "expect": "fail", "note": "3 PM"}
+{"id": "P6-f-03", "pref_id": "P6", "surface": "answer", "text": "The train leaves at 3:00 p.m.", "meta": {}, "expect": "fail", "note": "3:00 p.m."}
+{"id": "P6-f-04", "pref_id": "P6", "surface": "answer", "text": "The train leaves at 9am.", "meta": {}, "expect": "fail", "note": "9am"}
+{"id": "P6-f-05", "pref_id": "P6", "surface": "answer", "text": "Dentist at 9:30 AM.", "meta": {}, "expect": "fail", "note": "9:30 AM"}
+{"id": "P6-f-06", "pref_id": "P6", "surface": "answer", "text": "Dentist at 10 a.m.", "meta": {}, "expect": "fail", "note": "10 a.m."}
+{"id": "P6-f-07", "pref_id": "P6", "surface": "answer", "text": "Come at 3 o'clock.", "meta": {}, "expect": "fail", "note": "o'clock"}
+{"id": "P6-f-08", "pref_id": "P6", "surface": "answer", "text": "Come at 7 o’clock sharp.", "meta": {}, "expect": "fail", "note": "o'clock with curly apostrophe"}
+{"id": "P6-f-09", "pref_id": "P6", "surface": "answer", "text": "Lunch at noon.", "meta": {}, "expect": "fail", "note": "noon"}
+{"id": "P6-f-10", "pref_id": "P6", "surface": "answer", "text": "Closing at midnight.", "meta": {}, "expect": "fail", "note": "midnight"}
+{"id": "P6-f-11", "pref_id": "P6", "surface": "answer", "text": "Back by midday.", "meta": {}, "expect": "fail", "note": "midday"}
+{"id": "P6-f-12", "pref_id": "P6", "surface": "answer", "text": "Closes at 25:00.", "meta": {}, "expect": "fail", "note": "hour above 23"}
+{"id": "P6-f-13", "pref_id": "P6", "surface": "answer", "text": "Closes at 24:30.", "meta": {}, "expect": "fail", "note": "24:30"}
+{"id": "P6-f-14", "pref_id": "P6", "surface": "answer", "text": "The train leaves at 3:00.", "meta": {"source_times": ["15:00"]}, "expect": "fail", "note": "differs from source by exactly 12 hours"}
+{"id": "P6-f-15", "pref_id": "P6", "surface": "answer", "text": "The train leaves at 15:00.", "meta": {"source_times": ["03:00"]}, "expect": "fail", "note": "differs by 12 hours the other way"}
+{"id": "P6-f-16", "pref_id": "P6", "surface": "draft_email", "text": "Sync at 5:00pm.", "meta": {}, "expect": "fail", "note": "5:00pm in a draft email"}
+{"id": "P6-f-17", "pref_id": "P6", "surface": "draft_message", "text": "Sync at 5:00pm.", "meta": {}, "expect": "fail", "note": "5:00pm in a draft message"}
+{"id": "P6-f-18", "pref_id": "P6", "surface": "answer", "text": "Choir at 15:00 and gym at 6 pm.", "meta": {}, "expect": "fail", "note": "one good one bad"}
+{"id": "P6-f-19", "pref_id": "P6", "surface": "answer", "text": "Be there by 12 noon.", "meta": {}, "expect": "fail", "note": "12 noon"}
+{"id": "P6-f-20", "pref_id": "P6", "surface": "answer", "text": "We will see you at the harbour.", "meta": {"needs_time": true}, "expect": "fail", "note": "needs_time but none written"}
+{"id": "P6-f-21", "pref_id": "P6", "surface": "answer", "text": "She wrote \"meet at 3 pm\" in the mail.", "meta": {"source_text": "meet at 4 pm"}, "expect": "fail", "note": "quote not in source: no exemption"}
+{"id": "P6-f-22", "pref_id": "P6", "surface": "answer", "text": "Dinner around 8pm.", "meta": {}, "expect": "fail", "note": "8pm"}
+{"id": "P6-f-23", "pref_id": "P6", "surface": "answer", "text": "Open from 9 to 5 pm.", "meta": {}, "expect": "fail", "note": "5 pm"}
+{"id": "P6-f-24", "pref_id": "P6", "surface": "answer", "text": "Train at 6:45 PM.", "meta": {"source_times": ["18:45"]}, "expect": "fail", "note": "PM form and 12h difference"}
+{"id": "P6-n-03", "pref_id": "P6", "surface": "answer", "text": "No time here.", "meta": {}, "expect": "n/a", "note": "no time"}
+{"id": "P6-n-04", "pref_id": "P6", "surface": "answer", "text": "It will be there soon.", "meta": {}, "expect": "n/a", "note": "no time, plain"}
+{"id": "P6-n-05", "pref_id": "P6", "surface": "json", "text": "The train leaves at 3pm.", "meta": {}, "expect": "n/a", "note": "json surface"}
+{"id": "P6-n-06", "pref_id": "P6", "surface": "answer", "text": "The train leaves at 3pm.", "meta": {"active": false}, "expect": "n/a", "note": "inactive"}
+{"id": "P6-n-07", "pref_id": "P6", "surface": "answer", "text": "Room 12, floor 3.", "meta": {}, "expect": "n/a", "note": "numbers that are not times"}
+{"id": "P6-n-08", "pref_id": "P6", "surface": "answer", "text": "Run `date +3pm` to test.", "meta": {}, "expect": "n/a", "note": "only a time in a code span"}
+{"id": "P7-p-01", "pref_id": "P7", "surface": "answer", "text": "The review is on Tue 9 Mar.", "meta": {"case_year": 2027}, "expect": "pass", "note": "correct weekday, plain form"}
+{"id": "P7-p-02", "pref_id": "P7", "surface": "answer", "text": "It moved to Thu 11 Mar, see you tomorrow.", "meta": {"case_year": 2027}, "expect": "pass", "note": "date plus tomorrow"}
+{"id": "P7-p-03", "pref_id": "P7", "surface": "answer", "text": "The lease ends Fri 31 Mar 2028.", "meta": {"case_year": 2027}, "expect": "pass", "note": "other year written"}
+{"id": "P7-p-04", "pref_id": "P7", "surface": "answer", "text": "Choir is every Tuesday, next on Tue 9 Mar.", "meta": {"case_year": 2027}, "expect": "pass", "note": "every Tuesday allowed"}
+{"id": "P7-n-01", "pref_id": "P7", "surface": "answer", "text": "I will do it today and the report is due tomorrow.", "meta": {"case_year": 2027}, "expect": "n/a", "note": "today and tomorrow only"}
+{"id": "P7-n-02", "pref_id": "P7", "surface": "answer", "text": "I sent it yesterday.", "meta": {"case_year": 2027}, "expect": "n/a", "note": "yesterday only"}
+{"id": "P7-p-05", "pref_id": "P7", "surface": "answer", "text": "Leap day: Tue 29 Feb 2028.", "meta": {"case_year": 2027}, "expect": "pass", "note": "leap day with year"}
+{"id": "P7-p-06", "pref_id": "P7", "surface": "answer", "text": "Start Mon 1 Mar and finish Sun 28 Mar.", "meta": {"case_year": 2027}, "expect": "pass", "note": "two dates"}
+{"id": "P7-p-07", "pref_id": "P7", "surface": "answer", "text": "The review is on Tue 9 Mar.", "meta": {}, "expect": "pass", "note": "no case_year: weekday not checkable but form fine"}
+{"id": "P7-p-08", "pref_id": "P7", "surface": "draft_email", "text": "Hi Ines,\nSee you Fri 12 Mar.\nBest,\nTest User", "meta": {"case_year": 2027}, "expect": "pass", "note": "draft email"}
+{"id": "P7-p-09", "pref_id": "P7", "surface": "answer", "text": "Choir meets Tuesdays and Thursdays, next on Tue 9 Mar.", "meta": {"case_year": 2027}, "expect": "pass", "note": "plural weekdays allowed alongside a real date"}
+{"id": "P7-p-10", "pref_id": "P7", "surface": "draft_message", "text": "Booked for Mon 15 Mar.", "meta": {"case_year": 2027}, "expect": "pass", "note": "draft message"}
+{"id": "P7-p-11", "pref_id": "P7", "surface": "answer", "text": "As written: \"2027-03-12\" is the due field; due Fri 12 Mar.", "meta": {"case_year": 2027, "source_text": "due field 2027-03-12 here"}, "expect": "pass", "note": "quoted ISO exempt via source"}
+{"id": "P7-n-03", "pref_id": "P7", "surface": "answer", "text": "> due 12/03/2027", "meta": {"case_year": 2027, "source_text": "Notice: due 12/03/2027"}, "expect": "n/a", "note": "block-quote exemption leaves no date"}
+{"id": "P7-p-12", "pref_id": "P7", "surface": "answer", "text": "Run `date 2027-03-12` then see Fri 12 Mar.", "meta": {"case_year": 2027}, "expect": "pass", "note": "ISO inside code span ignored"}
+{"id": "P7-p-13", "pref_id": "P7", "surface": "answer", "text": "Tue 9 Mar and Wed 10 Mar are free.", "meta": {"case_year": 2027}, "expect": "pass", "note": "two valid dates in a row"}
+{"id": "P7-p-14", "pref_id": "P7", "surface": "answer", "text": "Deadline Fri 31 Dec.", "meta": {"case_year": 2027}, "expect": "pass", "note": "year end"}
+{"id": "P7-p-15", "pref_id": "P7", "surface": "answer", "text": "Starts Mon 4 Jan.", "meta": {"case_year": 2027}, "expect": "pass", "note": "January"}
+{"id": "P7-p-16", "pref_id": "P7", "surface": "answer", "text": "Tue 9 Mar and Thu 11 Mar are both fine, so is Thu 1 Apr.", "meta": {"case_year": 2027}, "expect": "pass", "note": "three correct dates"}
+{"id": "P7-p-17", "pref_id": "P7", "surface": "answer", "text": "Kick-off Mon 5 Jul; wrap-up Fri 30 Jul.", "meta": {"case_year": 2027}, "expect": "pass", "note": "July"}
+{"id": "P7-p-18", "pref_id": "P7", "surface": "answer", "text": "Ends Fri 19 Nov, not later.", "meta": {"case_year": 2027}, "expect": "pass", "note": "November"}
+{"id": "P7-p-19", "pref_id": "P7", "surface": "answer", "text": "Meet on Mon 17 May at the gate.", "meta": {"case_year": 2027}, "expect": "pass", "note": "May"}
+{"id": "P7-p-20", "pref_id": "P7", "surface": "answer", "text": "Sun 6 Sep 2026 was the first run.", "meta": {"case_year": 2027}, "expect": "pass", "note": "previous year with year written"}
+{"id": "P7-p-21", "pref_id": "P7", "surface": "answer", "text": "Dentist on Tue 9 Mar at 09:30.", "meta": {"case_year": 2027}, "expect": "pass", "note": "date plus time"}
+{"id": "P7-f-01", "pref_id": "P7", "surface": "answer", "text": "Due 2027-03-12.", "meta": {"case_year": 2027}, "expect": "fail", "note": "ISO date"}
+{"id": "P7-f-02", "pref_id": "P7", "surface": "answer", "text": "Due 12/03.", "meta": {"case_year": 2027}, "expect": "fail", "note": "numeric day-first, no year"}
+{"id": "P7-f-03", "pref_id": "P7", "surface": "answer", "text": "Due 12.03.2027.", "meta": {"case_year": 2027}, "expect": "fail", "note": "numeric with dots"}
+{"id": "P7-f-04", "pref_id": "P7", "surface": "answer", "text": "Due March 12.", "meta": {"case_year": 2027}, "expect": "fail", "note": "March 12"}
+{"id": "P7-f-05", "pref_id": "P7", "surface": "answer", "text": "Due 12 March.", "meta": {"case_year": 2027}, "expect": "fail", "note": "12 March"}
+{"id": "P7-f-06", "pref_id": "P7", "surface": "answer", "text": "Due the 12th of March.", "meta": {"case_year": 2027}, "expect": "fail", "note": "12th of March"}
+{"id": "P7-f-07", "pref_id": "P7", "surface": "answer", "text": "Due Tuesday, 12 March.", "meta": {"case_year": 2027}, "expect": "fail", "note": "weekday, day month"}
+{"id": "P7-f-08", "pref_id": "P7", "surface": "answer", "text": "Due on the 12th.", "meta": {"case_year": 2027}, "expect": "fail", "note": "bare ordinal"}
+{"id": "P7-f-09", "pref_id": "P7", "surface": "answer", "text": "See you on Tuesday.", "meta": {"case_year": 2027}, "expect": "fail", "note": "weekday alone"}
+{"id": "P7-f-10", "pref_id": "P7", "surface": "answer", "text": "See you next Friday.", "meta": {"case_year": 2027}, "expect": "fail", "note": "next Friday"}
+{"id": "P7-f-11", "pref_id": "P7", "surface": "answer", "text": "See you on Fri.", "meta": {"case_year": 2027}, "expect": "fail", "note": "abbreviated weekday alone"}
+{"id": "P7-f-12", "pref_id": "P7", "surface": "answer", "text": "Due Wed 9 Mar.", "meta": {"case_year": 2027}, "expect": "fail", "note": "wrong weekday: 9 Mar 2027 is a Tuesday"}
+{"id": "P7-f-13", "pref_id": "P7", "surface": "answer", "text": "Due Tue 9 Mar 2027.", "meta": {"case_year": 2027}, "expect": "fail", "note": "year written for the case year"}
+{"id": "P7-f-14", "pref_id": "P7", "surface": "answer", "text": "Due Tue 30 Feb.", "meta": {"case_year": 2027}, "expect": "fail", "note": "no such date"}
+{"id": "P7-f-15", "pref_id": "P7", "surface": "answer", "text": "Due Tue 9 Mar 2028.", "meta": {"case_year": 2027}, "expect": "fail", "note": "wrong weekday for 2028"}
+{"id": "P7-f-16", "pref_id": "P7", "surface": "answer", "text": "Due 9 Mar.", "meta": {"case_year": 2027}, "expect": "fail", "note": "no weekday"}
+{"id": "P7-f-17", "pref_id": "P7", "surface": "answer", "text": "Due Mar 9.", "meta": {"case_year": 2027}, "expect": "fail", "note": "month first"}
+{"id": "P7-f-18", "pref_id": "P7", "surface": "answer", "text": "Due March 12th.", "meta": {"case_year": 2027}, "expect": "fail", "note": "March 12th"}
+{"id": "P7-f-19", "pref_id": "P7", "surface": "answer", "text": "Due Tuesday 9 Mar.", "meta": {"case_year": 2027}, "expect": "fail", "note": "full weekday name form"}
+{"id": "P7-f-20", "pref_id": "P7", "surface": "answer", "text": "Due 12 Mar 2027.", "meta": {"case_year": 2027}, "expect": "fail", "note": "no weekday with year"}
+{"id": "P7-f-21", "pref_id": "P7", "surface": "answer", "text": "No date written here.", "meta": {"case_year": 2027, "needs_date": true}, "expect": "fail", "note": "needs_date with none"}
+{"id": "P7-f-22", "pref_id": "P7", "surface": "answer", "text": "She wrote \"due 2027-03-12\".", "meta": {"case_year": 2027, "source_text": "due 2027-03-13"}, "expect": "fail", "note": "quote not in source: no exemption"}
+{"id": "P7-f-23", "pref_id": "P7", "surface": "draft_email", "text": "Due 2027-03-12.", "meta": {"case_year": 2027}, "expect": "fail", "note": "ISO in a draft email"}
+{"id": "P7-f-24", "pref_id": "P7", "surface": "draft_message", "text": "Due 12 March.", "meta": {"case_year": 2027}, "expect": "fail", "note": "12 March in a draft message"}
+{"id": "P7-f-25", "pref_id": "P7", "surface": "answer", "text": "Choir is every Tuesday, next on Tue 10 Mar.", "meta": {"case_year": 2027}, "expect": "fail", "note": "recurrence allowed but 10 Mar 2027 is a Wednesday"}
+{"id": "P7-f-26", "pref_id": "P7", "surface": "answer", "text": "The review is on Tue 9 Mar, and the retro on Friday.", "meta": {"case_year": 2027}, "expect": "fail", "note": "good date plus weekday alone"}
+{"id": "P7-n-04", "pref_id": "P7", "surface": "answer", "text": "Choir is every Tuesday.", "meta": {"case_year": 2027}, "expect": "n/a", "note": "recurrence only, no date"}
+{"id": "P7-n-05", "pref_id": "P7", "surface": "answer", "text": "Choir meets on Tuesdays.", "meta": {"case_year": 2027}, "expect": "n/a", "note": "plural only"}
+{"id": "P7-n-06", "pref_id": "P7", "surface": "answer", "text": "It happens today or tomorrow.", "meta": {"case_year": 2027}, "expect": "n/a", "note": "relative words only"}
+{"id": "P7-n-07", "pref_id": "P7", "surface": "answer", "text": "No date here.", "meta": {"case_year": 2027}, "expect": "n/a", "note": "no date"}
+{"id": "P7-n-08", "pref_id": "P7", "surface": "json", "text": "Due 2027-03-12.", "meta": {"case_year": 2027}, "expect": "n/a", "note": "json surface"}
+{"id": "P7-n-09", "pref_id": "P7", "surface": "answer", "text": "Due 2027-03-12.", "meta": {"case_year": 2027, "active": false}, "expect": "n/a", "note": "inactive"}
+{"id": "P8-p-01", "pref_id": "P8", "surface": "answer", "text": "It is 8 km away and weighs 2 kg.", "meta": {}, "expect": "pass", "note": "metric"}
+{"id": "P8-p-02", "pref_id": "P8", "surface": "answer", "text": "That costs 12 pounds (£12).", "meta": {}, "expect": "pass", "note": "pounds as currency near the pound sign"}
+{"id": "P8-p-03", "pref_id": "P8", "surface": "answer", "text": "It costs £40, about 40 pounds in all.", "meta": {}, "expect": "pass", "note": "pound as currency, £ within 3 tokens"}
+{"id": "P8-p-04", "pref_id": "P8", "surface": "answer", "text": "Pay GBP 20 pounds now.", "meta": {}, "expect": "pass", "note": "GBP near pounds"}
+{"id": "P8-p-05", "pref_id": "P8", "surface": "answer", "text": "Room 12 is in the east wing.", "meta": {}, "expect": "pass", "note": "number with no unit"}
+{"id": "P8-p-06", "pref_id": "P8", "surface": "answer", "text": "About 8.0 km.", "meta": {"source_quantities": [{"value": 5, "unit": "mi"}]}, "expect": "pass", "note": "5 mi to 8.0 km"}
+{"id": "P8-p-07", "pref_id": "P8", "surface": "answer", "text": "About 8 km.", "meta": {"source_quantities": [{"value": 5, "unit": "mi"}]}, "expect": "pass", "note": "5 mi to 8 km, rounded to whole km"}
+{"id": "P8-p-08", "pref_id": "P8", "surface": "answer", "text": "About 3.2 kg.", "meta": {"source_quantities": [{"value": 7, "unit": "lb"}]}, "expect": "pass", "note": "7 lb to 3.2 kg"}
+{"id": "P8-p-09", "pref_id": "P8", "surface": "answer", "text": "About 1.8 m tall.", "meta": {"source_quantities": [{"value": 6, "unit": "ft"}]}, "expect": "pass", "note": "6 ft to 1.8 m"}
+{"id": "P8-p-10", "pref_id": "P8", "surface": "answer", "text": "About 7.6 l.", "meta": {"source_quantities": [{"value": 2, "unit": "gallons"}]}, "expect": "pass", "note": "2 gallons to 7.6 l"}
+{"id": "P8-p-11", "pref_id": "P8", "surface": "answer", "text": "Be there in 5 minutes.", "meta": {}, "expect": "pass", "note": "'in' before a non-dimension word"}
+{"id": "P8-p-12", "pref_id": "P8", "surface": "answer", "text": "He said \"5\" was fine.", "meta": {}, "expect": "pass", "note": "inch mark closing a quotation"}
+{"id": "P8-p-13", "pref_id": "P8", "surface": "answer", "text": "A mile of queue formed.", "meta": {}, "expect": "pass", "note": "unit word without a number"}
+{"id": "P8-p-14", "pref_id": "P8", "surface": "answer", "text": "A stone wall runs along the road.", "meta": {}, "expect": "pass", "note": "stone without a number"}
+{"id": "P8-p-15", "pref_id": "P8", "surface": "answer", "text": "The sign reads \"12 miles\" in the photo.", "meta": {"source_text": "Sign: 12 miles to go"}, "expect": "pass", "note": "quoted verbatim exempt"}
+{"id": "P8-p-16", "pref_id": "P8", "surface": "answer", "text": "> 12 miles to go", "meta": {"source_text": "Sign: 12 miles to go"}, "expect": "pass", "note": "block quote exempt"}
+{"id": "P8-p-17", "pref_id": "P8", "surface": "answer", "text": "Run `ls -l 5 ft` to test.", "meta": {}, "expect": "pass", "note": "code span ignored"}
+{"id": "P8-p-18", "pref_id": "P8", "surface": "answer", "text": "It is 20 °C outside.", "meta": {}, "expect": "pass", "note": "Celsius"}
+{"id": "P8-p-19", "pref_id": "P8", "surface": "draft_email", "text": "Hi Ines,\nIt is 12 km away.\nBest,\nTest User", "meta": {}, "expect": "pass", "note": "draft email"}
+{"id": "P8-p-20", "pref_id": "P8", "surface": "draft_message", "text": "About 12 km, see you soon.", "meta": {}, "expect": "pass", "note": "draft message"}
+{"id": "P8-p-21", "pref_id": "P8", "surface": "answer", "text": "It is 5 km from here.", "meta": {"source_quantities": [{"value": 3.1, "unit": "mi"}]}, "expect": "pass", "note": "3.1 mi to 5 km within tolerance"}
+{"id": "P8-p-22", "pref_id": "P8", "surface": "answer", "text": "Weighs 4.5 kg.", "meta": {"source_quantities": [{"value": 10, "unit": "lb"}]}, "expect": "pass", "note": "10 lb to 4.5 kg"}
+{"id": "P8-p-23", "pref_id": "P8", "surface": "answer", "text": "About 9 km/h.", "meta": {"source_quantities": [{"value": 5.6, "unit": "mph"}]}, "expect": "pass", "note": "mph to km/h within 2 percent"}
+{"id": "P8-p-24", "pref_id": "P8", "surface": "answer", "text": "Cost £75 a month.", "meta": {}, "expect": "pass", "note": "just money"}
+{"id": "P8-f-01", "pref_id": "P8", "surface": "answer", "text": "It is 5 mi away.", "meta": {}, "expect": "fail", "note": "5 mi"}
+{"id": "P8-f-02", "pref_id": "P8", "surface": "answer", "text": "It is 5 miles away.", "meta": {}, "expect": "fail", "note": "5 miles"}
+{"id": "P8-f-03", "pref_id": "P8", "surface": "answer", "text": "Speed limit 60 mph.", "meta": {}, "expect": "fail", "note": "mph"}
+{"id": "P8-f-04", "pref_id": "P8", "surface": "answer", "text": "He is 6 ft tall.", "meta": {}, "expect": "fail", "note": "ft"}
+{"id": "P8-f-05", "pref_id": "P8", "surface": "answer", "text": "He is 6 feet tall.", "meta": {}, "expect": "fail", "note": "feet"}
+{"id": "P8-f-06", "pref_id": "P8", "surface": "answer", "text": "He is 6 foot tall.", "meta": {}, "expect": "fail", "note": "foot"}
+{"id": "P8-f-07", "pref_id": "P8", "surface": "answer", "text": "Run 10 yd.", "meta": {}, "expect": "fail", "note": "yd"}
+{"id": "P8-f-08", "pref_id": "P8", "surface": "answer", "text": "Run 10 yards.", "meta": {}, "expect": "fail", "note": "yards"}
+{"id": "P8-f-09", "pref_id": "P8", "surface": "answer", "text": "It weighs 3 lb.", "meta": {}, "expect": "fail", "note": "lb"}
+{"id": "P8-f-10", "pref_id": "P8", "surface": "answer", "text": "It weighs 3 lbs.", "meta": {}, "expect": "fail", "note": "lbs"}
+{"id": "P8-f-11", "pref_id": "P8", "surface": "answer", "text": "It weighs 3 pounds.", "meta": {}, "expect": "fail", "note": "pounds as weight"}
+{"id": "P8-f-12", "pref_id": "P8", "surface": "answer", "text": "Add 8 oz of flour.", "meta": {}, "expect": "fail", "note": "oz"}
+{"id": "P8-f-13", "pref_id": "P8", "surface": "answer", "text": "Add 8 ounces of flour.", "meta": {}, "expect": "fail", "note": "ounces"}
+{"id": "P8-f-14", "pref_id": "P8", "surface": "answer", "text": "It is 72°F outside.", "meta": {}, "expect": "fail", "note": "°F no space"}
+{"id": "P8-f-15", "pref_id": "P8", "surface": "answer", "text": "It is 72 °F outside.", "meta": {}, "expect": "fail", "note": "° F with space"}
+{"id": "P8-f-16", "pref_id": "P8", "surface": "answer", "text": "It is 72 Fahrenheit outside.", "meta": {}, "expect": "fail", "note": "number directly followed by Fahrenheit"}
+{"id": "P8-f-17", "pref_id": "P8", "surface": "answer", "text": "It is 72 degrees Fahrenheit.", "meta": {}, "expect": "fail", "note": "degrees Fahrenheit is imperial"}
+{"id": "P8-f-18", "pref_id": "P8", "surface": "answer", "text": "Fill 2 gallons.", "meta": {}, "expect": "fail", "note": "gallons"}
+{"id": "P8-f-19", "pref_id": "P8", "surface": "answer", "text": "Fill 2 gal.", "meta": {}, "expect": "fail", "note": "gal"}
+{"id": "P8-f-20", "pref_id": "P8", "surface": "answer", "text": "Add 1 pint.", "meta": {}, "expect": "fail", "note": "pint"}
+{"id": "P8-f-21", "pref_id": "P8", "surface": "answer", "text": "A plot of 3 acres.", "meta": {}, "expect": "fail", "note": "acres"}
+{"id": "P8-f-22", "pref_id": "P8", "surface": "answer", "text": "He weighs 11 stone.", "meta": {}, "expect": "fail", "note": "stone"}
+{"id": "P8-f-23", "pref_id": "P8", "surface": "answer", "text": "A board 5 inches thick.", "meta": {}, "expect": "fail", "note": "inches"}
+{"id": "P8-f-24", "pref_id": "P8", "surface": "answer", "text": "Cut it to 13 in.", "meta": {}, "expect": "fail", "note": "13 in. at end of phrase"}
+{"id": "P8-f-25", "pref_id": "P8", "surface": "answer", "text": "A tray 13 in x 9 in.", "meta": {}, "expect": "fail", "note": "13 in x 9 in"}
+{"id": "P8-f-26", "pref_id": "P8", "surface": "answer", "text": "A tray 13 in wide.", "meta": {}, "expect": "fail", "note": "13 in wide"}
+{"id": "P8-f-27", "pref_id": "P8", "surface": "answer", "text": "A 13\" screen.", "meta": {}, "expect": "fail", "note": "inch mark"}
+{"id": "P8-f-28", "pref_id": "P8", "surface": "answer", "text": "It is 5 km.", "meta": {"source_quantities": [{"value": 5, "unit": "mi"}]}, "expect": "fail", "note": "5 mi converted to 5 km: off by more than 2 percent"}
+{"id": "P8-f-29", "pref_id": "P8", "surface": "answer", "text": "Weighs 4 kg.", "meta": {"source_quantities": [{"value": 7, "unit": "lb"}]}, "expect": "fail", "note": "7 lb converted to 4 kg: wrong"}
+{"id": "P8-f-30", "pref_id": "P8", "surface": "answer", "text": "Pay £40 now. The parcel weighs 5 pounds when packed.", "meta": {}, "expect": "fail", "note": "pound far from the pound sign is a weight"}
+{"id": "P8-f-31", "pref_id": "P8", "surface": "draft_email", "text": "Hi Ines,\nIt is 5 miles away.\nBest,\nTest User", "meta": {}, "expect": "fail", "note": "miles in a draft email"}
+{"id": "P8-f-32", "pref_id": "P8", "surface": "draft_message", "text": "It is 5 miles away.", "meta": {}, "expect": "fail", "note": "miles in a draft message"}
+{"id": "P8-f-33", "pref_id": "P8", "surface": "answer", "text": "She wrote \"12 miles\" in the mail.", "meta": {"source_text": "12 km to go"}, "expect": "fail", "note": "quote not in source: no exemption"}
+{"id": "P8-n-01", "pref_id": "P8", "surface": "json", "text": "It is 5 miles away.", "meta": {}, "expect": "n/a", "note": "json surface"}
+{"id": "P8-n-02", "pref_id": "P8", "surface": "tool_args", "text": "It is 5 miles away.", "meta": {}, "expect": "n/a", "note": "tool_args surface"}
+{"id": "P8-n-03", "pref_id": "P8", "surface": "answer", "text": "It is 5 miles away.", "meta": {"active": false}, "expect": "n/a", "note": "inactive"}
+{"id": "P8-n-04", "pref_id": "P8", "surface": "answer", "text": "It weighs 3 pounds.", "meta": {"active": false}, "expect": "n/a", "note": "inactive, pounds"}
+{"id": "P8-n-05", "pref_id": "P8", "surface": "answer", "text": "It is 72°F outside.", "meta": {"active": false}, "expect": "n/a", "note": "inactive, Fahrenheit"}
+{"id": "P9-p-01", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThanks for the update.\n\nBest,\nTest User", "meta": {"signoff": "Best,\nTest User"}, "expect": "pass", "note": "exact sign-off"}
+{"id": "P9-p-02", "pref_id": "P9", "surface": "draft_email", "text": "Hello,\nSee you then.\nCheers, Test", "meta": {"signoff": "Cheers, Test"}, "expect": "pass", "note": "single-line sign-off"}
+{"id": "P9-p-03", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThanks.\n\nBest,\nTest User\n\n\n", "meta": {"signoff": "Best,\nTest User"}, "expect": "pass", "note": "trailing blank lines"}
+{"id": "P9-p-04", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThanks.\n\nBest,  \n   Test User  ", "meta": {"signoff": "Best,\nTest User"}, "expect": "pass", "note": "extra spaces around lines"}
+{"id": "P9-p-05", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThanks.\n\nBest,\n\nTest User", "meta": {"signoff": "Best,\nTest User"}, "expect": "pass", "note": "blank line inside block ignored"}
+{"id": "P9-p-06", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThanks.\r\nBest,\r\nTest User\r\n", "meta": {"signoff": "Best,\nTest User"}, "expect": "pass", "note": "CRLF line ends"}
+{"id": "P9-p-07", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThanks.\nBest,\nTest User", "meta": {"signoff": "Best,\nTest User"}, "expect": "pass", "note": "non-breaking space normalizes"}
+{"id": "P9-p-08", "pref_id": "P9", "surface": "draft_email", "text": "Hi,\nThanks.\n\nWarm regards,\nTest User\ntest.user@example.com", "meta": {"signoff": "Warm regards,\nTest User\ntest.user@example.com"}, "expect": "pass", "note": "three-line sign-off"}
+{"id": "P9-p-09", "pref_id": "P9", "surface": "draft_email", "text": "Subject: Update\n\nHi Ines,\nAll set.\n\nBest,\nTest User", "meta": {"signoff": "Best,\nTest User"}, "expect": "pass", "note": "subject line before body"}
+{"id": "P9-p-10", "pref_id": "P9", "surface": "draft_email", "text": "Best,\nTest User", "meta": {"signoff": "Best,\nTest User"}, "expect": "pass", "note": "email is only the sign-off"}
+{"id": "P9-p-11", "pref_id": "P9", "surface": "draft_email", "text": "Hi,\nSee list:\n- a\n- b\n\nBest,\nTest User", "meta": {"signoff": "Best,\nTest User"}, "expect": "pass", "note": "list in body"}
+{"id": "P9-p-12", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThe Best, plan is clear.\nBest,\nTest User", "meta": {"signoff": "Best,\nTest User"}, "expect": "pass", "note": "word Best mid-line is not a block"}
+{"id": "P9-p-13", "pref_id": "P9", "surface": "draft_email", "text": "Hi,\nThanks.\n\nTHANKS,\nTest User", "meta": {"signoff": "THANKS,\nTest User"}, "expect": "pass", "note": "capitalized sign-off"}
+{"id": "P9-p-14", "pref_id": "P9", "surface": "draft_email", "text": "Hi,\nBye.\n\n— Test User", "meta": {"signoff": "— Test User"}, "expect": "pass", "note": "em dash sign-off"}
+{"id": "P9-p-15", "pref_id": "P9", "surface": "draft_email", "text": "Hi,\nBye.\n\nBest wishes,\nTest User", "meta": {"signoff": "Best wishes,\nTest User"}, "expect": "pass", "note": "different wording configured"}
+{"id": "P9-p-16", "pref_id": "P9", "surface": "draft_email", "text": "Dear Ines,\n\nPlease find it attached.\n\nBest,\nTest User", "meta": {"signoff": "Best,\nTest User"}, "expect": "pass", "note": "formal email"}
+{"id": "P9-p-17", "pref_id": "P9", "surface": "draft_email", "text": "Hi,\nSee www.example.com/test for more.\n\nBest,\nTest User", "meta": {"signoff": "Best,\nTest User"}, "expect": "pass", "note": "url in body"}
+{"id": "P9-p-18", "pref_id": "P9", "surface": "draft_email", "text": "Hi,\nYes to 09:30 on Tue 9 Mar.\n\nBest,\nTest User", "meta": {"signoff": "Best,\nTest User"}, "expect": "pass", "note": "times and dates in body"}
+{"id": "P9-p-19", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nOk.\nBest,\nTest User", "meta": {"signoff": "Best,\nTest User"}, "expect": "pass", "note": "thin space in config normalizes"}
+{"id": "P9-p-20", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nPlease sign here [signature] and send.\nBest,\nTest User", "meta": {"signoff": "Best,\nTest User"}, "expect": "pass", "note": "bracketed word that is not one of the listed placeholders"}
+{"id": "P9-p-21", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nOk.\nBest,\nTest User", "meta": {"signoff": "Best,\nTest User"}, "expect": "pass", "note": "minimal pass"}
+{"id": "P9-f-01", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nPlease write [name] on the form.\nBest,\nTest User", "meta": {"signoff": "Best,\nTest User"}, "expect": "fail", "note": "lowercase [name] placeholder anywhere"}
+{"id": "P9-f-02", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThanks for the update.", "meta": {"signoff": "Best,\nTest User"}, "expect": "fail", "note": "no sign-off"}
+{"id": "P9-f-03", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThanks.\n\nRegards,\nTest User", "meta": {"signoff": "Best,\nTest User"}, "expect": "fail", "note": "different sign-off wording"}
+{"id": "P9-f-04", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThanks.\n\nBest,\nTest User\n\nP.S. Bring cake.", "meta": {"signoff": "Best,\nTest User"}, "expect": "fail", "note": "trailing text after the sign-off"}
+{"id": "P9-f-05", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThanks.\n\nBest,\nTest User\n\nBest,\nTest User", "meta": {"signoff": "Best,\nTest User"}, "expect": "fail", "note": "sign-off twice"}
+{"id": "P9-f-06", "pref_id": "P9", "surface": "draft_email", "text": "Best,\nTest User\n\nHi Ines,\nThanks.", "meta": {"signoff": "Best,\nTest User"}, "expect": "fail", "note": "sign-off at the top"}
+{"id": "P9-f-07", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThanks.\n\nBest,", "meta": {"signoff": "Best,\nTest User"}, "expect": "fail", "note": "only the first sign-off line"}
+{"id": "P9-f-08", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThanks.\n\nTest User", "meta": {"signoff": "Best,\nTest User"}, "expect": "fail", "note": "only the name line"}
+{"id": "P9-f-09", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThanks.\n\nBest, Test User", "meta": {"signoff": "Best,\nTest User"}, "expect": "fail", "note": "one line where two are required"}
+{"id": "P9-f-10", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThanks.\n\nbest,\ntest user", "meta": {"signoff": "Best,\nTest User"}, "expect": "fail", "note": "case differs"}
+{"id": "P9-f-11", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThanks.\n\nBest,\nTest User\n[Your name]", "meta": {"signoff": "Best,\nTest User"}, "expect": "fail", "note": "placeholder [Your name] after the sign-off"}
+{"id": "P9-f-12", "pref_id": "P9", "surface": "draft_email", "text": "Hi [Name],\nThanks.\n\nBest,\nTest User", "meta": {"signoff": "Best,\nTest User"}, "expect": "fail", "note": "[Name] in the greeting"}
+{"id": "P9-f-13", "pref_id": "P9", "surface": "draft_email", "text": "Hi <name>,\nThanks.\n\nBest,\nTest User", "meta": {"signoff": "Best,\nTest User"}, "expect": "fail", "note": "<name> placeholder"}
+{"id": "P9-f-14", "pref_id": "P9", "surface": "draft_email", "text": "Hi {name},\nThanks.\n\nBest,\nTest User", "meta": {"signoff": "Best,\nTest User"}, "expect": "fail", "note": "{name} placeholder"}
+{"id": "P9-f-15", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThanks.\n\nBest,\nTest User\n[Sender]", "meta": {"signoff": "Best,\nTest User"}, "expect": "fail", "note": "[Sender] placeholder"}
+{"id": "P9-f-16", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThanks.\n\nBest,\n[Your name]", "meta": {"signoff": "Best,\nTest User"}, "expect": "fail", "note": "placeholder instead of the name"}
+{"id": "P9-f-17", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThanks.\n\n[your name]", "meta": {"signoff": "Best,\nTest User"}, "expect": "fail", "note": "lowercase placeholder only"}
+{"id": "P9-f-18", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThanks.\nBest,\nTest User\nbest,\nTest User\nCheers", "meta": {"signoff": "Best,\nTest User"}, "expect": "fail", "note": "duplicate plus trailing text"}
+{"id": "P9-f-19", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThanks.\n\nBest\nTest User", "meta": {"signoff": "Best,\nTest User"}, "expect": "fail", "note": "missing comma"}
+{"id": "P9-f-20", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThanks.\n\nBest,\nTest Usr", "meta": {"signoff": "Best,\nTest User"}, "expect": "fail", "note": "name misspelled"}
+{"id": "P9-f-21", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThanks.\n\nBest,\nTest User\ntest.user@example.com", "meta": {"signoff": "Best,\nTest User"}, "expect": "fail", "note": "extra line after the sign-off"}
+{"id": "P9-f-22", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThanks.\n\nBest,\nTest User\n\n", "meta": {"signoff": "Best,\nTest User\ntest.user@example.com"}, "expect": "fail", "note": "missing the third configured line"}
+{"id": "P9-f-23", "pref_id": "P9", "surface": "draft_email", "text": "", "meta": {"signoff": "Best,\nTest User"}, "expect": "fail", "note": "empty draft"}
+{"id": "P9-n-01", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThanks.", "meta": {}, "expect": "n/a", "note": "no sign-off configured"}
+{"id": "P9-n-02", "pref_id": "P9", "surface": "draft_email", "text": "Hi Ines,\nThanks.", "meta": {"signoff": null}, "expect": "n/a", "note": "signoff null"}
+{"id": "P9-n-03", "pref_id": "P9", "surface": "answer", "text": "Thanks.", "meta": {"signoff": "Best,\nTest User"}, "expect": "n/a", "note": "answer surface out of scope"}
+{"id": "P9-n-04", "pref_id": "P9", "surface": "draft_message", "text": "Thanks.", "meta": {"signoff": "Best,\nTest User"}, "expect": "n/a", "note": "draft_message out of scope"}
+{"id": "P9-n-05", "pref_id": "P9", "surface": "json", "text": "Thanks.", "meta": {"signoff": "Best,\nTest User"}, "expect": "n/a", "note": "json surface"}
+{"id": "P9-n-06", "pref_id": "P9", "surface": "draft_email", "text": "Thanks.", "meta": {"signoff": "Best,\nTest User", "active": false}, "expect": "n/a", "note": "inactive"}

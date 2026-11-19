@@ -1,10 +1,10 @@
 > **Draft, 2026-11-18.** Design document; it will change. No benchmark results are published yet.
 
-# EDAT · 04 · Performance, energy and memory spec
+# tinyagent-bench · 04 · Performance, energy and memory spec
 
-Part of **EDAT** (Edge Device Agentic Testing).
+Part of **tinyagent-bench**.
 
-Revision 4, 2026-11-18. The project decisions are in §17, and every earlier open question is decided. Scope: **Apple silicon only.**
+Revision 5, 2026-11-18. The decisions are in §17, and every earlier open question is decided. Revision 5 adds six **cloud reference models** through OpenRouter (§1.7, §3.11). Revision 6 adds the simulated day (§9.1), long sessions (§9.2), reload after idle (§9.3), a time budget (§9.4), fit under load (§5.6) and accounting for embedding and reranker models (§5.7). Scope: **Apple silicon only.**
 - **Target device class:** a 16 GB Mac. A variant that does not fit one is not ranked (§5.5).
 - **Reference devices:**
   - a MacBook Pro with M5 Pro and 24 GB, running oMLX;
@@ -13,16 +13,15 @@ Revision 4, 2026-11-18. The project decisions are in §17, and every earlier ope
 - **Second reference model:** base Gemma 4 E4B, used as a repeatability check (§1.5).
 - **Language:** English only.
 
-
 This is a design only. Nothing here has been run for this benchmark.
 
-Harbor claims come from a read of Harbor (adjad/Harbor, commit `01f8651`). Imported files keep their Harbor paths in this repository, so `service/...` and `scripts/...` below are paths in this repository. Outside claims link to pages the research agents opened. **Unverified** marks search snippets, recall, or pages that did not render. "Project notes" means earlier informal hand measurements on the reference Mac. They are not part of this repository, and their figures are withheld until results are published.
+Harbor claims come from a read of this repository's imported Harbor files (import source: Harbor commit `46da8eb5`). Paths are relative to this repository. Outside claims link to pages the research agents opened. **Unverified** marks search snippets, recall, or pages that did not render. "Project notes" means earlier hand measurements on the reference Mac. They are not published; where one is a result, its number is withheld.
 
 **Stability contract.** Two sections are stable for the iPhone runner implementation:
 - §2 **iPhone runner requirements**;
 - §3 the **result record format**.
 
-Changes to them are additive only: new optional fields, or new enum values. A rename or removal bumps `schema` to the next major version and is announced in the changelog.
+Changes to them are additive only: new optional fields, or new enum values. A rename or removal bumps `schema` to the next major version and is announced in the change log.
 
 Revision 4 makes two exceptions, both decided before any record was published:
 - the schema id is renamed `edgebench.perf/1.0` → `edat.perf/1.0`;
@@ -39,6 +38,20 @@ Everything else in revision 4 is additive:
 
 ## 0. The answer in brief
 
+- **Revision 6: new long-running tests** (Mac only unless stated).
+  - **Simulated day** (§9.1). The agentic spec's scripted day is run compressed: events run back to back, and idle gaps are scaled from measured idle power, with the model resident and with it unloaded. One real-time day per device and version validates the result within ±10 %. The verdict: "one day with <model> uses about N % of a full battery, M % of it while idle with the model resident".
+  - **Long sessions** (§9.2). Sampled every turn: context tokens, cache hits, TTFT, decode, footprint and energy, as the conversation fills the window and trimming starts. The derived results are the cost of each trim and a memory-plateau check.
+  - **Reload after idle** (§9.3), the **time budget** (§9.4) and **fit under load** (§5.6) are additions that may be dropped.
+  - **Embedding and reranker models** are not benchmarked. Their memory and energy are measured once and subtracted from in-assistant runs (§5.7).
+- **Cloud reference models (D15).** Six cloud models run through OpenRouter as a reference: Haiku 5.5, Gemini 4 Argon, Carbon and Neon, GPT-6 Luna, and DeepSeek V4.1 Flash 1017.
+  - **What is recorded for them:**
+    - network time to first token and total time, both labelled as including the network and the provider's queue;
+    - tokens in, out and reasoning;
+    - cost per request and per completed task, from the provider's usage report;
+    - the resolved model id, the upstream provider and the run date.
+  - **What does not apply to them:** on-device speed, memory, load time, energy and the 16 GB fit rule.
+  - **The rule:** cloud numbers are **not comparable** with on-device numbers, and never share a chart axis with them without a label.
+  - **One record store for everything.** Each record carries a `kind` field, `"local"` or `"cloud_reference"`, so Mac, iPhone and cloud runs live in one store.
 - **Target class: a 16 GB Mac (D1).** A model entry is ranked only if `fits_16gb_mac` is `fits` or `fits_small_context`.
   - The test: peak `phys_footprint` must stay at or below 9.0 GiB, which is 90 % of a derived 10.0 GiB budget. It is checked at 10,240 tokens; passing only at 2,048 gives `fits_small_context`.
   - It is confirmed on the 24 GB reference Mac under emulation. The admin helper wires 10.5 GiB of RAM away and sets the GPU wired limit to the 16 GB value (§5.5, §11.1).
@@ -80,7 +93,7 @@ Everything else in revision 4 is additive:
 
 | Id | Device | Runtime | Role |
 |---|---|---|---|
-| `mac-ref` | MacBook Pro, M5 Pro, 24 GB unified memory | oMLX (version recorded per run) | Full method: speed, memory, per-phase energy, load, sustained |
+| `mac-ref` | MacBook Pro, M5 Pro, 24 GB unified memory | oMLX (version recorded; Harbor tracks the installed oMLX, 0.7.3rc1 at last note) | Full method: speed, memory, per-phase energy, load, sustained |
 | `iphone-ref` | iPhone Air, A19 Pro, 12 GB | MLX Swift in a benchmark app. Harbor's iOS app pins `mlx-swift` 0.32.3 and `mlx-swift-lm` 3.32.3 (`ios/Packages/HarborLing/Package.resolved:14-28`). | Speed, memory, kill limits, load, sustained, battery-drain energy |
 
 Both are reference devices for this phase. Neither defines the target class alone. The Mac is above it (§10). The iPhone sits within the phone part of it. Its app budget, not its 12 GB, is what limits a model.
@@ -88,7 +101,7 @@ Both are reference devices for this phase. Neither defines the target class alon
 ### 1.2 Baseline: Gemma-Wisp
 
 - Engine id `Gemma-Wisp`; the reference Mac's folder is `gemma-4-E4B-it-r5-step-01800-oQ4e-mtp` (`service/setup/catalog.py:89-94`, `:113`).
-- Quant: oQ4e, an MLX affine 4-bit group-64 recipe with some 5-bit and 6-bit tensors (the exact tensor split is recorded from the weights).
+- Quant: oQ4e, an MLX affine 4-bit group-64 recipe with some 5-bit and 6-bit tensors.
 - Files are pinned by sha256 in `GEMMA_HARBOR_FILES` (`service/setup/catalog.py:75-86`):
   - `model-00001-of-00002.safetensors`: 5,001,242,218 B;
   - `model-00002-of-00002.safetensors`: 425,560,497 B;
@@ -114,7 +127,12 @@ Both are reference devices for this phase. Neither defines the target class alon
 
 ### 1.4 What the baseline's MTP head means for tokens per second
 
-- **How it works.** Gemma-Wisp drafts up to four tokens ahead with its MTP head, and the main model verifies them in one pass. On oMLX the server logs report drafts per cycle and per-depth acceptance. Earlier informal readings are "+W+".
+- **How it works.** Gemma-Wisp drafts up to four tokens ahead with its MTP head, and the main model verifies them in one pass. On oMLX the server logs report:
+  - the average number of drafts per cycle;
+  - the per-depth acceptance rate.
+
+  Earlier hand readings of both exist (measured internally; withheld until results are published).
+
   So "as shipped" decode tok/s counts verified tokens emitted per second. It reflects the model and the decoding method together.
 - **Prefill is not affected.**
 - **Acceptance depends on content and sampling.**
@@ -191,6 +209,67 @@ The pair is also a useful **reference point on the board**. Its ratio is shown a
   - The variant is also run on the Mac once, so the quant's own cost is visible as variant ÷ Gemma-Wisp on the Mac.
 - **The same rule for base.** Base Gemma 4 E4B gets the same fallback treatment if it is also killed. The reference pair check on the iPhone then runs on the two fallback variants.
 
+### 1.7 Cloud reference models (D15)
+
+**The models.** The model list, with ids looked up on 2026-11-18. Prices are US dollars per million tokens from that day's list, and are recorded per run as a snapshot (§3.11).
+
+| Model | OpenRouter id | Input $/M | Output $/M |
+|---|---|---|---|
+| Claude Haiku 5.5 | `anthropic/claude-haiku-5.5` | 0.10 | 0.50 |
+| Gemini 4 Argon | `google/gemini-4-argon` | 2 | 10 |
+| Gemini 4 Carbon | `google/gemini-4-carbon` | 2 | 10 |
+| Gemini 4 Neon | `google/gemini-4-neon` | 3 | 15 |
+| GPT-6 Luna | `openai/gpt-6-luna` | 0.10 | 0.50 |
+| DeepSeek V4.1 Flash 1017 | `deepseek/deepseek-v4.1-flash-1017` (id to be confirmed) | 0.30 | 1.20 |
+
+**Why they are here.** They give quality and cost reference points from outside the device class. They are not a speed reference for on-device models.
+
+**What does not apply.** None of these is recorded for cloud models; the fields are `null` with reason `not_applicable_cloud`:
+- on-device speed (prefill and decode tok/s);
+- memory, load time, energy and sustained or thermal tests;
+- `fits_16gb_mac` and `fits_iphone_air`. These get an added enum value, `not_applicable`.
+
+**What is recorded instead,** per request:
+
+| Field | Definition | Source |
+|---|---|---|
+| `net_ttft_s` | Client send → first streamed token of any kind, **including network and provider queue** | client monotonic clock |
+| `net_total_s` | Client send → stream end, **including network and provider queue** | client clock |
+| `provider_latency_ms`, `provider_generation_ms` | OpenRouter's own `latency` and `generation_time` for the generation | `GET /api/v1/generation?id=` ([docs](https://openrouter.ai/docs/api-reference/get-a-generation)) |
+| `tokens_in`, `tokens_out`, `tokens_reasoning`, `tokens_cached` | From the response `usage`: `prompt_tokens`, `completion_tokens`, `completion_tokens_details.reasoning_tokens`, `prompt_tokens_details.cached_tokens` ([usage accounting](https://openrouter.ai/docs/use-cases/usage-accounting)). Usage is always included; `stream_options.include_usage` is deprecated there. The provider-native counts (`native_tokens_*`) come from the generation endpoint. | provider usage report |
+| `cost_usd` | `total_cost` (USD) from the generation endpoint. `usage.cost` (credits) and `cache_discount` are also stored. | provider usage report |
+| `cost_usd_per_completed_task` | Sum of `cost_usd` over one agentic-suite task's requests, median over successful tasks. Also stored per attempted task. | aggregator |
+| `resolved_model` | `model` as returned by the response and the generation endpoint | provider |
+| `provider_name`, `provider_attempts` | the upstream provider that served the request, and the list of attempts including fallbacks (`provider_responses`) | generation endpoint |
+| `service_tier`, `data_region`, `finish_reason`, `native_finish_reason` | as reported | generation endpoint |
+| `t_wall_utc` | run date and time of each request | client |
+
+**Run rules for cloud.**
+- **Prompts.** Cloud runs send only the public, English tinyagent-bench prompt corpus and synthetic profiles, never live user data.
+  - The perf-style cells use the **text** form of the Gemma-Wisp prompt pack at each level, since cloud tokenizers are unknown.
+  - The provider's `tokens_in` is recorded alongside the Gemma-token level.
+  - Levels past a model's listed context are skipped as `exceeds_native_window`.
+- **Settings.** `max_tokens = 256` on perf-style cells.
+  - APIs cannot force a length, so the actual `tokens_out` is recorded.
+  - The sampling and reasoning settings each API accepts are recorded per request. Some reject `temperature = 0`.
+  - Thinking or reasoning settings are separate entries (D5). The headline entry is the provider default for agent use.
+- **Repetitions.** 5 per level, each a cell `test: "cloud_level"`, round-robin, with a 5 s gap.
+  - Report median, IQR, min and max. p95 is shown only for agent runs with n ≥ 20.
+  - Cloud times depend on time of day and provider load, so every number carries its run date.
+- **Provider routing.** Record what served each request.
+  - Fallbacks: if `provider_attempts` shows a fallback, the request is kept but flagged `provider_fallback`.
+  - Pinning: pinning one upstream provider per model (OpenRouter's `provider` routing options; from recall, **unverified**) is a suggestion for repeatability, not a decision.
+  - A response served from OpenRouter's response cache (`response_cache_source_id` not null) is **voided** (`voided_response_cache`).
+- **Never stored:** the API key (kept in the macOS Keychain or an environment variable), and account-identifying fields from the generation endpoint (`external_user`, `user_agent`, `http_referer`, `origin`, `app_id`, `workspace_id`).
+- **Cost of the perf-style cells (estimated).** Seven levels × 5 reps is about 585k input and 9k output tokens per model. That is about $0.06 per model at Haiku or Luna prices and about $1.90 at Neon prices, or about $6 for all six before reasoning tokens. The agentic suite's cost is set by that spec's task count and 3 trials.
+
+**Not comparable: the display rule.**
+- Cloud times include the network, the provider's queue and datacenter hardware. They are **not comparable with on-device numbers**.
+  - On the board they appear only as labelled reference rows ("cloud reference, includes network and provider queue, run on <date>").
+  - They never share a chart axis with on-device numbers without that label. The default is a separate panel.
+- Ratios to Gemma-Wisp are not computed for time or cost (`ratio_to_baseline: null`, reason `cloud_not_comparable`).
+- Cloud models are never ranked among local models. The quality and agentic specs decide how their task results are shown.
+
 ---
 
 ## 2. iPhone runner requirements (STABLE)
@@ -215,7 +294,7 @@ This is the contract for the iPhone runner app. The runner **measures and record
 | Not charging | `UIDevice.batteryState == .unplugged` (monitoring enabled) | `battery_state` |
 | Battery 50–95 % at start; stop if below 30 % | `UIDevice.batteryLevel` | `battery_level_start/end` |
 | Low Power Mode off | `ProcessInfo.isLowPowerModeEnabled` | `low_power_mode` |
-| Screen on, **minimum brightness**, idle timer disabled (D10) | The app sets `UIScreen.brightness = 0.0` and `isIdleTimerDisabled = true`. Auto-brightness off (attested). Revision 2 said 25 %; minimum was chosen (D10). | `brightness` (= 0.0), `auto_brightness_off_attested` |
+| Screen on, **minimum brightness**, idle timer disabled (D10) | The app sets `UIScreen.brightness = 0.0` and `isIdleTimerDisabled = true`. Auto-brightness off (attested). Revision 2 said 25 %; minimum was chosen. | `brightness` (= 0.0), `auto_brightness_off_attested` |
 | App in foreground the whole run | `UIApplication.applicationState`. A background transition voids the in-flight sample. | `app_state` per sample |
 | Airplane mode, no case, hard surface, ambient temperature | Operator checkboxes and a typed °C | `attest.*`, `ambient_C` |
 | Rested 10 min after boot, thermal nominal | `ProcessInfo.systemUptime`, `ProcessInfo.thermalState` | `uptime_s`, `thermal_start` |
@@ -341,7 +420,7 @@ Jetsam ends the app with SIGKILL. The app gets no callback and no crash log ([fo
 ### 2.10 Export
 
 - **Files:** `run-<run_id>.json` (the §3 record), `mem-<run_id>.jsonl`, any Power Profiler trace, and a manifest with each file's sha256.
-- **Delivery:** zipped and shared through the share sheet, or saved under "On My iPhone / EDAT".
+- **Delivery:** zipped and shared through the share sheet, or saved under "On My iPhone / tinyagent-bench".
 - **No network upload in v1.**
 
 ---
@@ -355,8 +434,10 @@ One JSON file per **run** (a session on one device). Units are in the field name
 | Field | Type | Req. | Notes |
 |---|---|---|---|
 | `schema` | string | yes | `"edat.perf/1.0"` |
+| `kind` | enum | yes for new writers | `"local"` (Mac or iPhone) \| `"cloud_reference"`. Readers treat a missing value as `"local"`, which keeps it additive. |
+| `cloud` | object | if `kind = cloud_reference` | §3.11; `device` is then `null` with `device_reason: "cloud"` |
 | `run_id` | string | yes | `<UTC start>-<4 hex>` |
-| `runner` | object | yes | `{name: "mac-omlx" \| "iphone-mlx-swift", version, commit}` |
+| `runner` | object | yes | `{name: "mac-omlx" \| "iphone-mlx-swift" \| "cloud-openrouter", version, commit}` |
 | `clock` | string | yes | `"mach_continuous_time"` on both |
 | `started_utc`, `ended_utc` | string | yes | |
 | `device` | object | yes | §3.2 |
@@ -479,6 +560,78 @@ One entry per model entry:
 - **Where it lives.** `fits_16gb_mac` is in every run record that has Mac cells, and it is the ranking gate on the board.
 - **Runner obligations.** Runners never write `verdicts`. The Mac runner must still produce the emulation samples. These are `samples` with `test: "fit16_emulation"`, an additive enum value, and the conditions field `emulation: {wired_limit_mb, balloon_gib}`.
 
+### 3.11 Cloud reference fields (`kind = "cloud_reference"`)
+
+**Run level: `cloud`**
+`{gateway: "openrouter", api_base, client_network ("wired" | "wifi"), price_snapshot: {date, source, per_model: {<id>: {input_usd_per_mtok, output_usd_per_mtok}}}, routing: {provider_pinned, allow_fallbacks}}`
+- No IP address or location is stored.
+
+**`models[]` for cloud**
+- `id` is the requested OpenRouter id, and `resolved_model` is what came back.
+- `architecture` is `"unknown"`, and the `params_*`, `files` and `quant` fields are `null`.
+- `role` is `"cloud_reference"`, an added enum value.
+
+**`samples[]` for cloud**
+- `test`: `"cloud_level"` or `"cloud_task"`.
+- Cloud-only fields, added to §3.6:
+  - `generation_id`, `t_wall_utc`;
+  - `net_ttft_s`, `net_total_s`;
+  - `provider_latency_ms`, `provider_generation_ms`, `moderation_latency_ms`;
+  - `tokens_in`, `tokens_out`, `tokens_reasoning`, `tokens_cached`;
+  - `native_tokens_prompt`, `native_tokens_completion`, `native_tokens_reasoning`, `native_tokens_cached`;
+  - `cost_usd`, `cost_credits`, `cache_discount`;
+  - `resolved_model`, `provider_name`, `provider_attempts`, `service_tier`, `data_region`;
+  - `finish_reason`, `native_finish_reason`, `http_status`, `streamed`, `response_cache_source_id`;
+  - `sampling_sent` (the exact sampling and reasoning parameters sent).
+- The client timestamps `t_submit_ns`, `t_first_token_ns` and `t_end_ns` are kept.
+- All on-device fields are `null`: footprint, MLX counters, thermal, battery, energy windows.
+
+**Added statuses:** `provider_error`, `rate_limited`, `voided_response_cache`, `provider_fallback` (kept, flagged).
+
+**`cells[]` for cloud**
+- `net_ttft_s` and `net_total_s` stats, `tokens_*` medians, `cost_usd_per_request`, `cost_usd_per_completed_task`.
+- Every cloud cell carries `label: "includes network and provider queue"` and its `run_dates`.
+
+**`verdicts[]` for cloud**
+- `fits_16gb_mac` and `fits_iphone_air` are `"not_applicable"`.
+- `ranked: false`, with `reference: "cloud"`.
+
+### 3.12 Revision 6 additions (all additive; the iPhone runner is not required to produce them in v1)
+
+**New `samples[].test` values:**
+- `sim_day_event`, `sim_day_idle`, `sim_day_realtime`;
+- `long_session_turn`;
+- `reload_after_idle`;
+- `fit16_under_load`, `pressure_sweep`;
+- `aux_baseline`.
+
+**New `samples[]` fields** (null when not applicable):
+- `event_kind` (`brief` | `question` | `action` | `digest` | `idle`), `script_time_s` (scripted time of day, seconds from day start), `task_id`;
+- `turn_index`, `context_tokens`, `new_prefill_tokens`;
+- `trim_event` (`{tokens_removed, digest_tokens_added, prefix_changed}`), `cache_reset` (bool);
+- `reloaded` (bool), `reload_ms`, `weights_cached` (bool, from the `iostat` check);
+- `aux_models_resident` (`[{id, aux_footprint_bytes}]`), `footprint_model_bytes`, `aux` (bool: an embedding or rerank request);
+- `wall_budget_s`, `within_budget` (bool);
+- `app_load_gib`, `app_load_swapped_bytes`.
+
+**New `conditions_*` fields:** `sleep_prevented` (bool), `unload_policy` (`"resident"` | `"unload_after_idle"`, with `idle_unload_minutes`), `emulation` (`{wired_limit_mb, balloon_gib, app_load_gib}`).
+
+**New `verdicts[]` fields:**
+```
+sim_day: {policy, day_wh_model, day_wh_total, battery_pct_used_model, battery_pct_used_measured,
+          share_of_full_battery_pct, j_per_completed_task, p_idle_resident_W, idle_share, active_share,
+          aux_share, tasks_completed, tasks_attempted, reloads, reps, validation: {run_id, error_pct, pass},
+          sentence}
+sim_day_unload_policy: { same fields, policy "unload_after_idle" }
+long_session: {window_tokens, turns, trims, trim_ttft_cost_s, trim_energy_cost_J,
+               plateau_footprint_bytes, leak_flag, ttft_by_context: [[context_tokens, ttft_s]],
+               decode_by_context: [[context_tokens, decode_tps]]}
+reload_after_idle: {reload_ttfa_s, reload_s, e_reload_J, weights_cached_share}
+fits_16gb_mac_under_load: "fits" | "fits_small_context" | "does_not_fit" | "not_measured" | "not_applicable"
+pressure_curve: [{app_load_gib, level, decode_tps, ttft_s, swap_in_bytes, status}], pressure_knee_gib
+within_budget_rate, median_wall_s_correct
+```
+
 ---
 
 ## 4. Energy
@@ -497,11 +650,11 @@ All headline energies are **active energy**: energy over the window minus `P_idl
 - Performance board: `e_dec(2048)` and `e_pre(2048)`, with curves over the levels.
 - Overall board: **J per completed task**.
 
-Never compare numbers with different scopes. A GPU-rail figure leaves out most of the cost. On the reference Mac during Gemma decode, the GPU rail was only part of the power above idle; power conversion outside the chip and memory traffic made up much of the rest (measured internally; withheld until results are published). Stanford's Intelligence-per-Watt harness warns that rail-only numbers understate Neural Engine backends ([platform support](https://hazyresearch.stanford.edu/intelligence-per-watt/benchmarking/platform-support/)).
+Never compare numbers with different scopes. A GPU-rail figure leaves out most of the cost. During Gemma decode on the reference Mac, the GPU rail was only part of the above-idle power; power conversion outside the chip and memory traffic made up the rest (the split was measured internally; withheld until results are published). Stanford's Intelligence-per-Watt harness warns that rail-only numbers understate Neural Engine backends ([platform support](https://hazyresearch.stanford.edu/intelligence-per-watt/benchmarking/platform-support/)).
 
 ### 4.2 Paired requests instead of trace slicing
 
-- **Why slicing fails.** At 2,048 tokens the reference Mac prefills in well under a second. Harbor's capped-request table lists a TTFT of 1.16 s (`service/inference/power_tier.py:10-16`). At 512 tokens prefill is a fraction of a second. A 20 Hz trace misplaces each phase edge by up to 50 ms, which is a large share of such a short phase (estimated). Getting 2 % from one window needs about 1 kHz and sub-millisecond alignment, which only an external meter gives.
+- **Why slicing fails.** At 2,048 tokens the reference Mac prefills in well under a second. TTFT was 1.16 s on a longer agent prompt (`service/inference/power_tier.py:10-16`). A short prefill lasts only a fraction of a second (measured internally; withheld until results are published), so a 20 Hz trace, which misplaces each phase edge by up to 50 ms, puts a large share of that phase's energy in doubt. Getting 2 % from one window needs about 1 kHz and sub-millisecond alignment, which only an external meter gives.
 - **Method.**
   - For each level L, run shape **A** (L tokens, `max_tokens = 1`) and shape **B** (L, exactly 257). Each uses a fresh nonce variant, so the prefix cache never hits.
   - Alternate them as A B A B …, **K = 20** of each, inside one energy window. Request boundaries are timestamped.
@@ -519,30 +672,30 @@ The headline sources need no administrator rights. `powermetrics` runs only thro
 
 | Source | Scope | Rate | Use |
 |---|---|---|---|
-| SMC key `PSTR` | whole device, internal | polled at 20 Hz, live | **headline**. To be validated against the battery accumulator in steady windows (an earlier informal check is (measured internally; withheld until results are published)). |
+| SMC key `PSTR` | whole device, internal | polled at 20 Hz, live | **headline**. Cross-checked against the battery accumulator on the reference Mac (agreement measured internally; withheld until results are published). |
 | AppleSmartBattery accumulator (IORegistry), on battery | whole device | about 1 s or coarser (**unverified**) | validates PSTR once per session; a cross-check above 3 % flags the session |
 | IOReport "GPU Energy" (nJ) | GPU rail | live | diagnostic |
-| IOReport CPU/DRAM/ANE energy | rails | almost never published on macOS 27 (earlier informal check; [macmon](https://github.com/vladkens/macmon) reports the same) | not used |
+| IOReport CPU/DRAM/ANE energy | rails | almost never published on macOS 27 (earlier hand checks; [macmon](https://github.com/vladkens/macmon) reports the same) | not used |
 | `powermetrics` via the admin helper, 100 ms | CPU, GPU and Neural Engine rail estimates | 100 ms | rail breakdown (diagnostic). Apple calls the values estimates ([man page](https://keith.github.io/xcode-man-pages/powermetrics.1.html)). |
 
 - **Helper.** A small Swift or C helper reads PSTR and IOReport GPU Energy at 20 Hz. Each reading is stamped with `mach_continuous_time` and written to JSONL. The benchmark runner reads the same clock, so no further alignment is needed.
 - **Idle.**
   - Measure 60 s before and 60 s after each window, with the model resident and the display in its run state. `P_idle` is the mean of the two medians. If they differ by more than 15 %, flag the window.
-  - The Mac runs energy windows with the **display off**, kept awake with `caffeinate -i`, on **battery**. In earlier informal checks, idle power drifted noticeably with the display on and was much lower and steadier with it off (measured internally; withheld until results are published). That drift was the main error source.
+  - The Mac runs energy windows with the **display off**, kept awake with `caffeinate -i`, on **battery**. In earlier hand readings, idle power drifted noticeably with the display on and was much lower and steadier with it off (figures measured internally; withheld until results are published). That drift was the main error source.
   - Speed and memory cells run on AC.
 - **Error bound per window:**
   - `√(edge² + idle_drift² + source²)`;
   - `edge = 2·P·Δt / (K·window)`;
   - `idle_drift = |P_before − P_after|·window/2`;
-  - `source` = 1 % for PSTR (a planned starting value, to be confirmed by the battery cross-check).
-- **Other users of the GPU.** The window is voided if another client used oMLX during it. That has happened on the reference Mac, when another client loaded a model mid-window. Any GPU power cap in effect is also recorded. oMLX's cap is whole-Mac (`service/inference/power_tier.py:3-8`).
+  - `source` = 1 % for PSTR (local estimate).
+- **Other users of the GPU.** The window is voided if another client used oMLX during it. That has happened on the reference Mac: another client loaded a model mid-window. Any GPU power cap in effect is also recorded. oMLX's cap is whole-Mac (`service/inference/power_tier.py:3-8`).
 
 ### 4.4 What Harbor already has
 
 - A GPU-rail J/token table (0.270 J/token uncapped) in `service/inference/power_tier.py:10-16`.
 - Per-request cap plumbing in `service/inference/omlx_client.py:490-520`.
 - No energy sampling code: a search for `powermetrics|joule|IOReport|tok/J` over `service`, `scripts` and `docs` finds only that table and the cap.
-- From earlier informal work: the no-sudo instrument set (PSTR, IOReport GPU Energy) and some decode energy comparisons between a GPU build and a Neural Engine build (measured internally; withheld until results are published). These are a starting point, not benchmark results.
+- From the project notes: the no-sudo instrument set (PSTR, IOReport GPU Energy) and earlier decode-efficiency figures, GPU against a Neural Engine build (measured internally; withheld until results are published). These are a starting point, not benchmark results.
 
 ---
 
@@ -553,7 +706,7 @@ The headline sources need no administrator rights. `powermetrics` runs only thro
 - **Headline: peak `phys_footprint`** of the inference process.
   - Mac: oMLX's process, read with `proc_pid_rusage(RUSAGE_INFO_V4+)` from the runner, with `ri_lifetime_max_phys_footprint` as the kernel-tracked peak.
   - iPhone: in-app `task_vm_info`.
-- **Add the `footprint <pid>` "neural" ledger on the Mac** when the Neural Engine is used. That memory sits outside `phys_footprint`: each loaded ANE function held a multiple of its weights there (measured internally; withheld until results are published).
+- **Add the `footprint <pid>` "neural" ledger on the Mac** when the Neural Engine is used. That memory sits outside `phys_footprint`: each loaded ANE function held a multiple of its weights there (ratio measured internally; withheld until results are published).
 - **Why not RSS.**
   - RSS counts clean file-backed pages that can be evicted, such as mmap'd weights.
   - It can miss Metal memory, which shows as `IOAccelerator` / `IOSurface` regions ([Apple, Metal memory](https://developer.apple.com/documentation/xcode/analyzing-the-memory-usage-of-your-metal-app.md)).
@@ -573,9 +726,9 @@ The headline sources need no administrator rights. `powermetrics` runs only thro
    - A slope more than 25 % off the formula flags the runtime: it may preallocate, use paged blocks, or have the wrong dtype.
 4. `overhead = mem_loaded − resident weight bytes`. Prefill scratch is `mem_peak − mem_steady`. It grows with the prefill step size, which is recorded.
 
-**Gemma-Wisp illustration** (architecture facts from the model's config, not measurements):
+**Gemma-Wisp illustration** (architecture facts):
 - Only 4 global layers hold their own KV, which comes to 16 KiB per token, so about 16 MiB per 1k tokens. That gives about 0.5 GiB at 32,768 and about 1 GiB at 65,536. A fixed sliding-window block (window 512) is added on top.
-- oMLX keeps the per-layer embedding tables in Metal memory (size (measured internally; withheld until results are published)). This is the main reason the footprint exceeds what the architecture needs.
+- oMLX keeps the per-layer embedding tables in Metal memory (size measured internally; withheld until results are published). This is the main reason the footprint exceeds what the architecture needs.
 - For contrast, a dense model without sliding windows grows much faster. Llama 3.2 3B in fp16 is about 112 MiB per 1k tokens, so about 7 GiB at 64k (from its config as recalled, **unverified**).
 
 **oMLX settings for memory cells:**
@@ -623,7 +776,7 @@ This is the gate for ranking. It is decided on the 24 GB reference Mac in two st
 - `B16` is a constant in the aggregator (`edat.fit16.budget_bytes`). It is replaced by a measured value if anyone calibrates on a real 16 GB Mac.
 
 **Context levels.**
-- **Working level W = 10,240 tokens.** Agent turns on a Mac carry tool schemas, the system prompt and history. Harbor's own notes put its tool schemas alone at about 62 % of a 16k window, roughly 10k tokens (`docs/HARBOR_OVERVIEW.md`), so 10,240 is the agent working level.
+- **Working level W = 10,240 tokens.** Agent turns on a Mac carry tool schemas, the system prompt and history. Harbor measured its tool schemas alone at about 62 % of a 16k window, roughly 10k tokens (`docs/HARBOR_OVERVIEW.md`: 57 tools, about 9,943 tokens), so 10,240 is the agent working level.
 - **Small level S = 2,048 tokens.**
 
 **Verdict** (field `fits_16gb_mac`):
@@ -631,12 +784,13 @@ This is the gate for ranking. It is decided on the 24 GB reference Mac in two st
 | Value | Rule | Ranked? |
 |---|---|---|
 | `fits` | `mem_peak(W) ≤ 0.9 × B16` (9.0 GiB), status `ok` at W, **and** the emulation run passes at W | yes |
-| `fits_small_context` | `mem_peak(S) ≤ 0.9 × B16` and the emulation passes at S, but W fails either test | yes, with a "small context only" badge. A model this tight cannot hold a full agent turn with tools on a 16 GB Mac. Whether such a model stays ranked is still a proposal. |
+| `fits_small_context` | `mem_peak(S) ≤ 0.9 × B16` and the emulation passes at S, but W fails either test | yes, with a "small context only" badge. A model this tight cannot hold a full agent turn with tools on a 16 GB Mac. This is a proposal; it may be made unranked. |
 | `does_not_fit` | fails at S, or the engine refuses the load, or the process is killed, under emulation | **not ranked**; listed as "does not fit" |
 | `not_measured` | the emulation was not run | not ranked until measured |
 
 - **The 10 % margin.** It separates `fits` from a borderline pass. A peak between 9.0 and 10.0 GiB is reported as `fits_small_context` at best.
   - The margin covers run-to-run variance in peak footprint. Allocator caching and background app growth can each add a few hundred MiB (estimated).
+- **Helper-model allowance.** The assistant on a 16 GB Mac would also keep its embedding model resident. So the peak compared with the budget is `mem_peak + 0.4 GiB` (§5.7), the measured aux baseline once available. The board states this allowance next to the verdict.
 - **Context reach.** The record also carries `max_level_fits_16gb`: the largest of the seven levels where `mem_peak ≤ 0.9 × B16` and the emulation passes. This shows whether 32k or 64k contexts fit.
 
 **Emulation run on the 24 GB Mac** (needs the admin helper, §11.1). It confirms the footprint arithmetic under real memory pressure:
@@ -649,8 +803,49 @@ This is the gate for ranking. It is decided on the 24 GB reference Mac in two st
 6. **Restore.** The helper releases the balloon and resets the wired limit. This happens even on a crash, because the helper owns the reset (§11.1).
 
 - **Limits of the emulation.** It cannot reproduce a smaller chip's bandwidth, its thermals, or how other apps' working sets actually behave. It is a memory gate, nothing more.
-- **Gemma-Wisp, unmeasured estimate.** An earlier informal reading of oMLX's allocator peak (measured internally; withheld until results are published) suggests a verdict of `fits` is expected. The run decides it.
+- **Gemma-Wisp, unmeasured estimate.** an earlier hand reading of oMLX's allocator peak (measured internally; withheld until results are published) was below 9.0 GiB, so a verdict of `fits` is expected. The run decides it.
 - **The iPhone Air** keeps its own measured budget (§2.9) and its own `fits_iphone_air` verdict, using the same three-value scale with levels S and W.
+
+### 5.6 Fit under load and speed under memory pressure (C2, optional addition)
+
+The §5.5 verdict uses a **wired** 10.5 GiB balloon. That is deterministic, but real apps are not wired: macOS compresses and pages them. This test adds a defined background load that behaves more like apps.
+
+**Background load `L_apps`.**
+- `edat-app-load` is a small user-level process, not run through the helper. It allocates **2.5 GiB** of anonymous memory, meant as about a browser and a mail client's worth.
+- It keeps a **1.5 GiB hot set** touched every second (one byte per page, sequentially) and leaves **1.0 GiB cold**.
+- Contents are random bytes, so compression cannot make them free. The real compressibility of browser memory is unknown; this is a conservative choice.
+
+**Configuration `fit16_under_load`.**
+- The helper wires **8 GiB** (the RAM a 16 GB Mac lacks; allowlist §11.1) and sets the 16 GB wired limit.
+- The oMLX ceiling is 13 GiB, and `L_apps` runs.
+- Run the S and W levels, 3 reps each.
+
+**Verdict `fits_16gb_mac_under_load`.**
+- Same scale and pass rule as §5.5: status `ok`, no kill or refusal, swap plus compressor growth under 256 MiB, and decode within 10 % of the unconstrained median.
+- Also record whether `L_apps` itself was compressed or swapped. A model that "fits" only by pushing the apps out to swap is `fits_small_context` at best, and the reason is recorded.
+- `fits_16gb_mac` (§5.5) stays the ranking gate. The under-load verdict is shown beside it.
+
+**Speed under memory pressure (`pressure_sweep`).**
+- With the same 8 GiB wired, step `L_apps` through **2.5, 4.0 and 5.5 GiB**. At each step, run the 2,048 and 10,240 levels, 3 reps.
+- Record TTFT, decode tok/s, swap-in and swap-out bytes, compressor size and status.
+- The board shows the curve, decode tok/s against background load, and the load at which the model first slows by more than 10 % (`pressure_knee_gib`).
+- The sweep needs the `L_apps` sizes as `edat-app-load` arguments. They are runner-side, so no new helper verb is needed.
+
+### 5.7 Embedding and reranker models: not benchmarked, accounted for (D18)
+
+- **Not benchmarked.** Embedding and reranker models get no tinyagent-bench entries, ranks or verdicts.
+- **Why accounting is needed.** In-assistant runs (simulated day, long session, agentic tasks run through the assistant) may keep them resident.
+  - Harbor's roster has `Qwen3-Embedding-0.6B-4bit-DWQ` and `Qwen3-Reranker-0.6B-mlx-6bit` (`service/config/models.yaml:46-53`). The reranker evicts the embedder before use, and tool retrieval defaults to the lexical provider, so the reranker is normally idle (`:55-59`).
+  - oMLX serves every model from **one process**, so its `phys_footprint` includes them. Without accounting, their memory would be blamed on the model under test.
+- **Rules.**
+  1. **Perf cells** (§2–§8) load only the model under test (`ensure_only(exclusive=True)`, `scripts/bench_ondevice_perf.py:494-495`). Nothing to account for.
+  2. **Aux baseline.** Once per oMLX version, load each helper model alone, send one warm request, and record its footprint (`test: "aux_baseline"`): `aux_footprint_bytes[id]`.
+  3. **In-assistant runs.** Each sample records `aux_models_resident` from the engine's loaded-model list, then:
+     - `footprint_model_bytes = footprint − Σ aux_footprint_bytes` over the resident helper models;
+     - the raw `footprint` is kept, and the board's memory numbers use `footprint_model_bytes`;
+     - both are reported if a helper model's real footprint is in doubt.
+  4. **Energy.** Requests to `/v1/embeddings` or the reranker are timestamped and tagged `aux`. Their active energy is excluded from J per completed task and listed as `aux_energy_J`. It is included in `day_wh_total` and shown as `aux_share` of the simulated day.
+  5. **The 16 GB fit gate** uses `footprint_model_bytes` plus a fixed **0.4 GiB** allowance for the helper models the assistant needs. The allowance is an estimate of a 0.6B 4-bit embedder's footprint, to be replaced by the measured aux baseline.
 
 ---
 
@@ -755,6 +950,130 @@ Harbor's script computes decode as `completion_tokens / (e2e − ttft)` (`:260-2
 - **Board rule:** the board shows peak and sustained figures for both devices, and ranks the iPhone by sustained.
 - The MacBook Pro has fans. A fanless MacBook Air will not behave the same way (§10).
 
+### 9.1 Simulated day: battery and energy for a day of use (D16, Mac only)
+
+The agentic spec writes the **script**, growing out of its §11.3 duty cycle: a morning brief, a set of questions and actions, background digests, and idle time with the model resident. Each script event has a time of day, a kind (`brief`, `question`, `action`, `digest`, `idle`) and a task id. This spec owns the **measurement**. The run is on `mac-ref` only ("test on my computer").
+
+**Compressed, with measured idle.** A real-time day takes 8–10 hours of scripted time per repetition, per model. The day is therefore run compressed, and the idle stretches are scaled from measured idle power:
+
+1. **Active part.** Every scripted event runs in its scripted order. The gaps between events are cut to a fixed 30 s, so tasks do not run into each other thermally.
+   - Each event gets its own energy window: PSTR at 20 Hz, idle bracketed per §4.3.
+   - The window's active energy is the event's energy.
+2. **Idle part.** In the same session, measure two idle powers, each a 30-minute window in ABBA order, with the display off and on battery:
+   - `P_idle_resident`: model loaded and idle;
+   - `P_idle_unloaded`: no model loaded, engine running.
+3. **Compose the day.** Each scripted idle gap `g` contributes energy according to the unload policy:
+   - **`resident`** (the script as written; the headline): `g × P_idle_resident`.
+   - **`unload_after_idle`** (Harbor's shipped behaviour, `idle_unload_minutes: 5` at `service/config/models.yaml:162-167`): for a gap longer than the timeout `T`, `T × P_idle_resident + (g − T) × P_idle_unloaded + E_reload`.
+     - `E_reload` is the active energy of the reload, measured in §9.3.
+     - The next event's time-to-answer includes the reload.
+     - This is reported as a second line.
+4. **Validation.** For each new device, OS and runtime version, run one **real-time day** with Gemma-Wisp under the `resident` policy, on battery.
+   - Measure total Wh with PSTR and the battery accumulator.
+   - The composed estimate's total must be within ±10 % of the measured total. If it isn't, the composed method is flagged and the real-time result stands for that model.
+   - A real-time day longer than the battery can last stops at 15 %. The result is then a partial day, flagged, and the composed method is used.
+
+**Conditions.**
+- On battery. The real-time validation starts at **100 %**. Each compressed repetition starts at **≥ 90 %** and stops below 20 %.
+- Display off, kept awake with `caffeinate -i`. That keeps the Mac awake through idle, which a real Mac might not be; recorded as `sleep_prevented: true`.
+- Thermal nominal at start. The same oMLX settings as the agent runs.
+- Embedding and reranker models are accounted for per §5.7.
+
+**Recorded per day:**
+
+| Field | Definition | Unit |
+|---|---|---|
+| `day_wh_model` | Active energy of every event, plus idle energy above `P_idle_unloaded` (and reload energy under the unload policy). This is the energy the model costs, beyond what the Mac uses anyway with no model loaded. | Wh |
+| `day_wh_total` | The whole Mac's energy for the day, display off: `day_wh_model` plus the unloaded baseline over the day | Wh |
+| `battery_pct_used_model` | `day_wh_model` ÷ full-charge capacity (Wh) × 100. Full-charge capacity comes from the AppleSmartBattery registry: max capacity × nominal voltage. The key names are **unverified**, and battery health is recorded. | % |
+| `battery_pct_used_measured` | Real-time validation only: the battery's own percentage drop | % |
+| `j_per_completed_task` | Active energy of the task events ÷ completed tasks. Completed means the model's agentic-suite pass for that task kind, the agentic spec's suggestion, adopted here. | J |
+| `p_idle_resident_W` | Average power while idle with the model resident, minus `P_idle_unloaded`, and the raw value | W |
+| `idle_share`, `active_share` | Share of `day_wh_model` spent in idle gaps against in events | % |
+| `tasks_completed`, `tasks_attempted`, `reloads` | counts | — |
+| `wall_time_to_answer_s` | per event, including any reload | s |
+
+**Repetitions.** 3 compressed repetitions per headline model entry, following the 3-trial rule. The board shows the median and the range. Plus the single real-time validation day per device and version.
+
+**Power sampling across hours.**
+- The runner's PSTR sampler, which needs no administrator rights, samples at 20 Hz during events and 1 Hz during idle windows.
+- The battery accumulator is read once per minute.
+- For per-rail diagnostics, the admin helper runs `powermetrics` at its 1000 ms interval for the whole day.
+- The helper's lifetime is raised for this test. It is started with `--max-hours 18` (§11.1), up from the 6-hour default.
+- Data volume: 1 Hz for 10 hours is about 36k samples per stream (estimate).
+
+**The verdict a reader sees:**
+
+> **One simulated day with <model> uses about N % of a full battery** on the reference MacBook Pro, beyond what the Mac uses with no model loaded. **M %** of that is idle time with the model resident. Under Harbor's unload-after-5-minutes setting it would use about N′ %.
+
+Gemma-Wisp gets the same sentence. Candidates also show it as a ratio to Gemma-Wisp. Cloud models have no simulated-day energy (`not_applicable_cloud`).
+
+### 9.2 Long sessions: a conversation that fills the window (D17)
+
+The agentic spec scripts the long session: a conversation that grows turn by turn until it fills the model's window and trimming starts, then continues for at least 10 trims.
+- The trimming policy is the harness's, fixed and identical for every model.
+- Harbor's version is `_fit_window` (`service/agent/loop.py:1295`). It shortens older tool results first, then condenses the oldest turns into a digest (`:1470-1505`). Trimming changes the prompt prefix, which resets the prompt cache.
+- Window: the engine profile used in the agent tests (16,384 for Gemma-Wisp, `service/setup/catalog.py:57`). It runs once more at 32,768 if the model's native window allows.
+
+**Sampled every turn** (Mac; the iPhone is optional later):
+- `turn_index`;
+- `context_tokens` (server `prompt_tokens`), `cached_tokens`, `new_prefill_tokens`;
+- TTFT, TTFA, decode tok/s and output tokens;
+- footprint start, peak and steady;
+- swap and compressor delta;
+- active energy per turn (PSTR window per turn, idle bracketing per 5 turns);
+- `trim_event` (`{tokens_removed, digest_tokens_added, prefix_changed}`) and `cache_reset` (true when `cached_tokens` drops to the fixed system prefix or below).
+
+**Derived per session:**
+- **TTFT and decode against context.** Curves over `context_tokens` up to the window, compared with the §6 level cells at the same depth. They should agree within the §1.5 limits when the cache is off. A disagreement points to cache or trim effects.
+- **Cost of a trim:**
+  - `trim_ttft_cost_s` = TTFT on the turn after a trim, minus the median TTFT of the 3 turns before it;
+  - `trim_energy_cost_J`, defined the same way;
+  - both as the median over all trims.
+
+  A trimmed prefix forces a near-full re-prefill, so this is roughly the cost of prefilling the remaining context from cold.
+- **Memory plateau.** Once trimming starts, footprint should stop growing.
+  - `plateau_footprint_bytes` is the median steady footprint after the first trim.
+  - `leak_flag` is set if the footprint after the last trim exceeds the one after the first trim by more than 5 %.
+- **Session totals:** turns completed, trims, wall time and energy.
+
+**Repetitions.** 3 sessions per headline model entry (the 3-trial rule), at the author's sampling settings with a fixed seed. Long sessions are task-like, so content is not forced.
+
+### 9.3 Reload after idle (C1, optional addition)
+
+Edge assistants unload idle models to free memory. Harbor unloads after 5 idle minutes (`service/config/models.yaml:162-167`), and an unloaded model reloads "at the usual cold-start cost" the next time it is used.
+
+- **Test** (`test: "reload_after_idle"`, Mac):
+  1. Load the model and send one warm request.
+  2. Leave it idle for `T + 1` minutes, so the engine unloads it on its own timeout. Use 6 minutes with Harbor's default, and confirm the unload through the engine's model list.
+  3. Then send a 2,048-level agent turn.
+- **Record:**
+  - `reload_ttfa_s`: time from the request to the first **answer** token, including the reload and prefill;
+  - the reload part on its own, from the engine's load timing;
+  - `E_reload`, the active energy;
+  - whether the weights were still in the file cache, measured with the `iostat` read bytes from §7.
+- **Repetitions:** 5. Report the median, and the §7 cold load as the worst case when the cache was evicted.
+- **iPhone:** the runner app controls its own unloading, so this is not run there in v1.
+
+### 9.4 Time budget: slow but correct is visible (C3, optional addition)
+
+**Metric.** `within_budget_rate` is the share of agentic-suite tasks that are both completed correctly and finished within a wall-clock budget, measured end to end on `mac-ref`. Tool time follows the agentic world's mocked latencies.
+- It is reported beside the plain pass rate, so a model that passes slowly shows a gap between the two.
+- The median wall time of correct tasks is also shown.
+
+**Proposed budgets** (a proposal; the agentic spec may change them):
+
+| Task kind | Budget |
+|---|---|
+| single question, no tool | 10 s |
+| one tool call and an answer | 20 s |
+| the 6-step trajectory / multi-step action | 60 s |
+| background digest (no one waiting) | 120 s |
+| morning brief | 30 s |
+
+- **Device scope.** The budgets are specific to the reference Mac and labelled that way. On the iPhone they are reported only if the agentic suite runs there.
+- **Cloud models** get the same metric with network-inclusive times, labelled as such.
+
 ---
 
 ## 10. What the 24 GB Mac's numbers can and cannot tell you about 16 GB and 8 GB Macs
@@ -767,7 +1086,7 @@ Harbor's script computes decode as `completion_tokens / (e2e − ttft)` (`:260-2
 | Will it swap or slow down because of other apps? | **Partly**: the emulation shows memory pressure against a fixed, wired app load | **No** | Real apps grow, shrink and get compressed. A wired balloon does not. Only a real 16 GB device shows that behaviour. |
 | Prefill and decode tok/s, TTFT | **No** (absolute); **likely** for the ranking of models | **No** | Decode is bandwidth-bound and prefill compute-bound. Pro chips have roughly 2–2.5× the bandwidth of the base chip of the same generation (from recall, **unverified**) and more GPU cores. A rough scaling by bandwidth ratio may be shown, labelled "projected", never as a measurement. Rankings of dense models of similar shape probably hold. MoE, MTP and large-KV models may reorder. |
 | Ratio to Gemma-Wisp | **Probably**, for decode ratios between bandwidth-bound models | **Partly**: only where both fit, which at 8 GB may be nowhere for the baseline | Ratios cancel much of the chip difference. That is the main reason the board leads with them. |
-| Energy per token | **No** | **No** | Different chip, different binning, display and power stage. The share for memory traffic and power conversion differs too. |
+| Energy per token | **No** | **No** | Different chip, different binning, display and power stage. The share for memory traffic and power conversion (about half of above-idle power here) differs too. |
 | Sustained and thermal | **No** | **No** | MacBook Pro fans against a fanless Air. |
 | Load time | **Roughly**, same SSD class | **Roughly** | Smaller Macs have smaller and sometimes slower SSDs (**unverified**). |
 
@@ -803,19 +1122,20 @@ The script's foundations stay:
 | 11 | Environment: extend `collect_environment` (`:90-124`) with power source, battery, power mode, display, thermal, uptime, GPU cap and engine profiles | `:90-124` | S |
 | 12 | Client for the admin helper (§11.1); the 16 GB emulation run and the `fits_16gb_mac` verdict (§5.5) | new | S |
 
-### 11.1 The EDAT admin helper (D3)
+### 11.1 The tinyagent-bench admin helper (D3)
 
-The only process in EDAT that runs with administrator rights. The user starts it before a run:
+The only process in tinyagent-bench that runs with administrator rights. The operator starts it before a run:
 
 ```bash
-sudo edat-admin-helper --run-dir <absolute path of this run's output folder>
+sudo edat-admin-helper --run-dir <absolute path of this run's output folder> [--max-hours 6|18]
 ```
 
 **Behaviour.**
 - It runs as root.
-- It accepts one client, the EDAT Mac runner, over a Unix socket at `<run-dir>/admin.sock`. The socket has mode 0600 and is owned by the invoking user (`SUDO_UID`).
+- It accepts one client, the tinyagent-bench Mac runner, over a Unix socket at `<run-dir>/admin.sock`. The socket has mode 0600 and is owned by the invoking user (`SUDO_UID`).
 - It refuses to start if the run folder isn't owned by that user.
-- It exits on `exit`, when the runner disconnects, on SIGINT or SIGTERM, or after 6 hours, whichever comes first.
+- It exits on `exit`, when the runner disconnects, on SIGINT or SIGTERM, or after its lifetime, whichever comes first.
+- The lifetime is 6 hours by default. Starting it with `--max-hours 18` allows the real-time simulated day (§9.1). No other values are accepted.
 
 **The complete list of what it does.** Requests are one JSON object per line. There is no shell, and every command is run with fixed arguments. Only the values listed here are accepted; anything else is refused and logged.
 
@@ -826,7 +1146,7 @@ sudo edat-admin-helper --run-dir <absolute path of this run's output folder>
 | `powermetrics_stop` | none | SIGINT to the instance it started, then wait for it to exit |
 | `wired_limit_set` | `mb` ∈ {`EDAT_16GB_WIRED_MB`} (one constant, the 16 GB default; §5.5) | `/usr/sbin/sysctl iogpu.wired_limit_mb=<mb>` |
 | `wired_limit_reset` | none | `/usr/sbin/sysctl iogpu.wired_limit_mb=<value read at helper start>` |
-| `balloon_wire` | `gib` ∈ {10.5} | In-process: allocates that much anonymous memory, writes every page and `mlock`s it. No external command. |
+| `balloon_wire` | `gib` ∈ {8, 10.5} (8 for the fit-under-load test, §5.6) | In-process: allocates that much anonymous memory, writes every page and `mlock`s it. No external command. |
 | `balloon_release` | none | `munlock` and free |
 | `status` | none | Returns the helper's state: wired-limit original and current, balloon size, whether powermetrics is running, uptime |
 | `exit` | none | Restore (below), then exit |
@@ -912,6 +1232,18 @@ Kept from revision 1 for when scope widens. None of it is designed in detail.
 | `max_level_fits_16gb` | largest level that passes §5.5 | tokens | higher | ✔ | n/a | aggregator |
 | `fits_iphone_air` | the same scale against the balloon budget | enum | `fits` | n/a | ✔ | balloon + footprint |
 | `reference_pair_check` | base ÷ Gemma-Wisp within §1.5 limits | pass/flag | pass | ✔ | ✔ | aggregator |
+| `share_of_full_battery_pct` | model's share of a full battery for one simulated day (§9.1) | % | lower | ✔ | n/a | PSTR + composition |
+| `day_wh_model` / `day_wh_total` | simulated-day energy, model-attributable / whole Mac | Wh | lower | ✔ | n/a | PSTR |
+| `p_idle_resident_W` | idle power with the model resident, above unloaded idle | W | lower | ✔ | n/a | PSTR |
+| `idle_share` | share of day energy spent idle | % | lower | ✔ | n/a | composition |
+| `trim_ttft_cost_s` / `trim_energy_cost_J` | extra TTFT and energy on the turn after a trim (§9.2) | s, J | lower | ✔ | later | long session |
+| `plateau_footprint_MiB`, `leak_flag` | memory after trimming starts | MiB, bool | lower, false | ✔ | later | long session |
+| `reload_ttfa_s` | idle-unload → first answer token (§9.3) | s | lower | ✔ | n/a | runner |
+| `within_budget_rate` | correct and within the wall-clock budget (§9.4) | % | higher | ✔ | if run | agentic suite + clock |
+| `fits_16gb_mac_under_load`, `pressure_knee_gib` | §5.6 | enum, GiB | fits, higher | ✔ | n/a | helper + app load |
+| `net_ttft_s` / `net_total_s` (cloud only) | client send → first token / end, **including network and provider queue** | s | lower | cloud | cloud | client clock |
+| `cost_usd_per_request` / `cost_usd_per_completed_task` (cloud only) | provider usage report (`total_cost`) | USD | lower | cloud | cloud | OpenRouter generation endpoint |
+| `tokens_in` / `tokens_out` / `tokens_reasoning` (cloud) | provider usage report | tokens | — | cloud | cloud | response `usage` |
 
 ---
 
@@ -997,7 +1329,8 @@ The second sample is truncated for brevity: a real record carries every field fr
 | 5 | Mac memory: footprint, ledger, swap, statuses | ~250 lines, 1 day | 4 |
 | 6 | Mac energy helper (PSTR + IOReport GPU) + A/B windows + validation against the battery accumulator | ~600 lines Swift/C + Python, 3 days | 4 |
 | 7 | Load timing (cold check), agent replay, S1–S3 drivers | ~450 lines, 2 days | 4–6 |
-| 7b | EDAT admin helper (§11.1) and the 16 GB emulation run (§5.5) | ~250 lines Swift + ~150 lines runner, 1.5 days | 4–5 |
+| 7b | tinyagent-bench admin helper (§11.1) and the 16 GB emulation run (§5.5) | ~250 lines Swift + ~150 lines runner, 1.5 days | 4–5 |
+| 7c | Simulated-day composer and real-time validation, long-session sampler, reload-after-idle, `edat-app-load` and pressure sweep, aux accounting, time-budget scoring | ~900 lines, 3–4 days, plus about one device-day per real-time validation | 4–7b; scripts from the agentic spec |
 | 8 | First full session: reference bracket on both devices, the 16 GB verdict for both references, then the review of error bounds | 1–2 days of device time | all |
 
 v1 totals about 4,150 lines and 16–19 working days, estimated, not prototyped. Steps 3 and 4–7 can run in parallel once 1 and 2 exist.
@@ -1017,25 +1350,31 @@ v1 totals about 4,150 lines and 16–19 working days, estimated, not prototyped.
   - Whether `purge` still needs sudo.
   - The AppleSmartBattery accumulator update rate.
   - The default `iogpu.wired_limit_mb` fraction.
-  - SMC PSTR accuracy and IOReport behaviour come from earlier informal hand measurement on the reference Mac and were not re-checked here.
+  - SMC PSTR accuracy and IOReport behaviour come from earlier hand checks on the reference Mac (project notes) and were not re-checked here.
 - **oMLX.** Whether it can serve a symlinked second model id with its own settings, for the plain mode.
 - **Chips.** Relative bandwidth of Pro and base chips (recalled).
 - **Measurements.** Context-scaling measurements at 32k and 64k on any Apple device. None were found.
 - **The 16 GB budget.** `B16` = 10.0 GiB is derived: a 3.5 GiB macOS reserve plus a 2.5 GiB app load are estimates. The 16 GB default `iogpu.wired_limit_mb` value is also unverified. Neither has been calibrated on a real 16 GB Mac.
 - **Whether `purge` empties the file cache for large mmap'd weight files** on macOS 27. The `iostat` cold check will show it.
 - **Exact `powermetrics` sampler names and the `-f plist` flag** on the reference Mac.
+- **Simulated day.**
+  - The AppleSmartBattery registry keys for full-charge capacity and voltage.
+  - Whether the composed estimate tracks a real-time day within ±10 %. The validation run decides this.
+  - Whether keeping the Mac awake (`caffeinate -i`) misstates a day in which a real Mac would sleep.
+- **Fit under load.** How compressible real browser and mail memory is. The synthetic load uses incompressible random bytes, which is conservative.
+- **Embedding allowance.** The 0.4 GiB allowance for the embedding model is an estimate until the aux baseline is measured.
 
 ---
 
 ## 17. Decisions (2026-11-18)
 
-The recommendations stand, with one change: the model should fit on a 16 GB Mac. All earlier open questions are **decided**:
+The recommendations stand, with one change: the model should fit a 16 GB Mac. All earlier open questions are **decided**:
 
 | # | Question | Decision |
 |---|---|---|
 | D1 | Target device class and fit | **The 16 GB Mac is the target class.** Variants that do not fit a 16 GB Mac are listed as "does not fit" and not ranked. The test is defined in §5.5. The iPhone Air keeps its own measured budget (§2.9). |
-| D2 | Name | The benchmark is **EDAT** (Edge Device Agentic Testing). Schema ids are `edat.*`; this spec's record is `edat.perf/1.0`. |
-| D3 | sudo on the Mac | Allowed only through the **EDAT admin helper** the user starts before a run (§11.1). It covers `purge`, `powermetrics` and the GPU wired limit, plus the wired balloon used for the 16 GB check, and nothing else. |
+| D2 | Name | The benchmark is **tinyagent-bench**. Schema ids keep the prefix `edat.*` for now; this spec's record is `edat.perf/1.0`. |
+| D3 | sudo on the Mac | Allowed only through the **tinyagent-bench admin helper** the operator starts before a run (§11.1). It covers `purge`, `powermetrics` and the GPU wired limit, plus the wired balloon used for the 16 GB check, and nothing else. |
 | D4 | External meter | None. iPhone energy is an estimate from the system's own tools, labelled `is_estimate: true` (§2.7). Mac energy uses internal sensors only. |
 | D5 | Thinking | Thinking-on and thinking-off are **separate entries**. A model's headline entry is the mode it would ship in for agent turns (§6.5). Perf cells keep greedy decoding at a fixed length. Routine runs in the other specs use 3 trials; this spec's timing repetitions are unchanged. |
 | D6 | Energy headline | J per completed task on the overall board; the per-token pair on the performance board. |
@@ -1045,8 +1384,13 @@ The recommendations stand, with one change: the model should fit on a 16 GB Mac.
 | D9 | Context levels | 5,120 and 10,240 accepted. Levels past a model's native window are skipped and recorded as `exceeds_native_window`. |
 | D10 | Phone brightness | **Minimum brightness** (the app sets `UIScreen.brightness = 0.0`). The screen stays on. |
 | D11 | Community submissions | Out for now. |
-| D12 | Benchmark oMLX instance | Accepted: a benchmark-only oMLX instance with its own settings and model ids. The user's everyday engine is never changed. |
+| D12 | Benchmark oMLX instance | Accepted: a benchmark-only oMLX instance with its own settings and model ids. A user's everyday engine is never changed. |
 | D13 | Duty cycle, corpus, 6-step trajectory | Supplied by the agentic spec (`02-agentic-spec.md`). Token counting follows the quality spec's shared definitions (`03-output-quality-spec.md`, "Tokens per answer"). |
+| D15 | Cloud reference models | Six models through OpenRouter (§1.7). Recorded as `kind: "cloud_reference"` with network-inclusive times, tokens, cost, resolved model, provider and run date. Never comparable with on-device numbers; never on a shared axis without a label. The DeepSeek id is still to be confirmed. |
+| D16 | Simulated day | Mac only, compressed with measured idle, plus a real-time validation (§9.1). |
+| D17 | Long sessions | Sampled per turn, with trim cost and memory plateau (§9.2). |
+| D18 | Embedding and reranker models | Not benchmarked. Their memory and energy are accounted for and subtracted (§5.7). |
+| C1–C3 | Reload after idle, fit under load and pressure sweep, time budget | Added as extra coverage. **Open to being dropped** (§9.3, §5.6, §9.4). The time budgets themselves are a proposal. |
 | D14 | Reference-pair cost | Run in every session, as proposed. If base is also killed on the iPhone, the pair check there compares statuses only. |
 
-No decision is left open in this spec. One item is not a decision but limits accuracy. The 16 GB budget in §5.5 is derived, not measured on a real 16 GB Mac. Calibrating it once on a real device would replace the estimate.
+Nothing is left open in this spec. One item is not a decision but limits accuracy. The 16 GB budget in §5.5 is derived, not measured on a real 16 GB Mac. Calibrating it once on a real device would replace the estimate.

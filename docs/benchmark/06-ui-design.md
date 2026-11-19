@@ -3,10 +3,10 @@
 # 06 · Website UI design
 
 Status: design only, first draft, 2026-11-18.
-Mock-up: `site/index.html` (multi-file, the source). A one-file bundle can be built from `site/` for sharing; the bundle and its build script are not included in this repository.
-Every number in the mock-up is **sample data** made by a seeded generator in `site/data.js`. Model names are invented ("Model D 4B", "Baseline 4B (tuned)"). The two devices and their runtimes are the planned first ones: MacBook Pro 24 GB with oMLX, and iPhone Air 12 GB with MLX Swift. No results exist for them yet, and the page says so. The site's name, **Edge agent bench**, is a working title only.
+Mock-up: `site/index.html` (multi-file, the source). A one-file bundle can be built from `site/`; the bundle and its build script are not published.
+Every number in the mock-up is **sample data** made by a seeded generator in `site/data.js`. Model names are invented ("Model D 4B", "Baseline 4B (tuned)"). The two devices and their runtimes are the planned first ones: MacBook Pro 24 GB with oMLX, and iPhone Air 12 GB with MLX Swift. No results exist for them yet, and the page says so. The site is named **tinyagent-bench**. Revision 3 (§13) supersedes earlier sections where they disagree.
 
-Revision 2 (same day) folds in three project decisions; see section 12.
+Revision 2 (same day) folds in three further decisions; see section 12.
 
 ## 1. Direction in one paragraph
 
@@ -169,15 +169,17 @@ It reads like an instrument, not a dashboard template. No gradients, no card gri
 
 ```
 site/index.html        shell: sample-data band, top bar, footer (open via a local server, see below)
-site/tokens.css        Cobalt tokens + shared scale (scaffolded)
-site/base.css          base rules (scaffolded)
+site/tokens.css       Cobalt tokens + shared scale (scaffolded)
+site/base.css         base rules (scaffolded)
 site/site.css         the site's components, dark tokens, chart classes
-site/data.js           ALL sample data: facts, metric registry, tiers, cases, seeded result generator
-site/charts.js         SVG chart kit (scatter, dot rows, context lines, stacked bar, budget bars, sustain)
-site/app.js            router (state in the URL hash) and the seven page types
+site/data.js          ALL sample data: facts, metric registry, tiers, cases, seeded result generator
+site/charts.js        SVG chart kit (scatter, dot rows, context lines, stacked bar, budget bars, sustain)
+site/app.js           router (state in the URL hash) and the seven page types
 ```
 
-To view locally, serve the folder and open the page: `python3 -m http.server 8731` in `site/`, then go to `http://127.0.0.1:8731/`. Opening the file directly also works in most browsers. Sloplint (Hallmark's linter, app scope) reports 0 FAIL. Its one remaining WARN, F4, takes the pressed tray buttons and trial pips for filled primary buttons; they are toggles, so I dismissed it.
+A one-file bundle can be built from `site/` for sharing; it is not published.
+
+To view locally, serve the folder and open the page: `python3 -m http.server 8731` in `site/`, then go to `http://127.0.0.1:8731/`. Opening the file directly also works in most browsers. Sloplint (Hallmark's linter, app scope) reports 0 FAIL. Its one remaining WARN, F4, takes the pressed tray buttons and trial pips for filled primary buttons; they are toggles, so it was dismissed.
 
 ## 10. Patterns adopted from the sites review (`01-benchmark-sites.md` §3)
 
@@ -205,9 +207,9 @@ To view locally, serve the folder and open the page: `python3 -m http.server 873
 - radar charts;
 - a single opaque composite. The agent score is a plain mean of named tiers, and the formula is shown under the table.
 
-## 11. Open questions for the user
+## 11. Open questions
 
-1. **The name.** "Edge agent bench" is a placeholder. The sites review notes that Terminal-Bench's harness is also called "Harbor", so "Harbor bench" would clash.
+1. **The name.** Settled in revision 3: tinyagent-bench. Harbor is named only on the methodology page, as where the harness comes from.
 2. **The headline metric.** The verdict ranks by the agent score alone and shows unsafe calls beside it. Should a model with many unsafe calls be barred from the verdict, for example above 10 of 120 or above the device median?
 3. **The default device on first visit.** The mock-up defaults to Laptop 16 GB. Options: a phone class, the visitor's own device guessed from the browser, or a forced first-run picker.
 4. **The fit rule.** Peak memory at 2k context under a measured budget. Should the rule use a longer context, such as 8k, because agent prompts with tool schemas are long?
@@ -217,7 +219,7 @@ To view locally, serve the folder and open the page: `python3 -m http.server 873
 
 ## 12. Revision 2: in-assistant tier, two devices, two pinned references
 
-These are project decisions of 2026-11-18, folded into the mock-up and this file.
+These decisions of 2026-11-18 are folded into the mock-up and this file.
 
 ### 12.1 In the assistant (a new tier)
 
@@ -248,7 +250,7 @@ It is scored on three surfaces: **Ask** (questions about the day), **Brief** (su
   - data volumes (emails, messages, events, reminders, notes, contacts, documents);
   - a table of what is planted, using the ledger types from `09-profile-schema.md` §5 in plain words, for example "Calendar is wrong" and "Instructions aimed at the assistant".
 
-  Persona names in the mock-up are invented. The profile viewer was empty and the fixtures were not available when this draft was written, so the site should take names, counts and planted items from the real `index.json`, and link "Browse every item" to the viewer once it exists.
+  Persona names in the mock-up are invented. The site should take names, counts and planted items from the real profile `index.json`, and link "Browse every item" to a profile viewer once it exists.
 - **Data model additions.**
   - `Profile`: id, label, invented name, age, summary, anchor, volumes, planted counts by ledger type.
   - `AssistantResult`: run × profile × surface → value and interval, plus an unsafe-or-unconfirmed count.
@@ -282,3 +284,103 @@ It is scored on three surfaces: **Ask** (questions about the day), **Brief** (su
 3. The memory budget for simulated classes (for example a 16 GB laptop = 10.5 GB for the model) needs measured numbers from real 8, 12 and 16 GB machines.
 4. The leaderboard has no assistant score in its default columns. Should the assistant score sit beside the agent score permanently, like unsafe calls?
 5. Device names are real (MacBook Pro, iPhone Air) while every number is sample data. The band at the top says so. Is that acceptable for a shared mock-up, or should devices be generic until results exist?
+
+## 13. Revision 3: the name, the fit gate, scores from the specs
+
+These decisions were made on 2026-11-18. Where this section disagrees with §1–12, this section wins.
+
+### 13.1 Name
+- The site is **tinyagent-bench**: the page title, wordmark, document titles ("… | tinyagent-bench"), footer and page `<title>`.
+- "Harbor" appears once, on the methodology page under "Where the harness comes from".
+- The in-assistant tier keeps the name "In the assistant". The two agentic lanes are the **assistant lane** and the **neutral lane**.
+
+### 13.2 Fit is the gate (spec 04 §3.10 and §5.5)
+- `run.fit = { verdict, cap, memW, memS, maxLevel }`, computed by `B.fitVerdict(model, quant, device)`.
+  - **Mac:** cap = B16 (10.0 GiB, sample) × 0.9.
+  - **iPhone Air:** cap = the measured app budget (5.5 GB, sample) × 0.9.
+  - **`fits`:** peak memory at W = 10,240 tokens is at or under the cap.
+  - **`fits_small_context`:** at or under the cap only at S = 2,048. Ranked, with a "Small context only" badge.
+  - **`does_not_fit`:** run status `nofit`. Never scored or ranked.
+- **Leaderboard.**
+  - A Rows tray switches between "Best variant per model" and "Every variant".
+  - The best variant prefers a full fit. A small-context variant leads only when it beats every full-fit variant by more than the margin.
+  - Variants that do not fit sit behind a "Show the N variants that do not fit a 16 GB Mac" button (`nf=1`). They show the memory needed at 2k and 10k, and no scores.
+  - Gaps (not run, failed) have their own divider.
+  - The verdict reads "best agent that fits a 16 GB Mac" (iPhone: "fits the iPhone Air").
+- **Removed:** the memory-budget tray, the `b` URL parameter, `BUDGETS` and simulated device classes.
+- **Memory curves** still use the device's real capacity. The memory chart draws the fit line, and the model page states the longest context that fits (`max_level_fits_16gb`).
+
+### 13.3 English only
+- The per-language section, the language filter and the multilingual metric are gone.
+- `B.languages = ["English"]`, and each run carries `language: "English"`, so later languages become their own views without touching English results.
+
+### 13.4 Scores from the specs
+- **Agentic (02).**
+  - Agentic score = mean of seven families (Select, Parallel, Sequential, Mixed, Plan-execute-verify, Recovery, Abstain). Each family is the 50/50 mean of the two lanes, with 3 trials per case.
+  - Columns: assistant lane, neutral lane, Reliability pass^3, Restraint violations %, Over-refusal %, Format validity %.
+  - Unsafe calls are per 100 trials, pinned beside the score and never averaged in.
+  - The families also get their own column group, and the test explorer tiers are renamed to match. Mixed and Abstain sample cases are added; the trajectory builder handles partly parallel calls and no-call cases.
+  - The iPhone uses the 120-item parity subset, so its intervals are wider.
+- **Differences.**
+  - The agentic score always carries two difference columns, against the tuned baseline and against the base reference, like-for-like on quantisation.
+  - Tags are better, worse or "no clear difference". Rare events (unsafe calls, violations) also show the ratio.
+- **Quality (03).**
+  - Readability = 35% hygiene + 65% style-controlled preference from the open-weights judge (†). The judge is validated against the author's votes; until then the page says "structure only".
+  - Text understanding = core recall 30 / extraction 20 / faithfulness 25 / trap resistance 15 / schema 10, shown as a breakdown on the model page.
+  - Fabricated details and visible tokens are shown alongside. Reasoning tokens are reported separately for thinking-on entries.
+- **Energy (04).**
+  - The headline is J per completed task (Mac only in v1).
+  - The new "Performance" group carries mJ per prefill token and per decode token at 2k.
+  - On the iPhone, prefill energy is "Not measurable", J per task is "Not in version 1", and decode energy and battery per hour are labelled estimates. Missing reasons live in `run.missing`.
+
+### 13.5 Thinking modes and references
+- Models D, G and J appear twice, "thinking off" and "thinking on". `think` and `headline` flags mark which is which and which is the shipped mode.
+- A Thinking filter (both / shipped / off / on) sits under More filters.
+- The model page links the sibling entry. Both references are thinking-off and pinned.
+
+### 13.6 Voting and submissions
+- "Readability votes" is for one rater, the author, with sample progress (214 of 520).
+  - One pair in five is candidate against candidate.
+  - Pairs that differ in facts are dropped, and both answers share one style.
+  - A recognition check flags the votes if the baseline can be spotted.
+- The submissions section and every mention of community runs are removed.
+
+### 13.7 From the sites research
+- Every chart has a "How to read this chart" expander: the scatter, the four context charts, families, energy split, sustained speed, the device "What fits" bars and the compare charts.
+- The scatter plots every fitting variant, and a thin line joins the quantisations of one model.
+  - Labels go only to the leader, the references and best-variant points on the trade-off edge.
+  - A label that cannot be placed clear is left to the tooltip and table.
+
+### 13.8 New open questions
+1. The verdict can name a thinking-on entry (Model G 8B, thinking on, in the sample). Should the headline verdict use only shipped-mode entries?
+2. Should small-context-only variants be ranked with a badge (current), or sit in a separate band below the full fits?
+3. For the leaderboard default, best variant per model (current) or every variant?
+4. The mock's reference names stay invented. In production they map to the tuned and base 4B models named in spec 02.
+
+### 13.9 Cloud references (2026-11-18)
+- **Data.** Six hosted models are added as references, not contestants: "Cloud model A" to "F" in the mock-up. The real roster is tested through OpenRouter; no real names appear next to sample scores.
+  - Each has `cloud: true` and a run date. `B.runCloud(model)` returns one device-free result: the agentic, preference, privacy, long-session, screen, coding, quality and assistant measures, plus cost per completed task (US$), tokens per task, network time to first token and network seconds per task.
+  - These four measures form a "Cloud cost and latency" column group. Every cell reads "Not applicable (on device)" for local rows, and device columns read "Not applicable (cloud)" for cloud rows.
+- **Leaderboard.**
+  - A "Cloud references, not ranked" band sits below the ranked entries. It has a "Cloud reference" badge, the run date in place of the variant line, and both reference differences. A toggle hides it (`cl=0`).
+  - The verdict sentence states the gap from the leader to the best cloud reference.
+- **Scatter.** Cloud references are dotted horizontal score lines with labels at the right edge. They have no position on the cost axis, so cloud cost never shares an axis with memory, energy or on-device time. The legend and "How to read" say so.
+- **Model page.** A cloud page says "never ranked" and shows the run date. It has a table against both references and the best local entry, family dots, and a cost and latency panel labelled as not comparable with on-device numbers.
+
+### 13.10 Test areas added and removed (2026-11-18)
+- **Added.**
+  - **Preferences:** an "Instruction following" score, the mean of five dimensions: still followed later, one-off override, newer replaces older, not over-stretched, never waives a confirmation. It is a column group, a model-page dot chart and a test tier.
+  - **Privacy leaks:** per 100 trials, a fixed leaderboard column beside unsafe calls, never blended. It appears in the restraint panel and as its own tier, and the trajectory marks the leak.
+  - **Long sessions:** early (turns 1–5) and late (turns 30–40) turns of a 40-turn conversation, and the change between them.
+  - **On-screen app control** and a light **sidekick coding and terminal** tier: their own tiers and a "Screen and terminal" column group, outside the agentic score.
+  - **A simulated day:** 40 scripted tasks with the model kept loaded. It reports battery share, energy per task (Mac only), idle power with the model loaded (Mac only), answer time after an idle unload, the fit verdict under a background load (1.5 GB on the Mac, 0.6 GB on the iPhone, sample values) and the share of tasks inside a time budget (20 s Mac, 40 s iPhone).
+- **Removed.**
+  - Speech: the audio word-error and audio-latency measures are gone and "Vision and audio" is now "Vision". Speech is out of scope, read as speech input as well as output.
+  - Video, and embedding and reranker models: none were in the mock-up; methodology now says they are left out.
+- **Disclosure.** Methodology states that the tuned baseline was fine-tuned on data from real-life testing of the assistant, not on the benchmark's questions, and that an overlap check against the held-out questions is part of the method. In production that reference is the tuned Gemma 4 E4B; the mock-up keeps the invented name.
+- **Columns.** The group tray is now multi-select. By default it shows Agentic only; five main groups appear as toggles and the rest are under "More groups". The score, both reference differences, unsafe calls and privacy leaks are always shown.
+
+### 13.11 More open questions
+5. Should audio input (speech recognition) come back later, or stay out with speech output?
+6. What should the time budget for "finished in time" be? The mock-up uses 20 s on the Mac and 40 s on the iPhone.
+7. Should a cloud reference count as "best" in the verdict sentence's gap, or should the gap use a chosen anchor cloud model?

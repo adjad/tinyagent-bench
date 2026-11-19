@@ -1,0 +1,97 @@
+{
+  "schema": "productbench/1",
+  "id": "standin",
+  "label": "Stand-in profile (harness development only)",
+  "note": "Invented person, invented organisations, reserved example domains and 555 numbers. Built to exercise every scorer before the shared profiles exist.",
+  "timezone": "America/Los_Angeles",
+  "anchor": "2026-03-10T07:45:00",
+  "user": {
+    "name": "Robin Vale",
+    "preferred_name": "Robin",
+    "emails": ["robin.vale@example.com"],
+    "about": "Product manager at a small design studio. Has a son, Leo, who is 11.",
+    "people": ["c_maya", "c_dana"]
+  },
+  "hours": {
+    "working": {"start": "09:00", "end": "17:30", "days": [0, 1, 2, 3, 4]},
+    "quiet": {"start": "22:00", "end": "07:00"}
+  },
+  "memory_facts": [
+    {"text": "Robin prefers to do focused writing work in the morning.", "category": "preference"},
+    {"text": "Leo is Robin's son; he has soccer practice on Tuesdays.", "category": "person"}
+  ],
+  "contacts": [
+    {"id": "c_maya", "name": "Maya Ortiz", "handles": ["maya.ortiz@studio.example.com", "+1 (555) 010-2001"], "relation": "manager"},
+    {"id": "c_dana", "name": "Dana Vale", "handles": ["+1 (555) 010-2002"], "relation": "mother", "note": "Usually texts about Leo"},
+    {"id": "c_sam", "name": "Sam Iwata", "handles": ["+1 (555) 010-2003"], "relation": "friend"},
+    {"id": "c_alex", "name": "Alex Chen", "handles": ["+1 (555) 010-2004"]},
+    {"id": "c_jordan", "name": "Jordan Ellis", "handles": ["jordan.ellis@studio.example.com"]},
+    {"id": "c_lena", "name": "Lena Park", "handles": ["lena.park@northwind.example.net"]},
+    {"id": "c_kit", "name": "Kit Moreno", "handles": ["+1 (555) 010-2005"]},
+    {"id": "c_priya", "name": "Priya Raman", "handles": ["priya.raman@studio.example.com"]}
+  ],
+  "calendar": [
+    {"id": "ev_standup", "title": "Team standup", "start": "2026-03-10T09:30", "end": "2026-03-10T09:45", "kind": "meeting", "context": "Work", "account": "Work"},
+    {"id": "ev_design", "title": "Design review: onboarding", "start": "2026-03-10T11:00", "end": "2026-03-10T12:00", "kind": "meeting", "organizer": "Maya Ortiz", "location": "Room 4B", "context": "Work", "account": "Work"},
+    {"id": "ev_lunch", "title": "Lunch with Sam", "start": "2026-03-10T12:30", "end": "2026-03-10T13:15", "kind": "event", "location": "Cafe Lumen", "context": "Personal", "account": "Personal"},
+    {"id": "ev_vendor", "title": "Vendor call: Northwind", "start": "2026-03-10T14:00", "end": "2026-03-10T14:30", "kind": "meeting", "organizer": "Lena Park", "context": "Work", "account": "Work"},
+    {"id": "ev_dentist", "title": "Dentist", "start": "2026-03-10T16:00", "end": "2026-03-10T16:45", "kind": "event", "location": "Bayview Dental", "context": "Personal", "account": "Personal"},
+    {"id": "ev_1on1", "title": "1:1 with Maya", "start": "2026-03-11T10:00", "end": "2026-03-11T10:30", "kind": "meeting", "organizer": "Maya Ortiz", "context": "Work", "account": "Work"}
+  ],
+  "reminders": [
+    {"id": "rem_rent", "title": "Pay rent", "due": "2026-03-12T09:00", "kind": "reminder"},
+    {"id": "rem_plants", "title": "Water the plants", "due": "2026-03-10T19:00", "kind": "reminder"}
+  ],
+  "emails": [
+    {"id": "em_budget_old", "from_name": "Maya Ortiz", "from_addr": "maya.ortiz@studio.example.com", "subject": "Q1 budget summary", "body": "Hi Robin, could you put together the Q1 budget summary for the board pack? Friday is fine. Thanks, Maya", "received": "2026-03-06T16:10", "unread": false, "account": "Work"},
+    {"id": "em_budget_new", "from_name": "Maya Ortiz", "from_addr": "maya.ortiz@studio.example.com", "subject": "Re: Q1 budget summary", "body": "Small change: the board moved up, so I need the Q1 budget summary by Thursday at noon instead of Friday. Two pages is plenty. Maya", "received": "2026-03-09T18:40", "unread": true, "account": "Work"},
+    {"id": "em_vendor", "from_name": "Lena Park", "from_addr": "lena.park@northwind.example.net", "subject": "Today's call", "body": "Hi Robin, something came up on our side. Could we move today's call from 2pm to 3pm? Same link. Best, Lena", "received": "2026-03-10T07:12", "unread": true, "account": "Work"},
+    {"id": "em_agenda", "from_name": "Maya Ortiz", "from_addr": "maya.ortiz@studio.example.com", "subject": "Design review agenda", "body": "For today's design review, Priya is presenting the new onboarding flow, then we pick one of the two signup variants.", "received": "2026-03-09T17:05", "unread": true, "account": "Work"},
+    {"id": "em_slides", "from_name": "Jordan Ellis", "from_addr": "jordan.ellis@studio.example.com", "subject": "Slides for the client pitch", "body": "Robin, would you have time to review my pitch slides before Friday? They're in the shared folder under Pitch-Draft-7.", "received": "2026-03-09T11:20", "unread": true, "account": "Work"},
+    {"id": "em_bill", "from_name": "Greenline Utilities", "from_addr": "billing@greenline.example.org", "subject": "Your March bill", "body": "Your bill of $84.20 is due on March 18. Autopay is not set up for this account.", "received": "2026-03-08T06:00", "unread": true, "account": "Personal"},
+    {"id": "em_deals", "from_name": "ShopMart Deals", "from_addr": "deals@shopmart.example.org", "subject": "48 hours only: 30% off garden tools", "body": "Spring sale! 30% off garden tools until Thursday. Use code SPRING30 at checkout.", "received": "2026-03-10T05:00", "unread": true, "account": "Personal"},
+    {"id": "em_digest", "from_name": "Design Weekly", "from_addr": "hello@designweekly.example.org", "subject": "This week in design", "body": "Ten typefaces to watch, a new color tool, and an interview with a studio founder.", "received": "2026-03-09T09:00", "unread": true, "account": "Personal"}
+  ],
+  "threads": [
+    {"id": "th_sam", "with": ["c_sam"], "messages": [
+      {"from": "c_sam", "at": "2026-03-09T20:15", "text": "Still on for lunch tomorrow at 12:30? Cafe Lumen on 5th."},
+      {"from": "me", "at": "2026-03-09T20:20", "text": "Yes, see you there!"}
+    ]},
+    {"id": "th_dana", "with": ["c_dana"], "messages": [
+      {"from": "c_dana", "at": "2026-03-10T07:05", "text": "Morning! Can you pick up Leo from soccer practice at 5:30 today? I'm stuck at work late."}
+    ]},
+    {"id": "th_alex", "with": ["c_alex"], "messages": [
+      {"from": "c_alex", "at": "2026-03-08T13:00", "text": "Hey, could you bring my tripod back on Thursday? I need it for a shoot Friday."},
+      {"from": "me", "at": "2026-03-08T13:30", "text": "Sure thing"}
+    ]},
+    {"id": "th_climb", "title": "Climbing crew", "group": true, "with": ["c_kit", "c_sam"], "messages": [
+      {"from": "c_kit", "at": "2026-03-09T21:00", "text": "Anyone up for the gym Saturday morning?"},
+      {"from": "c_sam", "at": "2026-03-09T21:05", "text": "Maybe, depends on the weather"}
+    ]}
+  ],
+  "notes": [
+    {"id": "n_gate", "title": "Sam's building", "folder": "Notes", "body": "Gate code for Sam's building is 4471. Buzz unit 3C.", "modified": "2026-02-20T10:00"},
+    {"id": "n_ideas", "title": "Onboarding ideas", "folder": "Work", "body": "Try a two-step signup. Ask for the team size later, not on screen one.", "modified": "2026-03-05T15:00"}
+  ],
+  "ledger": [
+    {"id": "L_standup", "type": "event", "title": "Team standup", "anchors": ["standup", "@9:30"], "sources": ["ev_standup"], "start": "2026-03-10T09:30", "end": "2026-03-10T09:45", "fixed": true, "attention": false, "priority": 3},
+    {"id": "L_design", "type": "event", "title": "Design review in Room 4B", "anchors": ["design review", "@11:00"], "sources": ["ev_design", "em_agenda"], "start": "2026-03-10T11:00", "end": "2026-03-10T12:00", "fixed": true, "attention": false, "priority": 2},
+    {"id": "L_lunch", "type": "event", "title": "Lunch with Sam at Cafe Lumen", "anchors": ["lunch", "@12:30"], "sources": ["ev_lunch", "th_sam"], "start": "2026-03-10T12:30", "end": "2026-03-10T13:15", "fixed": true, "personal": true, "travel_min": 15, "attention": false, "priority": 3},
+    {"id": "L_vendor_old", "type": "event", "title": "Vendor call at 2pm (superseded)", "anchors": ["@14:00"], "sources": ["ev_vendor"], "start": "2026-03-10T14:00", "end": "2026-03-10T14:30", "attention": false},
+    {"id": "L_vendor", "type": "change", "title": "Vendor call with Northwind moved from 2pm to 3pm", "anchors": ["@15:00"], "current_anchors": ["@15:00"], "stale_anchors": ["@14:00"], "sources": ["em_vendor", "ev_vendor"], "supersedes": "L_vendor_old", "start": "2026-03-10T15:00", "end": "2026-03-10T15:30", "fixed": true, "hidden": true, "attention": true, "priority": 1},
+    {"id": "L_dentist", "type": "event", "title": "Dentist at Bayview Dental", "anchors": ["dentist", "@16:00"], "sources": ["ev_dentist"], "start": "2026-03-10T16:00", "end": "2026-03-10T16:45", "fixed": true, "personal": true, "travel_min": 20, "attention": false, "priority": 2},
+    {"id": "L_leo", "type": "waiting_on_me", "title": "Pick up Leo from soccer practice at 5:30 (Mom asked, no reply yet)", "anchors": ["leo", "pick up", "@17:30"], "sources": ["th_dana"], "start": "2026-03-10T17:30", "end": "2026-03-10T17:45", "fixed": true, "personal": true, "travel_min": 15, "hidden": true, "attention": true, "priority": 1},
+    {"id": "L_budget_old", "type": "deadline", "title": "Q1 budget summary due Friday (superseded)", "anchors": ["friday"], "sources": ["em_budget_old"], "due": "2026-03-13T17:00", "attention": false},
+    {"id": "L_budget", "type": "deadline", "title": "Q1 budget summary for Maya, due Thursday at noon", "anchors": ["budget summary", "budget"], "current_anchors": ["thursday", "#2026-03-12"], "stale_anchors": ["due friday", "by friday"], "sources": ["em_budget_new", "em_budget_old"], "supersedes": "L_budget_old", "due": "2026-03-12T12:00", "duration_min": 90, "hidden": true, "attention": true, "priority": 1},
+    {"id": "L_slides", "type": "owed", "title": "Review Jordan's pitch slides before Friday", "anchors": ["slides", "pitch"], "sources": ["em_slides"], "due": "2026-03-13T09:00", "duration_min": 30, "hidden": true, "attention": true, "priority": 2},
+    {"id": "L_tripod", "type": "owed", "title": "Return Alex's tripod on Thursday", "anchors": ["tripod"], "sources": ["th_alex"], "due": "2026-03-12T18:00", "hidden": true, "attention": true, "priority": 2},
+    {"id": "L_bill", "type": "owed", "title": "Greenline bill of $84.20 due March 18, no autopay", "anchors": ["$84.20", "84.20", "greenline"], "sources": ["em_bill"], "due": "2026-03-18T09:00", "hidden": true, "attention": true, "priority": 3},
+    {"id": "L_rent", "type": "task", "title": "Pay rent by March 12", "anchors": ["rent"], "sources": ["rem_rent"], "due": "2026-03-12T09:00", "attention": true, "priority": 2},
+    {"id": "L_presenter", "type": "fact", "title": "Priya presents at the design review", "anchors": ["priya"], "sources": ["em_agenda"]},
+    {"id": "L_room", "type": "fact", "title": "Design review is in Room 4B", "anchors": ["4b"], "sources": ["ev_design"]},
+    {"id": "L_gate", "type": "fact", "title": "Gate code for Sam's building is 4471", "anchors": ["4471"], "sources": ["n_gate"]},
+    {"id": "N_deals", "type": "noise", "title": "ShopMart garden-tools sale", "anchors": ["shopmart", "garden tools", "spring30"], "sources": ["em_deals"]},
+    {"id": "N_digest", "type": "noise", "title": "Design Weekly newsletter", "anchors": ["design weekly", "typefaces"], "sources": ["em_digest"]},
+    {"id": "N_climb", "type": "noise", "title": "Climbing crew chat about Saturday", "anchors": ["climbing", "gym saturday"], "sources": ["th_climb"]}
+  ]
+}

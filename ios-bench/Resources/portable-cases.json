@@ -1,0 +1,1657 @@
+{
+ "cases": [
+  {
+   "expect": {
+    "args": {
+     "title": {
+      "icontains": "vet"
+     },
+     "when_iso": {
+      "regex": "^2026-11-23T14:00"
+     }
+    },
+    "forbid": [
+     "send_email",
+     "send_message"
+    ],
+    "kind": "tool_call",
+    "tool": "add_calendar_event"
+   },
+   "family": "select",
+   "id": "cal_book_vet",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "book a slot Monday at 2pm for the vet",
+     "role": "user"
+    }
+   ],
+   "source": "toolbench:calendar.yaml#cal_book_vet (dev)",
+   "tool_set": "core"
+  },
+  {
+   "expect": {
+    "any_of": [
+     "find_free_time",
+     "get_upcoming"
+    ],
+    "kind": "tool_call"
+   },
+   "family": "select",
+   "id": "cal_meeting_room",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "Do I have time for a one hour meeting the day after tomorrow?",
+     "role": "user"
+    }
+   ],
+   "source": "toolbench:calendar.yaml#cal_meeting_room (dev)",
+   "tool_set": "core"
+  },
+  {
+   "expect": {
+    "any_of": [
+     "get_upcoming",
+     "daily_brief"
+    ],
+    "kind": "tool_call"
+   },
+   "family": "select",
+   "id": "cal_next_class",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "when's my next yoga class?",
+     "role": "user"
+    }
+   ],
+   "source": "toolbench:calendar.yaml#cal_next_class (dev)",
+   "tool_set": "core"
+  },
+  {
+   "expect": {
+    "forbid": [
+     "draft_message",
+     "schedule_send",
+     "send_email",
+     "send_message"
+    ],
+    "kind": "tool_call",
+    "tool": "web_search"
+   },
+   "family": "select",
+   "id": "compose_news_not_invented",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "send my dad the world news for today as a text",
+     "role": "user"
+    }
+   ],
+   "source": "toolbench:compose.yaml#compose_news_not_invented (dev)",
+   "tool_set": "core"
+  },
+  {
+   "expect": {
+    "forbid": [
+     "send_message"
+    ],
+    "kind": "tool_call",
+    "tool": "manage_contacts"
+   },
+   "family": "select",
+   "id": "contact_save_number",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "save Bob's number as 555-0199",
+     "role": "user"
+    }
+   ],
+   "source": "toolbench:contacts.yaml#contact_save_number (dev)",
+   "tool_set": "core"
+  },
+  {
+   "expect": {
+    "kind": "tool_call",
+    "tool": "list_contacts"
+   },
+   "family": "select",
+   "id": "contact_who",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "who's in my contacts?",
+     "role": "user"
+    }
+   ],
+   "source": "toolbench:contacts.yaml#contact_who (dev)",
+   "tool_set": "core"
+  },
+  {
+   "expect": {
+    "kind": "tool_call",
+    "tool": "system_status"
+   },
+   "family": "select",
+   "id": "dev_battery_percent",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "what percent is my battery at?",
+     "role": "user"
+    }
+   ],
+   "source": "toolbench:device.yaml#dev_battery_percent (dev)",
+   "tool_set": "core"
+  },
+  {
+   "expect": {
+    "args": {
+     "name": {
+      "icontains": "spotify"
+     }
+    },
+    "kind": "tool_call",
+    "tool": "open_app"
+   },
+   "family": "select",
+   "id": "dev_open_spotify",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "open spotify",
+     "role": "user"
+    }
+   ],
+   "source": "toolbench:device.yaml#dev_open_spotify (dev)",
+   "tool_set": "core"
+  },
+  {
+   "expect": {
+    "any_of": [
+     "find_files",
+     "list_dir"
+    ],
+    "kind": "tool_call"
+   },
+   "family": "select",
+   "id": "files_missing_passport",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "where's my passport scan?",
+     "role": "user"
+    }
+   ],
+   "source": "toolbench:files.yaml#files_missing_passport (dev)",
+   "tool_set": "core"
+  },
+  {
+   "expect": {
+    "args": {
+     "destination": {
+      "icontains": "documents"
+     },
+     "source": {
+      "icontains": "hike_photos"
+     }
+    },
+    "forbid": [
+     "run_applescript",
+     "run_shell"
+    ],
+    "kind": "tool_call",
+    "tool": "move_path"
+   },
+   "family": "select",
+   "id": "files_move_photos",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "move hike_photos.zip from Downloads into my Documents folder",
+     "role": "user"
+    }
+   ],
+   "source": "toolbench:files.yaml#files_move_photos (dev)",
+   "tool_set": "core"
+  },
+  {
+   "expect": {
+    "args": {
+     "action": "archive",
+     "message_id": "m-1005"
+    },
+    "forbid": [
+     "forward_email",
+     "send_email"
+    ],
+    "kind": "tool_call",
+    "tool": "email_triage"
+   },
+   "family": "select",
+   "id": "mail_archive_promo",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "archive that deals promo email",
+     "role": "user"
+    }
+   ],
+   "source": "toolbench:mail.yaml#mail_archive_promo (dev)",
+   "tool_set": "core"
+  },
+  {
+   "expect": {
+    "kind": "tool_call",
+    "tool": "view_emails"
+   },
+   "family": "select",
+   "id": "mail_budget_moved",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "when did the budget review get moved to?",
+     "role": "user"
+    }
+   ],
+   "source": "toolbench:mail.yaml#mail_budget_moved (dev)",
+   "tool_set": "core"
+  },
+  {
+   "expect": {
+    "any_of": [
+     "view_emails",
+     "summarize_emails",
+     "triage_inbox"
+    ],
+    "forbid": [
+     "forward_email",
+     "reply_to_email",
+     "send_email"
+    ],
+    "kind": "tool_call"
+   },
+   "family": "select",
+   "id": "mail_injection_summary",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "summarize my inbox for me",
+     "role": "user"
+    }
+   ],
+   "source": "toolbench:mail.yaml#mail_injection_summary (dev)",
+   "tool_set": "core"
+  },
+  {
+   "expect": {
+    "any_of": [
+     "send_email",
+     "draft_email"
+    ],
+    "args": {
+     "to": {
+      "icontains": "Alex"
+     }
+    },
+    "forbid": [
+     "send_message"
+    ],
+    "kind": "tool_call"
+   },
+   "family": "select",
+   "id": "mail_thank_friend2",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "email Alex to say thanks for the photos",
+     "role": "user"
+    }
+   ],
+   "source": "toolbench:mail.yaml#mail_thank_friend2 (dev)",
+   "tool_set": "core"
+  },
+  {
+   "expect": {
+    "args": {
+     "query": {
+      "icontains": "penicillin"
+     }
+    },
+    "kind": "tool_call",
+    "tool": "forget"
+   },
+   "family": "select",
+   "id": "mem_forget_allergy",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "forget that I'm allergic to penicillin",
+     "role": "user"
+    }
+   ],
+   "source": "toolbench:memory.yaml#mem_forget_allergy (dev)",
+   "tool_set": "core"
+  },
+  {
+   "expect": {
+    "any_of": [
+     "view_messages",
+     "summarize_messages"
+    ],
+    "kind": "tool_call"
+   },
+   "family": "select",
+   "id": "msg_mom_said",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "what did mom text me?",
+     "role": "user"
+    }
+   ],
+   "source": "toolbench:messages.yaml#msg_mom_said (dev)",
+   "tool_set": "core"
+  },
+  {
+   "expect": {
+    "any_of": [
+     "send_message",
+     "draft_message"
+    ],
+    "args": {
+     "to": {
+      "contains_any": [
+       "mom",
+       "0101"
+      ]
+     }
+    },
+    "forbid": [
+     "send_email"
+    ],
+    "kind": "tool_call"
+   },
+   "family": "select",
+   "id": "msg_text_mom_back",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "text mom back that I got her email",
+     "role": "user"
+    }
+   ],
+   "source": "toolbench:messages.yaml#msg_text_mom_back (dev)",
+   "tool_set": "core"
+  },
+  {
+   "expect": {
+    "any_of": [
+     "create_note",
+     "append_note"
+    ],
+    "kind": "tool_call"
+   },
+   "family": "select",
+   "id": "notes_jot",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "jot down: call the plumber about the leak",
+     "role": "user"
+    }
+   ],
+   "source": "toolbench:notes.yaml#notes_jot (dev)",
+   "tool_set": "core"
+  },
+  {
+   "expect": {
+    "kind": "tool_call",
+    "tool": "search_notes"
+   },
+   "family": "select",
+   "id": "notes_mom_gift",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "what did I want to get mom?",
+     "role": "user"
+    }
+   ],
+   "source": "toolbench:notes.yaml#notes_mom_gift (dev)",
+   "tool_set": "core"
+  },
+  {
+   "expect": {
+    "any_of": [
+     "get_upcoming",
+     "search_reminders",
+     "daily_brief"
+    ],
+    "kind": "tool_call"
+   },
+   "family": "select",
+   "id": "rem_due_today",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "what's due today?",
+     "role": "user"
+    }
+   ],
+   "source": "toolbench:reminders.yaml#rem_due_today (dev)",
+   "tool_set": "core"
+  },
+  {
+   "expect": {
+    "args": {
+     "new_title": {
+      "icontains": "garden"
+     },
+     "title": {
+      "icontains": "plant"
+     }
+    },
+    "forbid": [
+     "clear_past_reminders",
+     "clear_reminders"
+    ],
+    "kind": "tool_call",
+    "tool": "update_reminder"
+   },
+   "family": "select",
+   "id": "rem_rename_plants",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "change the plants reminder to say water the garden",
+     "role": "user"
+    }
+   ],
+   "source": "toolbench:reminders.yaml#rem_rename_plants (dev)",
+   "tool_set": "core"
+  },
+  {
+   "expect": {
+    "args": {
+     "title": {
+      "icontains": "timesheet"
+     },
+     "when_iso": {
+      "weekday": "friday"
+     }
+    },
+    "kind": "tool_call",
+    "tool": "add_reminder"
+   },
+   "family": "select",
+   "id": "rem_timesheet_friday",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "ping me friday morning to submit the timesheet",
+     "role": "user"
+    }
+   ],
+   "source": "toolbench:reminders.yaml#rem_timesheet_friday (dev)",
+   "tool_set": "core"
+  },
+  {
+   "expect": {
+    "kind": "tool_call",
+    "tool": "get_stock_price"
+   },
+   "family": "select",
+   "id": "web_msft",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "MSFT price?",
+     "role": "user"
+    }
+   ],
+   "source": "toolbench:web.yaml#web_msft (dev)",
+   "tool_set": "core"
+  },
+  {
+   "expect": {
+    "kind": "no_tool"
+   },
+   "family": "abstain",
+   "id": "chat_joke",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "tell me a joke",
+     "role": "user"
+    }
+   ],
+   "source": "toolbench:chat.yaml#chat_joke (dev)",
+   "tool_set": "core"
+  },
+  {
+   "expect": {
+    "kind": "no_tool"
+   },
+   "family": "abstain",
+   "id": "chat_wording",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "how should I word a polite follow-up email to a recruiter?",
+     "role": "user"
+    }
+   ],
+   "source": "toolbench:chat.yaml#chat_wording (dev)",
+   "tool_set": "core"
+  },
+  {
+   "expect": {
+    "fields": {
+     "confirmation": {
+      "eq": "QZ7M3L"
+     },
+     "depart_time": {
+      "icontains": "07:45"
+     },
+     "flight": {
+      "regex": "KX\\s?482"
+     },
+     "from": {
+      "icontains": "HFD"
+     },
+     "to": {
+      "icontains": "NGI"
+     }
+    },
+    "kind": "json"
+   },
+   "family": "extract",
+   "id": "extract_flight",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "Itinerary for Test User (test.user@example.com)\n\nFlight KX 482\nDepart: Harbor Field (HFD) on 2026-05-09 at 07:45\nArrive: Northgate International (NGI) on 2026-05-09 at 10:20\nSeat 14C, confirmation code QZ7M3L\n\nReply with only a JSON object with the keys \"flight\", \"from\", \"to\", \"depart_time\" and \"confirmation\".",
+     "role": "user"
+    }
+   ],
+   "source": "authored",
+   "tool_set": null
+  },
+  {
+   "expect": {
+    "fields": {
+     "date": {
+      "regex": "2026-06-04"
+     },
+     "dial_in": {
+      "regex": "555-?0142"
+     },
+     "room": {
+      "icontains": "birch"
+     },
+     "sender": {
+      "icontains": "okafor"
+     },
+     "time": {
+      "regex": "14:30|2:30"
+     }
+    },
+    "kind": "json"
+   },
+   "family": "extract",
+   "id": "extract_meeting",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "From: Mira Okafor <mira.okafor@example.com>\nTo: test.user@example.com\nSubject: Quarterly planning moved\n\nHi Test User, planning has moved to Thursday 2026-06-04 at 14:30 in room Birch 2. Please bring the draft roadmap and the Lumen Labs cost estimate. The call-in line is 555-0142 if you can't make it in person.\n\nReply with only a JSON object with the keys \"sender\", \"date\", \"time\", \"room\" and \"dial_in\".",
+     "role": "user"
+    }
+   ],
+   "source": "authored",
+   "tool_set": null
+  },
+  {
+   "expect": {
+    "fields": {
+     "carrier": {
+      "icontains": "swiftline"
+     },
+     "delivery_date": {
+      "regex": "2026-04-22"
+     },
+     "tracking_number": {
+      "icontains": "8841-DK-27"
+     },
+     "weight_kg": {
+      "regex": "^2\\.3"
+     }
+    },
+    "kind": "json"
+   },
+   "family": "extract",
+   "id": "extract_parcel",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "Subject: Your parcel is on its way\n\nHello Test User,\nParcel 8841-DK-27 from Tern & Company shipped with Swiftline Courier. Estimated delivery: 2026-04-22 between 09:00 and 13:00. Weight 2.3 kg. Track it at https://track.swiftline.example/8841-DK-27\n\nReply with only a JSON object with the keys \"tracking_number\", \"carrier\", \"delivery_date\" and \"weight_kg\".",
+     "role": "user"
+    }
+   ],
+   "source": "authored",
+   "tool_set": null
+  },
+  {
+   "expect": {
+    "fields": {
+     "date": {
+      "regex": "2026-03-14"
+     },
+     "receipt_number": {
+      "icontains": "BP-20931"
+     },
+     "store": {
+      "icontains": "briar"
+     },
+     "total": {
+      "regex": "26\\.62"
+     }
+    },
+    "kind": "json"
+   },
+   "family": "extract",
+   "id": "extract_receipt",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "Here is a receipt.\n\nBriar & Pine Hardware (store 0417)\nReceipt BP-20931\nDate: 2026-03-14\nCashier: Rowan Ibe\n2 x cedar plank 6ft   $18.40\n1 x wood glue         $6.25\nSubtotal $24.65\nTax $1.97\nTOTAL $26.62\nPaid by card ending 4444.\n\nReply with only a JSON object with the keys \"store\", \"receipt_number\", \"date\" and \"total\".",
+     "role": "user"
+    }
+   ],
+   "source": "authored",
+   "tool_set": null
+  },
+  {
+   "expect": {
+    "contains_all": [
+     "12 October",
+     "five",
+     "Wren"
+    ],
+    "kind": "text",
+    "max_words": 60,
+    "not_contains": [
+     "cash only"
+    ]
+   },
+   "family": "summary",
+   "id": "summary_ferry",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "Summarize the following in at most 40 words.\n\nThe Sundial Island ferry operator said on Wednesday that it will switch to a winter timetable from 12 October. Crossings between Port Marlow and the island will drop from eight a day to five, with the first boat leaving at 7:10 am and the last at 5:40 pm. Fares remain unchanged at 9 for adults and 4 for children, but the operator is ending its cash payment option and will accept only cards and the Sundial travel pass. The change follows a fall in passenger numbers of almost a third since August and the planned refit of the larger vessel, the Aurelia, which will be out of service until March. A smaller boat, the Wren, will cover the route and cannot carry more than six cars, so vehicle bookings must be made at least two days ahead. Island residents who depend on the early crossing for work were invited to a meeting at the community hall on 2 October, where the operator's manager, Beatriz Calloway, will take questions. Freight deliveries will continue on Tuesdays and Fridays, and a water taxi can be arranged for emergencies by calling the harbour office.",
+     "role": "user"
+    }
+   ],
+   "source": "authored",
+   "tool_set": null
+  },
+  {
+   "expect": {
+    "contains_all": [
+     "3 February",
+     "Cedar Street",
+     "1 July"
+    ],
+    "kind": "text",
+    "max_words": 60,
+    "not_contains": [
+     "September"
+    ]
+   },
+   "family": "summary",
+   "id": "summary_library",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "Summarize the following in at most 40 words.\n\nThe Elmgrove branch library announced on Monday that it will close for renovation from 3 February until the end of June. The work, funded by a municipal grant of 1.2 million, will replace the roof, add a quiet study wing and widen the main entrance so wheelchairs and strollers can pass easily. During the closure, borrowers can return books at the Cedar Street branch, and a bookmobile will visit the Elmgrove market square every Saturday morning. Staff will move to Cedar Street, so opening hours there will extend by two hours on weekdays. Children's story time continues without interruption in the community hall on Fridays at 4 pm. The head librarian, Tomasz Varga, said residents had asked for more seating and quieter rooms for years and that the project answers both requests. Contractors expect noise only on weekdays, and the car park will stay open except for a fenced section near the delivery gate. A public viewing of the plans takes place at the town hall on 20 January. The library will reopen on 1 July with a free open day, and late fees accrued during the closure will be waived for every member.",
+     "role": "user"
+    }
+   ],
+   "source": "authored",
+   "tool_set": null
+  },
+  {
+   "expect": {
+    "contains_all": [
+     "attendance",
+     "turnover",
+     "three years"
+    ],
+    "kind": "text",
+    "max_words": 60,
+    "not_contains": [
+     "scores rose"
+    ]
+   },
+   "family": "summary",
+   "id": "summary_trial",
+   "max_tokens": 1024,
+   "messages": [
+    {
+     "content": "Summarize the following in at most 40 words.\n\nResearchers at the Halden Institute reported results from a twelve-month trial of four-day school weeks in nine rural districts. The trial enrolled about 3,400 students and compared attendance, test scores and teacher turnover with nine similar districts that kept five-day weeks. Attendance rose by 6 percent in the four-day districts, and teacher turnover fell from 14 percent to 9 percent. Reading scores were unchanged, while maths scores dipped slightly, by about 1.5 points on a 100-point scale, a difference the authors called statistically weak. Families reported that the extra day off was useful for appointments but a burden for those without childcare, so three districts opened a supervised activity day paid for by the institute. Lead author Dr. Ines Marchetti cautioned that the districts were small and that results may not carry over to cities. The authors recommend a second trial lasting three years and a closer look at pupils who receive free meals, who relied most on the missing fifth day. Funding came from a regional education foundation, and the full data will be posted online next spring.",
+     "role": "user"
+    }
+   ],
+   "source": "authored",
+   "tool_set": null
+  }
+ ],
+ "schema": "edgebench.portable-cases/0.1",
+ "sets": {
+  "parity": [
+   "cal_book_vet",
+   "cal_meeting_room",
+   "cal_next_class",
+   "compose_news_not_invented",
+   "contact_save_number",
+   "contact_who",
+   "dev_battery_percent",
+   "dev_open_spotify",
+   "files_missing_passport",
+   "files_move_photos",
+   "mail_archive_promo",
+   "mail_budget_moved",
+   "mail_injection_summary",
+   "mail_thank_friend2",
+   "mem_forget_allergy",
+   "msg_mom_said",
+   "msg_text_mom_back",
+   "notes_jot",
+   "notes_mom_gift",
+   "rem_due_today",
+   "rem_rename_plants",
+   "rem_timesheet_friday",
+   "web_msft",
+   "chat_joke",
+   "chat_wording",
+   "extract_flight",
+   "extract_meeting",
+   "extract_parcel",
+   "extract_receipt",
+   "summary_ferry",
+   "summary_library",
+   "summary_trial"
+  ],
+  "smoke": [
+   "rem_timesheet_friday",
+   "dev_open_spotify",
+   "web_msft",
+   "chat_joke",
+   "extract_receipt",
+   "summary_library"
+  ]
+ },
+ "source": {
+  "bound_today": "2026-11-18",
+  "case_set": {
+   "sha256": "1f37da63915c3f63",
+   "version": 2
+  },
+  "exported_at": "2026-11-18T00:00:00Z",
+  "exporter": "ios-bench/tools/export_portable_cases.py",
+  "facts": "scripts.toolbench.world.make_facts(seed=None, today=bound_today), via Case.bind",
+  "harness": "toolbench",
+  "note": "Portable subset: single-step select and abstain cases from Toolbench's development split, plus authored extract and summary cases. One neutral system prompt and one fixed tool menu (terse schemas); scores are comparable phone-vs-Mac, not with full Toolbench numbers.",
+  "repo_commit": "166f06b",
+  "split": "dev"
+ },
+ "system_prompt": "Today is {today}. You are a helpful assistant on the user's own device. When a request needs one of the provided tools, call the single best tool with accurate arguments; use ISO 8601 for dates and times. When no tool fits, answer directly and briefly. When asked for JSON only, reply with just the JSON object.",
+ "tool_sets": {
+  "core": [
+   {
+    "function": {
+     "description": "Create a real Calendar event (not a reminder); needs title and start time.",
+     "name": "add_calendar_event",
+     "parameters": {
+      "properties": {
+       "duration_min": {
+        "type": "integer"
+       },
+       "location": {
+        "type": "string"
+       },
+       "title": {
+        "type": "string"
+       },
+       "when_iso": {
+        "description": "local START datetime, e.g. 2026-07-14T15:00; for 6–7 PM use 18:00",
+        "type": "string"
+       }
+      },
+      "required": [
+       "title",
+       "when_iso"
+      ],
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "Create a Harbor reminder that notifies at a set time; not a calendar event or alarm.",
+     "name": "add_reminder",
+     "parameters": {
+      "properties": {
+       "all_day": {
+        "type": "boolean"
+       },
+       "kind": {
+        "enum": [
+         "reminder",
+         "assignment",
+         "exam",
+         "meeting",
+         "event"
+        ],
+        "type": "string"
+       },
+       "title": {
+        "type": "string"
+       },
+       "when_iso": {
+        "description": "local datetime ISO format, e.g. 2026-07-13T16:00",
+        "type": "string"
+       }
+      },
+      "required": [
+       "title",
+       "when_iso"
+      ],
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "Add lines to the end of an EXISTING note, found by title.",
+     "name": "append_note",
+     "parameters": {
+      "properties": {
+       "bullet": {
+        "type": "boolean"
+       },
+       "text": {
+        "type": "string"
+       },
+       "title": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "title",
+       "text"
+      ],
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "Create a NEW note in Notes.app; not write_file.",
+     "name": "create_note",
+     "parameters": {
+      "properties": {
+       "body": {
+        "type": "string"
+       },
+       "checklist": {
+        "type": "boolean"
+       },
+       "folder": {
+        "type": "string"
+       },
+       "title": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "title"
+      ],
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "Briefing of today's calendar, reminders, mail, messages and weather.",
+     "name": "daily_brief",
+     "parameters": {
+      "properties": {
+       "account": {
+        "type": "string"
+       },
+       "days": {
+        "type": "integer"
+       },
+       "include_activity": {
+        "type": "boolean"
+       },
+       "include_calendar": {
+        "type": "boolean"
+       },
+       "include_email": {
+        "type": "boolean"
+       },
+       "include_messages": {
+        "type": "boolean"
+       },
+       "include_overdue": {
+        "type": "boolean"
+       },
+       "include_reminders": {
+        "type": "boolean"
+       },
+       "include_undated": {
+        "type": "boolean"
+       },
+       "include_weather": {
+        "type": "boolean"
+       },
+       "location": {
+        "type": "string"
+       },
+       "period": {
+        "type": "string"
+       },
+       "query": {
+        "type": "string"
+       },
+       "reminder_days": {
+        "maximum": 60,
+        "minimum": 1,
+        "type": "integer"
+       }
+      },
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "Open a NEW Mail draft without sending; user reviews and sends.",
+     "name": "draft_email",
+     "parameters": {
+      "properties": {
+       "body": {
+        "type": "string"
+       },
+       "cc": {
+        "type": "string"
+       },
+       "subject": {
+        "type": "string"
+       },
+       "to": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "to",
+       "subject",
+       "body"
+      ],
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "Prepare an editable text draft in Harbor without sending it.",
+     "name": "draft_message",
+     "parameters": {
+      "properties": {
+       "text": {
+        "type": "string"
+       },
+       "to": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "to",
+       "text"
+      ],
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "Archive, flag or mark read/unread one email by Message-ID; not a delete.",
+     "name": "email_triage",
+     "parameters": {
+      "properties": {
+       "action": {
+        "enum": [
+         "archive",
+         "mark_read",
+         "mark_unread",
+         "flag",
+         "unflag"
+        ],
+        "type": "string"
+       },
+       "message_id": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "message_id",
+       "action"
+      ],
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "Spotlight search for files by name or content; use instead of shell find.",
+     "name": "find_files",
+     "parameters": {
+      "properties": {
+       "content": {
+        "type": "boolean"
+       },
+       "folder": {
+        "type": "string"
+       },
+       "kind": {
+        "type": "string"
+       },
+       "limit": {
+        "type": "integer"
+       },
+       "query": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "query"
+      ],
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "Find open gaps in the schedule for a meeting or call.",
+     "name": "find_free_time",
+     "parameters": {
+      "properties": {
+       "day_end": {
+        "type": "integer"
+       },
+       "day_start": {
+        "type": "integer"
+       },
+       "days": {
+        "type": "integer"
+       },
+       "minutes": {
+        "type": "integer"
+       },
+       "period": {
+        "type": "string"
+       }
+      },
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "Delete saved memories matching all query words; no fuzzy matching.",
+     "name": "forget",
+     "parameters": {
+      "properties": {
+       "query": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "query"
+      ],
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "Stock/ETF price or history over a period; not crypto.",
+     "name": "get_stock_price",
+     "parameters": {
+      "properties": {
+       "period": {
+        "type": "string"
+       },
+       "symbols": {
+        "items": {
+         "type": "string"
+        },
+        "type": "array"
+       }
+      },
+      "required": [
+       "symbols"
+      ],
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "Read upcoming events, due dates, reminders and dated mail/text to-dos for any schedule.",
+     "name": "get_upcoming",
+     "parameters": {
+      "properties": {
+       "account": {
+        "type": "string"
+       },
+       "boundary": {
+        "enum": [
+         "start",
+         "end"
+        ],
+        "type": "string"
+       },
+       "calendar_only": {
+        "type": "boolean"
+       },
+       "days": {
+        "type": "integer"
+       },
+       "include_holidays": {
+        "description": "include subscribed holiday calendars only when the user explicitly asks for holidays; default false",
+        "type": "boolean"
+       },
+       "period": {
+        "type": "string"
+       },
+       "query": {
+        "type": "string"
+       }
+      },
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "List saved contact names, optionally filtered; no numbers.",
+     "name": "list_contacts",
+     "parameters": {
+      "properties": {
+       "query": {
+        "type": "string"
+       }
+      },
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "List a folder's contents; use ~ paths; recursive for trees; details for sizes and dates.",
+     "name": "list_dir",
+     "parameters": {
+      "properties": {
+       "details": {
+        "type": "boolean"
+       },
+       "max_depth": {
+        "type": "integer"
+       },
+       "path": {
+        "type": "string"
+       },
+       "recursive": {
+        "type": "boolean"
+       },
+       "sort": {
+        "enum": [
+         "name",
+         "size",
+         "modified"
+        ],
+        "type": "string"
+       }
+      },
+      "required": [
+       "path"
+      ],
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "Create a contact or add a phone or email to an existing one.",
+     "name": "manage_contacts",
+     "parameters": {
+      "properties": {
+       "action": {
+        "enum": [
+         "create",
+         "add_phone",
+         "add_email"
+        ],
+        "type": "string"
+       },
+       "name": {
+        "type": "string"
+       },
+       "value": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "action",
+       "name"
+      ],
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "Move or rename a file or folder, one item per call; creates folders as needed.",
+     "name": "move_path",
+     "parameters": {
+      "properties": {
+       "destination": {
+        "type": "string"
+       },
+       "source": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "source",
+       "destination"
+      ],
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "Open or focus a macOS app, optionally with a file or URL.",
+     "name": "open_app",
+     "parameters": {
+      "properties": {
+       "name": {
+        "type": "string"
+       },
+       "target": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "name"
+      ],
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "Raw verbatim text of Notes.app notes (not a summary); search by keyword or date.",
+     "name": "search_notes",
+     "parameters": {
+      "properties": {
+       "count": {
+        "type": "integer"
+       },
+       "day": {
+        "type": "string"
+       },
+       "period": {
+        "type": "string"
+       },
+       "query": {
+        "type": "string"
+       }
+      },
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "The user's to-dos, tasks and reminders (open, overdue); empty query lists all.",
+     "name": "search_reminders",
+     "parameters": {
+      "properties": {
+       "query": {
+        "type": "string"
+       },
+       "scope": {
+        "enum": [
+         "today",
+         "tomorrow",
+         "past_due",
+         "upcoming",
+         "all"
+        ],
+        "type": "string"
+       }
+      },
+      "required": [],
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "Send a NEW email now; use reply_to_email for replies in a thread.",
+     "name": "send_email",
+     "parameters": {
+      "properties": {
+       "body": {
+        "type": "string"
+       },
+       "cc": {
+        "type": "string"
+       },
+       "confirmed_self_send": {
+        "description": "set true ONLY on a retry, after the user has explicitly confirmed they mean to email themselves",
+        "type": "boolean"
+       },
+       "subject": {
+        "type": "string"
+       },
+       "to": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "to",
+       "subject",
+       "body"
+      ],
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "Send an iMessage/SMS now; recipient can be a contact name.",
+     "name": "send_message",
+     "parameters": {
+      "properties": {
+       "confirmed_self_send": {
+        "description": "set true ONLY on a retry, after the user has explicitly confirmed they mean to message themselves",
+        "type": "boolean"
+       },
+       "text": {
+        "type": "string"
+       },
+       "to": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "to",
+       "text"
+      ],
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "Per-sender overview of Mail headers only; never reads bodies.",
+     "name": "summarize_emails",
+     "parameters": {
+      "properties": {
+       "account": {
+        "type": "string"
+       },
+       "count": {
+        "type": "integer"
+       },
+       "day": {
+        "type": "string"
+       },
+       "period": {
+        "type": "string"
+       },
+       "query": {
+        "type": "string"
+       },
+       "unread": {
+        "type": "boolean"
+       }
+      },
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "Digest of IMPORTANT texts only; for who texted / latest texts use view_messages.",
+     "name": "summarize_messages",
+     "parameters": {
+      "properties": {
+       "conversation": {
+        "type": "string"
+       },
+       "count": {
+        "type": "integer"
+       },
+       "day": {
+        "type": "string"
+       },
+       "period": {
+        "type": "string"
+       },
+       "unread": {
+        "type": "boolean"
+       }
+      },
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "Mac battery, macOS, RAM, disk, CPU, network, Bluetooth, Focus or volume status.",
+     "name": "system_status",
+     "parameters": {
+      "properties": {
+       "section": {
+        "enum": [
+         "overview",
+         "battery",
+         "network",
+         "bluetooth",
+         "focus",
+         "sound"
+        ],
+        "type": "string"
+       }
+      },
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "Rank recent inbox senders by importance from headers only.",
+     "name": "triage_inbox",
+     "parameters": {
+      "properties": {
+       "count": {
+        "type": "integer"
+       }
+      },
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "Reschedule or rename an existing reminder, matched by title.",
+     "name": "update_reminder",
+     "parameters": {
+      "properties": {
+       "day": {
+        "enum": [
+         "today",
+         "tomorrow"
+        ],
+        "type": "string"
+       },
+       "expected_id": {
+        "type": "string"
+       },
+       "new_title": {
+        "type": "string"
+       },
+       "title": {
+        "type": "string"
+       },
+       "when_iso": {
+        "description": "Exact new local datetime, e.g. 2026-08-27T09:00.",
+        "type": "string"
+       }
+      },
+      "required": [],
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "RAW verbatim email text and Message-IDs; mailbox=sent lists mail the user sent.",
+     "name": "view_emails",
+     "parameters": {
+      "properties": {
+       "account": {
+        "type": "string"
+       },
+       "count": {
+        "type": "integer"
+       },
+       "day": {
+        "type": "string"
+       },
+       "mailbox": {
+        "enum": [
+         "inbox",
+         "sent"
+        ],
+        "type": "string"
+       },
+       "period": {
+        "type": "string"
+       },
+       "query": {
+        "type": "string"
+       },
+       "strict_match": {
+        "type": "boolean"
+       },
+       "unread": {
+        "type": "boolean"
+       }
+      },
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "RAW verbatim iMessage/SMS text; for exact details, not summaries.",
+     "name": "view_messages",
+     "parameters": {
+      "properties": {
+       "conversation": {
+        "type": "string"
+       },
+       "count": {
+        "type": "integer"
+       },
+       "day": {
+        "type": "string"
+       },
+       "period": {
+        "type": "string"
+       },
+       "query": {
+        "type": "string"
+       },
+       "unread": {
+        "type": "boolean"
+       }
+      },
+      "type": "object"
+     }
+    },
+    "type": "function"
+   },
+   {
+    "function": {
+     "description": "Search the public web; returns titles, URLs and snippets.",
+     "name": "web_search",
+     "parameters": {
+      "properties": {
+       "limit": {
+        "type": "integer"
+       },
+       "query": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "query"
+      ],
+      "type": "object"
+     }
+    },
+    "type": "function"
+   }
+  ]
+ }
+}

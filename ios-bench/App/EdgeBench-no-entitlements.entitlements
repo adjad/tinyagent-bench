@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Fallback if Xcode refuses the increased memory limit for your team: the app installs, but the
+     per-app limit is the default one (about 3 GB reported), so only small models load. -->
+<plist version="1.0"><dict/></plist>

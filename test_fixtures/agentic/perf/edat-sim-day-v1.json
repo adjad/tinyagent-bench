@@ -1,0 +1,736 @@
+{
+ "schema": "edat-sim-day-v1",
+ "profile_id": "synthetic-profile-1",
+ "day_start": "08:00",
+ "day_end": "18:00",
+ "tz": "America/Los_Angeles",
+ "mode": "forced",
+ "modes": [
+  "forced",
+  "live"
+ ],
+ "lang": "en",
+ "generator_seed": 41,
+ "compressed": {
+  "idle_scale": 0.2,
+  "wall_hours_estimate": 2,
+  "note": "Same job list with idle gaps scaled by 0.2. Real-day energy needs measured idle power times the real idle time added back; the 10-hour real-time day is the reference."
+ },
+ "jobs": {
+  "brief": {
+   "model_steps": 6,
+   "note": "parallel reads of calendar, mail, messages and reminders, then a grouped summary"
+  },
+  "mail_digest": {
+   "model_calls": "1-2",
+   "input_tokens_estimate": 3000,
+   "note": "summarise mail that arrived since the last digest"
+  },
+  "message_digest": {
+   "model_calls": 1
+  },
+  "review": {
+   "model_steps": 4,
+   "note": "what got done, what moves to tomorrow"
+  },
+  "task": {
+   "note": "ref is a development-split case id; null when the family has too few cases yet (see missing)"
+  }
+ },
+ "totals": {
+  "jobs": 47,
+  "tasks": 32,
+  "mail_digests": 9,
+  "message_digests": 4,
+  "brief": 1,
+  "review": 1
+ },
+ "task_mix": {
+  "select": 10,
+  "sequential": 6,
+  "parallel": 5,
+  "mixed": 3,
+  "pev": 3,
+  "abstain": 3,
+  "recovery": 2
+ },
+ "missing": [],
+ "events": [
+  {
+   "t": "08:00:00",
+   "kind": "brief",
+   "ref": "job:brief",
+   "world_events_before": []
+  },
+  {
+   "t": "08:18:00",
+   "kind": "task",
+   "ref": "sel_ast_timer_001",
+   "family": "select",
+   "cluster": 1,
+   "world_events_before": []
+  },
+  {
+   "t": "08:19:40",
+   "kind": "task",
+   "ref": "par_ast_w_times_001",
+   "family": "parallel",
+   "cluster": 1,
+   "world_events_before": []
+  },
+  {
+   "t": "08:20:20",
+   "kind": "task",
+   "ref": "sel_ast_rem_complete_002",
+   "family": "select",
+   "cluster": 1,
+   "world_events_before": []
+  },
+  {
+   "t": "08:21:40",
+   "kind": "task",
+   "ref": "seq_ast_moveevent_003",
+   "family": "sequential",
+   "cluster": 1,
+   "world_events_before": []
+  },
+  {
+   "t": "09:00:00",
+   "kind": "mail_digest",
+   "ref": "job:mail_digest",
+   "world_events_before": [
+    {
+     "type": "email",
+     "at": "08:05",
+     "from": "Lior Castillo <lior.castillo@example.org>",
+     "subject": "Quick question about the book club",
+     "body": "Hi,\n\nWould you review the sample contract and tell me by Wednesday whether the 44 items on page 6 are right?\n\nBluebarrow Insurance has held the slot for 44 days and cannot hold it past Wednesday. The total on our side is 915.25, which matches the quote reference TJ-9653.\n\nBest,\nLior",
+     "message_id": "m-9005"
+    },
+    {
+     "type": "email",
+     "at": "08:12",
+     "from": "Ximena Quintero <ximena.quintero@example.org>",
+     "subject": "Thistle Bank: expense summary",
+     "body": "Hi,\n\nWe are missing the expense summary. If you can reply with it by Tuesday, Thistle Bank can release the 972.25 payment.\n\nThere is no rush on the rest, but case PJ-9594 stays open until this is in. Nothing else is blocking the garden fence; this is the only open item on my list (30 of 34 done). If anything has changed since Tue Nov 10, just flag it in your reply.\n\nCheers,\nXimena",
+     "message_id": "m-9004"
+    },
+    {
+     "type": "email",
+     "at": "08:40",
+     "from": "Gustavo Ferreira <gustavo.ferreira@example.org>",
+     "subject": "Bluebarrow Insurance: site photos",
+     "body": "Hi,\n\nPlease confirm that the site photos is ready, and email it to me before Friday noon.\n\nNothing else is blocking the bike repair; this is the only open item on my list (35 of 36 done). Bluebarrow Insurance has held the slot for 35 days and cannot hold it past Friday. There is no rush on the rest, but case TA-7421 stays open until this is in.\n\nThanks, Gustavo",
+     "message_id": "m-9003"
+    },
+    {
+     "type": "email",
+     "at": "08:46",
+     "from": "Lior Ferreira <lior.ferreira@example.org>",
+     "subject": "Following up on the quarterly report - RC-7949",
+     "body": "Hi,\n\nCan you bring the draft agenda to Hartwell Joinery on Friday? Ask for Lior at the front desk and quote RC-7949.\n\nThe total on our side is 401.25, which matches the quote reference MG-1429. There is no rush on the rest, but case WF-9944 stays open until this is in. The last version we have is dated Sun Nov 1 and lists 26 lines.\n\nRegards,\nLior Ferreira\nFernhill Energy",
+     "message_id": "m-9001"
+    },
+    {
+     "type": "email",
+     "at": "08:58",
+     "from": "Anouk Byrne <anouk.byrne@example.org>",
+     "subject": "Quick question about the boiler service",
+     "body": "Hi,\n\nI still need the site photos from you. Can it reach me by Monday afternoon, quoting SD-3125?\n\nI checked with the team at Fernhill School and they said mornings work best. Nothing else is blocking the boiler service; this is the only open item on my list (29 of 33 done).\n\nMany thanks,\nAnouk Byrne",
+     "message_id": "m-9002"
+    }
+   ]
+  },
+  {
+   "t": "09:21:00",
+   "kind": "task",
+   "ref": "mix_ast_near_003",
+   "family": "mixed",
+   "cluster": 2,
+   "world_events_before": []
+  },
+  {
+   "t": "09:24:20",
+   "kind": "task",
+   "ref": "par_ast_emails_003",
+   "family": "parallel",
+   "cluster": 2,
+   "world_events_before": []
+  },
+  {
+   "t": "09:24:40",
+   "kind": "task",
+   "ref": "par_ast_sources_016",
+   "family": "parallel",
+   "cluster": 2,
+   "world_events_before": []
+  },
+  {
+   "t": "10:00:00",
+   "kind": "mail_digest",
+   "ref": "job:mail_digest",
+   "world_events_before": [
+    {
+     "type": "email",
+     "at": "09:23",
+     "from": "Bruno Wexford <bruno.wexford@example.org>",
+     "subject": "Quick question about the garden fence",
+     "body": "Hi,\n\nCould you send me the catering quote by Monday? I need it to close out ref KG-1529.\n\nThe last version we have is dated Mon Nov 2 and lists 47 lines. I checked with the team at Northgate Library and they said afternoons work best. There is no rush on the rest, but case PE-1730 stays open until this is in.\n\nBest,\nBruno",
+     "message_id": "m-9007"
+    },
+    {
+     "type": "email",
+     "at": "09:49",
+     "from": "Maeve Ishikawa <maeve.ishikawa@example.org>",
+     "subject": "Your 31-day update on the lease renewal",
+     "body": "Hi,\n\nCould you send me the safety checklist by Monday? I need it to close out ref TD-9178.\n\nKestrel Telecom has held the slot for 31 days and cannot hold it past Monday. Nothing else is blocking the lease renewal; this is the only open item on my list (31 of 33 done). There is no rush on the rest, but case MD-4580 stays open until this is in.\n\nThanks, Maeve",
+     "message_id": "m-9006"
+    }
+   ]
+  },
+  {
+   "t": "10:00:00",
+   "kind": "message_digest",
+   "ref": "job:message_digest",
+   "world_events_before": [
+    {
+     "type": "message",
+     "at": "08:05",
+     "from": "Mateo Yilmaz",
+     "text": "Can we move the school trip to Tuesday? Tidewater Dental is free after 5pm."
+    },
+    {
+     "type": "message",
+     "at": "08:32",
+     "from": "Fiona Northcott",
+     "text": "Ref ZA-2441 is confirmed for Thursday, 11am at Maple Row Garage."
+    },
+    {
+     "type": "message",
+     "at": "08:58",
+     "from": "Mateo Mensah",
+     "text": "Ref MA-5166 is confirmed for Monday, 8am at Fernhill School."
+    },
+    {
+     "type": "message",
+     "at": "09:29",
+     "from": "Ximena Ishikawa",
+     "text": "Running 29 minutes late, start repot the fern without me."
+    }
+   ]
+  },
+  {
+   "t": "10:23:00",
+   "kind": "task",
+   "ref": "seq_ast_dinner_001",
+   "family": "sequential",
+   "cluster": 3,
+   "world_events_before": []
+  },
+  {
+   "t": "10:24:00",
+   "kind": "task",
+   "ref": "rec_ast_stall_001",
+   "family": "recovery",
+   "cluster": 3,
+   "world_events_before": []
+  },
+  {
+   "t": "10:25:20",
+   "kind": "task",
+   "ref": "seq_ast_invoice_001",
+   "family": "sequential",
+   "cluster": 3,
+   "world_events_before": []
+  },
+  {
+   "t": "11:00:00",
+   "kind": "mail_digest",
+   "ref": "job:mail_digest",
+   "world_events_before": [
+    {
+     "type": "email",
+     "at": "10:33",
+     "from": "Niko Wexford <niko.wexford@example.org>",
+     "subject": "Following up on the quarterly report - LC-7023",
+     "body": "Hi,\n\nCould you send me the training slides by Friday? I need it to close out ref LC-7023.\n\nI checked with the team at Copperleaf Café and they said mornings work best. Nothing else is blocking the quarterly report; this is the only open item on my list (38 of 41 done). The total on our side is 697.25, which matches the quote reference WB-6586.\n\nRegards,\nNiko Wexford\nKestrel Telecom",
+     "message_id": "m-9008"
+    },
+    {
+     "type": "email",
+     "at": "10:38",
+     "from": "Jasper Ishikawa <jasper.ishikawa@example.org>",
+     "subject": "Quick question about the book club",
+     "body": "Hi,\n\nCan you bring the draft agenda to Oak Street Lettings on Wednesday? Ask for Jasper at the front desk and quote PB-5488.\n\nI checked with the team at Oak Street Lettings and they said mornings work best. If anything has changed since Fri Nov 6, just flag it in your reply. There is no rush on the rest, but case PA-3046 stays open until this is in.\n\nCheers,\nJasper",
+     "message_id": "m-9009"
+    }
+   ]
+  },
+  {
+   "t": "11:06:00",
+   "kind": "task",
+   "ref": "pev_ast_evrem_001",
+   "family": "pev",
+   "cluster": 4,
+   "world_events_before": []
+  },
+  {
+   "t": "11:08:40",
+   "kind": "task",
+   "ref": "par_ast_sources_013",
+   "family": "parallel",
+   "cluster": 4,
+   "world_events_before": []
+  },
+  {
+   "t": "11:10:20",
+   "kind": "task",
+   "ref": "sel_ast_mail_reply_002",
+   "family": "select",
+   "cluster": 4,
+   "world_events_before": []
+  },
+  {
+   "t": "11:38:00",
+   "kind": "task",
+   "ref": "dt_ast_duration_002",
+   "family": "select",
+   "cluster": 5,
+   "world_events_before": []
+  },
+  {
+   "t": "11:39:20",
+   "kind": "task",
+   "ref": "sel_ast_note_create_002",
+   "family": "select",
+   "cluster": 5,
+   "world_events_before": []
+  },
+  {
+   "t": "11:41:00",
+   "kind": "task",
+   "ref": "par_ast_sources_006",
+   "family": "parallel",
+   "cluster": 5,
+   "world_events_before": []
+  },
+  {
+   "t": "12:00:00",
+   "kind": "mail_digest",
+   "ref": "job:mail_digest",
+   "world_events_before": [
+    {
+     "type": "email",
+     "at": "11:19",
+     "from": "Ronan Duarte <ronan.duarte@example.org>",
+     "subject": "The conference badge: action needed by Tuesday",
+     "body": "Hi,\n\nPlease confirm that the expense summary is ready, and email it to me before Tuesday noon.\n\nThe total on our side is 179.00, which matches the quote reference MB-2557. Oak Street Lettings has held the slot for 19 days and cannot hold it past Tuesday. Nothing else is blocking the conference badge; this is the only open item on my list (19 of 24 done).\n\nMany thanks,\nRonan Duarte",
+     "message_id": "m-9010"
+    },
+    {
+     "type": "email",
+     "at": "11:53",
+     "from": "Lior Marchetti <lior.marchetti@example.org>",
+     "subject": "Following up on the quarterly report - WE-2675",
+     "body": "Hi,\n\nWould you review the meeting minutes and tell me by Thursday whether the 23 items on page 7 are right?\n\nThe last version we have is dated Sun Nov 15 and lists 23 lines. Oak Street Lettings has held the slot for 23 days and cannot hold it past Thursday. Nothing else is blocking the quarterly report; this is the only open item on my list (23 of 25 done).\n\nRegards,\nLior Marchetti\nOak Street Lettings",
+     "message_id": "m-9011"
+    }
+   ]
+  },
+  {
+   "t": "12:00:00",
+   "kind": "message_digest",
+   "ref": "job:message_digest",
+   "world_events_before": [
+    {
+     "type": "message",
+     "at": "11:14",
+     "from": "Lucan Achebe",
+     "text": "Ref VA-5568 is confirmed for Friday, 11am at Quayside Market."
+    },
+    {
+     "type": "message",
+     "at": "11:54",
+     "from": "Anouk Dunmore",
+     "text": "Can we move the garden fence to Tuesday? Oak Street Lettings is free after 3pm."
+    }
+   ]
+  },
+  {
+   "t": "13:00:00",
+   "kind": "mail_digest",
+   "ref": "job:mail_digest",
+   "world_events_before": [
+    {
+     "type": "email",
+     "at": "12:10",
+     "from": "Rosa Rasmussen <rosa.rasmussen@example.org>",
+     "subject": "Following up on the parking permit - MD-9596",
+     "body": "Hi,\n\nI still need the site photos from you. Can it reach me by Wednesday afternoon, quoting MD-9596?\n\nThe last version we have is dated Fri Oct 30 and lists 18 lines. The total on our side is 960.00, which matches the quote reference LJ-2093. There is no rush on the rest, but case WG-3635 stays open until this is in.\n\nCheers,\nRosa",
+     "message_id": "m-9013"
+    },
+    {
+     "type": "email",
+     "at": "12:31",
+     "from": "Zara Northcott <zara.northcott@example.org>",
+     "subject": "Quick question about the move to Thursday",
+     "body": "Hi,\n\nPlease confirm that the inventory sheet is ready, and email it to me before Thursday noon.\n\nOak Street Lettings has held the slot for 27 days and cannot hold it past Thursday. The total on our side is 518.00, which matches the quote reference LB-7077. I checked with the team at Fernhill School and they said mornings work best.\n\nBest,\nZara",
+     "message_id": "m-9012"
+    },
+    {
+     "type": "email",
+     "at": "12:34",
+     "from": "Ximena Moreau <ximena.moreau@example.org>",
+     "subject": "Following up on the garden fence - WA-1686",
+     "body": "Hi,\n\nCan you bring the site photos to Riverside Climbing Wall on Wednesday? Ask for Ximena at the front desk and quote WA-1686.\n\nNothing else is blocking the garden fence; this is the only open item on my list (44 of 45 done). The total on our side is 216.25, which matches the quote reference ZB-8434.\n\nRegards,\nXimena Moreau\nArden Print Co",
+     "message_id": "m-9014"
+    }
+   ]
+  },
+  {
+   "t": "13:15:00",
+   "kind": "task",
+   "ref": "seq_ast_emailaddr_002",
+   "family": "sequential",
+   "cluster": 6,
+   "world_events_before": []
+  },
+  {
+   "t": "13:16:20",
+   "kind": "task",
+   "ref": "abs_ast_times_001",
+   "family": "abstain",
+   "cluster": 6,
+   "world_events_before": []
+  },
+  {
+   "t": "13:17:00",
+   "kind": "task",
+   "ref": "pev_ast_addev_001",
+   "family": "pev",
+   "cluster": 6,
+   "world_events_before": []
+  },
+  {
+   "t": "13:17:40",
+   "kind": "task",
+   "ref": "seq_ast_timetext_004",
+   "family": "sequential",
+   "cluster": 6,
+   "world_events_before": []
+  },
+  {
+   "t": "14:00:00",
+   "kind": "mail_digest",
+   "ref": "job:mail_digest",
+   "world_events_before": [
+    {
+     "type": "email",
+     "at": "13:24",
+     "from": "Gideon Underhill <gideon.underhill@example.org>",
+     "subject": "Quick question about the book club",
+     "body": "Hi,\n\nWe are missing the map of the venue. If you can reply with it by Monday, Bluebarrow Insurance can release the 535.75 payment.\n\nThe last version we have is dated Thu Nov 5 and lists 12 lines. Nothing else is blocking the book club; this is the only open item on my list (12 of 16 done). There is no rush on the rest, but case ME-8505 stays open until this is in.\n\nThanks, Gideon",
+     "message_id": "m-9019"
+    },
+    {
+     "type": "email",
+     "at": "13:26",
+     "from": "Yusuf Valdivia <yusuf.valdivia@example.org>",
+     "subject": "The bike repair: action needed by Thursday",
+     "body": "Hi,\n\nI still need the booking confirmation from you. Can it reach me by Thursday afternoon, quoting KG-4095?\n\nIf anything has changed since Tue Nov 10, just flag it in your reply. The total on our side is 54.00, which matches the quote reference XG-9532.\n\nRegards,\nYusuf Valdivia\nSkyline Air",
+     "message_id": "m-9018"
+    },
+    {
+     "type": "email",
+     "at": "13:27",
+     "from": "Teodor Mensah <teodor.mensah@example.org>",
+     "subject": "Quick question about the quarterly report",
+     "body": "Hi,\n\nCould you send me the training slides by Monday? I need it to close out ref VJ-2585.\n\nFernhill Energy has held the slot for 18 days and cannot hold it past Monday. There is no rush on the rest, but case VJ-6237 stays open until this is in. The total on our side is 276.75, which matches the quote reference QA-4201.\n\nMany thanks,\nTeodor Mensah",
+     "message_id": "m-9017"
+    },
+    {
+     "type": "email",
+     "at": "13:39",
+     "from": "Lucan Varga <lucan.varga@example.org>",
+     "subject": "Re: the move to Thursday (QH-2612)",
+     "body": "Hi,\n\nPlease confirm that the revised floor plan is ready, and email it to me before Thursday noon.\n\nFernhill Energy has held the slot for 27 days and cannot hold it past Thursday. If anything has changed since Wed Nov 11, just flag it in your reply. I checked with the team at Tidewater Dental and they said mornings work best.\n\nCheers,\nLucan",
+     "message_id": "m-9016"
+    },
+    {
+     "type": "email",
+     "at": "13:50",
+     "from": "Fiona Lacroix <fiona.lacroix@example.org>",
+     "subject": "Fernhill Energy: booking confirmation",
+     "body": "Hi,\n\nCan you bring the booking confirmation to Juniper Hall on Monday? Ask for Fiona at the front desk and quote KF-3633.\n\nFernhill Energy has held the slot for 33 days and cannot hold it past Monday. The total on our side is 771.75, which matches the quote reference MA-2814. I checked with the team at Juniper Hall and they said mornings work best.\n\nRegards,\nFiona Lacroix\nFernhill Energy",
+     "message_id": "m-9015"
+    }
+   ]
+  },
+  {
+   "t": "14:00:00",
+   "kind": "message_digest",
+   "ref": "job:message_digest",
+   "world_events_before": [
+    {
+     "type": "message",
+     "at": "12:47",
+     "from": "Hollis Whitlock",
+     "text": "Ref SG-9365 is confirmed for Wednesday, 11am at Juniper Hall."
+    },
+    {
+     "type": "message",
+     "at": "12:53",
+     "from": "Joaquin Kerrigan",
+     "text": "Running 9 minutes late, start check the smoke alarm without me."
+    },
+    {
+     "type": "message",
+     "at": "13:21",
+     "from": "Rafael Lacroix",
+     "text": "Can we move the parking permit to Tuesday? Maple Row Garage is free after 3pm."
+    },
+    {
+     "type": "message",
+     "at": "13:25",
+     "from": "Willa Fairbanks",
+     "text": "Can we move the parking permit to Friday? Fernhill School is free after 1pm."
+    }
+   ]
+  },
+  {
+   "t": "14:21:00",
+   "kind": "task",
+   "ref": "mix_ast_offers_003",
+   "family": "mixed",
+   "cluster": 7,
+   "world_events_before": []
+  },
+  {
+   "t": "14:22:00",
+   "kind": "task",
+   "ref": "seq_ast_msgreminder_001",
+   "family": "sequential",
+   "cluster": 7,
+   "world_events_before": []
+  },
+  {
+   "t": "14:23:40",
+   "kind": "task",
+   "ref": "sel_ast_contact_lookup_002",
+   "family": "select",
+   "cluster": 7,
+   "world_events_before": []
+  },
+  {
+   "t": "15:00:00",
+   "kind": "mail_digest",
+   "ref": "job:mail_digest",
+   "world_events_before": [
+    {
+     "type": "email",
+     "at": "14:03",
+     "from": "Ronan Kowalski <ronan.kowalski@example.org>",
+     "subject": "The boiler service: action needed by Monday",
+     "body": "Hi,\n\nWould you review the lease addendum and tell me by Monday whether the 19 items on page 5 are right?\n\nThe last version we have is dated Sun Nov 8 and lists 19 lines. I checked with the team at Oak Street Lettings and they said mornings work best.\n\nCheers,\nRonan",
+     "message_id": "m-9021"
+    },
+    {
+     "type": "email",
+     "at": "14:47",
+     "from": "Idris Calloway <idris.calloway@example.org>",
+     "subject": "Following up on the boiler service - KF-4112",
+     "body": "Hi,\n\nWould you review the parking permit scan and tell me by Wednesday whether the 38 items on page 9 are right?\n\nThere is no rush on the rest, but case MB-6221 stays open until this is in. Nothing else is blocking the boiler service; this is the only open item on my list (38 of 41 done).\n\nBest,\nIdris",
+     "message_id": "m-9020"
+    }
+   ]
+  },
+  {
+   "t": "15:08:00",
+   "kind": "task",
+   "ref": "sel_ast_msg_draft_001",
+   "family": "select",
+   "cluster": 8,
+   "world_events_before": []
+  },
+  {
+   "t": "15:10:00",
+   "kind": "task",
+   "ref": "mix_ast_far_003",
+   "family": "mixed",
+   "cluster": 8,
+   "world_events_before": []
+  },
+  {
+   "t": "15:12:20",
+   "kind": "task",
+   "ref": "sel_ast_rem_update_001",
+   "family": "select",
+   "cluster": 8,
+   "world_events_before": []
+  },
+  {
+   "t": "15:38:00",
+   "kind": "task",
+   "ref": "rec_ast_timeout_006",
+   "family": "recovery",
+   "cluster": 9,
+   "world_events_before": []
+  },
+  {
+   "t": "15:39:00",
+   "kind": "task",
+   "ref": "dt_ast_last_day_002",
+   "family": "select",
+   "cluster": 9,
+   "world_events_before": []
+  },
+  {
+   "t": "15:39:40",
+   "kind": "task",
+   "ref": "abs_ast_timer_no_len_001",
+   "family": "abstain",
+   "cluster": 9,
+   "world_events_before": []
+  },
+  {
+   "t": "16:00:00",
+   "kind": "mail_digest",
+   "ref": "job:mail_digest",
+   "world_events_before": [
+    {
+     "type": "email",
+     "at": "15:25",
+     "from": "Ines Jessup <ines.jessup@example.org>",
+     "subject": "Quick question about the bike repair",
+     "body": "Hi,\n\nCan you bring the delivery schedule to Fernhill School on Wednesday? Ask for Ines at the front desk and quote MD-7227.\n\nI checked with the team at Fernhill School and they said mornings work best. The total on our side is 865.50, which matches the quote reference XE-2287. The last version we have is dated Wed Nov 11 and lists 25 lines.\n\nMany thanks,\nInes Jessup",
+     "message_id": "m-9023"
+    },
+    {
+     "type": "email",
+     "at": "15:51",
+     "from": "Anouk Byrne <anouk.byrne@example.org>",
+     "subject": "Following up on the boiler service - SE-5488",
+     "body": "Hi,\n\nWould you review the training slides and tell me by Tuesday whether the 7 items on page 2 are right?\n\nThe last version we have is dated Sat Nov 7 and lists 7 lines. I checked with the team at Hartwell Joinery and they said mornings work best.\n\nBest,\nAnouk",
+     "message_id": "m-9022"
+    },
+    {
+     "type": "email",
+     "at": "15:57",
+     "from": "Clara Achebe <clara.achebe@example.org>",
+     "subject": "Following up on the garden fence - ZE-7773",
+     "body": "Hi,\n\nPlease confirm that the budget outline is ready, and email it to me before Monday noon.\n\nI checked with the team at Riverside Climbing Wall and they said mornings work best. There is no rush on the rest, but case VE-3441 stays open until this is in. The total on our side is 206.75, which matches the quote reference RF-2505.\n\nBest,\nClara",
+     "message_id": "m-9024"
+    }
+   ]
+  },
+  {
+   "t": "16:00:00",
+   "kind": "message_digest",
+   "ref": "job:message_digest",
+   "world_events_before": [
+    {
+     "type": "message",
+     "at": "14:06",
+     "from": "Nadia Ishikawa",
+     "text": "Running 39 minutes late, start pay the gas bill without me."
+    },
+    {
+     "type": "message",
+     "at": "14:46",
+     "from": "Maeve Lacroix",
+     "text": "Can we move the move to Thursday to Tuesday? Tidewater Dental is free after 4pm."
+    },
+    {
+     "type": "message",
+     "at": "15:01",
+     "from": "Kirra Castillo",
+     "text": "Can we move the boiler service to Thursday? Skyline Air is free after 2pm."
+    },
+    {
+     "type": "message",
+     "at": "15:22",
+     "from": "Zara Underhill",
+     "text": "Ref LJ-4252 is confirmed for Tuesday, 11am at Oak Street Lettings."
+    }
+   ]
+  },
+  {
+   "t": "16:31:00",
+   "kind": "task",
+   "ref": "abs_ast_define_001",
+   "family": "abstain",
+   "cluster": 10,
+   "world_events_before": []
+  },
+  {
+   "t": "16:32:20",
+   "kind": "task",
+   "ref": "pev_ast_wrongadd_002",
+   "family": "pev",
+   "cluster": 10,
+   "world_events_before": []
+  },
+  {
+   "t": "16:35:00",
+   "kind": "task",
+   "ref": "sel_ast_msg_view_001",
+   "family": "select",
+   "cluster": 10,
+   "world_events_before": []
+  },
+  {
+   "t": "17:00:00",
+   "kind": "mail_digest",
+   "ref": "job:mail_digest",
+   "world_events_before": [
+    {
+     "type": "email",
+     "at": "16:26",
+     "from": "Bruno Ferreira <bruno.ferreira@example.org>",
+     "subject": "The book club: action needed by Monday",
+     "body": "Hi,\n\nWe are missing the signed supplier form. If you can reply with it by Monday, Hartwell Joinery can release the 570.50 payment.\n\nThe last version we have is dated Sat Nov 14 and lists 40 lines. If anything has changed since Thu Nov 12, just flag it in your reply.\n\nBest,\nBruno",
+     "message_id": "m-9027"
+    },
+    {
+     "type": "email",
+     "at": "16:27",
+     "from": "Gustavo Kowalski <gustavo.kowalski@example.org>",
+     "subject": "Quick question about the bike repair",
+     "body": "Hi,\n\nCan you bring the signed supplier form to Northgate Library on Wednesday? Ask for Gustavo at the front desk and quote TA-9916.\n\nThe last version we have is dated Sat Oct 31 and lists 28 lines. There is no rush on the rest, but case QB-2932 stays open until this is in.\n\nThanks, Gustavo",
+     "message_id": "m-9025"
+    },
+    {
+     "type": "email",
+     "at": "16:37",
+     "from": "Clara Kerrigan <clara.kerrigan@example.org>",
+     "subject": "Quick question about the school trip",
+     "body": "Hi,\n\nCould you send me the budget outline by Wednesday? I need it to close out ref PJ-3589.\n\nNothing else is blocking the school trip; this is the only open item on my list (45 of 46 done). If anything has changed since Wed Nov 11, just flag it in your reply.\n\nThanks, Clara",
+     "message_id": "m-9028"
+    },
+    {
+     "type": "email",
+     "at": "16:48",
+     "from": "Mei Yilmaz <mei.yilmaz@example.org>",
+     "subject": "Thistle Bank: sample contract",
+     "body": "Hi,\n\nI still need the sample contract from you. Can it reach me by Monday afternoon, quoting RG-5079?\n\nThistle Bank has held the slot for 12 days and cannot hold it past Monday. If anything has changed since Wed Nov 4, just flag it in your reply. Nothing else is blocking the boiler service; this is the only open item on my list (12 of 13 done).\n\nBest,\nMei",
+     "message_id": "m-9029"
+    },
+    {
+     "type": "email",
+     "at": "16:56",
+     "from": "Marisol Pemberton <marisol.pemberton@example.org>",
+     "subject": "Following up on the bike repair - RD-8219",
+     "body": "Hi,\n\nCan you bring the budget outline to Harbourside Gym on Tuesday? Ask for Marisol at the front desk and quote RD-8219.\n\nThe last version we have is dated Mon Nov 9 and lists 45 lines. Kestrel Telecom has held the slot for 45 days and cannot hold it past Tuesday.\n\nThanks, Marisol",
+     "message_id": "m-9026"
+    }
+   ]
+  },
+  {
+   "t": "17:30:00",
+   "kind": "review",
+   "ref": "job:review",
+   "world_events_before": []
+  }
+ ],
+ "caveat": "An invented typical day, not measured usage."
+}

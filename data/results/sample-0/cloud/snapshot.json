@@ -1,0 +1,6372 @@
+{
+ "schema": "edat.snapshot/1.0",
+ "board_version": "sample-0",
+ "device_id": "cloud",
+ "sample": true,
+ "notice": "SAMPLE DATA. Every model name and number in this file is invented to exercise the website; nothing describes a real model.",
+ "generated_at": "2026-11-18T09:00:00Z",
+ "references": {
+  "tuned": null,
+  "base": null
+ },
+ "runs": [
+  {
+   "run_id": "sample-agentic-cloud",
+   "tier": "agentic",
+   "records": 336,
+   "records_sha256": "9b9f62fe6abcbd3d5719841c920019db5f72cff71eea356c64e413da40fbe1af",
+   "harness_commit": "0000000",
+   "sampling_class": "recommended"
+  },
+  {
+   "run_id": "sample-quality-cloud",
+   "tier": "quality",
+   "records": 184,
+   "records_sha256": "a39252cc99606eddc68637a2a9708879d958ec3530783c793d1bd57070c6d46f",
+   "harness_commit": "0000000",
+   "sampling_class": "recommended"
+  }
+ ],
+ "records_exported": 520,
+ "records_withheld_heldout": 0,
+ "entries": [
+  {
+   "entry_key": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "device_id": "cloud",
+   "model_id": "sample-cloud/model-a",
+   "role": "cloud_reference",
+   "kind": "cloud_reference",
+   "weights": "-",
+   "weights_sha256": null,
+   "quant": null,
+   "params_total": null,
+   "params_active": null,
+   "architecture": "unknown",
+   "headline_entry": null,
+   "runtime": "openrouter",
+   "runtime_version": null,
+   "thinking": "off",
+   "requested_model": "sample-cloud/model-a",
+   "resolved_model": "sample-cloud/model-a",
+   "upstream_provider": "sample-provider",
+   "run_date": {
+    "first": "2026-11-18T09:00:00Z",
+    "last": "2026-11-18T11:00:00Z"
+   },
+   "device": null,
+   "tiers": {
+    "agentic": {
+     "tier": "agentic",
+     "records": 84,
+     "graded": 84,
+     "status_counts": {
+      "ok": 84
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-agentic-cloud"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "provider_default"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "pass1": {
+      "value": 0.678571,
+      "interval": [
+       0.572786,
+       0.768739
+      ],
+      "interval_kind": "wilson",
+      "interval_cluster": [
+       0.583333,
+       0.77381
+      ],
+      "n_cases": 28,
+      "n_trials": 84,
+      "passes": 57,
+      "pass_all_trials": {
+       "value": 0.285714,
+       "interval": [
+        0.15254,
+        0.470593
+       ],
+       "n_cases": 28,
+       "k": 8,
+       "trials_per_case": [
+        3
+       ],
+       "flag": null
+      },
+      "pass_k": {
+       "2": 0.452381,
+       "3": 0.285714
+      }
+     },
+     "score": {
+      "value": 0.781976,
+      "interval": [
+       0.717234,
+       0.842717
+      ],
+      "interval_kind": "bootstrap_cases",
+      "n_cases": 28,
+      "n_trials": 84
+     },
+     "composites": {
+      "agentic_score": {
+       "value": 0.678571,
+       "interval": [
+        0.607143,
+        0.75
+       ],
+       "n_cases": 28,
+       "strata": 14,
+       "weights": {
+        "abstain/assistant": 0.071429,
+        "abstain/neutral": 0.071429,
+        "mixed/assistant": 0.071429,
+        "mixed/neutral": 0.071429,
+        "parallel/assistant": 0.071429,
+        "parallel/neutral": 0.071429,
+        "pev/assistant": 0.071429,
+        "pev/neutral": 0.071429,
+        "recovery/assistant": 0.071429,
+        "recovery/neutral": 0.071429,
+        "select/assistant": 0.071429,
+        "select/neutral": 0.071429,
+        "sequential/assistant": 0.071429,
+        "sequential/neutral": 0.071429
+       },
+       "metric": "agentic_score",
+       "interval_kind": "bootstrap_cases",
+       "n_trials": 84,
+       "present": [
+        "abstain/assistant",
+        "abstain/neutral",
+        "mixed/assistant",
+        "mixed/neutral",
+        "parallel/assistant",
+        "parallel/neutral",
+        "pev/assistant",
+        "pev/neutral",
+        "recovery/assistant",
+        "recovery/neutral",
+        "select/assistant",
+        "select/neutral",
+        "sequential/assistant",
+        "sequential/neutral"
+       ],
+       "complete": true,
+       "families": [
+        "abstain",
+        "mixed",
+        "parallel",
+        "pev",
+        "recovery",
+        "select",
+        "sequential"
+       ]
+      }
+     },
+     "composite": {
+      "value": 0.678571,
+      "interval": [
+       0.607143,
+       0.75
+      ],
+      "n_cases": 28,
+      "strata": 14,
+      "weights": {
+       "abstain/assistant": 0.071429,
+       "abstain/neutral": 0.071429,
+       "mixed/assistant": 0.071429,
+       "mixed/neutral": 0.071429,
+       "parallel/assistant": 0.071429,
+       "parallel/neutral": 0.071429,
+       "pev/assistant": 0.071429,
+       "pev/neutral": 0.071429,
+       "recovery/assistant": 0.071429,
+       "recovery/neutral": 0.071429,
+       "select/assistant": 0.071429,
+       "select/neutral": 0.071429,
+       "sequential/assistant": 0.071429,
+       "sequential/neutral": 0.071429
+      },
+      "metric": "agentic_score",
+      "interval_kind": "bootstrap_cases",
+      "n_trials": 84,
+      "present": [
+       "abstain/assistant",
+       "abstain/neutral",
+       "mixed/assistant",
+       "mixed/neutral",
+       "parallel/assistant",
+       "parallel/neutral",
+       "pev/assistant",
+       "pev/neutral",
+       "recovery/assistant",
+       "recovery/neutral",
+       "select/assistant",
+       "select/neutral",
+       "sequential/assistant",
+       "sequential/neutral"
+      ],
+      "complete": true,
+      "families": [
+       "abstain",
+       "mixed",
+       "parallel",
+       "pev",
+       "recovery",
+       "select",
+       "sequential"
+      ]
+     },
+     "safety": {
+      "trials": 84,
+      "unsafe_trials": 1,
+      "unsafe_rate": 0.011905,
+      "unsafe_interval": [
+       0.002105,
+       0.064395
+      ],
+      "unsafe_count": 1,
+      "unsafe_per_100": 1.190476,
+      "unsafe_n": 84,
+      "leak_trials": 0,
+      "leak_rate": 0.0,
+      "leak_interval": [
+       0.0,
+       0.043732
+      ],
+      "leak_count": 0,
+      "leak_per_100": 0.0,
+      "leak_n": 84,
+      "labels": {
+       "unsafe_call": 1
+      }
+     },
+     "facets": {
+      "lane=assistant": {
+       "pass1": {
+        "value": 0.714286,
+        "interval": [
+         0.564328,
+         0.82833
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.571429,
+         0.833333
+        ],
+        "n_cases": 14,
+        "n_trials": 42,
+        "passes": 30,
+        "pass_all_trials": {
+         "value": 0.357143,
+         "interval": [
+          0.163447,
+          0.612356
+         ],
+         "n_cases": 14,
+         "k": 5,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.5,
+         "3": 0.357143
+        }
+       },
+       "score": {
+        "value": 0.82031,
+        "interval": [
+         0.731186,
+         0.900465
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 14,
+        "n_trials": 42
+       }
+      },
+      "lane=neutral": {
+       "pass1": {
+        "value": 0.642857,
+        "interval": [
+         0.491664,
+         0.770108
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.47619,
+         0.761905
+        ],
+        "n_cases": 14,
+        "n_trials": 42,
+        "passes": 27,
+        "pass_all_trials": {
+         "value": 0.214286,
+         "interval": [
+          0.075714,
+          0.475892
+         ],
+         "n_cases": 14,
+         "k": 3,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.404762,
+         "3": 0.214286
+        }
+       },
+       "score": {
+        "value": 0.743643,
+        "interval": [
+         0.653463,
+         0.844654
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 14,
+        "n_trials": 42
+       }
+      },
+      "family=abstain": {
+       "pass1": {
+        "value": 0.583333,
+        "interval": [
+         0.319511,
+         0.80674
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.166667,
+         0.916667
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 7,
+        "pass_all_trials": {
+         "value": 0.25,
+         "interval": [
+          0.045587,
+          0.699358
+         ],
+         "n_cases": 4,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.416667,
+         "3": 0.25
+        }
+       },
+       "score": {
+        "value": 0.7335,
+        "interval": [
+         0.51375,
+         0.915781
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      },
+      "family=mixed": {
+       "pass1": {
+        "value": 0.75,
+        "interval": [
+         0.467695,
+         0.911058
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.5,
+         1.0
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 0.5,
+         "interval": [
+          0.150039,
+          0.849961
+         ],
+         "n_cases": 4,
+         "k": 2,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.583333,
+         "3": 0.5
+        }
+       },
+       "score": {
+        "value": 0.853333,
+        "interval": [
+         0.706667,
+         1.0
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      },
+      "family=parallel": {
+       "pass1": {
+        "value": 0.75,
+        "interval": [
+         0.467695,
+         0.911058
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.666667,
+         0.916667
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 0.25,
+         "interval": [
+          0.045587,
+          0.699358
+         ],
+         "n_cases": 4,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.5,
+         "3": 0.25
+        }
+       },
+       "score": {
+        "value": 0.856,
+        "interval": [
+         0.748083,
+         0.951735
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      },
+      "family=pev": {
+       "pass1": {
+        "value": 0.583333,
+        "interval": [
+         0.319511,
+         0.80674
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.833333
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 7,
+        "pass_all_trials": {
+         "value": 0.25,
+         "interval": [
+          0.045587,
+          0.699358
+         ],
+         "n_cases": 4,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.333333,
+         "3": 0.25
+        }
+       },
+       "score": {
+        "value": 0.75075,
+        "interval": [
+         0.603333,
+         0.904292
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      },
+      "family=recovery": {
+       "pass1": {
+        "value": 0.666667,
+        "interval": [
+         0.390622,
+         0.86188
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.666667,
+         0.666667
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 8,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.489891
+         ],
+         "n_cases": 4,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.333333,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.737417,
+        "interval": [
+         0.6865,
+         0.788333
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      },
+      "family=select": {
+       "pass1": {
+        "value": 0.833333,
+        "interval": [
+         0.551969,
+         0.953035
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.666667,
+         1.0
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 10,
+        "pass_all_trials": {
+         "value": 0.5,
+         "interval": [
+          0.150039,
+          0.849961
+         ],
+         "n_cases": 4,
+         "k": 2,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.666667,
+         "3": 0.5
+        }
+       },
+       "score": {
+        "value": 0.902917,
+        "interval": [
+         0.79575,
+         1.0
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      },
+      "family=sequential": {
+       "pass1": {
+        "value": 0.583333,
+        "interval": [
+         0.319511,
+         0.80674
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.833333
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 7,
+        "pass_all_trials": {
+         "value": 0.25,
+         "interval": [
+          0.045587,
+          0.699358
+         ],
+         "n_cases": 4,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.333333,
+         "3": 0.25
+        }
+       },
+       "score": {
+        "value": 0.639917,
+        "interval": [
+         0.437333,
+         0.859979
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      }
+     },
+     "metrics": {
+      "format_ok": {
+       "value": 1.0,
+       "interval": [
+        0.956268,
+        1.0
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 28,
+       "n_trials": 84
+      },
+      "steps": {
+       "value": 2.511905,
+       "interval": [
+        2.27381,
+        2.744345
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 28,
+       "n_trials": 84
+      },
+      "wall_s": {
+       "value": 6.53369,
+       "interval": [
+        6.01819,
+        7.076446
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 28,
+       "n_trials": 84
+      }
+     },
+     "headline": {
+      "metric": "agentic_score",
+      "source": "composite",
+      "value": 0.678571,
+      "interval": [
+       0.607143,
+       0.75
+      ],
+      "interval_kind": "bootstrap_cases"
+     },
+     "sampling_classes": [
+      "recommended"
+     ]
+    },
+    "quality": {
+     "tier": "quality",
+     "records": 45,
+     "graded": 45,
+     "status_counts": {
+      "ok": 45
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-quality-cloud"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "provider_default"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "pass1": {
+      "value": 1.0,
+      "interval": [
+       0.921348,
+       1.0
+      ],
+      "interval_kind": "wilson",
+      "interval_cluster": [
+       1.0,
+       1.0
+      ],
+      "n_cases": 15,
+      "n_trials": 45,
+      "passes": 45,
+      "pass_all_trials": {
+       "value": 1.0,
+       "interval": [
+        0.796117,
+        1.0
+       ],
+       "n_cases": 15,
+       "k": 15,
+       "trials_per_case": [
+        3
+       ],
+       "flag": null
+      },
+      "pass_k": {
+       "2": 1.0,
+       "3": 1.0
+      }
+     },
+     "score": {
+      "value": 0.976156,
+      "interval": [
+       0.966155,
+       0.986468
+      ],
+      "interval_kind": "bootstrap_cases",
+      "n_cases": 15,
+      "n_trials": 45
+     },
+     "composites": {
+      "text_understanding": {
+       "value": 0.985806,
+       "components": {
+        "core_recall": 0.985722,
+        "extraction_numeric": 0.985167,
+        "faithfulness": 0.972222,
+        "trap_resistance": 1.0,
+        "schema_valid": 1.0,
+        "fabricated_detail_rate": 0.013889,
+        "trap_failure_rate": 0.0
+       },
+       "label": "full",
+       "missing": [],
+       "metric": "text_understanding",
+       "interval": [
+        0.979705,
+        0.992433
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 15,
+       "does_not_fit": 0,
+       "does_not_fit_rate": 0.0
+      },
+      "readability": {
+       "value": 0.778959,
+       "components": {
+        "hygiene": 0.988741,
+        "pref_judge_style_ctrl": 0.666
+       },
+       "label": "judge",
+       "metric": "readability",
+       "interval": [
+        0.777183,
+        0.780717
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 15,
+       "does_not_fit": 0,
+       "does_not_fit_rate": 0.0,
+       "note": "judge preference held fixed in the interval"
+      },
+      "writing": {
+       "value": 0.923786,
+       "components": {
+        "points": 0.976111,
+        "faithfulness": 0.875111,
+        "constraints": 1.0,
+        "editing": 0.776,
+        "pref": null,
+        "invented_rate": 0.027778,
+        "forbidden_rate": 0.0,
+        "fact_change_rate": 0.034667,
+        "grammar_errors_per_100w": null,
+        "grammar_penalty_applied": false
+       },
+       "label": "checks only",
+       "missing": [
+        "pref"
+       ],
+       "metric": "writing",
+       "interval": [
+        0.918319,
+        0.976611
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 15,
+       "does_not_fit": 0,
+       "does_not_fit_rate": 0.0
+      }
+     },
+     "composite": {
+      "value": 0.985806,
+      "components": {
+       "core_recall": 0.985722,
+       "extraction_numeric": 0.985167,
+       "faithfulness": 0.972222,
+       "trap_resistance": 1.0,
+       "schema_valid": 1.0,
+       "fabricated_detail_rate": 0.013889,
+       "trap_failure_rate": 0.0
+      },
+      "label": "full",
+      "missing": [],
+      "metric": "text_understanding",
+      "interval": [
+       0.979705,
+       0.992433
+      ],
+      "interval_kind": "bootstrap_cases",
+      "n_cases": 15,
+      "does_not_fit": 0,
+      "does_not_fit_rate": 0.0
+     },
+     "safety": {
+      "trials": 45,
+      "unsafe_trials": null,
+      "unsafe_rate": null,
+      "unsafe_interval": null,
+      "unsafe_count": null,
+      "unsafe_per_100": null,
+      "leak_trials": null,
+      "leak_rate": null,
+      "leak_interval": null,
+      "leak_count": null,
+      "leak_per_100": null,
+      "labels": {}
+     },
+     "facets": {
+      "family=extraction": {
+       "pass1": {
+        "value": 1.0,
+        "interval": [
+         0.700855,
+         1.0
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         1.0,
+         1.0
+        ],
+        "n_cases": 3,
+        "n_trials": 9,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 1.0,
+         "interval": [
+          0.438503,
+          1.0
+         ],
+         "n_cases": 3,
+         "k": 3,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 1.0,
+         "3": 1.0
+        }
+       },
+       "score": {
+        "value": 0.970333,
+        "interval": [
+         0.937667,
+         1.0
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 3,
+        "n_trials": 9
+       }
+      },
+      "family=numeric": {
+       "pass1": {
+        "value": 1.0,
+        "interval": [
+         0.700855,
+         1.0
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         1.0,
+         1.0
+        ],
+        "n_cases": 3,
+        "n_trials": 9,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 1.0,
+         "interval": [
+          0.438503,
+          1.0
+         ],
+         "n_cases": 3,
+         "k": 3,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 1.0,
+         "3": 1.0
+        }
+       },
+       "score": {
+        "value": 0.962889,
+        "interval": [
+         0.954,
+         0.978
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 3,
+        "n_trials": 9
+       }
+      },
+      "family=point": {
+       "pass1": {
+        "value": 1.0,
+        "interval": [
+         0.700855,
+         1.0
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         1.0,
+         1.0
+        ],
+        "n_cases": 3,
+        "n_trials": 9,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 1.0,
+         "interval": [
+          0.438503,
+          1.0
+         ],
+         "n_cases": 3,
+         "k": 3,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 1.0,
+         "3": 1.0
+        }
+       },
+       "score": {
+        "value": 0.974778,
+        "interval": [
+         0.947667,
+         0.998667
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 3,
+        "n_trials": 9
+       }
+      },
+      "family=summary": {
+       "pass1": {
+        "value": 1.0,
+        "interval": [
+         0.700855,
+         1.0
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         1.0,
+         1.0
+        ],
+        "n_cases": 3,
+        "n_trials": 9,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 1.0,
+         "interval": [
+          0.438503,
+          1.0
+         ],
+         "n_cases": 3,
+         "k": 3,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 1.0,
+         "3": 1.0
+        }
+       },
+       "score": {
+        "value": 0.996667,
+        "interval": [
+         0.99,
+         1.0
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 3,
+        "n_trials": 9
+       }
+      },
+      "family=writing": {
+       "pass1": {
+        "value": 1.0,
+        "interval": [
+         0.700855,
+         1.0
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         1.0,
+         1.0
+        ],
+        "n_cases": 3,
+        "n_trials": 9,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 1.0,
+         "interval": [
+          0.438503,
+          1.0
+         ],
+         "n_cases": 3,
+         "k": 3,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 1.0,
+         "3": 1.0
+        }
+       },
+       "score": {
+        "value": 0.976111,
+        "interval": [
+         0.959333,
+         0.999333
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 3,
+        "n_trials": 9
+       }
+      }
+     },
+     "metrics": {
+      "atoms": {
+       "value": 9.0,
+       "interval": [
+        7.166667,
+        10.666667
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 12,
+       "n_trials": 36
+      },
+      "constraint_ok": {
+       "value": 1.0,
+       "interval": [
+        1.0,
+        1.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "core_recall": {
+       "value": 0.985722,
+       "interval": [
+        0.969256,
+        0.998111
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 6,
+       "n_trials": 18
+      },
+      "extraction_field_acc": {
+       "value": 0.970333,
+       "interval": [
+        0.937667,
+        1.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "fabricated_atoms": {
+       "value": 0.111111,
+       "interval": [
+        0.037037,
+        0.222222
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 9,
+       "n_trials": 27
+      },
+      "fact_keep_rate": {
+       "value": 0.965333,
+       "interval": [
+        0.965333,
+        0.965333
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 1,
+       "n_trials": 3
+      },
+      "fix_rate": {
+       "value": 0.946333,
+       "interval": [
+        0.946333,
+        0.946333
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 1,
+       "n_trials": 3
+      },
+      "flag_rate": {
+       "value": 0.97,
+       "interval": [
+        0.97,
+        0.97
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 1,
+       "n_trials": 3
+      },
+      "forbidden_rate": {
+       "value": 0.0,
+       "interval": [
+        0.0,
+        0.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "hygiene": {
+       "value": 98.874074,
+       "interval": [
+        98.410741,
+        99.409352
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 9,
+       "n_trials": 27
+      },
+      "invented_atoms": {
+       "value": 0.333333,
+       "interval": [
+        0.0,
+        0.666667
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "numeric_ok": {
+       "value": 1.0,
+       "interval": [
+        1.0,
+        1.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "overedit": {
+       "value": 0.011767,
+       "interval": [
+        0.011767,
+        0.011767
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 1,
+       "n_trials": 3
+      },
+      "point_recall": {
+       "value": 0.976111,
+       "interval": [
+        0.959333,
+        0.999333
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "schema_valid": {
+       "value": 1.0,
+       "interval": [
+        1.0,
+        1.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "trap_count": {
+       "value": 1.0,
+       "interval": [
+        1.0,
+        1.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 6,
+       "n_trials": 18
+      },
+      "trap_failures": {
+       "value": 0.0,
+       "interval": [
+        0.0,
+        0.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 6,
+       "n_trials": 18
+      },
+      "visible_tokens": {
+       "value": 222.888889,
+       "interval": [
+        202.597778,
+        240.825
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 15,
+       "n_trials": 45
+      }
+     },
+     "headline": {
+      "metric": "text_understanding",
+      "source": "composite",
+      "value": 0.985806,
+      "interval": [
+       0.979705,
+       0.992433
+      ],
+      "interval_kind": "bootstrap_cases"
+     },
+     "sampling_classes": [
+      "recommended"
+     ]
+    }
+   },
+   "sampling_sources": [
+    "provider_default"
+   ],
+   "fit": {
+    "verdict": "not_applicable"
+   },
+   "invalid": false,
+   "ranked": false,
+   "rank_group": "cloud",
+   "flags": [],
+   "vs": {
+    "tuned": {
+     "reference": "local|Sample Tuned 4B|q4|omlx|off",
+     "device_id": "mac-ref",
+     "tiers": {
+      "agentic": {
+       "pass1": {
+        "delta": 0.22619,
+        "interval": [
+         0.107143,
+         0.357143
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 15,
+        "losses": 3,
+        "ties": 10
+       },
+       "score": {
+        "delta": 0.081274,
+        "interval": [
+         -0.001757,
+         0.16658
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 28,
+        "wins": 17,
+        "losses": 9,
+        "ties": 2
+       },
+       "agentic_score": {
+        "interval": [
+         0.154762,
+         0.297619
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "strata": 14,
+        "weights": {
+         "abstain/assistant": 0.071429,
+         "abstain/neutral": 0.071429,
+         "mixed/assistant": 0.071429,
+         "mixed/neutral": 0.071429,
+         "parallel/assistant": 0.071429,
+         "parallel/neutral": 0.071429,
+         "pev/assistant": 0.071429,
+         "pev/neutral": 0.071429,
+         "recovery/assistant": 0.071429,
+         "recovery/neutral": 0.071429,
+         "select/assistant": 0.071429,
+         "select/neutral": 0.071429,
+         "sequential/assistant": 0.071429,
+         "sequential/neutral": 0.071429
+        },
+        "delta": 0.22619
+       },
+       "unsafe_rate": {
+        "delta": -0.119048,
+        "interval": [
+         -0.214286,
+         -0.041369
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 0,
+        "losses": 7,
+        "ties": 21,
+        "ratio": 0.090909
+       },
+       "leak_rate": {
+        "delta": -0.119048,
+        "interval": [
+         -0.178571,
+         -0.059524
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 0,
+        "losses": 10,
+        "ties": 18,
+        "ratio": 0.0
+       }
+      },
+      "quality": {
+       "text_understanding": {
+        "delta": 0.148794,
+        "interval": [
+         0.103684,
+         0.203889
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "labels": [
+         "full",
+         "full"
+        ]
+       },
+       "readability": {
+        "delta": 0.1373,
+        "interval": [
+         0.132983,
+         0.1414
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "labels": [
+         "judge",
+         "judge"
+        ]
+       },
+       "writing": {
+        "delta": 0.293937,
+        "interval": [
+         0.100728,
+         0.387417
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "labels": [
+         "checks only",
+         "checks only"
+        ]
+       },
+       "pass1": {
+        "delta": 0.244444,
+        "interval": [
+         0.155556,
+         0.333333
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "wins": 10,
+        "losses": 0,
+        "ties": 5
+       },
+       "score": {
+        "delta": 0.205822,
+        "interval": [
+         0.175332,
+         0.234494
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "wins": 15,
+        "losses": 0,
+        "ties": 0
+       }
+      }
+     }
+    },
+    "base": {
+     "reference": "local|Sample Base 4B|q4|omlx|off",
+     "device_id": "mac-ref",
+     "tiers": {
+      "agentic": {
+       "pass1": {
+        "delta": 0.416667,
+        "interval": [
+         0.297619,
+         0.535714
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 21,
+        "losses": 1,
+        "ties": 6
+       },
+       "score": {
+        "delta": 0.207798,
+        "interval": [
+         0.128892,
+         0.283988
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 23,
+        "losses": 5,
+        "ties": 0
+       },
+       "agentic_score": {
+        "interval": [
+         0.333333,
+         0.5
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "strata": 14,
+        "weights": {
+         "abstain/assistant": 0.071429,
+         "abstain/neutral": 0.071429,
+         "mixed/assistant": 0.071429,
+         "mixed/neutral": 0.071429,
+         "parallel/assistant": 0.071429,
+         "parallel/neutral": 0.071429,
+         "pev/assistant": 0.071429,
+         "pev/neutral": 0.071429,
+         "recovery/assistant": 0.071429,
+         "recovery/neutral": 0.071429,
+         "select/assistant": 0.071429,
+         "select/neutral": 0.071429,
+         "sequential/assistant": 0.071429,
+         "sequential/neutral": 0.071429
+        },
+        "delta": 0.416667
+       },
+       "unsafe_rate": {
+        "delta": -0.035714,
+        "interval": [
+         -0.089583,
+         0.011905
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 28,
+        "wins": 1,
+        "losses": 4,
+        "ties": 23,
+        "ratio": 0.25
+       },
+       "leak_rate": {
+        "delta": -0.059524,
+        "interval": [
+         -0.107143,
+         -0.011905
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 0,
+        "losses": 5,
+        "ties": 23,
+        "ratio": 0.0
+       }
+      },
+      "quality": {
+       "text_understanding": {
+        "delta": 0.231983,
+        "interval": [
+         0.17788,
+         0.279598
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "labels": [
+         "full",
+         "full"
+        ]
+       },
+       "readability": {
+        "delta": 0.11625,
+        "interval": [
+         0.112983,
+         0.11945
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "labels": [
+         "judge",
+         "judge"
+        ]
+       },
+       "writing": {
+        "delta": 0.34245,
+        "interval": [
+         0.129421,
+         0.391404
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "labels": [
+         "checks only",
+         "checks only"
+        ]
+       },
+       "pass1": {
+        "delta": 0.577778,
+        "interval": [
+         0.422222,
+         0.733333
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "wins": 13,
+        "losses": 0,
+        "ties": 2
+       },
+       "score": {
+        "delta": 0.306178,
+        "interval": [
+         0.281063,
+         0.332622
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "wins": 15,
+        "losses": 0,
+        "ties": 0
+       }
+      }
+     }
+    }
+   },
+   "sampling_sensitivity": {},
+   "loops": {
+    "agentic": {
+     "loop": "harbor-loop",
+     "view": "agentic_harbor_loop",
+     "reference_view": "agentic",
+     "lanes": {
+      "neutral": "not_applicable: Harbor's loop has no neutral lane"
+     },
+     "empty": true,
+     "empty_reason": "cloud references run through the reference loop only",
+     "gap": null
+    }
+   }
+  },
+  {
+   "entry_key": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "device_id": "cloud",
+   "model_id": "sample-cloud/model-a",
+   "role": "cloud_reference",
+   "kind": "cloud_reference",
+   "weights": "-",
+   "weights_sha256": null,
+   "quant": null,
+   "params_total": null,
+   "params_active": null,
+   "architecture": "unknown",
+   "headline_entry": null,
+   "runtime": "openrouter",
+   "runtime_version": null,
+   "thinking": "on",
+   "requested_model": "sample-cloud/model-a",
+   "resolved_model": "sample-cloud/model-a",
+   "upstream_provider": "sample-provider",
+   "run_date": {
+    "first": "2026-11-18T09:00:00Z",
+    "last": "2026-11-18T11:00:00Z"
+   },
+   "device": null,
+   "tiers": {
+    "agentic": {
+     "tier": "agentic",
+     "records": 84,
+     "graded": 84,
+     "status_counts": {
+      "ok": 84
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-agentic-cloud"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "provider_default"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "pass1": {
+      "value": 0.654762,
+      "interval": [
+       0.548338,
+       0.74765
+      ],
+      "interval_kind": "wilson",
+      "interval_cluster": [
+       0.547619,
+       0.761905
+      ],
+      "n_cases": 28,
+      "n_trials": 84,
+      "passes": 55,
+      "pass_all_trials": {
+       "value": 0.321429,
+       "interval": [
+        0.179332,
+        0.506612
+       ],
+       "n_cases": 28,
+       "k": 9,
+       "trials_per_case": [
+        3
+       ],
+       "flag": null
+      },
+      "pass_k": {
+       "2": 0.440476,
+       "3": 0.321429
+      }
+     },
+     "score": {
+      "value": 0.834893,
+      "interval": [
+       0.774796,
+       0.890204
+      ],
+      "interval_kind": "bootstrap_cases",
+      "n_cases": 28,
+      "n_trials": 84
+     },
+     "composites": {
+      "agentic_score": {
+       "value": 0.654762,
+       "interval": [
+        0.559524,
+        0.738393
+       ],
+       "n_cases": 28,
+       "strata": 14,
+       "weights": {
+        "abstain/assistant": 0.071429,
+        "abstain/neutral": 0.071429,
+        "mixed/assistant": 0.071429,
+        "mixed/neutral": 0.071429,
+        "parallel/assistant": 0.071429,
+        "parallel/neutral": 0.071429,
+        "pev/assistant": 0.071429,
+        "pev/neutral": 0.071429,
+        "recovery/assistant": 0.071429,
+        "recovery/neutral": 0.071429,
+        "select/assistant": 0.071429,
+        "select/neutral": 0.071429,
+        "sequential/assistant": 0.071429,
+        "sequential/neutral": 0.071429
+       },
+       "metric": "agentic_score",
+       "interval_kind": "bootstrap_cases",
+       "n_trials": 84,
+       "present": [
+        "abstain/assistant",
+        "abstain/neutral",
+        "mixed/assistant",
+        "mixed/neutral",
+        "parallel/assistant",
+        "parallel/neutral",
+        "pev/assistant",
+        "pev/neutral",
+        "recovery/assistant",
+        "recovery/neutral",
+        "select/assistant",
+        "select/neutral",
+        "sequential/assistant",
+        "sequential/neutral"
+       ],
+       "complete": true,
+       "families": [
+        "abstain",
+        "mixed",
+        "parallel",
+        "pev",
+        "recovery",
+        "select",
+        "sequential"
+       ]
+      }
+     },
+     "composite": {
+      "value": 0.654762,
+      "interval": [
+       0.559524,
+       0.738393
+      ],
+      "n_cases": 28,
+      "strata": 14,
+      "weights": {
+       "abstain/assistant": 0.071429,
+       "abstain/neutral": 0.071429,
+       "mixed/assistant": 0.071429,
+       "mixed/neutral": 0.071429,
+       "parallel/assistant": 0.071429,
+       "parallel/neutral": 0.071429,
+       "pev/assistant": 0.071429,
+       "pev/neutral": 0.071429,
+       "recovery/assistant": 0.071429,
+       "recovery/neutral": 0.071429,
+       "select/assistant": 0.071429,
+       "select/neutral": 0.071429,
+       "sequential/assistant": 0.071429,
+       "sequential/neutral": 0.071429
+      },
+      "metric": "agentic_score",
+      "interval_kind": "bootstrap_cases",
+      "n_trials": 84,
+      "present": [
+       "abstain/assistant",
+       "abstain/neutral",
+       "mixed/assistant",
+       "mixed/neutral",
+       "parallel/assistant",
+       "parallel/neutral",
+       "pev/assistant",
+       "pev/neutral",
+       "recovery/assistant",
+       "recovery/neutral",
+       "select/assistant",
+       "select/neutral",
+       "sequential/assistant",
+       "sequential/neutral"
+      ],
+      "complete": true,
+      "families": [
+       "abstain",
+       "mixed",
+       "parallel",
+       "pev",
+       "recovery",
+       "select",
+       "sequential"
+      ]
+     },
+     "safety": {
+      "trials": 84,
+      "unsafe_trials": 5,
+      "unsafe_rate": 0.059524,
+      "unsafe_interval": [
+       0.025691,
+       0.131883
+      ],
+      "unsafe_count": 5,
+      "unsafe_per_100": 5.952381,
+      "unsafe_n": 84,
+      "leak_trials": 0,
+      "leak_rate": 0.0,
+      "leak_interval": [
+       0.0,
+       0.043732
+      ],
+      "leak_count": 0,
+      "leak_per_100": 0.0,
+      "leak_n": 84,
+      "labels": {
+       "unsafe_call": 5
+      }
+     },
+     "facets": {
+      "lane=assistant": {
+       "pass1": {
+        "value": 0.595238,
+        "interval": [
+         0.444943,
+         0.729571
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.428571,
+         0.750595
+        ],
+        "n_cases": 14,
+        "n_trials": 42,
+        "passes": 25,
+        "pass_all_trials": {
+         "value": 0.214286,
+         "interval": [
+          0.075714,
+          0.475892
+         ],
+         "n_cases": 14,
+         "k": 3,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.357143,
+         "3": 0.214286
+        }
+       },
+       "score": {
+        "value": 0.831405,
+        "interval": [
+         0.735289,
+         0.913392
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 14,
+        "n_trials": 42
+       }
+      },
+      "lane=neutral": {
+       "pass1": {
+        "value": 0.714286,
+        "interval": [
+         0.564328,
+         0.82833
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.558929,
+         0.857143
+        ],
+        "n_cases": 14,
+        "n_trials": 42,
+        "passes": 30,
+        "pass_all_trials": {
+         "value": 0.428571,
+         "interval": [
+          0.213808,
+          0.674094
+         ],
+         "n_cases": 14,
+         "k": 6,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.52381,
+         "3": 0.428571
+        }
+       },
+       "score": {
+        "value": 0.838381,
+        "interval": [
+         0.748942,
+         0.916835
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 14,
+        "n_trials": 42
+       }
+      },
+      "family=abstain": {
+       "pass1": {
+        "value": 0.75,
+        "interval": [
+         0.467695,
+         0.911058
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.5,
+         1.0
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 0.5,
+         "interval": [
+          0.150039,
+          0.849961
+         ],
+         "n_cases": 4,
+         "k": 2,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.583333,
+         "3": 0.5
+        }
+       },
+       "score": {
+        "value": 0.845583,
+        "interval": [
+         0.679,
+         1.0
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      },
+      "family=mixed": {
+       "pass1": {
+        "value": 0.5,
+        "interval": [
+         0.253782,
+         0.746218
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.166667,
+         0.833333
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 6,
+        "pass_all_trials": {
+         "value": 0.25,
+         "interval": [
+          0.045587,
+          0.699358
+         ],
+         "n_cases": 4,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.333333,
+         "3": 0.25
+        }
+       },
+       "score": {
+        "value": 0.753667,
+        "interval": [
+         0.537833,
+         0.926104
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      },
+      "family=parallel": {
+       "pass1": {
+        "value": 0.666667,
+        "interval": [
+         0.390622,
+         0.86188
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.416667,
+         0.916667
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 8,
+        "pass_all_trials": {
+         "value": 0.25,
+         "interval": [
+          0.045587,
+          0.699358
+         ],
+         "n_cases": 4,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.416667,
+         "3": 0.25
+        }
+       },
+       "score": {
+        "value": 0.84575,
+        "interval": [
+         0.738667,
+         0.952833
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      },
+      "family=pev": {
+       "pass1": {
+        "value": 0.583333,
+        "interval": [
+         0.319511,
+         0.80674
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.833333
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 7,
+        "pass_all_trials": {
+         "value": 0.25,
+         "interval": [
+          0.045587,
+          0.699358
+         ],
+         "n_cases": 4,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.333333,
+         "3": 0.25
+        }
+       },
+       "score": {
+        "value": 0.76525,
+        "interval": [
+         0.605667,
+         0.924833
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      },
+      "family=recovery": {
+       "pass1": {
+        "value": 0.75,
+        "interval": [
+         0.467695,
+         0.911058
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.5,
+         1.0
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 0.5,
+         "interval": [
+          0.150039,
+          0.849961
+         ],
+         "n_cases": 4,
+         "k": 2,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.583333,
+         "3": 0.5
+        }
+       },
+       "score": {
+        "value": 0.874,
+        "interval": [
+         0.748,
+         1.0
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      },
+      "family=select": {
+       "pass1": {
+        "value": 0.666667,
+        "interval": [
+         0.390622,
+         0.86188
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.416667,
+         0.916667
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 8,
+        "pass_all_trials": {
+         "value": 0.25,
+         "interval": [
+          0.045587,
+          0.699358
+         ],
+         "n_cases": 4,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.416667,
+         "3": 0.25
+        }
+       },
+       "score": {
+        "value": 0.89325,
+        "interval": [
+         0.7865,
+         1.0
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      },
+      "family=sequential": {
+       "pass1": {
+        "value": 0.666667,
+        "interval": [
+         0.390622,
+         0.86188
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.416667,
+         0.916667
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 8,
+        "pass_all_trials": {
+         "value": 0.25,
+         "interval": [
+          0.045587,
+          0.699358
+         ],
+         "n_cases": 4,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.416667,
+         "3": 0.25
+        }
+       },
+       "score": {
+        "value": 0.86675,
+        "interval": [
+         0.7335,
+         1.0
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      }
+     },
+     "metrics": {
+      "format_ok": {
+       "value": 0.952381,
+       "interval": [
+        0.883867,
+        0.981328
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 28,
+       "n_trials": 84
+      },
+      "steps": {
+       "value": 2.547619,
+       "interval": [
+        2.386607,
+        2.72619
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 28,
+       "n_trials": 84
+      },
+      "wall_s": {
+       "value": 6.015476,
+       "interval": [
+        5.580033,
+        6.471908
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 28,
+       "n_trials": 84
+      }
+     },
+     "headline": {
+      "metric": "agentic_score",
+      "source": "composite",
+      "value": 0.654762,
+      "interval": [
+       0.559524,
+       0.738393
+      ],
+      "interval_kind": "bootstrap_cases"
+     },
+     "sampling_classes": [
+      "recommended"
+     ]
+    },
+    "quality": {
+     "tier": "quality",
+     "records": 45,
+     "graded": 45,
+     "status_counts": {
+      "ok": 45
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-quality-cloud"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "provider_default"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "pass1": {
+      "value": 1.0,
+      "interval": [
+       0.921348,
+       1.0
+      ],
+      "interval_kind": "wilson",
+      "interval_cluster": [
+       1.0,
+       1.0
+      ],
+      "n_cases": 15,
+      "n_trials": 45,
+      "passes": 45,
+      "pass_all_trials": {
+       "value": 1.0,
+       "interval": [
+        0.796117,
+        1.0
+       ],
+       "n_cases": 15,
+       "k": 15,
+       "trials_per_case": [
+        3
+       ],
+       "flag": null
+      },
+      "pass_k": {
+       "2": 1.0,
+       "3": 1.0
+      }
+     },
+     "score": {
+      "value": 0.964667,
+      "interval": [
+       0.952531,
+       0.976556
+      ],
+      "interval_kind": "bootstrap_cases",
+      "n_cases": 15,
+      "n_trials": 45
+     },
+     "composites": {
+      "text_understanding": {
+       "value": 0.981494,
+       "components": {
+        "core_recall": 0.970167,
+        "extraction_numeric": 0.986944,
+        "faithfulness": 0.972222,
+        "trap_resistance": 1.0,
+        "schema_valid": 1.0,
+        "fabricated_detail_rate": 0.013889,
+        "trap_failure_rate": 0.0
+       },
+       "label": "full",
+       "missing": [],
+       "metric": "text_understanding",
+       "interval": [
+        0.972837,
+        0.990644
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 15,
+       "does_not_fit": 0,
+       "does_not_fit_rate": 0.0
+      },
+      "readability": {
+       "value": 0.780867,
+       "components": {
+        "hygiene": 0.992333,
+        "pref_judge_style_ctrl": 0.667
+       },
+       "label": "judge",
+       "metric": "readability",
+       "interval": [
+        0.779445,
+        0.7823
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 15,
+       "does_not_fit": 0,
+       "does_not_fit_rate": 0.0,
+       "note": "judge preference held fixed in the interval"
+      },
+      "writing": {
+       "value": 0.915677,
+       "components": {
+        "points": 0.940889,
+        "faithfulness": 0.866815,
+        "constraints": 1.0,
+        "editing": 0.823889,
+        "pref": null,
+        "invented_rate": 0.009259,
+        "forbidden_rate": 0.0,
+        "fact_change_rate": 0.057333,
+        "grammar_errors_per_100w": null,
+        "grammar_penalty_applied": false
+       },
+       "label": "checks only",
+       "missing": [
+        "pref"
+       ],
+       "metric": "writing",
+       "interval": [
+        0.914044,
+        0.965556
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 15,
+       "does_not_fit": 0,
+       "does_not_fit_rate": 0.0
+      }
+     },
+     "composite": {
+      "value": 0.981494,
+      "components": {
+       "core_recall": 0.970167,
+       "extraction_numeric": 0.986944,
+       "faithfulness": 0.972222,
+       "trap_resistance": 1.0,
+       "schema_valid": 1.0,
+       "fabricated_detail_rate": 0.013889,
+       "trap_failure_rate": 0.0
+      },
+      "label": "full",
+      "missing": [],
+      "metric": "text_understanding",
+      "interval": [
+       0.972837,
+       0.990644
+      ],
+      "interval_kind": "bootstrap_cases",
+      "n_cases": 15,
+      "does_not_fit": 0,
+      "does_not_fit_rate": 0.0
+     },
+     "safety": {
+      "trials": 45,
+      "unsafe_trials": null,
+      "unsafe_rate": null,
+      "unsafe_interval": null,
+      "unsafe_count": null,
+      "unsafe_per_100": null,
+      "leak_trials": null,
+      "leak_rate": null,
+      "leak_interval": null,
+      "leak_count": null,
+      "leak_per_100": null,
+      "labels": {}
+     },
+     "facets": {
+      "family=extraction": {
+       "pass1": {
+        "value": 1.0,
+        "interval": [
+         0.700855,
+         1.0
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         1.0,
+         1.0
+        ],
+        "n_cases": 3,
+        "n_trials": 9,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 1.0,
+         "interval": [
+          0.438503,
+          1.0
+         ],
+         "n_cases": 3,
+         "k": 3,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 1.0,
+         "3": 1.0
+        }
+       },
+       "score": {
+        "value": 0.973889,
+        "interval": [
+         0.962667,
+         0.991667
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 3,
+        "n_trials": 9
+       }
+      },
+      "family=numeric": {
+       "pass1": {
+        "value": 1.0,
+        "interval": [
+         0.700855,
+         1.0
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         1.0,
+         1.0
+        ],
+        "n_cases": 3,
+        "n_trials": 9,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 1.0,
+         "interval": [
+          0.438503,
+          1.0
+         ],
+         "n_cases": 3,
+         "k": 3,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 1.0,
+         "3": 1.0
+        }
+       },
+       "score": {
+        "value": 0.968222,
+        "interval": [
+         0.937667,
+         1.0
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 3,
+        "n_trials": 9
+       }
+      },
+      "family=point": {
+       "pass1": {
+        "value": 1.0,
+        "interval": [
+         0.700855,
+         1.0
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         1.0,
+         1.0
+        ],
+        "n_cases": 3,
+        "n_trials": 9,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 1.0,
+         "interval": [
+          0.438503,
+          1.0
+         ],
+         "n_cases": 3,
+         "k": 3,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 1.0,
+         "3": 1.0
+        }
+       },
+       "score": {
+        "value": 0.967778,
+        "interval": [
+         0.946667,
+         0.993
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 3,
+        "n_trials": 9
+       }
+      },
+      "family=summary": {
+       "pass1": {
+        "value": 1.0,
+        "interval": [
+         0.700855,
+         1.0
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         1.0,
+         1.0
+        ],
+        "n_cases": 3,
+        "n_trials": 9,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 1.0,
+         "interval": [
+          0.438503,
+          1.0
+         ],
+         "n_cases": 3,
+         "k": 3,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 1.0,
+         "3": 1.0
+        }
+       },
+       "score": {
+        "value": 0.972556,
+        "interval": [
+         0.936667,
+         1.0
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 3,
+        "n_trials": 9
+       }
+      },
+      "family=writing": {
+       "pass1": {
+        "value": 1.0,
+        "interval": [
+         0.700855,
+         1.0
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         1.0,
+         1.0
+        ],
+        "n_cases": 3,
+        "n_trials": 9,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 1.0,
+         "interval": [
+          0.438503,
+          1.0
+         ],
+         "n_cases": 3,
+         "k": 3,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 1.0,
+         "3": 1.0
+        }
+       },
+       "score": {
+        "value": 0.940889,
+        "interval": [
+         0.917333,
+         0.957
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 3,
+        "n_trials": 9
+       }
+      }
+     },
+     "metrics": {
+      "atoms": {
+       "value": 9.0,
+       "interval": [
+        7.166667,
+        10.666667
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 12,
+       "n_trials": 36
+      },
+      "constraint_ok": {
+       "value": 1.0,
+       "interval": [
+        1.0,
+        1.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "core_recall": {
+       "value": 0.970167,
+       "interval": [
+        0.951221,
+        0.987903
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 6,
+       "n_trials": 18
+      },
+      "extraction_field_acc": {
+       "value": 0.973889,
+       "interval": [
+        0.962667,
+        0.991667
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "fabricated_atoms": {
+       "value": 0.111111,
+       "interval": [
+        0.037037,
+        0.222222
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 9,
+       "n_trials": 27
+      },
+      "fact_keep_rate": {
+       "value": 0.942667,
+       "interval": [
+        0.942667,
+        0.942667
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 1,
+       "n_trials": 3
+      },
+      "fix_rate": {
+       "value": 1.0,
+       "interval": [
+        1.0,
+        1.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 1,
+       "n_trials": 3
+      },
+      "flag_rate": {
+       "value": 1.0,
+       "interval": [
+        1.0,
+        1.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 1,
+       "n_trials": 3
+      },
+      "forbidden_rate": {
+       "value": 0.0,
+       "interval": [
+        0.0,
+        0.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "hygiene": {
+       "value": 99.233333,
+       "interval": [
+        98.866667,
+        99.616759
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 9,
+       "n_trials": 27
+      },
+      "invented_atoms": {
+       "value": 0.111111,
+       "interval": [
+        0.0,
+        0.333333
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "numeric_ok": {
+       "value": 1.0,
+       "interval": [
+        1.0,
+        1.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "overedit": {
+       "value": 0.010567,
+       "interval": [
+        0.010567,
+        0.010567
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 1,
+       "n_trials": 3
+      },
+      "point_recall": {
+       "value": 0.940889,
+       "interval": [
+        0.917333,
+        0.957
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "schema_valid": {
+       "value": 1.0,
+       "interval": [
+        1.0,
+        1.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "trap_count": {
+       "value": 1.0,
+       "interval": [
+        1.0,
+        1.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 6,
+       "n_trials": 18
+      },
+      "trap_failures": {
+       "value": 0.0,
+       "interval": [
+        0.0,
+        0.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 6,
+       "n_trials": 18
+      },
+      "visible_tokens": {
+       "value": 224.511111,
+       "interval": [
+        212.210556,
+        238.967222
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 15,
+       "n_trials": 45
+      }
+     },
+     "headline": {
+      "metric": "text_understanding",
+      "source": "composite",
+      "value": 0.981494,
+      "interval": [
+       0.972837,
+       0.990644
+      ],
+      "interval_kind": "bootstrap_cases"
+     },
+     "sampling_classes": [
+      "recommended"
+     ]
+    }
+   },
+   "sampling_sources": [
+    "provider_default"
+   ],
+   "fit": {
+    "verdict": "not_applicable"
+   },
+   "invalid": false,
+   "ranked": false,
+   "rank_group": "cloud",
+   "flags": [],
+   "vs": {
+    "tuned": {
+     "reference": "local|Sample Tuned 4B|q4|omlx|off",
+     "device_id": "mac-ref",
+     "tiers": {
+      "agentic": {
+       "pass1": {
+        "delta": 0.202381,
+        "interval": [
+         0.083333,
+         0.321726
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 15,
+        "losses": 4,
+        "ties": 9
+       },
+       "score": {
+        "delta": 0.13419,
+        "interval": [
+         0.056302,
+         0.219893
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 19,
+        "losses": 7,
+        "ties": 2
+       },
+       "agentic_score": {
+        "interval": [
+         0.119048,
+         0.285714
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "strata": 14,
+        "weights": {
+         "abstain/assistant": 0.071429,
+         "abstain/neutral": 0.071429,
+         "mixed/assistant": 0.071429,
+         "mixed/neutral": 0.071429,
+         "parallel/assistant": 0.071429,
+         "parallel/neutral": 0.071429,
+         "pev/assistant": 0.071429,
+         "pev/neutral": 0.071429,
+         "recovery/assistant": 0.071429,
+         "recovery/neutral": 0.071429,
+         "select/assistant": 0.071429,
+         "select/neutral": 0.071429,
+         "sequential/assistant": 0.071429,
+         "sequential/neutral": 0.071429
+        },
+        "delta": 0.202381
+       },
+       "unsafe_rate": {
+        "delta": -0.071429,
+        "interval": [
+         -0.166667,
+         0.02381
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 28,
+        "wins": 3,
+        "losses": 7,
+        "ties": 18,
+        "ratio": 0.454545
+       },
+       "leak_rate": {
+        "delta": -0.119048,
+        "interval": [
+         -0.178571,
+         -0.059524
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 0,
+        "losses": 10,
+        "ties": 18,
+        "ratio": 0.0
+       }
+      },
+      "quality": {
+       "text_understanding": {
+        "delta": 0.144483,
+        "interval": [
+         0.100742,
+         0.199011
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "labels": [
+         "full",
+         "full"
+        ]
+       },
+       "readability": {
+        "delta": 0.139207,
+        "interval": [
+         0.134799,
+         0.143798
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "labels": [
+         "judge",
+         "judge"
+        ]
+       },
+       "writing": {
+        "delta": 0.285828,
+        "interval": [
+         0.111167,
+         0.351056
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "labels": [
+         "checks only",
+         "checks only"
+        ]
+       },
+       "pass1": {
+        "delta": 0.244444,
+        "interval": [
+         0.155556,
+         0.333333
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "wins": 10,
+        "losses": 0,
+        "ties": 5
+       },
+       "score": {
+        "delta": 0.194333,
+        "interval": [
+         0.166841,
+         0.219733
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "wins": 15,
+        "losses": 0,
+        "ties": 0
+       }
+      }
+     }
+    },
+    "base": {
+     "reference": "local|Sample Base 4B|q4|omlx|off",
+     "device_id": "mac-ref",
+     "tiers": {
+      "agentic": {
+       "pass1": {
+        "delta": 0.392857,
+        "interval": [
+         0.261905,
+         0.52381
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 22,
+        "losses": 2,
+        "ties": 4
+       },
+       "score": {
+        "delta": 0.260714,
+        "interval": [
+         0.182449,
+         0.336244
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 24,
+        "losses": 4,
+        "ties": 0
+       },
+       "agentic_score": {
+        "interval": [
+         0.297619,
+         0.488095
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "strata": 14,
+        "weights": {
+         "abstain/assistant": 0.071429,
+         "abstain/neutral": 0.071429,
+         "mixed/assistant": 0.071429,
+         "mixed/neutral": 0.071429,
+         "parallel/assistant": 0.071429,
+         "parallel/neutral": 0.071429,
+         "pev/assistant": 0.071429,
+         "pev/neutral": 0.071429,
+         "recovery/assistant": 0.071429,
+         "recovery/neutral": 0.071429,
+         "select/assistant": 0.071429,
+         "select/neutral": 0.071429,
+         "sequential/assistant": 0.071429,
+         "sequential/neutral": 0.071429
+        },
+        "delta": 0.392857
+       },
+       "unsafe_rate": {
+        "delta": 0.011905,
+        "interval": [
+         -0.047619,
+         0.071429
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 28,
+        "wins": 4,
+        "losses": 3,
+        "ties": 21,
+        "ratio": 1.25
+       },
+       "leak_rate": {
+        "delta": -0.059524,
+        "interval": [
+         -0.107143,
+         -0.011905
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 0,
+        "losses": 5,
+        "ties": 23,
+        "ratio": 0.0
+       }
+      },
+      "quality": {
+       "text_understanding": {
+        "delta": 0.227672,
+        "interval": [
+         0.17317,
+         0.275079
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "labels": [
+         "full",
+         "full"
+        ]
+       },
+       "readability": {
+        "delta": 0.118157,
+        "interval": [
+         0.114897,
+         0.121467
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "labels": [
+         "judge",
+         "judge"
+        ]
+       },
+       "writing": {
+        "delta": 0.334341,
+        "interval": [
+         0.131738,
+         0.382235
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "labels": [
+         "checks only",
+         "checks only"
+        ]
+       },
+       "pass1": {
+        "delta": 0.577778,
+        "interval": [
+         0.422222,
+         0.733333
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "wins": 13,
+        "losses": 0,
+        "ties": 2
+       },
+       "score": {
+        "delta": 0.294689,
+        "interval": [
+         0.269156,
+         0.321111
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "wins": 15,
+        "losses": 0,
+        "ties": 0
+       }
+      }
+     }
+    }
+   },
+   "sampling_sensitivity": {},
+   "loops": {
+    "agentic": {
+     "loop": "harbor-loop",
+     "view": "agentic_harbor_loop",
+     "reference_view": "agentic",
+     "lanes": {
+      "neutral": "not_applicable: Harbor's loop has no neutral lane"
+     },
+     "empty": true,
+     "empty_reason": "cloud references run through the reference loop only",
+     "gap": null
+    }
+   }
+  },
+  {
+   "entry_key": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "device_id": "cloud",
+   "model_id": "sample-cloud/model-b",
+   "role": "cloud_reference",
+   "kind": "cloud_reference",
+   "weights": "-",
+   "weights_sha256": null,
+   "quant": null,
+   "params_total": null,
+   "params_active": null,
+   "architecture": "unknown",
+   "headline_entry": null,
+   "runtime": "openrouter",
+   "runtime_version": null,
+   "thinking": "off",
+   "requested_model": "sample-cloud/model-b",
+   "resolved_model": "sample-cloud/model-b",
+   "upstream_provider": "sample-provider",
+   "run_date": {
+    "first": "2026-11-18T09:00:00Z",
+    "last": "2026-11-18T11:00:00Z"
+   },
+   "device": null,
+   "tiers": {
+    "agentic": {
+     "tier": "agentic",
+     "records": 84,
+     "graded": 84,
+     "status_counts": {
+      "ok": 84
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-agentic-cloud"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "provider_default"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "pass1": {
+      "value": 0.583333,
+      "interval": [
+       0.476526,
+       0.682852
+      ],
+      "interval_kind": "wilson",
+      "interval_cluster": [
+       0.452381,
+       0.714286
+      ],
+      "n_cases": 28,
+      "n_trials": 84,
+      "passes": 49,
+      "pass_all_trials": {
+       "value": 0.321429,
+       "interval": [
+        0.179332,
+        0.506612
+       ],
+       "n_cases": 28,
+       "k": 9,
+       "trials_per_case": [
+        3
+       ],
+       "flag": null
+      },
+      "pass_k": {
+       "2": 0.416667,
+       "3": 0.321429
+      }
+     },
+     "score": {
+      "value": 0.753583,
+      "interval": [
+       0.669444,
+       0.82842
+      ],
+      "interval_kind": "bootstrap_cases",
+      "n_cases": 28,
+      "n_trials": 84
+     },
+     "composites": {
+      "agentic_score": {
+       "value": 0.583333,
+       "interval": [
+        0.47619,
+        0.690476
+       ],
+       "n_cases": 28,
+       "strata": 14,
+       "weights": {
+        "abstain/assistant": 0.071429,
+        "abstain/neutral": 0.071429,
+        "mixed/assistant": 0.071429,
+        "mixed/neutral": 0.071429,
+        "parallel/assistant": 0.071429,
+        "parallel/neutral": 0.071429,
+        "pev/assistant": 0.071429,
+        "pev/neutral": 0.071429,
+        "recovery/assistant": 0.071429,
+        "recovery/neutral": 0.071429,
+        "select/assistant": 0.071429,
+        "select/neutral": 0.071429,
+        "sequential/assistant": 0.071429,
+        "sequential/neutral": 0.071429
+       },
+       "metric": "agentic_score",
+       "interval_kind": "bootstrap_cases",
+       "n_trials": 84,
+       "present": [
+        "abstain/assistant",
+        "abstain/neutral",
+        "mixed/assistant",
+        "mixed/neutral",
+        "parallel/assistant",
+        "parallel/neutral",
+        "pev/assistant",
+        "pev/neutral",
+        "recovery/assistant",
+        "recovery/neutral",
+        "select/assistant",
+        "select/neutral",
+        "sequential/assistant",
+        "sequential/neutral"
+       ],
+       "complete": true,
+       "families": [
+        "abstain",
+        "mixed",
+        "parallel",
+        "pev",
+        "recovery",
+        "select",
+        "sequential"
+       ]
+      }
+     },
+     "composite": {
+      "value": 0.583333,
+      "interval": [
+       0.47619,
+       0.690476
+      ],
+      "n_cases": 28,
+      "strata": 14,
+      "weights": {
+       "abstain/assistant": 0.071429,
+       "abstain/neutral": 0.071429,
+       "mixed/assistant": 0.071429,
+       "mixed/neutral": 0.071429,
+       "parallel/assistant": 0.071429,
+       "parallel/neutral": 0.071429,
+       "pev/assistant": 0.071429,
+       "pev/neutral": 0.071429,
+       "recovery/assistant": 0.071429,
+       "recovery/neutral": 0.071429,
+       "select/assistant": 0.071429,
+       "select/neutral": 0.071429,
+       "sequential/assistant": 0.071429,
+       "sequential/neutral": 0.071429
+      },
+      "metric": "agentic_score",
+      "interval_kind": "bootstrap_cases",
+      "n_trials": 84,
+      "present": [
+       "abstain/assistant",
+       "abstain/neutral",
+       "mixed/assistant",
+       "mixed/neutral",
+       "parallel/assistant",
+       "parallel/neutral",
+       "pev/assistant",
+       "pev/neutral",
+       "recovery/assistant",
+       "recovery/neutral",
+       "select/assistant",
+       "select/neutral",
+       "sequential/assistant",
+       "sequential/neutral"
+      ],
+      "complete": true,
+      "families": [
+       "abstain",
+       "mixed",
+       "parallel",
+       "pev",
+       "recovery",
+       "select",
+       "sequential"
+      ]
+     },
+     "safety": {
+      "trials": 84,
+      "unsafe_trials": 2,
+      "unsafe_rate": 0.02381,
+      "unsafe_interval": [
+       0.006554,
+       0.082714
+      ],
+      "unsafe_count": 2,
+      "unsafe_per_100": 2.380952,
+      "unsafe_n": 84,
+      "leak_trials": 0,
+      "leak_rate": 0.0,
+      "leak_interval": [
+       0.0,
+       0.043732
+      ],
+      "leak_count": 0,
+      "leak_per_100": 0.0,
+      "leak_n": 84,
+      "labels": {
+       "unsafe_call": 2
+      }
+     },
+     "facets": {
+      "lane=assistant": {
+       "pass1": {
+        "value": 0.547619,
+        "interval": [
+         0.399491,
+         0.687766
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.761905
+        ],
+        "n_cases": 14,
+        "n_trials": 42,
+        "passes": 23,
+        "pass_all_trials": {
+         "value": 0.357143,
+         "interval": [
+          0.163447,
+          0.612356
+         ],
+         "n_cases": 14,
+         "k": 5,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.428571,
+         "3": 0.357143
+        }
+       },
+       "score": {
+        "value": 0.714429,
+        "interval": [
+         0.557302,
+         0.856701
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 14,
+        "n_trials": 42
+       }
+      },
+      "lane=neutral": {
+       "pass1": {
+        "value": 0.619048,
+        "interval": [
+         0.46814,
+         0.750003
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.47619,
+         0.785714
+        ],
+        "n_cases": 14,
+        "n_trials": 42,
+        "passes": 26,
+        "pass_all_trials": {
+         "value": 0.285714,
+         "interval": [
+          0.117214,
+          0.546491
+         ],
+         "n_cases": 14,
+         "k": 4,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.404762,
+         "3": 0.285714
+        }
+       },
+       "score": {
+        "value": 0.792738,
+        "interval": [
+         0.725514,
+         0.867086
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 14,
+        "n_trials": 42
+       }
+      },
+      "family=abstain": {
+       "pass1": {
+        "value": 0.583333,
+        "interval": [
+         0.319511,
+         0.80674
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.833333
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 7,
+        "pass_all_trials": {
+         "value": 0.25,
+         "interval": [
+          0.045587,
+          0.699358
+         ],
+         "n_cases": 4,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.333333,
+         "3": 0.25
+        }
+       },
+       "score": {
+        "value": 0.800417,
+        "interval": [
+         0.648167,
+         0.952667
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      },
+      "family=mixed": {
+       "pass1": {
+        "value": 0.5,
+        "interval": [
+         0.253782,
+         0.746218
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.166667,
+         0.833333
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 6,
+        "pass_all_trials": {
+         "value": 0.25,
+         "interval": [
+          0.045587,
+          0.699358
+         ],
+         "n_cases": 4,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.333333,
+         "3": 0.25
+        }
+       },
+       "score": {
+        "value": 0.7585,
+        "interval": [
+         0.668333,
+         0.918475
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      },
+      "family=parallel": {
+       "pass1": {
+        "value": 0.5,
+        "interval": [
+         0.253782,
+         0.746218
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.166667,
+         0.833333
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 6,
+        "pass_all_trials": {
+         "value": 0.25,
+         "interval": [
+          0.045587,
+          0.699358
+         ],
+         "n_cases": 4,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.333333,
+         "3": 0.25
+        }
+       },
+       "score": {
+        "value": 0.724167,
+        "interval": [
+         0.494167,
+         0.911708
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      },
+      "family=pev": {
+       "pass1": {
+        "value": 0.583333,
+        "interval": [
+         0.319511,
+         0.80674
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.166667,
+         0.916667
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 7,
+        "pass_all_trials": {
+         "value": 0.25,
+         "interval": [
+          0.045587,
+          0.699358
+         ],
+         "n_cases": 4,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.416667,
+         "3": 0.25
+        }
+       },
+       "score": {
+        "value": 0.690167,
+        "interval": [
+         0.35225,
+         0.918594
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      },
+      "family=recovery": {
+       "pass1": {
+        "value": 0.833333,
+        "interval": [
+         0.551969,
+         0.953035
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.5,
+         1.0
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 10,
+        "pass_all_trials": {
+         "value": 0.75,
+         "interval": [
+          0.300642,
+          0.954413
+         ],
+         "n_cases": 4,
+         "k": 3,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.75,
+         "3": 0.75
+        }
+       },
+       "score": {
+        "value": 0.874083,
+        "interval": [
+         0.62225,
+         1.0
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      },
+      "family=select": {
+       "pass1": {
+        "value": 0.5,
+        "interval": [
+         0.253782,
+         0.746218
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.166667,
+         0.833333
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 6,
+        "pass_all_trials": {
+         "value": 0.25,
+         "interval": [
+          0.045587,
+          0.699358
+         ],
+         "n_cases": 4,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.333333,
+         "3": 0.25
+        }
+       },
+       "score": {
+        "value": 0.710917,
+        "interval": [
+         0.556417,
+         0.890106
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      },
+      "family=sequential": {
+       "pass1": {
+        "value": 0.583333,
+        "interval": [
+         0.319511,
+         0.80674
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.166667,
+         0.916667
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 7,
+        "pass_all_trials": {
+         "value": 0.25,
+         "interval": [
+          0.045587,
+          0.699358
+         ],
+         "n_cases": 4,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.416667,
+         "3": 0.25
+        }
+       },
+       "score": {
+        "value": 0.716833,
+        "interval": [
+         0.5015,
+         0.897775
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      }
+     },
+     "metrics": {
+      "format_ok": {
+       "value": 0.964286,
+       "interval": [
+        0.900183,
+        0.98778
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 28,
+       "n_trials": 84
+      },
+      "steps": {
+       "value": 2.22619,
+       "interval": [
+        2.059524,
+        2.387202
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 28,
+       "n_trials": 84
+      },
+      "wall_s": {
+       "value": 6.405357,
+       "interval": [
+        6.010443,
+        6.852786
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 28,
+       "n_trials": 84
+      }
+     },
+     "headline": {
+      "metric": "agentic_score",
+      "source": "composite",
+      "value": 0.583333,
+      "interval": [
+       0.47619,
+       0.690476
+      ],
+      "interval_kind": "bootstrap_cases"
+     },
+     "sampling_classes": [
+      "recommended"
+     ]
+    },
+    "quality": {
+     "tier": "quality",
+     "records": 45,
+     "graded": 45,
+     "status_counts": {
+      "ok": 45
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-quality-cloud"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "provider_default"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "pass1": {
+      "value": 1.0,
+      "interval": [
+       0.921348,
+       1.0
+      ],
+      "interval_kind": "wilson",
+      "interval_cluster": [
+       1.0,
+       1.0
+      ],
+      "n_cases": 15,
+      "n_trials": 45,
+      "passes": 45,
+      "pass_all_trials": {
+       "value": 1.0,
+       "interval": [
+        0.796117,
+        1.0
+       ],
+       "n_cases": 15,
+       "k": 15,
+       "trials_per_case": [
+        3
+       ],
+       "flag": null
+      },
+      "pass_k": {
+       "2": 1.0,
+       "3": 1.0
+      }
+     },
+     "score": {
+      "value": 0.942244,
+      "interval": [
+       0.922238,
+       0.961029
+      ],
+      "interval_kind": "bootstrap_cases",
+      "n_cases": 15,
+      "n_trials": 45
+     },
+     "composites": {
+      "text_understanding": {
+       "value": 0.96702,
+       "components": {
+        "core_recall": 0.945722,
+        "extraction_numeric": 0.974389,
+        "faithfulness": 0.953704,
+        "trap_resistance": 1.0,
+        "schema_valid": 1.0,
+        "fabricated_detail_rate": 0.023148,
+        "trap_failure_rate": 0.0
+       },
+       "label": "full",
+       "missing": [],
+       "metric": "text_understanding",
+       "interval": [
+        0.945328,
+        0.987587
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 15,
+       "does_not_fit": 0,
+       "does_not_fit_rate": 0.0
+      },
+      "readability": {
+       "value": 0.754106,
+       "components": {
+        "hygiene": 0.973444,
+        "pref_judge_style_ctrl": 0.636
+       },
+       "label": "judge",
+       "metric": "readability",
+       "interval": [
+        0.752404,
+        0.756459
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 15,
+       "does_not_fit": 0,
+       "does_not_fit_rate": 0.0,
+       "note": "judge preference held fixed in the interval"
+      },
+      "writing": {
+       "value": 0.904815,
+       "components": {
+        "points": 0.942,
+        "faithfulness": 0.842296,
+        "constraints": 1.0,
+        "editing": 0.794111,
+        "pref": null,
+        "invented_rate": 0.018519,
+        "forbidden_rate": 0.0,
+        "fact_change_rate": 0.060333,
+        "grammar_errors_per_100w": null,
+        "grammar_penalty_applied": false
+       },
+       "label": "checks only",
+       "missing": [
+        "pref"
+       ],
+       "metric": "writing",
+       "interval": [
+        0.897368,
+        0.974259
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 15,
+       "does_not_fit": 0,
+       "does_not_fit_rate": 0.0
+      }
+     },
+     "composite": {
+      "value": 0.96702,
+      "components": {
+       "core_recall": 0.945722,
+       "extraction_numeric": 0.974389,
+       "faithfulness": 0.953704,
+       "trap_resistance": 1.0,
+       "schema_valid": 1.0,
+       "fabricated_detail_rate": 0.023148,
+       "trap_failure_rate": 0.0
+      },
+      "label": "full",
+      "missing": [],
+      "metric": "text_understanding",
+      "interval": [
+       0.945328,
+       0.987587
+      ],
+      "interval_kind": "bootstrap_cases",
+      "n_cases": 15,
+      "does_not_fit": 0,
+      "does_not_fit_rate": 0.0
+     },
+     "safety": {
+      "trials": 45,
+      "unsafe_trials": null,
+      "unsafe_rate": null,
+      "unsafe_interval": null,
+      "unsafe_count": null,
+      "unsafe_per_100": null,
+      "leak_trials": null,
+      "leak_rate": null,
+      "leak_interval": null,
+      "leak_count": null,
+      "leak_per_100": null,
+      "labels": {}
+     },
+     "facets": {
+      "family=extraction": {
+       "pass1": {
+        "value": 1.0,
+        "interval": [
+         0.700855,
+         1.0
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         1.0,
+         1.0
+        ],
+        "n_cases": 3,
+        "n_trials": 9,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 1.0,
+         "interval": [
+          0.438503,
+          1.0
+         ],
+         "n_cases": 3,
+         "k": 3,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 1.0,
+         "3": 1.0
+        }
+       },
+       "score": {
+        "value": 0.948778,
+        "interval": [
+         0.891667,
+         0.978667
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 3,
+        "n_trials": 9
+       }
+      },
+      "family=numeric": {
+       "pass1": {
+        "value": 1.0,
+        "interval": [
+         0.700855,
+         1.0
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         1.0,
+         1.0
+        ],
+        "n_cases": 3,
+        "n_trials": 9,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 1.0,
+         "interval": [
+          0.438503,
+          1.0
+         ],
+         "n_cases": 3,
+         "k": 3,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 1.0,
+         "3": 1.0
+        }
+       },
+       "score": {
+        "value": 0.929,
+        "interval": [
+         0.894667,
+         0.956
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 3,
+        "n_trials": 9
+       }
+      },
+      "family=point": {
+       "pass1": {
+        "value": 1.0,
+        "interval": [
+         0.700855,
+         1.0
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         1.0,
+         1.0
+        ],
+        "n_cases": 3,
+        "n_trials": 9,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 1.0,
+         "interval": [
+          0.438503,
+          1.0
+         ],
+         "n_cases": 3,
+         "k": 3,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 1.0,
+         "3": 1.0
+        }
+       },
+       "score": {
+        "value": 0.931889,
+        "interval": [
+         0.883333,
+         0.99
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 3,
+        "n_trials": 9
+       }
+      },
+      "family=summary": {
+       "pass1": {
+        "value": 1.0,
+        "interval": [
+         0.700855,
+         1.0
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         1.0,
+         1.0
+        ],
+        "n_cases": 3,
+        "n_trials": 9,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 1.0,
+         "interval": [
+          0.438503,
+          1.0
+         ],
+         "n_cases": 3,
+         "k": 3,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 1.0,
+         "3": 1.0
+        }
+       },
+       "score": {
+        "value": 0.959556,
+        "interval": [
+         0.930333,
+         0.99
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 3,
+        "n_trials": 9
+       }
+      },
+      "family=writing": {
+       "pass1": {
+        "value": 1.0,
+        "interval": [
+         0.700855,
+         1.0
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         1.0,
+         1.0
+        ],
+        "n_cases": 3,
+        "n_trials": 9,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 1.0,
+         "interval": [
+          0.438503,
+          1.0
+         ],
+         "n_cases": 3,
+         "k": 3,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 1.0,
+         "3": 1.0
+        }
+       },
+       "score": {
+        "value": 0.942,
+        "interval": [
+         0.875667,
+         0.982667
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 3,
+        "n_trials": 9
+       }
+      }
+     },
+     "metrics": {
+      "atoms": {
+       "value": 9.0,
+       "interval": [
+        7.166667,
+        10.666667
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 12,
+       "n_trials": 36
+      },
+      "constraint_ok": {
+       "value": 1.0,
+       "interval": [
+        1.0,
+        1.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "core_recall": {
+       "value": 0.945722,
+       "interval": [
+        0.915444,
+        0.974778
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 6,
+       "n_trials": 18
+      },
+      "extraction_field_acc": {
+       "value": 0.948778,
+       "interval": [
+        0.891667,
+        0.978667
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "fabricated_atoms": {
+       "value": 0.185185,
+       "interval": [
+        0.037037,
+        0.407407
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 9,
+       "n_trials": 27
+      },
+      "fact_keep_rate": {
+       "value": 0.939667,
+       "interval": [
+        0.939667,
+        0.939667
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 1,
+       "n_trials": 3
+      },
+      "fix_rate": {
+       "value": 0.891667,
+       "interval": [
+        0.891667,
+        0.891667
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 1,
+       "n_trials": 3
+      },
+      "flag_rate": {
+       "value": 0.924,
+       "interval": [
+        0.924,
+        0.924
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 1,
+       "n_trials": 3
+      },
+      "forbidden_rate": {
+       "value": 0.0,
+       "interval": [
+        0.0,
+        0.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "hygiene": {
+       "value": 97.344444,
+       "interval": [
+        96.849907,
+        98.0575
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 9,
+       "n_trials": 27
+      },
+      "invented_atoms": {
+       "value": 0.222222,
+       "interval": [
+        0.0,
+        0.333333
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "numeric_ok": {
+       "value": 1.0,
+       "interval": [
+        1.0,
+        1.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "overedit": {
+       "value": 0.008667,
+       "interval": [
+        0.008667,
+        0.008667
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 1,
+       "n_trials": 3
+      },
+      "point_recall": {
+       "value": 0.942,
+       "interval": [
+        0.875667,
+        0.982667
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "schema_valid": {
+       "value": 1.0,
+       "interval": [
+        1.0,
+        1.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "trap_count": {
+       "value": 1.0,
+       "interval": [
+        1.0,
+        1.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 6,
+       "n_trials": 18
+      },
+      "trap_failures": {
+       "value": 0.0,
+       "interval": [
+        0.0,
+        0.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 6,
+       "n_trials": 18
+      },
+      "visible_tokens": {
+       "value": 221.044444,
+       "interval": [
+        203.458889,
+        236.492222
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 15,
+       "n_trials": 45
+      }
+     },
+     "headline": {
+      "metric": "text_understanding",
+      "source": "composite",
+      "value": 0.96702,
+      "interval": [
+       0.945328,
+       0.987587
+      ],
+      "interval_kind": "bootstrap_cases"
+     },
+     "sampling_classes": [
+      "recommended"
+     ]
+    }
+   },
+   "sampling_sources": [
+    "provider_default"
+   ],
+   "fit": {
+    "verdict": "not_applicable"
+   },
+   "invalid": false,
+   "ranked": false,
+   "rank_group": "cloud",
+   "flags": [],
+   "vs": {
+    "tuned": {
+     "reference": "local|Sample Tuned 4B|q4|omlx|off",
+     "device_id": "mac-ref",
+     "tiers": {
+      "agentic": {
+       "pass1": {
+        "delta": 0.130952,
+        "interval": [
+         0.02381,
+         0.238095
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 15,
+        "losses": 5,
+        "ties": 8
+       },
+       "score": {
+        "delta": 0.052881,
+        "interval": [
+         -0.019112,
+         0.123984
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 28,
+        "wins": 17,
+        "losses": 9,
+        "ties": 2
+       },
+       "agentic_score": {
+        "interval": [
+         0.047619,
+         0.214286
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "strata": 14,
+        "weights": {
+         "abstain/assistant": 0.071429,
+         "abstain/neutral": 0.071429,
+         "mixed/assistant": 0.071429,
+         "mixed/neutral": 0.071429,
+         "parallel/assistant": 0.071429,
+         "parallel/neutral": 0.071429,
+         "pev/assistant": 0.071429,
+         "pev/neutral": 0.071429,
+         "recovery/assistant": 0.071429,
+         "recovery/neutral": 0.071429,
+         "select/assistant": 0.071429,
+         "select/neutral": 0.071429,
+         "sequential/assistant": 0.071429,
+         "sequential/neutral": 0.071429
+        },
+        "delta": 0.130952
+       },
+       "unsafe_rate": {
+        "delta": -0.107143,
+        "interval": [
+         -0.178571,
+         -0.047619
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 0,
+        "losses": 8,
+        "ties": 20,
+        "ratio": 0.181818
+       },
+       "leak_rate": {
+        "delta": -0.119048,
+        "interval": [
+         -0.178571,
+         -0.059524
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 0,
+        "losses": 10,
+        "ties": 18,
+        "ratio": 0.0
+       }
+      },
+      "quality": {
+       "text_understanding": {
+        "delta": 0.130009,
+        "interval": [
+         0.082165,
+         0.188604
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "labels": [
+         "full",
+         "full"
+        ]
+       },
+       "readability": {
+        "delta": 0.112446,
+        "interval": [
+         0.10819,
+         0.117956
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "labels": [
+         "judge",
+         "judge"
+        ]
+       },
+       "writing": {
+        "delta": 0.274966,
+        "interval": [
+         0.110722,
+         0.318778
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "labels": [
+         "checks only",
+         "checks only"
+        ]
+       },
+       "pass1": {
+        "delta": 0.244444,
+        "interval": [
+         0.155556,
+         0.333333
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "wins": 10,
+        "losses": 0,
+        "ties": 5
+       },
+       "score": {
+        "delta": 0.171911,
+        "interval": [
+         0.142106,
+         0.200583
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "wins": 15,
+        "losses": 0,
+        "ties": 0
+       }
+      }
+     }
+    },
+    "base": {
+     "reference": "local|Sample Base 4B|q4|omlx|off",
+     "device_id": "mac-ref",
+     "tiers": {
+      "agentic": {
+       "pass1": {
+        "delta": 0.321429,
+        "interval": [
+         0.178571,
+         0.464286
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 19,
+        "losses": 3,
+        "ties": 6
+       },
+       "score": {
+        "delta": 0.179405,
+        "interval": [
+         0.102735,
+         0.256682
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 23,
+        "losses": 5,
+        "ties": 0
+       },
+       "agentic_score": {
+        "interval": [
+         0.214286,
+         0.428571
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "strata": 14,
+        "weights": {
+         "abstain/assistant": 0.071429,
+         "abstain/neutral": 0.071429,
+         "mixed/assistant": 0.071429,
+         "mixed/neutral": 0.071429,
+         "parallel/assistant": 0.071429,
+         "parallel/neutral": 0.071429,
+         "pev/assistant": 0.071429,
+         "pev/neutral": 0.071429,
+         "recovery/assistant": 0.071429,
+         "recovery/neutral": 0.071429,
+         "select/assistant": 0.071429,
+         "select/neutral": 0.071429,
+         "sequential/assistant": 0.071429,
+         "sequential/neutral": 0.071429
+        },
+        "delta": 0.321429
+       },
+       "unsafe_rate": {
+        "delta": -0.02381,
+        "interval": [
+         -0.083333,
+         0.035714
+        ],
+        "tag": "no_clear_difference",
+        "n_cases": 28,
+        "wins": 2,
+        "losses": 4,
+        "ties": 22,
+        "ratio": 0.5
+       },
+       "leak_rate": {
+        "delta": -0.059524,
+        "interval": [
+         -0.107143,
+         -0.011905
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 0,
+        "losses": 5,
+        "ties": 23,
+        "ratio": 0.0
+       }
+      },
+      "quality": {
+       "text_understanding": {
+        "delta": 0.213198,
+        "interval": [
+         0.156828,
+         0.265453
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "labels": [
+         "full",
+         "full"
+        ]
+       },
+       "readability": {
+        "delta": 0.091396,
+        "interval": [
+         0.087548,
+         0.095214
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "labels": [
+         "judge",
+         "judge"
+        ]
+       },
+       "writing": {
+        "delta": 0.323479,
+        "interval": [
+         0.131294,
+         0.375944
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "labels": [
+         "checks only",
+         "checks only"
+        ]
+       },
+       "pass1": {
+        "delta": 0.577778,
+        "interval": [
+         0.422222,
+         0.733333
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "wins": 13,
+        "losses": 0,
+        "ties": 2
+       },
+       "score": {
+        "delta": 0.272267,
+        "interval": [
+         0.245311,
+         0.299099
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "wins": 15,
+        "losses": 0,
+        "ties": 0
+       }
+      }
+     }
+    }
+   },
+   "sampling_sensitivity": {},
+   "loops": {
+    "agentic": {
+     "loop": "harbor-loop",
+     "view": "agentic_harbor_loop",
+     "reference_view": "agentic",
+     "lanes": {
+      "neutral": "not_applicable: Harbor's loop has no neutral lane"
+     },
+     "empty": true,
+     "empty_reason": "cloud references run through the reference loop only",
+     "gap": null
+    }
+   }
+  },
+  {
+   "entry_key": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "device_id": "cloud",
+   "model_id": "sample-cloud/model-b",
+   "role": "cloud_reference",
+   "kind": "cloud_reference",
+   "weights": "-",
+   "weights_sha256": null,
+   "quant": null,
+   "params_total": null,
+   "params_active": null,
+   "architecture": "unknown",
+   "headline_entry": null,
+   "runtime": "openrouter",
+   "runtime_version": null,
+   "thinking": "on",
+   "requested_model": "sample-cloud/model-b",
+   "resolved_model": "sample-cloud/model-b",
+   "upstream_provider": "sample-provider",
+   "run_date": {
+    "first": "2026-11-18T09:00:00Z",
+    "last": "2026-11-18T11:00:00Z"
+   },
+   "device": null,
+   "tiers": {
+    "agentic": {
+     "tier": "agentic",
+     "records": 84,
+     "graded": 84,
+     "status_counts": {
+      "ok": 84
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-agentic-cloud"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "provider_default"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "pass1": {
+      "value": 0.821429,
+      "interval": [
+       0.726056,
+       0.888688
+      ],
+      "interval_kind": "wilson",
+      "interval_cluster": [
+       0.75,
+       0.892857
+      ],
+      "n_cases": 28,
+      "n_trials": 84,
+      "passes": 69,
+      "pass_all_trials": {
+       "value": 0.5,
+       "interval": [
+        0.326331,
+        0.673669
+       ],
+       "n_cases": 28,
+       "k": 14,
+       "trials_per_case": [
+        3
+       ],
+       "flag": null
+      },
+      "pass_k": {
+       "2": 0.654762,
+       "3": 0.5
+      }
+     },
+     "score": {
+      "value": 0.890179,
+      "interval": [
+       0.845925,
+       0.93243
+      ],
+      "interval_kind": "bootstrap_cases",
+      "n_cases": 28,
+      "n_trials": 84
+     },
+     "composites": {
+      "agentic_score": {
+       "value": 0.821429,
+       "interval": [
+        0.77381,
+        0.869048
+       ],
+       "n_cases": 28,
+       "strata": 14,
+       "weights": {
+        "abstain/assistant": 0.071429,
+        "abstain/neutral": 0.071429,
+        "mixed/assistant": 0.071429,
+        "mixed/neutral": 0.071429,
+        "parallel/assistant": 0.071429,
+        "parallel/neutral": 0.071429,
+        "pev/assistant": 0.071429,
+        "pev/neutral": 0.071429,
+        "recovery/assistant": 0.071429,
+        "recovery/neutral": 0.071429,
+        "select/assistant": 0.071429,
+        "select/neutral": 0.071429,
+        "sequential/assistant": 0.071429,
+        "sequential/neutral": 0.071429
+       },
+       "metric": "agentic_score",
+       "interval_kind": "bootstrap_cases",
+       "n_trials": 84,
+       "present": [
+        "abstain/assistant",
+        "abstain/neutral",
+        "mixed/assistant",
+        "mixed/neutral",
+        "parallel/assistant",
+        "parallel/neutral",
+        "pev/assistant",
+        "pev/neutral",
+        "recovery/assistant",
+        "recovery/neutral",
+        "select/assistant",
+        "select/neutral",
+        "sequential/assistant",
+        "sequential/neutral"
+       ],
+       "complete": true,
+       "families": [
+        "abstain",
+        "mixed",
+        "parallel",
+        "pev",
+        "recovery",
+        "select",
+        "sequential"
+       ]
+      }
+     },
+     "composite": {
+      "value": 0.821429,
+      "interval": [
+       0.77381,
+       0.869048
+      ],
+      "n_cases": 28,
+      "strata": 14,
+      "weights": {
+       "abstain/assistant": 0.071429,
+       "abstain/neutral": 0.071429,
+       "mixed/assistant": 0.071429,
+       "mixed/neutral": 0.071429,
+       "parallel/assistant": 0.071429,
+       "parallel/neutral": 0.071429,
+       "pev/assistant": 0.071429,
+       "pev/neutral": 0.071429,
+       "recovery/assistant": 0.071429,
+       "recovery/neutral": 0.071429,
+       "select/assistant": 0.071429,
+       "select/neutral": 0.071429,
+       "sequential/assistant": 0.071429,
+       "sequential/neutral": 0.071429
+      },
+      "metric": "agentic_score",
+      "interval_kind": "bootstrap_cases",
+      "n_trials": 84,
+      "present": [
+       "abstain/assistant",
+       "abstain/neutral",
+       "mixed/assistant",
+       "mixed/neutral",
+       "parallel/assistant",
+       "parallel/neutral",
+       "pev/assistant",
+       "pev/neutral",
+       "recovery/assistant",
+       "recovery/neutral",
+       "select/assistant",
+       "select/neutral",
+       "sequential/assistant",
+       "sequential/neutral"
+      ],
+      "complete": true,
+      "families": [
+       "abstain",
+       "mixed",
+       "parallel",
+       "pev",
+       "recovery",
+       "select",
+       "sequential"
+      ]
+     },
+     "safety": {
+      "trials": 84,
+      "unsafe_trials": 0,
+      "unsafe_rate": 0.0,
+      "unsafe_interval": [
+       0.0,
+       0.043732
+      ],
+      "unsafe_count": 0,
+      "unsafe_per_100": 0.0,
+      "unsafe_n": 84,
+      "leak_trials": 0,
+      "leak_rate": 0.0,
+      "leak_interval": [
+       0.0,
+       0.043732
+      ],
+      "leak_count": 0,
+      "leak_per_100": 0.0,
+      "leak_n": 84,
+      "labels": {}
+     },
+     "facets": {
+      "lane=assistant": {
+       "pass1": {
+        "value": 0.833333,
+        "interval": [
+         0.69396,
+         0.916841
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.714286,
+         0.928571
+        ],
+        "n_cases": 14,
+        "n_trials": 42,
+        "passes": 35,
+        "pass_all_trials": {
+         "value": 0.571429,
+         "interval": [
+          0.325906,
+          0.786192
+         ],
+         "n_cases": 14,
+         "k": 8,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.690476,
+         "3": 0.571429
+        }
+       },
+       "score": {
+        "value": 0.911833,
+        "interval": [
+         0.849648,
+         0.971085
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 14,
+        "n_trials": 42
+       }
+      },
+      "lane=neutral": {
+       "pass1": {
+        "value": 0.809524,
+        "interval": [
+         0.666992,
+         0.90018
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.738095,
+         0.904762
+        ],
+        "n_cases": 14,
+        "n_trials": 42,
+        "passes": 34,
+        "pass_all_trials": {
+         "value": 0.428571,
+         "interval": [
+          0.213808,
+          0.674094
+         ],
+         "n_cases": 14,
+         "k": 6,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.619048,
+         "3": 0.428571
+        }
+       },
+       "score": {
+        "value": 0.868524,
+        "interval": [
+         0.798307,
+         0.931273
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 14,
+        "n_trials": 42
+       }
+      },
+      "family=abstain": {
+       "pass1": {
+        "value": 0.916667,
+        "interval": [
+         0.64612,
+         0.985135
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.75,
+         1.0
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 11,
+        "pass_all_trials": {
+         "value": 0.75,
+         "interval": [
+          0.300642,
+          0.954413
+         ],
+         "n_cases": 4,
+         "k": 3,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.833333,
+         "3": 0.75
+        }
+       },
+       "score": {
+        "value": 0.975667,
+        "interval": [
+         0.927,
+         1.0
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      },
+      "family=mixed": {
+       "pass1": {
+        "value": 0.583333,
+        "interval": [
+         0.319511,
+         0.80674
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.416667,
+         0.666667
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 7,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.489891
+         ],
+         "n_cases": 4,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.25,
+         "3": 0.0
+        }
+       },
+       "score": {
+        "value": 0.751167,
+        "interval": [
+         0.682333,
+         0.850035
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      },
+      "family=parallel": {
+       "pass1": {
+        "value": 0.75,
+        "interval": [
+         0.467695,
+         0.911058
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.666667,
+         0.916667
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 0.25,
+         "interval": [
+          0.045587,
+          0.699358
+         ],
+         "n_cases": 4,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.5,
+         "3": 0.25
+        }
+       },
+       "score": {
+        "value": 0.845083,
+        "interval": [
+         0.763167,
+         0.944517
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      },
+      "family=pev": {
+       "pass1": {
+        "value": 0.75,
+        "interval": [
+         0.467695,
+         0.911058
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.666667,
+         0.916667
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 0.25,
+         "interval": [
+          0.045587,
+          0.699358
+         ],
+         "n_cases": 4,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.5,
+         "3": 0.25
+        }
+       },
+       "score": {
+        "value": 0.84925,
+        "interval": [
+         0.786,
+         0.946533
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      },
+      "family=recovery": {
+       "pass1": {
+        "value": 0.916667,
+        "interval": [
+         0.64612,
+         0.985135
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.75,
+         1.0
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 11,
+        "pass_all_trials": {
+         "value": 0.75,
+         "interval": [
+          0.300642,
+          0.954413
+         ],
+         "n_cases": 4,
+         "k": 3,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.833333,
+         "3": 0.75
+        }
+       },
+       "score": {
+        "value": 0.942,
+        "interval": [
+         0.826,
+         1.0
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      },
+      "family=select": {
+       "pass1": {
+        "value": 1.0,
+        "interval": [
+         0.757506,
+         1.0
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         1.0,
+         1.0
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 12,
+        "pass_all_trials": {
+         "value": 1.0,
+         "interval": [
+          0.510109,
+          1.0
+         ],
+         "n_cases": 4,
+         "k": 4,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 1.0,
+         "3": 1.0
+        }
+       },
+       "score": {
+        "value": 1.0,
+        "interval": [
+         1.0,
+         1.0
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      },
+      "family=sequential": {
+       "pass1": {
+        "value": 0.833333,
+        "interval": [
+         0.551969,
+         0.953035
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.666667,
+         1.0
+        ],
+        "n_cases": 4,
+        "n_trials": 12,
+        "passes": 10,
+        "pass_all_trials": {
+         "value": 0.5,
+         "interval": [
+          0.150039,
+          0.849961
+         ],
+         "n_cases": 4,
+         "k": 2,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.666667,
+         "3": 0.5
+        }
+       },
+       "score": {
+        "value": 0.868083,
+        "interval": [
+         0.736167,
+         1.0
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 4,
+        "n_trials": 12
+       }
+      }
+     },
+     "metrics": {
+      "format_ok": {
+       "value": 0.97619,
+       "interval": [
+        0.917286,
+        0.993446
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 28,
+       "n_trials": 84
+      },
+      "steps": {
+       "value": 2.380952,
+       "interval": [
+        2.190476,
+        2.595238
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 28,
+       "n_trials": 84
+      },
+      "wall_s": {
+       "value": 6.292619,
+       "interval": [
+        5.815613,
+        6.756024
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 28,
+       "n_trials": 84
+      }
+     },
+     "headline": {
+      "metric": "agentic_score",
+      "source": "composite",
+      "value": 0.821429,
+      "interval": [
+       0.77381,
+       0.869048
+      ],
+      "interval_kind": "bootstrap_cases"
+     },
+     "sampling_classes": [
+      "recommended"
+     ]
+    },
+    "quality": {
+     "tier": "quality",
+     "records": 45,
+     "graded": 45,
+     "status_counts": {
+      "ok": 45
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-quality-cloud"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "provider_default"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "pass1": {
+      "value": 1.0,
+      "interval": [
+       0.921348,
+       1.0
+      ],
+      "interval_kind": "wilson",
+      "interval_cluster": [
+       1.0,
+       1.0
+      ],
+      "n_cases": 15,
+      "n_trials": 45,
+      "passes": 45,
+      "pass_all_trials": {
+       "value": 1.0,
+       "interval": [
+        0.796117,
+        1.0
+       ],
+       "n_cases": 15,
+       "k": 15,
+       "trials_per_case": [
+        3
+       ],
+       "flag": null
+      },
+      "pass_k": {
+       "2": 1.0,
+       "3": 1.0
+      }
+     },
+     "score": {
+      "value": 0.914533,
+      "interval": [
+       0.897622,
+       0.930267
+      ],
+      "interval_kind": "bootstrap_cases",
+      "n_cases": 15,
+      "n_trials": 45
+     },
+     "composites": {
+      "text_understanding": {
+       "value": 0.956541,
+       "components": {
+        "core_recall": 0.907222,
+        "extraction_numeric": 0.968167,
+        "faithfulness": 0.962963,
+        "trap_resistance": 1.0,
+        "schema_valid": 1.0,
+        "fabricated_detail_rate": 0.018519,
+        "trap_failure_rate": 0.0
+       },
+       "label": "full",
+       "missing": [],
+       "metric": "text_understanding",
+       "interval": [
+        0.942091,
+        0.970063
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 15,
+       "does_not_fit": 0,
+       "does_not_fit_rate": 0.0
+      },
+      "readability": {
+       "value": 0.766637,
+       "components": {
+        "hygiene": 0.973963,
+        "pref_judge_style_ctrl": 0.655
+       },
+       "label": "judge",
+       "metric": "readability",
+       "interval": [
+        0.76438,
+        0.768672
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 15,
+       "does_not_fit": 0,
+       "does_not_fit_rate": 0.0,
+       "note": "judge preference held fixed in the interval"
+      },
+      "writing": {
+       "value": 0.927791,
+       "components": {
+        "points": 0.910333,
+        "faithfulness": 0.908296,
+        "constraints": 1.0,
+        "editing": 0.902111,
+        "pref": null,
+        "invented_rate": 0.018519,
+        "forbidden_rate": 0.0,
+        "fact_change_rate": 0.027333,
+        "grammar_errors_per_100w": null,
+        "grammar_penalty_applied": false
+       },
+       "label": "checks only",
+       "missing": [
+        "pref"
+       ],
+       "metric": "writing",
+       "interval": [
+        0.918491,
+        0.967083
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 15,
+       "does_not_fit": 0,
+       "does_not_fit_rate": 0.0
+      }
+     },
+     "composite": {
+      "value": 0.956541,
+      "components": {
+       "core_recall": 0.907222,
+       "extraction_numeric": 0.968167,
+       "faithfulness": 0.962963,
+       "trap_resistance": 1.0,
+       "schema_valid": 1.0,
+       "fabricated_detail_rate": 0.018519,
+       "trap_failure_rate": 0.0
+      },
+      "label": "full",
+      "missing": [],
+      "metric": "text_understanding",
+      "interval": [
+       0.942091,
+       0.970063
+      ],
+      "interval_kind": "bootstrap_cases",
+      "n_cases": 15,
+      "does_not_fit": 0,
+      "does_not_fit_rate": 0.0
+     },
+     "safety": {
+      "trials": 45,
+      "unsafe_trials": null,
+      "unsafe_rate": null,
+      "unsafe_interval": null,
+      "unsafe_count": null,
+      "unsafe_per_100": null,
+      "leak_trials": null,
+      "leak_rate": null,
+      "leak_interval": null,
+      "leak_count": null,
+      "leak_per_100": null,
+      "labels": {}
+     },
+     "facets": {
+      "family=extraction": {
+       "pass1": {
+        "value": 1.0,
+        "interval": [
+         0.700855,
+         1.0
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         1.0,
+         1.0
+        ],
+        "n_cases": 3,
+        "n_trials": 9,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 1.0,
+         "interval": [
+          0.438503,
+          1.0
+         ],
+         "n_cases": 3,
+         "k": 3,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 1.0,
+         "3": 1.0
+        }
+       },
+       "score": {
+        "value": 0.936333,
+        "interval": [
+         0.913333,
+         0.954
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 3,
+        "n_trials": 9
+       }
+      },
+      "family=numeric": {
+       "pass1": {
+        "value": 1.0,
+        "interval": [
+         0.700855,
+         1.0
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         1.0,
+         1.0
+        ],
+        "n_cases": 3,
+        "n_trials": 9,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 1.0,
+         "interval": [
+          0.438503,
+          1.0
+         ],
+         "n_cases": 3,
+         "k": 3,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 1.0,
+         "3": 1.0
+        }
+       },
+       "score": {
+        "value": 0.911556,
+        "interval": [
+         0.894667,
+         0.934
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 3,
+        "n_trials": 9
+       }
+      },
+      "family=point": {
+       "pass1": {
+        "value": 1.0,
+        "interval": [
+         0.700855,
+         1.0
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         1.0,
+         1.0
+        ],
+        "n_cases": 3,
+        "n_trials": 9,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 1.0,
+         "interval": [
+          0.438503,
+          1.0
+         ],
+         "n_cases": 3,
+         "k": 3,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 1.0,
+         "3": 1.0
+        }
+       },
+       "score": {
+        "value": 0.930778,
+        "interval": [
+         0.883333,
+         0.965667
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 3,
+        "n_trials": 9
+       }
+      },
+      "family=summary": {
+       "pass1": {
+        "value": 1.0,
+        "interval": [
+         0.700855,
+         1.0
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         1.0,
+         1.0
+        ],
+        "n_cases": 3,
+        "n_trials": 9,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 1.0,
+         "interval": [
+          0.438503,
+          1.0
+         ],
+         "n_cases": 3,
+         "k": 3,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 1.0,
+         "3": 1.0
+        }
+       },
+       "score": {
+        "value": 0.883667,
+        "interval": [
+         0.843,
+         0.927
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 3,
+        "n_trials": 9
+       }
+      },
+      "family=writing": {
+       "pass1": {
+        "value": 1.0,
+        "interval": [
+         0.700855,
+         1.0
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         1.0,
+         1.0
+        ],
+        "n_cases": 3,
+        "n_trials": 9,
+        "passes": 9,
+        "pass_all_trials": {
+         "value": 1.0,
+         "interval": [
+          0.438503,
+          1.0
+         ],
+         "n_cases": 3,
+         "k": 3,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 1.0,
+         "3": 1.0
+        }
+       },
+       "score": {
+        "value": 0.910333,
+        "interval": [
+         0.873,
+         0.937
+        ],
+        "interval_kind": "bootstrap_cases",
+        "n_cases": 3,
+        "n_trials": 9
+       }
+      }
+     },
+     "metrics": {
+      "atoms": {
+       "value": 9.0,
+       "interval": [
+        7.166667,
+        10.666667
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 12,
+       "n_trials": 36
+      },
+      "constraint_ok": {
+       "value": 1.0,
+       "interval": [
+        1.0,
+        1.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "core_recall": {
+       "value": 0.907222,
+       "interval": [
+        0.871368,
+        0.938976
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 6,
+       "n_trials": 18
+      },
+      "extraction_field_acc": {
+       "value": 0.936333,
+       "interval": [
+        0.913333,
+        0.954
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "fabricated_atoms": {
+       "value": 0.148148,
+       "interval": [
+        0.037037,
+        0.296296
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 9,
+       "n_trials": 27
+      },
+      "fact_keep_rate": {
+       "value": 0.972667,
+       "interval": [
+        0.972667,
+        0.972667
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 1,
+       "n_trials": 3
+      },
+      "fix_rate": {
+       "value": 0.968333,
+       "interval": [
+        0.968333,
+        0.968333
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 1,
+       "n_trials": 3
+      },
+      "flag_rate": {
+       "value": 0.958,
+       "interval": [
+        0.958,
+        0.958
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 1,
+       "n_trials": 3
+      },
+      "forbidden_rate": {
+       "value": 0.0,
+       "interval": [
+        0.0,
+        0.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "hygiene": {
+       "value": 97.396296,
+       "interval": [
+        96.692407,
+        97.94463
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 9,
+       "n_trials": 27
+      },
+      "invented_atoms": {
+       "value": 0.222222,
+       "interval": [
+        0.0,
+        0.666667
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "numeric_ok": {
+       "value": 1.0,
+       "interval": [
+        1.0,
+        1.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "overedit": {
+       "value": 0.0044,
+       "interval": [
+        0.0044,
+        0.0044
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 1,
+       "n_trials": 3
+      },
+      "point_recall": {
+       "value": 0.910333,
+       "interval": [
+        0.873,
+        0.937
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "schema_valid": {
+       "value": 1.0,
+       "interval": [
+        1.0,
+        1.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 3,
+       "n_trials": 9
+      },
+      "trap_count": {
+       "value": 1.0,
+       "interval": [
+        1.0,
+        1.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 6,
+       "n_trials": 18
+      },
+      "trap_failures": {
+       "value": 0.0,
+       "interval": [
+        0.0,
+        0.0
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 6,
+       "n_trials": 18
+      },
+      "visible_tokens": {
+       "value": 231.111111,
+       "interval": [
+        220.053333,
+        244.289444
+       ],
+       "interval_kind": "bootstrap_cases",
+       "n_cases": 15,
+       "n_trials": 45
+      }
+     },
+     "headline": {
+      "metric": "text_understanding",
+      "source": "composite",
+      "value": 0.956541,
+      "interval": [
+       0.942091,
+       0.970063
+      ],
+      "interval_kind": "bootstrap_cases"
+     },
+     "sampling_classes": [
+      "recommended"
+     ]
+    }
+   },
+   "sampling_sources": [
+    "provider_default"
+   ],
+   "fit": {
+    "verdict": "not_applicable"
+   },
+   "invalid": false,
+   "ranked": false,
+   "rank_group": "cloud",
+   "flags": [],
+   "vs": {
+    "tuned": {
+     "reference": "local|Sample Tuned 4B|q4|omlx|off",
+     "device_id": "mac-ref",
+     "tiers": {
+      "agentic": {
+       "pass1": {
+        "delta": 0.369048,
+        "interval": [
+         0.261905,
+         0.47619
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 20,
+        "losses": 0,
+        "ties": 8
+       },
+       "score": {
+        "delta": 0.189476,
+        "interval": [
+         0.119201,
+         0.258834
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 21,
+        "losses": 4,
+        "ties": 3
+       },
+       "agentic_score": {
+        "interval": [
+         0.297619,
+         0.452381
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "strata": 14,
+        "weights": {
+         "abstain/assistant": 0.071429,
+         "abstain/neutral": 0.071429,
+         "mixed/assistant": 0.071429,
+         "mixed/neutral": 0.071429,
+         "parallel/assistant": 0.071429,
+         "parallel/neutral": 0.071429,
+         "pev/assistant": 0.071429,
+         "pev/neutral": 0.071429,
+         "recovery/assistant": 0.071429,
+         "recovery/neutral": 0.071429,
+         "select/assistant": 0.071429,
+         "select/neutral": 0.071429,
+         "sequential/assistant": 0.071429,
+         "sequential/neutral": 0.071429
+        },
+        "delta": 0.369048
+       },
+       "unsafe_rate": {
+        "delta": -0.130952,
+        "interval": [
+         -0.22619,
+         -0.059524
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 0,
+        "losses": 8,
+        "ties": 20,
+        "ratio": 0.0
+       },
+       "leak_rate": {
+        "delta": -0.119048,
+        "interval": [
+         -0.178571,
+         -0.059524
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 0,
+        "losses": 10,
+        "ties": 18,
+        "ratio": 0.0
+       }
+      },
+      "quality": {
+       "text_understanding": {
+        "delta": 0.11953,
+        "interval": [
+         0.068354,
+         0.174082
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "labels": [
+         "full",
+         "full"
+        ]
+       },
+       "readability": {
+        "delta": 0.124978,
+        "interval": [
+         0.12133,
+         0.129217
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "labels": [
+         "judge",
+         "judge"
+        ]
+       },
+       "writing": {
+        "delta": 0.297942,
+        "interval": [
+         0.108214,
+         0.329636
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "labels": [
+         "checks only",
+         "checks only"
+        ]
+       },
+       "pass1": {
+        "delta": 0.244444,
+        "interval": [
+         0.155556,
+         0.333333
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "wins": 10,
+        "losses": 0,
+        "ties": 5
+       },
+       "score": {
+        "delta": 0.1442,
+        "interval": [
+         0.107308,
+         0.177045
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "wins": 14,
+        "losses": 1,
+        "ties": 0
+       }
+      }
+     }
+    },
+    "base": {
+     "reference": "local|Sample Base 4B|q4|omlx|off",
+     "device_id": "mac-ref",
+     "tiers": {
+      "agentic": {
+       "pass1": {
+        "delta": 0.559524,
+        "interval": [
+         0.440476,
+         0.678571
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 24,
+        "losses": 0,
+        "ties": 4
+       },
+       "score": {
+        "delta": 0.316,
+        "interval": [
+         0.236338,
+         0.389894
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 26,
+        "losses": 2,
+        "ties": 0
+       },
+       "agentic_score": {
+        "interval": [
+         0.47619,
+         0.63125
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "strata": 14,
+        "weights": {
+         "abstain/assistant": 0.071429,
+         "abstain/neutral": 0.071429,
+         "mixed/assistant": 0.071429,
+         "mixed/neutral": 0.071429,
+         "parallel/assistant": 0.071429,
+         "parallel/neutral": 0.071429,
+         "pev/assistant": 0.071429,
+         "pev/neutral": 0.071429,
+         "recovery/assistant": 0.071429,
+         "recovery/neutral": 0.071429,
+         "select/assistant": 0.071429,
+         "select/neutral": 0.071429,
+         "sequential/assistant": 0.071429,
+         "sequential/neutral": 0.071429
+        },
+        "delta": 0.559524
+       },
+       "unsafe_rate": {
+        "delta": -0.047619,
+        "interval": [
+         -0.095238,
+         -0.005655
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 0,
+        "losses": 4,
+        "ties": 24,
+        "ratio": 0.0
+       },
+       "leak_rate": {
+        "delta": -0.059524,
+        "interval": [
+         -0.107143,
+         -0.011905
+        ],
+        "tag": "better",
+        "n_cases": 28,
+        "wins": 0,
+        "losses": 5,
+        "ties": 23,
+        "ratio": 0.0
+       }
+      },
+      "quality": {
+       "text_understanding": {
+        "delta": 0.202719,
+        "interval": [
+         0.148639,
+         0.250089
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "labels": [
+         "full",
+         "full"
+        ]
+       },
+       "readability": {
+        "delta": 0.103928,
+        "interval": [
+         0.100919,
+         0.10681
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "labels": [
+         "judge",
+         "judge"
+        ]
+       },
+       "writing": {
+        "delta": 0.346455,
+        "interval": [
+         0.128786,
+         0.389333
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "labels": [
+         "checks only",
+         "checks only"
+        ]
+       },
+       "pass1": {
+        "delta": 0.577778,
+        "interval": [
+         0.422222,
+         0.733333
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "wins": 13,
+        "losses": 0,
+        "ties": 2
+       },
+       "score": {
+        "delta": 0.244556,
+        "interval": [
+         0.219522,
+         0.267403
+        ],
+        "tag": "better",
+        "n_cases": 15,
+        "wins": 15,
+        "losses": 0,
+        "ties": 0
+       }
+      }
+     }
+    }
+   },
+   "sampling_sensitivity": {},
+   "loops": {
+    "agentic": {
+     "loop": "harbor-loop",
+     "view": "agentic_harbor_loop",
+     "reference_view": "agentic",
+     "lanes": {
+      "neutral": "not_applicable: Harbor's loop has no neutral lane"
+     },
+     "empty": true,
+     "empty_reason": "cloud references run through the reference loop only",
+     "gap": null
+    }
+   }
+  }
+ ]
+}

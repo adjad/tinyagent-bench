@@ -60,6 +60,8 @@ def test_every_soft_label_still_lets_a_blank_reply_fail(final):
     c = case(expect=(Step(("view_emails",)),), max_calls=1)
     t = traj([("view_emails", {"q": "Chase"})], [("view_emails", {"query": "Chase"})], final=final)
     t["steps"][1]["tool_errors"] = ["(error calling view_emails({'q': 'Chase'}): unexpected argument(s) ['q'].)"]
+    # raw_markup: a step's raw emission held a text call the host repaired away.
+    t["steps"][0]["content"] = '<tool_call>{"name": "view_emails"}</tool_call>'
     t["steps"].append(dict(EMPTY_STEP))
 
     v = verdict(c, t)

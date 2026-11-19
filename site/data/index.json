@@ -1,0 +1,42 @@
+{
+ "schema": "edat.site-index/1.0",
+ "boards": [
+  {
+   "board_version": "sample-0",
+   "sample": true,
+   "generated_at": "2026-11-18T09:00:00Z",
+   "devices": [
+    {
+     "id": "iphone-ref",
+     "class": "iphone-ref",
+     "name": "iPhone (A19 Pro, 12 GB)",
+     "path": "sample-0/iphone-ref.json",
+     "trajectories": "sample-0/iphone-ref.trajectories.json",
+     "findings": null
+    },
+    {
+     "id": "mac-ref",
+     "class": "mac-ref",
+     "name": "Mac (M5 Pro, 24 GB)",
+     "path": "sample-0/mac-ref.json",
+     "trajectories": "sample-0/mac-ref.trajectories.json",
+     "findings": "sample-0/mac-ref.findings.json"
+    }
+   ],
+   "cloud": "sample-0/cloud.json",
+   "references": {
+    "iphone-ref": {
+     "tuned": "local|Sample Tuned 4B|q4|mlx-swift|off",
+     "base": "local|Sample Base 4B|q4|mlx-swift|off"
+    },
+    "mac-ref": {
+     "tuned": "local|Sample Tuned 4B|q4|omlx|off",
+     "base": "local|Sample Base 4B|q4|omlx|off"
+    }
+   }
+  }
+ ],
+ "sample": true,
+ "notice": "SAMPLE DATA. Every model name and number in this file is invented to exercise the website; nothing describes a real model.",
+ "generated_at": "2026-11-18T09:00:00Z"
+}

@@ -12,9 +12,9 @@ ISOLATION — `isolate()` must run before anything under `service` is imported:
   * Every HARBOR_* switch that changes turn behaviour is cleared (_BEHAVIOUR_ENV),
     so the packaged models.yaml / policy.yaml defaults apply as on a fresh
     install: model_only on, narration thinking per models.yaml, full access.
-  * The local endpoint is pinned to 127.0.0.1:<omlx_port> in the isolated
+  * The local endpoint is pinned to 127.0.0.1:<port> in the isolated
     overlay, so the client and the network guard agree on one port.
-  * Outbound network is refused except loopback to the oMLX port.
+  * Outbound network is refused except loopback to the engine port.
   * Subprocesses are refused except a few read-only probes (`id`, `sysctl`...),
     so a code path that would reach Mail, Messages or the shell fails loudly
     instead of touching the real Mac. Refusals are recorded per case.
@@ -45,6 +45,16 @@ loop's tool-free ask_direct step). The two system messages main.py writes
 inline are copied here; a test pins them to main.py's text, and another fails
 when main.py's run_agent call gains or loses a keyword.
 
+ENGINES — `--engine omlx` (default) is Harbor's managed oMLX, exactly as before.
+`--engine openai` is any OpenAI-compatible server on 127.0.0.1:<port> (llama.cpp,
+Ollama, LM Studio, mlx_lm.server). Production runs a turn model-led only on the
+managed "local" endpoint (service/main.py _managed_local_agent), so the endpoint
+stays the managed one and only the bench client's TRANSPORT changes: a plain
+loopback HTTP client instead of the oMLX-verifying CredentialTransport, which
+refuses any listener that is not a signed oMLX (every trial would otherwise be
+an excluded engine_error). That client never loads, unloads or evicts; the
+user's server owns residency. oMLX's GPU power-cap field is not sent to it.
+
 Not mirrored: vision/document turns, the TurnInferenceClient readiness wrapper
 (engine start and residency only; BenchClient does residency),
 idle.begin_foreground, the rolling-summary fold and assistant-turn persistence
@@ -54,6 +64,7 @@ temperature is sent, so oMLX's per-model profile applies as in production.
 from __future__ import annotations
 
 import asyncio
+import math
 import os
 import re
 import socket
@@ -69,7 +80,13 @@ from pathlib import Path
 _ALLOWED_EXEC = frozenset({"id", "sysctl", "sw_vers", "uname", "memory_pressure", "git", "vm_stat",
                            "ps", "lsof", "pgrep"})
 DEFAULT_OMLX_PORT = 8000
+# The one loopback port the network guard allows: the engine under test.
 _OMLX_PORT = DEFAULT_OMLX_PORT
+ENGINES = ("omlx", "openai", "openrouter")
+# The engine kind isolate() was given; bench_client_class() defaults to it.
+ENGINE_KIND = "omlx"
+# Harbor's own backend and bundled engine: never an engine under test.
+HARBOR_PORTS = (8765, 8791)
 
 # Switches a developer shell may carry that would turn a run into something no
 # fresh install does. Engine location and API keys are left alone.
@@ -77,6 +94,15 @@ _BEHAVIOUR_ENV = ("HARBOR_MODEL_ONLY", "HARBOR_MODEL_ONLY_NARRATION_THINKING", "
                   "HARBOR_PLANNER", "HARBOR_TERSE_TOOL_SCHEMAS", "HARBOR_REMOTE_ONLY", "HARBOR_REMOTE_PARITY",
                   "HARBOR_REMOTE_FULL", "HARBOR_REMOTE_BACKGROUND", "HARBOR_EXPERIMENTS", "HARBOR_BEHAVIOR",
                   "HARBOR_BEHAVIOR_PHRASER")
+# Cloud-reference lane (cloud.py): the one host the guard lets a name resolve,
+# the addresses it resolved to (the only ones a socket may reach, on port 443),
+# the key (memory only), the run's spend ledger and the cloud model table.
+_CLOUD_HOSTS: set[str] = set()
+_CLOUD_IPS: set[str] = set()
+CLOUD_KEY: list[str] = []
+CLOUD_LEDGER: list = [None]
+CLOUD_TABLE: dict[str, dict] = {}
+
 # What isolate() found and cleared, for meta.json.
 CLEARED_ENV: dict[str, str] = {}
 
@@ -84,9 +110,16 @@ CLEARED_ENV: dict[str, str] = {}
 ESCAPES: list[str] = []
 
 
-def isolate(home: Path, *, omlx_port: int = DEFAULT_OMLX_PORT) -> None:
-    global _OMLX_PORT
-    _OMLX_PORT = omlx_port
+def isolate(home: Path, *, omlx_port: int = DEFAULT_OMLX_PORT, engine: str = "omlx") -> None:
+    global _OMLX_PORT, ENGINE_KIND
+    if engine not in ENGINES:
+        raise ValueError(f"engine must be one of {ENGINES}")
+    if int(omlx_port) in HARBOR_PORTS:
+        raise ValueError(f"port {omlx_port} is Harbor's own; it is never an engine under test")
+    _OMLX_PORT, ENGINE_KIND = int(omlx_port), engine
+    if engine == "openrouter":
+        from scripts.toolbench import cloud
+        allow_cloud_origin(cloud.HOST)
     if "service" in {m.split(".")[0] for m in list(__import__("sys").modules)}:
         raise RuntimeError("toolbench.isolate() must run before importing service.*")
     (home / ".moe").mkdir(parents=True, exist_ok=True)
@@ -112,15 +145,53 @@ def pin_endpoint(port: int) -> str:
     return base
 
 
+def net_allowed(family, address) -> bool:
+    """The network guard's rule: non-IP sockets pass; IP only to loopback on
+    exactly the engine port (isolate's omlx_port, whatever the engine kind).
+    A cloud_reference run allows instead only the addresses its one pinned
+    host resolved to, on port 443, and no loopback at all."""
+    if family not in (socket.AF_INET, socket.AF_INET6):
+        return True
+    host, port = address[0], address[1]
+    if _CLOUD_HOSTS:
+        return host in _CLOUD_IPS and port == 443
+    return host in ("127.0.0.1", "::1", "localhost") and port == _OMLX_PORT
+
+
+def name_allowed(host, port) -> bool:
+    """getaddrinfo's rule in a cloud_reference run: only the pinned host, on 443."""
+    name = (host.decode() if isinstance(host, bytes) else str(host or "")).lower().rstrip(".")
+    return name in _CLOUD_HOSTS and str(port) in ("443", "https")
+
+
+def allow_cloud_origin(host: str) -> None:
+    """Open the network guard to exactly one HTTPS origin (cloud_reference runs):
+    a name other than `host` does not resolve, and a socket may reach only the
+    addresses `host` resolved to, on 443. Idempotent."""
+    if _CLOUD_HOSTS:
+        if host not in _CLOUD_HOSTS:
+            raise RuntimeError("the cloud origin is already pinned to another host")
+        return
+    _CLOUD_HOSTS.add(host)
+    real = socket.getaddrinfo
+
+    def getaddrinfo(name, port, *a, **kw):
+        if not name_allowed(name, port):
+            ESCAPES.append(f"resolve {name!r}:{port!r}")
+            raise PermissionError(f"toolbench: resolving {name!r} is blocked (cloud origin is {host})")
+        out = real(name, port, *a, **kw)
+        for *_, sockaddr in out:
+            _CLOUD_IPS.add(sockaddr[0])
+        return out
+    socket.getaddrinfo = getaddrinfo
+
+
 def _guard_network() -> None:
     real_connect = socket.socket.connect
     real_connect_ex = socket.socket.connect_ex
 
     def allowed(sock, address) -> bool:
-        if sock.family not in (socket.AF_INET, socket.AF_INET6):
-            return True
-        host, port = address[0], address[1]
-        return host in ("127.0.0.1", "::1", "localhost") and port == _OMLX_PORT
+        return net_allowed(sock.family, address)
 
     def connect(sock, address):
         if not allowed(sock, address):
@@ -380,7 +451,18 @@ def _install_fake_outbox(world) -> None:
 TOOL_ERROR_PREFIX = "(error calling "
 
 
-def bench_client_class():
+# Characters of raw step output (content, reasoning, argument strings) a row keeps.
+RAW_KEEP = 20000
+# What each step records of the request it sent (policy audit), besides the seed.
+SENT_KEYS = ("temperature", "top_p", "top_k", "min_p", "presence_penalty", "frequency_penalty",
+             "repetition_penalty", "repeat_penalty", "max_tokens")
+
+
+def bench_client_class(engine: str | None = None):
+    """The bench client for `engine` (default: the kind isolate() was given)."""
+    engine = engine or ENGINE_KIND
+    if engine not in ENGINES:
+        raise ValueError(f"engine must be one of {ENGINES}")
     from service.inference.omlx_client import OMLXClient
     from service.agent.loop import _est_tokens
 
@@ -388,6 +470,7 @@ def bench_client_class():
         """Records every model step; loads without ever evicting."""
 
         steps: list[dict]
+        engine_kind = "omlx"
         # "off" forces enable_thinking=false on every request (thinking variant C).
         thinking: str = "default"
 
@@ -399,16 +482,32 @@ def bench_client_class():
         # one prompt come back identical; the CLI sets one per trial, on the
         # same schedule for every model.
         seed: int | None = None
+        # "per_request" (policy v1): request i of a case gets seed*1000 + i, so
+        # the loop's empty-response retry re-samples as it does in production
+        # (which sends no seed). "per_trial" (legacy runs): one seed on every
+        # request, so a retry of an identical request replays the same output.
+        seed_mode: str = "per_request"
         # Harness override of the engine profile's temperature on every step.
         # Under model_only production sends none (oMLX's per-model profile
         # decides), so a fair run leaves this None.
         temperature: float | None = None
+        # The run's sampling policy for this model (policy.sampling_for): sent
+        # on every request, identically on every engine. {} = engine decides.
+        sampling: dict = {}
+        # Optional cap on every step's max_tokens (policy max_output_tokens).
+        max_output_tokens: int | None = None
 
         def _thinking_kw(self, kw: dict) -> dict:
             if self.seed is not None and "seed" not in kw:
-                kw = {**kw, "seed": self.seed}
+                seed = (self.seed * 1000 + len(self.steps) if self.seed_mode == "per_request"
+                        else self.seed)
+                kw = {**kw, "seed": seed}
+            if self.sampling:
+                kw = {**kw, **self.sampling}
             if self.temperature is not None:
                 kw = {**kw, "temperature": self.temperature}
+            if self.max_output_tokens and int(kw.get("max_tokens") or 2048) > self.max_output_tokens:
+                kw = {**kw, "max_tokens": int(self.max_output_tokens)}
             if self.thinking != "off":
                 return kw
             ctk = dict(kw.get("chat_template_kwargs") or {})
@@ -448,9 +547,12 @@ def bench_client_class():
                               if "description" not in t["function"]],
                     "prompt_tokens_est": _est_tokens(messages) + _est_tokens(tools or []),
                     "output_chars": 0}
+            ctk = (kw or {}).get("chat_template_kwargs") or {}
+            step["sent"] = {k: (kw or {})[k] for k in (*SENT_KEYS, "seed") if (kw or {}).get(k) is not None}
+            if "enable_thinking" in ctk:
+                step["sent"]["enable_thinking"] = bool(ctk["enable_thinking"])
             if self.capture:
                 import copy
-                ctk = (kw or {}).get("chat_template_kwargs") or {}
                 step["request"] = {"messages": copy.deepcopy(messages), "tools": copy.deepcopy(tools or []),
                                    "enable_thinking": ctk.get("enable_thinking", True) is not False}
             self.steps.append(step)
@@ -462,6 +564,13 @@ def bench_client_class():
             from service.agent.loop import _clean_tool_name
             step["content"] = message.get("content") or ""
             step["reasoning_chars"] = len(message.get("reasoning_content") or "")
+            # Raw output kept for audit (tinyagent-bench P0.2): the reasoning text, and on
+            # the run's rows the full content, which for the last step is the
+            # model's answer BEFORE the loop's rewrites (markup strip, claim
+            # verification).
+            step["reasoning"] = str(message.get("reasoning_content") or "")[:RAW_KEEP]
+            if message.get("_truncated") or message.get("_think_leak"):
+                step["finish"] = "length"
             for tc in message.get("tool_calls") or ():
                 fn = tc.get("function") or {}
                 raw = fn.get("arguments") or "{}"
@@ -471,7 +580,8 @@ def bench_client_class():
                     args, err = {}, str(e)
                 # Scored under the name the loop dispatches ("functions.x<|channel|>..." -> "x").
                 name = str(fn.get("name", ""))
-                call = {"name": _clean_tool_name(name), "args": args, "parse_error": err}
+                call = {"name": _clean_tool_name(name), "args": args, "parse_error": err,
+                        "raw_arguments": (raw if isinstance(raw, str) else json.dumps(raw))[:RAW_KEEP]}
                 if call["name"] != name:
                     call["raw_name"] = name
                 step["calls"].append(call)
@@ -480,10 +590,11 @@ def bench_client_class():
                                           for tc in message.get("tool_calls") or ()))
 
         async def stream_events(self, model, messages, *, tools=None, **kw):
-            step = self._new_step(messages, tools, self._thinking_kw(kw))
+            kw = self._thinking_kw(kw)       # once: the seed depends on the step index
+            step = self._new_step(messages, tools, kw)
             t0 = time.monotonic()
             try:
-                async for ev in super().stream_events(model, messages, tools=tools, **self._thinking_kw(kw)):
+                async for ev in super().stream_events(model, messages, tools=tools, **kw):
                     if step["ttft"] is None and ev.get("kind") in ("reasoning", "content", "final"):
                         step["ttft"] = round(time.monotonic() - t0, 3)
                     if ev.get("kind") == "final":
@@ -499,10 +610,11 @@ def bench_client_class():
                 step["seconds"] = round(time.monotonic() - t0, 3)
 
         async def chat(self, model, messages, *, tools=None, **kw):
-            step = self._new_step(messages, tools, self._thinking_kw(kw))
+            kw = self._thinking_kw(kw)
+            step = self._new_step(messages, tools, kw)
             t0 = time.monotonic()
             try:
-                resp = await super().chat(model, messages, tools=tools, **self._thinking_kw(kw))
+                resp = await super().chat(model, messages, tools=tools, **kw)
                 self._finish(step, ((resp.get("choices") or [{}])[0]).get("message") or {})
                 return resp
             except Exception as e:
@@ -513,7 +625,304 @@ def bench_client_class():
             finally:
                 step["seconds"] = step["ttft"] = round(time.monotonic() - t0, 3)
 
-    return BenchClient
+    if engine == "omlx":
+        return BenchClient
+    if engine == "openrouter":
+        return _cloud_client_class(BenchClient)
+    return _openai_client_class(BenchClient)
+
+
+# The env var holding an API key for an OpenAI-compatible engine that wants one
+# (most local servers do not). Read only by the openai engine client.
+OPENAI_KEY_ENV = "TOOLBENCH_ENGINE_API_KEY"
+
+
+class ResidencyNotManaged(RuntimeError):
+    """The openai engine's server owns residency: the bench never loads or unloads."""
+
+
+def _openai_client_class(Base):
+    """BenchClient for any OpenAI-compatible server on the guarded loopback port.
+
+    Same endpoint, same model-led path, same request bodies as the oMLX client
+    (OMLXClient.chat / stream_events run unchanged), but:
+      * the transport is a plain loopback httpx transport, not the
+        CredentialTransport that verifies a signed oMLX listener;
+      * the provider is "openai-compatible", so a `reasoning` delta (Ollama,
+        LM Studio) is read as reasoning like `reasoning_content`;
+      * residency is the server's: models() is GET /v1/models, a model is
+        "resident" when listed, load/unload refuse, and nothing is evicted;
+      * oMLX's GPU power-cap payload field is never sent (_patch_power_fields).
+    """
+    import httpx
+
+    from service.config.quarantine import guard_client
+    from service.inference.providers import provider
+    _patch_power_fields()
+
+    class OpenAIBenchClient(Base):
+        engine_kind = "openai"
+        # Tests inject an httpx.MockTransport; live runs use a real loopback one.
+        transport_factory = None
+
+        def __init__(self, *a, **kw):
+            if "api_key" not in kw and len(a) < 2:
+                kw["api_key"] = os.environ.get(OPENAI_KEY_ENV, "")
+            super().__init__(*a, **kw)
+            self.provider = provider("openai-compatible")
+            factory = type(self).transport_factory
+            transport = factory() if factory else httpx.AsyncHTTPTransport(retries=0)
+            headers = {"Authorization": f"Bearer {self.api_key}"} if self.api_key else {}
+            self._client = guard_client(httpx.AsyncClient(
+                base_url=self.base_url, transport=transport, headers=headers,
+                timeout=self._client.timeout, trust_env=False, follow_redirects=False))
+
+        async def _get_json(self, path: str, *, limit: int = 4 * 1024 * 1024) -> dict:
+            r = await self._client.get(path)
+            r.raise_for_status()
+            if len(r.content) > limit:
+                raise ValueError(f"{path}: response over {limit} bytes")
+            data = r.json()
+            if not isinstance(data, dict):
+                raise ValueError(f"{path}: not a JSON object")
+            return data
+
+        async def models(self) -> list[str]:
+            data = await self._get_json(self.api_prefix + "/models")
+            return [str(m.get("id")) for m in data.get("data") or () if isinstance(m, dict) and m.get("id")]
+
+        async def loaded_models(self) -> list[str]:
+            return await self.models()
+
+        async def status(self):
+            raise ResidencyNotManaged("the openai engine reports no oMLX residency")
+
+        async def load(self, model):
+            raise ResidencyNotManaged("toolbench never loads a model on the openai engine")
+
+        async def unload(self, model):
+            raise ResidencyNotManaged("toolbench never unloads a model on the openai engine")
+
+        async def make_resident(self, model: str, *, timeout: float = 300.0) -> None:
+            from service.inference.inference_errors import ModelNotDownloadedError
+            if model not in await self.models():
+                raise ModelNotDownloadedError()
+
+    return OpenAIBenchClient
+
+
+def _cloud_client_class(Base):
+    """BenchClient for an OpenRouter model through Harbor's own cloud mode
+    (cloud.py). Production builds the request (remote target, payload checks,
+    reasoning option, whole-reply replay, provider routing); this class adds
+    only the bench's recorded widening (sampling the model accepts, seed,
+    reasoning off, a provider pin, replay for a model Harbor's list lacks) and
+    meters every request. The key is held in memory (CLOUD_KEY) and given to
+    Harbor's CredentialTransport in place of its Keychain read."""
+    import httpx
+
+    from scripts.toolbench import cloud
+    from service.inference.providers import provider
+    _patch_power_fields()
+    _patch_cloud_payload_rules()
+
+    class _KeyHeader(httpx.AsyncBaseTransport):
+        """Test stubs only: adds the bearer header CredentialTransport adds."""
+
+        def __init__(self, inner, key):
+            self.inner, self.key = inner, key
+
+        async def handle_async_request(self, request):
+            request.headers["Authorization"] = f"Bearer {self.key}"
+            return await self.inner.handle_async_request(request)
+
+    class CloudBenchClient(Base):
+        engine_kind = cloud.ENGINE
+        transport_factory = None
+        _inventory: dict | None = None
+
+        def __init__(self, *a, **kw):
+            super().__init__(*a, **kw)
+            self.provider = provider("openrouter")
+            self.metered: list[dict] = []
+            key = CLOUD_KEY[0] if CLOUD_KEY else ""
+            ct = self._credential_transport
+            ct.key_loader, ct.key = None, key          # no Keychain read inside the guarded process
+            factory = type(self).transport_factory
+            inner = _KeyHeader(factory(), key) if factory else self._client._transport
+            self._client._transport = cloud.usage_tap(inner, sink=self._metered, ledger=CLOUD_LEDGER[0])
+
+        def _entry(self) -> dict:
+            model = getattr(self.target, "model", None) if self.target is not None else None
+            return CLOUD_TABLE.get(model or "", {})
+
+        def _metered(self, rec: dict) -> None:
+            (self.steps[-1].setdefault("cloud", []) if self.steps else self.metered).append(rec)
+
+        def _thinking_kw(self, kw: dict) -> dict:
+            entry = self._entry()
+            accepts = set(entry.get("accepts") or ())
+            kw = {k: v for k, v in kw.items() if k != "chat_template_kwargs"}
+            if self.seed is not None and "seed" in accepts and "seed" not in kw:
+                kw["seed"] = (self.seed * 1000 + len(self.steps) if self.seed_mode == "per_request"
+                              else self.seed)
+            sent, _ = cloud.sent_sampling(self.sampling, entry)
+            kw.update(sent)
+            if self.max_output_tokens and int(kw.get("max_tokens") or 2048) > self.max_output_tokens:
+                kw["max_tokens"] = int(self.max_output_tokens)
+            return kw
+
+        def _fit_with_reasoning(self, model, messages, tools, max_tokens, **kw):
+            model, messages, tools, max_tokens, fields = super()._fit_with_reasoning(
+                model, messages, tools, max_tokens, **kw)
+            entry = self._entry()
+            fields = dict(fields)
+            if self.thinking == "off":
+                fields.pop("reasoning", None)
+                if entry.get("reasoning_off") is not None:
+                    fields["reasoning"] = dict(entry["reasoning_off"])
+            if pin := cloud.provider_pin(entry):
+                fields["provider"] = pin
+            return model, messages, tools, max_tokens, fields
+
+        # A replay model's stream_events fetches its reply whole through chat()
+        # (OMLXClient._whole_reply_events): that inner call is the same model
+        # step, so it is neither recorded nor re-seeded a second time.
+        _nested = False
+
+        async def stream_events(self, model, messages, *, tools=None, **kw):
+            self._nested = True
+            try:
+                async for ev in super().stream_events(model, messages, tools=tools, **kw):
+                    yield ev
+            finally:
+                self._nested = False
+
+        async def chat(self, model, messages, *, tools=None, **kw):
+            if self._nested:
+                return await super(Base, self).chat(model, messages, tools=tools, **kw)
+            return await super().chat(model, messages, tools=tools, **kw)
+
+        def _replays_reasoning(self, model: str) -> bool:
+            return super()._replays_reasoning(model) or bool(CLOUD_TABLE.get(model, {}).get("replay_reasoning"))
+
+        async def _inventory_rows(self) -> dict:
+            if type(self)._inventory is None:
+                r = await self._client.get(self.api_prefix + "/models")
+                r.raise_for_status()
+                rows = (r.json() or {}).get("data") or ()
+                type(self)._inventory = {str(m["id"]): m for m in rows if isinstance(m, dict) and m.get("id")}
+            return type(self)._inventory
+
+        async def models(self) -> list[str]:
+            return list(await self._inventory_rows())
+
+        async def loaded_models(self) -> list[str]:
+            return await self.models()
+
+        async def status(self):
+            raise ResidencyNotManaged("a cloud model has no residency")
+
+        async def load(self, model):
+            raise ResidencyNotManaged("toolbench never loads a cloud model")
+
+        async def unload(self, model):
+            raise ResidencyNotManaged("toolbench never unloads a cloud model")
+
+        async def make_resident(self, model: str, *, timeout: float = 300.0) -> None:
+            from service.inference.inference_errors import ModelNotDownloadedError
+            if model not in await self.models():
+                raise ModelNotDownloadedError()
+
+    return CloudBenchClient
+
+
+_CLOUD_RULES: list = []
+
+
+def _patch_cloud_payload_rules() -> None:
+    """Widen Harbor's remote payload check for the bench's recorded additions,
+    and only for a model in CLOUD_TABLE: the sampling keys and seed it accepts
+    (finite numbers), its reasoning_off option, its provider pin. Everything
+    else still goes through RemoteOnlyProfile.validate_payload unchanged.
+    Idempotent."""
+    if _CLOUD_RULES:
+        return
+    from scripts.toolbench import cloud
+    from service.inference import remote_policy as rp
+    original = rp.RemoteOnlyProfile.validate_payload
+
+    def validate_payload(self, payload):
+        entry = CLOUD_TABLE.get(payload.get("model") if isinstance(payload, dict) else None)
+        if entry is None or not isinstance(payload, dict):
+            return original(self, payload)
+        rest = dict(payload)
+        accepts = set(entry.get("accepts") or ())
+        for key in ("top_p", "top_k", "seed"):
+            if key in rest:
+                value = rest.pop(key)
+                if key not in accepts or type(value) not in (int, float) or not math.isfinite(value):
+                    rp._refuse(f"Unsupported cloud_reference option {key}")
+        if "temperature" in rest and "temperature" not in accepts:
+            rp._refuse("This cloud model takes no temperature")
+        if "reasoning" in rest and entry.get("reasoning_off") is not None \
+                and rest["reasoning"] == entry["reasoning_off"]:
+            rest.pop("reasoning")
+        pin = cloud.provider_pin(entry)
+        if pin is not None and rest.get("provider") == pin:
+            rest.pop("provider")
+        return original(self, rest)
+    rp.RemoteOnlyProfile.validate_payload = validate_payload
+    _CLOUD_RULES.append(original)
+
+
+def bind_cloud_model(model: str, *, credential_name: str = "toolbench", window: int | None = None) -> dict:
+    """Save exactly the profile Settings ▸ Cloud inference ▸ Everything saves
+    for `model` on OpenRouter (config.set_cloud_everything) in the isolated
+    home, and drop the cached startup snapshot so the next turn reads it.
+    The credential_ref only names Harbor's Keychain item; the key itself is
+    CLOUD_KEY and never touches the config."""
+    from scripts.toolbench import cloud
+    from service import config
+    from service.inference import remote_policy as rp
+    from service.inference.remote_policy import REMOTE_CONTEXT_WINDOWS
+    entry = cloud.entry_for(model, CLOUD_TABLE)
+    window = int(window or REMOTE_CONTEXT_WINDOWS.get(model) or entry.get("context_window") or 128000)
+    endpoint_cfg = {"enabled": True, "provider": "openrouter", "base_url": cloud.ORIGIN,
+                    "api_prefix": cloud.API_PREFIX, "credential_ref": f"keychain:{credential_name}",
+                    "readiness_timeout": 10}
+    config.set_cloud_everything(endpoint_cfg, model, window)
+    rp.remote_only_profile.cache_clear()
+    profile = rp.remote_only_profile()
+    if profile is None or profile.model_id != model or not rp.cloud_everything_active():
+        raise RuntimeError(f"the cloud profile for {model} did not take effect")
+    return {"model": model, "treatment": "cloud", "context_window": window, "profile_as": None,
+            "window_policy": "production cloud window (REMOTE_CONTEXT_WINDOWS or cloud_models.json)",
+            "max_tokens": profile.max_tokens, "wire": profile.wire,
+            "harbor_reasoning": rp.reasoning_fields(profile.wire, model) or None,
+            "harbor_replays_reasoning": model in rp.REPLAY_REASONING_MODELS,
+            "lists": {}}
+
+
+_POWER_PATCHED: list = []
+
+
+def _patch_power_fields() -> None:
+    """oMLX's GPU power cap (omlx_client._power_fields) is an oMLX payload field
+    and lift route; an openai-engine client gets neither. oMLX clients are
+    untouched. Idempotent."""
+    if _POWER_PATCHED:
+        return
+    from service.inference import omlx_client as oc
+    fields, started = oc._power_fields, oc._power_call_started
+
+    async def power_fields(client):
+        return {} if getattr(client, "engine_kind", "omlx") != "omlx" else await fields(client)
+
+    def power_call_started(client, payload):
+        return None if getattr(client, "engine_kind", "omlx") != "omlx" else started(client, payload)
+    oc._power_fields, oc._power_call_started = power_fields, power_call_started
+    _POWER_PATCHED.append((fields, started))
 
 
 def scripted_client_class():
@@ -782,18 +1191,26 @@ def _restore_aliases() -> None:
             _rebind(current, original)
 
 
-def _install_aliases(model: str, profile_as: str) -> None:
+def _install_aliases(model: str, profile_as: str | None, window: int | None = None) -> None:
+    """Alias ALIASED_LOOKUPS for `model`: to `profile_as`'s answers, and/or the
+    context window to `window` (the run's window policy, which wins)."""
     from service import config
     for attr in ALIASED_LOOKUPS:
         original = _ALIAS_ORIGINALS.setdefault(attr, getattr(config, attr))
-
-        def aliased(m, *a, _orig=original, **k):
-            return _orig(profile_as if m == model else m, *a, **k)
-        aliased._toolbench_alias = (model, profile_as)
+        if attr == "model_context_window" and window:
+            def aliased(m, *a, _orig=original, **k):
+                return int(window) if m == model else _orig(m, *a, **k)
+        elif profile_as:
+            def aliased(m, *a, _orig=original, **k):
+                return _orig(profile_as if m == model else m, *a, **k)
+        else:
+            continue
+        aliased._toolbench_alias = (model, profile_as, window)
         _rebind(getattr(config, attr), aliased)
 
 
-def bind_model(model: str, *, profile_as: str | None = None) -> dict:
+def bind_model(model: str, *, profile_as: str | None = None, lists: dict | None = None,
+               context_window: int | None = None) -> dict:
     """Make `model` the one every text role resolves to, as Settings would.
 
     config.set_roles writes the isolated overlay, so role_target("agent") (the
@@ -801,8 +1218,11 @@ def bind_model(model: str, *, profile_as: str | None = None) -> dict:
     own lookup. With `profile_as`, `model` also gets exactly what production
     gives `profile_as`: membership in each PROFILE_LISTS list (written to the
     same overlay a user would edit) and `profile_as`'s answer from each
-    ALIASED_LOOKUPS function. Without it the packaged lists are restored and
-    nothing is aliased, so behaviour is unchanged. Returns what took effect.
+    ALIASED_LOOKUPS function. With `lists` ({list name: bool}, the probe
+    treatment) `model`'s membership is exactly that instead. `context_window`
+    pins the window every budget derives from (the run's window policy:
+    min(policy, verified)). Without any of them the packaged lists are restored
+    and nothing is aliased, so behaviour is unchanged. Returns what took effect.
     """
     from service import config
     from service.config.endpoints import role_target
@@ -810,37 +1230,63 @@ def bind_model(model: str, *, profile_as: str | None = None) -> dict:
 
     _restore_aliases()
     profile_as = profile_as if profile_as and profile_as != model else None
+    if profile_as and lists is not None:
+        raise ValueError("bind_model: profile_as and lists are two different treatments")
     own_window = config.model_context_window(model)
     config.set_roles({role: model for role in TEXT_ROLES})
     packaged = config._packaged_config()
-    lists = {}
+    out_lists = {}
     for key in PROFILE_LISTS:
         names = list(packaged.get(key) or [])
         if profile_as:
             names = [m for m in names if m != model] + ([model] if profile_as in names else [])
-        lists[key] = names
-    config._save_overlay(lists)
-    if profile_as:
-        _install_aliases(model, profile_as)
+        elif lists is not None:
+            names = [m for m in names if m != model] + ([model] if lists.get(key) else [])
+        out_lists[key] = names
+    config._save_overlay(out_lists)
+    if profile_as or context_window:
+        _install_aliases(model, profile_as, context_window)
     target = role_target("agent")
     if target.model != model:
         raise RuntimeError(f"agent role resolved to {target.model!r}, not {model!r}")
-    return {"model": model, "profile_as": profile_as, "endpoint": target.endpoint.base_url,
+    treatment = "profile-as" if profile_as else "probe" if lists is not None else "packaged"
+    return {"model": model, "profile_as": profile_as, "treatment": treatment,
+            "endpoint": target.endpoint.base_url,
             "context_window": target.context_window, "own_context_window": own_window,
-            "lists": {key: model in lists[key] for key in PROFILE_LISTS}}
+            "window_policy": int(context_window) if context_window else None,
+            "lists": {key: model in out_lists[key] for key in PROFILE_LISTS}}
 
 
 _SAMPLING_KEY = re.compile(r"temp|top_|min_p|penalt|seed|think|reasoning|context|max_tokens|mtp|"
-                           r"draft|template|sampl|power", re.I)
+                           r"draft|template|sampl|power|force", re.I)
 
 
 async def engine_settings(client, model: str) -> dict:
     """The per-model settings oMLX will apply to `model` (sampling, thinking,
     window). Real runs only: this talks to the engine. Tries the admin API,
-    then the status listing, then the model_settings.json the engine loaded."""
+    then the status listing, then the model_settings.json the engine loaded.
+    On the openai engine: the server's own defaults where it reports them
+    (llama.cpp /props default_generation_settings, LM Studio /api/v0/models)."""
     import json
     out: dict = {"source": None, "settings": {}, "errors": []}
     data = None
+    if getattr(client, "engine_kind", "omlx") == "openrouter":
+        info = await engine_info(client, model)
+        row = info.get("model_row") or {}
+        out["source"], out["errors"] = "openrouter /models", info.get("errors", [])
+        out["settings"] = {"supported_parameters": row.get("supported_parameters"),
+                           "default_parameters": row.get("default_parameters"),
+                           "reasoning": row.get("reasoning"), "context_length": row.get("context_length")}
+        return out
+    if getattr(client, "engine_kind", "omlx") != "omlx":
+        info = await engine_info(client, model)
+        for source, key in (("llama.cpp /props", "props"), ("LM Studio /api/v0/models", "lmstudio_model")):
+            if isinstance(info.get(key), dict):
+                data, out["source"] = info[key], source
+                break
+        out["errors"] = info.get("errors", [])
+        out["settings"] = {k: v for k, v in _flat(data) if _SAMPLING_KEY.search(k)}
+        return out
     try:
         r = await client._client.get(f"/admin/api/models/{model}/settings")
         if r.status_code == 200 and isinstance(r.json(), dict):
@@ -865,13 +1311,103 @@ async def engine_settings(client, model: str) -> dict:
         except (OSError, ValueError) as e:
             out["errors"].append(f"model_settings.json {type(e).__name__}")
 
-    def flat(d, prefix=""):
-        for k, v in (d or {}).items():
-            if isinstance(v, dict):
-                yield from flat(v, f"{prefix}{k}.")
-            else:
-                yield f"{prefix}{k}", v
-    out["settings"] = {k: v for k, v in flat(data) if _SAMPLING_KEY.search(k)}
+    out["settings"] = {k: v for k, v in _flat(data) if _SAMPLING_KEY.search(k)}
+    return out
+
+
+def _flat(d, prefix=""):
+    for k, v in (d or {}).items():
+        if isinstance(v, dict):
+            yield from _flat(v, f"{prefix}{k}.")
+        else:
+            yield f"{prefix}{k}", v
+
+
+# Strings longer than this in engine metadata (a chat template, a license) are cut.
+_INFO_STR_MAX = 400
+
+
+def _small(value, depth: int = 0):
+    """`value` with long strings cut and deep or long structures trimmed, for meta.json."""
+    if isinstance(value, str):
+        return value if len(value) <= _INFO_STR_MAX else value[:_INFO_STR_MAX] + f"…(+{len(value) - _INFO_STR_MAX})"
+    if isinstance(value, dict):
+        return {str(k): _small(v, depth + 1) for k, v in list(value.items())[:60]} if depth < 4 else "…"
+    if isinstance(value, list):
+        return [_small(v, depth + 1) for v in value[:20]] if depth < 4 else "…"
+    return value
+
+
+async def engine_info(client, model: str) -> dict:
+    """What the engine says about itself and `model`, best effort, for meta.json.
+
+    Every request goes to the one guarded loopback port. Unknown routes are
+    simply recorded as errors: a server answers only the ones it has.
+      omlx    /health, the /v1/models/status row
+      openai  the /v1/models row; llama.cpp /props; Ollama /api/version and
+              /api/show; LM Studio /api/v0/models/<id>
+    The `runtime` field names the engine family when one of those answered."""
+    kind = getattr(client, "engine_kind", "omlx")
+    out: dict = {"kind": kind, "base_url": getattr(client, "base_url", ""), "runtime": None, "errors": []}
+
+    async def get(path, key, *, post=None):
+        try:
+            r = (await client._client.post(path, json=post) if post is not None
+                 else await client._client.get(path))
+            if r.status_code != 200:
+                out["errors"].append(f"{path} HTTP {r.status_code}")
+                return None
+            data = r.json()
+            out[key] = _small(data)
+            return data
+        except Exception as e:  # noqa: BLE001 — provenance only, never fails a run
+            out["errors"].append(f"{path} {type(e).__name__}")
+            return None
+
+    if kind == "omlx":
+        await get("/health", "health")
+        try:
+            row = next((m for m in (await client.status()).get("models", ()) if m.get("id") == model), None)
+            out["model_row"] = _small(row)
+        except Exception as e:  # noqa: BLE001
+            out["errors"].append(f"status {type(e).__name__}")
+        out["runtime"] = "omlx"
+        return out
+    if kind == "openrouter":
+        # OpenRouter's public model row: pricing, supported parameters, context,
+        # reasoning support. The model and provider that actually answered are
+        # recorded per request (cloud.usage_tap).
+        try:
+            row = (await client._inventory_rows()).get(model)
+            out["model_row"] = _small({k: row.get(k) for k in (
+                "id", "canonical_slug", "created", "context_length", "pricing", "supported_parameters",
+                "default_parameters", "architecture", "top_provider", "reasoning")} if row else None)
+        except Exception as e:  # noqa: BLE001
+            out["errors"].append(f"models {type(e).__name__}")
+        out["runtime"] = "openrouter"
+        return out
+    listing = await get(client.api_prefix + "/models", "models_listing")
+    rows = [m for m in (listing or {}).get("data") or () if isinstance(m, dict)]
+    out["model_row"] = _small(next((m for m in rows if m.get("id") == model), None))
+    out.pop("models_listing", None)
+    out["served_models"] = [str(m.get("id")) for m in rows][:50]
+    if (props := await get("/props", "props")) is not None:
+        out["runtime"] = "llama.cpp"
+        out["props"] = {k: _small(v) for k, v in props.items() if k != "chat_template"}
+        if isinstance(props.get("chat_template"), str):
+            import hashlib
+            out["props"]["chat_template_sha256"] = hashlib.sha256(props["chat_template"].encode()).hexdigest()
+    if (ver := await get("/api/version", "ollama_version")) is not None and "version" in (ver or {}):
+        out["runtime"] = out["runtime"] or "ollama"
+        show = await get("/api/show", "ollama_show", post={"model": model})
+        if isinstance(show, dict):
+            out["ollama_show"] = {k: _small(v) for k, v in show.items()
+                                  if k in ("details", "model_info", "capabilities", "modified_at")}
+    if await get(f"/api/v0/models/{model}", "lmstudio_model") is not None:
+        out["runtime"] = out["runtime"] or "lmstudio"
+    owner = str((out.get("model_row") or {}).get("owned_by") or "")
+    if not out["runtime"] and owner:
+        out["runtime"] = owner
     return out
 
 
@@ -1071,7 +1607,16 @@ def prepare_turn(client, prompt: str, history=(), *, req_id: str | None = None) 
         raise RuntimeError("production would not run this turn model-led (model_only off, agent role "
                            "not on the managed local engine, or Super Model on)")
     target = role_target("agent")
-    if not M._managed_local_agent(client, target):
+    from service.inference.remote_policy import remote_only_profile
+    if remote_only_profile() is not None:
+        # Cloud mode (cloud_reference runs): production runs the turn model-led
+        # on the profile's one target; the client must be bound to exactly it.
+        bound = getattr(client, "target", None)
+        if (getattr(client, "base_url", "").rstrip("/") != target.endpoint.base_url.rstrip("/")
+                or getattr(bound, "model", None) != target.model):
+            raise RuntimeError(f"client is not bound to the cloud agent target {target.endpoint.base_url} "
+                               f"{target.model}")
+    elif not M._managed_local_agent(client, target):
         raise RuntimeError(f"client {client.base_url} is not the managed agent target "
                            f"{target.endpoint.base_url}")
     literal_envelope = (knowledge_envelope(prompt) is not None

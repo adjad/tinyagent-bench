@@ -8,9 +8,11 @@ same faults in older records from their captured tool results, so earlier runs a
                             that asked before any Brief cycle had read them (fixed: each such
                             home now runs one unscored Brief first)
   reminder_receipt_untrusted  a reminder write returned no receipt Harbor trusts: the sandbox's
-                            reminders writer, not the model (open)
+                            reminders writer, not the model (fixed: the sandbox app now claims
+                            Calendar and Reminders writes and posts a read-back receipt)
   availability_not_ready    find_free_time said Calendar and Reminders were not ready in the
-                            sandbox (open)
+                            sandbox (fixed: the sandbox now answers Harbor's request for current
+                            reads and dates each Reminders read, as the app does)
 
 Run-level gaps (a surface not run, a fault that touches every record of one surface) go in the
 run's meta.json under `known_gaps`.

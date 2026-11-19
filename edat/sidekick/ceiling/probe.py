@@ -26,9 +26,11 @@ mode, tool_loop and tool_format).
 """
 from __future__ import annotations
 
+import json
 import re
 import shlex
 
+from edat.sidekick.ceiling.probes import drive, outcome_matches, solution_outcomes
 from edat.sidekick.ceiling.tripwire import tripwire
 from edat.sidekick.extract import FENCE_RE, visible_answer
 from edat.sidekick.graders.common import Event, GradeResult, area_events, warned
@@ -108,14 +110,22 @@ def _counts(text: str) -> dict[str, int]:
 def run_probe(iso: Isolation, area: TrialArea, check: dict, candidate: dict[str, str]) -> GradeResult:
     """Lay out given files + candidate files + hidden tests and run pytest in the sandbox.
 
-    NOT HARDENED against adversarial model code: the candidate is imported into the pytest process that
-    decides, and can read the hidden tests. `tripwire` flags code that touches that machinery, for a person
+    A case with `probes` takes the hardened path (`probes.py`). A case still on `hidden_tests` is NOT HARDENED
+    against adversarial model code: the candidate is imported into the pytest process that decides, and can
+    read the hidden tests. `tripwire` flags code that touches that machinery, for a person
     to read; the flag never changes the grade."""
     known = (set(check.get("targets") or []) | set(check.get("files") or {}) | set(check.get("hidden_files") or {})
              | set(check.get("visible_tests") or {}))
     flags = tripwire(candidate, known)
-    gr = _run_probe(iso, area, check, candidate)
-    gr.metrics["grade_hardened"] = False
+    if check.get("probes"):
+        gr = _run_host_probes(iso, area, check, candidate)
+        gr.metrics["grading"] = "host_probes"
+    else:
+        gr = _run_probe(iso, area, check, candidate)
+        gr.metrics["grading"] = "in_process_pytest"
+    # Keyed on how the row was graded (rungs.HARDENED_GRADING), never on the rung's number.
+    from edat.sidekick.ceiling.rungs import HARDENED_GRADING
+    gr.metrics["grade_hardened"] = gr.metrics["grading"] in HARDENED_GRADING
     gr.metrics["tripwire"] = ", ".join(flags) if flags else None
     return gr
 
@@ -154,6 +164,50 @@ def _run_probe(iso: Isolation, area: TrialArea, check: dict, candidate: dict[str
         return gr.fail("the tests could not use the code: " + _first_error(text))
     gr.metrics["failure_mode"] = "logic"
     return gr.fail(f"{c['failed'] + c['error']} of {total} hidden tests fail: " + _first_error(text))
+
+
+_INTERFACE_ERRORS = {"ImportError", "ModuleNotFoundError", "AttributeError", "NameError", "TypeError"}
+
+
+def _run_host_probes(iso: Isolation, area: TrialArea, check: dict, candidate: dict[str, str]) -> GradeResult:
+    """The hardened path: the candidate's files answer host-driven probes in the sandbox, the template's own
+    solution answers the same probes in a fresh area of its own, and the host compares. No hidden test file
+    and no expected value is ever in the candidate's area or process."""
+    gr = GradeResult(True)
+    for name in check["targets"]:
+        try:
+            compile(candidate.get(name, ""), name, "exec", dont_inherit=True)   # parse only, on the host
+        except (SyntaxError, ValueError, RecursionError, MemoryError) as exc:
+            gr.metrics.update(failure_mode="syntax", hidden_passed=0, hidden_total=None, partial=0.0)
+            return gr.fail(f"syntax error in {name}: {str(exc)[:160]}")
+    want = solution_outcomes(iso, check)
+    got = drive(iso, area, check, candidate)
+    probes = check["probes"]
+    ok = [outcome_matches(g, w, p) for g, w, p in zip(got, want, probes)]
+    n, k = len(probes), sum(ok)
+    gr.metrics.update(hidden_passed=k, hidden_total=n, partial=round(k / n, 4) if n else 0.0)
+    if any(g and "killed" in g for g in got):
+        gr.metrics["failure_mode"] = "timeout"
+        return gr.fail("stopped: " + str(next(g["killed"] for g in got if g and "killed" in g)))
+    if k == n:
+        gr.metrics["failure_mode"] = None
+        return gr
+    bad = [i for i, x in enumerate(ok) if not x]
+    raised = [got[i]["raise"][0] for i in bad if got[i] and "raise" in got[i]]
+    if k == 0 and (all(g is None for g in got) or (raised and sum(r in _INTERFACE_ERRORS for r in raised) * 2 > len(bad))):
+        gr.metrics["failure_mode"] = "interface"
+        return gr.fail("the probes could not use the code: " + _describe(got[bad[0]]))
+    gr.metrics["failure_mode"] = "logic"
+    i = bad[0]
+    # Never the expected value, not even a snippet: the reason goes into the raw record.
+    return gr.fail(f"{n - k} of {n} probes differ; first: probe {i} ({probes[i].get('kind')}), "
+                   f"from {probes[i].get('test') or 'a hidden test'}")
+
+
+def _describe(o) -> str:
+    if o is None:
+        return "no valid reply"
+    return json.dumps(o, sort_keys=True, default=str)[:120]
 
 
 def _first_error(text: str) -> str:

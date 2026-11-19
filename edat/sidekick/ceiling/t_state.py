@@ -9,6 +9,7 @@ return value and the type of every exception raised.
 from __future__ import annotations
 
 import random
+import re
 
 from edat.sidekick.ceiling.rungs import answer_files, fill, probe_instance, probe_template
 from edat.sidekick.gen.core import pick
@@ -61,7 +62,10 @@ def test_random_sequences():
 '''
 
 
-def _build(v, *, module, solution, prompt, tests, wrongs):
+def _build(v, *, module, solution, prompt, tests, wrongs, extra=()):
+    """`extra`: the hand conversion of every test besides the two shared ones (each an op sequence with
+    "init", "steps", "test", "covers" and optionally "raises"); the completeness gate refuses a case where
+    one is missing."""
     sol = fill(solution, **v)
     ws = []
     for old, new in wrongs:
@@ -75,7 +79,47 @@ def _build(v, *, module, solution, prompt, tests, wrongs):
     return probe_instance(
         prompt=fill(prompt, **v), targets=[f], hidden_tests=fill(_HEAD + tests + _HARNESS, **v),
         references=[answer_files({f: sol}), answer_files({f: sol}, style="label")],
-        wrong=[answer_files({f: w}) for w in ws])
+        wrong=[answer_files({f: w}) for w in ws],
+        probes=state_probes(fill(_HEAD + tests, **v), extra=extra), solution={f: sol})
+
+
+_SUT = re.compile(r"^from (\w+) import (\w+) as SUT\s*$", re.M)
+
+
+def state_probes(tests: str, *, seed: int = 1234, n_random: int = 250, extra=()) -> list[dict]:
+    """The hidden tests as host-driven op sequences: the hand-written ones (`test_hand_written_sequences`)
+    and `n_random` seeded random ones (`test_random_sequences`), drawn here, on the host, by the template's
+    own generator; then `extra`, the template's own other tests, converted by hand. Each generated sequence
+    repeats its test's one assertion (`_same`) on one sequence, so it covers "all" of that test. The old
+    `_norm` compared tuples and lists alike, so these probes do too ("seq": "loose"). The reference class
+    stays on the host side (unused: the expected results come from the template's solution, run apart)."""
+    m = _SUT.search(tests)
+    assert m, "no `from <module> import <Class> as SUT` line"
+    mod, cls = m.group(1), m.group(2)
+    ns: dict = {"__name__": "state_probes"}
+    exec(_SUT.sub("", tests), ns)                                          # noqa: S102 - the template's own code
+    seqs = [list(ops) for ops in ns["HAND"]]
+    rng = random.Random(seed)
+    seqs += [ns["gen"](rng) for _ in range(n_random)]
+    init = list(ns["ARGS"])
+    n_hand = len(ns["HAND"])
+    out = [{"kind": "ops", "mod": mod, "cls": cls, "init": init, "seq": "loose", "covers": "all",
+            "test": "test_hand_written_sequences" if i < n_hand else "test_random_sequences",
+            "steps": [[name, list(args)] for name, args in ops]} for i, ops in enumerate(seqs)]
+    for e in extra:
+        out.append({"kind": "ops", "mod": mod, "cls": cls, "seq": "loose", **e})
+    return out
+
+
+def _ctor(bad, ok):
+    """The hand conversion of a template's `test_constructor`: every argument list in `bad` must raise
+    ValueError (assertion 0), and every `(args, steps)` in `ok` must build and then behave as the solution
+    does (assertion 1)."""
+    out = [{"init": list(a), "steps": [], "raises": "ValueError", "test": "test_constructor", "covers": [0]}
+           for a in bad]
+    out += [{"init": list(a), "steps": [list(s) for s in steps], "test": "test_constructor", "covers": [1]}
+            for a, steps in ok]
+    return out
 
 
 # ------------------------------------------------------------------ parking meter
@@ -169,6 +213,17 @@ HAND = [
 ]
 
 
+def test_constructor():
+    for bad in ((0, @CAP@), (-1, @CAP@), (@RATE@, 0), (@RATE@, -1)):
+        try:
+            SUT(*bad)
+        except ValueError:
+            continue
+        raise AssertionError("accepted %r" % (bad,))
+    ops = [o("enter", "A", 0), o("leave", "A", 61)]
+    assert _run(lambda: SUT(1, 1), ops) == _run(lambda: Ref(1, 1), ops)
+
+
 def gen(rng):
     ops, t = [], 0
     for _ in range(rng.randint(8, 30)):
@@ -199,11 +254,28 @@ A call that raises must change nothing."""
 
 def _parking(rng):
     v = dict(RATE=pick(rng, [2, 3, 4]), CAP=pick(rng, [15, 18, 20]))
-    return _build(v, module="parking", solution=_PARK_SOL, prompt=_PARK_PROMPT, tests=_PARK_TESTS, wrongs=[
+    ctor = _ctor([(0, v["CAP"]), (-1, v["CAP"]), (v["RATE"], 0), (v["RATE"], -1)],
+                 [((1, 1), [["enter", ["A", 0]], ["leave", ["A", 61]]])])
+    return _build(v, module="parking", solution=_PARK_SOL, prompt=_PARK_PROMPT, tests=_PARK_TESTS, extra=ctor, wrongs=[
         ("charge = min(hours * self.rate, left)", "charge = min(hours * self.rate, self.cap)"),
         ("hours = math.ceil((minute - start) / 60)", "hours = (minute - start) // 60"),
         ("key = (plate, minute // 1440)", "key = (plate, start // 1440)"),
         ("key = (plate, minute // 1440)", "key = (None, minute // 1440)"),
+        ("if rate <= 0 or daily_cap <= 0:", "if rate < 0 or daily_cap <= 0:"),
+        ("if rate <= 0 or daily_cap <= 0:", "if rate <= 0 or daily_cap < 0:"),
+        ("if rate <= 0 or daily_cap <= 0:", "if daily_cap <= 0:"),
+        ("if rate <= 0 or daily_cap <= 0:", "if rate <= 0:"),
+        ("if rate <= 0 or daily_cap <= 0:", "if rate <= 1 or daily_cap <= 0:"),
+        ("if rate <= 0 or daily_cap <= 0:", "if rate <= 0 or daily_cap <= 1:"),
+        ("        if plate in self._in:\n            raise ValueError(\"already parked\")\n", ""),
+        ("            raise KeyError(plate)", "            raise ValueError(plate)"),
+        ("        start = self._in[plate]\n        if minute < start:", "        start = self._in.pop(plate)\n        if minute < start:"),
+        ("        if minute < start:", "        if minute <= start:"),
+        ("hours = math.ceil((minute - start) / 60)", "hours = (minute - start) // 60 + 1"),
+        ("self._paid[key] = self._paid.get(key, 0) + charge", "self._paid[key] = charge"),
+        ("        return plate in self._in", "        return plate in self._in or any(k[0] == plate for k in self._paid)"),
+        ("        return self._paid.get((plate, day), 0)", "        return self._paid.get((plate, day))"),
+        ("charge = min(hours * self.rate, left)", "charge = min(hours + self.rate, left)"),
     ])
 
 
@@ -326,6 +398,19 @@ def _calendar(rng):
         ("bid = self._next\n        self._next += 1", "bid = len(self._items) + 1"),
         ("return self._items.pop(booking_id)[3]", "return self._items[booking_id][3]"),
         ("if r == room and s < end and start < e", "if s < end and start < e"),
+        ("        if not start < end:\n            raise ValueError(\"empty or reversed range\")\n", ""),
+        ("if not start < end:", "if start > end:"),
+        ("        if not self.is_free(room, start, end):\n            raise ValueError(\"slot taken\")",
+         "        if not start < end:\n            raise ValueError(\"slot taken\")"),
+        ("        if not self.is_free(room, start, end):\n            raise ValueError(\"slot taken\")\n        bid = self._next\n        self._next += 1",
+         "        bid = self._next\n        self._next += 1\n        if not self.is_free(room, start, end):\n            raise ValueError(\"slot taken\")"),
+        ("        if booking_id not in self._items:\n            raise KeyError(booking_id)\n",
+         "        if booking_id not in self._items:\n            return None\n"),
+        ("return self._items.pop(booking_id)[3]", "return self._items.pop(booking_id)[0]"),
+        ("key=lambda row: (row[1], row[0])", "key=lambda row: (row[0], row[1])"),
+        ("in self._items.items() if r == room]", "in self._items.items()]"),
+        ("            raise ValueError(\"slot taken\")", "            raise KeyError(\"slot taken\")"),
+        ("            raise ValueError(\"empty or reversed range\")", "            raise KeyError(\"empty or reversed range\")"),
     ])
 
 
@@ -412,7 +497,20 @@ HAND = [
     [o("allow", "k", 20), o("reset", "k"), o("allow", "k", 3), o("allow", "k", 2)],
     [o("allow", "k", 0)] * L + [o("allow", "k", 0), o("allow", "k", W), o("allow", "k", W), o("allow", "k", W)],
     [o("remaining", "k", 3), o("allow", "k", 2), o("remaining", "k", 1)],
+    [o("allow", "k", 0)] * L + [o("allow", "k", 3), o("allow", "k", 2), o("remaining", "k", 2),
+                                o("remaining", "k", 3), o("allow", "k", 3)],
 ]
+
+
+def test_constructor():
+    for bad in ((0, W), (-1, W), (L, 0), (L, -1)):
+        try:
+            SUT(*bad)
+        except ValueError:
+            continue
+        raise AssertionError("accepted %r" % (bad,))
+    ops = [o("allow", "k", 0), o("allow", "k", 0), o("allow", "k", 1)]
+    assert _run(lambda: SUT(1, 1), ops) == _run(lambda: Ref(1, 1), ops)
 
 
 def gen(rng):
@@ -442,13 +540,34 @@ Keys are independent of each other."""
 
 def _limiter(rng):
     v = dict(LIMIT=pick(rng, [2, 3, 4]), WINDOW=pick(rng, [8, 10, 15]))
-    return _build(v, module="limiter", solution=_RATE_SOL, prompt=_RATE_PROMPT, tests=_RATE_TESTS, wrongs=[
+    ctor = _ctor([(0, v["WINDOW"]), (-1, v["WINDOW"]), (v["LIMIT"], 0), (v["LIMIT"], -1)],
+                 [((1, 1), [["allow", ["k", 0]], ["allow", ["k", 0]], ["allow", ["k", 1]]])])
+    return _build(v, module="limiter", solution=_RATE_SOL, prompt=_RATE_PROMPT, tests=_RATE_TESTS, extra=ctor, wrongs=[
         ("if h > t - self.window]", "if h >= t - self.window]"),
         ("        if len(live) >= self.limit:\n            return False\n        live.append(t)\n        return True",
          "        live.append(t)\n        return len(live) <= self.limit"),
         ("        self._last.pop(key, None)", "        pass"),
         ("    def remaining(self, key, t):\n        if t < self._last.get(key, t):\n            raise ValueError(\"time went backwards\")\n",
          "    def remaining(self, key, t):\n        if t < self._last.get(key, t):\n            raise ValueError(\"time went backwards\")\n        self._last[key] = t\n"),
+        ("if limit < 1 or window <= 0:", "if limit < 0 or window <= 0:"),
+        ("if limit < 1 or window <= 0:", "if limit < 1 or window < 0:"),
+        ("if limit < 1 or window <= 0:", "if window <= 0:"),
+        ("if limit < 1 or window <= 0:", "if limit < 1:"),
+        ("if limit < 1 or window <= 0:", "if limit < 2 or window <= 0:"),
+        ("if limit < 1 or window <= 0:", "if limit < 1 or window <= 1:"),
+        ("    def allow(self, key, t):\n        if t < self._last.get(key, t):", "    def allow(self, key, t):\n        if t <= self._last.get(key, t):"),
+        ("    def allow(self, key, t):\n        if t < self._last.get(key, t):", "    def allow(self, key, t):\n        if t < max(self._last.values(), default=t):"),
+        ("        self._last[key] = t\n        live = self._live(key, t)\n        self._hits[key] = live\n        if len(live) >= self.limit:\n            return False\n        live.append(t)\n        return True",
+         "        live = self._live(key, t)\n        self._hits[key] = live\n        if len(live) >= self.limit:\n            return False\n        live.append(t)\n        self._last[key] = t\n        return True"),
+        ("    def allow(self, key, t):\n        if t < self._last.get(key, t):\n            raise ValueError(\"time went backwards\")\n        self._last[key] = t",
+         "    def allow(self, key, t):\n        self._last[key] = t\n        if t < self._last.get(key, t):\n            raise ValueError(\"time went backwards\")"),
+        ("    def remaining(self, key, t):\n        if t < self._last.get(key, t):\n            raise ValueError(\"time went backwards\")\n", "    def remaining(self, key, t):\n"),
+        ("if t < self._last.get(key, t):\n            raise ValueError(\"time went backwards\")\n        return self.limit",
+         "if t <= self._last.get(key, t):\n            raise ValueError(\"time went backwards\")\n        return self.limit"),
+        ("        self._hits.pop(key, None)\n", ""),
+        ("        self._hits.pop(key, None)\n", "        self._hits.pop(key)\n"),
+        ("        return [h for h in self._hits.get(key, []) if h > t - self.window]",
+         "        return [h for ks in self._hits.values() for h in ks if h > t - self.window]"),
     ])
 
 
@@ -597,6 +716,29 @@ def _ledger(rng):
         ("        self._stock[sku] -= qty\n", ""),
         ("if t >= exp:\n            raise ValueError(\"reservation expired\")", "if t > exp:\n            raise ValueError(\"reservation expired\")"),
         ("if qty > self.available(sku, t):", "if qty > self._stock.get(sku, 0):"),
+        ("        if qty <= 0:\n            raise ValueError(\"quantity must be positive\")", "        if qty < 0:\n            raise ValueError(\"quantity must be positive\")"),
+        ("        if qty <= 0:\n            raise ValueError(\"quantity must be positive\")\n        self._stock", "        self._stock"),
+        ("if qty <= 0 or ttl <= 0:", "if qty < 0 or ttl <= 0:"),
+        ("if qty <= 0 or ttl <= 0:", "if qty <= 0 or ttl < 0:"),
+        ("if qty <= 0 or ttl <= 0:", "if ttl <= 0:"),
+        ("if qty <= 0 or ttl <= 0:", "if qty <= 0:"),
+        ("if qty > self.available(sku, t):", "if qty >= self.available(sku, t):"),
+        ("if s == sku and t < exp)", "if s == sku and t <= exp)"),
+        ("        rid = self._next\n        self._next += 1\n        self._res[rid]", "        rid = len(self._res) + 1\n        self._res[rid]"),
+        ("        if qty <= 0 or ttl <= 0:\n            raise ValueError(\"quantity and ttl must be positive\")\n        if qty > self.available(sku, t):\n            raise ValueError(\"not enough available\")\n        rid = self._next\n        self._next += 1\n",
+         "        rid = self._next\n        self._next += 1\n        if qty <= 0 or ttl <= 0:\n            raise ValueError(\"quantity and ttl must be positive\")\n        if qty > self.available(sku, t):\n            raise ValueError(\"not enough available\")\n"),
+        ("        if t >= exp:\n            raise ValueError(\"reservation expired\")\n        del self._res[rid]",
+         "        del self._res[rid]\n        if t >= exp:\n            raise ValueError(\"reservation expired\")"),
+        ("        if t >= exp:\n            raise ValueError(\"reservation expired\")\n", ""),
+        ("        del self._res[rid]\n        self._stock[sku] -= qty", "        self._stock[sku] -= qty"),
+        ("        self._stock[sku] -= qty\n        return qty", "        self._stock[sku] -= qty\n        return exp"),
+        ("            raise KeyError(rid)\n        sku, qty, exp", "            return 0\n        sku, qty, exp"),
+        ("            raise KeyError(rid)\n        return self._res.pop(rid)[1]", "            return 0\n        return self._res.pop(rid)[1]"),
+        ("        return self._res.pop(rid)[1]", "        return self._res[rid][1]"),
+        ("        return self._res.pop(rid)[1]", "        return self._res.pop(rid)[2]"),
+        ("        return self._stock.get(sku, 0) - held", "        return self._stock[sku] - held"),
+        ("        held = sum(", "        self._res = {k: r for k, r in self._res.items() if t < r[2]}\n        held = sum("),
+        ("            raise ValueError(\"not enough available\")", "            raise KeyError(\"not enough available\")"),
     ])
 
 
@@ -729,6 +871,23 @@ def _wallet(rng):
         ("return sum(lot[2] for lot in self._lots if lot[0] > t)", "return sum(lot[2] for lot in self._lots)"),
         ("t < lot[0] <= t + within", "t < lot[0] < t + within"),
         ("for lot in sorted(l for l in self._lots if l[0] > t):", "for lot in sorted(self._lots):"),
+        ("if points <= 0 or ttl <= 0:", "if points < 0 or ttl <= 0:"),
+        ("if points <= 0 or ttl <= 0:", "if points <= 0 or ttl < 0:"),
+        ("if points <= 0 or ttl <= 0:", "if ttl <= 0:"),
+        ("if points <= 0 or ttl <= 0:", "if points <= 0:"),
+        ("return sum(lot[2] for lot in self._lots if lot[0] > t)", "return sum(lot[2] for lot in self._lots if lot[0] >= t)"),
+        ("for lot in sorted(l for l in self._lots if l[0] > t):", "for lot in sorted((l for l in self._lots if l[0] > t), key=lambda l: (l[0], -l[1])):"),
+        ("for lot in sorted(l for l in self._lots if l[0] > t):", "for lot in sorted(l for l in self._lots if l[0] >= t):"),
+        ("            if need == 0:\n                break\n", ""),
+        ("        if points <= 0:\n            raise ValueError(\"points must be positive\")", "        if points < 0:\n            raise ValueError(\"points must be positive\")"),
+        ("        if points <= 0:\n            raise ValueError(\"points must be positive\")\n", ""),
+        ("        if points > self.balance(t):", "        if points >= self.balance(t):"),
+        ("        if points > self.balance(t):\n            raise ValueError(\"not enough points\")\n", ""),
+        ("            lot[2] -= take\n", ""),
+        ("        self._lots = [l for l in self._lots if l[2] > 0]\n", ""),
+        ("t < lot[0] <= t + within", "lot[0] <= t + within"),
+        ("            raise ValueError(\"not enough points\")", "            raise KeyError(\"not enough points\")"),
+        ("            take = min(need, lot[2])\n            lot[2] -= take\n            need -= take", "            take = lot[2]\n            lot[2] -= take\n            need -= take"),
     ])
 
 
@@ -833,6 +992,17 @@ HAND = [
 ]
 
 
+def test_constructor():
+    for bad in ((0, PER), (-1, PER), (@ROWS@, 0), (@ROWS@, -1)):
+        try:
+            SUT(*bad)
+        except ValueError:
+            continue
+        raise AssertionError("accepted %r" % (bad,))
+    ops = [o("allocate", 1, "a"), o("allocate", 1, "b"), o("free_count"), o("seats_of", "b")]
+    assert _run(lambda: SUT(1, 1), ops) == _run(lambda: Ref(1, 1), ops)
+
+
 def gen(rng):
     ops = []
     for _ in range(rng.randint(10, 40)):
@@ -861,12 +1031,33 @@ _SEAT_PROMPT = """Write `seatmap.py` with a class `SeatMap` that hands out seats
 
 def _seatmap(rng):
     v = dict(ROWS=pick(rng, [3, 4]), PER=pick(rng, [5, 6, 8]))
-    return _build(v, module="seatmap", solution=_SEAT_SOL, prompt=_SEAT_PROMPT, tests=_SEAT_TESTS, wrongs=[
+    ctor = _ctor([(0, v["PER"]), (-1, v["PER"]), (v["ROWS"], 0), (v["ROWS"], -1)],
+                 [((1, 1), [["allocate", [1, "a"]], ["allocate", [1, "b"]], ["free_count", []], ["seats_of", ["b"]]])])
+    return _build(v, module="seatmap", solution=_SEAT_SOL, prompt=_SEAT_PROMPT, tests=_SEAT_TESTS, extra=ctor, wrongs=[
         ("run = run + 1 if (r, c) not in self._owner else 0", "run = run + 1 if (r, c) not in self._owner else run"),
         ("        for cell in mine:\n            del self._owner[cell]\n        return len(mine)",
          "        del self._owner[mine[0]]\n        return len(mine)"),
         ("if n < 1 or n > self.per_row:", "if n < 1 or n >= self.per_row:"),
         ("for r in range(self.rows):\n            run = 0", "for r in reversed(range(self.rows)):\n            run = 0"),
+        ("if rows < 1 or per_row < 1:", "if rows < 0 or per_row < 1:"),
+        ("if rows < 1 or per_row < 1:", "if rows < 1 or per_row < 0:"),
+        ("if rows < 1 or per_row < 1:", "if per_row < 1:"),
+        ("if rows < 1 or per_row < 1:", "if rows < 1:"),
+        ("if rows < 1 or per_row < 1:", "if rows < 2 or per_row < 1:"),
+        ("if rows < 1 or per_row < 1:", "if rows < 1 or per_row < 2:"),
+        ("if n < 1 or n > self.per_row:", "if n < 0 or n > self.per_row:"),
+        ("if n < 1 or n > self.per_row:", "if n < 1:"),
+        ("if n < 1 or n > self.per_row:", "if n > self.per_row:"),
+        ("        raise LookupError(\"no block of that size\")", "        raise ValueError(\"no block of that size\")"),
+        ("        raise LookupError(\"no block of that size\")", "        return None"),
+        ("            for c in range(self.per_row):\n                run = run + 1 if (r, c) not in self._owner else 0\n                if run == n:\n                    cells = [(r, k) for k in range(c - n + 1, c + 1)]",
+         "            for c in reversed(range(self.per_row)):\n                run = run + 1 if (r, c) not in self._owner else 0\n                if run == n:\n                    cells = [(r, k) for k in range(c, c + n)]"),
+        ("return [self._label(*cell) for cell in cells]", "return [self._label(*cell) for cell in reversed(cells)]"),
+        ("        if not mine:\n            raise KeyError(name)", "        if not mine:\n            return 0"),
+        ("        if not mine:\n            raise KeyError(name)", "        if not mine:\n            raise ValueError(name)"),
+        ("        return len(mine)", "        return 1"),
+        ("        return self.rows * self.per_row - len(self._owner)", "        return self.rows * self.per_row - len(set(self._owner.values()))"),
+        ("sorted(c for c, who in self._owner.items() if who == name)", "[c for c, who in self._owner.items() if who == name]"),
     ])
 
 
@@ -970,6 +1161,10 @@ def test_constructor():
             continue
         raise AssertionError("limit %r accepted" % bad)
     assert _run(lambda: SUT(), [o("state")]) == _run(lambda: Ref(), [o("state")])
+    for args, ops in (((), [o("edit", str(i)) for i in range(LIM + 2)] + [o("undo")] * (LIM + 2) + [o("state")]),
+                      (("z",), [o("edit", "a"), o("undo"), o("edit", "b"), o("undo"), o("undo"), o("state")]),
+                      (("x", 1), [o("edit", "a"), o("edit", "b"), o("undo"), o("undo"), o("redo"), o("state")])):
+        assert _run(lambda: SUT(*args), ops) == _run(lambda: Ref(*args), ops)
 
 
 def gen(rng):
@@ -1000,11 +1195,45 @@ A call that raises must change nothing."""
 
 def _history(rng):
     v = dict(LIMIT=pick(rng, [3, 4]))
-    return _build(v, module="history", solution=_DOC_SOL, prompt=_DOC_PROMPT, tests=_DOC_TESTS, wrongs=[
+    # test_constructor, by hand: each bad limit must raise ValueError (assertion 0), and the defaults give
+    # the solution's state (assertion 1).
+    ctor = [{"init": ["x", bad], "steps": [], "raises": "ValueError", "test": "test_constructor", "covers": [0]}
+            for bad in (0, -1)]
+    ctor.append({"init": [], "steps": [["state", []]], "test": "test_constructor", "covers": [1]})
+    # the defaults, by hand: the text starts empty and the default limit is LIMIT (assertion 2, three runs).
+    ctor.append({"init": [], "test": "test_constructor", "covers": [2],
+                 "steps": [["edit", [str(i)]] for i in range(v["LIMIT"] + 2)] + [["undo", []]] * (v["LIMIT"] + 2)
+                 + [["state", []]]})
+    ctor.append({"init": ["z"], "test": "test_constructor", "covers": [2],
+                 "steps": [["edit", ["a"]], ["undo", []], ["edit", ["b"]], ["undo", []], ["undo", []], ["state", []]]})
+    ctor.append({"init": ["x", 1], "test": "test_constructor", "covers": [2],
+                 "steps": [["edit", ["a"]], ["edit", ["b"]], ["undo", []], ["undo", []], ["redo", []], ["state", []]]})
+    return _build(v, module="history", solution=_DOC_SOL, prompt=_DOC_PROMPT, tests=_DOC_TESTS, extra=ctor, wrongs=[
         ("        self._redo.clear()\n        return True", "        return True"),
         ("        if text == self._text:\n            return False\n", ""),
         ("        if len(self._undo) > self._limit:\n            self._undo.pop(0)\n", ""),
         ("self._redo.append(self._text)\n        self._text = self._undo.pop()", "self._text = self._undo.pop()"),
+        ("if limit < 1:", "if limit < 0:"),
+        ("if limit < 1:", "if limit < 2:"),
+        ("        if limit < 1:\n            raise ValueError(\"limit must be at least 1\")\n", ""),
+        ("def __init__(self, text=\"\", limit=@LIMIT@):", "def __init__(self, text=\"x\", limit=@LIMIT@):"),
+        ("def __init__(self, text=\"\", limit=@LIMIT@):", "def __init__(self, text=\"\", limit=@LIMIT@ + 1):"),
+        ("def __init__(self, text=\"\", limit=@LIMIT@):", "def __init__(self, text=\"\", limit=1):"),
+        ("if len(self._undo) > self._limit:", "if len(self._undo) >= self._limit:"),
+        ("self._undo.pop(0)", "self._undo.pop()"),
+        ("        if text == self._text:\n            return False\n", "        if text == self._text:\n            self._redo.clear()\n            return False\n"),
+        ("        if text == self._text:\n            return False\n", "        if text == self._text:\n            return True\n"),
+        ("        self._redo.clear()\n        return True", "        self._redo.clear()\n        return None"),
+        ("            raise IndexError(\"nothing to undo\")", "            return self._text"),
+        ("            raise IndexError(\"nothing to redo\")", "            return self._text"),
+        ("            raise IndexError(\"nothing to undo\")", "            raise ValueError(\"nothing to undo\")"),
+        ("            raise IndexError(\"nothing to redo\")", "            raise ValueError(\"nothing to redo\")"),
+        ("        self._undo.append(self._text)\n        self._text = self._redo.pop()", "        self._text = self._redo.pop()"),
+        ("        return [self._text, len(self._undo), len(self._redo)]", "        return [self._text, len(self._redo), len(self._undo)]"),
+        ("        self._redo.append(self._text)\n        self._text = self._undo.pop()\n        return self._text",
+         "        self._redo.append(self._text)\n        self._text = self._undo.pop()\n        return self._redo[-1]"),
+        ("        self._undo.append(self._text)\n        self._text = self._redo.pop()\n        return self._text",
+         "        self._undo.append(self._text)\n        self._text = self._redo.pop()\n        return self._undo[-1]"),
     ])
 
 
@@ -1132,7 +1361,27 @@ def _standings(rng):
         ("key=lambda r: (-r[2], -r[3], -r[4], r[0])", "key=lambda r: (-r[2], -r[4], -r[3], r[0])"),
         ("key=lambda r: (-r[2], -r[3], -r[4], r[0])", "key=lambda r: (-r[2], -r[3], -r[4])"),
         ("return self._matches.pop()", "return self._matches.pop(0)"),
+        ("        if home == away:\n            raise ValueError(\"a team cannot play itself\")\n", ""),
+        ("        if home_goals < 0 or away_goals < 0:\n            raise ValueError(\"negative goals\")\n", ""),
+        ("if home_goals < 0 or away_goals < 0:", "if home_goals < 0:"),
+        ("if home_goals < 0 or away_goals < 0:", "if away_goals < 0:"),
+        ("if home_goals < 0 or away_goals < 0:", "if home_goals <= 0 or away_goals < 0:"),
+        ("if home_goals < 0 or away_goals < 0:", "if home_goals < 0 or away_goals <= 0:"),
         ("row[2] += 3 if gf > ga else 1 if gf == ga else 0", "row[2] += 3 if gf > ga else 1 if gf == ga and home == team else 0"),
+        ("            raise IndexError(\"no matches\")", "            return None"),
+        ("            raise IndexError(\"no matches\")", "            raise KeyError(\"no matches\")"),
+        ("        return [list(m) for m in self._matches]", "        return [list(m) for m in reversed(self._matches)]"),
+        ("key=lambda r: (-r[2], -r[3], -r[4], r[0])", "key=lambda r: (r[2], -r[3], -r[4], r[0])"),
+        ("key=lambda r: (-r[2], -r[3], -r[4], r[0])", "key=lambda r: (-r[2], r[3], -r[4], r[0])"),
+        ("key=lambda r: (-r[2], -r[3], -r[4], r[0])", "key=lambda r: (-r[2], -r[3], r[4], r[0])"),
+        ("row[2] += 3 if gf > ga else 1 if gf == ga else 0", "row[2] += 2 if gf > ga else 1 if gf == ga else 0"),
+        ("row[2] += 3 if gf > ga else 1 if gf == ga else 0", "row[2] += 3 if gf > ga else 0"),
+        ("row[2] += 3 if gf > ga else 1 if gf == ga else 0", "row[2] += 3 if gf > ga else 1 if gf == ga else -1"),
+        ("(away, ag, hg)", "(away, hg, ag)"),
+        ("                row[3] += gf - ga\n", "                row[3] += gf\n"),
+        ("                row[4] += gf\n", "                row[4] += ga\n"),
+        ("                row[1] += 1\n", "                row[1] += 1 if gf or ga else 0\n"),
+        ("        return self._matches.pop()", "        self._matches.pop()\n        return None"),
     ])
 
 
@@ -1291,6 +1540,17 @@ HAND = [
 ]
 
 
+def test_constructor():
+    for bad in ((TITLES, 0), (TITLES, -1)):
+        try:
+            SUT(*bad)
+        except ValueError:
+            continue
+        raise AssertionError("accepted %r" % (bad,))
+    ops = [o("place_hold", T0, "ann", 0), o("queue", T0, 0), o("queue", T0, 1)]
+    assert _run(lambda: SUT(TITLES, 1), ops) == _run(lambda: Ref(TITLES, 1), ops)
+
+
 def gen(rng):
     ops, t = [], 0
     for _ in range(rng.randint(10, 40)):
@@ -1323,11 +1583,47 @@ The queue's front member has `pickup_days` days to collect a copy that is on the
 def _holds(rng):
     titles = pick(rng, [["atlas", "birds", "chess"], ["maps", "poems", "tides"], ["ants", "boats", "coins"]])
     v = dict(TITLES=repr(titles), DAYS=pick(rng, [2, 3, 4]))
-    return _build(v, module="holddesk", solution=_HOLD_SOL, prompt=_HOLD_PROMPT, tests=_HOLD_TESTS, wrongs=[
+    ctor = _ctor([(titles, 0), (titles, -1)],
+                 [((titles, 1), [["place_hold", [titles[0], "ann", 0]], ["queue", [titles[0], 0]],
+                                 ["queue", [titles[0], 1]]])])
+    return _build(v, module="holddesk", solution=_HOLD_SOL, prompt=_HOLD_PROMPT, tests=_HOLD_TESTS, extra=ctor, wrongs=[
         ("self._free_since[title] = q[0][1] + self._pickup", "self._free_since[title] = now"),
         ("if now >= q[0][1] + self._pickup:", "if now > q[0][1] + self._pickup:"),
         ("        if any(m == member for m, _ in q):\n            raise ValueError(\"already holding\")\n", ""),
         ("        return len(q)", "        return len(q) - 1"),
+        ("if pickup_days < 1:", "if pickup_days < 0:"),
+        ("if pickup_days < 1:", "if pickup_days < 2:"),
+        ("        if pickup_days < 1:\n            raise ValueError(\"pickup window must be at least 1\")\n", ""),
+        ("    def place_hold(self, title, member, now):\n        if title not in self._queue:\n            raise KeyError(title)",
+         "    def place_hold(self, title, member, now):\n        if title not in self._queue:\n            raise ValueError(title)"),
+        ("    def pickup(self, title, member, now):\n        if title not in self._queue:\n            raise KeyError(title)",
+         "    def pickup(self, title, member, now):\n        if title not in self._queue:\n            raise ValueError(title)"),
+        ("    def return_copy(self, title, now):\n        if title not in self._queue:\n            raise KeyError(title)",
+         "    def return_copy(self, title, now):\n        if title not in self._queue:\n            raise ValueError(title)"),
+        ("    def queue(self, title, now):\n        if title not in self._queue:\n            raise KeyError(title)",
+         "    def queue(self, title, now):\n        if title not in self._queue:\n            raise ValueError(title)"),
+        ("    def pickup(self, title, member, now):\n        if title not in self._queue:\n            raise KeyError(title)",
+         "    def pickup(self, title, member, now):\n        if title not in self._queue:\n            return False"),
+        ("    def queue(self, title, now):\n        if title not in self._queue:\n            raise KeyError(title)",
+         "    def queue(self, title, now):\n        if title not in self._queue:\n            return []"),
+        ("        if q and self._shelf[title] and q[0][0] == member:", "        if q and q[0][0] == member:"),
+        ("        if q and self._shelf[title] and q[0][0] == member:", "        if q and self._shelf[title] and any(m == member for m, _ in q):"),
+        ("            q.pop(0)\n            self._shelf[title] = False\n            return True", "            q.pop(0)\n            return True"),
+        ("            q.pop(0)\n            self._shelf[title] = False\n            return True", "            self._shelf[title] = False\n            return True"),
+        ("        return False\n\n    def return_copy", "        return None\n\n    def return_copy"),
+        ("        if self._shelf[title]:\n            raise ValueError(\"copy is not out\")\n", ""),
+        ("            raise ValueError(\"copy is not out\")", "            raise KeyError(\"copy is not out\")"),
+        ("        self._free_since[title] = now\n        self._settle(title, now)", "        self._settle(title, now)"),
+        ("        self._shelf[title] = True\n", ""),
+        ("        return [m for m, _ in self._queue[title]]", "        return [m for m, _ in reversed(self._queue[title])]"),
+        ("        self._settle(title, now)\n        return [m for m, _ in self._queue[title]]", "        return [m for m, _ in self._queue[title]]"),
+        ("        self._settle(title, now)\n        q = self._queue[title]\n        if q and self._shelf[title]", "        q = self._queue[title]\n        if q and self._shelf[title]"),
+        ("        self._settle(title, now)\n        q = self._queue[title]\n        if any(", "        q = self._queue[title]\n        if any("),
+        ("        if not q:\n            self._free_since[title] = now\n", ""),
+        ("                q.pop(0)\n                continue", "                q.pop(0)\n                break"),
+        ("        while q and self._shelf[title]:", "        while q:"),
+        ("                q[0][1] = self._free_since[title]", "                q[0][1] = now"),
+        ("        self._shelf = {t: True for t in titles}", "        self._shelf = {t: False for t in titles}"),
     ])
 
 
@@ -1445,6 +1741,17 @@ HAND = [
 ]
 
 
+def test_constructor():
+    for bad in ((0, REST), (-1, REST), (MAXH, -1)):
+        try:
+            SUT(*bad)
+        except ValueError:
+            continue
+        raise AssertionError("accepted %r" % (bad,))
+    ops = [o("assign", "ann", 0, 0, 1), o("assign", "ann", 0, 1, 2), o("assign", "ann", 0, 2, 3), o("hours", "ann")]
+    assert _run(lambda: SUT(1, 0), ops) == _run(lambda: Ref(1, 0), ops)
+
+
 def gen(rng):
     ops = []
     for _ in range(rng.randint(10, 40)):
@@ -1475,12 +1782,46 @@ A call that raises must change nothing."""
 
 def _roster(rng):
     v = dict(MAX=pick(rng, [16, 20, 24]), REST=pick(rng, [8, 10, 12]))
-    return _build(v, module="roster", solution=_ROSTER_SOL, prompt=_ROSTER_PROMPT, tests=_ROSTER_TESTS, wrongs=[
+    ctor = _ctor([(0, v["REST"]), (-1, v["REST"]), (v["MAX"], -1)],
+                 [((1, 0), [["assign", ["ann", 0, 0, 1]], ["assign", ["ann", 0, 1, 2]], ["assign", ["ann", 0, 2, 3]],
+                            ["hours", ["ann"]]])])
+    return _build(v, module="roster", solution=_ROSTER_SOL, prompt=_ROSTER_PROMPT, tests=_ROSTER_TESTS, extra=ctor, wrongs=[
         ("if a < y + self.min_rest and x < b + self.min_rest:", "if a < y and x < b:"),
         ("if total > self.max_hours:", "if total >= self.max_hours:"),
         ("key=lambda r: (r[1], r[0])", "key=lambda r: (r[0], r[1])"),
         ("if a < y + self.min_rest and x < b + self.min_rest:",
          "if x // 24 == day and a < y + self.min_rest and x < b + self.min_rest:"),
+        ("if max_hours < 1 or min_rest < 0:", "if max_hours < 0 or min_rest < 0:"),
+        ("if max_hours < 1 or min_rest < 0:", "if max_hours < 1 or min_rest < -1:"),
+        ("if max_hours < 1 or min_rest < 0:", "if max_hours < 1 or min_rest <= 0:"),
+        ("if max_hours < 1 or min_rest < 0:", "if max_hours < 2 or min_rest < 0:"),
+        ("if max_hours < 1 or min_rest < 0:", "if min_rest < 0:"),
+        ("if max_hours < 1 or min_rest < 0:", "if max_hours < 1:"),
+        ("if not 0 <= start < end <= 24:", "if not 0 < start < end <= 24:"),
+        ("if not 0 <= start < end <= 24:", "if not 0 <= start <= end <= 24:"),
+        ("if not 0 <= start < end <= 24:", "if not 0 <= start < end < 24:"),
+        ("if not 0 <= start < end <= 24:", "if not start < end <= 24:"),
+        ("if not 0 <= start < end <= 24:", "if not 0 <= start < end:"),
+        ("        if not 0 <= start < end <= 24:\n            raise ValueError(\"bad shift hours\")\n", ""),
+        ("            if a < y + self.min_rest and x < b + self.min_rest:", "            if a < y + self.min_rest - 1 and x < b + self.min_rest - 1:"),
+        ("            if a < y + self.min_rest and x < b + self.min_rest:", "            if a <= y + self.min_rest and x <= b + self.min_rest:"),
+        ("            if a < y + self.min_rest and x < b + self.min_rest:", "            if a < y + self.min_rest or x < b + self.min_rest:"),
+        ("        if total > self.max_hours:\n            raise ValueError(\"too many hours\")\n", ""),
+        ("        return total\n\n    def unassign", "        return b - a\n\n    def unassign"),
+        ("        mine = self._shifts.get(name, [])", "        mine = [s for ss in self._shifts.values() for s in ss]"),
+        ("        total = sum(y - x for x, y in mine) + (b - a)", "        total = sum(y - x for x, y in mine if x // 24 == day) + (b - a)"),
+        ("        mine = self._shifts.get(name, [])\n        for x, y in mine:\n            if a < y + self.min_rest and x < b + self.min_rest:\n                raise ValueError(\"not enough rest\")\n        total = sum(y - x for x, y in mine) + (b - a)\n        if total > self.max_hours:\n            raise ValueError(\"too many hours\")\n        self._shifts.setdefault(name, []).append((a, b))",
+         "        mine = self._shifts.get(name, [])\n        self._shifts.setdefault(name, []).append((a, b))\n        for x, y in mine:\n            if a < y + self.min_rest and x < b + self.min_rest:\n                raise ValueError(\"not enough rest\")\n        total = sum(y - x for x, y in mine) + (b - a)\n        if total > self.max_hours:\n            raise ValueError(\"too many hours\")"),
+        ("        raise KeyError((name, day, start))", "        return 0"),
+        ("        raise KeyError((name, day, start))", "        raise ValueError((name, day, start))"),
+        ("                del self._shifts[name][i]\n", "                pass\n"),
+        ("                del self._shifts[name][i]\n", "                self._shifts[name] = []\n"),
+        ("            if x == a:", "            if x % 24 == start:"),
+        ("                return y - x\n        raise", "                return y\n        raise"),
+        ("        return sum(y - x for x, y in self._shifts.get(name, []))", "        return sum(y - x for x, y in self._shifts[name])"),
+        ("                if x // 24 == day:", "                if y // 24 == day:"),
+        ("                    rows.append([name, x - day * 24, y - day * 24])", "                    rows.append([name, x, y])"),
+        ("        return sorted(rows, key=lambda r: (r[1], r[0]))", "        return sorted(rows, key=lambda r: r[1])"),
     ])
 
 
@@ -1604,6 +1945,8 @@ HAND = [
      o("status", "b", 1), o("status", "c", BASE)],
     [o("fail", "a", 0), o("succeed", "a"), o("fail", "a", 0), o("fail", "a", BASE), o("fail", "a", BASE * 4),
      o("fail", "a", 9999)],
+    _die("a", 0) + [o("status", "a", (MAXF - 2) * 1000 + 1), o("fail", "a", (MAXF - 2) * 1000 + 1),
+                    o("succeed", "a"), o("revive", "a"), o("status", "a", (MAXF - 2) * 1000 + 1)],
 ]
 
 
@@ -1614,6 +1957,8 @@ def test_constructor():
         except ValueError:
             continue
         raise AssertionError("accepted %r" % (bad,))
+    ops = [o("fail", "a", 0), o("status", "a", 1), o("revive", "a"), o("status", "a", 1)]
+    assert _run(lambda: SUT(1, 1, 1), ops) == _run(lambda: Ref(1, 1, 1), ops)
 
 
 def gen(rng):
@@ -1646,11 +1991,47 @@ A call that raises must change nothing."""
 
 def _retry(rng):
     v = dict(MAXF=pick(rng, [4, 5]), BASE=pick(rng, [2, 3]), CAP=pick(rng, [5, 6, 7]))
-    return _build(v, module="retry", solution=_RETRY_SOL, prompt=_RETRY_PROMPT, tests=_RETRY_TESTS, wrongs=[
+    # test_constructor, by hand: each bad setting must raise ValueError.
+    ctor = [{"init": list(bad), "steps": [], "raises": "ValueError", "test": "test_constructor", "covers": [0]}
+            for bad in ((0, 1, 5), (3, 0, 5), (3, 5, 4))]
+    # ... and the smallest good settings build and behave as the solution does (assertion 1).
+    ctor += _ctor([], [((1, 1, 1), [["fail", ["a", 0]], ["status", ["a", 1]], ["revive", ["a"]], ["status", ["a", 1]]])])
+    return _build(v, module="retry", solution=_RETRY_SOL, prompt=_RETRY_PROMPT, tests=_RETRY_TESTS, extra=ctor, wrongs=[
         ("        self._jobs.pop(job, None)\n\n    def revive", "        if rec is not None:\n            rec[\"retry_at\"] = 0\n\n    def revive"),
         ("t + min(self.cap, self.base * 2 ** (rec[\"failures\"] - 1))", "t + self.base * 2 ** (rec[\"failures\"] - 1)"),
         ("        if state == \"waiting\":\n            raise ValueError(\"job is not due yet\")\n", ""),
         ("        del self._jobs[job]", "        self._jobs[job][\"dead\"] = False"),
+        ("if max_failures < 1 or base_delay < 1 or max_delay < base_delay:", "if max_failures < 0 or base_delay < 1 or max_delay < base_delay:"),
+        ("if max_failures < 1 or base_delay < 1 or max_delay < base_delay:", "if max_failures < 1 or base_delay < 0 or max_delay < base_delay:"),
+        ("if max_failures < 1 or base_delay < 1 or max_delay < base_delay:", "if max_failures < 1 or base_delay < 1 or max_delay <= base_delay:"),
+        ("if max_failures < 1 or base_delay < 1 or max_delay < base_delay:", "if max_failures < 1 or base_delay < 1:"),
+        ("if max_failures < 1 or base_delay < 1 or max_delay < base_delay:", "if base_delay < 1 or max_delay < base_delay:"),
+        ("if max_failures < 1 or base_delay < 1 or max_delay < base_delay:", "if max_failures < 1 or max_delay < base_delay:"),
+        ("if max_failures < 1 or base_delay < 1 or max_delay < base_delay:", "if max_failures < 2 or base_delay < 1 or max_delay < base_delay:"),
+        ("if max_failures < 1 or base_delay < 1 or max_delay < base_delay:", "if max_failures < 1 or base_delay < 2 or max_delay < base_delay:"),
+        ("        return \"waiting\" if t < rec[\"retry_at\"] else \"ready\"", "        return \"waiting\" if t <= rec[\"retry_at\"] else \"ready\""),
+        ("        if rec[\"dead\"]:\n            return \"dead\"\n        return \"waiting\" if t < rec[\"retry_at\"] else \"ready\"",
+         "        if t < rec[\"retry_at\"]:\n            return \"waiting\"\n        return \"dead\" if rec[\"dead\"] else \"ready\""),
+        ("        if rec is None:\n            return \"ready\"", "        if rec is None:\n            return \"dead\""),
+        ("if rec[\"failures\"] >= self.max_failures:", "if rec[\"failures\"] > self.max_failures:"),
+        ("self.base * 2 ** (rec[\"failures\"] - 1)", "self.base * 2 ** rec[\"failures\"]"),
+        ("t + min(self.cap, self.base * 2 ** (rec[\"failures\"] - 1))", "t + max(self.cap, self.base * 2 ** (rec[\"failures\"] - 1))"),
+        ("            rec[\"dead\"] = True\n            return None", "            return None"),
+        ("            rec[\"dead\"] = True\n            return None", "            rec[\"dead\"] = True\n            return t"),
+        ("        return rec[\"retry_at\"]", "        return rec[\"retry_at\"] - t"),
+        ("            raise RuntimeError(\"job is dead\")\n        if state", "            raise ValueError(\"job is dead\")\n        if state"),
+        ("            raise ValueError(\"job is not due yet\")", "            raise RuntimeError(\"job is not due yet\")"),
+        ("        state = self.status(job, t)\n        if state == \"dead\":",
+         "        state = self.status(job, t)\n        if job in self._jobs:\n            self._jobs[job][\"failures\"] += 1\n        if state == \"dead\":"),
+        ("        if rec is not None and rec[\"dead\"]:\n            raise RuntimeError(\"job is dead\")\n", ""),
+        ("            raise RuntimeError(\"job is dead\")\n        self._jobs.pop", "            raise ValueError(\"job is dead\")\n        self._jobs.pop"),
+        ("        self._jobs.pop(job, None)\n\n    def revive", "        if rec is not None:\n            rec[\"failures\"] = 0\n\n    def revive"),
+        ("        self._jobs.pop(job, None)\n\n    def revive", "        self._jobs.pop(job)\n\n    def revive"),
+        ("        if rec is None or not rec[\"dead\"]:\n            raise ValueError(\"job is not dead\")\n", ""),
+        ("            raise ValueError(\"job is not dead\")", "            raise KeyError(\"job is not dead\")"),
+        ("        if rec is None or not rec[\"dead\"]:", "        if not rec[\"dead\"]:"),
+        ("        rec = self._jobs.setdefault(job, {\"failures\": 0, \"retry_at\": 0, \"dead\": False})\n        rec[\"failures\"] += 1",
+         "        rec = self._jobs.setdefault(job, {\"failures\": 0, \"retry_at\": 0, \"dead\": False})\n        rec[\"failures\"] += 2"),
     ])
 
 
@@ -1806,6 +2187,38 @@ def _cart(rng):
         ("subtotal * value // 100", "-(-subtotal * value // 100)"),
         ("        self._coupon = code", "        self._coupon = code if self._coupon is None else self._coupon"),
         ("        if self._lines[sku] == 0:\n            del self._lines[sku]\n", ""),
+        ("        if sku not in self._prices:\n            raise KeyError(sku)\n        if qty < 1:\n            raise ValueError(\"quantity must be at least 1\")",
+         "        if qty < 1:\n            raise ValueError(\"quantity must be at least 1\")\n        if sku not in self._prices:\n            raise KeyError(sku)"),
+        ("        if sku not in self._prices:\n            raise KeyError(sku)\n", ""),
+        ("        if sku not in self._prices:\n            raise KeyError(sku)", "        if sku not in self._prices:\n            raise ValueError(sku)"),
+        ("        if qty < 1:\n            raise ValueError(\"quantity must be at least 1\")\n", ""),
+        ("        if qty < 1:\n            raise ValueError(\"quantity must be at least 1\")", "        if qty < 0:\n            raise ValueError(\"quantity must be at least 1\")"),
+        ("        if qty < 1:\n            raise ValueError(\"quantity must be at least 1\")", "        if qty < 1:\n            raise KeyError(\"quantity must be at least 1\")"),
+        ("def add(self, sku, qty=1):", "def add(self, sku, qty=2):"),
+        ("def remove(self, sku, qty=1):", "def remove(self, sku, qty=2):"),
+        ("        self._lines[sku] = self._lines.get(sku, 0) + qty", "        self._lines[sku] = qty"),
+        ("        if sku not in self._lines:\n            raise KeyError(sku)", "        if sku not in self._lines:\n            raise ValueError(sku)"),
+        ("        if qty < 1 or qty > self._lines[sku]:\n            raise ValueError(\"bad quantity\")", "        if qty < 1 or qty >= self._lines[sku]:\n            raise ValueError(\"bad quantity\")"),
+        ("        if qty < 1 or qty > self._lines[sku]:\n            raise ValueError(\"bad quantity\")", "        if qty < 0 or qty > self._lines[sku]:\n            raise ValueError(\"bad quantity\")"),
+        ("        if qty < 1 or qty > self._lines[sku]:\n            raise ValueError(\"bad quantity\")", "        if qty > self._lines[sku]:\n            raise ValueError(\"bad quantity\")"),
+        ("        if qty < 1 or qty > self._lines[sku]:\n            raise ValueError(\"bad quantity\")", "        if qty < 1:\n            raise ValueError(\"bad quantity\")"),
+        ("        if qty < 1 or qty > self._lines[sku]:\n            raise ValueError(\"bad quantity\")\n        self._lines[sku] -= qty",
+         "        self._lines[sku] -= qty\n        if qty < 1 or self._lines[sku] < 0:\n            raise ValueError(\"bad quantity\")"),
+        ("        if code not in self._coupons:\n            raise KeyError(code)\n        self._coupon = code",
+         "        self._coupon = code\n        if code not in self._coupons:\n            raise KeyError(code)"),
+        ("        if code not in self._coupons:\n            raise KeyError(code)", "        if code not in self._coupons:\n            raise ValueError(code)"),
+        ("        if code not in self._coupons:\n            raise KeyError(code)\n", ""),
+        ("        self._coupon = code", "        if not self._lines:\n            raise ValueError(code)\n        self._coupon = code"),
+        ("        return [[sku, self._lines[sku]] for sku in sorted(self._lines)]", "        return [[sku, self._lines[sku]] for sku in self._lines]"),
+        ("        return [[sku, self._lines[sku]] for sku in sorted(self._lines)]", "        return [[sku, self._lines[sku]] for sku in sorted(self._lines, reverse=True)]"),
+        ("        if subtotal < minimum:\n            return subtotal", "        if subtotal <= minimum:\n            return subtotal"),
+        ("        if subtotal < minimum:\n            return subtotal", "        if subtotal < 0:\n            return subtotal"),
+        ("        return max(0, subtotal - off)", "        return subtotal - off"),
+        ("if kind == \"pct\" else value", "if kind != \"pct\" else value"),
+        ("subtotal * value // 100", "round(subtotal * value / 100)"),
+        ("subtotal * value // 100", "subtotal * value // 10"),
+        ("        if self._coupon is None:\n            return subtotal\n", ""),
+        ("        subtotal = sum(self._prices[s] * q for s, q in self._lines.items())", "        subtotal = sum(self._prices[s] for s in self._lines)"),
     ])
 
 

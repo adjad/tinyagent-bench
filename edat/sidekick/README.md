@@ -45,7 +45,9 @@ Tests: `tests/test_edat_sidekick_*.py`.
     whole diff_review type is labelled;
   - the shell cases whose check takes any line holding a name and its number (`task_blind_output`):
     task-blind output can pass;
-  - the ceiling ladder's rungs 4 to 9 (`probe_in_process`), until their conversion lands.
+  - the ceiling ladder's rungs 4 to 6, graded by host-driven probes (`host_probes_unreviewed`) until that
+    method is on the allow-list, and rungs 7 to 9 (`probe_in_process`) until their conversion lands. The
+    ceiling and "solid up to" include those rungs; rungs 1 to 3 and the hardened ceiling do not.
 
   Each is hardened in a small change of its own, and its label comes off only after that change has had
   its own adversarial pass. Git tasks are graded by real git reading a sanitised

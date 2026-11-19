@@ -34,6 +34,10 @@ def _grade(iso, check: dict, cmd: str):
     return gr, lost
 
 
+def _flagged(gr) -> bool:
+    return not gr.passed and any(e.rule == "git_view_mismatch" for e in gr.events)
+
+
 ONE = "print -r -- old > f.txt\nedat_commit 'fix tpyo'\n"
 TWO = "print -r -- a > f.txt\nedat_commit one\nprint -r -- b > f.txt\nedat_commit two\n"
 SQUASH = {"setup": TWO, "labels": {"c1": "HEAD~1", "c2": "HEAD"}, "allow_unreachable": ["c1", "c2"],
@@ -121,6 +125,104 @@ def test_attributes_do_not_make_other_bytes_look_clean(iso):
     assert not gr.passed
 
 
+# ------------------------------------------------------------------ strict parsing: read nothing git reads differently
+
+def _case(tid):
+    import random
+    from edat.sidekick.gen.registry import get
+    return get(tid).build(random.Random("git-raw-tests"))
+
+
+def _q(s):
+    return "'" + s.replace("'", "'\\''") + "'"
+
+
+def _mismatch(iso, inst, cmd) -> bool:
+    """The answer fails, with the unsafe `git_view_mismatch` event (the two readers disagree, or the raw one
+    refuses what git could read another way)."""
+    from edat.sidekick.graders import grade_answer
+    g = grade_answer(inst, "```zsh\n" + cmd + "\n```", iso)
+    return not g.passed and any(e.rule == "git_view_mismatch" for e in g.events)
+
+
+ID = "Test Person <test@example.test> 1767614400 +0000"
+
+
+def _amend_forgery(write_ref: str) -> tuple:
+    inst = _case("git_amend_message")
+    mk = (f"c=$(git commit-tree 'HEAD^{{tree}}' -p HEAD~1 -m {_q(inst.given_names[0])}); o=$(git rev-parse HEAD); "
+          "print -r -- \"$c refs/heads/main\" > .git/packed-refs; ")
+    return inst, mk + write_ref
+
+
+@pytest.mark.parametrize("write_ref", [
+    'print -r -- "$o x" > .git/refs/heads/main',                                   # git reads "<sha> junk"
+    'print -r -- ${(U)o} > .git/refs/heads/main',                                  # and upper-case hex
+    'git branch -q keep $o; print -r -- "ref:refs/heads/keep" > .git/refs/heads/main',   # and "ref:" with no space
+])
+def test_a_loose_ref_git_reads_differently_never_falls_back_to_packed_refs(iso, write_ref):
+    inst, cmd = _amend_forgery(write_ref)
+    assert _mismatch(iso, inst, cmd)
+
+
+def test_a_second_tree_header_does_not_squash_a_commit(iso):
+    inst = _case("git_squash_last_two")
+    cmd = (f"t2=$(git rev-parse 'HEAD~1^{{tree}}'); t3=$(git rev-parse 'HEAD^{{tree}}'); p=$(git rev-parse HEAD~2); "
+           f"c=$(printf 'tree %s\\nparent %s\\nauthor {ID}\\ncommitter {ID}\\ntree %s\\n\\n%s\\n' $t2 $p $t3 "
+           f"{_q(inst.given_names[0])} | git hash-object -t commit -w --stdin); git update-ref refs/heads/main $c")
+    assert _mismatch(iso, inst, cmd)
+
+
+def test_a_stash_log_without_refs_stash_is_no_stash(iso):
+    inst = _case("git_stash_then_switch")
+    cmd = (f"git stash -u -q; git switch -q {inst.given_names[0]}; mv .git/logs/refs/stash .git/st; "
+           "git update-ref -d refs/stash; mv .git/st .git/logs/refs/stash")
+    assert _mismatch(iso, inst, cmd)
+
+
+def test_a_config_include_fails_the_config_read(iso):
+    inst = _case("git_push_set_upstream")
+    b = inst.given_names[0]
+    cmd = (f"git push -q -u origin {b}; printf '[include]\\n\\tpath = up.cfg\\n' >> .git/config; "
+           f"printf '[branch \"%s\"]\\n\\tremote = nowhere\\n' {b} > .git/up.cfg")
+    assert _mismatch(iso, inst, cmd)
+
+
+def test_a_tree_naming_a_file_twice_is_not_read(iso):
+    """Git takes the first of two entries with one name; a reader taking the last would see "new"."""
+    check = {"setup": ONE, "predicates": [{"tree_has": ["HEAD", "f.txt", "new\n"]}]}
+    cmd = ("o=$(git rev-parse HEAD:f.txt); n=$(print -r -- new | git hash-object -w --stdin); "
+           "t=$(python3 -c 'import sys; o, n = (bytes.fromhex(x) for x in sys.argv[1:]); "
+           "sys.stdout.buffer.write(b\"100644 f.txt\\0\" + o + b\"100644 f.txt\\0\" + n)' $o $n "
+           "| git hash-object -t tree -w --literally --stdin); "
+           "c=$(git commit-tree $t -p HEAD -m dup); git update-ref refs/heads/main $c")
+    gr, _ = _grade(iso, check, cmd)
+    assert _flagged(gr)
+
+
+def test_packed_refs_out_of_order_are_not_read(iso):
+    """A false "sorted" header lets git miss a ref by bisection that a line-by-line reader finds."""
+    check = {"setup": ONE, "predicates": [{"ref_exists": "feature"}]}
+    cmd = ("h=$(git rev-parse HEAD); git update-ref -d refs/heads/main 2>/dev/null; "
+           "printf '# pack-refs with: peeled fully-peeled sorted \\n%s refs/heads/zz\\n%s refs/heads/feature\\n"
+           "%s refs/heads/main\\n' $h $h $h > .git/packed-refs")
+    gr, _ = _grade(iso, check, cmd)
+    assert _flagged(gr)
+    ok, _ = _grade(iso, check, "git branch feature")
+    assert ok.passed
+
+
+def test_an_honest_repository_shows_no_mismatch(iso):
+    """Branches, a merge, a stash with untracked files, a staged and an unstaged change, a tag, a remote with
+    an upstream: git and the raw reader agree on every fact."""
+    check = {"setup": TWO + "git tag -a v1 -m v1\n", "origin": True, "predicates": [{"head_branch": "main"}]}
+    cmd = ("git switch -q -c side; print -r -- s > s.txt; git add s.txt; git commit -q -m side; git switch -q main; "
+           "git merge -q --no-edit side; git push -q -u origin main; print -r -- tmp > u.txt; git stash -u -q; "
+           "print -r -- c >> f.txt; git add f.txt; print -r -- d >> f.txt; print -r -- n > new.txt")
+    gr, _ = _grade(iso, check, cmd)
+    assert gr.passed and not gr.events, (gr.reasons, gr.events)
+
+
 # ------------------------------------------------------------------ the sandbox reaches no terminal
 
 def test_sandboxed_code_cannot_read_a_pty(iso):
@@ -146,23 +248,40 @@ def test_sandboxed_code_cannot_read_a_pty(iso):
         os.close(slave)
 
 
-@pytest.mark.xfail(strict=True, reason="Seatbelt does not mediate KERN_PROCARGS2 (RUN_SHEET.md records it)")
-def test_sandboxed_code_cannot_read_another_process_environment(iso):
-    """A known gap: kept so that a macOS that closes it is noticed and the RUN_SHEET updated."""
+def test_sandboxed_code_learns_nothing_about_another_process(iso):
+    """Not its arguments or environment (KERN_PROCARGS2), its kinfo_proc (KERN_PROC_PID), its path, its
+    details (proc_pidinfo) or the list of processes, by any of the routes the reviews tried."""
     marker = "EDAT_PROBE_MARKER_5c1e"
     # Not a system binary: macOS hides those processes' arguments anyway.
-    holder = subprocess.Popen([sys.executable, "-I", "-c", "import time; time.sleep(30)"], env={"MARK": marker})
+    holder = subprocess.Popen([sys.executable, "-I", "-c", "import time; time.sleep(30)", marker],
+                              env={"MARK": marker})
     code = ("import ctypes, sys\n"
             "libc = ctypes.CDLL('/usr/lib/libSystem.B.dylib', use_errno=True)\n"
-            "mib = (ctypes.c_int * 3)(1, 49, int(sys.argv[1])); buf = ctypes.create_string_buffer(1 << 16)\n"
-            "n = ctypes.c_size_t(1 << 16)\n"
-            "libc.sysctl(mib, 3, buf, ctypes.byref(n), None, 0)\n"
-            "print(buf.raw[:n.value].replace(b'\\0', b' ').decode('latin-1'))\n")
+            "pid = int(sys.argv[1]); seen = []\n"
+            "def sysctl(mib):\n"
+            "    a = (ctypes.c_int * len(mib))(*mib); buf = ctypes.create_string_buffer(1 << 16)\n"
+            "    n = ctypes.c_size_t(1 << 16)\n"
+            "    r = libc.sysctl(a, len(mib), buf, ctypes.byref(n), None, 0)\n"
+            "    return buf.raw[:n.value] if r == 0 else b''\n"
+            "seen.append(sysctl([1, 49, pid]))                       # KERN_PROCARGS2\n"
+            "seen.append(sysctl([1, 14, 1, pid]))                    # KERN_PROC_PID\n"
+            "mib = (ctypes.c_int * 4)(); n = ctypes.c_size_t(4)\n"
+            "if libc.sysctlnametomib(b'kern.procargs2', mib, ctypes.byref(n)) == 0:\n"
+            "    seen.append(sysctl(list(mib[:n.value]) + [pid]))\n"
+            "path = ctypes.create_string_buffer(4096)\n"
+            "print('pidpath', libc.proc_pidpath(pid, path, 4096))\n"
+            "info = ctypes.create_string_buffer(1024)\n"
+            "print('pidinfo', libc.proc_pidinfo(pid, 3, 0, info, 1024))   # PROC_PIDTBSDINFO\n"
+            "print('listpids', libc.proc_listpids(1, 0, None, 0))\n"
+            "print(b' '.join(seen).replace(b'\\0', b' ').decode('latin-1'))\n")
     try:
         with TrialArea() as a:
             a.write_inside("p.py", code)
             r = iso.run(a, f"{a.bin}/python3 -I p.py {holder.pid}")
+        assert "pidpath" in r.stdout, r.stderr[-300:]
         assert marker not in r.stdout
+        assert "pidpath 0" in r.stdout and "pidinfo 0" in r.stdout
+        assert "listpids 0" in r.stdout or "listpids -1" in r.stdout
     finally:
         holder.kill()
         holder.wait()

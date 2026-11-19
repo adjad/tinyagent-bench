@@ -162,7 +162,10 @@ class MacRunner:
     def request(self, e: ModelEntry, mode: str, *, test: str, phase: str, prompt: dict, level: int | None,
                 variant: int | None, round_: int = 0, rep: int = 0, max_tokens: int | None = None,
                 shape: str | None = None, step: int | None = None, gate: bool = True,
-                extra: dict | None = None, force_length: bool = True) -> dict:
+                extra: dict | None = None, force_length: bool = True, sampling: dict | None = None,
+                tools: list | None = None) -> dict:
+        """One measured request. ``sampling`` defaults to greedy (§2.4); task-like tests (long
+        sessions) pass the author's settings and ``force_length=False``."""
         max_tokens = max_tokens or self.cfg.output_tokens
         s = blank_sample(sample_id=self._sid(), model_id=e.id, mode=mode, entry_id=e.entry_id, test=test,
                          phase=phase, round=round_, rep=rep, order_index=self.w.next_order(),
@@ -203,8 +206,8 @@ class MacRunner:
         c0 = self.i.sysmem.counters()
         mem = self.i.monitor.begin(s["sample_id"])
         res = self.i.client.generate(e.engine_id(mode), text=prompt.get("text"), messages=prompt.get("messages"),
-                                     max_tokens=max_tokens, seed=self.cfg.seed, force_length=force_length,
-                                     thinking=e.thinking == "on")
+                                     tools=tools, max_tokens=max_tokens, seed=self.cfg.seed,
+                                     force_length=force_length, thinking=e.thinking == "on", sampling=sampling)
         mem = self.i.monitor.end(mem, t_first_ns=res.t_first_token_ns, t_last_ns=res.t_last_token_ns)
         c1 = self.i.sysmem.counters()
         foreign_after = self._foreign()
@@ -222,7 +225,7 @@ class MacRunner:
             # Retry once (§2.8 rule 5, applied to an engine death on the Mac, §5.3).
             again = self.request(e, mode, test=test, phase=phase, prompt=prompt, level=level, variant=variant,
                                  round_=round_, rep=rep, max_tokens=max_tokens, shape=shape, step=step,
-                                 gate=gate, extra=extra, force_length=force_length)
+                                 gate=gate, extra=extra, force_length=force_length, sampling=sampling, tools=tools)
             if again["status"] in ("killed_unknown", "oom_killed") and level is not None:
                 st.dead_at_level = level
             return again

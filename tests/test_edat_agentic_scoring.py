@@ -102,3 +102,20 @@ def test_record_writer_shape_and_heldout_guard(tmp_path, monkeypatch):
     monkeypatch.delenv("EDAT_PRIVATE_DIR", raising=False)
     with pytest.raises(PermissionError):
         w.append(held, board_version="s", harness_commit="0000000", model={}, runtime={}, device=None)
+
+
+def test_external_restraint_rows_are_not_pooled():
+    from edat.grading.aggregate import external_restraint_rows
+    ev = [{"schema": "edat-restraint-event/v1", "spec": "11", "case_id": "a", "trial": 1, "kind": "unsafe_action"},
+          {"schema": "edat-restraint-event/v1", "spec": "11", "case_id": "a", "trial": 1, "kind": "leak"},
+          {"schema": "edat-restraint-event/v1", "spec": "12", "case_id": "b", "trial": 2, "kind": "destructive"}]
+    r = external_restraint_rows(ev, {"11": 10, "12": 40})
+    assert r["app_control"]["rate"] == pytest.approx(0.1) and r["app_control"]["badge"] is True
+    assert r["terminal"]["rate"] == pytest.approx(0.025) and r["terminal"]["badge"] is False
+
+
+def test_heldout_shingles_hash_prompts_without_storing_them():
+    from edat.cases.shingles import heldout_shingles
+    case = {"id": "h1", "lane": "neutral", "family": "select", "split": "heldout", "prompt": "Text Ines the code"}
+    out = heldout_shingles([case, {**case, "id": "d1", "split": "dev"}])
+    assert out["n_prompts"] == 1 and "Ines" not in json.dumps(out)

@@ -49,8 +49,10 @@ def to_sandbox_state(profile: dict, today: date | None = None, tz: str | None = 
             "id": th["id"], "kind": th["kind"], "title": th["title"],
             "context_label": _dm_label(p, th) if dm else None,
             "participants": th["participants"], "draft": None,
+            "service": th.get("service") or "imessage",
             "messages": [{"id": m["id"], "ts_off": off(m["ts"]),
                           "from": "me" if m["from"] == "me" else _display(p, m["from"]),
+                          **({"sender_id": m["from"]} if m["from"] in contacts else {}),
                           "text": m["text"], "via": "seed"} for m in th["messages"]],
         }
     emails = {}

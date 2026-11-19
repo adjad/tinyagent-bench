@@ -59,12 +59,20 @@ def build_world(profile: Profile) -> dict:
     for t in d.get("threads", []):
         members = [m for m in (t.get("with") or []) if m in name_of]
         is_group = len(members) > 1 or bool(t.get("group"))
-        label = None if is_group else (name_of[members[0]] if members else t.get("title") or "Unknown")
+        # A chat with no saved member is labelled by the other party's number or address, as
+        # the Messages reader labels it (its chat identifier), never "Unknown".
+        stranger = next((m["from"] for m in t.get("messages", []) if m["from"] != "me"), None)
+        label = None if is_group else (name_of[members[0]] if members else t.get("title") or stranger or "Unknown")
         threads[t["id"]] = {
             "id": t["id"], "kind": "group" if is_group else "dm", "title": t.get("title"),
             "context_label": label, "participants": members, "draft": None,
+            # How Messages delivers this chat ("imessage", "sms", "rcs"); the sandbox's Messages
+            # feed reports it per message, as the reader does.
+            "service": t.get("service") or "imessage",
             "messages": [{"id": f"{t['id']}_m{i}", "ts_off": _off(profile, m["at"]),
                           "from": "me" if m["from"] == "me" else name_of.get(m["from"], m["from"]),
+                          # The saved contact who wrote it, so the feed can give their handle.
+                          **({"sender_id": m["from"]} if m["from"] in name_of else {}),
                           "text": m["text"], "via": "seed"}
                          for i, m in enumerate(t.get("messages", []))],
         }

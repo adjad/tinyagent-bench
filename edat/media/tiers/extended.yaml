@@ -1,0 +1,29 @@
+# tinyagent-bench media tier 2 ("extended"): spec 05 §17.4, the two references only
+# (about 73 h each at 3 trials). The core is a prefix of every selection here.
+tier: extended
+seed: 20261119
+a1:  {librispeech_clean: 600, librispeech_other: 600, ami_sdm: 400, earnings22: 400, earnings22_longform_files: 4,
+      strata: [speaker, meeting, file]}
+a4:  {base: a1.librispeech_clean, n: 300,
+      conditions: [snr20, snr10, snr5, snr0, rir1m, rir3m, rir5m, sir10, sir5, sir0, dbfs-30, dbfs-40, dbfs-50,
+                   clip6, clip12, headcut, tailcut, dropouts, narrowband],
+      noise_source: generated}
+a3:  {single: 1500, entity_dense: 500, single_sources: [agentic, toolbench], followups: 100, corrections: 150,
+      disfluency: 150, noise: {n: 300, snr_db: [20, 10, 5]}, voice_variance: {commands: 100, voices: 6},
+      configurations: [two_pass, native], native_one_call: where_supported}
+a5:  {non_speech: 1000, trailing_silence: 300, answer_leak: 500, speech_inside_noise: 0}   # §17.4 says 600, but the full set has 500
+a7:  {conversations: 300, cremad: 1000, esc10: 400, generated_sounds: 300, urgency: 200,
+      recordings: {memos: 10, meetings: 15, talks: 5, questions: 150}, der: {source: ami_sdm, hours: 3}, big_bench_audio: off}
+a8:  {rungs_s: [31, 120, 600, 1800, 3600], clips_per_rung: 3}
+a9:  {runs_min: [10, 60], source: a8, idle_baselines_min: [5, 5]}
+a2:  {lengths_s: [2, 5, 10, 20, 30], clips_per_length: 20}
+v1:  {families: all, images_per_family: 100, questions_per_image: 4, readings_per_family: 50}
+v2:  {ocrbench: 1000, chartqapro: 1000, visualwebbench: 500}
+v3:  {n: 300}
+v5:  {images: 150, conditions: all, unreadable: 200, questions_per_image: 1}
+v7:  {counting: 200, spatial: 200, control_location: 200, multi_image: 200, chart_trend: 0, screenspot: 0}
+v4:  {images_per_request: [1, 2, 4, 8, 9, 12, 16], per_rung: 20, long_side_px: [384, 512, 768, 1024, 1568, 2048, 3000],
+      tiling_at: [3000], per_size: 200, token_budgets: [70, 140, 280, 560, 1120], per_budget: 200}
+strip: {measures: [M1, M2, M3, M4, M4b, M6, M7, M8], m4_prompts: 500}
+thinking_entries: ["off", "on"]
+trials: 3

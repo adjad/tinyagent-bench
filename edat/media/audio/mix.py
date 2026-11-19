@@ -792,8 +792,12 @@ def a4_assignments(utterance_ids: list[str], seed: int) -> dict[str, dict]:
     return out
 
 
-def a4_plan(utterance_ids: list[str], seed: int) -> list[dict]:
+def a4_plan(utterance_ids: list[str], seed: int, *, conditions: list[dict] | None = None
+            ) -> list[dict]:
     """Deterministic A4 plan: one row per (utterance, condition) in utterance-then-grid order.
+
+    ``conditions`` (grid entries, in any order) cuts the grid for a tier; rows keep grid
+    order, and an utterance's noise, room and interferer do not depend on the cut.
 
     For 2,620 test-clean utterances that is 2,620 x 19 = 49,780 rows. Each row carries the
     condition, the utterance's noise type, room and interferer (only the ones its condition
@@ -801,6 +805,12 @@ def a4_plan(utterance_ids: list[str], seed: int) -> list[dict]:
     """
     assign = a4_assignments(list(utterance_ids), seed)
     grid = a4_condition_grid()
+    if conditions is not None:
+        keys = {condition_key(c) for c in conditions}
+        unknown = keys - {condition_key(c) for c in grid}
+        if unknown:
+            raise ValueError(f"unknown A4 conditions: {sorted(unknown)}")
+        grid = [c for c in grid if condition_key(c) in keys]
     rows = []
     for u in utterance_ids:
         a = assign[u]

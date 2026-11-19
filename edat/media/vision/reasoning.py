@@ -784,13 +784,15 @@ def _gold_coords(q: dict) -> str:
     return ",".join(map(str, b))
 
 
-def generate(skill: str, out: Path, *, split: str, count: int | None = None, start: int = 0) -> int:
+def generate(skill: str, out: Path, *, split: str, count: int | None = None, start: int = 0,
+             indices=None) -> int:
+    """Write ``skill`` items ``start`` .. ``start + count``, or exactly ``indices`` (a tier's)."""
     if split == "heldout" and gen._inside_repo(out):
         raise RuntimeError("held-out items must not be written inside the repository")
     count = SKILL_COUNTS[skill] if count is None else count
     out.mkdir(parents=True, exist_ok=True)
     written = 0
-    for index in range(start, start + count):
+    for index in (range(start, start + count) if indices is None else indices):
         got = build(skill, index, split=split)
         if got is None:
             continue
@@ -810,11 +812,19 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--split", default="dev", choices=("dev", "heldout"))
     g.add_argument("--count", type=int)
     g.add_argument("--start", type=int, default=0)
+    g.add_argument("--tier", choices=("core", "extended", "full"),
+                   help="write the tier's items instead of --start/--count")
     g.add_argument("--out", required=True)
     args = ap.parse_args(argv)
+    picked = None
+    if args.tier:
+        from edat.media import tiers
+        picked = tiers.select_vision(tiers.load_manifest(args.tier))["v7"]
     for skill in args.skill or list(SKILL_COUNTS):
+        if picked is not None and not picked.get(skill):
+            continue
         n = generate(skill, Path(args.out) / skill, split=args.split, count=args.count,
-                     start=args.start)
+                     start=args.start, indices=None if picked is None else picked[skill])
         print(f"{skill}: {n} items")
     return 0
 

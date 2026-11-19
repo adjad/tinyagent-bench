@@ -184,7 +184,7 @@ does not start; a model the engine cannot serve only means that model is skipped
 
 | what | during the run | put back by |
 |---|---|---|
-| Harbor | stays closed (it is closed now); the run never opens or quits it | nothing |
+| Harbor | stays closed (it is closed now); the run never opens or quits it. `run-all` refuses to start while it is open, and stops before the next unload if it is opened during the run | nothing |
 | oMLX | used as it is; never started, stopped or restarted | nothing |
 | resident model | `run-all` calls `engine_prep keep <engine id> --save $OUT/resident-before.json` whenever the model changes; it unloads the other chat models (the first call saves what was loaded and never overwrites it); the engine loads the model under test on its first request | at the end: `engine_prep restore $OUT/resident-before.json` |
 | oMLX settings | read; changed only by the approved step 0 (eight new models' sampling fields); each request sends the entry's sampling and thinking flag itself | step 0's backup, if ever needed |
@@ -244,7 +244,9 @@ caffeinate -i .venv/bin/python -m edat.sidekick.ceiling run-all --plan first-pas
 ```
 
 **Later passes**, once the first-pass report has been read: `--plan full --tiers 0`, then `--tiers 1`,
-`2`, `3`. `--only <engine id>` (repeatable) limits a command to some models.
+`2`, `3`. `--only <engine id>` (repeatable) limits a command to some models. The full plan keeps its
+results in `$OUT/full/`, apart from the first pass, so neither resumes from the other's trials; a
+trial is also reused only for the same ladder split (public or private seed).
 
 **The report** after any command (it covers whatever has been recorded):
 
@@ -252,7 +254,8 @@ caffeinate -i .venv/bin/python -m edat.sidekick.ceiling run-all --plan first-pas
 .venv/bin/python -m edat.sidekick.ceiling report $OUT
 ```
 
-(`report $OUT/quick` for a quick look, `report $OUT/smoke` for the smoke step.)
+(`report $OUT/quick` for a quick look, `report $OUT/full` for the full plan, `report $OUT/smoke` for the
+smoke step.)
 
 **Put things back:** `engine_prep restore $OUT/resident-before.json`. Harbor stays closed unless the
 person running it says otherwise.

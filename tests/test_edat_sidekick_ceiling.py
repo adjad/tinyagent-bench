@@ -513,3 +513,109 @@ def test_a_card_default_that_differs_from_the_template_is_recorded(tmp_path, iso
             client_kind="oracle", progress=None, iso=iso, models=[nem])
     pg = json.loads(next((tmp_path / "out" / "quick").glob("NVIDIA-*/progress.json")).read_text())
     assert pg["ships_thinking"] is True and pg["template_thinking_default"] is False
+
+
+def test_rung_9_grading_never_reads_through_a_planted_link(tmp_path, iso, monkeypatch):
+    from edat.sidekick.ceiling import agent
+    from edat.sidekick.ceiling.rungs import LADDER_SEED_PUBLIC, ladder_cases, materialize_probe
+    from edat.sidekick.tool_mode import ToolTrial
+    inst = materialize_probe(ladder_cases(("agent",))[0], 1, LADDER_SEED_PUBLIC)
+    secret = tmp_path / "host-secret.py"
+    secret.write_text("EDATHOSTSECRET = 1\n")
+
+    def planted(client, inst, env, **kw):                  # the session ends with every target a link out
+        for t in inst.check["targets"]:
+            p = env.area.work / t
+            p.unlink(missing_ok=True)
+            p.symlink_to(secret)
+        return ToolTrial(final_text="Done.")
+
+    seen = []
+    real_probe = agent.run_probe
+    monkeypatch.setattr(agent, "run_tool_trial", planted)
+    monkeypatch.setattr(agent, "run_probe", lambda iso_, area, check, final: seen.append(dict(final))
+                        or real_probe(iso_, area, check, final))
+    g, _, _ = agent.run_agent_trial(None, inst, iso)
+    assert seen == [{}] and not g.passed                   # nothing read through the links
+    assert "EDATHOSTSECRET" not in json.dumps(g.to_record(), default=str)
+
+
+def test_run_all_never_unloads_while_harbor_is_open(tmp_path, monkeypatch):
+    from edat.sidekick.ceiling import run as run_mod
+    from scripts.productbench import engine_prep
+    keeps = []
+    monkeypatch.setattr(engine_prep, "main", lambda argv: keeps.append(argv[1]) or 0)
+    monkeypatch.setattr(run_mod, "weights_for", lambda out, mdir, m: "0" * 64)
+    monkeypatch.setattr(run_mod, "_run_entry", lambda e, out, **kw: {"skipped": None, "stopped": None,
+                                                                      "summary": {"ceiling": 1, "solid": 1}})
+    two = [_model(), _model("gemma-4-E2B-it-oQ4e-mtp", label="Gemma 4 E2B", role="candidate", gb=3.9)]
+    monkeypatch.setattr(run_mod, "harbor_running", lambda: True)
+    with pytest.raises(SystemExit, match="Harbor is running"):
+        run_all(tmp_path / "out", plan="quick", client_kind="omlx", progress=None, models=two,
+                lock=str(tmp_path / "lock"))
+    assert keeps == [] and not (tmp_path / "lock").exists()
+    seen = iter([False, False, True])                      # closed at the start and for the first model only
+    monkeypatch.setattr(run_mod, "harbor_running", lambda: next(seen))
+    log = run_all(tmp_path / "out", plan="quick", client_kind="omlx", progress=None, models=two,
+                  lock=str(tmp_path / "lock"))
+    assert keeps == ["gemma-4-E4B-it-oQ4e-mtp"]
+    assert [r["result"] for r in log["entries"]] == ["done", "not started (stopped)"]
+    assert "Harbor is running" in log["entries"][1]["why"] and not (tmp_path / "lock").exists()
+
+
+def test_first_pass_repeats_stay_on_pass_a_rungs():
+    from edat.sidekick.ceiling.run import pass_a_ceiling
+    assert sorted({u.case.rung.n for u in plan_units("first-pass", done_ceiling=0)}) == [1, 2]
+    assert sorted({u.case.rung.n for u in plan_units("first-pass", done_ceiling=3)}) == [2, 3, 4]
+    recs = (_rung_records("sk-l1", 3, 3, trials=1) + _rung_records("sk-l2", 3, 3, trials=1)
+            + _rung_records("sk-l3", 3, 0, trials=1))
+    repeats = [dict(r, trial=t) for r in _rung_records("sk-l3", 3, 3, trials=1) for t in (2, 3)]
+    assert entry_summary(recs + repeats)["ceiling"] == 3            # all trials together would move it
+    assert pass_a_ceiling(recs + repeats) == pass_a_ceiling(recs) == 2
+
+
+def test_resume_reuses_a_trial_only_from_the_same_plan_and_ladder_split(tmp_path):
+    from edat.sidekick.ceiling.run import _done_units, _unit_split, results_dir
+    assert {results_dir(tmp_path, p) for p in ("smoke", "quick", "full")} == \
+        {tmp_path / "smoke", tmp_path / "quick", tmp_path / "full"} and results_dir(tmp_path, "first-pass") == tmp_path
+    d = tmp_path / "e" / "runs" / "r1"
+    d.mkdir(parents=True)
+    u = next(u for u in plan_units("quick") if u.case.sidekick_case is None)
+    d.joinpath("records.jsonl").write_text(json.dumps({"suite": u.suite, "case_id": u.case.id, "trial": 1,
+                                                        "split": "dev"}) + "\n")
+    done = _done_units(tmp_path / "e")
+    assert (u.case.id, 1, _unit_split(u, "dev")) in done[u.suite]
+    assert (u.case.id, 1, _unit_split(u, "heldout")) not in done[u.suite]   # a private-seed run redoes it
+
+
+def test_omlx_profile_stops_on_a_refusal_and_still_reads_back(tmp_path, monkeypatch, capsys):
+    from edat.sidekick.ceiling import omlx_profile as op
+    from scripts.productbench import engine_prep
+    f = tmp_path / "model_settings.json"
+    f.write_text(json.dumps({"version": 1, "models": {"gemma-4-E4B-it-oQ4e-mtp": {"temperature": 1.0}}}))
+    order = list(op.payloads())
+
+    class Engine:                                          # merges sent fields like oMLX; refuses the second model
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def get(self, url):
+            return type("R", (), {"json": lambda self: {"data": [{"id": m} for m in order]}})()
+
+        def put(self, url, json):
+            mid = url.split("/models/")[1].split("/")[0]
+            if mid == order[1]:
+                return type("R", (), {"status_code": 500, "text": "no"})()
+            data = __import__("json").loads(f.read_text())
+            data["models"].setdefault(mid, {}).update(json)
+            f.write_text(__import__("json").dumps(data))
+            return type("R", (), {"status_code": 200, "text": ""})()
+
+    monkeypatch.setattr(engine_prep, "_client", lambda: Engine())
+    assert op.main(["--apply", "--settings", str(f)]) == 2
+    err = capsys.readouterr()
+    assert f"stopped after 1 of {len(order)} models" in err.err and f"already written: {order[0]}" in err.err
+    assert "nothing else changed" in err.out and list(tmp_path.glob("model_settings.json.bak-sampling-*"))

@@ -153,8 +153,9 @@ def quick_from_args(a) -> Quick:
 
 
 def results_dir(out: Path, plan: str) -> Path:
-    """Smoke and quick-look results sit in their own folders, apart from the first pass and the full plan."""
-    return out / plan if plan in ("smoke", "quick") else out
+    """Smoke, quick-look and full-plan results sit in their own folders, apart from the first pass (in OUT
+    itself), so no plan resumes from another plan's trials."""
+    return out / plan if plan in ("smoke", "quick", "full") else out
 
 
 def quick_entries(models: list[LocalModel], q: Quick) -> list[Entry]:
@@ -188,7 +189,8 @@ def plan_units(plan: str, *, done_ceiling: int | None = None, trials: int = TRIA
         if done_ceiling is None:
             return [Unit(c, _suite(c), 1) for r in RUNGS if r.id in picked for c in picked[r.id]]
         top = max(r.n for r in RUNGS if r.id in picked)
-        around = {n for n in (done_ceiling - 1, done_ceiling, done_ceiling + 1) if 1 <= n <= top} or {1, 2}
+        around = ({1, 2} if done_ceiling < 1 else      # nothing held: the two easiest rungs get the repeats
+                  {n for n in (done_ceiling - 1, done_ceiling, done_ceiling + 1) if 1 <= n <= top})
         return [Unit(c, _suite(c), t) for r in RUNGS if r.n in around for c in picked[r.id]
                 for t in range(2, trials + 1)]
     if plan == "full":
@@ -432,14 +434,26 @@ def make_client(kind: str, model: LocalModel, base_url: str | None, thinking: bo
 
 # ------------------------------------------------------------------ the run
 
-def _done_units(store: Path) -> dict[str, set[tuple[str, int]]]:
-    out: dict[str, set[tuple[str, int]]] = {}
+def _done_units(store: Path) -> dict[str, set[tuple[str, int, str]]]:
+    """(case id, trial, split) per suite: a trial is only reused for the same ladder split (public or private)."""
+    out: dict[str, set[tuple[str, int, str]]] = {}
     for f in store.glob("runs/*/records.jsonl"):
         for line in f.read_text().splitlines():
             if line.strip():
                 r = json.loads(line)
-                out.setdefault(r["suite"], set()).add((r["case_id"], r["trial"]))
+                out.setdefault(r["suite"], set()).add((r["case_id"], r["trial"], r.get("split")))
     return out
+
+
+def pass_a_ceiling(records: list[dict]) -> int:
+    """The first pass's ceiling from pass A's own trials (trial 1); pass B's repeats never move it."""
+    from edat.sidekick.ceiling.report import entry_summary
+    return entry_summary([r for r in records if r.get("trial") == 1])["ceiling"]
+
+
+def _unit_split(u: Unit, ladder_split: str) -> str:
+    sc = u.case.sidekick_case
+    return sc.split if sc is not None else ladder_split
 
 
 def _records(store: Path) -> list[dict]:
@@ -494,6 +508,7 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
     if any(u.case.sidekick_case is not None and u.case.sidekick_case.split != "dev" for u in plan_units(plan, quick=quick)):
         master_seed("heldout")                   # the private seed first, so each refusal names its own cause
     selftest = require_sandbox()                 # refuses to run unless the sealed sandbox is proven
+    ladder_split = ladder_seed()[1]              # public or private ladder: resumed trials must match it
     iso = iso or get_isolation()
     client = make_client(client_kind, model, base_url, thinking)
     slug = e.slug
@@ -531,12 +546,12 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
         for phase in phases:
             ceiling = None
             if phase == "B":
-                from edat.sidekick.ceiling.report import entry_summary
-                ceiling = entry_summary(_records(store))["ceiling"]
+                # pass A's ceiling from pass A's own trials (trial 1), so a resumed pass B keeps the same rungs
+                ceiling = pass_a_ceiling(_records(store))
                 state["pass_a_ceiling"] = ceiling
             units = plan_units(plan, done_ceiling=ceiling, quick=quick)
             done = _done_units(store)
-            todo = [u for u in units if (u.case.id, u.trial) not in done.get(u.suite, set())]
+            todo = [u for u in units if (u.case.id, u.trial, _unit_split(u, ladder_split)) not in done.get(u.suite, set())]
             state[f"phase_{phase}"] = {"units": len(units), "todo": len(todo)}
             for u in todo:
                 stop = _should_stop(out, store, t_start, max_minutes)
@@ -597,6 +612,14 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
 HOST_STOPS = ("the STOP file", "minute limit", "free memory", "engine or transport faults")
 
 
+HARBOR_RUNNING = "Harbor is running (it shares oMLX): close it first; nothing was unloaded"
+
+
+def harbor_running() -> bool:
+    """Harbor shares the engine: the run never unloads models while it is open."""
+    return bool(subprocess.run(["pgrep", "-f", "MacOS/Harbor"], capture_output=True, text=True).stdout.strip())
+
+
 def run_all(out: Path, *, plan: str, tiers: tuple[int, ...] = (0,), only: tuple[str, ...] = (), client_kind: str = "omlx",
             base_url: str = "http://127.0.0.1:8000", device_id: str = "this-mac", lock: str | None = None,
             max_minutes: float | None = None, progress=print, iso=None, models: list[LocalModel] | None = None,
@@ -621,6 +644,8 @@ def run_all(out: Path, *, plan: str, tiers: tuple[int, ...] = (0,), only: tuple[
     else:
         entries = [e for e in ordered_entries(models, tiers=tiers) if not only or e.model.engine_id in only]
     every = {e.key: e for m in models for e in m.entries()}
+    if client_kind == "omlx" and harbor_running():
+        raise SystemExit(HARBOR_RUNNING + "; not starting")
     created = False
     if lock:
         try:
@@ -648,6 +673,9 @@ def run_all(out: Path, *, plan: str, tiers: tuple[int, ...] = (0,), only: tuple[
             if client_kind == "omlx":
                 if e.model.engine_id != current:
                     from scripts.productbench import engine_prep
+                    if harbor_running():              # opened during the run: stop before unloading anything
+                        row.update(result="not started (stopped)", why=HARBOR_RUNNING)
+                        break
                     if engine_prep.main(["keep", e.model.engine_id, "--save", str(out / "resident-before.json")]) != 0:
                         row.update(result="skipped", why="other models are still loaded")
                         continue
@@ -860,7 +888,7 @@ def preflight(out: Path, *, engine: bool = False, weights: bool = False, base_ur
     add("disk: 5 GB free for results", disk.free > 5e9, f"{disk.free / 1e9:.0f} GB free")
     if lock:
         add("heavy-job lock free", not Path(lock).exists(), lock)
-    harbor = subprocess.run(["pgrep", "-f", "MacOS/Harbor"], capture_output=True, text=True).stdout.strip()
+    harbor = harbor_running()
     add("Harbor is not running (it shares oMLX)", not harbor, "running" if harbor else "")
     if engine:
         import httpx

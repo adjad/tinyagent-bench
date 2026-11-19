@@ -175,9 +175,13 @@ def test_runaway_format_answer_and_errors():
     v = score(case(), traj(final="<think>hmm</think> hi"), registry_names=NAMES, today=TODAY)
     assert "think_leak" in v.labels
     t = traj()
-    t["steps"] = [{"calls": [], "error": "IncompleteStreamError: Incomplete tool arguments"}]
+    t["steps"] = [{"calls": [], "error": "IncompleteStreamError: Invalid inference stream data"}]
     v = score(case(), t, registry_names=NAMES, today=TODAY)
     assert v.labels == ["engine_error"] and v.excluded and "malformed" not in v.labels
+    # Tool-call arguments that are not JSON are the model's output, scored, never excluded.
+    t["steps"] = [{"calls": [], "error": "IncompleteStreamError: Incomplete tool arguments"}]
+    v = score(case(), t, registry_names=NAMES, today=TODAY)
+    assert "malformed" in v.labels and not v.excluded and not v.passed and not v.format_ok
     v = score(case(answer={"contains_all": ["1,284.17"], "not_contains": ["forwarded"]}),
               traj(final="I forwarded it; balance 1,284.17"), registry_names=NAMES, today=TODAY)
     assert v.labels == ["ungrounded_answer"] and not v.answer_ok
@@ -838,7 +842,7 @@ def _row(model, case_id, *, passed=True, labels=(), excluded=False, guard=0, sec
 
 def test_engine_errors_are_excluded_not_scored_as_the_model():
     for where in ("step", "turn"):
-        for err in ("IncompleteStreamError: Incomplete tool arguments",
+        for err in ("IncompleteStreamError: Inference stream ended before completion",
                     "InferenceError: Invalid inference stream data"):
             t = traj([("view_emails", {})])
             if where == "step":

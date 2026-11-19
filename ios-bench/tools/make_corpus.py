@@ -3,7 +3,7 @@
 
 Spec 04 §3.1 asks for agent-shaped text (system prompt, tool schemas, tool results,
 dialogue) instead of repeated filler, because filler flatters speculative decoding and
-hides tokenizer differences. The agentic-spec session owns the real corpus; until it
+hides tokenizer differences. The real corpus comes with the agentic spec (02); until it
 exists this script generates a deterministic stand-in of the same shape: invented
 people (persona Test User), .example/.invalid domains, invented numbers. Re-running
 gives identical bytes. About 320 KB, enough for 64k tokens without repeating.

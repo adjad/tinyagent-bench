@@ -860,7 +860,7 @@
   "exporter": "ios-bench/tools/export_portable_cases.py",
   "harness": "harbor-toolbench",
   "note": "Portable subset: single-step select and abstain cases from Toolbench, plus authored extract and summary cases. One neutral system prompt and one fixed tool menu (terse schemas); scores are comparable phone-vs-Mac, not with full Toolbench numbers.",
-  "repo_commit": "01f8651"
+  "repo_commit": "46da8eb5"
  },
  "system_prompt": "Today is {today}. You are a helpful assistant on the user's own device. When a request needs one of the provided tools, call the single best tool with accurate arguments; use ISO 8601 for dates and times. When no tool fits, answer directly and briefly. When asked for JSON only, reply with just the JSON object.",
  "tool_sets": {

@@ -25,7 +25,7 @@ their `edat` prefix until the benchmark repository renames them.
 
 ## Build and test
 
-Every Swift build on this Mac takes the host lock (overlapping builds have frozen it):
+Swift builds run through a small lock wrapper, so only one Swift or Xcode build runs at a time (set `BENCH_BUILD_LOCK` to share a lock with other projects):
 
 ```bash
 ios-bench/scripts/with-host-lock.sh swift test --package-path ios-bench --jobs 2

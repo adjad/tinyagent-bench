@@ -506,7 +506,7 @@ with RunWriter.open(store_root, run_id, tier="agentic", suite="reference-loop") 
         "device": {"id": "mac-ref", "class": "mac-ref", "ram_bytes": 25769803776, "os": "macOS 27.3"},
         "settings": {"thinking": "off", "sampling": {"temperature": 1.0, "top_p": 0.95},
                      "sampling_source": "author_recommended", "seed": 1001},
-        "harness_commit": "90e3e9f", "started_at": "2026-12-01T10:15:00Z",
+        "harness_commit": "1c6c1cd", "started_at": "2026-12-01T10:15:00Z",
         "case_id": "select_weather_01", "split": "dev", "trial": 1, "status": "ok",
         "facets": {"lane": "assistant", "family": "select"},
         "metrics": {"pass": True, "score": 1.0},

@@ -88,14 +88,10 @@ def uset(world, path: str, value) -> None:
 
 
 def uclear(world, path: str) -> None:
-    parts = path.split(".")
-    cur = world.ui["fields"]
-    for p in parts[:-1]:
-        if not isinstance(cur, dict) or p not in cur:
-            return
-        cur = cur[p]
-    if isinstance(cur, dict):
-        cur.pop(parts[-1], None)
+    """Clear a UI field, or every field under a prefix (UI fields are flat keys, see World.set)."""
+    fields = world.ui["fields"]
+    for k in [k for k in fields if k == path or k.startswith(path + ".")]:
+        del fields[k]
 
 
 def page_textbox(world, key: str, name: str, path: str, default: str, **kw) -> El:

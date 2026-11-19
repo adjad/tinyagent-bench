@@ -130,3 +130,19 @@ def test_a_tool_loading_libraries_from_elsewhere_is_refused(monkeypatch):
     with pytest.raises(toolchain.ToolchainError, match="outside its own folder.*EDAT_SIDEKICK_NODE"):
         toolchain._require_self_contained("node", "/opt/x/bin/node", ("/opt/x",), "EDAT_SIDEKICK_NODE")
     assert toolchain.foreign_libraries("/opt/x/bin/other", ("/opt/x",)) == []
+
+
+def test_read_inside_never_follows_a_link(tmp_path):
+    import os
+    secret = tmp_path / "host-secret.txt"
+    secret.write_text("EDATHOSTSECRET\n")
+    with TrialArea() as area:
+        (area.work / "ok.py").write_text("x = 1\n")
+        assert area.read_inside("ok.py") == "x = 1\n"
+        (area.work / "out.py").symlink_to(secret)                       # to a host file
+        (area.work / "in.py").symlink_to(area.work / "ok.py")           # even to a file inside
+        (area.work / "d").symlink_to(tmp_path, target_is_directory=True)
+        os.mkfifo(area.work / "pipe")
+        (area.work / "sub").mkdir()
+        for rel in ("out.py", "in.py", "d/host-secret.txt", "pipe", "sub", "missing.py", str(secret), "../x", ""):
+            assert area.read_inside(rel) is None, rel

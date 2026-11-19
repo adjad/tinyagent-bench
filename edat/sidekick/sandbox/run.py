@@ -25,6 +25,7 @@ import os
 import resource
 import shutil
 import signal
+import stat
 import subprocess
 import tempfile
 import threading
@@ -130,6 +131,34 @@ class TrialArea:
         if p != self.work and self.work not in p.parents:
             raise ValueError(f"path escapes the working folder: {rel}")
         return p
+
+    def read_inside(self, rel: str) -> str | None:
+        """Read a file the model may have written, on the host side, without following links.
+
+        Returns its text only when `rel` names a regular file inside the working folder with no symbolic
+        link anywhere on its path; None otherwise (missing, a folder, a link, a pipe, or outside). Model
+        code can replace a file with a link to a host file; this never reads through one."""
+        parts = Path(rel).parts
+        if not parts or Path(rel).is_absolute() or ".." in parts:
+            return None
+        cur = self.work
+        for part in parts:
+            cur = cur / part
+            if cur.is_symlink():
+                return None
+        try:
+            p = self.path(rel)
+        except ValueError:
+            return None
+        try:
+            fd = os.open(p, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        except OSError:
+            return None
+        if not stat.S_ISREG(os.fstat(fd).st_mode):
+            os.close(fd)
+            return None
+        with os.fdopen(fd, "rb") as fh:
+            return fh.read().decode("utf-8", errors="replace")
 
     def write_files(self, files: dict[str, str | dict], base: Path | None = None) -> None:
         """files: rel path -> text, or {"content": text, "mode": 0o755}."""

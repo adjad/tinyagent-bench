@@ -50,7 +50,8 @@ def run_agent_trial(client, inst: Instance, iso: Isolation, *, max_tokens: int =
         env = DevEnvironment(iso, area, test_cmd=test_command(check), code_lang="python")
         tt = run_tool_trial(client, inst, env, max_tokens=max_tokens, thinking=thinking, sampling=sampling,
                             seed=seed, prompt=tool_task_prompt(inst), max_calls=max_calls)
-        final = {t: (area.work / t).read_text(errors="replace") for t in check["targets"] if (area.work / t).is_file()}
+        # read through the area, never following a link the model's code may have planted
+        final = {t: text for t in check["targets"] if (text := area.read_inside(t)) is not None}
     if tt.excluded:
         return None, tt, env
     with TrialArea() as fresh:

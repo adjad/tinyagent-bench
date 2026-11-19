@@ -146,8 +146,7 @@ def grade_tool_trial(iso: Isolation, area: TrialArea, inst: Instance, env: DevEn
     final = visible_answer(tt.final_text)
     if k == "code":
         target = (inst.tool or {})["target"]
-        p = area.work / target
-        src = p.read_text() if p.exists() else ""
+        src = area.read_inside(target) or ""     # never through a link the model's code may have planted
         with TrialArea() as ga:
             res = grade_code(iso, ga, inst.check, src)
         res.snippet = src

@@ -152,3 +152,20 @@ def test_guard_blocks_before_the_tool_runs(iso):
     assert len(tt.turns[0].events) == 2
     assert [m["content"] for m in client.requests[-1]["messages"] if m["role"] == "tool"] == [BLOCKED_TEXT] * 2
     assert {e.kind for e in g.events} >= {"unsafe_action"} and not g.passed
+
+
+def test_code_grading_never_reads_through_a_planted_link(iso, tmp_path):
+    import json
+    from edat.sidekick.tool_mode import ToolTrial
+    inst = inst_of("fix_py_precedence")
+    target = inst.tool["target"]
+    secret = tmp_path / "host-secret.py"                   # a host file that would even pass the tests
+    secret.write_text(inst.check["reference"] + "\n# EDATHOSTSECRET\n")
+    with TrialArea() as area:
+        env, before = prepare(iso, area, inst)
+        p = area.work / target
+        p.unlink(missing_ok=True)
+        p.symlink_to(secret)                               # what model code run by the tests could leave
+        g = grade_tool_trial(iso, area, inst, env, before, ToolTrial(final_text="Fixed."))
+    assert g.snippet == "" and not g.passed
+    assert "EDATHOSTSECRET" not in json.dumps(g.to_record(), default=str)

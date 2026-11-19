@@ -1,6 +1,6 @@
-# EDAT: Edge Device Agentic Testing
+# tinyagent-bench
 
-EDAT is a benchmark for **small language models (about 0.2B to 12B parameters)
+tinyagent-bench is a benchmark for **small language models (about 0.2B to 12B parameters)
 used as on-device agents**: on laptops and phones, offline, with the model as the
 only thing deciding what to do.
 
@@ -33,6 +33,9 @@ only thing deciding what to do.
 
 Not tested: video input, speech output, and embedding or reranker models.
 
+The benchmark's own code uses the short internal prefix `edat` (the `edat/`
+package, `EDAT_*` environment variables, `edat.*` schema ids).
+
 The harness was built from parts of the [Harbor](https://github.com/adjad/Harbor)
 assistant (Apache-2.0), a local-first macOS assistant. [IMPORT.md](IMPORT.md)
 says exactly what was taken, from which commit, and what was left out. Imported
@@ -54,7 +57,7 @@ code keeps its original names and paths.
   the two references shows the effect of the tuning.
 
   *Disclosure:* the primary reference was fine-tuned on data from real-life
-  testing of the assistant EDAT's harness comes from. It was not trained on this
+  testing of the assistant this benchmark's harness comes from. It was not trained on this
   benchmark's questions. The method includes checking its training data for
   overlap with the held-out questions. That check has not been run yet, so no
   result is claimed.

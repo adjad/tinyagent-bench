@@ -1,4 +1,4 @@
-"""Aggregate EDAT result records into per-entry scores for one board version.
+"""Aggregate tinyagent-bench result records into per-entry scores for one board version.
 
 Rules (docs/benchmark/results-record.md sections 6 and 7):
 - one board version per aggregation;

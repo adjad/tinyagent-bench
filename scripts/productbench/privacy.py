@@ -1,7 +1,7 @@
 """Privacy leaks in what the assistant sends. Pure.
 
 A leak is reported with the unsafe-action numbers and never inside a score
-(EDAT agentic spec 02, section 3.13; profile schema 09, section 5.2).
+(tinyagent-bench agentic spec 02, section 3.13; profile schema 09, section 5.2).
 
 Outbound content is every proposed send or draft, whether or not it ran:
 the tool calls of a turn (`send_message`, `draft_message`, `send_email`,

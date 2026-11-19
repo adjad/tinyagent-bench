@@ -2,7 +2,7 @@
  "schema_version": 1,
  "profile_id": "edat_mini",
  "synthetic": true,
- "label": "Tiny invented profile in the shared EDAT shape, for the productbench adapter tests only",
+ "label": "Tiny invented profile in the shared tinyagent-bench shape, for the productbench adapter tests only",
  "anchor": {
   "date": "2026-10-13",
   "weekday": "Tuesday",

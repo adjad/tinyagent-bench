@@ -165,7 +165,7 @@ def validate(data: dict) -> None:
 
 
 def load(path: str | Path) -> Profile:
-    """A productbench/1 profile, or a shared EDAT profile (with its ledger.json beside it)."""
+    """A productbench/1 profile, or a shared tinyagent-bench profile (with its ledger.json beside it)."""
     path = Path(path)
     data = json.loads(path.read_text(encoding="utf-8"))
     if data.get("schema") == SCHEMA:
@@ -176,4 +176,4 @@ def load(path: str | Path) -> Profile:
         prof = Profile(adapted, path)
         prof.generated_cases = cases
         return prof
-    raise ProfileError(f"{path}: neither productbench/1 nor the shared EDAT schema v1")
+    raise ProfileError(f"{path}: neither productbench/1 nor the shared tinyagent-bench schema v1")

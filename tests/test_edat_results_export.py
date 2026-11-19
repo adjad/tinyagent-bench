@@ -1,4 +1,4 @@
-"""Export, snapshot diff and command-line refusals of the EDAT results store.
+"""Export, snapshot diff and command-line refusals of the tinyagent-bench results store.
 
 All data is invented. No model, no network.
 """

@@ -1,4 +1,4 @@
-"""Model entries for the EDAT in-assistant evaluation (test_fixtures/productbench/models.json).
+"""Model entries for the tinyagent-bench in-assistant evaluation (test_fixtures/productbench/models.json).
 
 An entry is what one result row is about: a model, how it runs and the facts
 that make results comparable. Kinds:

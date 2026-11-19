@@ -1,6 +1,6 @@
-# Published EDAT results
+# Published tinyagent-bench results
 
-This folder holds **published snapshots** of the EDAT board, one folder per board
+This folder holds **published snapshots** of the tinyagent-bench board, one folder per board
 version and device. It holds **no real results yet**. The only snapshot here,
 `sample-0/`, is synthetic sample data: every model name, hash and number in it is
 invented (see [`edat/results/sample.py`](../../edat/results/sample.py)).

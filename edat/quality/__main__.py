@@ -1,4 +1,4 @@
-"""Command line for EDAT's output-quality tests.
+"""Command line for tinyagent-bench's output-quality tests.
 
     python -m edat.quality run --model Gemma-Wisp --role baseline --base-url http://127.0.0.1:<port> [--thinking]
     python -m edat.quality run --cloud anthropic/claude-haiku-5.5 --provider <pinned provider> --seedless
@@ -31,8 +31,15 @@ def _client(a):
     return M.OmlxClient(a.model, base_url=a.base_url), M
 
 
+def _device(a) -> dict:
+    if not a.device_id:
+        sys.exit("a local run needs --device-id (and --weights-sha256 or --weights-fingerprint)")
+    return {"id": a.device_id, "class": a.device_class or a.device_id,
+            "ram_bytes": a.ram_gb * 2**30 if a.ram_gb else None, "os": a.os}
+
+
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(prog="python -m edat.quality")
+    ap = argparse.ArgumentParser(prog="python -m edat.quality", description="tinyagent-bench output quality and text understanding")
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="run one entry over a split")
     r.add_argument("--model")
@@ -47,6 +54,12 @@ def main(argv=None) -> int:
     r.add_argument("--top-p", type=float, default=None)
     r.add_argument("--top-k", type=int, default=None)
     r.add_argument("--context-window", type=int, default=None)
+    r.add_argument("--weights-sha256", default=None, help="sha256 of the weights (a local record needs this or --weights-fingerprint)")
+    r.add_argument("--weights-fingerprint", default=None)
+    r.add_argument("--device-id", default=None, help="device id from the results store's device list (local runs)")
+    r.add_argument("--device-class", default=None)
+    r.add_argument("--ram-gb", type=int, default=None)
+    r.add_argument("--os", default=None)
     r.add_argument("--split", default="dev", choices=["dev", "heldout"])
     r.add_argument("--board-version", required=True)
     r.add_argument("--harness-commit", required=True)
@@ -69,7 +82,9 @@ def main(argv=None) -> int:
         entry = Entry(a.cloud or a.model, role=a.role, kind="cloud_reference" if a.cloud else "local",
                       thinking=a.thinking, sampling=sampling, seedless=a.seedless, sampling_source=source,
                       runtime={"name": "openrouter" if a.cloud else "omlx", "version": None},
-                      context_window=a.context_window)
+                      context_window=a.context_window, weights_sha256=a.weights_sha256,
+                      weights_fingerprint=a.weights_fingerprint, upstream_provider=a.provider,
+                      device=None if a.cloud else _device(a))
         fams = load_heldout() if a.split == "heldout" else load_dev()
         sink = run_quality(client, entry, fams, split=a.split, board_version=a.board_version,
                            harness_commit=a.harness_commit, limit=a.limit)

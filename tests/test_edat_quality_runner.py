@@ -98,8 +98,13 @@ class Down:
         raise EngineError("server")
 
 
+DEVICE = {"id": "mac-test", "class": "mac-test", "ram_bytes": 16 * 2**30, "os": "macOS"}
+
+
 def _run(client, model_id, sub, **kw):
     role = kw.pop("role", "baseline" if model_id == BASELINE_ID else "reference" if model_id == BASE_ID else "candidate")
+    kw.setdefault("device", DEVICE)
+    kw.setdefault("weights_sha256", "ab" * 32)
     entry = Entry(model_id, role=role, **{k: v for k, v in kw.items() if k in Entry.__dataclass_fields__})
     return run_quality(client, entry, sub, split="dev", board_version="2027.1", harness_commit="abcdef1",
                        run_id=f"test-{model_id}", **{k: v for k, v in kw.items() if k not in Entry.__dataclass_fields__})
@@ -181,7 +186,7 @@ def test_does_not_fit_is_recorded_and_dropped(sub):
     assert e["does_not_fit"] > 0 and 0 < e["does_not_fit_rate"] < 1
 
 
-def test_cloud_reference_refuses_heldout_and_marks_trials(sub):
+def test_cloud_reference_refuses_heldout_and_marks_trials(sub, tmp_path):
     with pytest.raises(HostedSplitError):
         run_quality(Perfect(sub), Entry("anthropic/claude-haiku-5.5", kind="cloud_reference", seedless=True), sub,
                     split="heldout", board_version="2027.1", harness_commit="abcdef1")
@@ -193,6 +198,10 @@ def test_cloud_reference_refuses_heldout_and_marks_trials(sub):
                and r["model"]["role"] == "cloud_reference" and r["status_detail"] == "trials_not_seeds"
                for r in sink.records)
     assert {r["trial"] for r in sink.records} == {1, 2, 3}
+    assert all(r["model"]["resolved_model"] and r["model"]["upstream_provider"] and r["model"]["run_date"]
+               for r in sink.records)
+    sink.store = tmp_path
+    sink.write()                     # the results store's validator accepts cloud records
 
 
 def test_injection_followed_goes_to_safety(sub):

@@ -64,7 +64,9 @@ class Entry:
     runtime: dict = field(default_factory=lambda: {"name": "omlx", "version": None})
     device: dict | None = None
     weights_sha256: str | None = None
+    weights_fingerprint: str | None = None      # one of the two is required for a local record
     quant: dict | None = None
+    upstream_provider: str | None = None        # the pinned provider of a cloud reference
     context_window: int | None = None           # tokens; None = unknown (no fit check)
     count_model_tokens: Callable[[str], int] | None = None
     max_tokens: int | None = None
@@ -81,7 +83,10 @@ class Entry:
         if self.kind == "cloud_reference":
             return {"id": self.model_id, "role": "cloud_reference", "requested_model": self.model_id,
                     "weights_sha256": None, "quant": None}
-        return {"id": self.model_id, "role": self.role, "weights_sha256": self.weights_sha256, "quant": self.quant}
+        out = {"id": self.model_id, "role": self.role, "weights_sha256": self.weights_sha256, "quant": self.quant}
+        if self.weights_fingerprint:
+            out["weights_fingerprint"] = self.weights_fingerprint
+        return out
 
     def sampling_record(self) -> dict:
         if self.sampling is None:
@@ -250,6 +255,7 @@ def run_quality(client, entry: Entry, fams: dict[str, list[dict]], *, split: str
                     jobs.append((c, t, rendering, condition, None, None))
     if limit is not None:
         jobs = jobs[:limit]
+    cloud_seen: list[dict] = []
     for c, t, rendering, condition, req, noisy in jobs:
         for trial in trials:
             started = R.utc_now()
@@ -282,4 +288,19 @@ def run_quality(client, entry: Entry, fams: dict[str, list[dict]], *, split: str
                                    metrics=flat, facets=facets, raw=raw, started_at=started,
                                    status_detail="trials_not_seeds" if entry.seedless else None,
                                    safety={"unsafe_actions": inj, "privacy_leaks": None, "labels": labels}))
+            if entry.kind == "cloud_reference":
+                cloud_seen.append(res["meta"])
+    if entry.kind == "cloud_reference":
+        _finish_cloud_model_blocks(sink.records, entry, cloud_seen)
     return sink
+
+
+def _finish_cloud_model_blocks(records: list[dict], entry: Entry, metas: list[dict]) -> None:
+    """A cloud reference's model block names what was asked for, what answered, by whom, and when."""
+    resolved = next((m.get("resolved_model") for m in metas if m.get("resolved_model")), None) or entry.model_id
+    upstream = (next((m.get("upstream_provider") for m in metas if m.get("upstream_provider")), None)
+                or entry.upstream_provider or "unknown")
+    days = sorted(r["started_at"][:10] for r in records if r.get("started_at"))
+    run_date = {"first": days[0], "last": days[-1]} if days else None
+    for r in records:
+        r["model"] = dict(r["model"], resolved_model=resolved, upstream_provider=upstream, run_date=run_date)

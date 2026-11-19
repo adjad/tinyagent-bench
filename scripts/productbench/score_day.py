@@ -125,7 +125,8 @@ def _other_day(piece: str, span: tuple[int, int], today) -> bool:
 
 
 def _starts(piece: str) -> list[tuple[int, int]]:
-    """The spans of times in `piece` that start something: not the end of a range and not a bound."""
+    """The spans of times in `piece` that are not a bound ("by 5:00", "before the 5:00 deadline"). A
+    range ("2:00 to 3:30") is one span, so its end is never counted on its own."""
     return [s for s in _time_spans(piece) if not _BOUND_BEFORE.search(piece[:s[0]])]
 
 

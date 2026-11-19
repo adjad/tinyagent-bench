@@ -1,4 +1,4 @@
-# EDAT admin helper
+# tinyagent-bench admin helper
 
 Read this before you run it with `sudo`. It is one Python file, `edat_admin_helper.py`. You can read it in one sitting.
 
@@ -11,7 +11,7 @@ Some performance tests need things only an administrator can do:
 - lower the GPU wired-memory limit to the 16 GB Mac default;
 - pin a block of RAM (a "balloon") so a 24 GB Mac behaves like a 16 GB one.
 
-The helper does exactly these things and nothing else. It is the only EDAT process that runs as root. The benchmark runner talks to it over a Unix socket.
+The helper does exactly these things and nothing else. It is the only tinyagent-bench process that runs as root. The benchmark runner talks to it over a Unix socket.
 
 ## How to start it
 

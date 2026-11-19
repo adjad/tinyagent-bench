@@ -1,7 +1,7 @@
 # Runbook: one model's performance pass on the Mac
 
 How to measure one candidate model's speed, memory, 16 GB fit and energy on the
-reference Mac (MacBook Pro, M5 Pro, 24 GB) with EDAT's performance runner. The
+reference Mac (MacBook Pro, M5 Pro, 24 GB) with tinyagent-bench's performance runner. The
 method is spec 04 (`docs/benchmark/04-perf-energy-memory-spec.md`).
 
 **This runbook has not been run.** Every command was tested only against a fake
@@ -79,7 +79,7 @@ and oMLX version, not every pass.
      `--base-path` alone does not isolate oMLX; `service/engine/manager.py`);
    - listening on `127.0.0.1:<port>`;
    - an API key in its settings; export the same value as `EDAT_OMLX_API_KEY` in the
-     terminal that runs EDAT (it is sent as a bearer token and never written down);
+     terminal that runs tinyagent-bench (it is sent as a bearer token and never written down);
    - **paged SSD KV cache off** and **expert offload off** (§5.2); note the memory
      guard ceiling, and pass it as `--memory-guard-ceiling-gb`;
    - one model id per mode: `<id>` with MTP as shipped, and `<id>-plain` with MTP
@@ -142,7 +142,7 @@ and oMLX version, not every pass.
 
 ## Passes 2 and 3: load times and the 16 GB fit (on AC, with the admin helper)
 
-The helper is the only part of EDAT that runs as root. Read
+The helper is the only part of tinyagent-bench that runs as root. Read
 `tools/edat_admin_helper/README.md` and the script itself first. It serves one
 client and exits when that client disconnects, so start it fresh for each pass.
 

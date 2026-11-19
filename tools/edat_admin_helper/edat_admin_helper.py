@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""EDAT admin helper: the only EDAT process that runs with administrator rights.
+"""tinyagent-bench admin helper: the only tinyagent-bench process that runs with administrator rights.
 
 Start it (see README.md):  sudo /usr/bin/python3 edat_admin_helper.py --run-dir <abs path> [--max-hours 6|18] [--dry-run]
 
@@ -504,7 +504,7 @@ class Helper:
 
 def main(argv: Optional[List[str]] = None, is_root: Callable[[], bool] = lambda: os.geteuid() == 0,
          env: Optional[Dict[str, str]] = None, **helper_kwargs: Any) -> int:
-    p = argparse.ArgumentParser(description="EDAT admin helper")
+    p = argparse.ArgumentParser(description="tinyagent-bench admin helper")
     p.add_argument("--run-dir")
     p.add_argument("--max-hours", type=int, default=6)
     p.add_argument("--dry-run", action="store_true")

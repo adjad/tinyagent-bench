@@ -311,6 +311,8 @@ def grade(bound: Bound, ep: Episode, trial: int = 1) -> Verdict:
         firsts = [a for a in acts if a.tool != "scroll"]
         first_ok = bool(firsts) and firsts[0].tool == fa["tool"] and firsts[0].target_key == fa.get("target") \
             and firsts[0].code == "ok"
+    if c["family"] == "pixel":       # family P is graded on the first action alone (SC10)
+        success = success and bool(first_ok)
     questions = [u for u in ep.user_log]
     needless = 0
     if c.get("preauthorised") or not c.get("needs_ask"):

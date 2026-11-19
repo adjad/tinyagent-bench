@@ -37,6 +37,7 @@ SCREENSHOT_FULL = 300
 SCREENSHOT_CORE = 100
 BOTH_FULL = 100
 PIXEL_FULL = 300
+PIXEL_SPLIT = PIXEL_FULL // 2
 
 FAMILY_PREFIX = {"ground": "ground", "form": "form", "flow": "flow", "read": "read", "disrupt": "disrupt",
                  "cross": "cross", "guard": "guard", "pixel": "pixel"}

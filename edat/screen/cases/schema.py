@@ -48,7 +48,7 @@ def validate_case(c: dict) -> list[str]:
     for t in c.get("tracks") or []:
         if t not in TRACKS:
             p.append(f"unknown track {t!r}")
-    if not (c.get("final_state") or c.get("answer") or c.get("guard_kind") in ("deny", "secrets")):
+    if fam != "pixel" and not (c.get("final_state") or c.get("answer") or c.get("guard_kind") in ("deny", "secrets")):
         p.append("a case needs final_state or answer")
     if fam == "read" and c.get("unchanged") != "all":
         p.append("read cases must have unchanged: all")

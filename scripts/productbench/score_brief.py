@@ -114,6 +114,14 @@ CHANGE_TYPES = {"calendar_correction", "changed_detail", "two_source_fact"}
 CHANGE_STATUSES = {"moved", "superseded", "cancelled", "changed"}
 
 
+_WEAK_VALUE = re.compile(r"^[\s$€£]*\d[\d:.,]*\s*(?:a\.?m\.?|p\.?m\.?|%)?\s*$", re.I)
+
+
+def _weak_value(anchors: list[str]) -> bool:
+    """The old value is only a time, date or number: on its own it names no item."""
+    return all(a.startswith(("@", "#")) or _WEAK_VALUE.match(a) for a in anchors)
+
+
 def records_a_change(it: dict) -> bool:
     """Whether this key item's `stale_anchors` are a replaced value. A productbench/1 item (no
     `edat_type`) always says so; a shared-profile entry when its type or status records a change."""
@@ -129,6 +137,9 @@ def shows_stale(it: dict, text: str, today) -> bool:
     said = matcher.any_hit(it.get("stale_anchors") or [], text, today) is not None
     if not records_a_change(it):
         return slot or (said and shows(it, text, today) and not _CHANGED.search(text))
+    if said and it.get("subject_words") and _weak_value(it.get("stale_anchors") or []):
+        # An old time or number ("9:00 AM") is stale only in an item about this entry.
+        said = matcher.any_hit(it["subject_words"], text, today) is not None
     old = slot or said
     return old and matcher.any_hit(it.get("current_anchors") or it.get("anchors", []), text, today) is None
 
@@ -152,14 +163,34 @@ def classify(items: list[dict], profile: Profile, checks: dict | None = None) ->
     noise = checks.get("noise") or [it["id"] for it in profile.ledger if it["type"] == "noise"]
     keyed = [it for it in profile.ledger if not it.get("generated")]
     marks: list[list[tuple[str, str | None]]] = [[] for _ in items]
+    # Stale first: an item that shows an entry's old slot is not also "found" for an entry about
+    # the same event (sharing its sources), e.g. the calendar's old P6 slot is not the move.
+    stale = []
+    stale_src: dict[int, set] = {}
+    for it in keyed:
+        if it["type"] == "noise" or not (it.get("stale_match") or it.get("stale_anchors")):
+            continue
+        for pos, row in enumerate(items):
+            if shows_stale(it, row["text"], today):
+                stale.append((it["id"], pos))
+                marks[pos].append(("stale", it["id"]))
+                stale_src.setdefault(pos, set()).update(it.get("sources") or [it["id"]])
+                break
     first_pos: dict[str, int] = {}
+    model_found: set[str] = set()
     for lid in expect:
         it = profile.item(lid)
+        own = set(it.get("sources") or [])
         for pos, row in enumerate(items):
+            if pos in stale_src and (own & stale_src[pos] or lid in {x for m, x in marks[pos] if m == "stale"}):
+                continue
             if shows(it, row["text"], today):
-                first_pos[lid] = pos
-                marks[pos].append(("found", lid))
-                break
+                if lid not in first_pos:
+                    first_pos[lid] = pos
+                    marks[pos].append(("found", lid))
+                if row["source"] == "model":
+                    model_found.add(lid)
+                    break
     false_alarms = []
     for lid in noise:
         it = profile.item(lid)
@@ -168,15 +199,6 @@ def classify(items: list[dict], profile: Profile, checks: dict | None = None) ->
             false_alarms.append(lid)
             for pos in hit:
                 marks[pos].append(("wrongly_raised", lid))
-    stale = []
-    for it in keyed:
-        if it["type"] == "noise" or not (it.get("stale_match") or it.get("stale_anchors")):
-            continue
-        for pos, row in enumerate(items):
-            if shows_stale(it, row["text"], today):
-                stale.append((it["id"], pos))
-                marks[pos].append(("stale", it["id"]))
-                break
     taken = set(expect) | set(noise)
     for it in keyed:
         if it["id"] in taken or it["id"] in unmatchable:
@@ -184,7 +206,7 @@ def classify(items: list[dict], profile: Profile, checks: dict | None = None) ->
         for pos, row in enumerate(items):
             if not marks[pos] and shows(it, row["text"], today):
                 marks[pos].append(("in_key", it["id"]))
-    return {"expect": expect, "unmatchable": unmatchable, "first_pos": first_pos,
+    return {"expect": expect, "unmatchable": unmatchable, "first_pos": first_pos, "model_found": model_found,
             "false_alarms": false_alarms, "stale": stale, "marks": marks,
             "not_in_key": [pos for pos, m in enumerate(marks) if not m]}
 
@@ -229,7 +251,9 @@ def score_brief(snapshot: dict, profile: Profile, checks: dict) -> BriefScore:
     s.recall = _rate(found, expect)
     model_expect = [lid for lid in expect
                     if _source_kinds(profile, profile.item(lid)) & set(_MODEL_KINDS)]
-    s.model_recall = _rate([lid for lid in found if lid in model_expect], model_expect)
+    # The model's recall counts only items the model wrote; Harbor's own rows count in `recall`.
+    model_found = [lid for lid in model_expect if lid in c["model_found"]]
+    s.model_recall = _rate(model_found, model_expect)
     hidden = [lid for lid in expect if profile.item(lid).get("hidden")]
     s.hidden_recall = _rate([lid for lid in found if lid in hidden], hidden)
 

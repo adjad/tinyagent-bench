@@ -234,6 +234,51 @@ def test_the_models_brief_and_the_brief_as_seen_are_both_reported():
     assert s.seen_score <= s.score - 0.15 + 1e-9 or s.seen_score == 0.0
 
 
+def _hand_world():
+    prof, led = _raw()
+    prof["emails"] += [
+        _email("em-exp", "Expenses", "Your Denver expense report in Spendlark is due Friday; two receipts are missing."),
+        _email("em-daycare2", "Pickup", "Permission slips are due Friday."),
+        _email("em-jobs", "Replay", "Please approve the queue replay of 1,284 jobs once idempotency is checked."),
+        _email("em-plan", "Plan", "Casey will send the revised budget plan to Vale by Friday."),
+        _email("em-sync", "Sync", "The vendor sync moved from 9:00 AM to 8:00 AM; Lisbon is on CEST."),
+        _email("em-move", "Session", "Session S6 moved from Friday to Tuesday at 13:00.")]
+    led["entries"] += [
+        _entry("L-h-exp", "deadline", "The Denver expense report in Spendlark is due Friday with two receipts missing.",
+               ["Friday"], evidence=["em-exp"]),
+        _entry("L-h-jobs", "commitment_user", "Casey said they'd approve the queue replay (1,284 jobs) after "
+               "checking idempotency.", ["replay", "1,284"], evidence=["em-jobs"]),
+        _entry("L-h-plan", "commitment_user", "Casey will send the revised budget plan to Vale by Friday.",
+               ["Friday"], evidence=["em-plan"]),
+        _entry("L-h-sync", "changed_detail", "The vendor sync moved from 9:00 AM to 8:00 AM (CEST in Lisbon).",
+               ["8:00", "CEST"], mni=["9:00 AM"], evidence=["em-sync"], status=None)]
+    return _profile(prof, led)
+
+
+def test_the_matcher_rules_the_hand_check_needed():
+    p = _hand_world()
+    def found(text, lid):
+        return lid in score_brief.score_brief(_snap(text), p, {}).recall["found"]
+    assert not found("Permission slips are due Friday", "L-h-exp")          # one generic word never decides
+    assert found("Expense report in Spendlark due Friday", "L-h-exp")
+    assert p.item("L-h-jobs")["match"]["require"] == [0]                     # "1,284" is a number: weak
+    assert found("Approve the queue replay (check idempotency first)", "L-h-jobs")
+    assert not found("1,284 rows imported overnight", "L-h-jobs")
+    assert found("Send Vale the budget plan revisions by Friday", "L-h-plan")   # "revised": any ending
+    standup = score_brief.score_brief(_snap(todos=["Team standup Today 9:00 AM"]), p, {})
+    assert not any(x.startswith("L-h-sync:") for x in standup.stale)       # an old time names no item alone
+    old = score_brief.score_brief(_snap(todos=["Vendor sync Today 9:00 AM"]), p, {})
+    assert any(x.startswith("L-h-sync:") for x in old.stale)
+
+
+def test_the_models_recall_counts_only_what_the_model_wrote():
+    p = _brief_world()
+    code = {"state": "ready", "cards": [], "threads": [],
+            "todos": [{"title": "Send the revised op-ed by Friday", "source": "reminders"}]}
+    s = score_brief.score_brief(code, p, {})
+    assert "L-t-oped" in s.recall["found"] and "L-t-oped" not in s.model_recall["found"]
+
+
 # ------------------------------------------------------------------ Day
 def _day_world():
     prof, led = _raw()

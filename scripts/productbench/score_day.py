@@ -212,9 +212,10 @@ def score_plan(blocks: list[Block], profile: Profile, rules: dict | None = None)
     deferred: list[tuple[str, str, str]] = []   # (rule, detail, item id): decided once R3 is known
     for it in timed:
         start = profile.minutes(it["start"])
+        # The old slot's words are a generated title, so they tie a block by most of them: a
+        # "DLQ replay" block is not the "Design review: ... (DLQ v2)" that moved.
         mapped = [i for i, b in enumerate(blocks) if _maps(b, it)
-                  or (it.get("supersedes") and any(matcher.phrase_hit(w, b.title)
-                                                   for w in _phrases(profile.item(it["supersedes"]))))]
+                  or (it.get("supersedes") and _maps(b, profile.item(it["supersedes"])))]
         at_time = [i for i in mapped if abs(blocks[i].start - start) <= TOLERANCE_MIN]
         if not mapped:
             # A block at the item's time with no matching words still keeps it.

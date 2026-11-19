@@ -16,10 +16,11 @@ Each item also gets what the Brief and Day scorers need (08-product-eval-design.
 
 * `match`: the facts one Brief item must carry together for the entry to count as shown.
   Every must_include string is one anchor group; an item must carry all the strong ones.
-  Weak anchors (a weekday, a first name, a time, a bare number, a word common in this
-  person's data) never decide alone, so an entry whose groups are all weak needs them
-  (all but one from three on) plus one of its distinguishing words (from its truth
-  sentence, found in its own evidence);
+  Weak anchors (a weekday or month, a first name, a time, a bare number such as "1,284" or
+  "41.20", a word common in this person's data) never decide alone, so an entry whose groups
+  are all weak needs two of its distinguishing words (from its truth sentence, found in its
+  own evidence) beside its weak anchor(s), or, with two or more weak anchors, one word beside
+  all of them or two beside all but one;
 * noise entries are matched by their must_not_include (else must_include, else words found
   only in their own evidence, two of them when there are two); an injection always by its own
   words, since its must_not_include is what a reply must never leak, not what the injection
@@ -156,6 +157,10 @@ eight nine ten time times thing things something anything nothing everything som
 nobody people person way ways lot lots bit week weeks day days month months year years hour hours minute
 minutes plan plans calendar note notes email emails message messages text texts reply replies
 am pm a.m p.m pt et ct mt pst pdt est edt cst cdt utc gmt ok""".split())
+MONTH_WORDS = {"jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "sept", "oct", "nov", "dec",
+               "january", "february", "march", "april", "june", "july", "august", "september", "october",
+               "november", "december"}
+_NUMBER = re.compile(r"[$€£]?\d[\d,.]*%?")    # "1,284", "41.20", "$642", "70%": a bare number
 COMMON_SHARE = 0.02      # a phrase in more than 2% of the person's items (at least COMMON_MIN) is common
 COMMON_MIN = 8
 RARE_MAX = 2             # a noise entry's own words: in at most this many items
@@ -219,7 +224,7 @@ class _Corpus:
         if anchor.startswith(("@", "#")):
             return True
         f = matcher.fold(anchor)
-        return (f in WEAK_DAY_WORDS or f.isdigit() or f in self.names
+        return (f in WEAK_DAY_WORDS or f in MONTH_WORDS or bool(_NUMBER.fullmatch(f)) or f in self.names
                 or self.df(anchor) > self.limit)
 
     def evidence_text(self, ids: list[str]) -> str:
@@ -243,8 +248,9 @@ def _distinct(entry: dict, corpus: _Corpus, *, rare: bool = False, limit: int = 
 
 
 def _variants(words: list[str]) -> list[str]:
-    """Each word with its plain forms ("coming" also as "come", "approved" as "approve"), so a
-    distinguishing word is found whatever its ending."""
+    """Each word with its plain forms ("coming" also as "come", "approved" as "approve") and, for
+    a root of five letters or more, its stem ("revis*"), so a distinguishing word is found
+    whatever its ending."""
     out: list[str] = []
     for w in words:
         forms = [w]
@@ -255,24 +261,42 @@ def _variants(words: list[str]) -> list[str]:
         elif w.endswith("s") and not w.endswith("ss") and len(w) > 4:
             forms.append(w[:-1])
         out += [f for f in forms if len(f) >= 4 or f == w if f not in out]
+        root = min(forms, key=len)
+        if root != w and len(root) >= 5 and root + "*" not in out:
+            out.append(root + "*")        # any ending: "revised" also finds "revisions"
     return out
 
 
 def _match_spec(must: list[str], entry: dict, corpus: _Corpus) -> tuple[dict | None, str | None]:
     """(match spec, note) for an entry. One Brief item must carry every strong anchor of the
-    key together; weak ones (day, time, name, common word) are then optional context. An entry
-    whose anchors are all weak needs one of its distinguishing words plus all its weak anchors
-    (all but one from three on). With nothing distinguishing at all it cannot be matched."""
+    key together; weak ones (day, month, time, number, name, common word) are then optional
+    context. An entry whose anchors are all weak is shown by an item that carries two of its
+    distinguishing words beside its weak anchor(s), or, with two or more weak anchors, one word
+    beside all of them or two beside all but one. With nothing distinguishing it cannot be matched."""
     groups = [[a] for a in must]
     strong = [i for i, a in enumerate(must) if not corpus.weak(a)]
     if strong:
         return {"all": groups, "require": strong, "need": len(strong)}, None
-    words = _distinct(entry, corpus)
+    said = [matcher.fold(a) for a in must]
+    words = [w for w in _distinct(entry, corpus)          # a word the key already gives is no extra evidence
+             if not any(matcher.phrase_hit(w, a) or matcher.phrase_hit(a, w) for a in said)]
     if not words:
         return None, "no distinguishing anchor in the key or the entry's evidence"
-    groups.append(_variants(words))
+    # The entry's own words, each a group: two of them beside its weak anchors (all of them, or
+    # all but one from three on), or, when there are two or more weak anchors, one word beside
+    # all of them, or two words beside all but one. One generic word ("due") never decides.
+    n = len(groups)
+    per_word = [_variants([w]) for w in words]
+    weak_idx, word_idx = list(range(n)), list(range(n, n + len(per_word)))
+    two = min(2, len(per_word))
     weak_need = len(must) if len(must) <= 2 else len(must) - 1
-    return {"all": groups, "require": [len(groups) - 1], "need": 1 + weak_need}, None
+    full = groups + per_word
+    if len(must) >= 2:
+        specs = [{"all": full, "require": [], "least": [[weak_idx, len(must)], [word_idx, 1]]},
+                 {"all": full, "require": [], "least": [[weak_idx, len(must) - 1], [word_idx, two]]}]
+    else:
+        specs = [{"all": full, "require": [], "least": [[weak_idx, weak_need], [word_idx, two]]}]
+    return (specs[0] if len(specs) == 1 else {"any": specs}), None
 
 
 def _noise_spec(entry: dict, corpus: _Corpus) -> tuple[list[str], dict | None]:
@@ -459,6 +483,9 @@ def adapt(profile: dict, ledger: dict | None) -> tuple[dict, dict]:
                 "priority": {"hard": 1, "medium": 2, "easy": 3}.get(entry.get("difficulty"), 2)}
         if exp.get("status") in ("done", "superseded", "ignore"):
             item["attention"] = False
+        subject = [w for w in _distinct(entry, corpus) if not corpus.weak(w)]
+        if subject:
+            item["subject_words"] = _variants(subject)
         if etype in ("brief_noise", "injection"):
             # Matched by what it says (its must_not_include, else its own rare words), so a
             # surfaced noise item is a false alarm, never a stale value.

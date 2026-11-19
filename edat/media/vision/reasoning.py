@@ -729,7 +729,7 @@ def build_locate(index: int, *, split: str, seed: str):
     else:
         return None
     el = rng.choice(cands)
-    ask_box = index % 4 == 3
+    ask_box = (index // len(LOCATE_FAMILIES)) % 4 == 3      # one in four, in every family
     name, role = el["name"], _role_word(el["role"])
     question = (f"Where is the {name} {role}? Give its bounding box." if ask_box
                 else f"Where is the {name} {role}? Give the point to click.")

@@ -88,8 +88,8 @@ GUARDED_SIGNALS = (signal.SIGTERM, signal.SIGHUP, signal.SIGQUIT)
 # Harbor in any form shares oMLX with a run: the app (also by its old name),
 # a `swift run` build, or the Python backend started on its own.
 HARBOR_PROCESS_PATTERNS = (
-    r"/MacOS/(Harbor|Wisp)[^/ ]*( |$)",
-    r"/\.build/[^ ]*/(Harbor|Wisp)[^/ ]*( |$)",
+    r"/MacOS/(Harbor[^/ ]*|Wisp(-[^/ ]*)?)( |$)",       # not "Wispr Flow", an unrelated app
+    r"/\.build/[^ ]*/(Harbor[^/ ]*|Wisp(-[^/ ]*)?)( |$)",
     r"(uvicorn|-m) service(\.| |$)",
 )
 HARBOR_PORTS = (8765, 8791)
@@ -209,10 +209,11 @@ class Engine:
     def unload(self, model_id: str) -> None:
         self.settle()                                  # oMLX answers 400 for a model still loading
         r = self._client.post(f"/v1/models/{model_id}/unload")
-        if r.status_code == 409:                       # still loading after all: wait once more
+        held_now = lambda: model_id in self.loaded() or model_id in self.loaded(helpers=True)  # noqa: E731
+        if r.status_code == 409 or (r.status_code == 400 and held_now()):   # loading again: wait once more
             self.settle()
             r = self._client.post(f"/v1/models/{model_id}/unload")
-        if r.status_code == 400 and model_id not in self.loaded() and model_id not in self.loaded(helpers=True):
+        if r.status_code == 400 and not held_now():
             return                                     # not loaded (any more)
         r.raise_for_status()
         deadline = time.monotonic() + self._unload_wait_s
@@ -459,15 +460,24 @@ class RunGuard:
         return restore(self.engine, self.save_path, harbor=self._harbor, token=self._token)
 
     def _cleanup(self, *, write_report: bool) -> list[BaseException]:
-        """Report, lock, signal handlers: each step runs even if one before it fails."""
+        """Lock, report, signal handlers, in that order: each step runs even if one before it fails, and a
+        lock that cannot be released turns the outcome into `failed` before the report is written."""
         errors: list[BaseException] = []
-        steps = ([self._write_report] if write_report else []) + [self._release_lock, self._uninstall]
-        for step in steps:
+
+        def step(fn) -> None:
             try:
-                step()
+                fn()
             except Exception as e:  # noqa: BLE001
                 errors.append(e)
-                print(f"run guard: {step.__name__.strip('_')} failed: {type(e).__name__}: {e}", file=sys.stderr)
+                print(f"run guard: {fn.__name__.strip('_')} failed: {type(e).__name__}: {e}", file=sys.stderr)
+        step(self._release_lock)
+        if errors and self.outcome is not None:
+            self.outcome = "failed"
+            self.report.update(outcome="failed", exit_code=EXIT["failed"],
+                               lock_release_failed=f"{type(errors[0]).__name__}: {errors[0]}"[:300])
+        if write_report:
+            step(self._write_report)
+        step(self._uninstall)
         return errors
 
     def _write_report(self) -> None:
@@ -486,7 +496,7 @@ class RunGuard:
         def handler(signum, frame):
             now = time.monotonic()
             first = self._first_signal
-            if self._exiting or (first is not None and now - first[1] < REPEAT_SIGNAL_S):
+            if self._exiting or _in_exit(frame) or (first is not None and now - first[1] < REPEAT_SIGNAL_S):
                 self._late_signals.append(signal.Signals(signum).name)     # the restore must still run
                 return
             self._first_signal = (signum, now)
@@ -500,6 +510,16 @@ class RunGuard:
         old, self._old_handlers = self._old_handlers, {}
         for s, h in old.items():
             signal.signal(s, h if h is not None else signal.SIG_DFL)
+
+
+def _in_exit(frame) -> bool:
+    """True while a guard's __exit__ is on the stack: a signal that lands on its first bytecode, before it
+    marks the exit as begun, must not cut the restore short."""
+    while frame is not None:
+        if frame.f_code is RunGuard.__exit__.__code__:
+            return True
+        frame = frame.f_back
+    return False
 
 
 def restore(engine: Engine, save_path: Path, *, harbor=harbor_running, token: str | None = None) -> str:
@@ -576,20 +596,29 @@ def restore_cli(save: Path, url: str, lock: str, *, engine: Engine | None = None
     if not lock or not str(lock).strip():
         print("not restored: a heavy-job lock path is required", file=sys.stderr)
         return 1
+    own = engine is None                                            # close only the client made here
+    try:
+        engine = engine or Engine(url, api_key=read_engine_key())   # a bad --url fails here, before the lock
+    except Exception as exc:  # noqa: BLE001
+        print(f"not restored: {type(exc).__name__}: {exc}", file=sys.stderr)
+        return 1
     try:
         os.mkdir(lock)
-    except FileExistsError:
-        print(f"not restored: {lock} exists, so a heavy job may be running. If none is (the run was killed), "
-              f"remove that folder and run the restore again.", file=sys.stderr)
+    except OSError as exc:
+        if own:
+            engine.close()
+        why = "exists, so a heavy job may be running. If none is (the run was killed), remove that folder and " \
+              "run the restore again" if isinstance(exc, FileExistsError) else f"cannot be made: {exc}"
+        print(f"not restored: {lock} {why}.", file=sys.stderr)
         return 1
-    engine = engine or Engine(url, api_key=read_engine_key())
     try:
         print(restore(engine, save, harbor=harbor))
     except Exception as exc:  # noqa: BLE001  (an engine error is a failed restore, not a crash)
         print(f"not restored: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1
     finally:
-        engine.close()
+        if own:
+            engine.close()
         os.rmdir(lock)
     return 0
 

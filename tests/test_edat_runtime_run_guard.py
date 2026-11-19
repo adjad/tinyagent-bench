@@ -627,7 +627,10 @@ def test_a_lock_that_cannot_be_removed_still_restores_handlers(env, monkeypatch)
             monkeypatch.setattr(rg.os, "rmdir", rmdir)
     monkeypatch.undo()
     assert {s: signal.getsignal(s) for s in before} == before
-    assert report(tmp_path)["engine"].startswith("engine restored")
+    rep = report(tmp_path)
+    assert rep["engine"].startswith("engine restored")
+    assert rep["outcome"] == "failed" and rep["exit_code"] == 1 and "cannot remove" in rep["lock_release_failed"]
+    assert g.exit_code == 1
 
 
 def test_harbor_patterns_catch_suffixed_names():
@@ -639,7 +642,9 @@ def test_harbor_patterns_catch_suffixed_names():
              "python -m service.main", "uvicorn service.main:app"]
     for line in lines:
         assert any(re.search(p, line) for p in rg.HARBOR_PROCESS_PATTERNS), line
-    assert not any(re.search(p, "/usr/bin/harborview") for p in rg.HARBOR_PROCESS_PATTERNS)
+    assert any(re.search(p, "/Applications/Harbor.app/Contents/MacOS/HarborHelper") for p in rg.HARBOR_PROCESS_PATTERNS)
+    for other in ("/usr/bin/harborview", "/Applications/Wispr Flow.app/Contents/MacOS/Wispr Flow"):
+        assert not any(re.search(p, other) for p in rg.HARBOR_PROCESS_PATTERNS), other
 
 
 def test_restore_from_the_command_line_takes_the_lock(env):
@@ -658,4 +663,55 @@ def test_restore_from_the_command_line_takes_the_lock(env):
     assert len(fake.calls) == calls and save.exists() and lock.exists()
     os.rmdir(lock)
     assert rg.restore_cli(save, URL, str(lock), engine=e, harbor=lambda: None) == 0
+    back_as_before(fake, tmp_path)
+
+
+# ------------------------------------------------------------------ the fix check's notes (third round)
+
+def test_n1_a_first_signal_on_the_first_line_of_exit_still_restores(env):
+    """Probe A2: a signal delivered as __exit__ starts, before it marks the exit as begun."""
+    import sys
+    fake, guard, tmp_path, _ = env
+    hit = []
+
+    def prof(frame, event, arg):
+        if event == "call" and frame.f_code is rg.RunGuard.__exit__.__code__ and not hit:
+            hit.append(1)
+            os.kill(os.getpid(), signal.SIGTERM)
+    try:
+        with guard() as g:
+            g.prepare("gemma-a")
+            sys.setprofile(prof)
+    finally:
+        sys.setprofile(None)
+    assert hit
+    back_as_before(fake, tmp_path)
+    assert "SIGTERM" in report(tmp_path)["signals_ignored"]
+
+
+def test_n2_a_bad_url_never_leaves_the_heavy_lock(env):
+    fake, guard, tmp_path, _ = env
+    save, lock = tmp_path / "s.json", tmp_path / "L"
+    save.write_text(json.dumps({"token": "t", "base_url": URL, "loaded": ["user-model", "user-pinned"]}))
+    for bad in ("http://localhost:8000", "http://10.0.0.2:8000", "not a url"):
+        assert rg.restore_cli(save, bad, str(lock), harbor=lambda: None) == 1
+        assert not lock.exists()
+    assert rg.restore_cli(save, URL, str(tmp_path / "missing" / "L"), harbor=lambda: None,
+                          engine=rg.Engine(URL, transport=fake.transport)) == 1   # lock cannot be made
+    assert save.exists() and fake.calls == []
+
+
+def test_an_unload_answered_400_while_loading_again_waits_and_retries(env):
+    """Probe 400race: after settling, the model starts loading again; oMLX answers 400 (no engine yet)."""
+    fake, guard, tmp_path, _ = env
+    done = []
+
+    def race(method, path):
+        if method == "POST" and path.endswith("/user-model/unload") and not done:
+            done.append(1)
+            fake.start_loading("user-model", reads=2)
+    fake.on_call = race
+    with guard() as g:
+        g.prepare("gemma-a")
+    assert done
     back_as_before(fake, tmp_path)

@@ -245,6 +245,7 @@ def _tier_block(records: list[dict], tier: str, opts: Options) -> dict:
              "run_ids": sorted({r["run_id"] for r in records}),
              "harness_commits": sorted({r["harness_commit"] for r in records}),
              "sampling_sources": sorted({r["settings"]["sampling_source"] for r in records}),
+             "policy_fingerprints": sorted({r["settings"].get("policy_fingerprint") for r in records} - {None}),
              "splits": sorted({r["split"] for r in records})}
     block["invalid"] = bool(block["excluded_rate"] and block["excluded_rate"] > EXCLUDED_LIMIT)
     if tier == "perf":
@@ -314,6 +315,9 @@ def _comparable(a: dict, b: dict) -> str | None:
     for name, field_ in (("harness commit", "harness_commits"), ("sampling class", "sampling_classes")):
         if a[field_] != b[field_] or len(a[field_]) != 1:
             return f"different {name} ({a[field_]} vs {b[field_]})"
+    pa, pb = a.get("policy_fingerprints") or [], b.get("policy_fingerprints") or []
+    if pa and pb and pa != pb:
+        return f"different run policy ({pa} vs {pb})"
     return None
 
 

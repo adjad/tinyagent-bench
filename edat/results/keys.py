@@ -74,13 +74,19 @@ def comparison_key(rec: dict) -> dict:
 
 _HARD = ("board_version", "harness_commit", "sampling_class", "lang", "tier")
 _LABELS = {"board_version": "board version", "harness_commit": "harness commit",
-           "sampling_class": "sampling", "lang": "language", "tier": "tier"}
+           "sampling_class": "sampling", "lang": "language", "tier": "tier",
+           "policy_fingerprint": "run policy"}
 
 
 def check_same(a: dict, b: dict, *, what: str, fields: Iterable[str] = _HARD,
                a_name: str = "first", b_name: str = "second") -> None:
     """Refuse when two comparison keys differ on any of `fields`."""
     diffs = [f for f in fields if a.get(f) != b.get(f)]
+    # Toolbench's policy fingerprint (timeout, step ceiling, window, treatment, ...)
+    # is a hard key when both sides record one (07-harness-review.md finding 9).
+    if a.get("policy_fingerprint") and b.get("policy_fingerprint") and \
+            a["policy_fingerprint"] != b["policy_fingerprint"]:
+        diffs.append("policy_fingerprint")
     if diffs:
         detail = "; ".join(f"{_LABELS.get(f, f)}: {a_name} {a.get(f)!r}, {b_name} {b.get(f)!r}" for f in diffs)
         raise IncompatibleResults(f"refusing to {what}: the results were made under different "

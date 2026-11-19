@@ -1,0 +1,38 @@
+{
+ "Gemma-Wisp": {
+  "chat_template.jinja": "0a2c8073c878ab1da004bee933a998606537bbb62016310352c7285c3f01c5b5",
+  "config.json": "295c29be6170fd93bc50309ff2b27f6a6dce6020be5f69dcb2b061dfcb77b800",
+  "generation_config.json": "d4226bbe3117d2d253ba4609720ba82c6c4ce4627a9a6ae05387c78983ac03de",
+  "model-00001-of-00002.safetensors": "b22e7af393e6d0ecfcf210e94d4b1b29ee34c65213ece4410bd7e515815664f7",
+  "model-00002-of-00002.safetensors": "27ec7843f33fab7d8c40d9c4d145ab374fdc5cf0ddf02c1d9f1a2eee6f4d2a07",
+  "model-mtp.safetensors": "deb34acb448ba75d2087bcf76dda343cdcf77c2bfcb1eba79c21561dd5956c6c",
+  "model.safetensors.index.json": "36f9da8215f08eb926109f0f8e4ce360101552e21c9b4cf4254fad7144d9ca2a",
+  "processor_config.json": "32bdf45d2ad4cc29a0822ddd157a182de76644f0419a6228d151495256e9813c",
+  "tokenizer.json": "cc8d3a0ce36466ccc1278bf987df5f71db1719b9ca6b4118264f45cb627bfe0f",
+  "tokenizer_config.json": "9f4fec4b1dc6ecddf8f4a92e9caea5971c0e67d81309f3f9066a2bee8c362633"
+ },
+ "gemma-4-E4B-it-r5-step-01800-oQ4e-mtp": {
+  "chat_template.jinja": "0a2c8073c878ab1da004bee933a998606537bbb62016310352c7285c3f01c5b5",
+  "config.json": "295c29be6170fd93bc50309ff2b27f6a6dce6020be5f69dcb2b061dfcb77b800",
+  "generation_config.json": "d4226bbe3117d2d253ba4609720ba82c6c4ce4627a9a6ae05387c78983ac03de",
+  "model-00001-of-00002.safetensors": "b22e7af393e6d0ecfcf210e94d4b1b29ee34c65213ece4410bd7e515815664f7",
+  "model-00002-of-00002.safetensors": "27ec7843f33fab7d8c40d9c4d145ab374fdc5cf0ddf02c1d9f1a2eee6f4d2a07",
+  "model-mtp.safetensors": "deb34acb448ba75d2087bcf76dda343cdcf77c2bfcb1eba79c21561dd5956c6c",
+  "model.safetensors.index.json": "36f9da8215f08eb926109f0f8e4ce360101552e21c9b4cf4254fad7144d9ca2a",
+  "processor_config.json": "32bdf45d2ad4cc29a0822ddd157a182de76644f0419a6228d151495256e9813c",
+  "tokenizer.json": "cc8d3a0ce36466ccc1278bf987df5f71db1719b9ca6b4118264f45cb627bfe0f",
+  "tokenizer_config.json": "9f4fec4b1dc6ecddf8f4a92e9caea5971c0e67d81309f3f9066a2bee8c362633"
+ },
+ "gemma-4-E4B-it-oQ4e-mtp": {
+  "chat_template.jinja": "0a2c8073c878ab1da004bee933a998606537bbb62016310352c7285c3f01c5b5",
+  "config.json": "351956194c6289eb1a9d337d05c78e24d42a352e0bfa779af08a81d8a88d9645",
+  "generation_config.json": "d4226bbe3117d2d253ba4609720ba82c6c4ce4627a9a6ae05387c78983ac03de",
+  "model-00001-of-00002.safetensors": "89cf1c27afa6e52b5ffcd57afcab61ecc3f5cf8bb0a3275e82730edd910b8b40",
+  "model-00002-of-00002.safetensors": "14b9c1df318d5e55d0be054996ebea3f6c45d677aca02ee3dbc3042a1c95c14f",
+  "model-mtp.safetensors": "deb34acb448ba75d2087bcf76dda343cdcf77c2bfcb1eba79c21561dd5956c6c",
+  "model.safetensors.index.json": "1365818ca00a1a4ba50571965bf43b3fa26bc4c7575211b8950981288becd27b",
+  "processor_config.json": "32bdf45d2ad4cc29a0822ddd157a182de76644f0419a6228d151495256e9813c",
+  "tokenizer.json": "cc8d3a0ce36466ccc1278bf987df5f71db1719b9ca6b4118264f45cb627bfe0f",
+  "tokenizer_config.json": "9f4fec4b1dc6ecddf8f4a92e9caea5971c0e67d81309f3f9066a2bee8c362633"
+ }
+}

@@ -11,6 +11,13 @@ Limits, stated plainly: a child that lives shorter than the watchdog's 0.2 s
 sample can be missed by pid; the kernel coalesces duplicate reports; and
 reading the log can fail on a locked-down Mac. A read failure is reported as
 `available: False` and never treated as "no denials".
+
+**Measured on macOS 27.3 (2026-11-18):** denials of a `sandbox-exec` profile
+are *not* written to the unified log (tried `(deny default)` and `(debug
+deny)`), although denials of other sandboxes are. So `calibrate()` runs a
+known denial first; when it does not show up, every report is
+`available: False` and SK-22 stays empty. The writes and connections are still
+denied; only their after-the-fact detection is missing.
 """
 from __future__ import annotations
 
@@ -101,6 +108,22 @@ def read_denials(started: float, ended: float, pids: set[int], *, settle_s: floa
         except json.JSONDecodeError:
             continue
     return DenialReport(True, parse_lines(msgs, pids))
+
+
+_CALIBRATED: bool | None = None
+
+
+def calibrate(iso, area_factory) -> bool:
+    """True when a known denial of this profile shows up in the unified log."""
+    global _CALIBRATED
+    if _CALIBRATED is not None:
+        return _CALIBRATED
+    with area_factory() as area:
+        target = area.root.parent / "edat-sk-denial-calibration.txt"
+        r = iso.run(area, f"print -r -- x > {target}")
+    rep = read_denials(r.started, r.ended, r.pids, settle_s=1.5)
+    _CALIBRATED = rep.available and any(d.op.startswith("file-write") for d in rep.denials)
+    return _CALIBRATED
 
 
 def utc_now() -> str:

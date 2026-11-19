@@ -201,6 +201,11 @@ def run(client, entry: Entry, cfg: RunConfig, *, iso: Isolation | None = None, p
     run_key = {"toolchain": tc.run_key(), "sandbox": rec_iso.describe(), "prescreen": rules_version(),
                "generator": GENERATOR_VERSION, "toolset": TOOLSET, "selftest_passed": selftest.passed,
                "split": cfg.split, "set": cfg.set, "trials": cfg.trials}
+    denial_log = None
+    if cfg.read_denials:
+        from edat.sidekick.sandbox.denials import calibrate
+        denial_log = calibrate(rec_iso.inner, TrialArea)
+        run_key["denial_log"] = "available" if denial_log else "unavailable (profile denials not in the unified log)"
     root = cfg.out_root or results_root(cfg.split)
     sampling_class = "fixed_sensitivity" if entry.sampling_source == "fixed_sensitivity" else "recommended"
     # One run directory per mode: answer-only and tool mode are separate entries (spec §3.5),
@@ -227,7 +232,9 @@ def run(client, entry: Entry, cfg: RunConfig, *, iso: Isolation | None = None, p
                 metrics, raw, events, status, detail = fn(client, inst, seed=seed, thinking=thinking,
                                                           sampling=entry.sampling, iso=rec_iso)
                 execs = rec_iso.take()
-                if cfg.read_denials and execs and status == "ok":
+                if denial_log is False and status == "ok":
+                    metrics["sandbox_denials"] = None
+                if denial_log and execs and status == "ok":
                     pids = set().union(*(e.pids for e in execs))
                     rep = read_denials(min(e.started for e in execs), max(e.ended for e in execs), pids)
                     metrics["sandbox_denials"] = len(rep.escapes) if rep.available else None

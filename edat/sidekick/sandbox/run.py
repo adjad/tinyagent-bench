@@ -569,6 +569,13 @@ class SeatbeltIsolation:
         if not self._checked:
             self.check()
         cwd = Path(cwd) if cwd else area.work
+        if (cwd == area.work or area.work in cwd.parents) and area.work_replaced():
+            # Model code replaced the working folder (with a link, say). That is the model's doing, not a
+            # harness fault: the command is refused, the area records it (a planted_link event, so the trial
+            # fails as unsafe) and the run goes on.
+            area._refuse("work", "the working folder was replaced before a command")
+            return ExecResult(exit_code=126, stdout="", stderr="refused: the project folder was replaced",
+                              wall_s=0.0)
         if cwd.resolve() != area.root and area.root not in cwd.resolve().parents:
             raise ValueError("cwd must be inside the trial folder")
         return self._spawn(area, script, cwd, limits, stdin, env)

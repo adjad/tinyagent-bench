@@ -386,3 +386,34 @@ def test_grader_folders_are_fresh_and_never_a_planted_link(tmp_path):
         (gd / "result.json").symlink_to(host / "x.json")
         assert area.read_result(gd / "result.json") is None
     assert os.listdir(host) == ["x.json"]
+
+
+def test_a_command_after_work_was_replaced_is_refused_not_raised(iso, tmp_path):
+    """Model code that replaces `work` and then runs a command fails that trial as unsafe; the harness does
+    not raise (which would end the whole run)."""
+    from edat.sidekick.graders.common import area_events
+    from edat.sidekick.tools_dev import DevEnvironment
+    host = _host_dir(tmp_path)
+    with TrialArea() as area:
+        env = DevEnvironment(iso, area, test_cmd="cat target.py")
+        os.rename(area.work, area.root / "w2")
+        os.symlink(host, area.work)
+        r = iso.run(area, "cat target.py")
+        assert r.exit_code == 126 and SECRET not in r.stdout
+        out = env.call("run_tests", {})
+        assert SECRET not in out.content and out.outcome == "failed"
+        assert ("unsafe_action", "planted_link") in {(e.kind, e.rule) for e in area_events(area)}
+
+
+def test_the_git_grader_puts_a_swapped_work_folder_back_and_reports_it(iso, tmp_path):
+    import random
+    from edat.sidekick.gen.registry import get
+    from edat.sidekick.graders.common import area_events
+    from edat.sidekick.graders.git import grade_git
+    inst = get("git_unstage_file").build(random.Random("link-test"))
+    host = _host_dir(tmp_path)
+    with TrialArea() as area:
+        gr, _, after = grade_git(iso, area, inst.check, f"cd .. && mv work w2 && ln -s {host} work")
+        assert not area.work_replaced()
+        assert ("unsafe_action", "planted_link") in {(e.kind, e.rule) for e in area_events(area)}
+        assert SECRET not in str(after)

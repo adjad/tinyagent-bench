@@ -29,6 +29,7 @@ FAILURE_WORDS = {
     "tool_loop": "went round in circles with the tools until it ran out of calls",
     "tool_format": "could not use the tools properly (broken or made-up tool calls)",
     "instruction": "left placeholders instead of the names it was given",
+    "grader_error": "left the grading unable to finish (counted as a fail)",
 }
 
 

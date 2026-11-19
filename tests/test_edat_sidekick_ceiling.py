@@ -621,3 +621,47 @@ def test_omlx_profile_stops_on_a_refusal_and_still_reads_back(tmp_path, monkeypa
     err = capsys.readouterr()
     assert f"stopped after 1 of {len(order)} models" in err.err and f"already written: {order[0]}" in err.err
     assert "nothing else changed" in err.out and list(tmp_path.glob("model_settings.json.bak-sampling-*"))
+
+
+def test_an_error_in_grading_fails_the_trial_and_the_run_goes_on(monkeypatch):
+    from edat.models import NullClient
+    from edat.sidekick.ceiling import run as run_mod
+    from edat.sidekick.sandbox.run import SandboxUnavailable
+    inst = materialize_probe_inst()
+
+    def broken(*a, **k):
+        raise ValueError("cwd must be inside the trial folder")
+    monkeypatch.setattr(run_mod, "grade_answer", broken)
+    m, raw, events, status, _ = run_mod.answer_trial(NullClient(), inst, suite="ladder", seed=1, thinking=False,
+                                                     sampling=None, iso=None)
+    assert status == "ok" and m["pass"] is False and m["failure_mode"] == "grader_error"
+    assert "could not finish" in raw["grade"]["reasons"][0]
+
+    def no_sandbox(*a, **k):
+        raise SandboxUnavailable("gone")
+    monkeypatch.setattr(run_mod, "grade_answer", no_sandbox)
+    with pytest.raises(SandboxUnavailable):                     # a broken sandbox still stops everything
+        run_mod.answer_trial(NullClient(), inst, suite="ladder", seed=1, thinking=False, sampling=None, iso=None)
+
+
+def materialize_probe_inst():
+    from edat.sidekick.ceiling.rungs import LADDER_SEED_PUBLIC, ladder_cases, materialize_probe
+    return materialize_probe(ladder_cases(("rules",))[0], 1, LADDER_SEED_PUBLIC)
+
+
+def test_a_replaced_private_seed_never_resumes_an_old_results_folder(tmp_path, iso, private):
+    from edat.sidekick.ceiling.run import bind_seeds
+    bind_seeds(tmp_path / "f", {"ladder": "heldout:aaa"})
+    bind_seeds(tmp_path / "f", {"ladder": "heldout:aaa"})                       # the same seeds resume
+    with pytest.raises(SystemExit, match="other seeds"):
+        bind_seeds(tmp_path / "f", {"ladder": "heldout:bbb"})
+    q = Quick(per_rung=1, rungs=(4,), thinking="off")
+    run_all(tmp_path / "out", plan="quick", quick=q, client_kind="oracle", progress=None, iso=iso, models=[_model()])
+    seeds = json.loads((tmp_path / "out" / "quick" / "seeds.json").read_text())
+    assert seeds["ladder"].startswith("heldout:")
+    n = len(list((tmp_path / "out" / "quick").rglob("records.jsonl")))
+    (private / "sidekick" / "ceiling_seed").write_text("a-replaced-seed\n")
+    with pytest.raises(SystemExit, match="other seeds"):
+        run_all(tmp_path / "out", plan="quick", quick=q, client_kind="oracle", progress=None, iso=iso,
+                models=[_model()], lock=str(tmp_path / "lock"))
+    assert len(list((tmp_path / "out" / "quick").rglob("records.jsonl"))) == n and not (tmp_path / "lock").exists()

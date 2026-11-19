@@ -45,9 +45,10 @@ from edat.sidekick.ceiling.rungs import (LADDER_SEED_PUBLIC, RUNG_BY_ID, RUNGS, 
 from edat.sidekick.extract import visible_answer
 from edat.sidekick.gen.core import PUBLIC_MASTER_SEED, materialize
 from edat.sidekick.graders import grade_answer
+from edat.sidekick.graders.common import GradeResult
 from edat.sidekick.records import harness_commit, make_record
 from edat.sidekick.restraint import event_record
-from edat.sidekick.sandbox.run import TrialArea, get_isolation
+from edat.sidekick.sandbox.run import SandboxUnavailable, TrialArea, get_isolation
 from edat.sidekick.sandbox.selftest import require_sandbox
 from edat.sidekick.tools_dev import SYSTEM_PROMPT
 
@@ -226,6 +227,33 @@ def master_seed(split: str) -> str:
     return f.read_text().strip()
 
 
+def seed_fingerprints(plan_has_heldout_cases: bool) -> dict[str, str]:
+    """Short sha256 fingerprints of the seeds a run uses: the ladder's (public or private) and, for held-out
+    sidekick cases, the private sidekick seed. A results folder is bound to them (`bind_seeds`)."""
+    import hashlib
+    fp = lambda s: hashlib.sha256(s.encode()).hexdigest()[:16]   # noqa: E731
+    seed, split = ladder_seed()
+    out = {"ladder": f"{split}:{fp(seed)}"}
+    if plan_has_heldout_cases:
+        out["sidekick"] = f"heldout:{fp(master_seed('heldout'))}"
+    return out
+
+
+def bind_seeds(folder: Path, seeds: dict[str, str]) -> None:
+    """The first run in a results folder records its seeds' fingerprints; a later run with other seeds (a
+    replaced private seed, or public instead of private) refuses to resume there: its trials would be
+    different instances under the same case ids and the same "heldout" label."""
+    f = folder / "seeds.json"
+    folder.mkdir(parents=True, exist_ok=True)
+    if f.exists():
+        had = json.loads(f.read_text())
+        if had != seeds:
+            raise SystemExit(f"{folder} holds results made with other seeds ({had}); this run's are {seeds}. "
+                             "Use a new results folder; nothing was run.")
+        return
+    f.write_text(json.dumps(seeds, indent=1) + "\n")
+
+
 def ladder_seed() -> tuple[str, str]:
     """(seed, split): the private ladder seed when there is one (written on first use), else the public one."""
     p = private_dir()
@@ -296,7 +324,7 @@ def answer_trial(client, inst, *, suite: str, seed: int, thinking: bool, samplin
     if res is None:
         return {}, {"error": err}, [], "excluded", f"engine_error: {err}"
     text = res.text or ""
-    g = grade_answer(inst, text, iso)
+    g = _guarded(lambda: grade_answer(inst, text, iso))
     usage = res.usage.to_record()
     m = {"pass": g.passed, "failure_mode": classify(g, res.finish_reason), "finish_reason": res.finish_reason,
          "time_s": round(model_s, 3), "completion_tokens": usage.get("completion_tokens"),
@@ -315,15 +343,27 @@ def answer_trial(client, inst, *, suite: str, seed: int, thinking: bool, samplin
 def tool_trial(client, inst, *, suite: str, seed: int, thinking: bool, sampling, iso) -> tuple[dict, dict, list, str, str | None]:
     budget = BUDGET[thinking]["tool"]
     t0 = time.monotonic()
+    from edat.sidekick.tool_mode import ToolTrial
+    tt, env = ToolTrial(), None
     if suite == "ladder_tool":
         from edat.sidekick.ceiling.agent import run_agent_trial
-        g, tt, env = run_agent_trial(client, inst, iso, max_tokens=budget, thinking=thinking, sampling=sampling, seed=seed)
+
+        def trial():
+            nonlocal tt, env
+            g_, tt, env = run_agent_trial(client, inst, iso, max_tokens=budget, thinking=thinking,
+                                          sampling=sampling, seed=seed)
+            return g_
     else:
         from edat.sidekick.tool_mode import grade_tool_trial, prepare, run_tool_trial
-        with TrialArea() as area:
-            env, before = prepare(iso, area, inst)
-            tt = run_tool_trial(client, inst, env, max_tokens=budget, thinking=thinking, sampling=sampling, seed=seed)
-            g = None if tt.excluded else grade_tool_trial(iso, area, inst, env, before, tt)
+
+        def trial():
+            nonlocal tt, env
+            with TrialArea() as area:
+                env, before = prepare(iso, area, inst)
+                tt = run_tool_trial(client, inst, env, max_tokens=budget, thinking=thinking, sampling=sampling,
+                                    seed=seed)
+                return None if tt.excluded else grade_tool_trial(iso, area, inst, env, before, tt)
+    g = _guarded(trial)
     wall = time.monotonic() - t0
     if g is None:
         return {}, {"error": tt.engine_error}, [], "excluded", f"engine_error: {tt.engine_error}"
@@ -343,8 +383,21 @@ def tool_trial(client, inst, *, suite: str, seed: int, thinking: bool, sampling,
             m[k] = g.metrics[k]
     raw = {"prompt_head": inst.prompt[:600], "final_text": tt.final_text[:5000],
            "turns": [t.to_record() for t in tt.turns], "grade": g.to_record(),
-           "commands": [c.__dict__ for c in env.commands][:40]}
+           "commands": [c.__dict__ for c in env.commands][:40] if env else []}
     return m, raw, g.events, "ok", None
+
+
+def _guarded(grade):
+    """Run a trial's grading; an error in it fails that trial (`grader_error`) instead of ending the run.
+    A broken sandbox is not the answer's doing and still stops everything."""
+    try:
+        return grade()
+    except SandboxUnavailable:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        g = GradeResult(False, [f"the grader could not finish: {exc.__class__.__name__}: {str(exc)[:200]}"])
+        g.metrics["failure_mode"] = "grader_error"
+        return g
 
 
 # ------------------------------------------------------------------ host checks
@@ -509,6 +562,9 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
         master_seed("heldout")                   # the private seed first, so each refusal names its own cause
     selftest = require_sandbox()                 # refuses to run unless the sealed sandbox is proven
     ladder_split = ladder_seed()[1]              # public or private ladder: resumed trials must match it
+    seeds = seed_fingerprints(any(u.case.sidekick_case is not None and u.case.sidekick_case.split != "dev"
+                                  for u in plan_units(plan, quick=quick)))
+    bind_seeds(results_dir(out, plan), seeds)    # never resume on trials made from other seeds
     iso = iso or get_isolation()
     client = make_client(client_kind, model, base_url, thinking)
     slug = e.slug
@@ -531,6 +587,7 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
              "sampling_basis": profile.basis, "quant": dict(model.quant), "bits_per_weight": model.bits_per_weight,
              "engine_context_window": None if scripted else engine_context(model.engine_id)[0],
              "ships_thinking": model.thinking[0], "template_thinking_default": model.template_thinking,
+             "seeds": seeds,
              "quick": quick.to_dict() if plan == "quick" else None}
     first_ok: list[dict] = []          # the first answer-only results: is thinking really on, does the engine run it?
     first_status: list[str] = []

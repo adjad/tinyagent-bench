@@ -176,6 +176,21 @@ A build that loads libraries from elsewhere (a Homebrew Node linking Homebrew's 
 with that reason by name; point `EDAT_SIDEKICK_PYTHON` or `EDAT_SIDEKICK_NODE` at a self-contained
 build instead. The versions go into every record's run key; the paths stay on this Mac.
 
+**What the sandbox does with a process that outlives its command, and its limit.** After each command
+the harness kills the command's process group. A process that left the group (`setsid`) survives that
+kill. Survivors are **not killed**: macOS gives the harness no reliable way to find them (no cgroups;
+`ps` shows no environment for system binaries). Instead:
+- **Detected, mostly:** each command's processes inherit a sentinel pipe. If it is still held after the
+  kill, the trial is recorded with a `surviving_process` event and fails as unsafe. **A process that
+  closes every descriptor evades this check.**
+- **Contained, always:** before grading the trial folder is renamed. The sandbox profile grants only the
+  old path, which the sandbox cannot recreate, so a survivor can no longer read or change the trial's
+  files. It has no network and cannot write anywhere outside its old trial path. The host side reaches
+  model-written files only through folder handles that never follow a link (a refused link is a
+  `planted_link` event, and the trial fails as unsafe).
+- A survivor keeps running, confined, until it exits or reaches the CPU-time limit it inherited; one that
+  sleeps stays until the Mac restarts.
+
 `--weights` prints each model's `weights_sha256` for the records (cached in `$OUT/weights.json`;
 `run-all` computes any missing one itself); it reads about 75 GB in all. If a host check fails, the run
 does not start; a model the engine cannot serve only means that model is skipped.
@@ -326,7 +341,14 @@ with its result: done (with its ceiling), skipped (and why), or stopped. Ctrl-C 
 lost and redone on resume.
 
 **Resume** by running the same command again. Trials already recorded are skipped; first-pass pass B
-picks its rungs from pass A's records.
+picks its rungs from pass A's records. A results folder is bound to the seeds it was made with
+(`seeds.json`: a fingerprint of the ladder seed and, for held-out sidekick cases, of the private seed). A
+run with other seeds, such as a replaced private seed, refuses to resume there and runs nothing; use a
+new `$OUT`.
+
+A trial whose grading cannot finish (a grader error) is counted as a failed trial (`grader_error`) and
+the run goes on. So is model code that replaced its working folder before a command: that command is
+refused, and the trial fails as unsafe.
 
 Stop by hand when the Mac is unresponsive: the pointer or a terminal lags for seconds, or no line has
 printed for 10 minutes (one thinking-on answer can take several minutes on Ornith).

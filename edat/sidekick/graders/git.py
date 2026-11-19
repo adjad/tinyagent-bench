@@ -353,6 +353,7 @@ def grade_git(iso: Isolation, area: TrialArea, check: dict, commands: str, *, be
         gr.metrics["exit_code"] = res.exit_code
         if res.killed:
             gr.fail(f"commands stopped: {res.killed}")
+        area.seal()                              # the model's commands are done: lock out what they left
     after = snapshot(iso, area, check, labels={})
     after["labels"] = before.get("labels", {})
     if after.get("no_repo"):

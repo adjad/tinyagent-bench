@@ -349,16 +349,19 @@ does not start; a model the engine cannot serve only means that model is skipped
 |---|---|---|
 | Harbor | stays closed (it is closed now); the run never opens or quits it. `run-all` refuses to start while it is open, and stops before the next unload if it is opened during the run | nothing |
 | oMLX | used as it is; never started, stopped or restarted | nothing |
-| resident model | `run-all` calls `engine_prep keep <engine id> --save $OUT/resident-before.json` whenever the model changes; it unloads the other chat models (the first call saves what was loaded and never overwrites it); the engine loads the model under test on its first request | at the end: `engine_prep restore $OUT/resident-before.json` |
+| resident model | before its first change, `run-all` saves which models are loaded and which are pinned to `$OUT/resident-before.json`, with its own run token (a file left there by an earlier run is set aside as `resident-before.stale-<time>.json` and never restored); whenever the model changes it unloads the other chat models; the engine loads the model under test on its first request | `run-all` itself, on every way out (done, a stop, an error, Ctrl-C, SIGTERM, SIGHUP such as a closed terminal): it loads back what was loaded, checks the pinned set, and prints `engine: restored ...`. If that fails it says so, and `engine_prep restore $OUT/resident-before.json` is the way back |
+| engine address | `--base-url` is accepted only as `http://127.0.0.1:<port>` or `http://[::1]:<port>` (no name, not even `localhost`; no user, path or query), checked before oMLX's key is read; redirects and proxy settings are not followed. Reads, unloads, loads and chats all use that one address | nothing |
 | oMLX settings | read; changed only by the approved step 0 (eight new models' sampling fields); each request sends the entry's sampling and thinking flag itself | step 0's backup, if ever needed |
 | heavy-job lock | each command takes `$LOCK` once (`mkdir`) and removes it only if it created it; it refuses to start if the lock exists | automatic |
 | keep awake | `caffeinate -i` around each command | ends with the command |
 
 ## 3. Commands, in order
 
-One model resident at a time: `run-all` unloads the other chat models (`engine_prep keep`, saving what
-was loaded to `$OUT/resident-before.json` once) whenever the model changes, and finishes all of a
-model's entries in a tier before the next model. It takes `$LOCK` once for the whole run.
+One model resident at a time: `run-all` unloads the other chat models whenever the model changes (saving
+what was loaded and pinned to `$OUT/resident-before.json` once, before its first change), finishes all
+of a model's entries in a tier before the next model, and puts the engine back when it ends, however it
+ends. It takes `$LOCK` once for the whole run and removes it on every way out. It exits non-zero when no
+trial was graded or every trial was an engine fault.
 
 **Smoke, about 5-10 minutes** (before any of the passes below, the quick look included): base Gemma, thinking off, two cases from every rung, one trial.
 
@@ -420,7 +423,8 @@ trial is also reused only for the same ladder split (public or private seed).
 (`report $OUT/quick` for a quick look, `report $OUT/full` for the full plan, `report $OUT/smoke` for the
 smoke step.)
 
-**Put things back:** `engine_prep restore $OUT/resident-before.json`. Harbor stays closed unless the
+**Put things back:** `run-all` does it itself and prints `engine: restored ...`; only if that line says
+FAILED, run `engine_prep restore $OUT/resident-before.json`. Harbor stays closed unless the
 person running it says otherwise.
 
 ## 4. Duration, and its basis
@@ -486,8 +490,9 @@ The run checks between trials and stops cleanly by itself when:
 - `--max-minutes` has passed.
 
 `$OUT/<entry>/progress.json` says why an entry stopped, and `$OUT/run-all.json` lists every entry
-with its result: done (with its ceiling), skipped (and why), or stopped. Ctrl-C also stops it. The trial in progress is then
-lost and redone on resume.
+with its result: done (with its ceiling), skipped (and why), or stopped. Ctrl-C, SIGTERM and SIGHUP (a
+closed terminal) also stop it, through the same ending: the engine is put back and the lock removed.
+The trial in progress is then lost and redone on resume.
 
 **Resume** by running the same command again. Trials already recorded are skipped; first-pass pass B
 picks its rungs from pass A's records. A results folder is bound to the seeds it was made with

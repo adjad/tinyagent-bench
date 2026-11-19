@@ -557,6 +557,43 @@ def test_rung_9_grading_never_reads_through_a_planted_link(tmp_path, iso, monkey
     assert {(e.kind, e.rule) for e in g.events} == {("unsafe_action", "planted_link")}
 
 
+def test_every_stop_reason_ends_the_whole_run(tmp_path, monkeypatch):
+    """Each reason _should_stop can give (the run sheet's stop list) is a host stop for run-all."""
+    import time as _time
+    import edat.sidekick.sandbox.run as sr
+    from edat.sidekick.ceiling import run as run_mod
+    out, store = tmp_path / "out", tmp_path / "store"
+    out.mkdir(); store.mkdir()
+    monkeypatch.setattr(run_mod, "memory_free_pct", lambda: 90)
+    monkeypatch.setattr(run_mod, "_records", lambda s: [])
+    reasons = []
+    (out / "STOP").write_text("")
+    reasons.append(run_mod._should_stop(out, store, _time.monotonic(), None))
+    (out / "STOP").unlink()
+    reasons.append(run_mod._should_stop(out, store, _time.monotonic() - 3600, 1))
+    monkeypatch.setattr(run_mod, "memory_free_pct", lambda: 1)
+    reasons.append(run_mod._should_stop(out, store, _time.monotonic(), None))
+    monkeypatch.setattr(run_mod, "memory_free_pct", lambda: 90)
+    monkeypatch.setattr(run_mod, "_records", lambda s: [{"status": "excluded"}] * run_mod.EXCLUDED_FROM)
+    reasons.append(run_mod._should_stop(out, store, _time.monotonic(), None))
+    monkeypatch.setattr(run_mod, "_records", lambda s: [])
+    monkeypatch.setattr(sr, "LEFTOVERS", [{"area": "t", "entries": 1, "bytes": 1}] * (sr.LEFTOVER_MAX_AREAS + 1))
+    reasons.append(run_mod._should_stop(out, store, _time.monotonic(), None))
+    assert all(reasons) and len(set(reasons)) == 5, reasons
+    for why in reasons:
+        assert any(h in why for h in run_mod.HOST_STOPS), why
+
+
+def test_run_all_stops_the_whole_run_once_leftover_folders_pass_the_cap(tmp_path, iso, private, monkeypatch):
+    import edat.sidekick.sandbox.run as sr
+    monkeypatch.setattr(sr, "LEFTOVERS", [{"area": "t", "entries": 1, "bytes": 1}] * (sr.LEFTOVER_MAX_AREAS + 1))
+    two = [_model(), _model("gemma-4-E2B-it-oQ4e-mtp", label="Gemma 4 E2B", role="candidate", gb=3.9)]
+    log = run_all(tmp_path / "out", plan="quick", quick=Quick(per_rung=1, rungs=(1,), thinking="shipped"),
+                  client_kind="oracle", progress=None, iso=iso, models=two, lock=str(tmp_path / "lock"))
+    assert [r["result"] for r in log["entries"]] == ["stopped"], log["entries"]
+    assert "could not be removed" in log["entries"][0]["why"] and not (tmp_path / "lock").exists()
+
+
 def test_a_broken_grader_git_stops_the_whole_run_and_frees_the_lock(tmp_path, monkeypatch):
     """The host's git (or sandbox) failing is never one model's skip: run-all ends at the first entry."""
     from edat.sidekick.ceiling import run as run_mod
@@ -575,9 +612,10 @@ def test_a_broken_grader_git_stops_the_whole_run_and_frees_the_lock(tmp_path, mo
 
 def test_run_all_never_unloads_while_harbor_is_open(tmp_path, monkeypatch):
     from edat.sidekick.ceiling import run as run_mod
-    from scripts.productbench import engine_prep
+    from edat.sidekick.ceiling.engine import EngineState
     keeps = []
-    monkeypatch.setattr(engine_prep, "main", lambda argv: keeps.append(argv[1]) or 0)
+    monkeypatch.setattr(EngineState, "keep", lambda self, engine_id: keeps.append(engine_id) or [])
+    monkeypatch.setattr(EngineState, "restore", lambda self: "restored: (test)")
     monkeypatch.setattr(run_mod, "weights_for", lambda out, mdir, m: "0" * 64)
     monkeypatch.setattr(run_mod, "_run_entry", lambda e, out, **kw: {"skipped": None, "stopped": None,
                                                                       "summary": {"ceiling": 1, "solid": 1}})

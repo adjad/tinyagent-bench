@@ -18,6 +18,9 @@ tests/test_sandbox_wire.py.
 """
 from __future__ import annotations
 
+import json
+import re
+
 from service.tools.imessage_tools import _norm_handle
 
 FS = "\x01"  # field separator (email_raw, notes)
@@ -62,6 +65,86 @@ def messages_lines(rows: list[dict]) -> str:
         text = str(r["text"]).replace("\r", " ").replace("\n", " ")
         lines.append(f"{r['ts']} | {r['context']} | {r['who']}: {text}")
     return "\n".join(lines)
+
+
+# MessagesReader.swift's structured-record bounds (Apple silicon build).
+STRUCTURED_LIMIT = 2000
+STRUCTURED_BYTE_LIMIT = 4_000_000
+STRUCTURED_TEXT_LIMIT = 8192
+STRUCTURED_LINK_LIMIT = 32
+STRUCTURED_URL_LIMIT = 8192
+STRUCTURED_WINDOW_DAYS = 365
+STRUCTURED_ROW_LIMIT = 20000
+SERVICES = ("iMessage", "SMS", "RCS")
+_LITERAL_URL = re.compile(r"https?://[^\s<>\"']+", re.IGNORECASE)
+
+
+def _v3(obj: dict) -> str:
+    # JSONSerialization with .sortedKeys: compact, keys sorted, one line.
+    return "V3 | " + json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+
+
+def message_links(text: str) -> list[dict]:
+    """The literal http(s) links in a message's text, as the reader's
+    actualLinks reports them ({"url", "provenance": "literal_text"}), with
+    trailing sentence punctuation left out. A simplification of the reader's
+    scanner, which also balances brackets; every url is a substring of the text,
+    which is what imessage_tools.structured_messages_snapshot requires."""
+    out, seen = [], set()
+    for match in _LITERAL_URL.finditer(text):
+        url = match.group(0).rstrip(".,;:!?)]}")
+        if url and url not in seen and len(url) <= STRUCTURED_URL_LIMIT:
+            seen.add(url)
+            out.append({"url": url, "provenance": "literal_text"})
+    return out[:STRUCTURED_LINK_LIMIT]
+
+
+def messages_structured(rows: list[dict]) -> list[str]:
+    """rows: {ts, guid, chat_guid, sender, direction, text, service} -> the V3
+    block MessagesReader.swift puts at the head of the Messages carrier: one
+    coverage line, then one record line per message, newest first.
+
+    `chat_guid` is the chat's GUID ("iMessage;-;+15551234567" for one-to-one,
+    "iMessage;+;chat123..." for a group), `sender` the handle an incoming
+    message came from ("Me" for the user's own, as the reader writes it), and
+    `service` how Messages delivered it ("iMessage", "SMS", "RCS").
+
+    Parsed by imessage_tools.structured_messages_snapshot and joined to the
+    plain lines by timestamp in proactive/sources.text_records, which is where
+    a text's chat, delivery service and sender handle come from."""
+    ordered = sorted(rows, key=lambda r: r["ts"], reverse=True)
+    records: list[str] = []
+    used = truncated = 0
+    for r in ordered:
+        if len(records) >= STRUCTURED_LIMIT:
+            truncated += 1
+            continue
+        text = str(r["text"])
+        clipped = text[:STRUCTURED_TEXT_LIMIT]
+        partial = len(clipped) < len(text)
+        if partial:
+            truncated += 1
+        record = {"guid": r["guid"], "conversation": r["chat_guid"], "sender": r["sender"],
+                  "direction": r["direction"], "timestamp": r["ts"], "text": clipped,
+                  "links": message_links(clipped)}
+        source = {"kind": "messages", "message_guid": r["guid"], "chat_guid": r["chat_guid"],
+                  "navigation_url": None,
+                  "service": r["service"] if r.get("service") in SERVICES else None}
+        state = "partial" if partial else "complete"
+        line = _v3({"version": 1, "kind": "record", "record": record, "source": source,
+                    "coverage": {"text": state, "links": state}})
+        size = len(line.encode("utf-8"))
+        if used + size > STRUCTURED_BYTE_LIMIT:
+            truncated += 1
+            continue
+        records.append(line)
+        used += size
+    coverage = {"version": 1, "kind": "coverage", "attempted": len(ordered),
+                "emitted": len(records), "skipped": 0, "truncated": truncated,
+                "limit": STRUCTURED_LIMIT, "byte_limit": STRUCTURED_BYTE_LIMIT,
+                "window_days": STRUCTURED_WINDOW_DAYS, "row_limit": STRUCTURED_ROW_LIMIT,
+                "reached_row_limit": len(ordered) == STRUCTURED_ROW_LIMIT}
+    return [_v3(coverage)] + records
 
 
 def contacts_map(raw: dict[str, str]) -> dict[str, str]:

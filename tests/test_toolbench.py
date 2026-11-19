@@ -1347,3 +1347,50 @@ def test_compare_warns_when_one_run_predates_clean_sessions(tmp_path):
         (d / "meta.json").write_text(json.dumps(meta))
     assert "old" in run_toolbench._sessions_note(old, new) and "not comparable" in run_toolbench._sessions_note(new, old)
     assert run_toolbench._sessions_note(new, new2) == "" and run_toolbench._sessions_note(old, old) == ""
+
+
+# ---------------------------------------------- per-alternative step args
+
+def _send_case(**kw):
+    return parse_case({"id": "x", "prompt": "p", "expect": [{
+        "any_of": [{"tool": "send_message", "args": {"text": {"icontains": "late"}}},
+                   {"tool": "send_email", "args": {"body": {"icontains": "late"}}}],
+        "args": {"to": {"icontains": "sam"}}}], **kw}, "cat")
+
+
+def _calls(*calls):
+    return {"route": {"needs_tools": True, "tool_subset": None},
+            "steps": [{"calls": [{"name": n, "args": a} for n, a in calls]}], "final": "done", "seconds": 1.0}
+
+
+def test_an_any_of_alternative_checks_its_own_args_with_the_steps():
+    c = _send_case()
+    (step,) = c.expect
+    assert step.tools == ("send_message", "send_email")
+    assert step.args_for("send_message") == {"to": {"icontains": "sam"}, "text": {"icontains": "late"}}
+    assert step.args_for("send_email") == {"to": {"icontains": "sam"}, "body": {"icontains": "late"}}
+    names = {"send_message", "send_email"}
+    ok = lambda *cs: score(c, _calls(*cs), registry_names=names, today=TODAY).passed  # noqa: E731
+    assert ok(("send_message", {"to": "Sam", "text": "running late"}))
+    assert ok(("send_email", {"to": "sam@example.com", "body": "running late"}))
+    # Each alternative's args are its own: the message field on an email does not count.
+    assert not ok(("send_email", {"to": "sam@example.com", "text": "running late"}))
+    assert not ok(("send_message", {"to": "Alex", "text": "running late"}))  # the step's args still apply
+    bound = _send_case(prompt="p {who}").bind({"who": "Sam"})
+    assert bound.expect[0].per_tool == c.expect[0].per_tool
+
+
+def test_bad_any_of_alternatives_are_refused():
+    for alt in ([{"tool": "a", "argz": {}}], [{"args": {}}], [3], ["a", {"tool": "a"}]):
+        with pytest.raises(ValueError):
+            parse_case({"id": "x", "prompt": "p", "expect": [{"any_of": alt}]}, "cat")
+
+
+def test_steps_written_as_plain_names_score_exactly_as_before():
+    # The schema addition changes nothing for the rest of the case set: every step
+    # without {tool, args} alternatives checks the same args on every tool.
+    plain = [s for c in load_cases() for s in c.expect if not s.per_tool]
+    assert len(plain) > 300
+    assert all(s.args_for(t) is s.args for s in plain for t in s.tools)
+    users = sorted(c.id for c in load_cases() if any(s.per_tool for s in c.expect))
+    assert users == ["compose_cal_friend_lower_noask", "dev_alarm_7am"]

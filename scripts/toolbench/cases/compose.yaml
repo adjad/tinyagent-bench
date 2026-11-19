@@ -19,7 +19,9 @@
   prompt: "send my calender to {friend_lower} for the next 2 weeks"
   expect:
     - any_of: [get_upcoming, daily_brief]
-    - any_of: [send_message, send_email]
+    - any_of:
+        - {tool: send_message, args: {text: {contains_any: [dentist, brunch, budget, "{class_word}"]}}}
+        - {tool: send_email, args: {body: {contains_any: [dentist, brunch, budget, "{class_word}"]}}}
       args:
         to: {contains_any: ["{friend_lower}", "{friend_lower_email}", "0133"]}
   forbid: [schedule_send]

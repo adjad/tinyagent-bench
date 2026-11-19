@@ -251,7 +251,8 @@ def _match_expect(case: Case, calls: list[dict], today: date, *, effects: list[d
     unspent = Counter(e["tool"] for e in effects)
     for i, step in enumerate(case.expect):
         named = [j for j in range(cursor, len(calls)) if calls[j]["name"] in step.tools]
-        matching = [j for j in named if not match_args(step.args, calls[j].get("args") or {}, today)]
+        matching = [j for j in named
+                    if not match_args(step.args_for(calls[j]["name"]), calls[j].get("args") or {}, today)]
         hit = next((j for j in matching if calls[j]["name"] not in write_tools
                     or calls[j]["name"] in refused or unspent[calls[j]["name"]] > 0), None)
         if hit is not None:
@@ -263,7 +264,7 @@ def _match_expect(case: Case, calls: list[dict], today: date, *, effects: list[d
         if matching:
             return ["no_effect"], [f"step {i + 1} {want}: called, but it never took effect"]
         if named:
-            why = match_args(step.args, calls[named[0]].get("args") or {}, today)
+            why = match_args(step.args_for(calls[named[0]]["name"]), calls[named[0]].get("args") or {}, today)
             return ["bad_args"], [f"step {i + 1} {want}: {'; '.join(why)}"]
         if any(c["name"] in step.tools for c in calls[:cursor]):
             return ["out_of_order"], [f"step {i + 1} {want} only appears before step {i}"]

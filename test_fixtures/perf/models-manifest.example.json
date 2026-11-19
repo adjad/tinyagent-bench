@@ -1,0 +1,140 @@
+{
+ "note": "Example manifest. Engine ids are the benchmark oMLX instance's (D12): '<id>-plain' is a second id with MTP off in its own settings. native_window_tokens is a placeholder: take it from each model's config.json. Gemma-Wisp's pins come from service/setup/catalog.py GEMMA_HARBOR_FILES; base has no pins (hash it on import with --hash-files).",
+ "models": [
+  {
+   "id": "Gemma-Wisp",
+   "entry_id": "Gemma-Wisp",
+   "role": "baseline",
+   "engine_ids": {
+    "as_shipped": "Gemma-Wisp",
+    "plain": "Gemma-Wisp-plain"
+   },
+   "pack": "packs/Gemma-Wisp.pack.json",
+   "model_dir": null,
+   "files": [
+    {
+     "name": "chat_template.jinja",
+     "sha256": "0a2c8073c878ab1da004bee933a998606537bbb62016310352c7285c3f01c5b5",
+     "bytes": 18569
+    },
+    {
+     "name": "config.json",
+     "sha256": "295c29be6170fd93bc50309ff2b27f6a6dce6020be5f69dcb2b061dfcb77b800",
+     "bytes": 35165
+    },
+    {
+     "name": "generation_config.json",
+     "sha256": "d4226bbe3117d2d253ba4609720ba82c6c4ce4627a9a6ae05387c78983ac03de",
+     "bytes": 208
+    },
+    {
+     "name": "model-00001-of-00002.safetensors",
+     "sha256": "b22e7af393e6d0ecfcf210e94d4b1b29ee34c65213ece4410bd7e515815664f7",
+     "bytes": 5001242218
+    },
+    {
+     "name": "model-00002-of-00002.safetensors",
+     "sha256": "27ec7843f33fab7d8c40d9c4d145ab374fdc5cf0ddf02c1d9f1a2eee6f4d2a07",
+     "bytes": 425560497
+    },
+    {
+     "name": "model-mtp.safetensors",
+     "sha256": "deb34acb448ba75d2087bcf76dda343cdcf77c2bfcb1eba79c21561dd5956c6c",
+     "bytes": 159139040
+    },
+    {
+     "name": "model.safetensors.index.json",
+     "sha256": "36f9da8215f08eb926109f0f8e4ce360101552e21c9b4cf4254fad7144d9ca2a",
+     "bytes": 275856
+    },
+    {
+     "name": "processor_config.json",
+     "sha256": "32bdf45d2ad4cc29a0822ddd157a182de76644f0419a6228d151495256e9813c",
+     "bytes": 1689
+    },
+    {
+     "name": "tokenizer.json",
+     "sha256": "cc8d3a0ce36466ccc1278bf987df5f71db1719b9ca6b4118264f45cb627bfe0f",
+     "bytes": 32169626
+    },
+    {
+     "name": "tokenizer_config.json",
+     "sha256": "9f4fec4b1dc6ecddf8f4a92e9caea5971c0e67d81309f3f9066a2bee8c362633",
+     "bytes": 3082
+    }
+   ],
+   "thinking": "on",
+   "headline_entry": true,
+   "quant": {
+    "scheme": "oQ4e",
+    "bits": 4,
+    "group_size": 64,
+    "mixed": true
+   },
+   "architecture": "dense_ple",
+   "native_window_tokens": 131072,
+   "profile_window_tokens": 65792,
+   "speculation": "mtp",
+   "drafter": {
+    "id": "mtp",
+    "params": null,
+    "bytes": 159139040,
+    "max_depth": 4
+   }
+  },
+  {
+   "id": "gemma-4-E4B-it-oQ4e-mtp",
+   "entry_id": "gemma-4-E4B-it-oQ4e-mtp",
+   "role": "reference",
+   "engine_ids": {
+    "as_shipped": "gemma-4-E4B-it-oQ4e-mtp",
+    "plain": "gemma-4-E4B-it-oQ4e-mtp-plain"
+   },
+   "pack": "packs/gemma-4-E4B-it-oQ4e-mtp.pack.json",
+   "model_dir": null,
+   "files": null,
+   "thinking": "on",
+   "headline_entry": true,
+   "quant": {
+    "scheme": "oQ4e",
+    "bits": 4,
+    "group_size": 64,
+    "mixed": true
+   },
+   "architecture": "dense_ple",
+   "native_window_tokens": 131072,
+   "profile_window_tokens": 65792,
+   "speculation": "mtp",
+   "drafter": {
+    "id": "mtp",
+    "params": null,
+    "bytes": 159139040,
+    "max_depth": 4
+   }
+  },
+  {
+   "id": "example-candidate-4bit",
+   "entry_id": "example-candidate-4bit",
+   "role": "candidate",
+   "thinking": "off",
+   "headline_entry": true,
+   "engine_ids": {
+    "as_shipped": "example-candidate-4bit"
+   },
+   "pack": "packs/example-candidate-4bit.pack.json",
+   "model_dir": null,
+   "files": null,
+   "quant": {
+    "scheme": "mlx-affine",
+    "bits": 4,
+    "group_size": 64,
+    "mixed": false
+   },
+   "architecture": "dense",
+   "native_window_tokens": 32768,
+   "profile_window_tokens": 32768,
+   "speculation": "none",
+   "drafter": null
+  }
+ ]
+}

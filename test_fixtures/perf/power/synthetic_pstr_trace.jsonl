@@ -1,0 +1,10 @@
+{"schema": "edat.power-samples/1", "source": "smc_pstr", "scope": "whole_device_internal", "rate_hz": 1.0, "clock": "mach_continuous_time", "is_estimate": false, "note": "SYNTHETIC test fixture, not a measurement"}
+{"t_ns": 1000000000000, "watts": 4.0}
+{"t_ns": 1001000000000, "watts": 4.0}
+{"t_ns": 1002000000000, "watts": 4.0}
+{"t_ns": 1003000000000, "watts": 10.0}
+{"t_ns": 1004000000000, "watts": 10.0}
+{"t_ns": 1005000000000, "watts": 10.0}
+{"t_ns": 1006000000000, "watts": 4.0}
+{"t_ns": 1007000000000, "watts": 4.0}
+{"t_ns": 1008000000000, "watts": 4.0}

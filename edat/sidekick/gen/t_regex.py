@@ -196,8 +196,13 @@ def _hex_colour(rng: random.Random) -> Instance:
     def pos(r):
         return "#" + "".join(r.choice(H) for _ in range(r.choice([a, b])))
 
+    calls = [0]
+
     def neg(r):
-        k = r.randrange(7)
+        # The first negative always has a non-hex letter, so a pattern that
+        # accepts any letter fails on every seed.
+        k = 3 if calls[0] == 0 else r.randrange(7)
+        calls[0] += 1
         n = r.choice([a, b])
         body = "".join(r.choice(H) for _ in range(n))
         if k == 0:

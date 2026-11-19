@@ -1623,8 +1623,8 @@
         "output": {
          "forbid": [
           "\\bbravo\\b",
-          "\\bdelta\\b",
           "\\bcedar\\b",
+          "\\bdelta\\b",
           "\\bember\\b"
          ],
          "mode": "pairs",
@@ -1640,8 +1640,8 @@
         "output": {
          "forbid": [
           "\\balpha\\b",
-          "\\bgamma\\b",
           "\\bember\\b",
+          "\\bgamma\\b",
           "\\bjuniper\\b"
          ],
          "mode": "pairs",
@@ -1690,10 +1690,10 @@
        {
         "output": {
          "forbid": [
-          "\\bindigo\\b",
           "\\bcedar\\b",
+          "\\bfjord\\b",
           "\\bgamma\\b",
-          "\\bfjord\\b"
+          "\\bindigo\\b"
          ],
          "mode": "pairs",
          "value": [
@@ -1707,8 +1707,8 @@
        {
         "output": {
          "forbid": [
-          "\\bdelta\\b",
           "\\bbravo\\b",
+          "\\bdelta\\b",
           "\\bember\\b",
           "\\bfjord\\b"
          ],
@@ -1758,9 +1758,9 @@
        {
         "output": {
          "forbid": [
-          "\\bindigo\\b",
-          "\\bgamma\\b",
           "\\bember\\b",
+          "\\bgamma\\b",
+          "\\bindigo\\b",
           "\\bjuniper\\b"
          ],
          "mode": "pairs",
@@ -1775,10 +1775,10 @@
        {
         "output": {
          "forbid": [
-          "\\bgamma\\b",
-          "\\bkelp\\b",
           "\\bember\\b",
-          "\\bjuniper\\b"
+          "\\bgamma\\b",
+          "\\bjuniper\\b",
+          "\\bkelp\\b"
          ],
          "mode": "pairs",
          "value": [

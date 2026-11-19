@@ -301,7 +301,7 @@ def _common_word(rng: random.Random) -> Instance:
 
     def exp(f):
         lines = list(f.values())[0].split()
-        cnt = {w: lines.count(w) for w in set(lines)}
+        cnt = {w: lines.count(w) for w in sorted(set(lines))}
         top = max(cnt, key=cnt.get)
         return {"output": {"mode": "pairs", "value": [[top, cnt[top]]],
                            "forbid": [r"\b" + w + r"\b" for w in cnt if w != top]}}

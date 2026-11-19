@@ -20,6 +20,7 @@ graders. There is **no unsandboxed fallback**: if the sandbox cannot be applied,
 """
 from __future__ import annotations
 
+import atexit
 import hashlib
 import os
 import resource
@@ -109,10 +110,9 @@ class TrialArea:
         self.work = self.root / "work"
         self.home = self.root / "home"
         self.tmp = self.root / "tmp"
-        self.bin = self.root / "bin"
         self.keep = keep
         self.canary = "EDATCANARY" + uuid.uuid4().hex[:12]
-        for d in (self.work, self.home, self.tmp, self.bin):
+        for d in (self.work, self.home, self.tmp):
             d.mkdir()
         # The host side reaches model-written files only through this handle on the working folder, opened
         # once now, before any model code runs, and never through a path the model could re-point.
@@ -121,6 +121,7 @@ class TrialArea:
         self._work_id = (st.st_dev, st.st_ino)
         self.refused: list[dict] = []   # symbolic links met on the host side: never followed, reported
         self.survivors: list[str] = []  # commands that left a process running after their group was killed
+        self.killed = 0                 # such processes found holding this folder and killed
         self.sealed = False
         (self.home / ".gitconfig").write_text(
             "[user]\n"
@@ -134,10 +135,9 @@ class TrialArea:
             "[maintenance]\n\tauto = false\n")
         (self.home / CANARY_NAME).write_text(self.canary + "\n")
         tc = toolchain or find_toolchain()
-        for name, text in wrapper_scripts(tc).items():
-            p = self.bin / name
-            p.write_text(text)
-            p.chmod(0o755)
+        # The python3/node/git wrappers live in a host-owned folder outside every trial folder, which the
+        # sandbox may run from but never write: model code cannot replace what the graders run.
+        self.bin = tools_bin(tc, base)
 
     def path(self, rel: str) -> Path:
         p = (self.work / rel).resolve()
@@ -266,6 +266,103 @@ class TrialArea:
             os.close(gfd)
         return self.root / name
 
+    def copy_out(self, src: str, dest: "TrialArea", dst: str, *, skip=lambda rel: False,
+                 budget: list[int] | None = None) -> bool:
+        """Copy the folder `src` of this trial folder ("work", or "origin.git" beside it) to `dst` in another
+        area, on the host side and through handles only: nothing on the way is followed, links are copied as
+        links (their targets never read), anything that is not a file, folder or link is left out, and so is
+        every path `skip(rel)` names. `budget` is [bytes, entries] left, shared across calls; False when it
+        runs out (the copy is then incomplete and must not be graded). A missing `src` copies nothing."""
+        budget = budget if budget is not None else [64 << 20, 50000]
+        rfd = os.open(self.root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        try:
+            if src == "work":
+                sfd = os.dup(self._work_fd)
+            else:
+                try:
+                    sfd = os.open(src, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=rfd)
+                except OSError:
+                    if self._is_link(src, rfd):
+                        self._refuse(src, "a folder the grader copies is a symbolic link")
+                    return True
+        finally:
+            os.close(rfd)
+        dfd = dest.dir_handle(dest.root / dst) if dst == "work" else None
+        if dfd is None:
+            drfd = os.open(dest.root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+            try:
+                os.mkdir(dst, 0o755, dir_fd=drfd)
+                dfd = os.open(dst, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=drfd)
+            finally:
+                os.close(drfd)
+        out_fds = {".": dfd}
+        try:
+            for dirpath, dirnames, filenames, sfd_cur in os.fwalk(".", dir_fd=sfd, follow_symlinks=False):
+                rel_dir = os.path.normpath(dirpath)
+                ofd = out_fds.get(rel_dir)
+                if ofd is None:
+                    dirnames[:] = []
+                    continue
+                keep = []
+                for name in list(dirnames) + list(filenames):
+                    rel = name if rel_dir == "." else f"{rel_dir}/{name}"
+                    if skip(rel):
+                        continue
+                    budget[1] -= 1
+                    if budget[1] < 0:
+                        return False
+                    try:
+                        st = os.stat(name, dir_fd=sfd_cur, follow_symlinks=False)
+                    except OSError:
+                        continue
+                    in_git = ".git" in rel.split("/")[:-1] or src.endswith(".git")
+                    if name == ".git" and not stat.S_ISDIR(st.st_mode) or stat.S_ISLNK(st.st_mode) and in_git:
+                        # A `.git` file (a pointer to a repository elsewhere) or a link inside a repository's
+                        # own folder: git would follow either. Never copied; a link is reported.
+                        if stat.S_ISLNK(st.st_mode):
+                            self._refuse(f"{src}/{rel}", "a link inside the repository's .git folder")
+                        continue
+                    if stat.S_ISLNK(st.st_mode):
+                        os.symlink(os.readlink(name, dir_fd=sfd_cur), name, dir_fd=ofd)
+                    elif stat.S_ISDIR(st.st_mode):
+                        os.mkdir(name, 0o755, dir_fd=ofd)
+                        out_fds[rel] = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=ofd)
+                        keep.append(name)
+                    elif stat.S_ISREG(st.st_mode):
+                        if not self._copy_file(name, sfd_cur, ofd, 0o755 if st.st_mode & 0o100 else 0o644, budget):
+                            return False
+                dirnames[:] = [d for d in dirnames if d in keep]
+            return True
+        finally:
+            for fd in out_fds.values():
+                os.close(fd)
+            os.close(sfd)
+
+    @staticmethod
+    def _copy_file(name: str, sfd: int, ofd: int, mode: int, budget: list[int]) -> bool:
+        try:
+            fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=sfd)
+        except OSError:
+            return True
+        try:
+            if not stat.S_ISREG(os.fstat(fd).st_mode):
+                return True
+            out = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, mode, dir_fd=ofd)
+            try:
+                while True:
+                    b = os.read(fd, 1 << 16)
+                    if not b:
+                        return True
+                    budget[0] -= len(b)
+                    if budget[0] < 0:
+                        return False
+                    while b:
+                        b = b[os.write(out, b):]
+            finally:
+                os.close(out)
+        finally:
+            os.close(fd)
+
     def clear_work_files(self) -> None:
         """Remove the files (and links) at the top of the working folder, through its handle."""
         for name in os.listdir(self._work_fd):
@@ -319,28 +416,41 @@ class TrialArea:
         return (st.st_dev, st.st_ino) != self._work_id
 
     def seal(self) -> None:
-        """End of the model's part: rename the trial folder. The sandbox profile grants only the old path,
-        which the sandbox cannot recreate, so any process that outlived its command (a `setsid` child the
-        process-group kill missed) can no longer change anything here. If the working folder was swapped for
-        something else, the original is put back (and reported). Later sandboxed commands, the graders' own,
-        get a profile for the new path."""
+        """End of the model's part. Processes that outlived their command and still hold anything in this
+        folder (an open file, their working folder) are found and killed, and counted as survivors. Then the trial folder is renamed:
+        the sandbox profile lets sandboxed code write only inside the old path, never create the path
+        itself, so whatever is left can no longer reach the files by name. (A descriptor opened before
+        the seal by a process that was not found keeps working on that one file; the graders read what they
+        grade once, through handles, and never trust it.) If the working folder was swapped for something
+        else, the original is put back and reported. Never raises: a folder that cannot be sealed is
+        reported, and the trial fails as unsafe."""
         if self.sealed:
             return
-        new = self.root.with_name(self.root.name + "-sealed")
-        for _ in range(100):
-            try:
-                os.rename(self.root, new)
-                break
-            except OSError:
-                time.sleep(0.01)
-        else:
-            raise RuntimeError(f"could not seal the trial folder {self.root}")
-        self.root = new
-        self.work, self.home, self.tmp, self.bin = new / "work", new / "home", new / "tmp", new / "bin"
         self.sealed = True
-        if self.work_replaced():
-            self._refuse("work", "the working folder was replaced")
-            self._put_work_back()
+        try:
+            # Always looked for (one lsof listing, a tenth of a second): a process can close the sentinel
+            # pipe it was started with and so not be counted as a survivor when its command ended.
+            n = kill_holders(self.root)
+            self.killed += n
+            if n and not self.survivors:
+                self.survivors.append("(a process still holding the trial folder at the seal)")
+            new = self.root.with_name(self.root.name + "-sealed")
+            for _ in range(100):
+                try:
+                    os.rename(self.root, new)
+                    break
+                except OSError:
+                    time.sleep(0.01)
+            else:
+                self._refuse("trial", "the trial folder could not be sealed")
+                return
+            self.root = new
+            self.work, self.home, self.tmp = new / "work", new / "home", new / "tmp"
+            if self.work_replaced():
+                self._refuse("work", "the working folder was replaced")
+                self._put_work_back()
+        except OSError:
+            self._refuse("trial", "the trial folder could not be sealed")
 
     def _put_work_back(self) -> None:
         rfd = os.open(self.root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
@@ -379,7 +489,36 @@ class TrialArea:
             else:
                 p.write_text(spec)
 
+    def dir_handle(self, cwd: Path) -> int | None:
+        """A handle on a folder inside the trial folder, reached without following links (the working
+        folder: its own handle). None if a part is a link or missing."""
+        cwd = Path(cwd)
+        if cwd == self.work:
+            return os.dup(self._work_fd)
+        try:
+            rel = cwd.relative_to(self.root)
+        except ValueError:
+            return None
+        try:
+            rfd = os.open(self.root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        except OSError:
+            return None
+        if not rel.parts:
+            return rfd
+        try:
+            parts = list(rel.parts) + ["."]
+            return self._open_parent(parts, str(rel), start=rfd)
+        except OSError:
+            return None
+        finally:
+            os.close(rfd)
+
     def cleanup(self) -> None:
+        if getattr(self, "root", None) is not None:
+            try:
+                self.killed = getattr(self, "killed", 0) + kill_holders(self.root)
+            except OSError:
+                pass
         if getattr(self, "_work_fd", -1) >= 0:
             os.close(self._work_fd)
             self._work_fd = -1
@@ -458,13 +597,53 @@ def _sb_quote(path: str) -> str:
     return f'"{path}"'
 
 
-def render_profile(area_root: Path, tc: Toolchain) -> str:
+_TOOLS: dict[tuple, Path] = {}
+
+
+def tools_bin(tc: Toolchain, base: Path | None = None) -> Path:
+    """A host-owned folder of wrapper scripts (python3, node, git) for this toolchain, made once per process
+    and left read-only. It is outside every trial folder, so the sandbox can run from it but not write it."""
+    base = Path(base or os.environ.get("EDAT_SIDEKICK_TMP") or tempfile.gettempdir())
+    key = (str(base.resolve()), tuple(sorted(wrapper_scripts(tc).items())))
+    d = _TOOLS.get(key)
+    if d is not None and d.is_dir():
+        return d
+    d = Path(tempfile.mkdtemp(prefix="edat-sk-tools-", dir=base)).resolve()
+    for name, text in wrapper_scripts(tc).items():
+        fd = os.open(d / name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o555)
+        with os.fdopen(fd, "w") as fh:
+            fh.write(text)
+    d.chmod(0o555)
+    _TOOLS[key] = d
+
+    def _remove(path=d):
+        try:
+            path.chmod(0o755)
+            shutil.rmtree(path, ignore_errors=True)
+        except OSError:
+            pass
+    atexit.register(_remove)
+    return d
+
+
+def _sb_regex_prefix(path: str) -> str:
+    """The path as a literal prefix in a Seatbelt regex: letters, digits, '/', '_' and '-' as they are, any
+    other character in a bracket (so '.' is a dot)."""
+    if any(c in path for c in '[]\\"\n^$'):
+        raise SandboxUnavailable(f"path not usable in a sandbox profile: {path!r}")
+    return "".join(c if (c.isalnum() or c in "/_-") else f"[{c}]" for c in path)
+
+
+def render_profile(area_root: Path, tc: Toolchain, tools: Path | None = None) -> str:
     text = PROFILE_TEMPLATE.read_text()
+    tools = tools or tools_bin(tc)
     read = "\n  ".join(f"(subpath {_sb_quote(p)})" for p in tc.read_roots())
     execs = []
     for p in tc.exec_roots():
         execs.append(f"(subpath {_sb_quote(p)})" if os.path.isdir(p) else f"(literal {_sb_quote(p)})")
-    return (text.replace("@TRIAL@", str(area_root).replace('"', ""))
+    return (text.replace("@TRIAL_RE@", _sb_regex_prefix(str(area_root)))
+                .replace("@TRIAL@", str(area_root).replace('"', ""))
+                .replace("@TOOLS@", str(tools).replace('"', ""))
                 .replace("@TOOLCHAIN_READ@", read)
                 .replace("@TOOLCHAIN_EXEC@", "\n  ".join(execs)))
 
@@ -576,7 +755,9 @@ class SeatbeltIsolation:
             area._refuse("work", "the working folder was replaced before a command")
             return ExecResult(exit_code=126, stdout="", stderr="refused: the project folder was replaced",
                               wall_s=0.0)
-        if cwd.resolve() != area.root and area.root not in cwd.resolve().parents:
+        # A lexical check only (a harness mistake if it fails); links on the way are the model's doing and are
+        # refused below, when the command's folder is opened through handles.
+        if ".." in cwd.parts or (cwd != area.root and area.root not in cwd.parents):
             raise ValueError("cwd must be inside the trial folder")
         return self._spawn(area, script, cwd, limits, stdin, env)
 
@@ -585,7 +766,7 @@ class SeatbeltIsolation:
         # The profile is passed as text and kept on the host side only. Written into the trial folder (as it
         # once was) the model could replace it before its next command, since that folder is writable to it.
         if getattr(area, "_profile_root", None) != area.root:      # first command, or the area was sealed
-            area._profile_text = render_profile(area.root, self.toolchain)
+            area._profile_text = render_profile(area.root, self.toolchain, area.bin)
             area._profile_root = area.root
         full_env = clean_env(area)
         if env:
@@ -593,7 +774,15 @@ class SeatbeltIsolation:
         argv = [self.sandbox_exec, "-p", area._profile_text, ZSH, "-f", "-c", script]
         nproc_soft = _user_proc_count() + limits.max_procs
 
+        # The command starts in its folder through a handle (fchdir in the child), never by a path the model
+        # could re-point between a check and the start.
+        cwd_fd = area.dir_handle(cwd)
+        if cwd_fd is None:
+            area._refuse("cwd", "the command's folder was replaced")
+            return ExecResult(exit_code=126, stdout="", stderr="refused: the project folder was replaced", wall_s=0.0)
+
         def preexec() -> None:
+            os.fchdir(cwd_fd)
             os.setsid()
             resource.setrlimit(resource.RLIMIT_CPU, (limits.cpu_s, limits.cpu_s + 1))
             resource.setrlimit(resource.RLIMIT_FSIZE, (limits.file_bytes, limits.file_bytes))
@@ -615,11 +804,12 @@ class SeatbeltIsolation:
         # not the seal or the handle-only host access.
         sent_r, sent_w = os.pipe()
         try:
-            proc = subprocess.Popen(argv, cwd=str(cwd), env=full_env, stdin=subprocess.PIPE,
+            proc = subprocess.Popen(argv, env=full_env, stdin=subprocess.PIPE,
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                     preexec_fn=preexec, close_fds=True, pass_fds=(sent_w,))
         finally:
             os.close(sent_w)
+            os.close(cwd_fd)
         pgid = proc.pid
         out_chunks: list[bytes] = []
         err_chunks: list[bytes] = []
@@ -679,6 +869,34 @@ class SeatbeltIsolation:
             wall_s=wall, timed_out=killed == "wall_clock", killed=killed,
             stdout_truncated=bool(out_flag), stderr_truncated=bool(err_flag),
             pids=pids, pid=proc.pid, started=started, ended=time.time(), survivor=survivor)
+
+
+def kill_holders(root: Path) -> int:
+    """Kill every process of this user, other than this one, that holds a file under `root` open or has its
+    working folder there; the number killed. These are the processes that outlived a command (`setsid`) and
+    could still touch the trial's files; one that holds nothing there can no longer reach them by name."""
+    prefix = str(root)
+    try:
+        out = subprocess.run(["/usr/sbin/lsof", "-n", "-P", "-w", "-F", "pn", "-u", str(os.getuid())],
+                             capture_output=True, text=True, timeout=20).stdout
+    except (OSError, subprocess.SubprocessError):
+        return 0
+    pids, pid = set(), None
+    for line in out.splitlines():
+        if line.startswith("p"):
+            pid = int(line[1:]) if line[1:].isdigit() else None
+        elif line.startswith("n") and pid and pid != os.getpid():
+            name = line[1:]
+            if name == prefix or name.startswith(prefix + "/"):
+                pids.add(pid)
+    n = 0
+    for p in pids:
+        try:
+            os.kill(p, signal.SIGKILL)
+            n += 1
+        except (ProcessLookupError, PermissionError):
+            pass
+    return n
 
 
 def _still_held(fd: int, wait_s: float) -> bool:

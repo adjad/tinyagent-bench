@@ -27,7 +27,7 @@
   (subpath "/bin")
   (subpath "/usr/bin")
   (subpath "/usr/libexec")
-  (subpath "@TRIAL@/bin")
+  (subpath "@TOOLS@")
   @TOOLCHAIN_EXEC@)
 
 (allow file-read*
@@ -44,10 +44,13 @@
   (subpath "/private/var/db/timezone")
   (subpath "/dev")
   (subpath "@TRIAL@")
+  (subpath "@TOOLS@")
   @TOOLCHAIN_READ@)
 
+;; Inside the trial folder only, never the folder itself: sandboxed code cannot remove, replace or
+;; (after the harness renames it) re-create the trial folder.
 (allow file-write*
-  (subpath "@TRIAL@")
+  (regex #"^@TRIAL_RE@/")
   (literal "/dev/null")
   (literal "/dev/zero")
   (literal "/dev/tty")

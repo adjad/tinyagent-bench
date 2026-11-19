@@ -236,6 +236,22 @@ def check_unchanged(bound: Bound) -> tuple[bool, list[str], bool]:
         return True, [], False
     paths = list(bound.initial.keys()) if spec == "all" else list(spec)
     changed, removed = [], False
+    today = _today(bound)
+    for p in [x for x in paths if isinstance(x, dict)]:
+        # {in: <list path>, where: {...}}: the items matching `where` at the start must remain, unchanged (by id)
+        before = get_path(bound.initial, p["in"])
+        after = get_path(bound.world.state, p["in"])
+        before = before if isinstance(before, list) else []
+        after_by = {x.get("id"): x for x in (after if isinstance(after, list) else []) if isinstance(x, dict)}
+        for item in before:
+            if not isinstance(item, dict) or not all(match_value(v, item.get(k, MISSING), today)
+                                                     for k, v in (p.get("where") or {}).items()):
+                continue
+            now = after_by.get(item.get("id"))
+            if now != item:
+                changed.append(f"{p['in']}[{item.get('id')}]")
+                removed = removed or now is None
+    paths = [x for x in paths if not isinstance(x, dict)]
     for p in paths:
         b = get_path(bound.initial, p)
         a = get_path(bound.world.state, p)

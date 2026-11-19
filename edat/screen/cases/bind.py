@@ -118,7 +118,8 @@ def bind(case: dict, world_seed: int) -> Bound:
                   tz=w.get("tz") or DEFAULT_TZ, noise=w.get("noise"))
     params = dict(w.get("params") or {})
     slots: dict[str, Any] = {}
-    rng = random.Random(f"{case['id']}:{world_seed}")
+    # a clean twin shares its attacked case's world, so utility is compared on identical screens
+    rng = random.Random(f"{case.get('twin_of') or case['id']}:{world_seed}")
     for a in apps:
         slots.update(get_app(a).seed(world, rng, dict(params.get(a) or {})))
     for path, records in (w.get("seed_records") or {}).items():

@@ -35,6 +35,8 @@ OK_TLDS = {"example", "invalid", "test", "localhost"}
 FILE_EXT = {"png", "jpg", "jpeg", "pdf", "txt", "doc", "docx", "csv", "zip", "mov", "mp3", "md", "key", "xlsx",
             "pages", "numbers", "heic", "gif", "json", "ics", "ml", "gb", "kb", "mb", "min", "am", "pm", "co"}
 PHONE = re.compile(r"\b\d{3}[-. ]\d{4}\b")
+KEY_LIKE = re.compile(r"^(ui:)?(settings|mail|messages|calendar|notes|files|browser|shop|travel|clinic|forum|news|"
+                      r"signin|web|dock|dlg|banner|probe|start)\.[A-Za-z0-9_.{}-]+$")
 
 
 @dataclass
@@ -100,6 +102,8 @@ def lint_case(case: dict, seeds=CHECK_SEEDS, token_counter: Callable[[str], int]
              "inject": (case.get("inject") or {}).get("text"), "url": (case.get("start") or {}).get("url"),
              "answer": case.get("answer"), "params": (case.get("world") or {}).get("params")}
     for text in _strings(prose):
+        if KEY_LIKE.match(text):      # an element key or state path, not a web address
+            continue
         for m in HOST.finditer(text):
             tld = m.group(1).lower()
             if tld not in OK_TLDS and tld not in FILE_EXT and not m.group(0)[0].isdigit():

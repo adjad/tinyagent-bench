@@ -38,6 +38,12 @@ def test_committed_bundle_matches_a_fresh_export():
         fresh = ex.build_bundle(COMMITTED["source"]["exported_at"], TODAY)
     except ImportError as e:  # pragma: no cover - environment without the service package
         pytest.skip(f"tool registry not importable: {e}")
+    # `repo_commit` is git provenance (the last commit that touched the case files), not
+    # content. A shallow checkout, such as CI's depth-1 clone, reports its own HEAD for it,
+    # so it is compared for shape only; everything else must match byte for byte.
+    stamp = fresh["source"]["repo_commit"]
+    assert stamp and all(ch in "0123456789abcdef" for ch in stamp), stamp
+    fresh["source"]["repo_commit"] = COMMITTED["source"]["repo_commit"]
     assert ex.render(fresh) == (RES / "portable-cases.json").read_text(encoding="utf-8")
 
 

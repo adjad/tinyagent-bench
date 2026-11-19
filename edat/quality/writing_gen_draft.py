@@ -627,11 +627,11 @@ def _gen_reply_real(seed: int, index: int, profile: str) -> dict:
     else:
         item = c.pick(["the signed form", "the updated draft", "my laptop", "the printed copies"])
         pts = [P(f"I can meet on {d.s} at {tm.s}", d.a, tm.a, lead=True), P(f"I will bring {item}", item),
-               P("keep it short")]
+               P("ask whether that time works for them")]
         paras = [f"Thank you for your message. I can meet on {d.s} at {tm.s}, and I will bring {item}.",
-                 "I will keep it short."]
+                 "Does that time work for you?"]
     forb = _forbidden_from_thread(c, pick["texts"], " ".join(paras + [p_["text"] for p_ in pts] + [pick["subject"]]))
-    forbid = [F(f"mentioning {forb[0]}", forb[1])] if forb else []
+    forbid = [F(f"repeating {forb[0]} from the earlier messages", forb[1])] if forb else []
     if not forb:
         forbid = [F("any promise of a decision", "guarantee")]
     pts = pts[:4]

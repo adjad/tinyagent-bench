@@ -314,9 +314,11 @@ def render_constraints(c: dict, surface: str) -> list[str]:
     elif c.get("max_words"):
         out.append(f"Keep it to {c['max_words']} words or fewer.")
     if c.get("exact_sentences"):
-        out.append(f"Write exactly {c['exact_sentences']} sentences.")
+        n = c["exact_sentences"]
+        out.append(f"Write exactly {n} sentence{'s' if n != 1 else ''}.")
     elif c.get("max_sentences"):
-        out.append(f"Use at most {c['max_sentences']} sentences.")
+        n = c["max_sentences"]
+        out.append(f"Use at most {n} sentence{'s' if n != 1 else ''}.")
     if c.get("max_chars"):
         out.append(f"Keep it under {c['max_chars']} characters.")
     if c.get("subject"):

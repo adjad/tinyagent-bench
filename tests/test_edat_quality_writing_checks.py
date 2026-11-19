@@ -640,3 +640,19 @@ def test_wd4_function_words_inside_a_title_are_not_name_words():
 def test_wd4_lowercase_recipient_name_fails():
     c = email_case()
     assert st(K.score_writing("Hi dana, the review moves to Mon 25 Nov.", c), "WD4") == "fail"
+
+
+def test_one_off_rule_names_from_the_style_generator_are_enforced():
+    from edat.quality import writing_gen_style as G
+    for i in range(10):
+        c = G.GENERATORS[("W5", "one_off")](W.case_seed(5, "W5", "one_off", i), index=i,
+                                             profile=W.profile_for("W5", i))
+        rule = c["pref_meta"].get("one_off")
+        if not rule:
+            continue
+        ref = c["reference_draft"]
+        assert st(K.score_writing(ref, c), "WD5") == "pass", rule
+        broken = {"no_exclamation": ref.replace(".", "!", 1), "all_lowercase": ref.upper(),
+                  "no_contractions": ref + " I can't.", "ends_with_question": ref.rstrip("?") + ".",
+                  "starts_with_date": "Hello. " + ref, "no_greeting_or_signoff": "Hi there,\n" + ref}[rule]
+        assert st(K.score_writing(broken, c), "WD5") == "fail", rule

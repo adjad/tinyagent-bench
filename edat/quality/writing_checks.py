@@ -494,8 +494,21 @@ def _count_contractions(text: str) -> int:
     return len(_CONTRACTION.findall(text.replace("’", "'")))
 
 
+_ONE_OFF_ALIASES = {"starts_with_date": "start_with_date", "ends_with_question": "end_with_question"}
+
+
 def _one_off(name: str, parsed: dict, case: dict) -> tuple[str, str]:
+    name = _ONE_OFF_ALIASES.get(name, name)
     core = parsed["core"] or parsed["body"]
+    if name == "no_greeting_or_signoff":
+        lines = [ln.strip() for ln in (parsed["body"] or parsed["raw"]).strip().splitlines() if ln.strip()]
+        if not lines:
+            return PASS, ""
+        first, last = lines[0], lines[-1]
+        greet = re.match(r"^(?:hi|hello|hey|dear|good (?:morning|afternoon|evening))\b", first, re.I)
+        sign = re.match(r"^(?:thanks|thank you|best|cheers|regards|kind regards|warm regards|sincerely|love|xo)\b[,!]?\s*\w*$",
+                        last, re.I) or (len(lines) > 1 and re.fullmatch(r"[—-]?\s*[A-Z][a-z]+", last))
+        return (FAIL, "has a greeting or sign-off") if (greet or sign) else (PASS, "")
     if name == "no_exclamation":
         return (FAIL, "has '!'") if "!" in parsed["raw"] else (PASS, "")
     if name == "all_lowercase":

@@ -152,6 +152,12 @@ def _git_sha() -> str:
         return ""
 
 
+def sandbox_marks(root: Path = ROOT) -> dict:
+    """Run-meta marks read from the checkout's code (the meta's `git_sha`), so no run needs one set
+    by hand: whether its sandbox answers Calendar and Reminders writes (known_faults.py)."""
+    return {known_faults.NATIVE_FIXED_MARK: known_faults.sandbox_answers_native_writes(root)}
+
+
 def _sysctl(name: str) -> str | None:
     try:
         out = subprocess.run(["sysctl", "-n", name], capture_output=True, text=True, timeout=5)
@@ -619,7 +625,7 @@ def play_sim_day(args, chosen, run: str, run_dir: Path, device: dict, stub: bool
                   context_window=entry.context_window, credential_ref=args.credential_ref,
                   at=script.get("day_start", "08:00"), narration_thinking=entry.thinking == "narration-on")
     meta = {"run": run, "title": summary.TITLE + ": simulated day", "harness": HARNESS_VERSION,
-            known_faults.NATIVE_FIXED_MARK: known_faults.sandbox_answers_native_writes(ROOT),
+            **sandbox_marks(),
             "git_sha": _git_sha(), "date": time.strftime("%Y-%m-%d"), "entry": entry.id, "kind": entry.kind,
             "variant": entry.variant(), "device": device, "stub": stub, "profile": profile.id,
             "pace": args.pace, "gap_s": args.gap_s, "scale": args.scale, "events": len(script["events"]),
@@ -766,7 +772,7 @@ def main() -> None:
             "max_spend_usd": args.max_spend_usd, "started": time.time(), "trials_meta": [],
             "sync_preflight": preflight,
             # whether the sandbox here answers Calendar/Reminders writes (else replays: known_faults.py)
-            known_faults.NATIVE_FIXED_MARK: known_faults.sandbox_answers_native_writes(ROOT),
+            **sandbox_marks(),
             "supersedes": args.supersedes,
             "known_gaps": ({} if "act" in surfaces else {"act_not_run": known_faults.GAPS["act_not_run"]}),
             "sampling": "Harbor's own requests: model-only Ask sends no temperature, so a local model's "

@@ -835,3 +835,21 @@ def test_preference_record_keeps_the_model_entry(mini):
     rec = asyncio.run(runner._pref_case(pc, fake_ask, ctx, mini, {"entry": "Gemma-Wisp", "trial": 1}))
     assert rec["entry"] == "Gemma-Wisp" and rec["ledger_entry"] == "L-edat_mini-07"
     assert rec["score"]["score"] == 1.0 and rec["arrival"] == "stated"
+
+
+def test_sandbox_marks_read_the_checkouts_sandbox(tmp_path):
+    from scripts import run_productbench as runner
+    from scripts.productbench import known_faults
+    assert runner.sandbox_marks()[known_faults.NATIVE_FIXED_MARK] is True
+    assert runner.sandbox_marks(tmp_path)[known_faults.NATIVE_FIXED_MARK] is False
+
+
+def test_every_run_meta_carries_the_sandbox_marks():
+    import ast
+    src = Path(__file__).resolve().parents[1] / "scripts" / "run_productbench.py"
+    metas = [n for n in ast.walk(ast.parse(src.read_text())) if isinstance(n, ast.Dict)
+             and any(isinstance(k, ast.Constant) and k.value == "harness" for k in n.keys)]
+    assert len(metas) >= 2
+    for d in metas:
+        assert any(k is None and isinstance(v, ast.Call) and getattr(v.func, "id", "") == "sandbox_marks"
+                   for k, v in zip(d.keys, d.values)), f"run meta at line {d.lineno} lacks **sandbox_marks()"

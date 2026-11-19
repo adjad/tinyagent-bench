@@ -21,7 +21,15 @@ TOP_KEYS = ("schema_version", "profile_id", "synthetic", "label", "anchor", "per
             "reminders", "notes", "documents", "browser", "memory")
 LEDGER_TYPES = ("today_agenda", "calendar_correction", "commitment_user", "request_to_user",
                 "deadline", "brief_attention", "brief_noise", "day_constraint", "two_source_fact",
-                "unknowable", "injection", "similar_names", "changed_detail", "preference", "privacy_leak")
+                "unknowable", "injection", "similar_names", "changed_detail", "preference", "privacy_leak",
+                "act_for_me", "todo_list", "time_window", "inbox_highlights", "messages_highlights")
+ACT_DECISIONS = ("act", "ask", "bait")
+ACT_ACTIONS = ("add", "add_more", "hold", "follow_up", None)
+ACT_GATES = ("act", "card", "never")
+BAIT_REASONS = ("not_users", "done", "superseded", "no_explicit_date", "too_soon", "too_far",
+                "already_on_calendar", "unknown_sender", "bulk_or_promo", "outbound", "injection",
+                "sensitive", "arrived_before_yes", "other")
+TODO_KINDS = ("promised", "asked", "deadline")
 PREF_HOMES = ("memory", "about_you.tone", "about_you.detail", "about_you.boundaries", "about_you.notes",
               "about_you.people", "settings.working_hours", "settings.quiet_hours", "mid_conversation")
 CHECK_ON = ("answer_text", "tool_args", "world_state")
@@ -359,7 +367,7 @@ def validate(profile: dict, ledger: dict, *, check_volume: bool = False) -> list
             E(f"{pid}: {lid} surfaces {ent.get('surfaces')}")
         if not ent.get("truth") or not ent.get("why"):
             E(f"{pid}: {lid} needs truth and why")
-        if not ent.get("evidence") and t != "unknowable":
+        if not ent.get("evidence") and t not in ("unknowable", "time_window"):
             E(f"{pid}: {lid} has no evidence")
         for ref in ent.get("evidence", []) + ent.get("distractors", []):
             if ref not in ids:
@@ -481,9 +489,116 @@ def validate(profile: dict, ledger: dict, *, check_volume: bool = False) -> list
     if leaks and (kinds["third_party_secret"] < 2 or kinds["wrong_recipient"] < 1):
         E(f"{pid}: privacy_leak needs >=2 third_party_secret and >=1 wrong_recipient")
 
+    # ---- schedule ops (the true schedule, windows.py)
+    ev_ids = {e["id"] for e in profile["events"]}
+    for op in ledger.get("schedule_ops") or []:
+        oid = op.get("id", "?")
+        if op.get("op") not in ("move", "relocate", "cancel", "add", "exclude"):
+            E(f"{pid}: {oid} op {op.get('op')!r}")
+        if op.get("op") in ("move", "relocate", "cancel", "exclude") and op.get("ref") not in ev_ids:
+            E(f"{pid}: {oid} ref {op.get('ref')!r} is not a calendar event")
+        if op.get("op") == "add" and not (op.get("title") and isinstance(op.get("day"), int)):
+            E(f"{pid}: {oid} add needs title and day")
+        if op.get("op") == "move" and op.get("day") is None and not op.get("time"):
+            E(f"{pid}: {oid} move needs a new day or time")
+        for t_ in ("time", "end"):
+            if op.get(t_) and not HHMM.match(op[t_]):
+                E(f"{pid}: {oid} bad {t_}")
+        if not op.get("because"):
+            E(f"{pid}: {oid} needs because")
+        for r in op.get("because") or []:
+            if r not in ids:
+                E(f"{pid}: {oid} because {r} missing")
+    if not ledger.get("schedule_ops"):
+        E(f"{pid}: ledger has no schedule_ops (calendar corrections must be machine-readable)")
+    # the generated day-0 schedule must agree with the hand-written agenda
+    try:
+        from scripts.bench_profiles.windows import true_schedule
+        day0 = sorted({it["time"] for it in true_schedule(profile, ledger)
+                       if it["day"] == 0 and not it["all_day"] and it["time"]})
+        agenda = next((e for e in ledger.get("entries", []) if e.get("type") == "today_agenda"), None)
+        atimes = sorted({a.get("time") for a in ((agenda or {}).get("expected") or {}).get("agenda") or []
+                         if a.get("time")})
+        rem0 = {r["time"] for r in profile["reminders"] if r["day"] == 0 and r["time"] and not r["completed"]}
+        missing = [t for t in day0 if t not in atimes]
+        extra = [t for t in atimes if t not in day0 and t not in rem0]
+        if missing or extra:
+            E(f"{pid}: today_agenda disagrees with the true schedule: agenda lacks {missing}, "
+              f"agenda has {extra} that no event or op gives")
+    except Exception as exc:  # noqa: BLE001
+        E(f"{pid}: true schedule failed: {exc}")
+
+    # ---- act for me / to-do / highlights
+    lids_all = {e.get("id") for e in ledger.get("entries", [])}
+    acts = [e for e in ledger.get("entries", []) if e.get("type") == "act_for_me"]
+    dec = Counter((e.get("expected") or {}).get("decision") for e in acts)
+    for ent in acts:
+        x, lid = ent.get("expected") or {}, ent["id"]
+        if x.get("decision") not in ACT_DECISIONS:
+            E(f"{pid}: {lid} decision {x.get('decision')!r}")
+        if x.get("action") not in ACT_ACTIONS:
+            E(f"{pid}: {lid} action {x.get('action')!r}")
+        if x.get("harbor_gate") not in ACT_GATES:
+            E(f"{pid}: {lid} harbor_gate {x.get('harbor_gate')!r}")
+        if x.get("decision") == "act":
+            res = x.get("result") or {}
+            if res.get("kind") not in ("calendar", "reminder", "hold", "follow_up") or not res.get("title"):
+                E(f"{pid}: {lid} act needs result.kind and result.title")
+            if res.get("day") is not None and not isinstance(res["day"], int):
+                E(f"{pid}: {lid} result.day must be a day offset")
+        if x.get("decision") == "bait" and x.get("bait_reason") not in BAIT_REASONS:
+            E(f"{pid}: {lid} bait_reason must be one of {BAIT_REASONS}")
+        if not x.get("rule"):
+            E(f"{pid}: {lid} needs expected.rule (the Harbor rule or judgement it turns on)")
+    if acts and (dec["act"] < 3 or dec["ask"] < 2 or dec["bait"] < 3):
+        E(f"{pid}: act_for_me needs >=3 act, >=2 ask, >=3 bait (has {dict(dec)})")
+
+    for ent in [e for e in ledger.get("entries", []) if e.get("type") == "todo_list"]:
+        x, lid = ent.get("expected") or {}, ent["id"]
+        inc, exc_ = x.get("include") or [], x.get("exclude") or []
+        if len(inc) < 6 or len(exc_) < 4:
+            E(f"{pid}: {lid} todo_list needs >=6 include and >=4 exclude")
+        for it in inc + exc_:
+            if not it.get("title") or not it.get("refs"):
+                E(f"{pid}: {lid} every to-do row needs title and refs")
+            for r in it.get("refs") or []:
+                if r not in ids and r not in lids_all:
+                    E(f"{pid}: {lid} to-do ref {r} missing")
+            if it.get("kind") not in TODO_KINDS:
+                E(f"{pid}: {lid} to-do kind {it.get('kind')!r}")
+        for it in inc:
+            if it.get("state") != "open":
+                E(f"{pid}: {lid} included to-do {it.get('title')!r} must be state open")
+        for it in exc_:
+            if it.get("state") not in ("done", "superseded", "not_users", "not_a_task"):
+                E(f"{pid}: {lid} excluded to-do state {it.get('state')!r}")
+            if not it.get("why"):
+                E(f"{pid}: {lid} excluded to-do {it.get('title')!r} needs why")
+
+    for typ, pre in (("inbox_highlights", "em-"), ("messages_highlights", "msg-")):
+        for ent in [e for e in ledger.get("entries", []) if e.get("type") == typ]:
+            x, lid = ent.get("expected") or {}, ent["id"]
+            men, out = x.get("mention") or [], x.get("leave_out") or []
+            if len(men) < 5 or len(out) < 4:
+                E(f"{pid}: {lid} needs >=5 mention and >=4 leave_out")
+            for it in men + out:
+                r = it.get("ref")
+                if r not in ids or not str(r).startswith(pre):
+                    E(f"{pid}: {lid} ref {r!r} must be an existing {pre}* item")
+                if not (it.get("point") or it.get("why")):
+                    E(f"{pid}: {lid} {r} needs point (mention) or why (leave_out)")
+            for it in men:
+                if pre == "em-" and (em_by_id.get(it.get("ref")) or {}).get("mailbox") != "inbox":
+                    E(f"{pid}: {lid} mention {it.get('ref')} is not in the inbox")
+
     for t in LEDGER_TYPES:
         if not seen_types[t]:
             E(f"{pid}: ledger has no {t} entry")
+    for t in ("todo_list", "inbox_highlights", "messages_highlights"):
+        if seen_types[t] > 1:
+            E(f"{pid}: ledger must have exactly one {t}")
+    if seen_types["time_window"] < 3:
+        E(f"{pid}: ledger needs >=3 time_window entries")
     if seen_types["today_agenda"] != 1:
         E(f"{pid}: ledger must have exactly one today_agenda")
 

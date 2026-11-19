@@ -86,3 +86,66 @@ def test_token_renderer():
     assert render_tokens("{{dow:+2}} / {{date:-1:short}} / {{date:+3:long:es}}", d) == \
         "Thursday / Oct 12 / viernes 16 de octubre"
     assert FIXTURES.name == "bench_profiles"
+
+
+# ---- windows.py: the true schedule and time windows -------------------------------------
+
+def _tiny():
+    ev = lambda id, day, t, e, **kw: {"id": id, "series_id": None, "calendar": kw.get("cal", "Home"),
+                                      "account": None, "kind": "event", "title": id, "day": day,
+                                      "time": t, "end": e, "all_day": False, "days": 1,
+                                      "location": kw.get("loc"), "organizer": None,
+                                      "organizer_is_user": True, "invitee_count": 0,
+                                      "calendar_writable": True, "context": None, "notes": None,
+                                      "status": "confirmed"}
+    profile = {"events": [ev("ev-lab", 0, "14:00", "16:50"), ev("ev-shift", 0, "17:00", "21:00"),
+                          ev("ev-lecture", 0, "09:30", "10:45"), ev("ev-partner", 0, "07:00", "19:30"),
+                          ev("ev-late", 0, "23:00", "23:59")],
+               "reminders": [{"id": "rem-a", "title": "pay", "day": 0, "time": "12:00", "completed": False},
+                             {"id": "rem-b", "title": "done", "day": 0, "time": "12:30", "completed": True}]}
+    ledger = {"schedule_ops": [
+        {"id": "op-1", "op": "move", "ref": "ev-lab", "day": 2, "time": "15:30", "end": None,
+         "location": "B07", "title": None, "because": ["em-x"]},
+        {"id": "op-2", "op": "cancel", "ref": "ev-shift", "because": ["msg-y"]},
+        {"id": "op-3", "op": "add", "ref": None, "title": "Study", "day": 0, "time": "19:00",
+         "end": "20:45", "location": "Library", "because": ["msg-z"]},
+        {"id": "op-4", "op": "exclude", "ref": "ev-partner", "because": ["ev-partner"]},
+        {"id": "op-5", "op": "add", "ref": None, "title": "Call", "day": 1, "time": "00:30",
+         "end": "01:00", "location": None, "because": ["msg-w"]}]}
+    return profile, ledger
+
+
+def test_true_schedule_applies_every_op():
+    from scripts.bench_profiles.windows import true_schedule, stale_calendar
+    profile, ledger = _tiny()
+    sched = {i["ref"]: i for i in true_schedule(profile, ledger)}
+    assert "ev-shift" not in sched and "ev-partner" not in sched
+    lab = sched["ev-lab"]
+    assert (lab["day"], lab["time"], lab["end"], lab["location"]) == (2, "15:30", "18:20", "B07")
+    assert sched["op-3"]["time"] == "19:00" and sched["op-3"]["because"] == ["msg-z"]
+    assert {s["ref"] for s in stale_calendar(profile, ledger)} == {"ev-lab", "ev-shift", "ev-partner"}
+
+
+def test_in_window_counts_running_events_reminders_and_stale_rows():
+    from scripts.bench_profiles.windows import in_window
+    profile, ledger = _tiny()
+    w = in_window(profile, ledger, 0, "10:00", 3)
+    assert [i["ref"] for i in w["items"]] == ["ev-lecture"] and w["items"][0]["running"]
+    assert [r["id"] for r in w["reminders"]] == ["rem-a"]          # the completed one is left out
+    assert {s["ref"] for s in w["stale"]} == {"ev-partner"}
+    w = in_window(profile, ledger, 0, "15:00", 3)
+    assert w["items"] == [] and {s["ref"] for s in w["stale"]} == {"ev-lab", "ev-shift", "ev-partner"}
+    w = in_window(profile, ledger, 0, "22:30", 3)                  # crosses midnight
+    assert [i["ref"] for i in w["items"]] == ["ev-late", "op-5"]
+
+
+@each
+def test_generated_windows_match_the_helper(pid):
+    from scripts.bench_profiles.windows import window_entry
+    profile, ledger = read_raw(pid)
+    wins = [e for e in ledger["entries"] if e["type"] == "time_window"]
+    assert len(wins) >= 3
+    for e in wins:
+        w = e["expected"]["window"]
+        fresh = window_entry(profile, ledger, w["day"], w["at"], w["hours"])
+        assert fresh["expected"] == e["expected"], e["id"]

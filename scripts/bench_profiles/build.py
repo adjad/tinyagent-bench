@@ -15,6 +15,7 @@ from collections import Counter
 from pathlib import Path
 
 from scripts.bench_profiles.render import FIXTURES, PROFILE_IDS, render, render_ledger
+from scripts.bench_profiles.windows import window_entry
 from datetime import date
 
 
@@ -37,7 +38,14 @@ def counts(profile: dict, ledger: dict) -> dict:
 def build_one(pid: str) -> tuple[dict, dict]:
     mod = importlib.import_module(f"scripts.bench_profiles.profiles.{pid}")
     b = mod.build()
-    return b.profile_dict(), b.ledger_dict()
+    profile, ledger = b.profile_dict(), b.ledger_dict()
+    # Time-window checks are generated, never hand-written: windows.py applies the ledger's
+    # schedule_ops to the calendar, so these entries can't drift from the data.
+    for day, at, hours in b.window_points:
+        ent = window_entry(profile, ledger, day, at, hours)
+        ent["id"] = f"L-{pid}-{len(ledger['entries']) + 1:02d}"
+        ledger["entries"].append({"id": ent.pop("id"), **ent})
+    return profile, ledger
 
 
 def _file_path(doc: dict) -> str:

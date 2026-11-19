@@ -1,0 +1,72 @@
+;; EDAT sidekick sandbox profile, version edat-sidekick-sb/1 (spec 12 §3.4, layer 3).
+;;
+;; Deny by default. Model-written code and commands may:
+;;   * read the system and the pinned toolchains (listed by the harness at run time);
+;;   * read and write only inside the trial's own throwaway folder;
+;;   * execute only from /bin, /usr/bin, /usr/libexec and the pinned toolchains;
+;;   * never use the network, loopback included.
+;;
+;; The harness renders this template: the TRIAL placeholder becomes the trial
+;; folder and the two TOOLCHAIN placeholders become one subpath or literal
+;; filter per toolchain path. Local paths are filled in at run
+;; time and never committed. The sha256 of this template is part of the run key.
+
+(version 1)
+(deny default)
+
+;; Processes: fork, signal own children, read basic system facts.
+(allow process-fork)
+(allow signal (target same-sandbox))
+(allow sysctl-read)
+(allow process-info* (target same-sandbox))
+
+;; stat() anywhere (needed for path resolution); contents stay denied.
+(allow file-read-metadata)
+
+(allow process-exec
+  (subpath "/bin")
+  (subpath "/usr/bin")
+  (subpath "/usr/libexec")
+  (subpath "@TRIAL@/bin")
+  @TOOLCHAIN_EXEC@)
+
+(allow file-read*
+  (literal "/")
+  (literal "/etc")
+  (literal "/var")
+  (literal "/tmp")
+  (subpath "/bin")
+  (subpath "/usr")
+  (subpath "/System")
+  (subpath "/Library/Preferences/Logging")
+  (subpath "/private/etc")
+  (subpath "/private/var/db/dyld")
+  (subpath "/private/var/db/timezone")
+  (subpath "/dev")
+  (subpath "@TRIAL@")
+  @TOOLCHAIN_READ@)
+
+(allow file-write*
+  (subpath "@TRIAL@")
+  (literal "/dev/null")
+  (literal "/dev/zero")
+  (literal "/dev/tty")
+  (literal "/dev/dtracehelper")
+  (subpath "/dev/fd"))
+
+(allow file-ioctl
+  (literal "/dev/null")
+  (literal "/dev/tty")
+  (literal "/dev/dtracehelper"))
+
+;; The few system services libc needs for user lookups and logging.
+(allow mach-lookup
+  (global-name "com.apple.system.opendirectoryd.libinfo")
+  (global-name "com.apple.system.notification_center")
+  (global-name "com.apple.logd")
+  (global-name "com.apple.system.logger"))
+(allow ipc-posix-shm-read-data ipc-posix-shm-read-metadata
+  (ipc-posix-name "apple.shm.notification_center"))
+
+;; All network denied, loopback and Unix sockets included.
+(deny network*)

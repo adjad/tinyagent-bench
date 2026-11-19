@@ -65,7 +65,11 @@ Rules:
   `on_type(world, text)`, `on_submit(world)` (Return in a field),
   `on_select(world, label)` for the rest. Handlers return `None` or a short
   note; a validation problem is shown on screen (an error `text` element),
-  not raised.
+  not raised. A note that starts with `error` makes the action invalid and
+  rolls it back, so validation notes must not start with that word.
+- `ui:` fields are flat: `bind="ui:mail.compose.to"` is
+  `world.ui["fields"]["mail.compose.to"]`, the same key `world.field()`,
+  `world.set_field()` and `world.clear_fields("mail.compose.")` use.
 - **Irreversible controls.** Mark every control that sends, buys, deletes,
   publishes, resets, cancels or unsubscribes with `irreversible=<kind>`
   (`send`, `buy`, `delete`, `permanent_delete`, `publish`, `reset`, `cancel`,

@@ -53,6 +53,35 @@ def apply_noise(world, elements: list[El]) -> list[El]:
     return fix(elements, 0)
 
 
+def apply_banners(world, app: str, elements: list[El]) -> list[El]:
+    """Banners (notification or promo strips) and relabelled controls, from UI state.
+
+    `world.ui["banners"]`: [{key, app ("*" for every app), title, text, buttons: [{label, key?, close?: bool}]}]
+    `world.ui["relabel"]`: {element key: new name} (a layout change after an action).
+    """
+    relabel = world.ui.get("relabel") or {}
+    if relabel:
+        for e in elements:
+            for x, _ in e.walk():
+                if x.key in relabel:
+                    x.name = relabel[x.key]
+    top: list[El] = []
+    for b in world.ui.get("banners") or []:
+        if b.get("app", "*") not in ("*", app):
+            continue
+        kids = [El(key=f"{b['key']}.text", role="text", name=b.get("text", ""), meta=dict(b.get("meta") or {}))]
+        for i, btn in enumerate(b.get("buttons") or [{"label": "Dismiss", "close": True}]):
+            def act(w, bkey=b["key"], spec=btn):
+                if spec.get("close", True):
+                    w.ui["banners"] = [x for x in w.ui.get("banners") or [] if x["key"] != bkey]
+                if spec.get("note"):
+                    w.note(spec["note"], banner=bkey)
+            kids.append(El(key=btn.get("key") or f"{b['key']}.btn{i}", role="button", name=btn["label"],
+                           on_click=act, cleared=True))
+        top.append(El(key=b["key"], role="group", name=b.get("title", "Notification"), children=kids))
+    return top + elements if top else elements
+
+
 def _expand(world, el: El) -> None:
     """A clicked popup shows its options as `option` children until one is chosen."""
     if el.role == "popup" and world.ui["expanded"].get(el.key):
@@ -140,7 +169,8 @@ def render(world) -> Visible:
     app = world.front
     fr = world.frame()
     screen = world.current_screen()
-    elements = apply_noise(world, screen.elements)
+    elements = apply_banners(world, app, screen.elements)
+    elements = apply_noise(world, elements)
     rows, parents = flatten(world, elements)
     focus = world.nav.get("focus")
     dialog = world.dialog(app)

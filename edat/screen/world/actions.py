@@ -109,6 +109,10 @@ def _click(world, vis, args) -> ActionResult:
     if not el.clickable:
         raise _tag(ActionError("wrong_role", f"[{world.id_for(el.key)}] is {el.role}, not a control"), el)
     app = world.front
+    icpt = world.intercepts.pop(el.key, None) if getattr(world, "intercepts", None) else None
+    if icpt is not None:
+        # a scripted transient failure: the press does not take effect this time
+        return ActionResult(status=_status(icpt(world, el)), target_key=el.key, target_role=el.role)
     if el.irreversible:
         world.record_effect(el, app)
     note = None

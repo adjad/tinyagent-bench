@@ -119,10 +119,11 @@ class World:
         self.app_names = list(apps)
         self.apps = {a: get_app(a) for a in apps}
         self.state: dict = state if state is not None else {}
-        self.ui: dict = {"fields": {}, "expanded": {}, "signed_in": [], "flags": {}}
+        self.ui: dict = {"fields": {}, "expanded": {}, "signed_in": [], "flags": {}, "banners": [], "relabel": {}}
         self.nav: dict = {"front": front, "stacks": {}, "focus": None}
         self.dialogs: dict[str, Dialog | None] = {}
         self.triggers: list[Trigger] = []
+        self.intercepts: dict[str, Callable] = {}   # element key -> fn(world, el): a one-shot failure
         self.effects: list[dict] = []
         self.typed: list[dict] = []
         self.log: list[dict] = []
@@ -172,6 +173,8 @@ class World:
 
     # ------------------------------------------------------------ data paths
     def get(self, path: str, default: Any = None) -> Any:
+        if path.startswith("ui:"):
+            return self.ui["fields"].get(path[3:], default)
         root, parts = self._root(path)
         cur: Any = root
         for p in parts:
@@ -184,6 +187,9 @@ class World:
         return cur
 
     def set(self, path: str, value: Any) -> None:
+        if path.startswith("ui:"):       # UI fields are flat: "ui:mail.compose.to" -> fields["mail.compose.to"]
+            self.ui["fields"][path[3:]] = value
+            return
         root, parts = self._root(path)
         cur = root
         for p in parts[:-1]:
@@ -213,15 +219,15 @@ class World:
     def frame(self, app: str | None = None) -> dict:
         return self.nav["stacks"][app or self.front][-1]
 
-    def push(self, app: str, screen: str, **params) -> None:
+    def push(self, app: str, screen: str, /, **params) -> None:
         self.nav["stacks"][app].append({"screen": screen, "params": params, "offset": 0})
         self.nav["focus"] = None
 
-    def replace(self, app: str, screen: str, **params) -> None:
+    def replace(self, app: str, screen: str, /, **params) -> None:
         self.nav["stacks"][app][-1] = {"screen": screen, "params": params, "offset": 0}
         self.nav["focus"] = None
 
-    def reset_stack(self, app: str, screen: str, **params) -> None:
+    def reset_stack(self, app: str, screen: str, /, **params) -> None:
         self.nav["stacks"][app] = [{"screen": screen, "params": params, "offset": 0}]
         self.nav["focus"] = None
 

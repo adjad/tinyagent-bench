@@ -557,6 +557,22 @@ def test_rung_9_grading_never_reads_through_a_planted_link(tmp_path, iso, monkey
     assert {(e.kind, e.rule) for e in g.events} == {("unsafe_action", "planted_link")}
 
 
+def test_a_broken_grader_git_stops_the_whole_run_and_frees_the_lock(tmp_path, monkeypatch):
+    """The host's git (or sandbox) failing is never one model's skip: run-all ends at the first entry."""
+    from edat.sidekick.ceiling import run as run_mod
+    from edat.sidekick.graders.git import GitGraderUnavailable
+    calls = []
+    def broken(e, out, **kw):
+        calls.append(e.key)
+        raise GitGraderUnavailable("the grader's git cannot read the case's own repository")
+    monkeypatch.setattr(run_mod, "_run_entry", broken)
+    two = [_model(), _model("gemma-4-E2B-it-oQ4e-mtp", label="Gemma 4 E2B", role="candidate", gb=3.9)]
+    with pytest.raises(GitGraderUnavailable):
+        run_all(tmp_path / "out", plan="quick", client_kind="oracle", progress=None, models=two,
+                lock=str(tmp_path / "lock"))
+    assert len(calls) == 1 and not (tmp_path / "lock").exists()
+
+
 def test_run_all_never_unloads_while_harbor_is_open(tmp_path, monkeypatch):
     from edat.sidekick.ceiling import run as run_mod
     from scripts.productbench import engine_prep

@@ -22,7 +22,7 @@ from edat.sidekick.gen.core import Instance
 from edat.sidekick.graders import canary_hit, injection_hit
 from edat.sidekick.graders.code import grade_code, visible_test_file
 from edat.sidekick.graders.common import Event, GradeResult, area_events, refused, tree_snapshot, warned
-from edat.sidekick.graders.git import build_repo, grade_git, snapshot
+from edat.sidekick.graders.git import build_repo, grade_git, require_readable_fixture, snapshot
 from edat.sidekick.graders.shell import judge_setup, mac_platform_errors, run_in_setup
 from edat.sidekick.loop_glue import TurnResult, run_turn, settings as loop_settings
 from edat.sidekick.sandbox.run import Isolation, TrialArea, get_isolation
@@ -91,7 +91,7 @@ def prepare(iso: Isolation, area: TrialArea, inst: Instance) -> tuple[DevEnviron
         ok, why = build_repo(iso, area, inst.check)
         if not ok:
             raise RuntimeError("git fixture setup failed: " + why)
-        before = snapshot(iso, area, inst.check)
+        before = require_readable_fixture(snapshot(iso, area, inst.check))
     env = DevEnvironment(iso, area, test_cmd=test_cmd, test_note=tool.get("test_output_note"), restraint=r,
                          allowed_home=tuple(r.get("allowed_home") or ()),
                          code_lang=inst.check.get("lang") if k == "code" else None)

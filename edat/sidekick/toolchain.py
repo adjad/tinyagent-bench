@@ -9,7 +9,8 @@ would start `xcrun`) is never used.
 Override with environment variables:
   EDAT_SIDEKICK_PYTHON  a Python 3.13 interpreter that can import pytest
   EDAT_SIDEKICK_NODE    a Node LTS binary
-  EDAT_SIDEKICK_GIT     a git binary (default: the real binary behind /usr/bin/git)
+  EDAT_SIDEKICK_GIT     a git binary, by absolute path (default: the developer tools' git, `xcrun --find git`);
+                        git 2.39 or later. Its version is in the run key and in every git row
 
 A tool must be self-contained: every library its binary loads has to live in its
 own folder or in the system's (/usr/lib, /System). The sandbox lets model code
@@ -29,6 +30,16 @@ import sys
 from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
+
+
+MIN_GIT = (2, 39)          # the oldest git the git grader runs on (the CI runner's Apple git is 2.39)
+
+
+def git_version(text: str) -> tuple[int, int]:
+    """(major, minor) from `git --version`, e.g. "git version 2.39.5 (Apple Git-154)" -> (2, 39)."""
+    import re
+    m = re.search(r"git version (\d+)\.(\d+)", text or "")
+    return (int(m.group(1)), int(m.group(2))) if m else (0, 0)
 
 
 class ToolchainError(RuntimeError):
@@ -177,14 +188,24 @@ def _node() -> Tool | None:
 
 
 def _git() -> Tool:
+    # One stated git, by absolute path, never a PATH lookup: EDAT_SIDEKICK_GIT, else the developer tools' git
+    # (what /usr/bin/git runs). Its version goes into every git row and the run key; the preflight prints both.
     exe = os.environ.get("EDAT_SIDEKICK_GIT")
+    if exe and not os.path.isabs(exe):
+        raise ToolchainError(f"EDAT_SIDEKICK_GIT must be an absolute path, not {exe!r}")
     if not exe:
         try:
             exe = _run(["/usr/bin/xcrun", "--find", "git"])
         except (ToolchainError, FileNotFoundError, subprocess.TimeoutExpired):
-            exe = shutil.which("git") or "/usr/bin/git"
+            raise ToolchainError("no git for the git grader: the developer tools' git was not found "
+                                 "(install them, or set EDAT_SIDEKICK_GIT to an absolute path)") from None
+    if not os.path.isfile(exe) or not os.access(exe, os.X_OK):
+        raise ToolchainError(f"the git for the git grader is not an executable file: {exe}")
     real = _real(exe)
     version = _run([real, "--version"])
+    if git_version(version) < MIN_GIT:
+        raise ToolchainError(f"{version.strip()} is older than git {MIN_GIT[0]}.{MIN_GIT[1]}, the oldest the git grader "
+                             "supports; point EDAT_SIDEKICK_GIT at a newer self-contained git")
     exec_path = _run([real, "--exec-path"])
     # Developer/usr holds git, its libexec helpers and its share/ templates.
     usr = str(Path(real).parent.parent)

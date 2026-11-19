@@ -466,3 +466,74 @@ def test_empty_folders_count_against_the_entry_cap(tmp_path, monkeypatch):
     small = tmp_path / "d0"
     (small / "f").write_text("x")
     assert not common.snapshot_truncated(common.tree_snapshot(small))
+
+
+# ------------------------------------------------------------------ git before 2.40 (no --attr-source)
+
+def test_git_versions_are_read_and_old_ones_refused(monkeypatch):
+    from edat.sidekick import toolchain
+    assert toolchain.git_version("git version 2.39.5 (Apple Git-154)") == (2, 39)
+    assert toolchain.git_version("git version 2.54.0 (Apple Git-157)\n") == (2, 54)
+    assert toolchain.git_version("not git") == (0, 0)
+    monkeypatch.delenv("EDAT_SIDEKICK_GIT", raising=False)
+    monkeypatch.setattr(toolchain, "_run", lambda cmd: "git version 2.37.1 (Apple Git-137.1)" if cmd[-1] == "--version"
+                        else "/usr/bin/git")
+    monkeypatch.setattr(toolchain, "_real", lambda p: p)
+    with pytest.raises(toolchain.ToolchainError, match="older than git 2.39"):
+        toolchain._git()
+
+
+@pytest.fixture
+def git_239(monkeypatch):
+    """Grade as on a git without --attr-source (the CI runner's Apple git 2.39): the fixed info/attributes alone."""
+    import edat.sidekick.graders.git as g
+    monkeypatch.setattr(g, "attr_source_supported", lambda: False)
+
+
+def test_without_attr_source_attributes_still_do_not_make_other_bytes_look_clean(iso, git_239):
+    check = {"setup": ONE, "predicates": [{"clean": True}, {"file_contains": ["f.txt", "old"]}]}
+    gr, _ = _grade(iso, check, "printf 'old\\r\\n' > f.txt; print -r -- 'f.txt text' > .gitattributes; "
+                               "git add -A; git commit -q -m attrs")
+    assert not gr.passed
+
+
+@pytest.mark.parametrize("template", ["git_new_branch_keep_changes", "git_unstage_file", "git_stash_then_switch",
+                                      "git_push_set_upstream"])
+def test_without_attr_source_git_references_pass(template, iso, git_239):
+    from edat.sidekick.gen.registry import get
+    from edat.sidekick.validate import validate_templates
+    rep = validate_templates([get(template)], trials=1, iso=iso)
+    assert rep.ok, [p.what for p in rep.problems]
+
+
+def test_without_attr_source_text_auto_crlf_is_a_change(iso, git_239):
+    check = {"setup": "printf '* text=auto\\n' > .gitattributes && printf 'a\\r\\nb\\r\\n' > w.txt && edat_commit crlf\n",
+             "predicates": [{"clean": False}, {"tree_has": ["HEAD", "w.txt", "a\nb\n"]}]}
+    gr, _ = _grade(iso, check, "true")
+    assert gr.passed and not gr.events and gr.metrics["git_view_mismatch"] == 0, (gr.reasons, gr.metrics)
+
+
+def test_the_grader_git_is_stated_by_absolute_path(monkeypatch):
+    from edat.sidekick import toolchain
+    monkeypatch.setenv("EDAT_SIDEKICK_GIT", "git")
+    with pytest.raises(toolchain.ToolchainError, match="absolute path"):
+        toolchain._git()
+    monkeypatch.setenv("EDAT_SIDEKICK_GIT", "/nonexistent/bin/git")
+    with pytest.raises(toolchain.ToolchainError, match="not an executable file"):
+        toolchain._git()
+
+
+def test_every_git_row_records_the_git_version(iso):
+    from edat.sidekick.toolchain import find_toolchain
+    gr, _ = _grade(iso, {"setup": ONE, "predicates": [{"clean": True}]}, "true")
+    assert gr.passed and gr.metrics["git_version"] == find_toolchain().git.version.strip().removeprefix("git version ")
+
+
+def test_a_fixture_the_grader_git_cannot_read_stops_the_run_and_fails_no_answer(iso, monkeypatch):
+    """The case's own repository, before the model acts, unreadable by the host's git: never a failed answer."""
+    import edat.sidekick.graders.git as g
+    from edat.sidekick.sandbox.run import SandboxUnavailable
+    monkeypatch.setattr(g, "snapshot", lambda *a, **k: {"unreadable": "git could not read the repository (for-each-ref)"})
+    with pytest.raises(g.GitGraderUnavailable, match="host's git, not the answer") as exc:
+        _grade(iso, {"setup": ONE, "predicates": [{"clean": True}]}, "true")
+    assert isinstance(exc.value, SandboxUnavailable)      # the runner and the ceiling stop on it

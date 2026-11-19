@@ -177,7 +177,7 @@ def test_quick_plan_takes_its_choices_as_flags():
     assert sorted({u.case.rung.n for u in plan_units("quick", quick=q)}) == [1, 2, 3, 5]
     assert len(plan_units("quick", quick=q)) == 12
     assert parse_rungs("4-6,8,1") == (1, 4, 5, 6, 8)
-    for bad in (dict(rungs=(9,)), dict(rungs=()), dict(per_rung=0), dict(thinking="on")):
+    for bad in (dict(rungs=(10,)), dict(rungs=()), dict(per_rung=0), dict(thinking="on")):
         with pytest.raises(ValueError):
             Quick(**bad)
 
@@ -418,6 +418,14 @@ def test_quick_look_runs_apart_and_its_report_says_what_it_cannot_tell(tmp_path,
     assert "What this quick look cannot tell" in md and "good to about one rung" in md
     assert "likely understated: LFM3 1.7B" in md and "No tool mode" in md and "No safety set" in md
     assert "Rungs left out:** 2 (" in md and "9 (" not in md.split("Rungs left out")[1].split("\n")[0]
+    # quick-look wording: plain about its limits, counts not shares, a capped ceiling
+    assert md.split("\n")[2].startswith("**A quick look with wide error bars, not a ranking.**")
+    assert "Passed in this look** rungs 1 to 1" in md and "Reliably does" not in md
+    assert "**Ceiling:** rung 4 or higher (rungs 5-9 not run; a pass higher up than its solid range)." in md
+    assert "the top rung was not run" in md
+    table_part = md.split("## Rung by model")[1].split("## Not run")[0]
+    assert "tasks solved, one try each" in table_part and "not ranked" in table_part
+    assert "1/1 ✓" in table_part and "%" not in table_part and "| **Ceiling** | 4+ | 4+ |" in table_part
     rows = estimate.table(quick_entries([_model(), lfm], q), "quick", quick=q)
     assert len(rows) == 2 and all(0 < h < 0.2 for _, h in rows)
 
@@ -433,3 +441,75 @@ def test_report_from_records(tmp_path):
     assert "Starts failing at** rung 4" in md
     assert "| **Ceiling** | 1 | 0 |" in md or "| **Ceiling** | 0 | 1 |" in md
     assert page.startswith("<!doctype html>") and "<script" not in page
+
+
+def test_quick_takes_rung_9_only_when_asked():
+    assert Quick().rungs == tuple(range(1, 9)) and Quick().to_dict()["mode"] == "answer_only"
+    q = Quick(rungs=parse_rungs("1-9"))
+    assert q.rungs == tuple(range(1, 10)) and q.to_dict()["mode"] == "answer_only+tool" and q.tool_rungs() == (9,)
+    tool = [u for u in plan_units("quick", quick=Quick(per_rung=3, rungs=parse_rungs("1-9"))) if u.case.rung.n == 9]
+    assert len(tool) == 3 and {u.suite for u in tool} == {"ladder_tool"} and {u.trial for u in tool} == {1}
+    with pytest.raises(ValueError):
+        Quick(rungs=(10,))
+    from edat.sidekick.ceiling import estimate
+    m = _model()
+    with_9 = estimate.seconds(m, False, "quick", quick=Quick(rungs=parse_rungs("1-9")))
+    assert with_9 > estimate.seconds(m, False, "quick", quick=Quick())
+
+
+def test_quick_look_with_rung_9_runs_tool_mode_and_says_so(tmp_path, iso, private):
+    q = Quick(per_rung=1, rungs=(1, 9), thinking="off")
+    log = run_all(tmp_path / "out", plan="quick", quick=q, client_kind="oracle", progress=None, iso=iso,
+                  models=[_model()])
+    assert [r["result"] for r in log["entries"]] == ["done"]
+    md, _ = build_report(tmp_path / "out" / "quick")
+    assert "Tool mode on a single try" in md and "the top rung was not run" not in md
+    assert "**Ceiling:** rung 9 (a pass higher up than its solid range)." in md and "or higher" not in md
+
+
+class _Unservable:
+    """Every request fails the way an engine without a loader for the model does."""
+
+    def chat(self, messages, **kw):
+        from edat.models import EngineError
+        raise EngineError("server", "no loader for model type", status=500, retryable=False)
+
+
+def test_run_all_skips_a_model_the_engine_cannot_serve_and_goes_on(tmp_path, iso, private, monkeypatch):
+    from edat.sidekick.ceiling import run as run_mod
+    real = run_mod.make_client
+    bad = "SenseNova-Loop-9B-MLX-4bit"
+    monkeypatch.setattr(run_mod, "make_client",
+                        lambda kind, model, base_url, thinking: _Unservable() if model.engine_id == bad
+                        else real(kind, model, base_url, thinking))
+    sense = _model(bad, "sensenova", thinking=(False,), label="SenseNova-Loop 9B", role="candidate")
+    q = Quick(per_rung=1, rungs=(1, 2, 3), thinking="shipped")
+    log = run_all(tmp_path / "out", plan="quick", quick=q, client_kind="oracle", progress=None, iso=iso,
+                  models=[sense, _model()], lock=str(tmp_path / "lock"))
+    rows = {r["entry"].split("|")[0]: r for r in log["entries"]}
+    assert rows[bad]["result"] == "skipped" and "engine could not run this model" in rows[bad]["why"]
+    assert rows["gemma-4-E4B-it-oQ4e-mtp"]["result"] == "done"
+    assert not (tmp_path / "lock").exists()
+    recs = [json.loads(l) for f in (tmp_path / "out" / "quick").glob(f"{bad}.*/runs/*/records.jsonl")
+            for l in f.read_text().splitlines() if l.strip()]
+    assert len(recs) == 3 and all(r["status"] == "excluded" for r in recs)   # 3 faults, then it is skipped
+    md, _ = build_report(tmp_path / "out" / "quick")
+    assert "## Not run" in md and "engine could not run this model" in md.split("## Not run")[1]
+
+
+def test_a_card_default_that_differs_from_the_template_is_recorded(tmp_path, iso, private):
+    _model_folder(tmp_path, "org/NVIDIA-Nemotron-3.5-Bolt-E4B-MLX-oQ4e-mtp",
+                  template="{%- set enable_thinking = enable_thinking | default(false) -%}{{ enable_thinking }}")
+    _model_folder(tmp_path, "org/gemma-4-E2B-it-oQ4e-mtp",
+                  template="{%- set enable_thinking = enable_thinking | default(false) -%}")
+    found, _ = models.scan(tmp_path)
+    by = {m.engine_id: m for m in found}
+    nem = by["NVIDIA-Nemotron-3.5-Bolt-E4B-MLX-oQ4e-mtp"]
+    assert nem.thinking == (True, False) and nem.template_thinking is False
+    assert "ships with thinking on per its model card; its chat template defaults to off" in nem.notes
+    gem = by["gemma-4-E2B-it-oQ4e-mtp"]
+    assert gem.thinking == (False, True) and gem.template_thinking is False and "chat template" not in gem.notes
+    run_all(tmp_path / "out", plan="quick", quick=Quick(per_rung=1, rungs=(1,), thinking="shipped"),
+            client_kind="oracle", progress=None, iso=iso, models=[nem])
+    pg = json.loads(next((tmp_path / "out" / "quick").glob("NVIDIA-*/progress.json")).read_text())
+    assert pg["ships_thinking"] is True and pg["template_thinking_default"] is False

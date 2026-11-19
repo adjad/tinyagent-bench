@@ -96,11 +96,13 @@ def _suite(case: LadderCase, tool: bool = False) -> str:
 
 
 ANSWER_ONLY_RUNGS = tuple(r.n for r in RUNGS if r.mode == "answer_only")      # 1-8
+QUICK_RUNGS = tuple(r.n for r in RUNGS)                                         # 1-9: rung 9 only when asked for
 
 
 @dataclass(frozen=True)
 class Quick:
-    """A quick look: answer-only, one trial, a few cases a rung. The choices are flags, not a fixed recipe."""
+    """A quick look: one trial, a few cases a rung. The choices are flags, not a fixed recipe. By default it
+    takes the answer-only rungs 1-8; rung 9 (tool mode) runs only when `--rungs` names it."""
     per_rung: int = 4
     rungs: tuple[int, ...] = ANSWER_ONLY_RUNGS
     thinking: str = "off"              # "off": thinking off for every model; "shipped": each in the mode it ships in
@@ -108,16 +110,19 @@ class Quick:
     def __post_init__(self):
         if self.per_rung < 1:
             raise ValueError("--per-rung must be at least 1")
-        bad = [n for n in self.rungs if n not in ANSWER_ONLY_RUNGS]
+        bad = [n for n in self.rungs if n not in QUICK_RUNGS]
         if bad or not self.rungs:
-            raise ValueError(f"a quick look takes answer-only rungs {ANSWER_ONLY_RUNGS[0]}-{ANSWER_ONLY_RUNGS[-1]}"
+            raise ValueError(f"a quick look takes rungs {QUICK_RUNGS[0]}-{QUICK_RUNGS[-1]}"
                              + (f"; not {bad}" if bad else ""))
         if self.thinking not in ("off", "shipped"):
             raise ValueError("--thinking is off or shipped")
 
     def to_dict(self) -> dict:
         return {"per_rung": self.per_rung, "rungs": list(self.rungs), "thinking": self.thinking, "trials": 1,
-                "mode": "answer_only"}
+                "mode": "answer_only" if self.tool_rungs() == () else "answer_only+tool"}
+
+    def tool_rungs(self) -> tuple[int, ...]:
+        return tuple(n for n in self.rungs if n not in ANSWER_ONLY_RUNGS)
 
 
 def parse_rungs(text: str) -> tuple[int, ...]:
@@ -137,7 +142,8 @@ def add_quick_args(ap: argparse.ArgumentParser) -> None:
     g = ap.add_argument_group("quick look (with --plan quick)")
     g.add_argument("--per-rung", type=int, default=Quick.per_rung, help="cases a rung (default 4)")
     g.add_argument("--rungs", default=f"{ANSWER_ONLY_RUNGS[0]}-{ANSWER_ONLY_RUNGS[-1]}",
-                   help="answer-only rungs to include, e.g. 1-8 or 1,3,5-8 (default 1-8)")
+                   help="rungs to include, e.g. 1-8 (default: the answer-only rungs), 1,3,5-8, or 1-9 to add the "
+                        "tool-mode rung 9 (adds roughly a quarter to the time)")
     g.add_argument("--thinking", choices=("off", "shipped"), default=Quick.thinking,
                    help="off: thinking off for every model (default); shipped: each model in the mode it ships in")
 
@@ -509,7 +515,8 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
              "stopped": None, "skipped": None, "written": 0, "sampling_sent": dict(profile.sampling),
              "sampling_basis": profile.basis, "quant": dict(model.quant), "bits_per_weight": model.bits_per_weight,
              "engine_context_window": None if scripted else engine_context(model.engine_id)[0],
-             "ships_thinking": model.thinking[0], "quick": quick.to_dict() if plan == "quick" else None}
+             "ships_thinking": model.thinking[0], "template_thinking_default": model.template_thinking,
+             "quick": quick.to_dict() if plan == "quick" else None}
     first_ok: list[dict] = []          # the first answer-only results: is thinking really on, does the engine run it?
     first_status: list[str] = []
     phases = ["A", "B"] if plan == "first-pass" else ["all"]
@@ -834,6 +841,7 @@ def preflight(out: Path, *, engine: bool = False, weights: bool = False, base_ur
                                             f"({max(needs[k] for k in short)} tokens)" if short else "; enough"))
         roster["models"].append({"engine_id": m.engine_id, "context_window": ctx, "context_source": ctx_src,
                                  "context_needed": needs, "folder": m.folder, "quant": m.quant,
+                                 "ships_thinking": m.thinking[0], "template_thinking_default": m.template_thinking,
                                  "bits_per_weight": m.bits_per_weight, "thinking": list(m.thinking),
                                  "standard": m.standard, "loader": m.loader, "disk_gb": m.disk_gb,
                                  "entries": [{"key": e.key, "tier": e.tier, "sampling": e.profile.sampling,

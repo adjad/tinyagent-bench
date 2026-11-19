@@ -112,7 +112,8 @@ def _trim(messages: list[dict], budget: int, turn_index: int, events: list[dict]
 def run_trial(case: dict, client: ModelClient, *, trial: int = 1, world_seed: int | None = None,
               loop: AgentLoop | None = None, settings: LoopSettings | None = None,
               env_factory: Callable = default_env_factory, clock: Clock | None = None,
-              menu_size: int | None = None, history_budget_tokens: int = 0) -> TrialResult:
+              menu_size: int | None = None, history_budget_tokens: int = 0,
+              extra_history: list[dict] | None = None) -> TrialResult:
     if client.describe().get("kind") == "cloud_reference" and case.get("split", "dev") != "dev":
         raise HostedSplitError(f"{case['id']}: only the public development split is sent to hosted models")
     ws = world_seed if world_seed is not None else WORLD_SEED_BASE + trial - 1
@@ -144,6 +145,8 @@ def run_trial(case: dict, client: ModelClient, *, trial: int = 1, world_seed: in
     ti = 0
     for si, session in enumerate(bound["sessions"]):
         messages: list[dict] = [{"role": "system", "content": system}]
+        if si == 0 and extra_history:          # scaling probe: unrelated earlier turns (§3.10)
+            messages.extend(dict(m) for m in extra_history)
         for turn in session.get("turns", []):
             for h in turn.get("history") or []:
                 messages.append(dict(h))

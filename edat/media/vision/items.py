@@ -22,7 +22,8 @@ from typing import Any
 ITEM_SCHEMA = "edat.media.vision-item/1"
 QUESTION_KINDS = ("field", "anls", "relaxed", "reading", "abstain")
 QUESTION_TYPES = ("lookup", "who_said", "state", "count", "compare", "absence", "sum", "multi",
-                  "cell", "max", "min", "trend", "difference", "free_slot", "event", "reading")
+                  "cell", "max", "min", "trend", "difference", "free_slot", "event", "reading",
+                  "section", "empty_field", "relation", "filter", "crossing", "rate", "overlap")
 
 ANSWER_INSTRUCTION = (
     "Answer the question about the image. Reply with the answer only, no explanation. "

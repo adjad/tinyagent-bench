@@ -34,7 +34,9 @@ ABSTAIN_PHRASES = (
 )
 _STATE = {"on": "on", "enabled": "on", "enable": "on", "true": "on", "yes": "on", "active": "on",
           "off": "off", "disabled": "off", "disable": "off", "false": "off", "no": "off",
-          "inactive": "off"}
+          "inactive": "off", "checked": "on", "ticked": "on", "selected": "on",
+          "unchecked": "off", "unticked": "off", "not checked": "off", "not ticked": "off",
+          "empty": "off", "blank": "off"}
 _THINK = re.compile(r"<think>.*?</think>", re.S | re.I)
 
 

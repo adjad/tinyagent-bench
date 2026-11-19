@@ -188,6 +188,7 @@ class Canvas:
     def rect(self, x0: float, y0: float, x1: float, y1: float, *, fill: Color | None = None,
              outline: Color | None = None, radius: float = 0, width: float = 1) -> None:
         box = [self.px(x0), self.px(y0), self.px(x1) - 1, self.px(y1) - 1]
+        box[2], box[3] = max(box[0], box[2]), max(box[1], box[3])   # thinner than 1 px: 1 px
         kw = {"fill": self.color(fill) if fill is not None else None,
               "outline": self.color(outline) if outline is not None else None,
               "width": max(1, self.px(width)) if outline is not None else 0}

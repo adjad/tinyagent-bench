@@ -92,12 +92,25 @@ upcoming ones will go.
 
 ## Known limits
 
-- **Sidekick coding grades can be forged by adversarial model code** until the
-  sidekick grade-integrity repair merges. The sandbox keeps model-written code
-  away from the host (the host isolation repair, pull request 9, is merged and held up
-  under an adversarial review), but code under test can still make its own grade read as
-  a pass. No coding run may start until that repair merges and passes its own
-  adversarial review. No coding results exist, so nothing needs retracting.
+- **Only part of the sidekick set is scored.** The host isolation (pull request 9)
+  and the grade-integrity repair (pull request 17) are merged, each after its own
+  adversarial review. Every scorer asks one default-deny rule
+  (`edat/sidekick/labels.py`). A row scores only when its grading is on the
+  allow-list (hidden tests, regex write and read, exact shell checks) and its type is
+  scored (write_fn, fix_bug, shell, regex). That is 118 of the 228 cases; see
+  [edat/sidekick/README.md](edat/sidekick/README.md).
+- **The other types are labelled "not hardened against adversarial model code"**
+  and reported apart, unranked, because a model could pass them without doing the
+  task:
+  - git tasks: graded by real git reading a repository the model controls;
+  - ladder rungs 4 to 9: the hidden tests run in the same process as the model's code;
+  - write_test: a test that compares the module against the shown source passes;
+  - explain_error, diff "what", Yes/No with a bug and commit_msg: echoing the prompt can pass;
+  - Yes/No without a bug: one constant "No." passes;
+  - shell_wc_csv and shell_grep_count_errors: task-blind output can pass.
+
+  Each label comes off only in its own pull request, after its own adversarial
+  review. No coding run has been made yet, so no coding results exist.
 
 ## Running the offline checks
 

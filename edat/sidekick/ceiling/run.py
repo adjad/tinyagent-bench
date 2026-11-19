@@ -48,7 +48,8 @@ from edat.sidekick.graders import grade_answer, grading_label
 from edat.sidekick.graders.common import GradeResult
 from edat.sidekick.records import harness_commit, make_record
 from edat.sidekick.restraint import event_record
-from edat.sidekick.sandbox.run import SandboxUnavailable, TrialArea, get_isolation
+from edat.sidekick.sandbox.run import (SandboxUnavailable, TrialArea, get_isolation, leftover_count,
+                                       leftover_events, leftovers_over_cap)
 from edat.sidekick.sandbox.selftest import require_sandbox
 from edat.sidekick.tools_dev import SYSTEM_PROMPT
 
@@ -624,8 +625,15 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
                 seed = trial_seed(u.case.id, u.trial)
                 fn = tool_trial if u.suite in ("tool_mode", "ladder_tool") else answer_trial
                 started = utc_now()
+                left0 = leftover_count()
                 metrics, raw, events, status, detail = fn(client, inst, suite=u.suite, seed=seed, thinking=thinking,
                                                           sampling=sampling, iso=iso)
+                left = leftover_events(left0)
+                if left:                                     # a trial folder cleanup could not remove: fail, keep size
+                    events = list(events) + left
+                    if status == "ok":
+                        metrics["pass"] = False
+                        metrics["leftover_bytes"] = sum(e.extra["bytes"] for e in left)
                 w = writer(u.suite)
                 ev = [event_record(e, case_id=u.case.id, trial=u.trial, model_key=key, board_version="ceiling",
                                    mode=u.suite) for e in events]
@@ -812,6 +820,9 @@ def _should_stop(out: Path, store: Path, t_start: float, max_minutes: float | No
         return "the STOP file exists"
     if max_minutes and (time.monotonic() - t_start) / 60 > max_minutes:
         return f"the {max_minutes:g}-minute limit was reached"
+    left = leftovers_over_cap()
+    if left:
+        return left
     free = memory_free_pct()
     if free is not None and free < MEMORY_FLOOR_PCT:
         return f"free memory {free}% is under {MEMORY_FLOOR_PCT}%"

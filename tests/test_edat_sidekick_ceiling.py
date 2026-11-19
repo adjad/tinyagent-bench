@@ -445,7 +445,7 @@ def test_quick_look_runs_apart_and_its_report_says_what_it_cannot_tell(tmp_path,
     assert "the top rung was not run" in md
     table_part = md.split("## Rung by model")[1].split("## Not run")[0]
     assert "tasks solved, one try each" in table_part and "not ranked" in table_part
-    assert "1/1 ✓" in table_part and "%" not in table_part and "| **Ceiling** | 4+ | 4+ |" in table_part
+    assert "1/1 ✓" in table_part and "%" not in table_part and "| **Ceiling** † | 4+ | 4+ |" in table_part
     rows = estimate.table(quick_entries([_model(), lfm], q), "quick", quick=q)
     assert len(rows) == 2 and all(0 < h < 0.2 for _, h in rows)
 
@@ -459,7 +459,7 @@ def test_report_from_records(tmp_path):
     md, page = build_report(tmp_path)
     assert "Gemma 4 E4B (base reference), thinking off" in md and "LFM3 1.7B, thinking on" in md
     assert "Starts failing at** rung 4" in md
-    assert "| **Ceiling** | 1 | 0 |" in md or "| **Ceiling** | 0 | 1 |" in md
+    assert "| **Ceiling** † | 1 | 0 |" in md or "| **Ceiling** † | 0 | 1 |" in md
     assert page.startswith("<!doctype html>") and "<script" not in page
 
 

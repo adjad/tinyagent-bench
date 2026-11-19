@@ -205,6 +205,13 @@ kill. Then:
   user account per trial, so every process it starts can be found and killed by account; that needs
   administrator rights and is left for later.
 
+**Cleanup.** The trial folder is then removed. A name inside it is always removed when it can be. If the
+model locked something (mode 000, `uchg`, `uappnd`), the harness unlocks folders and links, and unlocks a
+file only when every name of that file is inside the trial folder: a file that also has a name outside is
+never changed, in mode or in flags. A folder that still cannot be removed is measured (entries and bytes),
+recorded as an `unsafe_action` event `trial_folder_left` on the trial that left it, and fails that trial.
+More than 10 such folders, or over 256 MB in them, stops the run (below).
+
 **What model code can reach on this Mac.** Its own trial folder (read and write), the pinned toolchains
 and the system's own folders (read), `/dev/null`, `zero`, `random`, `urandom` and its own descriptors;
 never a terminal or pty, `/usr/local`, the network (loopback and local sockets included), another
@@ -246,9 +253,10 @@ scored list and it carries no label; a row with no mark, an old or resumed recor
 again rather than reuse it) or an unknown type never does. The scorers: the runner's summary, the results
 aggregate (rows not scored go to their own `sidekick_not_hardened` view, never ranked, with no difference
 from a reference, no sampling-sensitivity delta and no snapshot difference), the export and the site data
-(no site figure or trajectory), and the ceiling report. There, rungs 1 to 3 and the restraint and tool-mode
-rates are worked out without labelled rows. The ceiling and "solid up to" span all nine rungs, so they
-include rungs 4 to 9, every row of which is labelled; the hardened ceiling uses rungs 1 to 3 alone. The summary reports them apart, under
+(no site figure or trajectory), and the ceiling report. There, rungs 1 to 3, the hardened ceiling, and the
+restraint and tool-mode rates are worked out without labelled rows. The ceiling and "solid up to" span all
+nine rungs, so they include rungs 4 to 9, every row of which is labelled (marked † in the report); that
+is why neither is ever published or ranked. The summary reports them apart, under
 `not_hardened`, with their reasons. Each label comes off only after its own fix has had its own
 adversarial pass. A sandboxed test program cannot read other
 processes or devices (see "What model code can reach").
@@ -489,6 +497,7 @@ passes, model by model, once the first-pass report has been read.
 The run checks between trials and stops cleanly by itself when:
 - free memory is under 15% (`memory_pressure -Q`);
 - over 2% of the trials so far were lost to engine or transport faults (from 50 trials on);
+- more than 10 trial folders, or over 256 MB in them, could not be removed (see Cleanup above);
 - the file `$OUT/STOP` exists (the way to stop it from another terminal);
 - `--max-minutes` has passed.
 

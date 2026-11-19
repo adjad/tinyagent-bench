@@ -125,12 +125,20 @@ def test_a_grader_error_keeps_the_label(tmp_path, iso, monkeypatch):
 
 
 def test_engine_errors_are_excluded(tmp_path, iso):
-    cfg = _cfg(tmp_path, types=("commit_msg",), modes=("answer_only",))
+    cfg = _cfg(tmp_path, types=("shell",), modes=("answer_only",))
     out = run(always({"engine_error": "server"}), stub("down"),
               cfg, iso=iso, progress=None)
     recs = _lines(out, "records.jsonl")
     assert recs and all(r["status"] == "excluded" for r in recs)
     assert out["summary"]["invalid_run"]
+
+
+def test_a_run_stops_once_leftover_folders_pass_the_cap(tmp_path, iso, monkeypatch):
+    import edat.sidekick.sandbox.run as sr
+    monkeypatch.setattr(sr, "LEFTOVERS", [{"area": "t", "entries": 1, "bytes": 1}] * (sr.LEFTOVER_MAX_AREAS + 1))
+    cfg = _cfg(tmp_path, types=("shell",), modes=("answer_only",))
+    out = run(NullClient(), stub("x"), cfg, iso=iso, progress=None)
+    assert out["records"] == 0 and "could not be removed" in out["summary"]["stopped"]
 
 
 def test_heldout_needs_private_dir(tmp_path, monkeypatch, iso):
@@ -283,6 +291,16 @@ def test_the_allow_list_is_short_and_covers_every_type():
             assert lab["grading"] in HARDENED_GRADING and t.type in SCORED_TYPES, t.id
     for g in ("probe", "a_new_grader", "keyfacts", "commit_msg", "write_test", "git"):
         assert grading_label(g)["grade_hardened"] is False
+
+
+def test_labelled_rows_never_dilute_the_exclusion_share():
+    from edat.sidekick.labels import may_score
+    scored = [_rec(f"s{i}", "shell", 1, True) for i in range(32)]
+    scored += [dict(_rec(f"x{i}", "shell", 1, False), status="excluded", metrics={}) for i in range(2)]
+    labelled = [_rec(f"g{i}", "git", 1, True, grade_hardened=False) for i in range(34)]
+    assert all(may_score(r) for r in scored) and not any(may_score(r) for r in labelled)
+    s = summarize(scored + labelled)
+    assert s["excluded_share"] == 2 / 34 and s["invalid_run"]
 
 
 def test_the_ceiling_runs_an_unmarked_row_again(tmp_path):

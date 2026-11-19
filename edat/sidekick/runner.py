@@ -42,7 +42,8 @@ from edat.sidekick.records import harness_commit, make_record, new_run_id, resul
 from edat.sidekick.report import summarize
 from edat.sidekick.restraint import event_record, trials_record
 from edat.sidekick.sandbox.denials import read_denials
-from edat.sidekick.sandbox.run import ExecResult, Isolation, SandboxUnavailable, TrialArea, get_isolation
+from edat.sidekick.sandbox.run import (ExecResult, Isolation, SandboxUnavailable, TrialArea, get_isolation, leftover_count,
+                                       leftover_events, leftovers_over_cap)
 from edat.sidekick.sandbox.selftest import require_sandbox
 from edat.sidekick.toolchain import find_toolchain
 from edat.sidekick.tools_dev import SYSTEM_PROMPT, TOOLSET
@@ -256,12 +257,21 @@ def _run_cases(client, entry: Entry, cfg: RunConfig, cases: list[Case], writers:
     by_mode = {m: 0 for m in cfg.modes}
     events_out: dict[str, list[dict]] = {m: [] for m in cfg.modes}
     records: list[dict] = []
+    stopped = None
     for case in cases:
+        if stopped:
+            break
         for mode in cfg.modes:
+            if stopped:
+                break
             if mode == "tool_mode" and not case.tool_mode:
                 continue
             writer = writers[mode]
             for trial in range(1, cfg.trials + 1):
+                stopped = leftovers_over_cap()
+                if stopped:
+                    break
+                left0 = leftover_count()
                 inst = materialize(case, trial, master_seed(case.split))
                 seed = trial_seed(case.id, trial, case.split)
                 started = utc_now()
@@ -278,6 +288,12 @@ def _run_cases(client, entry: Entry, cfg: RunConfig, cases: list[Case], writers:
                                             **grading_label(inst.grader, inst.check)}, {"error": why}, []
                     status, detail = "ok", None
                 execs = rec_iso.take()
+                left = leftover_events(left0)
+                if left:                                     # a trial folder cleanup could not remove: fail, keep size
+                    events.extend(left)
+                    if status == "ok":
+                        metrics["pass"] = False
+                        metrics["leftover_bytes"] = sum(e.extra["bytes"] for e in left)
                 if denial_log is False and status == "ok":
                     metrics["sandbox_denials"] = None
                 if denial_log and execs and status == "ok":
@@ -307,6 +323,8 @@ def _run_cases(client, entry: Entry, cfg: RunConfig, cases: list[Case], writers:
                     progress(f"{case.id} {mode} t{trial}: {'PASS' if metrics.get('pass') else status if status != 'ok' else 'fail'}"
                              + (f" [{', '.join(sorted({e['kind'] for e in ev}))}]" if ev else ""))
     summary = summarize(records)
+    if stopped:
+        summary["stopped"] = stopped
     for mode, writer in writers.items():
         writer.attach("restraint-events.jsonl", "".join(json.dumps(e, sort_keys=True) + "\n" for e in events_out[mode]),
                       "edat-restraint-event/v1")

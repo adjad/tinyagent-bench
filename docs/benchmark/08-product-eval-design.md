@@ -196,7 +196,7 @@ Results directory: `results.jsonl`, one JSON record per model, profile, surface,
  "variant": {"model_id": "Gemma-Wisp", "folder": "gemma-4-E4B-it-r5-step-01800-oQ4e-mtp",
              "quantisation": "oQ4e", "weights_sha256": "…", "engine": "omlx", "thinking": "harbor",
              "fits_16gb": true},
- "device": {"model": "Mac17,8", "chip": "Apple M5 Pro", "memory_gb": 24, "arch": "arm64", "os": "macOS 27.3"},
+ "device": {"model": "<hw.model>", "chip": "Apple M5 Pro", "memory_gb": 24, "arch": "arm64", "os": "macOS <version>"},
  "runtime": {"engine": "omlx", "port": 8000, "version": "…"},
  "surface": "ask", "case": "Q-L-student-07", "family": "changed", "prompt": "…",
  "captured": {"answer": "…", "tools": ["view_emails"], "tool_calls": [{"name": "…", "args": {}, "result": "…"}],
@@ -310,14 +310,14 @@ Each of these only reads. If any fails, the run does not start.
 4. **Disk.** A run folder for one model, profile and trial is a few MB to a few tens of MB; 10 GB free is ample.
 5. **Repository.** A clean checkout at a named commit that includes the profiles' answer keys (#12) and this branch; the run records the commit (`meta.json` `git_sha`).
 6. **Private results folder** outside the repository, for example `~/tinyagent-bench-results/in-assistant`. Nothing from the run is written into the repository, and nothing is published.
-7. **Host quiet.** No Swift build, `harbor-build`, replay suite, Simulation QA, toolbench or other benchmark running; the host's shared heavy-job lock is free (the run takes it). Ports 8775 and 8766 free. Mac on power.
+7. **Host quiet.** No Swift build, `harbor-build`, replay suite, Simulation QA, toolbench or other benchmark running. Ports 8775 and 8766 free. Mac on power.
 8. **Weights hashes**, for the results store (results-record.md §2.1): `python -m scripts.productbench.engine_prep weights <model folder>` for each folder. This reads about 5.5 GB per model and only reads.
 
 ### 15.2 What the run stops or changes, and how it is put back
 
 | what | during the run | put back by |
 | --- | --- | --- |
-| Harbor app | quit, because it shares oMLX and could load a second model mid-run. Quitting Harbor also shuts oMLX down (its menu-bar app keeps running, but nothing listens on 8000) | relaunch by its application path (`open -n /Applications/Harbor.app`), then check `ps -axo pid,lstart,command \| grep MacOS/Harbor` shows one fresh process. A bundle-id launch can start a backup copy |
+| Harbor app | quit, because it shares oMLX and could load a second model mid-run. Quitting Harbor also shuts oMLX down (its menu-bar app keeps running, but nothing listens on 8000) | relaunch by its application path (`open -n /Applications/Harbor.app`), then check `ps -axo pid,lstart,command \| grep MacOS/Harbor` shows one fresh process |
 | oMLX server | started again with `omlx-cli restart` (`start` does not bring it back), checked with `lsof -nP -iTCP:8000 -sTCP:LISTEN` | left running for Harbor |
 | resident model | `engine_prep keep <id> --save <results>/resident-before.json` writes what was loaded (only the first time), then unloads every other chat model so only the model under test can be resident. The engine loads the model under test on the first request. Helper models are left alone | `engine_prep restore <results>/resident-before.json` unloads what the run left and reloads exactly what was resident before |
 | settings | none. oMLX's per-model settings are read, not changed. The act-for-me yes is written only in the run's throwaway Harbor home | nothing to restore |
@@ -325,7 +325,7 @@ Each of these only reads. If any fails, the run does not start.
 
 ### 15.3 Commands, in order
 
-From the repository root, with `OUT=~/tinyagent-bench-results/in-assistant`. To keep the printed lines, add `2>&1 | tee -a $OUT/run.log` to each run command. Each step runs under the heavy-job lock (`mkdir <lock> || exit` before it; `rmdir <lock>` after it, only if this step created it). One model is resident at a time; all of one model's runs finish before the other model is loaded.
+From the repository root, with `OUT=~/tinyagent-bench-results/in-assistant`. To keep the printed lines, add `2>&1 | tee -a $OUT/run.log` to each run command. If the host keeps heavy jobs apart with a lock directory, take it around each step (`mkdir <lock> || exit` before it; `rmdir <lock>` after it, only if this step created it). One model is resident at a time; all of one model's runs finish before the other model is loaded.
 
 ```bash
 .venv/bin/python -m scripts.productbench.engine_prep status

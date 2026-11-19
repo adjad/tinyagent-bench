@@ -121,6 +121,17 @@ def test_local_run_needs_device_and_weights(tmp_path):
         run(NullClient(), Entry(model={"id": "real", "role": "candidate"}), cfg, progress=None)
 
 
+def test_the_private_seed_is_checked_before_the_sandbox(tmp_path, monkeypatch):
+    import edat.sidekick.runner as runner_mod
+    monkeypatch.delenv("EDAT_PRIVATE_DIR", raising=False)
+    def no_sandbox():
+        raise SandboxUnavailable("sandbox self-test failed")
+    monkeypatch.setattr(runner_mod, "require_sandbox", no_sandbox)
+    cfg = _cfg(tmp_path, split="heldout", types=("commit_msg",), modes=("answer_only",))
+    with pytest.raises(RuntimeError, match="EDAT_PRIVATE_DIR"):         # its own cause, not the sandbox's
+        run(NullClient(), stub("x"), cfg, progress=None)
+
+
 def test_cloud_reference_dev_only(tmp_path):
     cfg = _cfg(tmp_path, split="heldout")
     with pytest.raises(RuntimeError, match="development split"):

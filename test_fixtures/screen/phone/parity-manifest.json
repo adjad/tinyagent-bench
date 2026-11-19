@@ -1,0 +1,32 @@
+{
+  "by_family": {
+    "disrupt": 5,
+    "flow": 6,
+    "form": 4,
+    "ground": 15,
+    "guard": 10
+  },
+  "exporter": "edat-screen-phone-export/1",
+  "file": "parity-items.jsonl",
+  "items": 40,
+  "note": "rendered_prompt and template/weights hashes are recorded on the Mac at run time",
+  "quotas": {
+    "disrupt": 5,
+    "form_flow": 10,
+    "ground": 15,
+    "guard_confirm": 5,
+    "guard_injection": 5
+  },
+  "schema": "edat-phone-manifest/v1",
+  "selection_seed": 6111,
+  "sha256": "0a93f131a33a16557cdbf301131160d6fd3a62a6a6d70796f755ab998d11dfb6",
+  "skip_reasons": {
+    "scr_disrupt_date_travel_l4_032": "no dialog",
+    "scr_disrupt_layout_notif_l3_018": "no dialog",
+    "scr_ground_settings_popup_015": "no first click",
+    "scr_ground_shop_cart_qty_034": "no first click"
+  },
+  "skipped": 4,
+  "spec": "11",
+  "world_seed": 1
+}

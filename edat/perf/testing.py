@@ -47,8 +47,10 @@ class FakeEngine:
 
     def __init__(self, clock: FakeClock, models: dict[str, FakeModel], *, prefix_cache: bool = False,
                  ceiling_bytes: int | None = None, oom_bytes: int | None = None, base_footprint: int = 300 * MIB,
-                 idle_W: float = 4.0, prefill_W: float = 60.0, decode_W: float = 40.0, load_W: float = 15.0):
+                 idle_W: float = 4.0, prefill_W: float = 60.0, decode_W: float = 40.0, load_W: float = 15.0,
+                 tokenize=None):
         self.clock = clock
+        self.tokenize = tokenize or (lambda text: text.split())
         self.models = models
         self.prefix_cache = prefix_cache
         self.ceiling_bytes = ceiling_bytes
@@ -142,7 +144,7 @@ class FakeEngine:
         prompt = body.get("prompt")
         if prompt is None:
             prompt = " ".join(str(x.get("content") or "") for x in body.get("messages") or ())
-        words = prompt.split()
+        words = self.tokenize(prompt)
         n_prompt = len(words)
         self.requests.append({"model": mid, "prompt_tokens": n_prompt, "max_tokens": body["max_tokens"],
                               "t": self.clock.t, "reloaded": reloaded, "body": body})

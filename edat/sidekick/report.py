@@ -128,14 +128,14 @@ def not_hardened(records: list[dict]) -> dict:
 def summarize(records: list[dict]) -> dict:
     labelled = not_hardened(records)
     all_recs = [r for r in records if may_score(r)]
-    # Run health, not a score: every row counts, scored or not, so an engine that fails on labelled cases
-    # still marks the run invalid.
-    excluded = [r for r in records if r.get("status") == "excluded"]
+    # Run health, by the same may_score rule as the aggregate: the excluded share of the scored rows, so
+    # labelled rows never dilute it (an excluded labelled row is counted under not_hardened instead).
+    excluded = [r for r in all_recs if r.get("status") == "excluded"]
     ans = [r for r in all_recs if r.get("suite") == "answer_only"]
     tool = [r for r in all_recs if r.get("suite") == "tool_mode"]
     ans_ok, tool_ok = _ok(ans), _ok(tool)
     out: dict = {"trials": len(all_recs), "excluded": len(excluded),
-                 "excluded_share": len(excluded) / len(records) if records else 0.0}
+                 "excluded_share": len(excluded) / len(all_recs) if all_recs else 0.0}
     out["invalid_run"] = out["excluded_share"] > 0.02
     out["ranked_types"] = list(RANKED_TYPES)
     out["not_hardened"] = labelled

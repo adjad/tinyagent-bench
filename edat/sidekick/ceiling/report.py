@@ -293,14 +293,15 @@ def build_report(out: Path) -> tuple[str, str]:
             cells.append(_cell(x, bool(q)))
         md.append(f"| {r.n}. {r.title.split(':')[0]}{'' if r.hardened else ' †'} | " + " | ".join(cells) + " |")
     capped = lambda c: f"{c}+" if top_run is not None and c == top_run and top_run < RUNGS[-1].n else str(c)  # noqa: E731
-    md.append("| **Ceiling** | " + " | ".join(capped(summaries[n]["ceiling"]) for n in names) + " |"
+    md.append("| **Ceiling** † | " + " | ".join(capped(summaries[n]["ceiling"]) for n in names) + " |"
               + (f"\n\n{top_run}+ means at least rung {top_run}: nothing higher was run." if q and top_run < RUNGS[-1].n
                  and any(summaries[n]["ceiling"] == top_run for n in names) else ""))
-    md.append("| Solid up to | " + " | ".join(str(summaries[n]["solid"]) for n in names) + " |")
+    md.append("| Solid up to † | " + " | ".join(str(summaries[n]["solid"]) for n in names) + " |")
     md.append("| Ceiling on rungs 1 to 3 | " + " | ".join(str(summaries[n]["hardened_ceiling"]) for n in names) + " |")
     md += ["", f"† {NOT_HARDENED[0].upper() + NOT_HARDENED[1:]} (see The rungs); not for publishing or ranking. "
-           "Rungs 1 to 3, the ceiling and \"solid up to\" count no labelled task (git, written tests, key-fact "
-           "explanations and the shell and diff cases the run sheet names): those are left out."]
+           "Rungs 1 to 3 and the ceiling on rungs 1 to 3 count no labelled task (git, written tests, key-fact "
+           "explanations and the shell and diff cases the run sheet names): those are left out. The ceiling and "
+           "\"solid up to\" span all nine rungs, so they include the labelled rungs 4 to 9."]
     skipped = _skipped(out)
     if skipped:
         md += ["", "## Not run", ""]

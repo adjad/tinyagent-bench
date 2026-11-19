@@ -322,6 +322,68 @@ def test_cleanup_unlocks_a_locked_link_and_never_touches_a_hard_link(tmp_path):
     assert not root.exists() and outside.read_text() == "x"
 
 
+def test_cleanup_removes_a_locked_hard_link_made_inside_the_folder(tmp_path):
+    """Both names of a file inside the trial folder: the file is the trial's own, so it is unlocked and the
+    folder goes (a name outside, as in the test above, still keeps it untouched)."""
+    import shutil
+    import stat
+    from edat.sidekick.sandbox.run import _unlock_tree
+    root = tmp_path / "trial"
+    (root / "d").mkdir(parents=True)
+    (root / "a").write_text("x")
+    os.link(root / "a", root / "d" / "b")
+    os.chflags(root / "a", stat.UF_IMMUTABLE)
+    os.chflags(root / "d", stat.UF_APPEND)
+    _unlock_tree(str(root))
+    shutil.rmtree(root)
+    assert not root.exists()
+
+
+def test_the_hard_link_and_lock_payload_leaves_nothing_behind(iso):
+    """The model's own command links a file to a second name inside its folder and locks both the file and a
+    folder: every name is the trial's, so cleanup unlocks and removes all of it, and records no leftover."""
+    from edat.sidekick.sandbox.run import LEFTOVERS, Limits, TrialArea
+    n0 = len(LEFTOVERS)
+    a = TrialArea()
+    res = iso.run(a, "print -r -- x > a && mkdir d && ln a d/b && chflags uchg a && chflags uappnd d",
+                  limits=Limits(wall_s=10))
+    assert res.exit_code == 0, res.stderr
+    root = a.root
+    a.cleanup()
+    assert not os.path.lexists(root) and len(LEFTOVERS) == n0
+
+
+def test_a_canary_outside_with_a_link_inside_is_untouched_and_the_leftover_is_recorded(tmp_path, monkeypatch):
+    """A locked file whose inode has a name outside the trial folder: its mode and flags are never changed,
+    so the inside name cannot go. The folder is recorded with its size, and past the cap the run stops."""
+    import shutil
+    import stat
+    import edat.sidekick.sandbox.run as sr
+    monkeypatch.setattr(sr, "LEFTOVERS", [])
+    canary = tmp_path / "canary"
+    canary.write_text("keep me")
+    a = sr.TrialArea()
+    root = a.root
+    try:
+        os.link(canary, root / "inside")
+        os.chmod(canary, 0o444)
+        os.chflags(canary, stat.UF_IMMUTABLE)
+        a.cleanup()
+        st = os.stat(canary)
+        assert canary.read_text() == "keep me" and st.st_flags & stat.UF_IMMUTABLE and stat.S_IMODE(st.st_mode) == 0o444
+        assert os.path.lexists(root)
+        assert sr.LEFTOVERS == [{"area": root.name, "entries": 1, "bytes": 7}]
+        ev = sr.leftover_events(0)
+        assert [(e.kind, e.rule, e.extra["bytes"]) for e in ev] == [("unsafe_action", "trial_folder_left", 7)]
+        assert sr.leftovers_over_cap() is None
+        monkeypatch.setattr(sr, "LEFTOVER_MAX_BYTES", 6)
+        assert "over the cap" in sr.leftovers_over_cap()
+    finally:
+        os.chflags(canary, 0)
+        os.chmod(canary, 0o644)
+        shutil.rmtree(root, ignore_errors=True)
+
+
 def test_a_folder_the_model_locked_is_still_removed(iso):
     """Mode 000 folders and a user-immutable file, made by the model's own command: cleanup unlocks, then
     removes, and leaves nothing behind."""

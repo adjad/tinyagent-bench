@@ -55,7 +55,7 @@ NOT_HARDENED_WHY = ("Rungs 4 to 9 are " + NOT_HARDENED + ": their hidden tests r
 
 RUNGS = (
     Rung(1, "sk-l1", "Simple one-step tasks: a short function, one shell command, a regex", "sidekick", "L1"),
-    Rung(2, "sk-l2", "Everyday helper tasks: fix a bug, a regex, a commit message", "sidekick", "L2"),
+    Rung(2, "sk-l2", "Everyday helper tasks: fix a bug, a regex, a shell command", "sidekick", "L2"),
     Rung(3, "sk-l3", "The harder helper tasks: edge cases and tricky commands", "sidekick", "L3"),
     Rung(4, "rules", "A function with several rules that interact", "probe"),
     Rung(5, "state", "A small class that keeps track of state", "probe"),

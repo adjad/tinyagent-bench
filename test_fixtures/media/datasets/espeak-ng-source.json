@@ -1,0 +1,27 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "espeak-ng-source",
+ "group": "speech_engine",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "A3"
+ ],
+ "split": "1.52.0 source tarball (alternative to espeakng-loader)",
+ "homepage": "https://github.com/espeak-ng/espeak-ng",
+ "licence": "GPL-3.0-or-later (Homebrew formula JSON)",
+ "licence_note": "GPL-3.0-or-later (Homebrew formula JSON)",
+ "licence_url": "https://formulae.brew.sh/api/formula/espeak-ng.json",
+ "licence_verified": false,
+ "verified": false,
+ "redistributable": "unverified",
+ "access": "http",
+ "status": "needs_loader",
+ "status_reason": "only if not using espeakng-loader; the tarball is unsized and has no checksum; build from source or use Homebrew",
+ "needed_v1": "no",
+ "bytes_total": 0,
+ "file_count": 1,
+ "notes": "Only if not using espeakng-loader. GitHub release 1.52.0 ships only an Android apk (10,446,659 B) and a Windows msi (12,765,862 B); source tarball https://api.github.com/repos/espeak-ng/espeak-ng/tarball/1.52.0 has no length header. Not sized.",
+ "files": [
+  {"url": "https://api.github.com/repos/espeak-ng/espeak-ng/tarball/1.52.0", "bytes": null, "bytes_note": "unsized: the source sends no length", "checksum": "none published", "path": "espeak-ng-1.52.0.tar.gz"}
+ ]
+}

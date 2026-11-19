@@ -1,0 +1,980 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-receipts_forms-dev-0063",
+ "family": "receipts_forms",
+ "template": "receipt_shop",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 63,
+ "variant": {
+  "theme": "dark",
+  "dpr": 1,
+  "abstain": true,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-receipts_forms-dev-0063.png",
+  "sha256": "9b5c2ecc28cba38b334d9fc2686083e9a6f0f050487dcd1c2f94dc5fcd69d45f",
+  "width": 360,
+  "height": 680,
+  "logical": [
+   360,
+   680
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2028,
+ "data": {
+  "template": "receipt_shop",
+  "layout": 3,
+  "style": {
+   "align": "left",
+   "upper": true,
+   "sep": "star",
+   "qty": "prefix",
+   "tax": "State tax",
+   "disc": false
+  },
+  "merchant": "Trelix Outfitters",
+  "address": "947 Wynquist Court, Tavistead",
+  "phone": "(503) 555-0101",
+  "date": "2028-01-13",
+  "time": "16:57",
+  "receipt_number": "Z889825",
+  "lines": [
+   {
+    "name": "Light bulb",
+    "qty": 3,
+    "unit": 8.21,
+    "amount": 24.63
+   },
+   {
+    "name": "Green tea",
+    "qty": 3,
+    "unit": 20.02,
+    "amount": 60.06
+   },
+   {
+    "name": "Granola",
+    "qty": 3,
+    "unit": 23.49,
+    "amount": 70.47
+   },
+   {
+    "name": "Coffee beans",
+    "qty": 2,
+    "unit": 3.92,
+    "amount": 7.84
+   },
+   {
+    "name": "Honey",
+    "qty": 2,
+    "unit": 1.61,
+    "amount": 3.22
+   },
+   {
+    "name": "Olive oil",
+    "qty": 1,
+    "unit": 10.41,
+    "amount": 10.41
+   }
+  ],
+  "subtotal": 176.63,
+  "discount": 0.0,
+  "tax_rate": 0.08,
+  "tax": 14.13,
+  "tip": 0.0,
+  "total": 190.76,
+  "payment": "Gift card",
+  "server": null,
+  "table": null,
+  "abstain": {
+   "absent": "cashier"
+  }
+ },
+ "fields": {
+  "merchant": {
+   "name": "merchant",
+   "kind": "text",
+   "value": "Trelix Outfitters",
+   "text": "TRELIX OUTFITTERS",
+   "bbox": [
+    25,
+    33,
+    208,
+    48
+   ],
+   "size_px": 19,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f46dfdfd7c25111d621920d09c5a12b2d9b89337b263c3e1b01fd50fd6200b17",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "receipt_number": {
+   "name": "receipt_number",
+   "kind": "text",
+   "value": "Z889825",
+   "text": "Receipt # Z889825",
+   "bbox": [
+    26,
+    100,
+    131,
+    112
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "edd909a8be1bdd33f7a7ce28d593d9a31b9bc7e254d98475888d52137438d001",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "date": {
+   "name": "date",
+   "kind": "date",
+   "value": "2028-01-13",
+   "text": "Jan 13, 2028",
+   "bbox": [
+    26,
+    120,
+    98,
+    131
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f89f29eb7f874da017454b414345395432b9f3cebda74f9e59f6ed80a97f60c7",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "time": {
+   "name": "time",
+   "kind": "time",
+   "value": "16:57",
+   "text": "16:57",
+   "bbox": [
+    303,
+    120,
+    334,
+    129
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ab3a85cf7c0594cdf524da6a77cbaa3e66a83ac194cd01c91f0123374a69d3cb",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_0_name": {
+   "name": "item_0_name",
+   "kind": "text",
+   "value": "Light bulb",
+   "text": "3 X LIGHT BULB",
+   "bbox": [
+    26,
+    152,
+    115,
+    161
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "85ea01329977b20f4b50bb4cc49906837be02d2f972332ce4da478c9f728205b",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_0_amount": {
+   "name": "item_0_amount",
+   "kind": "money",
+   "value": "24.63",
+   "text": "$24.63",
+   "bbox": [
+    296,
+    151,
+    334,
+    162
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "8b596ccb401f1bf1a11047a11f6d0f92918dea57ce55b28210464b125ca8c1a2",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_1_name": {
+   "name": "item_1_name",
+   "kind": "text",
+   "value": "Green tea",
+   "text": "3 X GREEN TEA",
+   "bbox": [
+    26,
+    170,
+    111,
+    179
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "a3823a33be4a7002d4b77084c07d2392c8f226aa941f60c057b5350a779f3210",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_1_amount": {
+   "name": "item_1_amount",
+   "kind": "money",
+   "value": "60.06",
+   "text": "$60.06",
+   "bbox": [
+    296,
+    169,
+    334,
+    180
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "8fe527fa46dd08d44393d6cd6d9f97886357c49976349a3632d8108ac07c64dc",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_2_name": {
+   "name": "item_2_name",
+   "kind": "text",
+   "value": "Granola",
+   "text": "3 X GRANOLA",
+   "bbox": [
+    26,
+    188,
+    103,
+    197
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ff5e7308b8ec62e7ae48b8a92b5c1f9491dea56c12559cf310db9912dca65a0c",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_2_amount": {
+   "name": "item_2_amount",
+   "kind": "money",
+   "value": "70.47",
+   "text": "$70.47",
+   "bbox": [
+    296,
+    187,
+    334,
+    198
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1aa53f769547c07f95bab7821d16f74965ad1e0c161f63bae7a8d55169e4072f",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_3_name": {
+   "name": "item_3_name",
+   "kind": "text",
+   "value": "Coffee beans",
+   "text": "2 X COFFEE BEANS",
+   "bbox": [
+    26,
+    206,
+    132,
+    215
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "707695066a5524037c6cc60f3ab5bab2085ac6d5dc88ea50f14d1f9f19e68e4a",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_3_amount": {
+   "name": "item_3_amount",
+   "kind": "money",
+   "value": "7.84",
+   "text": "$7.84",
+   "bbox": [
+    302,
+    205,
+    334,
+    216
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "316f9778e37400057b55abd0ec8b1192f6aa0ec940b68be93533e494daa72da1",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_4_name": {
+   "name": "item_4_name",
+   "kind": "text",
+   "value": "Honey",
+   "text": "2 X HONEY",
+   "bbox": [
+    26,
+    224,
+    87,
+    233
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "45ac8a634b32a794b8d7aee410b9d41921ae8c2cd4497442697533303413b7a7",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_4_amount": {
+   "name": "item_4_amount",
+   "kind": "money",
+   "value": "3.22",
+   "text": "$3.22",
+   "bbox": [
+    303,
+    223,
+    334,
+    234
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "40a4038755bed4dfc745d13361152608528ea13bb34dabc02dc0e586f300ebee",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_5_name": {
+   "name": "item_5_name",
+   "kind": "text",
+   "value": "Olive oil",
+   "text": "OLIVE OIL",
+   "bbox": [
+    26,
+    242,
+    81,
+    251
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "3730d36519d6d5518716c3a7ca15d9a2f83f106796b1422e9b6089ba108d56a2",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_5_amount": {
+   "name": "item_5_amount",
+   "kind": "money",
+   "value": "10.41",
+   "text": "$10.41",
+   "bbox": [
+    296,
+    241,
+    334,
+    252
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5fd28e5d6ed3ef886eb3c762e29207538fdb2873a1dad97580b86e95c083ed6a",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "subtotal": {
+   "name": "subtotal",
+   "kind": "money",
+   "value": "176.63",
+   "text": "$176.63",
+   "bbox": [
+    289,
+    271,
+    334,
+    282
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4ec72b350b7dc0cac9da1dfd20a646ebadca360e8209c48387511787121d4102",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "tax": {
+   "name": "tax",
+   "kind": "money",
+   "value": "14.13",
+   "text": "$14.13",
+   "bbox": [
+    296,
+    289,
+    334,
+    300
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1973cfe1485ea45ef23bd199e0a832b52d0a4b23905271567515cba0700de921",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "total": {
+   "name": "total",
+   "kind": "money",
+   "value": "190.76",
+   "text": "$190.76",
+   "bbox": [
+    274,
+    311,
+    333,
+    326
+   ],
+   "size_px": 15,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "8a7219fabad4dfaaa24099fb7de074480d7aa622a7e1e37f3666725e91cf89c2",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "payment": {
+   "name": "payment",
+   "kind": "text",
+   "value": "Gift card",
+   "text": "Gift card",
+   "bbox": [
+    286,
+    341,
+    334,
+    351
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "fdbebb7229486a94ae310e491e8a11532e813015dc49dfb2363f297faa53cf83",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cashier": {
+   "name": "cashier",
+   "kind": "text",
+   "value": "Priya Brasen",
+   "text": "",
+   "bbox": null,
+   "size_px": 0,
+   "visible": false,
+   "obscured": "absent",
+   "crop_sha256": null,
+   "fg": null,
+   "plot_value": false
+  }
+ },
+ "elements": [],
+ "text_runs": [
+  {
+   "text": "TRELIX OUTFITTERS",
+   "bbox": [
+    25,
+    33,
+    208,
+    48
+   ],
+   "size_px": 19,
+   "field": "merchant",
+   "reading": true
+  },
+  {
+   "text": "947 Wynquist Court, Tavistead",
+   "bbox": [
+    26,
+    58,
+    183,
+    68
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "(503) 555-0101",
+   "bbox": [
+    26,
+    76,
+    99,
+    86
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Receipt # Z889825",
+   "bbox": [
+    26,
+    100,
+    131,
+    112
+   ],
+   "size_px": 12,
+   "field": "receipt_number",
+   "reading": true
+  },
+  {
+   "text": "Jan 13, 2028",
+   "bbox": [
+    26,
+    120,
+    98,
+    131
+   ],
+   "size_px": 12,
+   "field": "date",
+   "reading": true
+  },
+  {
+   "text": "16:57",
+   "bbox": [
+    303,
+    120,
+    334,
+    129
+   ],
+   "size_px": 12,
+   "field": "time",
+   "reading": true
+  },
+  {
+   "text": "*******************************************",
+   "bbox": [
+    26,
+    138,
+    327,
+    143
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": false
+  },
+  {
+   "text": "3 X LIGHT BULB",
+   "bbox": [
+    26,
+    152,
+    115,
+    161
+   ],
+   "size_px": 12,
+   "field": "item_0_name",
+   "reading": true
+  },
+  {
+   "text": "$24.63",
+   "bbox": [
+    296,
+    151,
+    334,
+    162
+   ],
+   "size_px": 12,
+   "field": "item_0_amount",
+   "reading": true
+  },
+  {
+   "text": "3 X GREEN TEA",
+   "bbox": [
+    26,
+    170,
+    111,
+    179
+   ],
+   "size_px": 12,
+   "field": "item_1_name",
+   "reading": true
+  },
+  {
+   "text": "$60.06",
+   "bbox": [
+    296,
+    169,
+    334,
+    180
+   ],
+   "size_px": 12,
+   "field": "item_1_amount",
+   "reading": true
+  },
+  {
+   "text": "3 X GRANOLA",
+   "bbox": [
+    26,
+    188,
+    103,
+    197
+   ],
+   "size_px": 12,
+   "field": "item_2_name",
+   "reading": true
+  },
+  {
+   "text": "$70.47",
+   "bbox": [
+    296,
+    187,
+    334,
+    198
+   ],
+   "size_px": 12,
+   "field": "item_2_amount",
+   "reading": true
+  },
+  {
+   "text": "2 X COFFEE BEANS",
+   "bbox": [
+    26,
+    206,
+    132,
+    215
+   ],
+   "size_px": 12,
+   "field": "item_3_name",
+   "reading": true
+  },
+  {
+   "text": "$7.84",
+   "bbox": [
+    302,
+    205,
+    334,
+    216
+   ],
+   "size_px": 12,
+   "field": "item_3_amount",
+   "reading": true
+  },
+  {
+   "text": "2 X HONEY",
+   "bbox": [
+    26,
+    224,
+    87,
+    233
+   ],
+   "size_px": 12,
+   "field": "item_4_name",
+   "reading": true
+  },
+  {
+   "text": "$3.22",
+   "bbox": [
+    303,
+    223,
+    334,
+    234
+   ],
+   "size_px": 12,
+   "field": "item_4_amount",
+   "reading": true
+  },
+  {
+   "text": "OLIVE OIL",
+   "bbox": [
+    26,
+    242,
+    81,
+    251
+   ],
+   "size_px": 12,
+   "field": "item_5_name",
+   "reading": true
+  },
+  {
+   "text": "$10.41",
+   "bbox": [
+    296,
+    241,
+    334,
+    252
+   ],
+   "size_px": 12,
+   "field": "item_5_amount",
+   "reading": true
+  },
+  {
+   "text": "*******************************************",
+   "bbox": [
+    26,
+    258,
+    327,
+    263
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": false
+  },
+  {
+   "text": "SUBTOTAL",
+   "bbox": [
+    26,
+    272,
+    87,
+    281
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "$176.63",
+   "bbox": [
+    289,
+    271,
+    334,
+    282
+   ],
+   "size_px": 12,
+   "field": "subtotal",
+   "reading": true
+  },
+  {
+   "text": "STATE TAX 8%",
+   "bbox": [
+    26,
+    290,
+    109,
+    299
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "$14.13",
+   "bbox": [
+    296,
+    289,
+    334,
+    300
+   ],
+   "size_px": 12,
+   "field": "tax",
+   "reading": true
+  },
+  {
+   "text": "TOTAL",
+   "bbox": [
+    25,
+    313,
+    77,
+    325
+   ],
+   "size_px": 15,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "$190.76",
+   "bbox": [
+    274,
+    311,
+    333,
+    326
+   ],
+   "size_px": 15,
+   "field": "total",
+   "reading": true
+  },
+  {
+   "text": "PAID BY:",
+   "bbox": [
+    26,
+    342,
+    72,
+    351
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Gift card",
+   "bbox": [
+    286,
+    341,
+    334,
+    351
+   ],
+   "size_px": 12,
+   "field": "payment",
+   "reading": true
+  },
+  {
+   "text": "KEEP THIS RECEIPT FOR RETURNS",
+   "bbox": [
+    97,
+    374,
+    263,
+    382
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  }
+ ],
+ "reading_text": "TRELIX OUTFITTERS\n947 Wynquist Court, Tavistead\n(503) 555-0101\nReceipt # Z889825\nJan 13, 2028\n16:57\n3 X LIGHT BULB\n$24.63\n3 X GREEN TEA\n$60.06\n3 X GRANOLA\n$70.47\n2 X COFFEE BEANS\n$7.84\n2 X HONEY\n$3.22\nOLIVE OIL\n$10.41\nSUBTOTAL\n$176.63\nSTATE TAX 8%\n$14.13\nTOTAL\n$190.76\nPAID BY:\nGift card\nKEEP THIS RECEIPT FOR RETURNS",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_multi",
+   "qtype": "multi",
+   "question": "Give the business name and the receipt number, separated by a comma.",
+   "answer": "Trelix Outfitters, Z889825",
+   "kind": "anls",
+   "canon": "text",
+   "fields": [
+    "merchant",
+    "receipt_number"
+   ],
+   "accept": [
+    "Trelix Outfitters; Z889825",
+    "Trelix Outfitters Z889825"
+   ]
+  },
+  {
+   "qid": "q_items_sum",
+   "qtype": "sum",
+   "question": "What do the line item amounts add up to?",
+   "answer": "176.63",
+   "kind": "field",
+   "canon": "money",
+   "fields": [
+    "item_0_amount",
+    "item_1_amount",
+    "item_2_amount",
+    "item_3_amount",
+    "item_4_amount",
+    "item_5_amount"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_item",
+   "qtype": "lookup",
+   "question": "How much was charged for Granola?",
+   "answer": "70.47",
+   "kind": "field",
+   "canon": "money",
+   "fields": [
+    "item_2_name",
+    "item_2_amount"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_cashier",
+   "qtype": "absence",
+   "question": "What is the name of the cashier on this receipt?",
+   "answer": "not shown",
+   "kind": "abstain",
+   "canon": "text",
+   "fields": [
+    "cashier"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the receipt.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

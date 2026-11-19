@@ -1,0 +1,933 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-app_screens-dev-0099",
+ "family": "app_screens",
+ "template": "chat",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 99,
+ "variant": {
+  "theme": "dark",
+  "dpr": 1,
+  "abstain": true,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-app_screens-dev-0099.png",
+  "sha256": "589c74fbecff02ef78655c0a204f5315436adb58d6fbaa2f7a88a5bad9030109",
+  "width": 390,
+  "height": 844,
+  "logical": [
+   390,
+   844
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "title": "Quillton Friends",
+  "messages": [
+   {
+    "sender": "Tomas",
+    "text": "Dinner is on me tonight",
+    "time": "14:28"
+   },
+   {
+    "sender": "Ximena",
+    "text": "Who has the spare key?",
+    "time": "14:29"
+   },
+   {
+    "sender": "me",
+    "text": "Can someone bring the projector?",
+    "time": "14:33"
+   },
+   {
+    "sender": "me",
+    "text": "I will bring extra chairs",
+    "time": "14:47"
+   },
+   {
+    "sender": "Ximena",
+    "text": "Did anyone see the draft?",
+    "time": "14:53"
+   },
+   {
+    "sender": "Ximena",
+    "text": "Running ten minutes late",
+    "time": "15:02"
+   },
+   {
+    "sender": "Elif",
+    "text": "Great work on the demo",
+    "time": "15:12"
+   }
+  ]
+ },
+ "fields": {
+  "chat_title": {
+   "name": "chat_title",
+   "kind": "text",
+   "value": "Quillton Friends",
+   "text": "Quillton Friends",
+   "bbox": [
+    71,
+    26,
+    197,
+    41
+   ],
+   "size_px": 17,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "6a8c338954de07b546b8651606f9756dd6518f21b18c726b3d136d26c934bc06",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "sender_0": {
+   "name": "sender_0",
+   "kind": "text",
+   "value": "Tomas",
+   "text": "Tomas",
+   "bbox": [
+    16,
+    83,
+    55,
+    92
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4a11816930be08a0c47aa37f4b238b4539d7cb65e2356bd9b9f36f62e5978f92",
+   "fg": [
+    100,
+    170,
+    255
+   ],
+   "plot_value": false
+  },
+  "msg_0": {
+   "name": "msg_0",
+   "kind": "text",
+   "value": "Dinner is on me tonight",
+   "text": "Dinner is on me tonight",
+   "bbox": [
+    28,
+    108,
+    175,
+    122
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e72ea80c775bf10006141e21f2f033402bb2efe27d610f5058169307f562c5de",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "time_0": {
+   "name": "time_0",
+   "kind": "time",
+   "value": "14:28",
+   "text": "2:28 PM",
+   "bbox": [
+    20,
+    138,
+    59,
+    146
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0778661316e36a4737f0ee8a75dcfa763514d8c331bde6935c44b2d7b09179f7",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "sender_1": {
+   "name": "sender_1",
+   "kind": "text",
+   "value": "Ximena",
+   "text": "Ximena",
+   "bbox": [
+    16,
+    166,
+    59,
+    175
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "68e50e6f994e1707b32bc43cffe37d198b1e8794b4b6729aab0d265ad98732d6",
+   "fg": [
+    100,
+    170,
+    255
+   ],
+   "plot_value": false
+  },
+  "msg_1": {
+   "name": "msg_1",
+   "kind": "text",
+   "value": "Who has the spare key?",
+   "text": "Who has the spare key?",
+   "bbox": [
+    28,
+    191,
+    180,
+    205
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "27c7da04d52e5e2872c60498d861da8b0fcaf84ccb5c26e72ff02e01f0145700",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "time_1": {
+   "name": "time_1",
+   "kind": "time",
+   "value": "14:29",
+   "text": "2:29 PM",
+   "bbox": [
+    20,
+    221,
+    59,
+    229
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "9e116f062b0d40fd68d0f5c1bde0dc0b7f5e16c65519da8bc0077ca631535dd2",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "msg_2": {
+   "name": "msg_2",
+   "kind": "text",
+   "value": "Can someone bring the projector?",
+   "text": "Can someone bring the projector?",
+   "bbox": [
+    143,
+    257,
+    362,
+    271
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "da82f09402a4b84ffe948b721289dc418cebaf43f9898f810d13e81b67c834b0",
+   "fg": [
+    255,
+    255,
+    255
+   ],
+   "plot_value": false
+  },
+  "time_2": {
+   "name": "time_2",
+   "kind": "time",
+   "value": "14:33",
+   "text": "2:33 PM",
+   "bbox": [
+    331,
+    287,
+    370,
+    295
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "8076afabedbbb7263b10a79a8413f798a08b9e61784ddd967ae3cd21beac4edf",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "msg_3": {
+   "name": "msg_3",
+   "kind": "text",
+   "value": "I will bring extra chairs",
+   "text": "I will bring extra chairs",
+   "bbox": [
+    223,
+    323,
+    362,
+    337
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "8f154b3f2412b20d3f7d947485dc0d8f5a611e39d3ba1853942efe89d25a25a5",
+   "fg": [
+    255,
+    255,
+    255
+   ],
+   "plot_value": false
+  },
+  "time_3": {
+   "name": "time_3",
+   "kind": "time",
+   "value": "14:47",
+   "text": "2:47 PM",
+   "bbox": [
+    331,
+    353,
+    370,
+    361
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f696b0ed32558a873275450a391232af9f6f14fd756fb3737c92eabd0e6a5a47",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "sender_4": {
+   "name": "sender_4",
+   "kind": "text",
+   "value": "Ximena",
+   "text": "Ximena",
+   "bbox": [
+    16,
+    381,
+    59,
+    390
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "68e50e6f994e1707b32bc43cffe37d198b1e8794b4b6729aab0d265ad98732d6",
+   "fg": [
+    100,
+    170,
+    255
+   ],
+   "plot_value": false
+  },
+  "msg_4": {
+   "name": "msg_4",
+   "kind": "text",
+   "value": "Did anyone see the draft?",
+   "text": "Did anyone see the draft?",
+   "bbox": [
+    28,
+    406,
+    193,
+    420
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "74bd4624072f33949d706f4d58855f8854dea6f823405afa48569839c371b72b",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "time_4": {
+   "name": "time_4",
+   "kind": "time",
+   "value": "14:53",
+   "text": "2:53 PM",
+   "bbox": [
+    20,
+    436,
+    59,
+    444
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "04944bdb90dc5817043fae5d4c4d1eb77e25384d5790c5eb013a007b28825577",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "sender_5": {
+   "name": "sender_5",
+   "kind": "text",
+   "value": "Ximena",
+   "text": "Ximena",
+   "bbox": [
+    16,
+    464,
+    59,
+    473
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "68e50e6f994e1707b32bc43cffe37d198b1e8794b4b6729aab0d265ad98732d6",
+   "fg": [
+    100,
+    170,
+    255
+   ],
+   "plot_value": false
+  },
+  "msg_5": {
+   "name": "msg_5",
+   "kind": "text",
+   "value": "Running ten minutes late",
+   "text": "Running ten minutes late",
+   "bbox": [
+    28,
+    489,
+    186,
+    503
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f549a7cececfb475308401489368c6117bf9799a1074fdb52b33386e561214a3",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "time_5": {
+   "name": "time_5",
+   "kind": "time",
+   "value": "15:02",
+   "text": "3:02 PM",
+   "bbox": [
+    20,
+    519,
+    59,
+    527
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1736e8db16737e70e85049aa386668aa1b9506005afaa7ca402f86b3c4e4efad",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "sender_6": {
+   "name": "sender_6",
+   "kind": "text",
+   "value": "Elif",
+   "text": "Elif",
+   "bbox": [
+    16,
+    546,
+    33,
+    556
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "8d3d3dc94bcfd985ed2dce5bc01e9699a099a141f31ca001721e7771510089ba",
+   "fg": [
+    100,
+    170,
+    255
+   ],
+   "plot_value": false
+  },
+  "msg_6": {
+   "name": "msg_6",
+   "kind": "text",
+   "value": "Great work on the demo",
+   "text": "Great work on the demo",
+   "bbox": [
+    28,
+    572,
+    181,
+    583
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "68835884e296197a4379732d316b3365fa46794f8965c40c75c90960ec500fb4",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "time_6": {
+   "name": "time_6",
+   "kind": "time",
+   "value": "15:12",
+   "text": "3:12 PM",
+   "bbox": [
+    20,
+    602,
+    59,
+    610
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "6a4b1f116f848d795305009f51e6b6967a13c36063d9bc137865126a25de1a6e",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "invite_code": {
+   "name": "invite_code",
+   "kind": "text",
+   "value": "FVH105",
+   "text": "",
+   "bbox": null,
+   "size_px": 0,
+   "visible": false,
+   "obscured": "absent",
+   "crop_sha256": null,
+   "fg": null,
+   "plot_value": false
+  }
+ },
+ "elements": [
+  {
+   "name": "Back",
+   "role": "link",
+   "bbox": [
+    10,
+    21,
+    52,
+    44
+   ],
+   "unique": true
+  },
+  {
+   "name": "Call",
+   "role": "button",
+   "bbox": [
+    348,
+    21,
+    380,
+    44
+   ],
+   "unique": true
+  },
+  {
+   "name": "Message",
+   "role": "field",
+   "bbox": [
+    12,
+    784,
+    294,
+    824
+   ],
+   "unique": true
+  },
+  {
+   "name": "Send",
+   "role": "button",
+   "bbox": [
+    302,
+    788,
+    372,
+    820
+   ],
+   "unique": true
+  }
+ ],
+ "text_runs": [
+  {
+   "text": "Back",
+   "bbox": [
+    14,
+    27,
+    48,
+    38
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Quillton Friends",
+   "bbox": [
+    71,
+    26,
+    197,
+    41
+   ],
+   "size_px": 17,
+   "field": "chat_title",
+   "reading": true
+  },
+  {
+   "text": "Call",
+   "bbox": [
+    352,
+    27,
+    376,
+    38
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Tomas",
+   "bbox": [
+    16,
+    83,
+    55,
+    92
+   ],
+   "size_px": 12,
+   "field": "sender_0",
+   "reading": true
+  },
+  {
+   "text": "Dinner is on me tonight",
+   "bbox": [
+    28,
+    108,
+    175,
+    122
+   ],
+   "size_px": 14,
+   "field": "msg_0",
+   "reading": true
+  },
+  {
+   "text": "2:28 PM",
+   "bbox": [
+    20,
+    138,
+    59,
+    146
+   ],
+   "size_px": 11,
+   "field": "time_0",
+   "reading": true
+  },
+  {
+   "text": "Ximena",
+   "bbox": [
+    16,
+    166,
+    59,
+    175
+   ],
+   "size_px": 12,
+   "field": "sender_1",
+   "reading": true
+  },
+  {
+   "text": "Who has the spare key?",
+   "bbox": [
+    28,
+    191,
+    180,
+    205
+   ],
+   "size_px": 14,
+   "field": "msg_1",
+   "reading": true
+  },
+  {
+   "text": "2:29 PM",
+   "bbox": [
+    20,
+    221,
+    59,
+    229
+   ],
+   "size_px": 11,
+   "field": "time_1",
+   "reading": true
+  },
+  {
+   "text": "Can someone bring the projector?",
+   "bbox": [
+    143,
+    257,
+    362,
+    271
+   ],
+   "size_px": 14,
+   "field": "msg_2",
+   "reading": true
+  },
+  {
+   "text": "2:33 PM",
+   "bbox": [
+    331,
+    287,
+    370,
+    295
+   ],
+   "size_px": 11,
+   "field": "time_2",
+   "reading": true
+  },
+  {
+   "text": "I will bring extra chairs",
+   "bbox": [
+    223,
+    323,
+    362,
+    337
+   ],
+   "size_px": 14,
+   "field": "msg_3",
+   "reading": true
+  },
+  {
+   "text": "2:47 PM",
+   "bbox": [
+    331,
+    353,
+    370,
+    361
+   ],
+   "size_px": 11,
+   "field": "time_3",
+   "reading": true
+  },
+  {
+   "text": "Ximena",
+   "bbox": [
+    16,
+    381,
+    59,
+    390
+   ],
+   "size_px": 12,
+   "field": "sender_4",
+   "reading": true
+  },
+  {
+   "text": "Did anyone see the draft?",
+   "bbox": [
+    28,
+    406,
+    193,
+    420
+   ],
+   "size_px": 14,
+   "field": "msg_4",
+   "reading": true
+  },
+  {
+   "text": "2:53 PM",
+   "bbox": [
+    20,
+    436,
+    59,
+    444
+   ],
+   "size_px": 11,
+   "field": "time_4",
+   "reading": true
+  },
+  {
+   "text": "Ximena",
+   "bbox": [
+    16,
+    464,
+    59,
+    473
+   ],
+   "size_px": 12,
+   "field": "sender_5",
+   "reading": true
+  },
+  {
+   "text": "Running ten minutes late",
+   "bbox": [
+    28,
+    489,
+    186,
+    503
+   ],
+   "size_px": 14,
+   "field": "msg_5",
+   "reading": true
+  },
+  {
+   "text": "3:02 PM",
+   "bbox": [
+    20,
+    519,
+    59,
+    527
+   ],
+   "size_px": 11,
+   "field": "time_5",
+   "reading": true
+  },
+  {
+   "text": "Elif",
+   "bbox": [
+    16,
+    546,
+    33,
+    556
+   ],
+   "size_px": 12,
+   "field": "sender_6",
+   "reading": true
+  },
+  {
+   "text": "Great work on the demo",
+   "bbox": [
+    28,
+    572,
+    181,
+    583
+   ],
+   "size_px": 14,
+   "field": "msg_6",
+   "reading": true
+  },
+  {
+   "text": "3:12 PM",
+   "bbox": [
+    20,
+    602,
+    59,
+    610
+   ],
+   "size_px": 11,
+   "field": "time_6",
+   "reading": true
+  },
+  {
+   "text": "Message",
+   "bbox": [
+    28,
+    799,
+    87,
+    812
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Send",
+   "bbox": [
+    322,
+    800,
+    353,
+    809
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  }
+ ],
+ "reading_text": "Back\nQuillton Friends\nCall\nTomas\nDinner is on me tonight\n2:28 PM\nXimena\nWho has the spare key?\n2:29 PM\nCan someone bring the projector?\n2:33 PM\nI will bring extra chairs\n2:47 PM\nXimena\nDid anyone see the draft?\n2:53 PM\nXimena\nRunning ten minutes late\n3:02 PM\nElif\nGreat work on the demo\n3:12 PM\nMessage\nSend",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_who",
+   "qtype": "who_said",
+   "question": "Who sent the message \"Did anyone see the draft?\"?",
+   "answer": "Ximena",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "msg_4",
+    "sender_4"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_time",
+   "qtype": "lookup",
+   "question": "At what time was the message \"Great work on the demo\" sent?",
+   "answer": "15:12",
+   "kind": "field",
+   "canon": "time",
+   "fields": [
+    "msg_6",
+    "time_6"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_count",
+   "qtype": "count",
+   "question": "How many messages did Elif send in this chat?",
+   "answer": "1",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "sender_0",
+    "sender_1",
+    "sender_4",
+    "sender_5",
+    "sender_6"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_invite",
+   "qtype": "absence",
+   "question": "What is the group's invite code?",
+   "answer": "not shown",
+   "kind": "abstain",
+   "canon": "text",
+   "fields": [
+    "invite_code"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the screen.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

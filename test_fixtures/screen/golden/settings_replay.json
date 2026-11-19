@@ -1,0 +1,97 @@
+{
+ "schema": "edat-screen-golden/v1",
+ "note": "Settings app replay on world seed 5. Regenerate only when a change to the world is intended.",
+ "seed": 5,
+ "log": [
+  {
+   "tool": "click",
+   "key": "settings.main.battery",
+   "args": {}
+  },
+  {
+   "tool": "click",
+   "key": "settings.battery.low_power",
+   "args": {}
+  },
+  {
+   "tool": "select_option",
+   "key": "settings.battery.display_off",
+   "args": {
+    "option": "never"
+   }
+  },
+  {
+   "tool": "click",
+   "args": {
+    "id": "1"
+   }
+  },
+  {
+   "tool": "go_back",
+   "args": {}
+  },
+  {
+   "tool": "click",
+   "key": "settings.main.notifications",
+   "args": {}
+  },
+  {
+   "tool": "scroll",
+   "args": {
+    "direction": "down"
+   }
+  },
+  {
+   "tool": "press_key",
+   "args": {
+    "key": "Tab"
+   }
+  },
+  {
+   "tool": "go_back",
+   "args": {}
+  },
+  {
+   "tool": "click",
+   "key": "settings.main.general",
+   "args": {}
+  },
+  {
+   "tool": "type_text",
+   "key": "settings.general.name",
+   "args": {
+    "text": "Studio Mac"
+   }
+  }
+ ],
+ "expect": {
+  "final_hash": "10075aea2efe51dcfbff71091ff68bd9e3c16e82290b57f32b4b681fbd9cb95a",
+  "data_hash": "b87f43f40561e417403652194eff8b39962b77a16473a6b3f300505716c3527e",
+  "observations_sha256": [
+   "c8ee7ef4281688fbf040f3c123f15e6eabe5514eb65fe895cd4aedf328b42c29",
+   "a56ca6adb4d72191d47d5071eaea8ecde3e64320b67b7f475067d5ad5c6124b6",
+   "655af5c73432950c6029d871f9b1fa64165f7149edf691fc0820b37604dd2fd2",
+   "655af5c73432950c6029d871f9b1fa64165f7149edf691fc0820b37604dd2fd2",
+   "7f823f1cd7c759cb8dccefeb22e43b86b7de0a7dda4b4c1b4177efa531c646d3",
+   "8b6d3d2a89b16c27eb558d0a5e98a1922b034ad999cafff410cdde1562054af4",
+   "8b6d3d2a89b16c27eb558d0a5e98a1922b034ad999cafff410cdde1562054af4",
+   "e07d53ec5990d51e83d1b63b9a36a50ecf057ef9f9e0c665e0d22f155b5c91fa",
+   "7f823f1cd7c759cb8dccefeb22e43b86b7de0a7dda4b4c1b4177efa531c646d3",
+   "c295c773037818924cb2f63ca9fc96d9fbb63612289f18bce1c8a255092028f8",
+   "38ecaab88e8f343c7d35c1d990e42a661cad674301ab7445d587fd5e61ee65b3"
+  ],
+  "statuses": [
+   "ok",
+   "ok",
+   "ok",
+   "error: [1] is not on the screen",
+   "ok",
+   "ok",
+   "error: nothing more to scroll down",
+   "ok",
+   "ok",
+   "ok",
+   "ok"
+  ]
+ }
+}

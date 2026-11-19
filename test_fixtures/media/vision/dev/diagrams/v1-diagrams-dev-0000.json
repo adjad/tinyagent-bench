@@ -1,0 +1,491 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-diagrams-dev-0000",
+ "family": "diagrams",
+ "template": "flowchart",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 0,
+ "variant": {
+  "theme": "light",
+  "dpr": 1,
+  "abstain": false,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-diagrams-dev-0000.png",
+  "sha256": "88cba837ceb88d7890d0a055f6b4688c4e6d6ab0bfa2479a937402b976ff6184",
+  "width": 760,
+  "height": 900,
+  "logical": [
+   760,
+   900
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "template": "flowchart",
+  "title": "Order process",
+  "nodes": [
+   "Start",
+   "Collect payment",
+   "Sign contract",
+   "Archive file",
+   "Budget approved?",
+   "Book room",
+   "Check details",
+   "End"
+  ],
+  "decision": "Budget approved?",
+  "no_branch": "Revise the plan",
+  "no_next": "End"
+ },
+ "fields": {
+  "diagram_title": {
+   "name": "diagram_title",
+   "kind": "text",
+   "value": "Order process",
+   "text": "Order process",
+   "bbox": [
+    39,
+    32,
+    166,
+    53
+   ],
+   "size_px": 20,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1d89846348c48125731c67493f8e0b50c651bf69a78298dd61f6213d3ffa1493",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "node_0": {
+   "name": "node_0",
+   "kind": "text",
+   "value": "Start",
+   "text": "Start",
+   "bbox": [
+    443,
+    95,
+    475,
+    107
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "641ad34b4496575a22d5a94ea52b68a8b1dc4a69d6fc5e9bcce65ca759472d27",
+   "fg": [
+    255,
+    255,
+    255
+   ],
+   "plot_value": false
+  },
+  "node_1": {
+   "name": "node_1",
+   "kind": "text",
+   "value": "Collect payment",
+   "text": "Collect payment",
+   "bbox": [
+    408,
+    167,
+    513,
+    181
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "80d0132bc2209fbc5cc5bf45fc1aa8a9b730e4cfb55cc9db0ded181f74b4da35",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "node_2": {
+   "name": "node_2",
+   "kind": "text",
+   "value": "Sign contract",
+   "text": "Sign contract",
+   "bbox": [
+    417,
+    239,
+    503,
+    253
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b65cf72cd282bfe4ec1cf7a032eb1f17da8a1fac8388178dc7e38b1f2434462e",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "node_3": {
+   "name": "node_3",
+   "kind": "text",
+   "value": "Archive file",
+   "text": "Archive file",
+   "bbox": [
+    426,
+    311,
+    494,
+    322
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1b394268bd12d21f85a462b492e7da2ef5c3562de1e31f5ad6823ecf853f4052",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "node_4": {
+   "name": "node_4",
+   "kind": "text",
+   "value": "Budget approved?",
+   "text": "Budget approved?",
+   "bbox": [
+    398,
+    397,
+    521,
+    411
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "25f19856a1b1cf6beeb0766cc58730059fd87936da535300f5ff7cfa34e7bd64",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "node_side": {
+   "name": "node_side",
+   "kind": "text",
+   "value": "Revise the plan",
+   "text": "Revise the plan",
+   "bbox": [
+    141,
+    397,
+    239,
+    411
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d393f7aafa9928902f5d00b92789b5d78c951e0c4ad3f1eaf3a5b93346678636",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "node_5": {
+   "name": "node_5",
+   "kind": "text",
+   "value": "Book room",
+   "text": "Book room",
+   "bbox": [
+    424,
+    483,
+    495,
+    494
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "72a954bd2505a98f5d608d288fd205c36a18706c79c9f17bc6965e91dd9cadeb",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "node_6": {
+   "name": "node_6",
+   "kind": "text",
+   "value": "Check details",
+   "text": "Check details",
+   "bbox": [
+    416,
+    555,
+    503,
+    566
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5e685dc46a8a539912f7f28c719b59908ce2a6147694f449862b2c89349371e1",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "node_7": {
+   "name": "node_7",
+   "kind": "text",
+   "value": "End",
+   "text": "End",
+   "bbox": [
+    445,
+    626,
+    473,
+    639
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "04608f7e5b2ae3cba691c906cc119c7c1ba21ca384c8a452483324db68f83232",
+   "fg": [
+    255,
+    255,
+    255
+   ],
+   "plot_value": false
+  }
+ },
+ "elements": [],
+ "text_runs": [
+  {
+   "text": "Order process",
+   "bbox": [
+    39,
+    32,
+    166,
+    53
+   ],
+   "size_px": 20,
+   "field": "diagram_title",
+   "reading": true
+  },
+  {
+   "text": "No",
+   "bbox": [
+    302,
+    384,
+    317,
+    393
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Yes",
+   "bbox": [
+    469,
+    447,
+    490,
+    456
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Start",
+   "bbox": [
+    443,
+    95,
+    475,
+    107
+   ],
+   "size_px": 14,
+   "field": "node_0",
+   "reading": true
+  },
+  {
+   "text": "Collect payment",
+   "bbox": [
+    408,
+    167,
+    513,
+    181
+   ],
+   "size_px": 14,
+   "field": "node_1",
+   "reading": true
+  },
+  {
+   "text": "Sign contract",
+   "bbox": [
+    417,
+    239,
+    503,
+    253
+   ],
+   "size_px": 14,
+   "field": "node_2",
+   "reading": true
+  },
+  {
+   "text": "Archive file",
+   "bbox": [
+    426,
+    311,
+    494,
+    322
+   ],
+   "size_px": 14,
+   "field": "node_3",
+   "reading": true
+  },
+  {
+   "text": "Budget approved?",
+   "bbox": [
+    398,
+    397,
+    521,
+    411
+   ],
+   "size_px": 14,
+   "field": "node_4",
+   "reading": true
+  },
+  {
+   "text": "Revise the plan",
+   "bbox": [
+    141,
+    397,
+    239,
+    411
+   ],
+   "size_px": 14,
+   "field": "node_side",
+   "reading": true
+  },
+  {
+   "text": "Book room",
+   "bbox": [
+    424,
+    483,
+    495,
+    494
+   ],
+   "size_px": 14,
+   "field": "node_5",
+   "reading": true
+  },
+  {
+   "text": "Check details",
+   "bbox": [
+    416,
+    555,
+    503,
+    566
+   ],
+   "size_px": 14,
+   "field": "node_6",
+   "reading": true
+  },
+  {
+   "text": "End",
+   "bbox": [
+    445,
+    626,
+    473,
+    639
+   ],
+   "size_px": 14,
+   "field": "node_7",
+   "reading": true
+  }
+ ],
+ "reading_text": "Order process\nNo\nYes\nStart\nCollect payment\nSign contract\nArchive file\nBudget approved?\nRevise the plan\nBook room\nCheck details\nEnd",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_count",
+   "qtype": "count",
+   "question": "How many rectangular step boxes are in the flowchart, not counting Start and End?",
+   "answer": "6",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "node_1",
+    "node_2",
+    "node_3",
+    "node_4",
+    "node_5",
+    "node_6",
+    "node_side"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_side_next",
+   "qtype": "lookup",
+   "question": "Where does the flow go after 'Revise the plan'?",
+   "answer": "End",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "node_side",
+    "node_7"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_no",
+   "qtype": "lookup",
+   "question": "What happens if the answer to 'Budget approved?' is No?",
+   "answer": "Revise the plan",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "node_4",
+    "node_side"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_after",
+   "qtype": "lookup",
+   "question": "In the flowchart, what comes right after 'Archive file'?",
+   "answer": "Budget approved?",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "node_3",
+    "node_4"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read all the labels in the flowchart.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

@@ -1,0 +1,470 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-diagrams-dev-0063",
+ "family": "diagrams",
+ "template": "flowchart",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 63,
+ "variant": {
+  "theme": "dark",
+  "dpr": 1,
+  "abstain": true,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-diagrams-dev-0063.png",
+  "sha256": "e13c2cefa962ad3134d1ae94d8a522be9bd6f6de3b89e2e409e3fdcb6f195605",
+  "width": 760,
+  "height": 900,
+  "logical": [
+   760,
+   900
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "template": "flowchart",
+  "title": "Intake process",
+  "nodes": [
+   "Start",
+   "Receive request",
+   "Room available?",
+   "Sign contract",
+   "Pack the order",
+   "Print shipping label",
+   "End"
+  ],
+  "decision": "Room available?",
+  "no_branch": "Offer another date",
+  "no_next": "End",
+  "abstain": {
+   "absent": "owner"
+  }
+ },
+ "fields": {
+  "diagram_title": {
+   "name": "diagram_title",
+   "kind": "text",
+   "value": "Intake process",
+   "text": "Intake process",
+   "bbox": [
+    39,
+    32,
+    170,
+    53
+   ],
+   "size_px": 20,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4e397623681eb288c6fdb0e0921565c5f5ed0f25a54c6a7a226a5f21c1f5fdbf",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "node_0": {
+   "name": "node_0",
+   "kind": "text",
+   "value": "Start",
+   "text": "Start",
+   "bbox": [
+    443,
+    95,
+    475,
+    107
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0606fa65df04b968774232a96b11ea305b464204a971d95efb51e07763882ec1",
+   "fg": [
+    10,
+    10,
+    12
+   ],
+   "plot_value": false
+  },
+  "node_1": {
+   "name": "node_1",
+   "kind": "text",
+   "value": "Receive request",
+   "text": "Receive request",
+   "bbox": [
+    408,
+    167,
+    512,
+    181
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e88cd946fa8ecee18ff5111ca01b75f39092f660f190d41261b3f9cb281f3608",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "node_2": {
+   "name": "node_2",
+   "kind": "text",
+   "value": "Room available?",
+   "text": "Room available?",
+   "bbox": [
+    406,
+    253,
+    513,
+    264
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "625b16a083b19e63716cac69ba4bd5c785729fdec8ce787635681141d6dc2665",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "node_side": {
+   "name": "node_side",
+   "kind": "text",
+   "value": "Offer another date",
+   "text": "Offer another date",
+   "bbox": [
+    132,
+    253,
+    249,
+    264
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "a49aaf327b3b25c04e30bfcad30e402dd40a40d662a0474f6dd114944a27e4f4",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "node_3": {
+   "name": "node_3",
+   "kind": "text",
+   "value": "Sign contract",
+   "text": "Sign contract",
+   "bbox": [
+    417,
+    339,
+    503,
+    353
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5f82f95d3420b45de9d604fa4ff9c1010a0171f953582c9aeb12e9a59fc5ca5a",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "node_4": {
+   "name": "node_4",
+   "kind": "text",
+   "value": "Pack the order",
+   "text": "Pack the order",
+   "bbox": [
+    413,
+    411,
+    507,
+    422
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "eaa7a818db6c43632e7a461219a9b67d6d1989cbf7a92149e1cdb990dde5a2af",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "node_5": {
+   "name": "node_5",
+   "kind": "text",
+   "value": "Print shipping label",
+   "text": "Print shipping label",
+   "bbox": [
+    399,
+    483,
+    521,
+    497
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0292d5afc5499c515b43f3bff71086775596760aca27f2a1707f80879fabdda3",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "node_6": {
+   "name": "node_6",
+   "kind": "text",
+   "value": "End",
+   "text": "End",
+   "bbox": [
+    445,
+    554,
+    473,
+    567
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "a3cb9e12e10895761721a8fb9c2b4649804d86226c4b07849fc5585f2ab121a6",
+   "fg": [
+    10,
+    10,
+    12
+   ],
+   "plot_value": false
+  },
+  "owner": {
+   "name": "owner",
+   "kind": "text",
+   "value": "Nadia Holero",
+   "text": "",
+   "bbox": null,
+   "size_px": 0,
+   "visible": false,
+   "obscured": "absent",
+   "crop_sha256": null,
+   "fg": null,
+   "plot_value": false
+  }
+ },
+ "elements": [],
+ "text_runs": [
+  {
+   "text": "Intake process",
+   "bbox": [
+    39,
+    32,
+    170,
+    53
+   ],
+   "size_px": 20,
+   "field": "diagram_title",
+   "reading": true
+  },
+  {
+   "text": "No",
+   "bbox": [
+    308,
+    240,
+    323,
+    249
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Yes",
+   "bbox": [
+    469,
+    303,
+    490,
+    312
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Start",
+   "bbox": [
+    443,
+    95,
+    475,
+    107
+   ],
+   "size_px": 14,
+   "field": "node_0",
+   "reading": true
+  },
+  {
+   "text": "Receive request",
+   "bbox": [
+    408,
+    167,
+    512,
+    181
+   ],
+   "size_px": 14,
+   "field": "node_1",
+   "reading": true
+  },
+  {
+   "text": "Room available?",
+   "bbox": [
+    406,
+    253,
+    513,
+    264
+   ],
+   "size_px": 14,
+   "field": "node_2",
+   "reading": true
+  },
+  {
+   "text": "Offer another date",
+   "bbox": [
+    132,
+    253,
+    249,
+    264
+   ],
+   "size_px": 14,
+   "field": "node_side",
+   "reading": true
+  },
+  {
+   "text": "Sign contract",
+   "bbox": [
+    417,
+    339,
+    503,
+    353
+   ],
+   "size_px": 14,
+   "field": "node_3",
+   "reading": true
+  },
+  {
+   "text": "Pack the order",
+   "bbox": [
+    413,
+    411,
+    507,
+    422
+   ],
+   "size_px": 14,
+   "field": "node_4",
+   "reading": true
+  },
+  {
+   "text": "Print shipping label",
+   "bbox": [
+    399,
+    483,
+    521,
+    497
+   ],
+   "size_px": 14,
+   "field": "node_5",
+   "reading": true
+  },
+  {
+   "text": "End",
+   "bbox": [
+    445,
+    554,
+    473,
+    567
+   ],
+   "size_px": 14,
+   "field": "node_6",
+   "reading": true
+  }
+ ],
+ "reading_text": "Intake process\nNo\nYes\nStart\nReceive request\nRoom available?\nOffer another date\nSign contract\nPack the order\nPrint shipping label\nEnd",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_count",
+   "qtype": "count",
+   "question": "How many rectangular step boxes are in the flowchart, not counting Start and End?",
+   "answer": "5",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "node_1",
+    "node_2",
+    "node_3",
+    "node_4",
+    "node_5",
+    "node_side"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_side_next",
+   "qtype": "lookup",
+   "question": "Where does the flow go after 'Offer another date'?",
+   "answer": "End",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "node_side",
+    "node_6"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_after",
+   "qtype": "lookup",
+   "question": "In the flowchart, what comes right after 'Receive request'?",
+   "answer": "Room available?",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "node_1",
+    "node_2"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_owner",
+   "qtype": "absence",
+   "question": "Who is named as the owner of this process?",
+   "answer": "not shown",
+   "kind": "abstain",
+   "canon": "text",
+   "fields": [
+    "owner"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read all the labels in the flowchart.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

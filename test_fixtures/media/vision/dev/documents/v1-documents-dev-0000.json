@@ -1,0 +1,660 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-documents-dev-0000",
+ "family": "documents",
+ "template": "letter",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 0,
+ "variant": {
+  "theme": "light",
+  "dpr": 1,
+  "abstain": false,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-documents-dev-0000.png",
+  "sha256": "d7b905e6f16949e3ebc702e016dbd1318bd628b09388a5b508a6f932e536593c",
+  "width": 612,
+  "height": 792,
+  "logical": [
+   612,
+   792
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2028,
+ "data": {
+  "template": "letter",
+  "meta": {
+   "org": "Brindlemoor Transit Forum",
+   "date": "2028-03-14",
+   "sender": "Elif Kelrow",
+   "recipient": "Ximena Sallin",
+   "ref": "HX-516",
+   "role": "Office Coordinator"
+  },
+  "words": 155,
+  "sections": [
+   {
+    "heading": null,
+    "facts": [
+     {
+      "topic": "the bike repair clinic",
+      "kind": "days",
+      "shown": "10",
+      "value": "10"
+     },
+     {
+      "topic": "the market stall permits",
+      "kind": "person",
+      "shown": "Dmitri Braley",
+      "value": "Dmitri Braley"
+     }
+    ]
+   }
+  ],
+  "clauses": [],
+  "columns": 1
+ },
+ "fields": {
+  "org": {
+   "name": "org",
+   "kind": "text",
+   "value": "Brindlemoor Transit Forum",
+   "text": "Brindlemoor Transit Forum",
+   "bbox": [
+    53,
+    43,
+    272,
+    59
+   ],
+   "size_px": 18,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ba2eaebaccc447eee5590f4c77bbe1398b755ac38ef217fcb8f68671f954fb9e",
+   "fg": [
+    0,
+    92,
+    197
+   ],
+   "plot_value": false
+  },
+  "date": {
+   "name": "date",
+   "kind": "date",
+   "value": "2028-03-14",
+   "text": "Tuesday, March 14, 2028",
+   "bbox": [
+    54,
+    123,
+    195,
+    135
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0b0857f50c67a4793855313adc65cc8e23f431afdf62c27d2c24bd4d81c92776",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "ref": {
+   "name": "ref",
+   "kind": "text",
+   "value": "HX-516",
+   "text": "Ref: HX-516",
+   "bbox": [
+    494,
+    122,
+    558,
+    132
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1d6f7e01aa5de5c4299860bd75143579f193f6defaf368d82fd209d8982819fb",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "recipient": {
+   "name": "recipient",
+   "kind": "text",
+   "value": "Ximena Sallin",
+   "text": "Ximena Sallin",
+   "bbox": [
+    54,
+    153,
+    129,
+    162
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1cbfe97dc5425c7299054e2a1f754bd3aca484b084f9e70ece9f46d434aa8528",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "fact_1": {
+   "name": "fact_1",
+   "kind": "text",
+   "value": "Dmitri Braley",
+   "text": "Dmitri Braley",
+   "bbox": [
+    138,
+    477,
+    209,
+    489
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "cd4fb3c7e6d3845594c87fe56827234d22f484659ae70c85d92521bafc9aea66",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "fact_0": {
+   "name": "fact_0",
+   "kind": "number",
+   "value": "10",
+   "text": "10",
+   "bbox": [
+    369,
+    494,
+    383,
+    503
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "db49fb0ce013cba2ad4e45c0647461165ccfc97d3ce11208d1258c931d873064",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "sender": {
+   "name": "sender",
+   "kind": "text",
+   "value": "Elif Kelrow",
+   "text": "Elif Kelrow",
+   "bbox": [
+    53,
+    546,
+    117,
+    558
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "44ad8d582ee6a84cf5a3276a0ad78e6ca2b7d40a94a92e1b517e41c580abaff6",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  }
+ },
+ "elements": [],
+ "text_runs": [
+  {
+   "text": "Brindlemoor Transit Forum",
+   "bbox": [
+    53,
+    43,
+    272,
+    59
+   ],
+   "size_px": 18,
+   "field": "org",
+   "reading": true
+  },
+  {
+   "text": "829 Nevstead Ave, Lunhaven",
+   "bbox": [
+    54,
+    67,
+    205,
+    76
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "(415) 555-0195  |  office@mail.test",
+   "bbox": [
+    54,
+    82,
+    220,
+    93
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Tuesday, March 14, 2028",
+   "bbox": [
+    54,
+    123,
+    195,
+    135
+   ],
+   "size_px": 12,
+   "field": "date",
+   "reading": true
+  },
+  {
+   "text": "Ref: HX-516",
+   "bbox": [
+    494,
+    122,
+    558,
+    132
+   ],
+   "size_px": 12,
+   "field": "ref",
+   "reading": true
+  },
+  {
+   "text": "Ximena Sallin",
+   "bbox": [
+    54,
+    153,
+    129,
+    162
+   ],
+   "size_px": 12,
+   "field": "recipient",
+   "reading": true
+  },
+  {
+   "text": "548 Teldane Court",
+   "bbox": [
+    54,
+    169,
+    151,
+    177
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Ostervale",
+   "bbox": [
+    54,
+    185,
+    104,
+    193
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Dear Ximena,",
+   "bbox": [
+    54,
+    223,
+    129,
+    234
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Re: Maintenance budget",
+   "bbox": [
+    53,
+    246,
+    192,
+    260
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Early results on the members handbook are mixed, and work will continue following",
+   "bbox": [
+    54,
+    273,
+    516,
+    286
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "feedback from members. No changes to the volunteer training plan are expected as",
+   "bbox": [
+    54,
+    290,
+    519,
+    303
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "resources allow.",
+   "bbox": [
+    54,
+    308,
+    144,
+    317
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Early results on the newsletter format are encouraging, and work will continue after",
+   "bbox": [
+    54,
+    332,
+    513,
+    345
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "consultation with residents. Feedback from members suggests that the accessibility",
+   "bbox": [
+    54,
+    349,
+    524,
+    362
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "checklist is working well. The volunteer coordinator will consult members on the records",
+   "bbox": [
+    54,
+    367,
+    544,
+    379
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "retention process in line with earlier recommendations.",
+   "bbox": [
+    54,
+    384,
+    360,
+    396
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "The steering group is preparing the updated travel guidelines pending a final vote. Further",
+   "bbox": [
+    54,
+    408,
+    557,
+    421
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "details on the quarterly safety audit will be shared so that requests are handled more",
+   "bbox": [
+    54,
+    425,
+    527,
+    438
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "quickly. Further details on the maintenance budget will be shared with support from local",
+   "bbox": [
+    54,
+    442,
+    549,
+    455
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "partners. Further details on the storage arrangements will be shared after consultation",
+   "bbox": [
+    54,
+    459,
+    533,
+    472
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "with residents.",
+   "bbox": [
+    54,
+    477,
+    135,
+    486
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Dmitri Braley",
+   "bbox": [
+    138,
+    477,
+    209,
+    489
+   ],
+   "size_px": 12,
+   "field": "fact_1",
+   "reading": true
+  },
+  {
+   "text": "will coordinate the market stall permits from the main office.",
+   "bbox": [
+    211,
+    476,
+    543,
+    489
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Requests for the bike repair clinic must be made at least",
+   "bbox": [
+    54,
+    493,
+    366,
+    506
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "10",
+   "bbox": [
+    369,
+    494,
+    383,
+    503
+   ],
+   "size_px": 12,
+   "field": "fact_0",
+   "reading": true
+  },
+  {
+   "text": "days in advance.",
+   "bbox": [
+    386,
+    494,
+    481,
+    506
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Sincerely,",
+   "bbox": [
+    54,
+    525,
+    107,
+    537
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Elif Kelrow",
+   "bbox": [
+    53,
+    546,
+    117,
+    558
+   ],
+   "size_px": 13,
+   "field": "sender",
+   "reading": true
+  },
+  {
+   "text": "Office Coordinator, Brindlemoor Transit Forum",
+   "bbox": [
+    54,
+    564,
+    293,
+    574
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Page 4",
+   "bbox": [
+    290,
+    766,
+    321,
+    776
+   ],
+   "size_px": 10,
+   "field": null,
+   "reading": true
+  }
+ ],
+ "reading_text": "Brindlemoor Transit Forum\n829 Nevstead Ave, Lunhaven\n(415) 555-0195  |  office@mail.test\nTuesday, March 14, 2028\nRef: HX-516\nXimena Sallin\n548 Teldane Court\nOstervale\nDear Ximena,\nRe: Maintenance budget\nEarly results on the members handbook are mixed, and work will continue following\nfeedback from members. No changes to the volunteer training plan are expected as\nresources allow.\nEarly results on the newsletter format are encouraging, and work will continue after\nconsultation with residents. Feedback from members suggests that the accessibility\nchecklist is working well. The volunteer coordinator will consult members on the records\nretention process in line with earlier recommendations.\nThe steering group is preparing the updated travel guidelines pending a final vote. Further\ndetails on the quarterly safety audit will be shared so that requests are handled more\nquickly. Further details on the maintenance budget will be shared with support from local\npartners. Further details on the storage arrangements will be shared after consultation\nwith residents.\nDmitri Braley\nwill coordinate the market stall permits from the main office.\nRequests for the bike repair clinic must be made at least\n10\ndays in advance.\nSincerely,\nElif Kelrow\nOffice Coordinator, Brindlemoor Transit Forum\nPage 4",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_fact_0",
+   "qtype": "lookup",
+   "question": "How many days in advance must requests for the bike repair clinic be made?",
+   "answer": "10",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "fact_0"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_date",
+   "qtype": "lookup",
+   "question": "What date is on the letter?",
+   "answer": "2028-03-14",
+   "kind": "field",
+   "canon": "date",
+   "fields": [
+    "date"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_ref",
+   "qtype": "lookup",
+   "question": "What is the reference number?",
+   "answer": "HX-516",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "ref"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_fact_1",
+   "qtype": "lookup",
+   "question": "Who will coordinate the market stall permits?",
+   "answer": "Dmitri Braley",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "fact_1"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the document.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

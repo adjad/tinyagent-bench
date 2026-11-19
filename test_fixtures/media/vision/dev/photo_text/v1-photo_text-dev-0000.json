@@ -1,0 +1,421 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-photo_text-dev-0000",
+ "family": "photo_text",
+ "template": "flyer",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 0,
+ "variant": {
+  "theme": "light",
+  "dpr": 1,
+  "abstain": false,
+  "long_side": null,
+  "scale": 1.0,
+  "damage": 1
+ },
+ "image": {
+  "file": "v1-photo_text-dev-0000.png",
+  "sha256": "d90fb33041600bb13625f68f5dc17fe6ff8f3d46307726b65d2fd52e85b77b6e",
+  "width": 525,
+  "height": 742,
+  "logical": [
+   420,
+   594
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "title": "Riverside Book Swap",
+  "date": "2027-04-29",
+  "date_text": "Apr 29, 2027",
+  "start": "13:30",
+  "end": "16:30",
+  "time_text": "Doors 1:30 PM",
+  "venue": "Corvan Hills Library",
+  "address": "782 Fenford St, Fenwick Bay",
+  "price": 12,
+  "price_text": "Tickets $12",
+  "phone": "(919) 555-0132",
+  "tagline": "Local makers and growers",
+  "note": "All ages welcome",
+  "host": "Yarrar Guild",
+  "dishes": []
+ },
+ "fields": {
+  "title": {
+   "name": "title",
+   "kind": "text",
+   "value": "Riverside Book Swap",
+   "text": "Riverside Book Swap",
+   "bbox": [
+    67,
+    79,
+    352,
+    108
+   ],
+   "size_px": 30,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "7059b591e2c770ff323cafeaeb66bbe025cbf3958f223f3f0fa820677a084961",
+   "fg": [
+    255,
+    255,
+    255
+   ],
+   "plot_value": false
+  },
+  "date": {
+   "name": "date",
+   "kind": "date",
+   "value": "2027-04-29",
+   "text": "Apr 29, 2027",
+   "bbox": [
+    151,
+    209,
+    268,
+    229
+   ],
+   "size_px": 20,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4d6d2257e250cf13025911b680f164261cfb820f25f289a00c2512972e1a8a8d",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "time": {
+   "name": "time",
+   "kind": "time",
+   "value": "13:30",
+   "text": "Doors 1:30 PM",
+   "bbox": [
+    150,
+    245,
+    269,
+    258
+   ],
+   "size_px": 18,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e6b66e55e5575a91550800324917389aa3e498420b01c203d02ca0cd0467587d",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "venue": {
+   "name": "venue",
+   "kind": "text",
+   "value": "Corvan Hills Library",
+   "text": "Corvan Hills Library",
+   "bbox": [
+    130,
+    288,
+    289,
+    306
+   ],
+   "size_px": 18,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "32e5a330f118d1ba903ae461a226b3a6a8c26dc655dad8e11500c98267adcc0b",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "price": {
+   "name": "price",
+   "kind": "money",
+   "value": "12.00",
+   "text": "Tickets $12",
+   "bbox": [
+    149,
+    359,
+    268,
+    381
+   ],
+   "size_px": 22,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "89ba9ffb3fc9236c52ed6091142329cfb2514ced5897a955324480baa6918781",
+   "fg": [
+    192,
+    28,
+    40
+   ],
+   "plot_value": false
+  }
+ },
+ "elements": [],
+ "text_runs": [
+  {
+   "text": "Yarrar Guild presents",
+   "bbox": [
+    150,
+    41,
+    268,
+    53
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Riverside Book Swap",
+   "bbox": [
+    67,
+    79,
+    352,
+    108
+   ],
+   "size_px": 30,
+   "field": "title",
+   "reading": true
+  },
+  {
+   "text": "Local makers and growers",
+   "bbox": [
+    132,
+    144,
+    289,
+    156
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Apr 29, 2027",
+   "bbox": [
+    151,
+    209,
+    268,
+    229
+   ],
+   "size_px": 20,
+   "field": "date",
+   "reading": true
+  },
+  {
+   "text": "Doors 1:30 PM",
+   "bbox": [
+    150,
+    245,
+    269,
+    258
+   ],
+   "size_px": 18,
+   "field": "time",
+   "reading": true
+  },
+  {
+   "text": "Corvan Hills Library",
+   "bbox": [
+    130,
+    288,
+    289,
+    306
+   ],
+   "size_px": 18,
+   "field": "venue",
+   "reading": true
+  },
+  {
+   "text": "782 Fenford St, Fenwick Bay",
+   "bbox": [
+    132,
+    314,
+    288,
+    327
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Tickets $12",
+   "bbox": [
+    149,
+    359,
+    268,
+    381
+   ],
+   "size_px": 22,
+   "field": "price",
+   "reading": true
+  },
+  {
+   "text": "All ages welcome",
+   "bbox": [
+    160,
+    405,
+    259,
+    417
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Please recycle this flyer",
+   "bbox": [
+    150,
+    530,
+    271,
+    541
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  }
+ ],
+ "reading_text": "Yarrar Guild presents\nRiverside Book Swap\nLocal makers and growers\nApr 29, 2027\nDoors 1:30 PM\nCorvan Hills Library\n782 Fenford St, Fenwick Bay\nTickets $12\nAll ages welcome\nPlease recycle this flyer",
+ "damage": {
+  "level": 1,
+  "ops": [
+   {
+    "op": "composite",
+    "size": [
+     525,
+     742
+    ],
+    "offset": [
+     45.0,
+     90.15
+    ]
+   },
+   {
+    "op": "perspective",
+    "corners": [
+     [
+      34.73,
+      103.7
+     ],
+     [
+      477.99,
+      104.51
+     ],
+     [
+      453.88,
+      698.29
+     ],
+     [
+      44.55,
+      680.03
+     ]
+    ]
+   },
+   {
+    "op": "gaussian_blur",
+    "radius": 0.6
+   }
+  ],
+  "field_boxes": {
+   "title": [
+    104,
+    186,
+    402,
+    220
+   ],
+   "date": [
+    190,
+    319,
+    311,
+    342
+   ],
+   "time": [
+    188,
+    355,
+    311,
+    371
+   ],
+   "venue": [
+    168,
+    397,
+    331,
+    419
+   ],
+   "price": [
+    187,
+    466,
+    308,
+    492
+   ]
+  }
+ },
+ "questions": [
+  {
+   "qid": "q_title",
+   "qtype": "event",
+   "question": "What is the name of the event?",
+   "answer": "Riverside Book Swap",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "title"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_date",
+   "qtype": "event",
+   "question": "On what date is the event? Give the date.",
+   "answer": "2027-04-29",
+   "kind": "field",
+   "canon": "date",
+   "fields": [
+    "date"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_time",
+   "qtype": "event",
+   "question": "What time does the event start?",
+   "answer": "13:30",
+   "kind": "field",
+   "canon": "time",
+   "fields": [
+    "time"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read all the text on the flyer.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  },
+  {
+   "qid": "q_price",
+   "qtype": "lookup",
+   "question": "How much is a ticket?",
+   "answer": "12.00",
+   "kind": "field",
+   "canon": "money",
+   "fields": [
+    "price"
+   ],
+   "accept": []
+  }
+ ]
+}

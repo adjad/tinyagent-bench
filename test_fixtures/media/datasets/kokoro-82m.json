@@ -1,0 +1,33 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "kokoro-82m",
+ "group": "speech_engine",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "A3"
+ ],
+ "split": "weights kokoro-v1_0.pth and config.json",
+ "homepage": "https://huggingface.co/hexgrad/Kokoro-82M",
+ "licence": "Apache-2.0",
+ "licence_note": "Apache-2.0",
+ "licence_url": "https://huggingface.co/hexgrad/Kokoro-82M",
+ "licence_verified": true,
+ "verified": true,
+ "redistributable": "yes",
+ "attribution": "Kokoro-82M, hexgrad, Apache-2.0",
+ "access": "http",
+ "hf": {
+  "repo": "hexgrad/Kokoro-82M"
+ },
+ "status": "ready",
+ "needed_v1": "yes",
+ "pinned_revision": "f3ff3571791e39611d31c381e3a41a3af07b4987",
+ "checksum_kind": "sha256 equals the Git LFS oid (a content hash); files without a published hash say so per file",
+ "bytes_total": 327214577,
+ "file_count": 2,
+ "notes": "HF repo sha f3ff3571791e39611d31c381e3a41a3af07b4987 (last modified 2025-04-10). sha256 computed from the 2.3 KB file body (small file).",
+ "files": [
+  {"url": "https://huggingface.co/hexgrad/Kokoro-82M/resolve/f3ff3571791e39611d31c381e3a41a3af07b4987/kokoro-v1_0.pth", "bytes": 327212226, "sha256": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4"},
+  {"url": "https://huggingface.co/hexgrad/Kokoro-82M/resolve/f3ff3571791e39611d31c381e3a41a3af07b4987/config.json", "bytes": 2351, "sha256": "5abb01e2403b072bf03d04fde160443e209d7a0dad49a423be15196b9b43c17f"}
+ ]
+}

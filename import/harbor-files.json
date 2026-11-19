@@ -1,0 +1,2738 @@
+{
+ "schema": 1,
+ "source_repository": "https://github.com/adjad/Harbor",
+ "source_commit": "46da8eb5c9ed42219a946422789e9b3f1d3bd3a6",
+ "count": 546,
+ "files": [
+  {
+   "path": "LICENSE",
+   "mode": "100644",
+   "blob": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64"
+  },
+  {
+   "path": "TESTING.md",
+   "mode": "100644",
+   "blob": "5ec0441adb09d19b1938bffced675b0d9f73c132"
+  },
+  {
+   "path": "build-support/engine_guard/__init__.py.patch.json",
+   "mode": "100644",
+   "blob": "58e7d689b79e9a1e8a96b96ffe891836b4a5f25f"
+  },
+  {
+   "path": "build-support/engine_guard/batch_generator.py.patch.json",
+   "mode": "100644",
+   "blob": "b3573a94d0ce49c735d56982b5788c744084d31d"
+  },
+  {
+   "path": "build-support/engine_guard/encoders.py",
+   "mode": "100644",
+   "blob": "eb97528c592f43e1c45ba1e05bba54e588aa27b3"
+  },
+  {
+   "path": "build-support/engine_guard/engine_pool.py.patch.json",
+   "mode": "100644",
+   "blob": "484fa15958da6fef397bd800f146fa955048a718"
+  },
+  {
+   "path": "build-support/engine_guard/gemma4_verify_attention.py.patch.json",
+   "mode": "100644",
+   "blob": "28905cedaea15989f3723685a8b8f47fb0585fe5"
+  },
+  {
+   "path": "build-support/engine_guard/gemma4_verify_kernel.py.patch.json",
+   "mode": "100644",
+   "blob": "f4b73d864b8f58a00b160e4009da3e0ea41e8435"
+  },
+  {
+   "path": "build-support/engine_guard/kernel_guard.py",
+   "mode": "100644",
+   "blob": "32fa78ccac99d800650ce3d3b8945cf005cd3672"
+  },
+  {
+   "path": "build-support/engine_guard/manifest.json",
+   "mode": "100644",
+   "blob": "22f9d6fde8a0315f8443a295b6e500d866834578"
+  },
+  {
+   "path": "build-support/engine_guard/process_memory_enforcer.py.patch.json",
+   "mode": "100644",
+   "blob": "4b77677f8d3fa7896f7b8a72dffe384704ec17e3"
+  },
+  {
+   "path": "build-support/engine_guard/proof.py",
+   "mode": "100644",
+   "blob": "387163476d6563cba319e1015ba9daa160de64cc"
+  },
+  {
+   "path": "build-support/engine_guard/server.py.patch.json",
+   "mode": "100644",
+   "blob": "90c51da70b43a7b93d9b55d8742dd10433ff02fd"
+  },
+  {
+   "path": "build-support/engine_guard/vlm.py.patch.json",
+   "mode": "100644",
+   "blob": "c2770b85995db0fd02e87fd27b2c666c03639b11"
+  },
+  {
+   "path": "conftest.py",
+   "mode": "100644",
+   "blob": "2e42dfc3e3c0222d9307733b88624e1af0b24b5d"
+  },
+  {
+   "path": "docs/ASSISTANT_ARCHITECTURE.md",
+   "mode": "100644",
+   "blob": "fc7b6c91035219d6a43c4344535388d0f1d5ed5d"
+  },
+  {
+   "path": "docs/HARBOR_TOOL_ACTIVATION_INVENTORY.json",
+   "mode": "100644",
+   "blob": "fd8292e2c8e36f8b5cd3bba0600adae197c6da50"
+  },
+  {
+   "path": "docs/inference-providers.md",
+   "mode": "100644",
+   "blob": "08ab4ecb14e98ed49afccc3fc8cd495adf0d6bdf"
+  },
+  {
+   "path": "docs/routing_stress/01-cross-source-retrieval.md",
+   "mode": "100644",
+   "blob": "45d6b51dfc8d768b8662ea23947a5e5c3e594111"
+  },
+  {
+   "path": "docs/routing_stress/02-dates-accounts-and-exact-details.md",
+   "mode": "100644",
+   "blob": "5533ba8a069f3d39b317449ab5f55d034ab93515"
+  },
+  {
+   "path": "docs/routing_stress/03-calendar-and-reminder-boundaries.md",
+   "mode": "100644",
+   "blob": "70bf518d907814ed4ad743f780e8f60ba46609a3"
+  },
+  {
+   "path": "docs/routing_stress/04-inbox-triage-and-thread-identity.md",
+   "mode": "100644",
+   "blob": "837c37b30ed02723a9d4247af6a6af5d9f7ad4df"
+  },
+  {
+   "path": "docs/routing_stress/05-draft-reply-forward-and-send.md",
+   "mode": "100644",
+   "blob": "816ea08ac691ad87e6f704d95b2f059bf074dcdd"
+  },
+  {
+   "path": "docs/routing_stress/06-delayed-delivery-and-notification-timing.md",
+   "mode": "100644",
+   "blob": "9ee9a3fef823faf55dedb70db842023eee1d54bf"
+  },
+  {
+   "path": "docs/routing_stress/07-notes-memory-and-private-records.md",
+   "mode": "100644",
+   "blob": "7ad2539eb6801ea85fc868d4ced2b139f973bc01"
+  },
+  {
+   "path": "docs/routing_stress/08-file-discovery-organization-and-deletion.md",
+   "mode": "100644",
+   "blob": "0a0731aaa5a45763a082b6a0f99c2c00d4c6e934"
+  },
+  {
+   "path": "docs/routing_stress/09-documents-and-structured-data.md",
+   "mode": "100644",
+   "blob": "7c9268c2b109de5e806c1fa0d1f2adf4814c42a4"
+  },
+  {
+   "path": "docs/routing_stress/10-web-research-and-live-facts.md",
+   "mode": "100644",
+   "blob": "d499aa53eac2580d05c865391254057bc350effa"
+  },
+  {
+   "path": "docs/routing_stress/11-travel-and-day-planning.md",
+   "mode": "100644",
+   "blob": "d03cda5174a0fd443dd3e44eb07032ed0f9a9f51"
+  },
+  {
+   "path": "docs/routing_stress/12-apps-windows-playback-and-speech.md",
+   "mode": "100644",
+   "blob": "5f5e1ffb4de0d2468f468092fe4b9fe01f183c68"
+  },
+  {
+   "path": "docs/routing_stress/13-exact-computation-and-installed-skills.md",
+   "mode": "100644",
+   "blob": "f6c1a450eefd683afb5c341102d8c9b9a8bad3d1"
+  },
+  {
+   "path": "docs/routing_stress/14-system-inspection-and-disruptive-controls.md",
+   "mode": "100644",
+   "blob": "6a64bb98c8894cfa802e84dd3e24f5352a199f6d"
+  },
+  {
+   "path": "docs/routing_stress/15-privacy-automation-and-harbor-administration.md",
+   "mode": "100644",
+   "blob": "9c1660a13ed6f7f77b45a38d3f27609d25cccbde"
+  },
+  {
+   "path": "docs/routing_stress/16-conditional-branches-and-source-failures.md",
+   "mode": "100644",
+   "blob": "f71819f89854438692fed53ec8ef1de48d0b9aaf"
+  },
+  {
+   "path": "docs/routing_stress/17-multi-turn-corrections-and-references.md",
+   "mode": "100644",
+   "blob": "b209b9013b4c55bb1bd6644d22dd93f736a64e11"
+  },
+  {
+   "path": "docs/routing_stress/18-ambiguity-and-clarification.md",
+   "mode": "100644",
+   "blob": "3d4d985621dd76403cfd32e08c403c1b1f3c058a"
+  },
+  {
+   "path": "docs/routing_stress/19-negation-lexical-traps-and-prompt-injection.md",
+   "mode": "100644",
+   "blob": "0a9dfe8884b1e488dbf79eabb36a75f867789667"
+  },
+  {
+   "path": "docs/routing_stress/20-unsupported-features-and-partial-handoffs.md",
+   "mode": "100644",
+   "blob": "1c4195ae6d61a22adba726528842a7f3acc0ec53"
+  },
+  {
+   "path": "docs/routing_stress/COMPOUND_ROUTING_EVALUATION.md",
+   "mode": "100644",
+   "blob": "a0d478f156669f05b24ac3b1e36c575e8b4e887a"
+  },
+  {
+   "path": "docs/routing_stress/INDEX.md",
+   "mode": "100644",
+   "blob": "ca799001415df0a9dd7953b0d6aaa57ebb86c261"
+  },
+  {
+   "path": "docs/routing_stress/RERANKER_ONLY_EVALUATION.md",
+   "mode": "100644",
+   "blob": "cda5d2c72e86c8afb55c354189903f8a7208abf6"
+  },
+  {
+   "path": "docs/technical-overview.md",
+   "mode": "100644",
+   "blob": "6672c5167cf2ecb0b7c16a980a28aa40599ff134"
+  },
+  {
+   "path": "ios/Packages/HarborLing/Package.resolved",
+   "mode": "100644",
+   "blob": "66226d489b217384aece82db1f49e2da609abb25"
+  },
+  {
+   "path": "ios/Packages/HarborLing/Package.swift",
+   "mode": "100644",
+   "blob": "d85b860047ba6d0f3c724d4cd96e94ba41f8d203"
+  },
+  {
+   "path": "ios/Packages/HarborLing/README.md",
+   "mode": "100644",
+   "blob": "4a5cc15e6d6bc75ce4268573f46c598536d23082"
+  },
+  {
+   "path": "ios/Packages/HarborLing/Sources/HarborLing/BailingHybrid.swift",
+   "mode": "100644",
+   "blob": "857c4c8d0a9d046209b4b913a0bbcb0745b31670"
+  },
+  {
+   "path": "ios/Packages/HarborLing/Sources/HarborLing/LingDiagnostics.swift",
+   "mode": "100644",
+   "blob": "9f01fd7494fbbdf5656dea9a2790bcc6da0dff9f"
+  },
+  {
+   "path": "ios/Packages/HarborLing/Sources/HarborLing/LingRuntime.swift",
+   "mode": "100644",
+   "blob": "72f08de61daadea2f802740d7f928b1f839ee3e5"
+  },
+  {
+   "path": "ios/Packages/HarborLing/Sources/LingParity/main.swift",
+   "mode": "100644",
+   "blob": "387be32ad8f7cc23c5340ba30e6136fcaa6328d9"
+  },
+  {
+   "path": "ios/Packages/HarborLing/parity/build.sh",
+   "mode": "100755",
+   "blob": "a3f7ed399b13bef9b8b183e71f5fbc3c297a06f3"
+  },
+  {
+   "path": "ios/Packages/HarborLing/parity/compare.py",
+   "mode": "100644",
+   "blob": "7964b6086e4ebf5703a3cdbf0ad8eabe79cb30d2"
+  },
+  {
+   "path": "ios/Packages/HarborLing/parity/reference.jsonl",
+   "mode": "100644",
+   "blob": "3d910f40cc96c8ca7fee907ae1259c7adf478a89"
+  },
+  {
+   "path": "ios/Packages/HarborLing/parity/reference.py",
+   "mode": "100644",
+   "blob": "cec4893e68c102ed82a41758103c1e01fe664c2e"
+  },
+  {
+   "path": "ios/Packages/HarborLing/parity/reference_mlx0322.jsonl",
+   "mode": "100644",
+   "blob": "70db6d687863ddcf22ccbadd97c2a6cb9c10bc72"
+  },
+  {
+   "path": "ios/Packages/HarborLing/parity/run_parity.sh",
+   "mode": "100755",
+   "blob": "548137a40a65425bcac67a283c93b3166b530e1c"
+  },
+  {
+   "path": "ios/Packages/HarborLing/parity/swift.jsonl",
+   "mode": "100644",
+   "blob": "ad3bd780264f6c61792702b46f140ec6238edf0f"
+  },
+  {
+   "path": "ios/Packages/HarborLing/parity/swift_teacher.jsonl",
+   "mode": "100644",
+   "blob": "9fb2fd2ca43f52a297ca8101a35deebd6135820e"
+  },
+  {
+   "path": "ios/Packages/HarborLing/parity/swift_teacher_mlx0322.jsonl",
+   "mode": "100644",
+   "blob": "eb633109ad4d7635ce3bd27ac92ad210ba9bc471"
+  },
+  {
+   "path": "ios/Packages/HarborLing/parity/trace.py",
+   "mode": "100644",
+   "blob": "5fa1eeba5bf95e7ef3ad753c24e0fa3429b0ae06"
+  },
+  {
+   "path": "pytest.ini",
+   "mode": "100644",
+   "blob": "7e079e88f9da915b986fac8cc143a9e13e4c4ce9"
+  },
+  {
+   "path": "requirements-dev.txt",
+   "mode": "100644",
+   "blob": "6f7a0556dc07b8e06198673d31e86096b2b063b6"
+  },
+  {
+   "path": "requirements-runtime.txt",
+   "mode": "100644",
+   "blob": "239db5c6ffe1bb57ebad55feb0517c89cd22b306"
+  },
+  {
+   "path": "sandbox/__init__.py",
+   "mode": "100644",
+   "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+  },
+  {
+   "path": "sandbox/guard.py",
+   "mode": "100644",
+   "blob": "f62db83e01b36bc85fe51d6681aa40736828b470"
+  },
+  {
+   "path": "sandbox/inject.py",
+   "mode": "100644",
+   "blob": "bf16b8b2fea91f5b2c4e9caff0db3d238be96991"
+  },
+  {
+   "path": "sandbox/outbound.py",
+   "mode": "100644",
+   "blob": "90161c007cde30495e20bab1ed6fa6bdabcf3738"
+  },
+  {
+   "path": "sandbox/proxy.py",
+   "mode": "100644",
+   "blob": "f2ab27920c8f1860dd81d29c9153228e89766696"
+  },
+  {
+   "path": "sandbox/run.sh",
+   "mode": "100755",
+   "blob": "3e0643f4a162bf9b12e5f0fe88a6044e20357de3"
+  },
+  {
+   "path": "sandbox/server.py",
+   "mode": "100644",
+   "blob": "fc5f8db6ba29bc8c02228638e5def71014e1e295"
+  },
+  {
+   "path": "sandbox/static/css/phone.css",
+   "mode": "100644",
+   "blob": "1cd8ed234f5c2f0157883dd15bbf6140d25b5e19"
+  },
+  {
+   "path": "sandbox/static/index.html",
+   "mode": "100644",
+   "blob": "a9a879b0b0b7259239db8dd46df2e9626a6bea92"
+  },
+  {
+   "path": "sandbox/static/js/agent.js",
+   "mode": "100644",
+   "blob": "e157d9f352daa326809ed618b4fc4acf82d65378"
+  },
+  {
+   "path": "sandbox/static/js/app.js",
+   "mode": "100644",
+   "blob": "82972bf08b75a373b01cd6582bcdc9644ebc5574"
+  },
+  {
+   "path": "sandbox/static/js/apps/harbordev.js",
+   "mode": "100644",
+   "blob": "4aecfc39afefcf79f2d3089b97436e9cd15c85c5"
+  },
+  {
+   "path": "sandbox/static/js/sse.js",
+   "mode": "100644",
+   "blob": "c580c2bd1be0b87c44c626ad5e3819bb376e92a0"
+  },
+  {
+   "path": "sandbox/sync.py",
+   "mode": "100644",
+   "blob": "c811b0b6ff6cfd528a7ded5ce7d95b0954e20fde"
+  },
+  {
+   "path": "sandbox/world.py",
+   "mode": "100644",
+   "blob": "660302bfba8bb231d0f592b93fcd31d6ac0f8892"
+  },
+  {
+   "path": "scripts/bench_ondevice_perf.py",
+   "mode": "100644",
+   "blob": "3cf02171dd858d5ece2f204b22ef216322c1bb29"
+  },
+  {
+   "path": "scripts/build_routing_stress_suite.py",
+   "mode": "100644",
+   "blob": "593eb13e3edc21b49b6f612038c62694ad63c5d3"
+  },
+  {
+   "path": "scripts/check_routing_stress_permissions.py",
+   "mode": "100644",
+   "blob": "03bb09bed5cf05f7c2cac4ef586a2406b971038b"
+  },
+  {
+   "path": "scripts/demo_prompts.json",
+   "mode": "100644",
+   "blob": "641526f5ac8e188ad33d8ad258d38324ce446c93"
+  },
+  {
+   "path": "scripts/demo_sweep.py",
+   "mode": "100644",
+   "blob": "98770f3bac6fabcef1c8e5b6b7173cce2df7370d"
+  },
+  {
+   "path": "scripts/email_commitment_extraction_bench.py",
+   "mode": "100644",
+   "blob": "e221611399f989c3ee757b1ba20ecbabe2e16fd1"
+  },
+  {
+   "path": "scripts/email_profile_fact_bench.py",
+   "mode": "100644",
+   "blob": "3631e10d55dd216b6a5946b85090ba5948f18763"
+  },
+  {
+   "path": "scripts/eval_arms.py",
+   "mode": "100644",
+   "blob": "321afb998fe99cb7329925469bbabd9ff5f73ade"
+  },
+  {
+   "path": "scripts/eval_core.py",
+   "mode": "100644",
+   "blob": "a55b1f44041b8470f72189af5d41e577c4d9eafc"
+  },
+  {
+   "path": "scripts/eval_ling_tasks.py",
+   "mode": "100644",
+   "blob": "cdd6ba07f8c1c0b4e6394be17a12fc54dde5e03c"
+  },
+  {
+   "path": "scripts/eval_planner.py",
+   "mode": "100644",
+   "blob": "57ea8104a65c9bb5914dd5bc18612bf97516a8b7"
+  },
+  {
+   "path": "scripts/eval_planner_fakes.py",
+   "mode": "100644",
+   "blob": "0d2c5496a609a202f55b1d29cdec4fd6a7db5e73"
+  },
+  {
+   "path": "scripts/grade_routing_stress_strict.py",
+   "mode": "100644",
+   "blob": "46d1c1551756e65df2d4bb9442a4f0f2ec334f50"
+  },
+  {
+   "path": "scripts/long_email_digest_recall.py",
+   "mode": "100644",
+   "blob": "c1ed9f2700dfab5b81cc59c533ceb9642df14db7"
+  },
+  {
+   "path": "scripts/report_routing_stress_suite.py",
+   "mode": "100644",
+   "blob": "afdbdc2ce9933b4be4107d9983ec835feecbad24"
+  },
+  {
+   "path": "scripts/run_routing_stress_suite.py",
+   "mode": "100644",
+   "blob": "4ad8607bf75486856d1ea0255ef3c9dda2a4ebbb"
+  },
+  {
+   "path": "scripts/run_toolbench.py",
+   "mode": "100644",
+   "blob": "828b03b43a3448dcdaba587ea53c43f4c2cd1a71"
+  },
+  {
+   "path": "scripts/toolbench/__init__.py",
+   "mode": "100644",
+   "blob": "f1b7fc18aa5ea0953f4fd50bbf116010f45c375f"
+  },
+  {
+   "path": "scripts/toolbench/cases.py",
+   "mode": "100644",
+   "blob": "f276cf589208914a93df31e8b63fe2927ae0d3c2"
+  },
+  {
+   "path": "scripts/toolbench/cases/calendar.yaml",
+   "mode": "100644",
+   "blob": "924f33f3173bbc8df97d43c676e1fc262fef1a94"
+  },
+  {
+   "path": "scripts/toolbench/cases/chat.yaml",
+   "mode": "100644",
+   "blob": "bbe3d2c0b32157b7c8b09209b2894a66f2ec18c7"
+  },
+  {
+   "path": "scripts/toolbench/cases/compose.yaml",
+   "mode": "100644",
+   "blob": "c71fe9cc37f409402c5ae8372332629b53e7bf3f"
+  },
+  {
+   "path": "scripts/toolbench/cases/contacts.yaml",
+   "mode": "100644",
+   "blob": "5144484c4a60042db31a0859f2f31e41eedc51d5"
+  },
+  {
+   "path": "scripts/toolbench/cases/day.yaml",
+   "mode": "100644",
+   "blob": "f6b9e0a4c998077f87c97d572f75ad108da26d95"
+  },
+  {
+   "path": "scripts/toolbench/cases/device.yaml",
+   "mode": "100644",
+   "blob": "8934dbcb814ed1ffa9c6dfbb70aa3d8464e27172"
+  },
+  {
+   "path": "scripts/toolbench/cases/files.yaml",
+   "mode": "100644",
+   "blob": "11a65fa59f3b9293ab6f2273f5c0412d0cd8502c"
+  },
+  {
+   "path": "scripts/toolbench/cases/followup.yaml",
+   "mode": "100644",
+   "blob": "0935524db9be9d44292250fddfce5827ba81080d"
+  },
+  {
+   "path": "scripts/toolbench/cases/harbor.yaml",
+   "mode": "100644",
+   "blob": "15a5a940d6e222fd02e61744abd978afb36fa3cc"
+  },
+  {
+   "path": "scripts/toolbench/cases/mail.yaml",
+   "mode": "100644",
+   "blob": "1cd3f61ce82e886a63e77266f17b25622871587d"
+  },
+  {
+   "path": "scripts/toolbench/cases/memory.yaml",
+   "mode": "100644",
+   "blob": "10bb79bb5013c6611202c7b607ffab3c3e9bf17f"
+  },
+  {
+   "path": "scripts/toolbench/cases/messages.yaml",
+   "mode": "100644",
+   "blob": "7f9b543da382fbadcd6c9e3765519d3549231e50"
+  },
+  {
+   "path": "scripts/toolbench/cases/notes.yaml",
+   "mode": "100644",
+   "blob": "8f03b87a03fed217411de40ce2443bed52408650"
+  },
+  {
+   "path": "scripts/toolbench/cases/reminders.yaml",
+   "mode": "100644",
+   "blob": "b537a41b87bb47c7d7a17253624bf375ebb69364"
+  },
+  {
+   "path": "scripts/toolbench/cases/safety.yaml",
+   "mode": "100644",
+   "blob": "ddd6c073052daa178585633c3fb305f61cbb8e94"
+  },
+  {
+   "path": "scripts/toolbench/cases/voice.yaml",
+   "mode": "100644",
+   "blob": "c5052028b51a944ca95107a7866a2e061e818b5b"
+  },
+  {
+   "path": "scripts/toolbench/cases/web.yaml",
+   "mode": "100644",
+   "blob": "94e202b3c2685ec08616b482a80448562a17f270"
+  },
+  {
+   "path": "scripts/toolbench/family_route_audit.py",
+   "mode": "100644",
+   "blob": "15331a44473c4f64f6d4c76ce89bf42593979545"
+  },
+  {
+   "path": "scripts/toolbench/matchers.py",
+   "mode": "100644",
+   "blob": "7aba1dc58922614374995684b837c61e715283a0"
+  },
+  {
+   "path": "scripts/toolbench/report.py",
+   "mode": "100644",
+   "blob": "f09cb12e79ccb4fc22f304b60569d73836c2f4ab"
+  },
+  {
+   "path": "scripts/toolbench/runner.py",
+   "mode": "100644",
+   "blob": "eb2464ccafdc5c4a92256b9f05648f60c0f86080"
+  },
+  {
+   "path": "scripts/toolbench/scorer.py",
+   "mode": "100644",
+   "blob": "aba4c6d39294c0579d1e1a45564f8ef5964064c9"
+  },
+  {
+   "path": "scripts/toolbench/world.py",
+   "mode": "100644",
+   "blob": "dee21d7811ff6ecf548da12e46b5e78f2fb1e181"
+  },
+  {
+   "path": "service/__init__.py",
+   "mode": "100644",
+   "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+  },
+  {
+   "path": "service/agent/__init__.py",
+   "mode": "100644",
+   "blob": "ad0362f124961215ce5158de31cbe4eee6f01c61"
+  },
+  {
+   "path": "service/agent/approver.py",
+   "mode": "100644",
+   "blob": "804a74e466de5ac2ce5f34a34c552c03fd9d4c5f"
+  },
+  {
+   "path": "service/agent/loop.py",
+   "mode": "100644",
+   "blob": "4fa8372916acc39e62ce469984e5d59287420513"
+  },
+  {
+   "path": "service/agent/planner.py",
+   "mode": "100644",
+   "blob": "4657132b0a716fed76a1ecc6490103aa4a4fac49"
+  },
+  {
+   "path": "service/agent/verification.py",
+   "mode": "100644",
+   "blob": "40c1dfe21b2772f3923b38a855254cbaf4da41ab"
+  },
+  {
+   "path": "service/answer_text.py",
+   "mode": "100644",
+   "blob": "524f7a9007f9fb85e45d52cc486da9281163ae1d"
+  },
+  {
+   "path": "service/assistant/__init__.py",
+   "mode": "100644",
+   "blob": "b4ab5ad3c20c5c446e50598b9e5da054b3098f27"
+  },
+  {
+   "path": "service/assistant/attention_api.py",
+   "mode": "100644",
+   "blob": "f2b17ffa38ff24ecd9b681ce33cda0d2970b475b"
+  },
+  {
+   "path": "service/assistant/attention_calendar.py",
+   "mode": "100644",
+   "blob": "413f9546be517eb1c94e282dd74328877ae0c86a"
+  },
+  {
+   "path": "service/assistant/attention_runner.py",
+   "mode": "100644",
+   "blob": "656704c191ed4552d1823084bc39b0ac67fea2f1"
+  },
+  {
+   "path": "service/assistant/behavior_history_driver.py",
+   "mode": "100644",
+   "blob": "48eb8ba933ca003415ad8d047a39b62aa4ab18ac"
+  },
+  {
+   "path": "service/assistant/behavior_interpreter.py",
+   "mode": "100644",
+   "blob": "c6a56889200e5859dc9ba9626c078c72975d7b6a"
+  },
+  {
+   "path": "service/assistant/behavior_phraser.py",
+   "mode": "100644",
+   "blob": "8b14a14921f18153eb026d05120e81efc851019d"
+  },
+  {
+   "path": "service/assistant/behavior_runtime.py",
+   "mode": "100644",
+   "blob": "9f1f3d6c98f5cecac6fc15e28b773ede727f02fe"
+  },
+  {
+   "path": "service/assistant/behavior_seed.py",
+   "mode": "100644",
+   "blob": "3948ced76a7319a6087585a3bfd20697480d69a4"
+  },
+  {
+   "path": "service/assistant/behavior_sources.py",
+   "mode": "100644",
+   "blob": "b9e6d5aefd3168ceb2e9df3cc8ce5ba438fd02e5"
+  },
+  {
+   "path": "service/assistant/brief.py",
+   "mode": "100644",
+   "blob": "771312755c05c0b9c385602e29f2a4fdb39ad0a8"
+  },
+  {
+   "path": "service/assistant/brief_latest.py",
+   "mode": "100644",
+   "blob": "299325caec22d54419351ce52602813c0cf1a20a"
+  },
+  {
+   "path": "service/assistant/calendar_dates.py",
+   "mode": "100644",
+   "blob": "b5435eb468d3f0b8efb149aece9293eac265e081"
+  },
+  {
+   "path": "service/assistant/checkin.py",
+   "mode": "100644",
+   "blob": "068a339785407d9d5ddab074695446ac7bc23450"
+  },
+  {
+   "path": "service/assistant/checkin_api.py",
+   "mode": "100644",
+   "blob": "86f2f802ee7ce361fff5ac642e82591ae91be708"
+  },
+  {
+   "path": "service/assistant/daily_workspace.py",
+   "mode": "100644",
+   "blob": "22c7b26139ae4034a3551e3c5e54783f89dc3ebd"
+  },
+  {
+   "path": "service/assistant/daily_workspace_api.py",
+   "mode": "100644",
+   "blob": "3c52539ecd078662832bfc57bb7909aa06de1ba0"
+  },
+  {
+   "path": "service/assistant/day_plan_email.py",
+   "mode": "100644",
+   "blob": "2ed687a1c9102450711992d339760486e823f70f"
+  },
+  {
+   "path": "service/assistant/email_reply_api.py",
+   "mode": "100644",
+   "blob": "37dbbb3f9a50f3fcbd9f71cc839dfcaae78e4c08"
+  },
+  {
+   "path": "service/assistant/gmail_history_runtime.py",
+   "mode": "100644",
+   "blob": "28892da5ccaa295e0b9b1731b22d79d72065e315"
+  },
+  {
+   "path": "service/assistant/hours_api.py",
+   "mode": "100644",
+   "blob": "164aaf6147507e9bf3b63ccf13ca72a435c05ea3"
+  },
+  {
+   "path": "service/assistant/hours_offers.py",
+   "mode": "100644",
+   "blob": "4c69d8a9e1a3884cb046c567b8855cdfbcd2cef6"
+  },
+  {
+   "path": "service/assistant/hub.py",
+   "mode": "100644",
+   "blob": "8ab465eecdeba2d97c79975677a612ae4d1fdbf8"
+  },
+  {
+   "path": "service/assistant/mail_gists.py",
+   "mode": "100644",
+   "blob": "ba71ce26a9cdd3dfe6e3aaf6fd9309b444b9334b"
+  },
+  {
+   "path": "service/assistant/needs_you_api.py",
+   "mode": "100644",
+   "blob": "b80ee2f969aa8e741e44134c97ccad12168cc595"
+  },
+  {
+   "path": "service/assistant/outbound_queue.py",
+   "mode": "100644",
+   "blob": "56a56d9283cc946b25060a8dd381cdac0aa71b95"
+  },
+  {
+   "path": "service/assistant/outbox.py",
+   "mode": "100644",
+   "blob": "3a86c5102c819174795876cfa91dcb43f47a9a39"
+  },
+  {
+   "path": "service/assistant/recovery.py",
+   "mode": "100644",
+   "blob": "d9479a5fbb90468f9fc466069b2ddc65a70ba054"
+  },
+  {
+   "path": "service/assistant/reminders.py",
+   "mode": "100644",
+   "blob": "da81c85f1b291c9dc06d369521c0e71a939053d9"
+  },
+  {
+   "path": "service/assistant/scheduler.py",
+   "mode": "100644",
+   "blob": "00793877ca759a9e854fd943d7d5ac1aa258a032"
+  },
+  {
+   "path": "service/assistant/stale_reminders.py",
+   "mode": "100644",
+   "blob": "a3aa47f1e0e3029a1437cffd116554a82bc87d95"
+  },
+  {
+   "path": "service/assistant/stale_reminders_api.py",
+   "mode": "100644",
+   "blob": "c227e38098b371d6203e444cc29f6cc037c58aa0"
+  },
+  {
+   "path": "service/assistant/store.py",
+   "mode": "100644",
+   "blob": "4a69e55a47a6744fc8361112c55b484d5c770421"
+  },
+  {
+   "path": "service/assistant/sync_status.py",
+   "mode": "100644",
+   "blob": "0f46f88eb37d69e6965134ee1cab9a667dca9aed"
+  },
+  {
+   "path": "service/assistant/today.py",
+   "mode": "100644",
+   "blob": "7d05ecb8ab3c6e1979b6aacea75f1eeb2abc456b"
+  },
+  {
+   "path": "service/assistant/today_api.py",
+   "mode": "100644",
+   "blob": "14c4f01a1e6c62314b7071077e9f62260a9c85f3"
+  },
+  {
+   "path": "service/assistant/verified_reminders.py",
+   "mode": "100644",
+   "blob": "e3f795c39519952e192fb8489b2e9285e507d714"
+  },
+  {
+   "path": "service/attachment_api.py",
+   "mode": "100644",
+   "blob": "38d26c61f31599d0780e268688f3cab308b02510"
+  },
+  {
+   "path": "service/attachment_audio.py",
+   "mode": "100644",
+   "blob": "4258aecfbee3e1089637ddd07e0f6ab074290f56"
+  },
+  {
+   "path": "service/attachment_child.py",
+   "mode": "100644",
+   "blob": "8e02a2d295bd3ded0a1695909a2d5e0204644f43"
+  },
+  {
+   "path": "service/attachment_fields.py",
+   "mode": "100644",
+   "blob": "46d249da78a4749765a25ba2c62c78a9d4695671"
+  },
+  {
+   "path": "service/attachment_index.py",
+   "mode": "100644",
+   "blob": "c03ba3ae9404265f7601d80f6de3bdd5e2dbea59"
+  },
+  {
+   "path": "service/attachment_save.py",
+   "mode": "100644",
+   "blob": "c09d3eca68f01b6c9079247f9398564785ded036"
+  },
+  {
+   "path": "service/attachment_store.py",
+   "mode": "100644",
+   "blob": "1b106d5f570ab5389c684f2497961e77bac5ca90"
+  },
+  {
+   "path": "service/attention/__init__.py",
+   "mode": "100644",
+   "blob": "2b3218eea373ff21a5eb7a3c36c62b8696fc2c96"
+  },
+  {
+   "path": "service/attention/contacts.py",
+   "mode": "100644",
+   "blob": "59c0cd3d72286c9d93d0bc24fcef3b690e413da1"
+  },
+  {
+   "path": "service/attention/corpus.py",
+   "mode": "100644",
+   "blob": "0283f78392d4c7dc40b2d8eee36bf55308348f64"
+  },
+  {
+   "path": "service/attention/detectors.py",
+   "mode": "100644",
+   "blob": "312f024c0d571a9adb9331067c7ba5284f3bc0d3"
+  },
+  {
+   "path": "service/attention/evaluate.py",
+   "mode": "100644",
+   "blob": "3bf24083252ed65368fff7e29229322b788ac19e"
+  },
+  {
+   "path": "service/attention/event_capture.py",
+   "mode": "100644",
+   "blob": "d8278ecd0c1d54a762e9df5bde4ac9dac48d3a48"
+  },
+  {
+   "path": "service/attention/exclusions.py",
+   "mode": "100644",
+   "blob": "1ba848b803b56cd6e051e4cb8d9321008981436f"
+  },
+  {
+   "path": "service/attention/labels.py",
+   "mode": "100644",
+   "blob": "8eae67cf2936cb56c82e862a9b3e1ac683f5c72c"
+  },
+  {
+   "path": "service/attention/ledger.py",
+   "mode": "100644",
+   "blob": "6f14b9c8780cb8521c59a8de2cc9cac0fdd1f0d5"
+  },
+  {
+   "path": "service/attention/live.py",
+   "mode": "100644",
+   "blob": "6cf821bd2f8f2c21899c0669697ce5370a10b4ef"
+  },
+  {
+   "path": "service/attention/matching.py",
+   "mode": "100644",
+   "blob": "f5db978b3245d49eeacd5ecb0c77232f2e1b9fde"
+  },
+  {
+   "path": "service/attention/prediction.py",
+   "mode": "100644",
+   "blob": "d66fd0ae5fe924d1465648a97936cb243e5b92e6"
+  },
+  {
+   "path": "service/attention/resolve.py",
+   "mode": "100644",
+   "blob": "ca0eb65843f72595277f31327adc3aca80f728b7"
+  },
+  {
+   "path": "service/attention/runner.py",
+   "mode": "100644",
+   "blob": "d7e1e9fc3f3e041e15751bdd87be578b12a7ece2"
+  },
+  {
+   "path": "service/authored_message.py",
+   "mode": "100644",
+   "blob": "eb8ab4cdf62983d45a342a748c4bf060ebf09eeb"
+  },
+  {
+   "path": "service/behavior/__init__.py",
+   "mode": "100644",
+   "blob": "3a40950f570dbba585d9594f554b2b4a34ab61e8"
+  },
+  {
+   "path": "service/behavior/activity.py",
+   "mode": "100644",
+   "blob": "25d283c891ba29e769ff9b404ad90b0e0d3a8ffb"
+  },
+  {
+   "path": "service/behavior/associations.py",
+   "mode": "100644",
+   "blob": "72d73db94c78e21b7708976ffc4a657c79bc2cf3"
+  },
+  {
+   "path": "service/behavior/availability.py",
+   "mode": "100644",
+   "blob": "705dd689ef88111069224d88869a1f14e64d5973"
+  },
+  {
+   "path": "service/behavior/categorize.py",
+   "mode": "100644",
+   "blob": "767747fd8e248169ce6cbb2c49273399c1091777"
+  },
+  {
+   "path": "service/behavior/commitments.py",
+   "mode": "100644",
+   "blob": "e8fad7cb7ae88d3d6c7ada100ce51562b905bbb8"
+  },
+  {
+   "path": "service/behavior/engine.py",
+   "mode": "100644",
+   "blob": "36da8bf6a2ee6c8cff87083e371e55ca43818ef8"
+  },
+  {
+   "path": "service/behavior/evidence.py",
+   "mode": "100644",
+   "blob": "249a509ef73569a5d04b4a529b5c99d72a79898a"
+  },
+  {
+   "path": "service/behavior/history.py",
+   "mode": "100644",
+   "blob": "f2f5b115aecce8e8c9a7a6c668a011c0eea244ec"
+  },
+  {
+   "path": "service/behavior/miners.py",
+   "mode": "100644",
+   "blob": "b0ea198097a80dc5115bad04de5a3be86f14f015"
+  },
+  {
+   "path": "service/behavior/nudges.py",
+   "mode": "100644",
+   "blob": "166d794f03d1d6644a644dca12127207fad7e8de"
+  },
+  {
+   "path": "service/behavior/phraser.py",
+   "mode": "100644",
+   "blob": "1e89b49ed2f50b8e52a78d71830dd5a274461333"
+  },
+  {
+   "path": "service/behavior/predict.py",
+   "mode": "100644",
+   "blob": "c99fb63db1dce20aed3f6e1a65b4c467c4a2625e"
+  },
+  {
+   "path": "service/behavior/priorities.py",
+   "mode": "100644",
+   "blob": "95c6501ce2e6362e212f8f74f5008ddfb59209fa"
+  },
+  {
+   "path": "service/behavior/profile.py",
+   "mode": "100644",
+   "blob": "0495b49e6458fe1272573952be6e7e20e4bc7a2f"
+  },
+  {
+   "path": "service/behavior/source_index.py",
+   "mode": "100644",
+   "blob": "7bc70200e030b8263a0eadc3744c4fee3223d3be"
+  },
+  {
+   "path": "service/behavior/store.py",
+   "mode": "100644",
+   "blob": "1a13df1dc9fa03972579ee4b0233295fc28fae73"
+  },
+  {
+   "path": "service/behavior/timeutil.py",
+   "mode": "100644",
+   "blob": "d04b7ee6e77a2520bddfc983f65df8d7cea8e4b3"
+  },
+  {
+   "path": "service/behavior/types.py",
+   "mode": "100644",
+   "blob": "2460772260cf9ec3551c366ca9acf984b6c871f3"
+  },
+  {
+   "path": "service/behavior/weekly.py",
+   "mode": "100644",
+   "blob": "a294dd4a865f71879b0fced60603e1984af69b32"
+  },
+  {
+   "path": "service/behavior_api.py",
+   "mode": "100644",
+   "blob": "7008d30f6f04ab0469ecf24b19400df6e48adf28"
+  },
+  {
+   "path": "service/behavior_switch.py",
+   "mode": "100644",
+   "blob": "a2150322c0a96440628b5ef334bfb23379a60a91"
+  },
+  {
+   "path": "service/brief_pace.py",
+   "mode": "100644",
+   "blob": "fe891c716c950a64b7d4e75a424a401cd3f2e690"
+  },
+  {
+   "path": "service/browser/__init__.py",
+   "mode": "100644",
+   "blob": "e6e37f322f2ed4d3064d40e8d7a4e859c5c322af"
+  },
+  {
+   "path": "service/browser/bridge.py",
+   "mode": "100644",
+   "blob": "056d98036e9da8e0a466f2b946ab4d36ce83f5d9"
+  },
+  {
+   "path": "service/browser/bridge_protocol.py",
+   "mode": "100644",
+   "blob": "4d23c755df9a5e16d18b96f906876b34329ace4f"
+  },
+  {
+   "path": "service/browser/contracts.py",
+   "mode": "100644",
+   "blob": "a7e307362482762425b92bd4e5351e6d7b26571b"
+  },
+  {
+   "path": "service/browser/host.py",
+   "mode": "100644",
+   "blob": "87f1f4d746e457a72612a722287b379f5a2d14c3"
+  },
+  {
+   "path": "service/calendar_planning.py",
+   "mode": "100644",
+   "blob": "7690dd8d8a855c13431d7f4583715557fe6a17e7"
+  },
+  {
+   "path": "service/calendar_time_intent.py",
+   "mode": "100644",
+   "blob": "053adf3aa1059fb16d2ab63e53ccb8d4871250a8"
+  },
+  {
+   "path": "service/codex_monitor.py",
+   "mode": "100644",
+   "blob": "f1d869ef0534394eb9e99591b40eebb8a473a5c4"
+  },
+  {
+   "path": "service/config/__init__.py",
+   "mode": "100644",
+   "blob": "8237ae42f63dec48ff41f4c0392a011d95509650"
+  },
+  {
+   "path": "service/config/authority_changes.py",
+   "mode": "100644",
+   "blob": "d7b8b9b908a8583425f128f1d64301401b80ce40"
+  },
+  {
+   "path": "service/config/credentials.py",
+   "mode": "100644",
+   "blob": "a2524692bba2b8132210ed46f1560c29d823155d"
+  },
+  {
+   "path": "service/config/endpoints.py",
+   "mode": "100644",
+   "blob": "7ca1cd6d84a4f0beba835d600066443d4f5f89bb"
+  },
+  {
+   "path": "service/config/experiments.py",
+   "mode": "100644",
+   "blob": "871f258629d795877ba316c42941142704f565df"
+  },
+  {
+   "path": "service/config/keychain_legacy.py",
+   "mode": "100644",
+   "blob": "59230c486b2128ac066b5cfb8cb4e48c6ed421a0"
+  },
+  {
+   "path": "service/config/models.yaml",
+   "mode": "100644",
+   "blob": "c599835cdbb4f2fcc88c1e8681b221943ed37fbf"
+  },
+  {
+   "path": "service/config/policy.yaml",
+   "mode": "100644",
+   "blob": "33e0b07542c3a5c164a3dffcd29f61729391805a"
+  },
+  {
+   "path": "service/config/provider_credentials.py",
+   "mode": "100644",
+   "blob": "413fe173b0e1661ce1c19bfc3a4c9dd29f4b1100"
+  },
+  {
+   "path": "service/config/quarantine.py",
+   "mode": "100644",
+   "blob": "fcb0a25485f936d91edc1c95b60f9185a06bb896"
+  },
+  {
+   "path": "service/corpus.py",
+   "mode": "100644",
+   "blob": "25c3d9450567f17ab6d664815fe0979962664b33"
+  },
+  {
+   "path": "service/corpus_prompts.py",
+   "mode": "100644",
+   "blob": "9fb574b78763cb17dc4ddd3f65c0bc8cab046a29"
+  },
+  {
+   "path": "service/credential_pipe.py",
+   "mode": "100644",
+   "blob": "c1a6efb6816e5e201ee54201f9f794f3238228b0"
+  },
+  {
+   "path": "service/debug_capture.py",
+   "mode": "100644",
+   "blob": "7974b75cd056bbe8060f2d93f11926bca9d8c365"
+  },
+  {
+   "path": "service/diagnostics.py",
+   "mode": "100644",
+   "blob": "ad580d77a5430100a5839273b16caa2dba36eb12"
+  },
+  {
+   "path": "service/discovery/__init__.py",
+   "mode": "100644",
+   "blob": "8aff80684be9de1313a9dfac7d08adbb0621826a"
+  },
+  {
+   "path": "service/discovery/approvals.py",
+   "mode": "100644",
+   "blob": "b927d99c980e76dfd2785e79bc0fcefa148882f4"
+  },
+  {
+   "path": "service/discovery/contracts.py",
+   "mode": "100644",
+   "blob": "5eaddb064d59f1883ec4403d4de40ede848385eb"
+  },
+  {
+   "path": "service/discovery/extraction.py",
+   "mode": "100644",
+   "blob": "29ee911001f4ed63732f5d849243a7f419a7da8c"
+  },
+  {
+   "path": "service/discovery/jobs.py",
+   "mode": "100644",
+   "blob": "1d4fc3e508084543fb20bab3606e614af94e4411"
+  },
+  {
+   "path": "service/discovery/local_model.py",
+   "mode": "100644",
+   "blob": "d4847638156d39cb05c6e0222b8be19ca125f88e"
+  },
+  {
+   "path": "service/discovery/reconciliation.py",
+   "mode": "100644",
+   "blob": "7df4b593e93f04b60ef9a9b6c6e9c99ba03ccac0"
+  },
+  {
+   "path": "service/discovery/store.py",
+   "mode": "100644",
+   "blob": "63a88089d28553fdc84b15edd802edd1fe88314b"
+  },
+  {
+   "path": "service/discovery/temporal.py",
+   "mode": "100644",
+   "blob": "7f436f2e6bcba237265680b6457423b5bed30192"
+  },
+  {
+   "path": "service/document_extract.py",
+   "mode": "100644",
+   "blob": "53e0f843a08ea92645132cf953037f5881894143"
+  },
+  {
+   "path": "service/documents.py",
+   "mode": "100644",
+   "blob": "5ba2f8b5bc0087a76dfcabae5338a6cc075c0048"
+  },
+  {
+   "path": "service/encoders.py",
+   "mode": "100644",
+   "blob": "028f7f16544fb0540eb24e58dd936daa325ec152"
+  },
+  {
+   "path": "service/engine/__init__.py",
+   "mode": "100644",
+   "blob": "d41850178695ca845d57f031b1fa22b505a5b072"
+  },
+  {
+   "path": "service/engine/api.py",
+   "mode": "100644",
+   "blob": "02e85e33d4f3ad680d924fcc7ad292d1c55e16bf"
+  },
+  {
+   "path": "service/engine/downloads.py",
+   "mode": "100644",
+   "blob": "08217b1075b00af320080dead2a1c202d1ff044b"
+  },
+  {
+   "path": "service/engine/manager.py",
+   "mode": "100644",
+   "blob": "92ec4247be0399b4c069760d07535b1dfc3a15c1"
+  },
+  {
+   "path": "service/engine/mode.py",
+   "mode": "100644",
+   "blob": "75f318f9988b1d2afcd7c1c41326527f06dcfb7a"
+  },
+  {
+   "path": "service/engine/profiles.py",
+   "mode": "100644",
+   "blob": "78fe0924ffe6d626d7025787139244093283a8e9"
+  },
+  {
+   "path": "service/engine/runtime.py",
+   "mode": "100644",
+   "blob": "0b75acbe88012d255c0a3a6b4ab82c392d2b4292"
+  },
+  {
+   "path": "service/errors.py",
+   "mode": "100644",
+   "blob": "2ec9e0c5d48838c90bf9e5ea4125fa7e3755a02b"
+  },
+  {
+   "path": "service/file_organization.py",
+   "mode": "100644",
+   "blob": "f4eecd3f9eb2822612d83401871e67c384c92aed"
+  },
+  {
+   "path": "service/gmail_behavior_history.py",
+   "mode": "100644",
+   "blob": "b5bb82760a335e40cbb8ebc5083cd3da3d0ed33e"
+  },
+  {
+   "path": "service/gmail_source.py",
+   "mode": "100644",
+   "blob": "4f4e646f7e6413d0cd07dae60b8afbde3ead3280"
+  },
+  {
+   "path": "service/google_calendar_source.py",
+   "mode": "100644",
+   "blob": "20326706a02b7016d10eed1b37b4b87c1d2bab30"
+  },
+  {
+   "path": "service/google_workspace.py",
+   "mode": "100644",
+   "blob": "9f5f63196f55130678b15fba3ae2869fe27c5e5a"
+  },
+  {
+   "path": "service/harbor_about.py",
+   "mode": "100644",
+   "blob": "b39c497459d7a7c73828ebb6d5b89c5a9f81a7fc"
+  },
+  {
+   "path": "service/harbor_reset.py",
+   "mode": "100644",
+   "blob": "9d4873b54f57350ab7c59cdd35d658c6fddb0c5a"
+  },
+  {
+   "path": "service/identity.py",
+   "mode": "100644",
+   "blob": "80aa1d3a04b9bb0dbd40dd08a68cb8c0da7479b1"
+  },
+  {
+   "path": "service/idle.py",
+   "mode": "100644",
+   "blob": "728caf7bb0913883b21da1700d34cf5d2f96801d"
+  },
+  {
+   "path": "service/idle_unloader.py",
+   "mode": "100644",
+   "blob": "ccad2057aa19cc443aa81b275c4aff518f1f4199"
+  },
+  {
+   "path": "service/inference/__init__.py",
+   "mode": "100644",
+   "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+  },
+  {
+   "path": "service/inference/attestation_lease.py",
+   "mode": "100644",
+   "blob": "8a4cb4007efa7d938bb70bfaf6cb668163b18e2c"
+  },
+  {
+   "path": "service/inference/attestation_store.py",
+   "mode": "100644",
+   "blob": "5c44a482fc99cebe1aeea1a5b70cd8e7b6d9e027"
+  },
+  {
+   "path": "service/inference/attributed_transport.py",
+   "mode": "100644",
+   "blob": "6953bd1dca246046a077649a281abf100088bbcc"
+  },
+  {
+   "path": "service/inference/bundled_peer.py",
+   "mode": "100644",
+   "blob": "dfbc189137a727017b4dd9b1eecaeee56ea2ce88"
+  },
+  {
+   "path": "service/inference/engine_epoch.py",
+   "mode": "100644",
+   "blob": "bc35c316c6089c729dd575b35551569671f0afd5"
+  },
+  {
+   "path": "service/inference/heartbeat.py",
+   "mode": "100644",
+   "blob": "33a88d7fe7ce14451567058b833bddc2087acc05"
+  },
+  {
+   "path": "service/inference/inference_errors.py",
+   "mode": "100644",
+   "blob": "55d91ff365a9ced5c262dd8a27474361a8df58d2"
+  },
+  {
+   "path": "service/inference/local_peer.py",
+   "mode": "100644",
+   "blob": "fb2e4338cf764e81ca72f374d016e60878b047d8"
+  },
+  {
+   "path": "service/inference/omlx_client.py",
+   "mode": "100644",
+   "blob": "0560ab87a2168d140a275a35aa7aba044316b6a8"
+  },
+  {
+   "path": "service/inference/power_tier.py",
+   "mode": "100644",
+   "blob": "f021d82a4a9536d4e42e882e901a4840ee4c0e09"
+  },
+  {
+   "path": "service/inference/providers.py",
+   "mode": "100644",
+   "blob": "3d7cc438abf5a92c04f077a5c28c042811ee17a4"
+  },
+  {
+   "path": "service/inference/qualify.py",
+   "mode": "100644",
+   "blob": "c621644b5eae49e6bae2c1be27d5ea0b9de1b4e2"
+  },
+  {
+   "path": "service/inference/readiness.py",
+   "mode": "100644",
+   "blob": "9e6ffa9edd3871548254bdccf9b59c7e8243e043"
+  },
+  {
+   "path": "service/inference/remote_policy.py",
+   "mode": "100644",
+   "blob": "97d5bd64738980e0fded2c0715a2017b6b2fbbfc"
+  },
+  {
+   "path": "service/inference/super_model.py",
+   "mode": "100644",
+   "blob": "e32d74a05d75dbed61fd41fbd41136d8000e7769"
+  },
+  {
+   "path": "service/knowledge_intent.py",
+   "mode": "100644",
+   "blob": "9786907b894e39f35260c51b062129bd980a4c3d"
+  },
+  {
+   "path": "service/large_document.py",
+   "mode": "100644",
+   "blob": "411895477833613011ec7626b2d7eaca36ee6ca9"
+  },
+  {
+   "path": "service/linked_documents.py",
+   "mode": "100644",
+   "blob": "37dcd79c22e2e6e4f71a72e2ee514928c553df72"
+  },
+  {
+   "path": "service/local_http.py",
+   "mode": "100644",
+   "blob": "117980ec4f08e8f7cf4792f86964bc3b6b4b4c2c"
+  },
+  {
+   "path": "service/mail_attachments.py",
+   "mode": "100644",
+   "blob": "fa448d274c6b03f36ed5017117b3a8b2b4e8be14"
+  },
+  {
+   "path": "service/mail_auth.py",
+   "mode": "100644",
+   "blob": "04ec8094901942c8c693ed9b8f32ead0e9d9153e"
+  },
+  {
+   "path": "service/mail_memory/__init__.py",
+   "mode": "100644",
+   "blob": "913ec42c55843b2064fff4254bc35c7c05b7d37a"
+  },
+  {
+   "path": "service/mail_memory/api.py",
+   "mode": "100644",
+   "blob": "eb77acb510e743ffa9a770a252be48f340e4b299"
+  },
+  {
+   "path": "service/mail_memory/bridge.py",
+   "mode": "100644",
+   "blob": "2a3e1a1cfa2c6c46ec9ce2929d68a47da7edc77f"
+  },
+  {
+   "path": "service/mail_memory/dates.py",
+   "mode": "100644",
+   "blob": "96dfe19b3d47d712030b06f52c2200f3cfb4f351"
+  },
+  {
+   "path": "service/mail_memory/extract.py",
+   "mode": "100644",
+   "blob": "d7da0d029b3dac21f9c5c0f7b2d6facb080714f2"
+  },
+  {
+   "path": "service/mail_memory/importance.py",
+   "mode": "100644",
+   "blob": "c101a282c0e0ac5d3c4b7c0390b0c1de5ffacc05"
+  },
+  {
+   "path": "service/mail_memory/profile_facts.py",
+   "mode": "100644",
+   "blob": "2789730244609096167577447f52a803c17a850a"
+  },
+  {
+   "path": "service/mail_memory/runner.py",
+   "mode": "100644",
+   "blob": "173c703a6557cc99353fe4863269154beb5dbed5"
+  },
+  {
+   "path": "service/mail_memory/store.py",
+   "mode": "100644",
+   "blob": "494b14d0913a69537e3e02898829778b1532353c"
+  },
+  {
+   "path": "service/mail_mime.py",
+   "mode": "100644",
+   "blob": "39c8295cf786172792d5dadd8f8fd7fc1c955953"
+  },
+  {
+   "path": "service/mail_sender.py",
+   "mode": "100644",
+   "blob": "32b2952c6ae911d73fddbc7c2c258931efaeec03"
+  },
+  {
+   "path": "service/main.py",
+   "mode": "100644",
+   "blob": "2bde7bf0effd4a409634e28a001297222fbd8878"
+  },
+  {
+   "path": "service/mcp/__init__.py",
+   "mode": "100644",
+   "blob": "72dd4b4e16c38ab00ba2267d0dd97afb5ee52f54"
+  },
+  {
+   "path": "service/meetings.py",
+   "mode": "100644",
+   "blob": "e38ff6e3760ae843269cf79d1ff3aba9edf6ff1e"
+  },
+  {
+   "path": "service/meetings_api.py",
+   "mode": "100644",
+   "blob": "bf1d27698feacd0e04c715f68e0b79416f4a7da3"
+  },
+  {
+   "path": "service/memory/__init__.py",
+   "mode": "100644",
+   "blob": "f4bef9949eb1b8724d3db8d20f0ca1febf388f49"
+  },
+  {
+   "path": "service/memory/answer_style.py",
+   "mode": "100644",
+   "blob": "c1b7c8bad46687cb371176d6ac076e518df80ebc"
+  },
+  {
+   "path": "service/memory/api.py",
+   "mode": "100644",
+   "blob": "79db9da7ad2976c3d0b4defb14dea36cd0c6639f"
+  },
+  {
+   "path": "service/memory/capture.py",
+   "mode": "100644",
+   "blob": "e8a96da45729860f5b7580449c83b1d5a4a3976e"
+  },
+  {
+   "path": "service/memory/connections.py",
+   "mode": "100644",
+   "blob": "e951f609c8ac1ca26985ec508e94c9b76acae9a0"
+  },
+  {
+   "path": "service/memory/context.py",
+   "mode": "100644",
+   "blob": "cf39a7c855f9a800260a5d9d29b019c191f406f9"
+  },
+  {
+   "path": "service/memory/facts.py",
+   "mode": "100644",
+   "blob": "f42e1f031b2ae95ff4c01f24b97ee8aa06c4f5ab"
+  },
+  {
+   "path": "service/memory/identity.py",
+   "mode": "100644",
+   "blob": "fa49dd4e04b9483eb8208768e495f5cd9617949d"
+  },
+  {
+   "path": "service/memory/profile.py",
+   "mode": "100644",
+   "blob": "f715ec9acf327b477388a5da6c2496632a65ae16"
+  },
+  {
+   "path": "service/memory/profile_api.py",
+   "mode": "100644",
+   "blob": "0fffcf41b3b6dfb95cee6911b06dd310f9d1a6fc"
+  },
+  {
+   "path": "service/memory/prompt_blocks.py",
+   "mode": "100644",
+   "blob": "b0601d4ad1356fe9a681ab90a59d044a2b00a5c9"
+  },
+  {
+   "path": "service/memory/queue.py",
+   "mode": "100644",
+   "blob": "60866b310bc54318f2ec91a265e57122b2c70d47"
+  },
+  {
+   "path": "service/memory/retrieval.py",
+   "mode": "100644",
+   "blob": "cc9009ee5307dc1716423871edecabc7ac0beaa5"
+  },
+  {
+   "path": "service/memory/store.py",
+   "mode": "100644",
+   "blob": "0b17a1e1308bde51d4028adc030c8be9abc0e9a9"
+  },
+  {
+   "path": "service/memory/subject.py",
+   "mode": "100644",
+   "blob": "e464f4ec6fc6a3cbcf9fd29d0608a7906bb016ca"
+  },
+  {
+   "path": "service/memory_saver.py",
+   "mode": "100644",
+   "blob": "b02c4b329064d9cfe524a5209e0ffd5024888080"
+  },
+  {
+   "path": "service/memory_saver_api.py",
+   "mode": "100644",
+   "blob": "93bb9a7ea5588ff6ef355ce497b8488a9a76ba25"
+  },
+  {
+   "path": "service/message_content.py",
+   "mode": "100644",
+   "blob": "e11cb14660ac0c4a906758fbaa7dedf86ddb4868"
+  },
+  {
+   "path": "service/model_only.py",
+   "mode": "100644",
+   "blob": "6c0cd809a09db952b29c77baafb13b0c3729334b"
+  },
+  {
+   "path": "service/nodes.py",
+   "mode": "100644",
+   "blob": "26032d497262b271fb79e169679df68174f73dbb"
+  },
+  {
+   "path": "service/omlx_cache.py",
+   "mode": "100644",
+   "blob": "3a0364dbdf16fd2c0afb857890362852f4243de4"
+  },
+  {
+   "path": "service/parent_watch.py",
+   "mode": "100644",
+   "blob": "b76b5a7a90563e0d95d0060e3814a6fc575b8aaf"
+  },
+  {
+   "path": "service/paths.py",
+   "mode": "100644",
+   "blob": "a46ce41adc870a525c2c1a383acc97d722037eb5"
+  },
+  {
+   "path": "service/personal_knowledge.py",
+   "mode": "100644",
+   "blob": "1078afbfc9b7f7dbb2392adf20dcda5f356180f2"
+  },
+  {
+   "path": "service/personal_style.py",
+   "mode": "100644",
+   "blob": "fc7b1493087ff1f518255106442f293d8d01e263"
+  },
+  {
+   "path": "service/personal_style_api.py",
+   "mode": "100644",
+   "blob": "a760a46b32e70acb2046d746348e2787a293fcf8"
+  },
+  {
+   "path": "service/personal_style_worker.py",
+   "mode": "100644",
+   "blob": "66a98fc953b7caeabe192d61c4ec7e24ca79497f"
+  },
+  {
+   "path": "service/phone_gateway/__init__.py",
+   "mode": "100644",
+   "blob": "7001727a3dbdbc3aa53f7258012628aca2ec8be5"
+  },
+  {
+   "path": "service/phone_gateway/__main__.py",
+   "mode": "100644",
+   "blob": "9b1fddf71945a32020015d45b7e446a857ec702e"
+  },
+  {
+   "path": "service/phone_gateway/app.py",
+   "mode": "100644",
+   "blob": "86c460ea10fb47f938975849f23b091035e7174d"
+  },
+  {
+   "path": "service/phone_gateway/models.py",
+   "mode": "100644",
+   "blob": "a02043f963172013a40077550c746d5f995874c8"
+  },
+  {
+   "path": "service/phone_gateway/qr.py",
+   "mode": "100644",
+   "blob": "3824dcbaccfb43e8cb61d7a27691b54014af974c"
+  },
+  {
+   "path": "service/phone_gateway/qr.swift",
+   "mode": "100644",
+   "blob": "34ef825ab627177e5729c1db039de8a5011842e5"
+  },
+  {
+   "path": "service/phone_gateway/store.py",
+   "mode": "100644",
+   "blob": "25aee93a3513dc802c9140f56a734ed907294514"
+  },
+  {
+   "path": "service/phone_gateway/tailscale.py",
+   "mode": "100644",
+   "blob": "fcfa142aecf6a2788e80ec0fc773ad6f65a21d2b"
+  },
+  {
+   "path": "service/power_api.py",
+   "mode": "100644",
+   "blob": "5304d4f0f44f6ae1e0247413e7723f796227b2a9"
+  },
+  {
+   "path": "service/proactive/__init__.py",
+   "mode": "100644",
+   "blob": "220d8d399e30e0ba08809c57955240598b2857d5"
+  },
+  {
+   "path": "service/proactive/acting.py",
+   "mode": "100644",
+   "blob": "bee5794fd38fdbc030cc768343791137a2576e97"
+  },
+  {
+   "path": "service/proactive/api.py",
+   "mode": "100644",
+   "blob": "2da993adeac806aae827237e2844221481415d2e"
+  },
+  {
+   "path": "service/proactive/autoadd.py",
+   "mode": "100644",
+   "blob": "f18d3b949af80d6b7d36fcf32649542334677912"
+  },
+  {
+   "path": "service/proactive/autohold.py",
+   "mode": "100644",
+   "blob": "3de8665ba76b786dda2b0fad16886227a8e607c4"
+  },
+  {
+   "path": "service/proactive/cycle.py",
+   "mode": "100644",
+   "blob": "a13a7adc080da3aad136a10e50aa3c737f35a2e6"
+  },
+  {
+   "path": "service/proactive/deadlines.py",
+   "mode": "100644",
+   "blob": "25fcf408a065f34ae91057d94ba70cdf1240210c"
+  },
+  {
+   "path": "service/proactive/executor.py",
+   "mode": "100644",
+   "blob": "4497e904faed9002dfc5e513c77f568b26860d7c"
+  },
+  {
+   "path": "service/proactive/followups.py",
+   "mode": "100644",
+   "blob": "eaf380c8632227b49306acf04ad30bb2a8dc3957"
+  },
+  {
+   "path": "service/proactive/guard.py",
+   "mode": "100644",
+   "blob": "382f21303b50bdbb3c442b5b87309f4077d4f3ea"
+  },
+  {
+   "path": "service/proactive/handled.py",
+   "mode": "100644",
+   "blob": "0487dd3164b66e1a67bde05b4cf111b79f04b2d4"
+  },
+  {
+   "path": "service/proactive/judge.py",
+   "mode": "100644",
+   "blob": "3584d154d0c7cdba4cf8bc25367f9ecb687b9136"
+  },
+  {
+   "path": "service/proactive/mail_known.py",
+   "mode": "100644",
+   "blob": "e8819aaaef81da118f768d4f3f6279e790654374"
+  },
+  {
+   "path": "service/proactive/prepare.py",
+   "mode": "100644",
+   "blob": "8dfcdd19f91eeae4402784568d330bcd754bd7b7"
+  },
+  {
+   "path": "service/proactive/return_refresh.py",
+   "mode": "100644",
+   "blob": "62597f79282e0e2adc665704f8f5c741228b1b36"
+  },
+  {
+   "path": "service/proactive/sent_check.py",
+   "mode": "100644",
+   "blob": "5d886baacc6919937fa3ab577cd3351058081304"
+  },
+  {
+   "path": "service/proactive/sources.py",
+   "mode": "100644",
+   "blob": "3fca001dbf8150e2c4538944045bc4809021ec00"
+  },
+  {
+   "path": "service/proactive/stable.py",
+   "mode": "100644",
+   "blob": "a2a5f12fcc8354ef5041976527d0f8133782d5bc"
+  },
+  {
+   "path": "service/proactive/store.py",
+   "mode": "100644",
+   "blob": "b731689dd3c22bf7842162fe0d23c2bb000a651a"
+  },
+  {
+   "path": "service/proactive/triage.py",
+   "mode": "100644",
+   "blob": "5077d8ad5b0fff9b48f361646dc850efb0cea17b"
+  },
+  {
+   "path": "service/publication_authority.py",
+   "mode": "100644",
+   "blob": "5b7beb8f04083b45234fe17fe2fba9c1ade1b1c4"
+  },
+  {
+   "path": "service/quiet_hold.py",
+   "mode": "100644",
+   "blob": "9d6585fde202440f208830356599d3a535778ecf"
+  },
+  {
+   "path": "service/reminder_intent.py",
+   "mode": "100644",
+   "blob": "6624a106d2233bb6a829d9f03d0e957922efb089"
+  },
+  {
+   "path": "service/research/__init__.py",
+   "mode": "100644",
+   "blob": "987092e4db434ab87a22f99cbd8dbc29cdb8935f"
+  },
+  {
+   "path": "service/research/cache.py",
+   "mode": "100644",
+   "blob": "8143106e645d6770b1e6ef695ade8aa7e538505e"
+  },
+  {
+   "path": "service/research/citations.py",
+   "mode": "100644",
+   "blob": "d5f8c6bcbf2ef5ee6aad88c80379bba22a280102"
+  },
+  {
+   "path": "service/research/coverage.py",
+   "mode": "100644",
+   "blob": "049804847294136b4fb249d5eb474eab8402a774"
+  },
+  {
+   "path": "service/research/models.py",
+   "mode": "100644",
+   "blob": "cd18bd5bafd0f4e51e51192439498327bb04ea07"
+  },
+  {
+   "path": "service/research/orchestrator.py",
+   "mode": "100644",
+   "blob": "385ee4c613fb18be2523bc09427960a5c97a213f"
+  },
+  {
+   "path": "service/research/rank.py",
+   "mode": "100644",
+   "blob": "7a1473a8a64531ab6d18efb855ee37142f062341"
+  },
+  {
+   "path": "service/research/store.py",
+   "mode": "100644",
+   "blob": "8192b3792b4a8689f24b5f2b0b77b8c8e5847e73"
+  },
+  {
+   "path": "service/research/textutil.py",
+   "mode": "100644",
+   "blob": "3720266bf71abcbbcd110ed934712bf7adc21dee"
+  },
+  {
+   "path": "service/research/web.py",
+   "mode": "100644",
+   "blob": "2e5cca8c9b98390cedce89f7faa17bc3d7324b6d"
+  },
+  {
+   "path": "service/router/__init__.py",
+   "mode": "100644",
+   "blob": "ec47ffcd6fcd7ce1c8ce96b419d6437b29266aee"
+  },
+  {
+   "path": "service/router/common_claims.py",
+   "mode": "100644",
+   "blob": "2dcb099f3323ed4346841395be9df1c56d12a5eb"
+  },
+  {
+   "path": "service/router/menu.py",
+   "mode": "100644",
+   "blob": "1c00f4b959baf98ca2be603de2744db79e23a381"
+  },
+  {
+   "path": "service/router/model_led.py",
+   "mode": "100644",
+   "blob": "726b653386dbb9562df2aabe455c79e6123ed2d9"
+  },
+  {
+   "path": "service/router/normalize.py",
+   "mode": "100644",
+   "blob": "b4f1c4ee6bea6f543a8c7ae51ce5e5a690da09a8"
+  },
+  {
+   "path": "service/router/pinning.py",
+   "mode": "100644",
+   "blob": "c578f0eb35c36a97be933b0aed4833ca8bde82f6"
+  },
+  {
+   "path": "service/router/reranker.py",
+   "mode": "100644",
+   "blob": "de123ce857a7394539972c7c3c1408ee48aa38c2"
+  },
+  {
+   "path": "service/router/router.py",
+   "mode": "100644",
+   "blob": "88701344e5e4f81f9e859ac9e4fe2b160587831f"
+  },
+  {
+   "path": "service/router/semantic.py",
+   "mode": "100644",
+   "blob": "113045e645d65a0c2132c46cac7f42c989da7d38"
+  },
+  {
+   "path": "service/router/tool_aliases.py",
+   "mode": "100644",
+   "blob": "97352573c480219f1e5755ef8e074b8f8c1bfc1a"
+  },
+  {
+   "path": "service/router/web_request.py",
+   "mode": "100644",
+   "blob": "748d16801e861093acc7734800fc7ce9e8bf1574"
+  },
+  {
+   "path": "service/safety/__init__.py",
+   "mode": "100644",
+   "blob": "98c0712775988b977bad3b361ae10506fb7e0f01"
+  },
+  {
+   "path": "service/safety/audit.py",
+   "mode": "100644",
+   "blob": "448ce350e998b03e57d0248fbc33418a0695e095"
+  },
+  {
+   "path": "service/safety/grants.py",
+   "mode": "100644",
+   "blob": "6b433cf404e623d484f4910498defd7b2a17ec65"
+  },
+  {
+   "path": "service/safety/intent_guard.py",
+   "mode": "100644",
+   "blob": "072f3c193e803c57debd1b3458e5a6d89f33ee45"
+  },
+  {
+   "path": "service/safety/policy.py",
+   "mode": "100644",
+   "blob": "cbd1bfef8e1e7963693177a65349215c7bc43baa"
+  },
+  {
+   "path": "service/safety/redaction.py",
+   "mode": "100644",
+   "blob": "91f0ea773b9c456969209156b2603ea556ed2021"
+  },
+  {
+   "path": "service/safety/shell_sandbox.py",
+   "mode": "100644",
+   "blob": "898d4664ce08198bf1854b424558a2561aaf7b33"
+  },
+  {
+   "path": "service/search/__init__.py",
+   "mode": "100644",
+   "blob": "c4312eec95b495dc8197c303cc39ec6131665711"
+  },
+  {
+   "path": "service/search/chunker.py",
+   "mode": "100644",
+   "blob": "26e550d742c03d35612e67703eb60adb465c8683"
+  },
+  {
+   "path": "service/search/embedder.py",
+   "mode": "100644",
+   "blob": "c7f34f1692eda4079f1c15805f1bddd4f1a0af54"
+  },
+  {
+   "path": "service/search/engine.py",
+   "mode": "100644",
+   "blob": "6d08ac9d25a39d64b4d270a3342ad327d716e841"
+  },
+  {
+   "path": "service/search/lexical.py",
+   "mode": "100644",
+   "blob": "d2b9cacce1974999a61e78fe8a6eb9fa5d2ed9d4"
+  },
+  {
+   "path": "service/search/query.py",
+   "mode": "100644",
+   "blob": "bba94ece746c282fda7540d195ac0fcbf8b9c36d"
+  },
+  {
+   "path": "service/search/synth.py",
+   "mode": "100644",
+   "blob": "439daf7b1bdfa9ef6d6171039091b88676fc94fb"
+  },
+  {
+   "path": "service/setup/__init__.py",
+   "mode": "100644",
+   "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+  },
+  {
+   "path": "service/setup/catalog.py",
+   "mode": "100644",
+   "blob": "96fc175f8430159d74caf3b5672b68025d8a965f"
+  },
+  {
+   "path": "service/setup/engines.py",
+   "mode": "100644",
+   "blob": "27dd8a3431bc49ae020326df9d5652b85c6f4395"
+  },
+  {
+   "path": "service/setup/guide.py",
+   "mode": "100644",
+   "blob": "d9a0570c9ec967e58ddd0483b00419460ab2f5b4"
+  },
+  {
+   "path": "service/setup/hardware.py",
+   "mode": "100644",
+   "blob": "39c34cffc65b6343b0f6c27e07e3426b15b5cd57"
+  },
+  {
+   "path": "service/setup/local_models.py",
+   "mode": "100644",
+   "blob": "d8eb63bc97483794321b13aac94fb1d60cd0df01"
+  },
+  {
+   "path": "service/skills/__init__.py",
+   "mode": "100644",
+   "blob": "093d637deb0afd2929c45025c78328e317d2ea20"
+  },
+  {
+   "path": "service/skills/bundled/humanizer/SKILL.md",
+   "mode": "100644",
+   "blob": "d978cc10be2d058074fe777c5b7c0c1dd10cb820"
+  },
+  {
+   "path": "service/skills/bundled/idea-refine/SKILL.md",
+   "mode": "100644",
+   "blob": "a17a3ed5564fcfd0749d931ccf3c3f450c5d4983"
+  },
+  {
+   "path": "service/skills/bundled/interview-me/SKILL.md",
+   "mode": "100644",
+   "blob": "b73248b63afa4dd5cd708f931373bd4f1690ec50"
+  },
+  {
+   "path": "service/skills/bundled/mac-controls/SKILL.md",
+   "mode": "100644",
+   "blob": "a182524908426d90c21427619b6e4a51afce0b84"
+  },
+  {
+   "path": "service/skills/bundled/mac-controls/controls.sh",
+   "mode": "100755",
+   "blob": "e96b00c6733688f536cc3063080dbd59541ab1ed"
+  },
+  {
+   "path": "service/skills/sandbox.py",
+   "mode": "100644",
+   "blob": "09663a3c2385e1d7dc68dc22624eed610f188a83"
+  },
+  {
+   "path": "service/skills/scopes.py",
+   "mode": "100644",
+   "blob": "275193177bde1ef2fb292b86b5ffa3a201f3cf00"
+  },
+  {
+   "path": "service/skills/tools.py",
+   "mode": "100644",
+   "blob": "3d0046c4006e38318d0f6b08d08e7f25b983e0aa"
+  },
+  {
+   "path": "service/stage_mode.py",
+   "mode": "100644",
+   "blob": "74f3fbb030e578b40d139468148b78d9c845da19"
+  },
+  {
+   "path": "service/stage_warm.py",
+   "mode": "100644",
+   "blob": "b8ac99b729c23fbbd12dbd68ee096d30830c1ecc"
+  },
+  {
+   "path": "service/study/__init__.py",
+   "mode": "100644",
+   "blob": "a2f96a0b92259f1c62d73f297a2f7f16f0ede06e"
+  },
+  {
+   "path": "service/study/api.py",
+   "mode": "100644",
+   "blob": "422acd1e61b65eae7d7bf74257727cfbad4d8d8d"
+  },
+  {
+   "path": "service/study/ask_tools.py",
+   "mode": "100644",
+   "blob": "9f7ef99d015a95608e91396bcffd0c8348857392"
+  },
+  {
+   "path": "service/study/blocks_api.py",
+   "mode": "100644",
+   "blob": "2f47607832b9b97a9367014926c057327b00c6ef"
+  },
+  {
+   "path": "service/study/canvas_parse.py",
+   "mode": "100644",
+   "blob": "a551d0f58b5ea3501529eb791f57c4092b2f67fa"
+  },
+  {
+   "path": "service/study/connector.py",
+   "mode": "100644",
+   "blob": "9c9f3a5823083959b2802d348a80500ffe1316aa"
+  },
+  {
+   "path": "service/study/course_names.py",
+   "mode": "100644",
+   "blob": "fa65472506aed95386d9cbe156bbad592298ef03"
+  },
+  {
+   "path": "service/study/day_hook.py",
+   "mode": "100644",
+   "blob": "125b95d42fb785c2d2a73096408cbf77381179c4"
+  },
+  {
+   "path": "service/study/deck.py",
+   "mode": "100644",
+   "blob": "be6c7bbf889ed065fadd08719bc962e891721096"
+  },
+  {
+   "path": "service/study/drive.py",
+   "mode": "100644",
+   "blob": "3590d49b11d48b3a599c4bd6cab88b7ef51329fc"
+  },
+  {
+   "path": "service/study/drive_api.py",
+   "mode": "100644",
+   "blob": "4a53785e1eb27519d8abe5582d2404b86f47ce9b"
+  },
+  {
+   "path": "service/study/fetch.py",
+   "mode": "100644",
+   "blob": "b9def08bb5efdeeae34b522cb4f72379a0ffe71a"
+  },
+  {
+   "path": "service/study/find.py",
+   "mode": "100644",
+   "blob": "82a1185acd91fae5cfea9d80d9e1e1eea83519a3"
+  },
+  {
+   "path": "service/study/find_api.py",
+   "mode": "100644",
+   "blob": "e2456ba9dee0675b67d5ecf1dcfa970bd1974e44"
+  },
+  {
+   "path": "service/study/generate.py",
+   "mode": "100644",
+   "blob": "ca26f249ffae8e990f9f878ab41fda1ae48c5291"
+  },
+  {
+   "path": "service/study/match.py",
+   "mode": "100644",
+   "blob": "cc906dadfc7eefd4d9506f531edda32f2e94679e"
+  },
+  {
+   "path": "service/study/plan.py",
+   "mode": "100644",
+   "blob": "79d564e99b5107dab2138ff8b91026570892e1dd"
+  },
+  {
+   "path": "service/study/ready.py",
+   "mode": "100644",
+   "blob": "e0ca7d6e23801261b3c0c1b254267a0ac604c1cb"
+  },
+  {
+   "path": "service/study/sample.py",
+   "mode": "100644",
+   "blob": "5b3e4fb9797a24ff26b7433384777c3da8da6c9c"
+  },
+  {
+   "path": "service/study/store.py",
+   "mode": "100644",
+   "blob": "8e569970bafc82ab07be61b076a267bbd2998c72"
+  },
+  {
+   "path": "service/tasks/__init__.py",
+   "mode": "100644",
+   "blob": "cb9bfaded5f3b5da0ab4a7e2e25adc8100fabee5"
+  },
+  {
+   "path": "service/tasks/compiler.py",
+   "mode": "100644",
+   "blob": "2dac3e7505ac28c23a5f99a59f35bd253569f317"
+  },
+  {
+   "path": "service/tasks/engine.py",
+   "mode": "100644",
+   "blob": "9e43e9ac25df311eaa91eca46c89b9b14e409fa3"
+  },
+  {
+   "path": "service/tasks/executor.py",
+   "mode": "100644",
+   "blob": "fb8d4217ac379c080195757ec9bd1eaf7476b47a"
+  },
+  {
+   "path": "service/tasks/models.py",
+   "mode": "100644",
+   "blob": "563e3c6b324525b8d4564af30c66ea86db9073e7"
+  },
+  {
+   "path": "service/tasks/outbound_language.py",
+   "mode": "100644",
+   "blob": "04129239fd5a6a55b5a0b9e4493188811c1d235f"
+  },
+  {
+   "path": "service/tasks/planner.py",
+   "mode": "100644",
+   "blob": "01c29f7cae27ca527015463cd8115d278a0cd6ce"
+  },
+  {
+   "path": "service/tasks/references.py",
+   "mode": "100644",
+   "blob": "fa2d885ab8db4683f5340661dd37d5ce34b58e32"
+  },
+  {
+   "path": "service/tasks/reminder_batch.py",
+   "mode": "100644",
+   "blob": "6500a16cd82e219962c4b2e8ccb822c1a7a3c88e"
+  },
+  {
+   "path": "service/tasks/reply_contract.py",
+   "mode": "100644",
+   "blob": "5c612fd8fa6bf33cf29e9b0250b19b64dde6413f"
+  },
+  {
+   "path": "service/tasks/reply_engine.py",
+   "mode": "100644",
+   "blob": "24efe8fab1a9d36d873e653d2c1c29c191944796"
+  },
+  {
+   "path": "service/tasks/reply_parser.py",
+   "mode": "100644",
+   "blob": "b3757400a8c3f5aa8fe749287fb3e0e4fc875a02"
+  },
+  {
+   "path": "service/tasks/source_readers.py",
+   "mode": "100644",
+   "blob": "40615d56f28e4e33a2d2ea7bc42760ea7b630cf0"
+  },
+  {
+   "path": "service/tasks/temporal.py",
+   "mode": "100644",
+   "blob": "ac62a72bb36fce12b616cdd9e0c1d676cd426ef8"
+  },
+  {
+   "path": "service/temporal_facts.py",
+   "mode": "100644",
+   "blob": "01661f170ff570caa9f5b8aaaf25d4d6142bb623"
+  },
+  {
+   "path": "service/tools/__init__.py",
+   "mode": "100644",
+   "blob": "bdab91e9f72e46284193f3701f5877491e4bcede"
+  },
+  {
+   "path": "service/tools/access_needed.py",
+   "mode": "100644",
+   "blob": "16fa9e9d0992ed908b53a21a706a653b16856fb2"
+  },
+  {
+   "path": "service/tools/action_tools.py",
+   "mode": "100644",
+   "blob": "b292f506d74f0f099e5c0a3335eebd47ea1579d4"
+  },
+  {
+   "path": "service/tools/apps.py",
+   "mode": "100644",
+   "blob": "2adb2eb0a112461a821c47cb6f39ea7002b83d94"
+  },
+  {
+   "path": "service/tools/assistant_tools.py",
+   "mode": "100644",
+   "blob": "b60aeed29fef45d023986e282d9114eeed4a01b9"
+  },
+  {
+   "path": "service/tools/attachment_actions.py",
+   "mode": "100644",
+   "blob": "953f67d787ad2f3a59abe70e436952316d22dffb"
+  },
+  {
+   "path": "service/tools/automation_tools.py",
+   "mode": "100644",
+   "blob": "1fe255af02bfc95ba9b9c5dbbe0c74430c9f5fa9"
+  },
+  {
+   "path": "service/tools/behavior_tools.py",
+   "mode": "100644",
+   "blob": "93cc355b714be7128e489d10cd03dc6b513963c6"
+  },
+  {
+   "path": "service/tools/browser_history_tools.py",
+   "mode": "100644",
+   "blob": "ae4b2a5da66df3978944ce3f844ed6fcdf36741a"
+  },
+  {
+   "path": "service/tools/builtin.py",
+   "mode": "100644",
+   "blob": "64f4ec5b93e56a9f30b1323cf0f4ea5d4404355a"
+  },
+  {
+   "path": "service/tools/ca_locations.py",
+   "mode": "100644",
+   "blob": "c3db54527de017a4979798e33e5c360b25e52c48"
+  },
+  {
+   "path": "service/tools/cache_store.py",
+   "mode": "100644",
+   "blob": "507cbfb9d71e53e5f0b7c6c2964ad608bb37f484"
+  },
+  {
+   "path": "service/tools/contacts_tools.py",
+   "mode": "100644",
+   "blob": "6bf10b141b8fdbed0460ab50a6b2ecb431e1d45f"
+  },
+  {
+   "path": "service/tools/conversions.py",
+   "mode": "100644",
+   "blob": "730c110c279ab067165d7cb3838210508d30d594"
+  },
+  {
+   "path": "service/tools/doc_tools.py",
+   "mode": "100644",
+   "blob": "d63c117ade3f2711e3b09026335ad4f2cacf646f"
+  },
+  {
+   "path": "service/tools/email_attachments.py",
+   "mode": "100644",
+   "blob": "08b6680655b0775cdebc8e0660095c253af241cd"
+  },
+  {
+   "path": "service/tools/email_digest.py",
+   "mode": "100644",
+   "blob": "e1a818c5da611aadb9f0dd17a6f28e8cef563d72"
+  },
+  {
+   "path": "service/tools/email_extras.py",
+   "mode": "100644",
+   "blob": "d67797adc7fbd5f9512fcb7a3a0a7402c7c2fda8"
+  },
+  {
+   "path": "service/tools/email_tools.py",
+   "mode": "100644",
+   "blob": "2f114ff641c28073dbf967d7703a97bb3cd969da"
+  },
+  {
+   "path": "service/tools/everyday.py",
+   "mode": "100644",
+   "blob": "22ca26f96be3990cb8c941df650181783ed62b3e"
+  },
+  {
+   "path": "service/tools/files_tools.py",
+   "mode": "100644",
+   "blob": "679e8178e001a9f11c717368f172f1fb9ccd3e16"
+  },
+  {
+   "path": "service/tools/grounded_digest.py",
+   "mode": "100644",
+   "blob": "550cb2e8e9ad8b27d9bf6f3c341b28d7fa1adc5b"
+  },
+  {
+   "path": "service/tools/imessage_tools.py",
+   "mode": "100644",
+   "blob": "2301c763a1fd0b760fd8fec71979b87bd59068c7"
+  },
+  {
+   "path": "service/tools/knowledge_tools.py",
+   "mode": "100644",
+   "blob": "785d1dbc9f744e2d7355fd2196c3a48b18dd4b3a"
+  },
+  {
+   "path": "service/tools/maps_travel.py",
+   "mode": "100644",
+   "blob": "1f08601fca311074b687a277783668a7486bd937"
+  },
+  {
+   "path": "service/tools/memory_tools.py",
+   "mode": "100644",
+   "blob": "23e887987772bce2f141c68b7d7353252dadb7df"
+  },
+  {
+   "path": "service/tools/message_digest.py",
+   "mode": "100644",
+   "blob": "bb3dbf3190f0a1a3189508e5f508d37e1e4f4a4d"
+  },
+  {
+   "path": "service/tools/misc_t1.py",
+   "mode": "100644",
+   "blob": "190649f94d58e519be350418414fa41a52c9a973"
+  },
+  {
+   "path": "service/tools/notes_tools.py",
+   "mode": "100644",
+   "blob": "03acc7e3896c1cc5035ccd4fb679c06e9b96c0ec"
+  },
+  {
+   "path": "service/tools/notes_write.py",
+   "mode": "100644",
+   "blob": "cc33fb86e7850c1abefcd84770da02b151213404"
+  },
+  {
+   "path": "service/tools/proactive_tools.py",
+   "mode": "100644",
+   "blob": "6230e29e2e6f6f80ed994492f0acea7bf5cc490d"
+  },
+  {
+   "path": "service/tools/recent_tools.py",
+   "mode": "100644",
+   "blob": "7aba40aa4e43c9168f7f39c7b644f5875beb746e"
+  },
+  {
+   "path": "service/tools/reference_tools.py",
+   "mode": "100644",
+   "blob": "9983babf2ec06fe29eb9f5f0daec7be22ad380a4"
+  },
+  {
+   "path": "service/tools/registry.py",
+   "mode": "100644",
+   "blob": "b1bdc2a75e916cb1bd140360719b881ca3140247"
+  },
+  {
+   "path": "service/tools/retrieval_pins.py",
+   "mode": "100644",
+   "blob": "e33de55b7bc8fdaf4fdf5eea5bc8a6867d47a68b"
+  },
+  {
+   "path": "service/tools/schedule_extras.py",
+   "mode": "100644",
+   "blob": "a002586dd59ced5fc7802549ecaf32ae829d69d0"
+  },
+  {
+   "path": "service/tools/search_coverage.py",
+   "mode": "100644",
+   "blob": "776ded3897dc872f8e215f118eb58e520480a265"
+  },
+  {
+   "path": "service/tools/self_send.py",
+   "mode": "100644",
+   "blob": "900538cdd8a1a54f426cb0f7e2d22b2f4edbf41f"
+  },
+  {
+   "path": "service/tools/short_descriptions.py",
+   "mode": "100644",
+   "blob": "56ea56c910915e3f1ad5f08dbb5206d9b9d0d20a"
+  },
+  {
+   "path": "service/tools/speech_tools.py",
+   "mode": "100644",
+   "blob": "4e9af4a064b8744ddb627247df140e0c19e983f0"
+  },
+  {
+   "path": "service/tools/system_control.py",
+   "mode": "100644",
+   "blob": "53c8e8019ca8d04ccff370dff4281bd23da9a131"
+  },
+  {
+   "path": "service/tools/system_extras.py",
+   "mode": "100644",
+   "blob": "d29ddacc9ca13dbeea65b8c2b2f69489326d65fb"
+  },
+  {
+   "path": "service/tools/system_extras2.py",
+   "mode": "100644",
+   "blob": "6a3a33bc67900407011eb79a3c96f02a1cd29f83"
+  },
+  {
+   "path": "service/tools/task_evidence.py",
+   "mode": "100644",
+   "blob": "c7dfd7a6a928c248c5f497f4f9a5ca840789f758"
+  },
+  {
+   "path": "service/tools/timeranges.py",
+   "mode": "100644",
+   "blob": "59a7bfaa1a2fbd48d31a2a5e68e5826a1991a3a1"
+  },
+  {
+   "path": "service/tools/timers_alarms.py",
+   "mode": "100644",
+   "blob": "94c29ca73ef8c33dcb734e45c411becb7643bb7c"
+  },
+  {
+   "path": "service/tools/title_match.py",
+   "mode": "100644",
+   "blob": "d6fc531f7b9d24c4ce43c3ec4d7ef45b7adfe648"
+  },
+  {
+   "path": "service/tools/tool_authoring.py",
+   "mode": "100644",
+   "blob": "d431b2e1a765fe7cb56506b147f1a3740c18e498"
+  },
+  {
+   "path": "service/tools/untrusted.py",
+   "mode": "100644",
+   "blob": "92039f83216cfe7c8fc77e10168566e99feb6b42"
+  },
+  {
+   "path": "service/tools/web_extras.py",
+   "mode": "100644",
+   "blob": "775c8827852c1c170015ed75a693de016f1e395c"
+  },
+  {
+   "path": "service/tools/web_tools.py",
+   "mode": "100644",
+   "blob": "79a544f9fcfe7cda8581f6d263862ae5bd234614"
+  },
+  {
+   "path": "service/tools/window_tools.py",
+   "mode": "100644",
+   "blob": "219ed2cb5240c07add3acf697870b8d337acc58d"
+  },
+  {
+   "path": "service/user_hours.py",
+   "mode": "100644",
+   "blob": "e0d0613ecfc41a0d75ebfd93dde793ac7cb0bbb2"
+  },
+  {
+   "path": "service/user_text.py",
+   "mode": "100644",
+   "blob": "dcef4235c02a4f82d333cba31845a5f29a888011"
+  },
+  {
+   "path": "service/utterance_shape.py",
+   "mode": "100644",
+   "blob": "e4dcf72793397300367335fe1e0632713eea1d56"
+  },
+  {
+   "path": "service/vision.py",
+   "mode": "100644",
+   "blob": "914e24ac41fa03f2aae4b940fd69743702092623"
+  },
+  {
+   "path": "service/voice.py",
+   "mode": "100644",
+   "blob": "8dd21953f361c973803cad805d8684d4d093ea6f"
+  },
+  {
+   "path": "service/workflows/__init__.py",
+   "mode": "100644",
+   "blob": "74da6d1a2a04b68deb30415090a5d760e506d07b"
+  },
+  {
+   "path": "service/workflows/compiler.py",
+   "mode": "100644",
+   "blob": "31b5dc511f2bfb108e8dc60f357d1505773f036b"
+  },
+  {
+   "path": "service/workflows/engine.py",
+   "mode": "100644",
+   "blob": "28da3c7a26739643afbb6ca5eda48c1f4caa5369"
+  },
+  {
+   "path": "service/workflows/executor.py",
+   "mode": "100644",
+   "blob": "77380be45c4f7f38e8d4a79f918892ae966f0a43"
+  },
+  {
+   "path": "service/workflows/models.py",
+   "mode": "100644",
+   "blob": "df95baf8f4f2a21ba63b405ca5afeb9eb2599b2e"
+  },
+  {
+   "path": "service/workflows/notification.py",
+   "mode": "100644",
+   "blob": "46ee0a93ee68ddadb3820d509139eb8aa57d99a3"
+  },
+  {
+   "path": "service/workflows/present.py",
+   "mode": "100644",
+   "blob": "091e068699cfc5c76d2881f89e45a8905d26dac2"
+  },
+  {
+   "path": "service/workflows/reads.py",
+   "mode": "100644",
+   "blob": "c0fd56026feb8330c30d93e784b7831e851436a2"
+  },
+  {
+   "path": "service/workflows/weather_reply.py",
+   "mode": "100644",
+   "blob": "321c5404899922fb761e3ab73fbde68eb509a2e6"
+  },
+  {
+   "path": "service/workflows/workflow20.py",
+   "mode": "100644",
+   "blob": "74049d06c84d4750a5eaa0e909772b947c6a36a6"
+  },
+  {
+   "path": "test_fixtures/memory_eval/README.md",
+   "mode": "100644",
+   "blob": "b8c223c587a5656110a41d6df6ce9a0c27a878d9"
+  },
+  {
+   "path": "test_fixtures/memory_eval/bad_answers.jsonl",
+   "mode": "100644",
+   "blob": "cda18985309e435785d06399679fe959eca48a4e"
+  },
+  {
+   "path": "test_fixtures/memory_eval/cases.jsonl",
+   "mode": "100644",
+   "blob": "01329236879ada691c22a1ae2fac38667164ca3c"
+  },
+  {
+   "path": "test_fixtures/memory_eval/score.py",
+   "mode": "100644",
+   "blob": "33abb2627465cb36846cbc02bce68145bb514f14"
+  },
+  {
+   "path": "test_fixtures/routing/quality_corpus.json",
+   "mode": "100644",
+   "blob": "8a10653e1b5c1bc755b6d68f691d1f8ef506a849"
+  },
+  {
+   "path": "test_fixtures/routing_stress/coverage.json",
+   "mode": "100644",
+   "blob": "a3ec4dedf48297dfe6f22532acf781bc712ea313"
+  },
+  {
+   "path": "test_fixtures/routing_stress/manifest.json",
+   "mode": "100644",
+   "blob": "7e6787345c6ea11662fc1dda6db6be7d50107475"
+  },
+  {
+   "path": "test_fixtures/routing_stress/suite.json",
+   "mode": "100644",
+   "blob": "f50c02dee47d427117ee5ff17f5a29a688ad42af"
+  },
+  {
+   "path": "tests/__init__.py",
+   "mode": "100644",
+   "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+  },
+  {
+   "path": "tests/conftest.py",
+   "mode": "100644",
+   "blob": "bbb53a89119affa8670f1929e0a135f5309477c9"
+  },
+  {
+   "path": "tests/fixtures/__init__.py",
+   "mode": "100644",
+   "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+  },
+  {
+   "path": "tests/fixtures/behavior_persona.py",
+   "mode": "100644",
+   "blob": "1cc262d344371a48a38cf0d07e030a21372bdea8"
+  },
+  {
+   "path": "tests/fixtures/engine_guard/propagation_branch.json",
+   "mode": "100644",
+   "blob": "b8fc83822b0b595a1413d89e35e4a76207231c72"
+  },
+  {
+   "path": "tests/fixtures/gemma_harbor_checkpoint.json",
+   "mode": "100644",
+   "blob": "cd936b8938beafd347859fd29935e04ace2b38a2"
+  },
+  {
+   "path": "tests/fixtures/persona.py",
+   "mode": "100644",
+   "blob": "5f5fc643284d93219b2335664e4e6b685f0a0644"
+  },
+  {
+   "path": "tests/fixtures/remote_inference.py",
+   "mode": "100644",
+   "blob": "9e56e01a61441bd9c23c0b0b7d3259fca08daaf3"
+  },
+  {
+   "path": "tests/fixtures/reset_markers.json",
+   "mode": "100644",
+   "blob": "9b2ad0603923c5a7950d28cae20e807e0ca78f1b"
+  },
+  {
+   "path": "tests/fixtures/wire.py",
+   "mode": "100644",
+   "blob": "861b0d12510d8b7704fef3c6c5b55b041779b761"
+  },
+  {
+   "path": "tests/test_backend_identity_and_sandbox_isolation.py",
+   "mode": "100644",
+   "blob": "af84415a2273111970bab3a77cb2b1e5727b384e"
+  },
+  {
+   "path": "tests/test_effect_refusal_no_lock.py",
+   "mode": "100644",
+   "blob": "b9081c4d3828ba899bf8129ce1d53125ef96757f"
+  },
+  {
+   "path": "tests/test_eval_planner_dry_run.py",
+   "mode": "100644",
+   "blob": "7bbf774f7ff7d972c3f4333bcc9abaf2ea4d5ea4"
+  },
+  {
+   "path": "tests/test_harbor_self_reference.py",
+   "mode": "100644",
+   "blob": "354b9452cae5d6461e149e81689d50f9ee6230aa"
+  },
+  {
+   "path": "tests/test_local_provider_tools.py",
+   "mode": "100644",
+   "blob": "ff38b71c9b525f82f758d095a5974e6936cff534"
+  },
+  {
+   "path": "tests/test_long_email_digest.py",
+   "mode": "100644",
+   "blob": "4f472760e9f2ed6b4ca1eabc3c83671ed0624a0c"
+  },
+  {
+   "path": "tests/test_memory_eval_scorer.py",
+   "mode": "100644",
+   "blob": "55bb8bc600a1098810fcc9a97eab5c97a2bbd9f5"
+  },
+  {
+   "path": "tests/test_model_led_entrypoint.py",
+   "mode": "100644",
+   "blob": "4acc3aba8a04ae8b5ecf855bbf648f66cb42a95a"
+  },
+  {
+   "path": "tests/test_model_led_integration.py",
+   "mode": "100644",
+   "blob": "6758dd527d656ec41576d0a43d2e9588e226099b"
+  },
+  {
+   "path": "tests/test_model_only_quality.py",
+   "mode": "100644",
+   "blob": "95eee925e8e455442d735b06963241733ee4a748"
+  },
+  {
+   "path": "tests/test_power_tier.py",
+   "mode": "100644",
+   "blob": "fc24e19e1ce03c178c3bd8b594586eed37079b34"
+  },
+  {
+   "path": "tests/test_rc3_toolbench_scorer.py",
+   "mode": "100644",
+   "blob": "0b37a3f6784bf09a161eb0720822ace99c30ee86"
+  },
+  {
+   "path": "tests/test_reply_bridge_simulation.py",
+   "mode": "100644",
+   "blob": "a944051b7bff92ac5d3f050daa0d321317249df7"
+  },
+  {
+   "path": "tests/test_sandbox_world.py",
+   "mode": "100644",
+   "blob": "ddbf25c763866856824bcc9fd3a43d845ae26f73"
+  },
+  {
+   "path": "tests/test_send_recipient_preflight.py",
+   "mode": "100644",
+   "blob": "93439b2eca712ff282b8b5de728af1ecb4a24424"
+  },
+  {
+   "path": "tests/test_toolbench.py",
+   "mode": "100644",
+   "blob": "df04121aa10dc8624218c81bf561b176a897173f"
+  },
+  {
+   "path": "tests/test_toolbench_world.py",
+   "mode": "100644",
+   "blob": "94f1d3dd2f6121acab0d5072e3f1ed15a30992b7"
+  }
+ ]
+}

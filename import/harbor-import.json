@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "source": {
+    "repository": "https://github.com/adjad/Harbor",
+    "branch": "main",
+    "commit": "46da8eb5c9ed42219a946422789e9b3f1d3bd3a6",
+    "note": "Harbor's public main. The benchmark's in-progress branches were cut from stage-0.1.7 (01f865140f7a9f40da5784467be1be7955d2f156), which is six commits ahead and not yet public; it holds an unreleased security change, so it is not imported until Harbor publishes it. None of the branches touches a file that differs between the two commits."
+  },
+  "include": [
+    "LICENSE",
+    "TESTING.md",
+    "conftest.py",
+    "pytest.ini",
+    "requirements-runtime.txt",
+    "requirements-dev.txt",
+
+    "service/",
+    "sandbox/",
+
+    "scripts/run_toolbench.py",
+    "scripts/toolbench/",
+    "scripts/bench_ondevice_perf.py",
+    "scripts/eval_planner.py",
+    "scripts/eval_planner_fakes.py",
+    "scripts/run_routing_stress_suite.py",
+    "scripts/build_routing_stress_suite.py",
+    "scripts/report_routing_stress_suite.py",
+    "scripts/grade_routing_stress_strict.py",
+    "scripts/check_routing_stress_permissions.py",
+    "scripts/eval_arms.py",
+    "scripts/eval_core.py",
+    "scripts/eval_ling_tasks.py",
+    "scripts/email_commitment_extraction_bench.py",
+    "scripts/email_profile_fact_bench.py",
+    "scripts/long_email_digest_recall.py",
+    "scripts/demo_sweep.py",
+    "scripts/demo_prompts.json",
+
+    "test_fixtures/memory_eval/",
+    "test_fixtures/routing/quality_corpus.json",
+    "test_fixtures/routing_stress/",
+
+    "tests/__init__.py",
+    "tests/conftest.py",
+    "tests/fixtures/",
+    "tests/test_toolbench.py",
+    "tests/test_toolbench_world.py",
+    "tests/test_rc3_toolbench_scorer.py",
+    "tests/test_effect_refusal_no_lock.py",
+    "tests/test_harbor_self_reference.py",
+    "tests/test_eval_planner_dry_run.py",
+    "tests/test_sandbox_world.py",
+    "tests/test_reply_bridge_simulation.py",
+    "tests/test_backend_identity_and_sandbox_isolation.py",
+    "tests/test_memory_eval_scorer.py",
+    "tests/test_local_provider_tools.py",
+    "tests/test_power_tier.py",
+    "tests/test_long_email_digest.py",
+    "tests/test_model_only_quality.py",
+    "tests/test_model_led_integration.py",
+    "tests/test_model_led_entrypoint.py",
+    "tests/test_send_recipient_preflight.py",
+
+    "docs/ASSISTANT_ARCHITECTURE.md",
+    "docs/technical-overview.md",
+    "docs/inference-providers.md",
+    "docs/HARBOR_TOOL_ACTIVATION_INVENTORY.json",
+    "docs/routing_stress/",
+
+    "ios/Packages/HarborLing/",
+
+    "build-support/engine_guard/"
+  ],
+  "exclude": [
+    {
+      "path": "service/corpus_cases.json",
+      "reason": "Its provenance note says the request patterns were adapted from a review of saved Harbor chats (real history). Only service/corpus.py:live_cases() reads it, lazily; nothing in the benchmark calls it."
+    }
+  ],
+  "not_imported": [
+    {"path": "app/", "reason": "The Harbor Mac app (Swift). The benchmark drives the Python backend, not the app."},
+    {"path": "browser-extension/", "reason": "Harbor's browser extension; not part of the benchmark."},
+    {"path": "build-support/ (except build-support/engine_guard/)", "reason": "Release, packaging and signing tooling. build-support/engine_guard/ is imported: it defines the patches Harbor applies to oMLX (the baseline engine), and tests/test_power_tier.py reads it."},
+    {"path": "infra/", "reason": "Deployment and host tooling for Harbor."},
+    {"path": "integrations/", "reason": "Harbor's third-party integrations; not used by the harnesses."},
+    {"path": "air/", "reason": "Side-device node (MacBook Air). Not needed; pytest.ini still lists air/tests, which pytest skips when absent."},
+    {"path": "mini/", "reason": "Side-device node (Mac mini)."},
+    {"path": "training/", "reason": "Training data and LoRA tooling."},
+    {"path": "ios/App/, ios/Sources/, ios/Tests/, ios/HarborPhone.xcodeproj/, ios/Config/, ios/scripts/, ios/docs/, ios/Package.swift, ios/README.md", "reason": "The Harbor iPhone app itself. Only the MLX Swift package (ios/Packages/HarborLing) is imported for the iPhone runner to reuse. ios/App/OnDeviceModel.swift and ios/Sources/HarborCore/LocalInference.swift are the next candidates if the runner needs them."},
+    {"path": "CHANGELOG.md, docs/releases/", "reason": "Harbor release notes."},
+    {"path": "README.md, PRODUCT.md, CONTRIBUTING.md, SECURITY.md", "reason": "Harbor's own top-level documents; the benchmark has its own README."},
+    {"path": ".github/", "reason": "Harbor's CI and release workflows."},
+    {"path": "scripts/harbor-build, scripts/package_app.sh, scripts/release_performance.py, scripts/resign_local_install.py, scripts/run_simulation_qa.py, scripts/swiftc_nested_sandbox.sh, scripts/test_*.sh", "reason": "Release, packaging, Simulation QA and Swift contract tooling."},
+    {"path": "scripts/replay_prompts_regression.json, scripts/replay_prompts.py, scripts/replay_diagnostic.py, scripts/replay_attention.py", "reason": "The replay suite and its regression prompts derive from real history."},
+    {"path": "test_fixtures/routing_regressions/historical_prompts.json", "reason": "Real historical prompts."},
+    {"path": "scripts/seed_real_apps.sh, scripts/clear_real_apps.sh", "reason": "Act on the user's real Mac apps."},
+    {"path": "scripts/attention_snapshot.py", "reason": "Reads real local state."},
+    {"path": "scripts/harvest_training_data.py, scripts/build_lora_dataset.py, scripts/merge_lora_data.py, scripts/convert_heldout_to_corpus.py", "reason": "Training-data tooling; harvesting reads real history."},
+    {"path": "scripts/test_model.py, scripts/test_all_tools.py", "reason": "Live smoke tests that run against real data and the live backend."},
+    {"path": "test_fixtures/task_engine/", "reason": "Golden cases whose 'source' fields cite Harbor debug exports and quote real prompts."},
+    {"path": "test_fixtures/performance/", "reason": "Fixtures for the removed release-performance gate."},
+    {"path": "test_fixtures/ (other folders)", "reason": "Fixtures for app features the benchmark does not cover yet (browser, Study, research, attention, cache). Bring them in when a harness needs them."},
+    {"path": "tests/ (other files)", "reason": "Harbor's wider service and Swift tests. Only the tests that cover the imported harnesses, and the test modules they import, are carried."},
+    {"path": "Study tab", "reason": "Tests and fixtures of Harbor's Study tab are excluded by decision."}
+  ]
+}

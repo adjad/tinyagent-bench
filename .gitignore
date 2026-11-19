@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Swift / Xcode
+.build/
+.swiftpm/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+*.ipa
+*.dSYM/
+
+# Local results and run output (publish results only through the results store)
+results/
+test_results/
+runs/
+*.local.json
+*.log
+
+# Model weights and caches never belong here
+*.safetensors
+*.gguf
+*.mlpackage/
+*.mlmodelc/
+
+# Editors and OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Local agent and tooling folders
+.claude/
+.hallmark/
+.env
+.env.*

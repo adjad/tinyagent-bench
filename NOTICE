@@ -1,0 +1,28 @@
+Edge_device_agentic_testing
+Copyright 2026 the Edge_device_agentic_testing authors
+
+This product includes software from Harbor (https://github.com/adjad/Harbor),
+licensed under the Apache License, Version 2.0. The following paths were
+imported from Harbor commit 46da8eb5c9ed42219a946422789e9b3f1d3bd3a6
+(branch main) and may since have been modified here:
+
+  service/
+  sandbox/
+  scripts/  (the benchmark scripts listed in IMPORT.md, and scripts/toolbench/)
+  test_fixtures/memory_eval/, test_fixtures/routing/, test_fixtures/routing_stress/
+  tests/    (the test files listed in IMPORT.md, tests/conftest.py, tests/fixtures/)
+  build-support/engine_guard/
+  docs/ASSISTANT_ARCHITECTURE.md, docs/technical-overview.md,
+  docs/inference-providers.md, docs/HARBOR_TOOL_ACTIVATION_INVENTORY.json,
+  docs/routing_stress/
+  ios/Packages/HarborLing/
+  conftest.py, pytest.ini, requirements-runtime.txt, requirements-dev.txt,
+  TESTING.md, LICENSE
+
+The exact file list is import/harbor-files.json.
+
+ios/Packages/HarborLing/ ports code from mlx-lm and oMLX as described in its
+README.md; those projects keep their own licences.
+
+Everything else (README.md, IMPORT.md, NOTICE, docs/STRUCTURE.md,
+docs/benchmark/, site/, tools/, import/) was written for this repository.

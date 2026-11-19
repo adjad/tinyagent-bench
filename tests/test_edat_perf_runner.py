@@ -249,3 +249,14 @@ def test_finalize_document(tmp_path):
     assert len({s["sample_id"] for s in doc["samples"]}) == len(doc["samples"])
     assert doc["samples"][1]["load"]["t_ready_ns"] is not None
     assert doc["models"][0]["mode"] == "as_shipped"
+
+
+def test_http_transport_sends_the_key_and_refuses_reserved_ports(monkeypatch):
+    from edat.perf.client import HttpTransport
+    t = HttpTransport("http://127.0.0.1:8779", now_ns=lambda: 0, api_key="k" * 40)
+    assert t._headers["Authorization"] == "Bearer " + "k" * 40
+    monkeypatch.setenv("EDAT_OMLX_API_KEY", "x" * 40)
+    c = OmlxPerfClient.connect("http://127.0.0.1:8779", now_ns=lambda: 0)
+    assert c.t._headers["Authorization"].endswith("x" * 40)
+    with pytest.raises(ForbiddenEndpoint):
+        OmlxPerfClient.connect("http://127.0.0.1:8000", now_ns=lambda: 0)

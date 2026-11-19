@@ -214,7 +214,7 @@ def score_trap(answer: str, tr: dict, case: dict) -> str:
             return "fail"
         if all(_near_words(answer, sp, CHANGE_WORDS) for sp in spans):
             return "pass"
-        return "fail" if not new_present else "ambiguous"
+        return "fail"          # spec 7.2: the old value with no change word within 12 tokens fails
     if tt in ("other_news", "owner"):
         if not spans:
             return "pass"
@@ -303,6 +303,58 @@ def _int_values(answer: str) -> list[tuple[int, int]]:
     return out
 
 
+_MORE = r"(?:more|higher|bigger|larger|greater|most|highest|biggest|largest)"
+_LESS = r"(?:less|lower|smaller|fewer|least|lowest|smallest|cheaper)"
+
+
+def comparison_answer(answer: str, labels: list[str]) -> str | None:
+    """The label an answer gives to "which was more, X or Y?" (spec 7.7).
+
+    An echoed question ("X or Y? ...") is dropped first. Each clause then votes: a label
+    with a "more" word wins, a label with a "less" word loses, "X ... less than Y" makes Y
+    the winner, and "not X" makes the other label the answer. Conflicting votes give no
+    answer. With no vote, the first label mentioned (not negated) is the answer."""
+    if len(labels) != 2:
+        hits = [(m.start(), lab) for lab in labels for m in [re.search(rf"\b{re.escape(lab)}\b", answer, re.I)] if m]
+        return min(hits)[1] if hits else None
+    a, b = labels
+    other = {a: b, b: a}
+    text = re.sub(r"^[^?]*\?\s*", "", answer) if "?" in answer else answer
+    votes: set[str] = set()
+    negated: set[str] = set()
+    for clause in re.split(r"[.;:!\n,]+|\s(?:but|whereas|while)\s", text, flags=re.I):
+        found = [(m.start(), lab) for lab in labels for m in re.finditer(rf"\b{re.escape(lab)}\b", clause, re.I)]
+        if not found:
+            continue
+        more = re.search(rf"\b{_MORE}\b", clause, re.I)
+        less = re.search(rf"\b{_LESS}\b", clause, re.I)
+        for lab in labels:
+            if re.search(rf"\bnot\s+(?:in\s+)?{re.escape(lab)}\b", clause, re.I):
+                negated.add(lab)
+        present = {lab for _, lab in found}
+        if len(present) == 2:
+            than = re.search(r"\bthan\b", clause, re.I)
+            if than and (more or less):
+                subj = min(found)[1]
+                votes.add(subj if more and (not less or more.start() < less.start()) else other[subj])
+            continue
+        (lab,) = present
+        if lab in negated:
+            votes.add(other[lab])
+        elif more and not less:
+            votes.add(lab)
+        elif less and not more:
+            votes.add(other[lab])
+    votes |= {other[n] for n in negated}
+    if len(votes) == 1:
+        return next(iter(votes))
+    if votes:
+        return None
+    hits = [(m.start(), lab) for lab in labels if lab not in negated
+            for m in [re.search(rf"\b{re.escape(lab)}\b", text, re.I)] if m]
+    return min(hits)[1] if hits else None
+
+
 def score_numeric(answer: str, task: dict, case: dict | None = None) -> dict:
     num = task["numeric"]
     kind, gold, gtype = num["kind"], num["gold"], num["gold_type"]
@@ -330,7 +382,7 @@ def score_numeric(answer: str, task: dict, case: dict | None = None) -> dict:
         if not cand:
             cand = _int_values(answer)
         if not cand:
-            z = re.search(r"\b(none|zero|no (?:free |spare |open )?(?:evenings?|days?|slots?|items?|bills?|nights?))\b"
+            z = re.search(r"\b(none|zero|no (?:[a-z]+ ){0,2}(?:evenings?|days?|slots?|items?|bills?|nights?|payments?|invoices?))\b"
                           r"|\bnot free\b|\bnothing free\b", answer, re.I)
             if z:
                 cand = [(z.start(), 0)]
@@ -360,18 +412,8 @@ def score_numeric(answer: str, task: dict, case: dict | None = None) -> dict:
                 ok = False
     elif gtype == "label":
         labels = num.get("labels") or []
-        first = None
-        best = None
-        for lab in labels:
-            m = re.search(r"\b" + re.escape(lab) + r"\b", answer, re.I)
-            if m and (best is None or m.start() < best):
-                best, first = m.start(), lab
-        value = first
-        ok = first == gold
-        loser = num.get("loser")
-        if ok and loser and re.search(rf"\b{re.escape(loser)}\b[^.]*\b(more|higher|bigger|larger)\b", answer, re.I) \
-                and not re.search(rf"\b{re.escape(gold)}\b[^.]*\b(more|higher)\b", answer, re.I):
-            ok = False
+        value = comparison_answer(answer, labels)
+        ok = value == gold
         totals = num.get("totals") or {}
         if totals:
             vals = {v for _, v in _money_values(answer)}

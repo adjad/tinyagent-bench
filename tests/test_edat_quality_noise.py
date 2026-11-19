@@ -90,8 +90,6 @@ def test_typos_edit_one_word_in_eight_at_most():
         assert 1 <= n <= k
 
 
-@pytest.mark.xfail(strict=True, reason="a 'swap' of two identical letters (tell, soon) is a no-op, so some seeds "
-                                      "edit fewer than len(words)//8 words; spec says one edit per 8 words")
 def test_typos_make_exactly_one_edit_per_eight_words():
     k = len(words(REQUEST)) // 8
     for s in range(60):
@@ -131,8 +129,6 @@ def test_typos_edits_are_single_character_changes():
             assert abs(len(o) - len(n)) <= 1
 
 
-@pytest.mark.xfail(strict=True, reason="all-caps units such as EUR next to an amount are editable ('EUR' became 'ER', "
-                                      "'EiR'); an amount's currency code should survive like the number does")
 def test_typos_keep_the_currency_code_of_an_amount():
     for s in range(60):
         assert "EUR" in make_noisy(REQUEST, "typos", s)

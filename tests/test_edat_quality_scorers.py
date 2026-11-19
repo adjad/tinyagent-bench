@@ -369,9 +369,6 @@ def test_resolved_dates_of_named_free_days_are_allowed():
     assert fab(ans, c, t)["fabricated"] == []
 
 
-@pytest.mark.xfail(strict=True, reason="a code written next to an amount without punctuation ('Pay INV-22427 45.55 "
-                                      "EUR') is read as a phone number '22427 45.55' and flagged as fabricated, "
-                                      "although both atoms are in the source")
 def test_a_code_followed_by_its_amount_is_not_read_as_a_phone_number():
     f = fact_by_id(EMAIL, "F01")
     ans = f"Pay {f['anchors']['code']} {W.fmt_amount(f['anchors']['amount'])} by {say(f['anchors']['date_due'], 'date_due')}."
@@ -426,8 +423,6 @@ def test_a_change_word_must_be_within_twelve_tokens():
     "Dinner on {old} and {new}.",
     "Dinner is {new}. Someone suggested {old} " + " ".join(["word"] * 14) + " was.",
 ])
-@pytest.mark.xfail(strict=True, reason="spec 7.2: the old anchor without a change word within 12 tokens fails; the "
-                                      "code returns 'ambiguous' whenever the new anchor is also present")
 def test_superseded_old_value_without_a_change_word_fails_even_with_the_new_one(answer):
     assert tr(answer.format(old=OLD, new=NEW), SUP) == "fail"
 
@@ -784,8 +779,6 @@ def test_the_real_count_task_is_scored_from_its_gold():
     assert m["numeric_ok"] and m["self_corrected"]
 
 
-@pytest.mark.xfail(strict=True, reason="'no unpaid items' is not recognised as zero: the none-pattern allows only "
-                                      "'no (free|spare|open)? evenings/days/slots/items/bills/nights'")
 def test_zero_in_the_words_no_unpaid_items():
     assert score_numeric("You have no unpaid items.", int_task(0), None)["numeric_ok"] is True
 
@@ -836,10 +829,6 @@ def test_comparison_totals_are_scored_like_sums():
     assert m["totals_stated"] == 0 and m["totals_ok"] is None
 
 
-@pytest.mark.xfail(strict=True, reason="the winner is read as the first label mentioned, so a correct answer that "
-                                      "names the loser first ('X is lower; Y is higher', 'Not X, Y') is scored wrong; "
-                                      "spec 7.7: the winning label appears as the answer and the loser is not "
-                                      "stated as the winner")
 @pytest.mark.parametrize("answer", [
     "{lose} is lower; {win} is higher.",
     "{lose} spent less than {win}.",
@@ -849,9 +838,6 @@ def test_comparison_correct_answer_naming_the_loser_first_is_accepted(answer):
     assert cok(answer.format(win=WIN, lose=LOSE))
 
 
-@pytest.mark.xfail(strict=True, reason="an answer that restates the question and then answers with the loser "
-                                      "('X or Y? Y.') passes because the first label mentioned is the winner; the "
-                                      "answer given is the loser")
 def test_comparison_echoing_the_question_then_naming_the_loser_fails():
     assert not cok(f"{WIN} or {LOSE}? {LOSE}.")
 

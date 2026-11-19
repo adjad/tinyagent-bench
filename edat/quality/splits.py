@@ -244,9 +244,21 @@ def _anchor_values(c: dict) -> set[str]:
     return vals
 
 
-def _item_hashes(c: dict) -> set[str]:
+def _planted_ids(c: dict) -> set[str]:
+    ids = {x for f in c.get("facts", []) for x in f.get("source_ids") or []}
+    ids |= {t.get("item_id") for t in c.get("traps", []) if t.get("item_id")}
+    return ids
+
+
+def _item_hashes(c: dict, *, planted: bool | None = None) -> set[str]:
+    """Hashes of a case's source items; `planted=True` keeps only items holding a planted
+    fact or trap, `planted=False` only filler items."""
     out = set()
+    pids = _planted_ids(c) if planted is not None else set()
     for it in c.get("items", []):
+        holds = it.get("id") in pids or any(s.get("id") in pids for s in it.get("sections", []) or [])
+        if planted is not None and holds != planted:
+            continue
         body = json.dumps({k: v for k, v in it.items() if k not in ("id", "order")}, sort_keys=True)
         out.add(hashlib.sha256(body.encode()).hexdigest())
     return out
@@ -266,18 +278,22 @@ def overlap_report(dev: dict[str, list[dict]], held: dict[str, list[dict]]) -> d
     h_ids = {c["case_id"] for c in h_cases + held["noisy"]}
     d_anchor = set().union(*[_anchor_values(c) for c in d_cases]) if d_cases else set()
     h_anchor = set().union(*[_anchor_values(c) for c in h_cases]) if h_cases else set()
-    d_items = set().union(*[_item_hashes(c) for c in d_cases]) if d_cases else set()
-    h_items = set().union(*[_item_hashes(c) for c in h_cases]) if h_cases else set()
+    d_items = set().union(*[_item_hashes(c, planted=True) for c in d_cases]) if d_cases else set()
+    h_items = set().union(*[_item_hashes(c, planted=True) for c in h_cases]) if h_cases else set()
+    d_fill = set().union(*[_item_hashes(c, planted=False) for c in d_cases]) if d_cases else set()
+    h_fill = set().union(*[_item_hashes(c, planted=False) for c in h_cases]) if h_cases else set()
     d_fact_txt = {f["text"] for c in d_cases for f in c.get("facts", []) if f.get("text")}
     h_fact_txt = {f["text"] for c in h_cases for f in c.get("facts", []) if f.get("text")}
     rep = {
         "seeds_shared": len(d_seeds & h_seeds), "case_ids_shared": len(d_ids & h_ids),
         "planted_anchors_shared": sorted(d_anchor & h_anchor)[:20], "planted_anchors_shared_n": len(d_anchor & h_anchor),
-        "source_items_shared": len(d_items & h_items), "planted_sentences_shared": len(d_fact_txt & h_fact_txt),
+        "source_items_shared": len(d_items & h_items), "filler_items_shared": len(d_fill & h_fill),
+        "planted_sentences_shared": len(d_fact_txt & h_fact_txt),
         "dev_cases": len(d_cases), "heldout_cases": len(h_cases),
     }
     # Identical planted sentences are reported, not failed: low-entropy facts with no unique anchor
-    # (one of ten items to bring, one of four notice periods) repeat across seeds by design.
+    # (one of ten items to bring, one of four notice periods) repeat across seeds by design. So are
+    # identical filler items (a shipping notice drawn from a small pool): they carry no answer.
     rep["ok"] = not (rep["seeds_shared"] or rep["case_ids_shared"] or rep["source_items_shared"]
                      or rep["planted_anchors_shared_n"])
     return rep

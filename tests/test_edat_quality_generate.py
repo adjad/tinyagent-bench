@@ -419,10 +419,6 @@ def test_meeting_notes_fact_source_ids_point_at_the_section_that_holds_the_fact(
     assert inj["text"] in section_text(c, inj["item_id"])
 
 
-@pytest.mark.xfail(strict=True, reason="lease, policy, project brief and manual create their planted sections with the "
-                                      "same placeholder id (sec-01), so the renumbering step points every fact's "
-                                      "source_ids (and the lease's superseded trap item_id) at whichever section "
-                                      "comes first")
 @pytest.mark.parametrize("kind", ["lease", "policy", "project_brief", "manual"])
 def test_document_fact_source_ids_point_at_the_section_that_holds_the_fact(kind):
     c = doc_case(kind)

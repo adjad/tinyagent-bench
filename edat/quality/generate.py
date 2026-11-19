@@ -942,8 +942,11 @@ def gen_document(case: dict, w: W.World) -> None:
     planted: list[tuple[str, dict]] = []   # (position, section)
     doc_pool = _DOC_SENTENCES
 
+    tmp_ids = iter(range(1, 10_000))
+
     def sec(heading: str, paras: list[str]) -> dict:
-        return {"id": f"sec-{len(sections) + len(planted) + 1:02d}", "heading": heading, "paras": paras}
+        # a unique placeholder id; the final sec-NN ids are given once the order is known
+        return {"id": f"tmp-{next(tmp_ids):04d}", "heading": heading, "paras": paras}
 
     title = ""
     tasks: list[dict] = []
@@ -1085,15 +1088,14 @@ def gen_document(case: dict, w: W.World) -> None:
         k = len(seq)
         lo, hi = {"early": (0, k // 3), "middle": (k // 3, 2 * k // 3), "late": (2 * k // 3, k)}[p]
         seq.insert(rng.randrange(lo, max(lo, hi) + 1), s)
+    rename = {}
     for i, s in enumerate(seq):
-        old = s["id"]
-        s["id"] = f"sec-{i + 1:02d}"
-        for f_ in facts:
-            if old and f_["source_ids"] == [old]:
-                f_["source_ids"] = [s["id"]]
-        for t_ in traps:
-            if old and t_["item_id"] == old:
-                t_["item_id"] = s["id"]
+        rename[s["id"]] = f"sec-{i + 1:02d}"
+        s["id"] = rename[s["id"]]
+    for f_ in facts:
+        f_["source_ids"] = [rename.get(x, x) for x in f_["source_ids"]]
+    for t_ in traps:
+        t_["item_id"] = rename.get(t_["item_id"], t_["item_id"])
     case["items"].append({"id": "doc-01", "kind": kind, "title": title, "sections": seq,
                           "pages": DOC_PAGES[tier]})
     case["doc_kind"] = kind

@@ -33,12 +33,22 @@ _SPOKEN = {"0": "zero", "1": "one", "2": "two", "3": "three", "4": "four", "5": 
 _FILLERS = ["um", "like", "uh", "you know", "so"]
 
 # A protected token is never edited: codes, numbers, times and names the answer depends on.
-_PROTECT = re.compile(r"^(?:[A-Z]{1,6}-\d+|\d[\d:.,]*|[A-Z][a-z]+)$")
+_PROTECT = re.compile(r"^(?:[A-Z]{1,6}-\d+|\d[\d:.,]*|[A-Z][a-z]+|[A-Z]{2,})$")   # all caps: EUR, GP, PIN
 
 
 def _typo(word: str, rng: random.Random) -> str:
+    """One visible edit. An edit that would leave the word unchanged (swapping two equal
+    letters, a neighbour with no entry) is drawn again, so every chosen word changes."""
     if len(word) < 3 or not word.isalpha():
         return word
+    for _ in range(12):
+        out = _typo_once(word, rng)
+        if out != word:
+            return out
+    return word[:1] + word[2:] if len(word) > 3 else word + word[-1]
+
+
+def _typo_once(word: str, rng: random.Random) -> str:
     i = rng.randrange(1, len(word) - 1)
     op = rng.choice(["swap", "drop", "double", "neighbour"])
     if op == "swap":
@@ -53,7 +63,8 @@ def _typo(word: str, rng: random.Random) -> str:
 
 def typos(text: str, rng: random.Random) -> str:
     words = text.split(" ")
-    editable = [i for i, w in enumerate(words) if not _PROTECT.match(w.strip("?,.!")) and len(w.strip("?,.!")) >= 3]
+    editable = [i for i, w in enumerate(words)
+                if not _PROTECT.match(w.strip("?,.!")) and len(w.strip("?,.!")) >= 3 and w.rstrip("?,.!").isalpha()]
     k = max(1, len(words) // 8)
     for i in sorted(rng.sample(editable, min(k, len(editable)))):
         core = words[i].rstrip("?,.!")

@@ -397,8 +397,13 @@ def find_codes(text: str) -> list[Atom]:
 
 def find_phones(text: str) -> list[Atom]:
     out = []
-    for m in _PHONE_RX.finditer(nfkc(text)):
+    t = nfkc(text)
+    for m in _PHONE_RX.finditer(t):
         digits = re.sub(r"\D", "", m.group(0))
+        if m.start() >= 2 and t[m.start() - 1] == "-" and t[m.start() - 2].isalpha():
+            continue                         # the digits of a code such as INV-22427
+        if re.search(r"[.,]\d{2}$", m.group(0)) and re.match(rf"\s?{_CUR_SYM}", t[m.end():], re.I):
+            continue                         # ends in an amount such as 45.55 EUR
         if len(digits) >= 7 and ("555" in digits or m.group(0).startswith("+") or len(digits) >= 9):
             out.append(Atom("phone", digits, m.start(), m.end(), m.group(0), "phone"))
     return out

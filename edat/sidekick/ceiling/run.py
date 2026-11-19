@@ -389,6 +389,15 @@ def tool_trial(client, inst, *, suite: str, seed: int, thinking: bool, sampling,
     return m, raw, g.events, "ok", None
 
 
+def _toolchain_key() -> dict | None:
+    """The versions of the Python, Node and git that model code and the graders run with (no paths)."""
+    from edat.sidekick.toolchain import ToolchainError, find_toolchain
+    try:
+        return find_toolchain().run_key()
+    except ToolchainError:
+        return None
+
+
 def _guarded(grade):
     """Run a trial's grading; an error in it fails that trial (`grader_error`) instead of ending the run.
     A broken sandbox is not the answer's doing and still stops everything."""
@@ -591,7 +600,7 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
              "sampling_basis": profile.basis, "quant": dict(model.quant), "bits_per_weight": model.bits_per_weight,
              "engine_context_window": None if scripted else engine_context(model.engine_id)[0],
              "ships_thinking": model.thinking[0], "template_thinking_default": model.template_thinking,
-             "seeds": seeds,
+             "seeds": seeds, "toolchain": _toolchain_key(),
              "quick": quick.to_dict() if plan == "quick" else None}
     first_ok: list[dict] = []          # the first answer-only results: is thinking really on, does the engine run it?
     first_status: list[str] = []
@@ -766,6 +775,8 @@ def run_all(out: Path, *, plan: str, tiers: tuple[int, ...] = (0,), only: tuple[
             try:
                 st = _run_entry(e, out, plan=plan, client_kind=client_kind, base_url=base_url, device_id=device_id,
                                 weights_sha256=sha, max_minutes=left, progress=progress, iso=iso, quick=quick)
+            except SandboxUnavailable:
+                raise                             # the host's sandbox or git: the whole run stops
             except RuntimeError as exc:
                 row.update(result="skipped", why=str(exc))
                 if progress:
@@ -928,8 +939,9 @@ def preflight(out: Path, *, engine: bool = False, weights: bool = False, base_ur
         add("toolchain: Python for model code is self-contained", True, tc.python.version)
         add("toolchain: Node for model code is self-contained", tc.node is not None,
             tc.node.version if tc.node else "no Node found: the JavaScript cases cannot run")
+        add("toolchain: git for the git grader", True, f"{tc.git.version.strip()} at {tc.git.path}")
     except ToolchainError as exc:
-        add("toolchain: Python and Node for model code are self-contained", False, str(exc)[:300])
+        add("toolchain: Python, Node and git for model code and the git grader", False, str(exc)[:300])
     try:
         st = require_sandbox()
         add("sealed sandbox self-test", st.passed, f"{len(st.probes) if hasattr(st, 'probes') else ''} probes")

@@ -47,7 +47,7 @@ import json
 import os
 
 from edat.sidekick.graders.common import GradeResult
-from edat.sidekick.sandbox.run import Isolation, Limits, TrialArea
+from edat.sidekick.sandbox.run import Isolation, Limits, SandboxUnavailable, TrialArea
 
 # The snapshot never runs in the model's repository. The host copies the repository (working tree, .git
 # and origin.git) through folder handles into a fresh area, leaving out what could make git run something,
@@ -76,6 +76,11 @@ _DROP_PATHS = (("objects", "info", "alternates"), ("objects", "info", "http-alte
                ("objects", "pack", "multi-pack-index"))
 CLEAN_CONFIG = ("[core]\n\trepositoryformatversion = 0\n\tfilemode = true\n\tbare = {bare}\n"
                 "\tignorecase = {ignorecase}\n\tprecomposeunicode = true\n")
+# Written into the copy's .git/info/attributes (the model's own is left out). That file outranks every
+# .gitattributes in the tree, and `!attr` leaves each attribute unspecified, so no attribute that changes how
+# bytes are compared applies, on every git the grader runs. Git 2.40 and later also read attributes from
+# the empty tree (--attr-source), so the two ways agree.
+NO_ATTRIBUTES = "* !text !eol !crlf !filter !diff !merge !ident !working-tree-encoding\n"
 CONFIG_BYTES = 1 << 20                 # a config over this is not read (and flagged); never read in part
 # In the model's repository these make git look somewhere else or rewrite history: left out of the copy,
 # and flagged, never dropped silently.
@@ -90,6 +95,31 @@ GIT_SAFE = ["--no-pager", "--no-replace-objects", "-c", "core.fsmonitor=false", 
 GIT_ENV = {"GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_ATTR_NOSYSTEM": "1",
            "GIT_TERMINAL_PROMPT": "0", "GIT_OPTIONAL_LOCKS": "0", "GIT_NO_REPLACE_OBJECTS": "1",
            "GIT_GRAFT_FILE": "/dev/null"}
+
+
+class GitGraderUnavailable(SandboxUnavailable):
+    """The grader's own git cannot read a repository the harness built: the host's git, never the answer.
+    Like a broken sandbox it stops the run; it is never a failed answer."""
+
+
+def git_version_text() -> str:
+    from edat.sidekick.toolchain import find_toolchain
+    return find_toolchain().git.version.strip().removeprefix("git version ")
+
+
+def require_readable_fixture(before: dict) -> dict:
+    """The case's own repository, before the model acts, must read cleanly both ways."""
+    if before.get("unreadable") or before.get("too_large") or before.get("git_view_mismatch"):
+        raise GitGraderUnavailable(f"the grader's git ({git_version_text()}) cannot read the case's own repository "
+                                   "before the model acts: "
+                                   + str(before.get("unreadable") or before.get("git_view_mismatch") or "too large")[:200]
+                                   + "; this is the host's git, not the answer, so the run stops")
+    return before
+
+
+def attr_source_supported() -> bool:
+    from edat.sidekick.toolchain import find_toolchain, git_version
+    return git_version(find_toolchain().git.version) >= (2, 40)
 
 
 def _refused_in_repo(rel: str, *, bare: bool = False) -> bool:
@@ -139,6 +169,7 @@ keep = json.loads(sys.argv[1]); labels = json.loads(sys.argv[2]); out_path = sys
 GIT = [sys.argv[4], *json.loads(sys.argv[5])]; model_config = sys.argv[6]
 model_config_wt = model_config + "-worktree"
 IGNORECASE = sys.argv[7] == "true"
+ATTR_SOURCE = sys.argv[8] == "1"         # git 2.40 and later: --attr-source; earlier, the fixed info/attributes alone
 import unicodedata
 SHA = re.compile(r"^[0-9a-f]{40}$")
 LIMIT = 1 << 25
@@ -691,7 +722,7 @@ def fsck(git_dir):
 def G(*a, git_dir=None, stdin=None):
     """git as the second reader: attributes from the empty tree (none from the work tree), so it compares
     the same raw bytes the raw reader hashes."""
-    pre = [f"--attr-source={EMPTY_TREE}"] + ([f"--git-dir={git_dir}"] if git_dir else [])
+    pre = ([f"--attr-source={EMPTY_TREE}"] if ATTR_SOURCE else []) + ([f"--git-dir={git_dir}"] if git_dir else [])
     r = subprocess.run([*GIT, *pre, *a], capture_output=True, input=stdin)
     return r.returncode, r.stdout.decode("utf-8", "surrogateescape")
 
@@ -975,6 +1006,7 @@ def snapshot(iso: Isolation, area: TrialArea, check: dict, labels: dict | None =
         ignorecase = "true" if (ca.work / ".GIT").exists() else "false"
         if (ca.work / ".git").is_dir() and not (ca.work / ".git").is_symlink():
             ca.write_inside(".git/config", CLEAN_CONFIG.format(bare="false", ignorecase=ignorecase))
+            ca.write_inside(".git/info/attributes", NO_ATTRIBUTES)
         if (ca.root / "origin.git").is_dir() and not (ca.root / "origin.git").is_symlink():
             fd = os.open(ca.root / "origin.git" / "config", os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o644)
             with os.fdopen(fd, "w") as fh:
@@ -983,7 +1015,8 @@ def snapshot(iso: Isolation, area: TrialArea, check: dict, labels: dict | None =
                            "model-config-worktree": configs["config.worktree"], "host-notes.json": json.dumps(notes)})
         out = gd / "snap.json"
         args = " ".join(_q(x) for x in (json.dumps(keep), json.dumps(labels), str(out), str(ca.bin / "git"),
-                                        json.dumps(GIT_SAFE), str(gd / "model-config"), ignorecase))
+                                        json.dumps(GIT_SAFE), str(gd / "model-config"), ignorecase,
+                                        "1" if attr_source_supported() else "0"))
         res = iso.run(ca, f"{ca.bin}/python3 -I {gd}/snap.py {args}", limits=Limits(wall_s=20), env=dict(GIT_ENV))
         try:
             snap = json.loads(ca.read_result(out, 1 << 25) or b"")  # never through a link
@@ -1161,14 +1194,12 @@ def grade_git(iso: Isolation, area: TrialArea, check: dict, commands: str, *, be
     view of the sanitised copy: not hardened against adversarial model code (see GRADING)."""
     gr = GradeResult(True)
     gr.metrics.update(GRADING)
+    gr.metrics["git_version"] = git_version_text()
     if before is None:
         ok, why = build_repo(iso, area, check)
         if not ok:
             raise RuntimeError("git fixture setup failed: " + why)
-        before = snapshot(iso, area, check)
-        if before.get("unreadable") or before.get("too_large") or before.get("git_view_mismatch"):
-            raise RuntimeError("git fixture unreadable or read two ways: "
-                               + str(before.get("unreadable") or before.get("git_view_mismatch")))
+        before = require_readable_fixture(snapshot(iso, area, check))
         if not commands.strip():
             return gr.fail("no command"), [], before
         res = iso.run(area, commands, limits=Limits(wall_s=10))

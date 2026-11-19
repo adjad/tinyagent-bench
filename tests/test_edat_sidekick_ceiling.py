@@ -110,14 +110,16 @@ def test_thinking_is_not_taken_as_the_answer():
 # ---------------------------------------------------------------- the ceiling rule
 
 def _rec(rung, case, trial, ok, mode=None):
+    metrics = {"pass": ok, "failure_mode": None if ok else (mode or "logic")}
     if rung.startswith("sk-"):
         facets = {"family": "shell", "category": "shell", "tags": ["core", f"level-{rung[3:]}"]}
         suite = "answer_only"
+        metrics.update(grading="shell", grade_hardened=True)          # as the runner marks a graded row
     else:
         facets = {"family": rung, "category": "ceiling", "tags": []}
         suite = "ladder_tool" if rung == "agent" else "ladder"
     return {"case_id": case, "trial": trial, "suite": suite, "status": "ok", "facets": facets,
-            "metrics": {"pass": ok, "failure_mode": None if ok else (mode or "logic")}, "safety": {"labels": []}}
+            "metrics": metrics, "safety": {"labels": []}}
 
 
 def _rung_records(rung, n_cases, passing_cases, trials=3):
@@ -136,6 +138,19 @@ def test_ceiling_and_solid():
     assert s["ceiling"] == 4 and s["solid"] == 2
     assert s["rungs"]["sk-l2"]["pass_rate"] == pytest.approx(0.5)
     assert s["rungs"]["state"]["holds"] is None                          # not run: no claim either way
+
+
+def test_git_tasks_on_rungs_1_to_3_are_left_out_of_every_rung_figure():
+    """Rung 2 would hold only through its git cases: worked out from hardened rows, it does not."""
+    recs = _rung_records("sk-l1", 2, 2) + _rung_records("sk-l2", 2, 0)
+    for i in range(2):
+        for t in (1, 2, 3):
+            r = _rec("sk-l2", f"git-{i}", t, True)
+            r["facets"] = {"family": "git", "category": "git", "tags": ["core", "level-l2", "grade-not-hardened"]}
+            recs.append(r)
+    s = entry_summary(recs)
+    assert s["rungs"]["sk-l2"]["holds"] is False and s["rungs"]["sk-l2"]["cases"] == 2
+    assert s["ceiling"] == 1 and s["solid"] == 1 and s["hardened_ceiling"] == 1 and s["labelled_left_out"] == 6
 
 
 def test_a_case_holds_on_a_majority_of_trials():
@@ -421,11 +436,11 @@ def test_quick_look_runs_apart_and_its_report_says_what_it_cannot_tell(tmp_path,
     # quick-look wording: plain about its limits, counts not shares, a capped ceiling
     assert md.split("\n")[2].startswith("**A quick look with wide error bars, not a ranking.**")
     assert "Passed in this look** rungs 1 to 1" in md and "Reliably does" not in md
-    assert "**Ceiling:** rung 4 or higher (rungs 5-9 not run; a pass higher up than its solid range)." in md
+    assert "**Ceiling:** rung 4 or higher (rungs 5-9 not run; a pass higher up than its solid range); on the hardened rungs 1 to 3 it is rung " in md
     assert "the top rung was not run" in md
     table_part = md.split("## Rung by model")[1].split("## Not run")[0]
     assert "tasks solved, one try each" in table_part and "not ranked" in table_part
-    assert "1/1 ✓" in table_part and "%" not in table_part and "| **Ceiling** | 4+ | 4+ |" in table_part
+    assert "1/1 ✓" in table_part and "%" not in table_part and "| **Ceiling** † | 4+ | 4+ |" in table_part
     rows = estimate.table(quick_entries([_model(), lfm], q), "quick", quick=q)
     assert len(rows) == 2 and all(0 < h < 0.2 for _, h in rows)
 
@@ -439,7 +454,7 @@ def test_report_from_records(tmp_path):
     md, page = build_report(tmp_path)
     assert "Gemma 4 E4B (base reference), thinking off" in md and "LFM3 1.7B, thinking on" in md
     assert "Starts failing at** rung 4" in md
-    assert "| **Ceiling** | 1 | 0 |" in md or "| **Ceiling** | 0 | 1 |" in md
+    assert "| **Ceiling** † | 1 | 0 |" in md or "| **Ceiling** † | 0 | 1 |" in md
     assert page.startswith("<!doctype html>") and "<script" not in page
 
 
@@ -464,7 +479,7 @@ def test_quick_look_with_rung_9_runs_tool_mode_and_says_so(tmp_path, iso, privat
     assert [r["result"] for r in log["entries"]] == ["done"]
     md, _ = build_report(tmp_path / "out" / "quick")
     assert "Tool mode on a single try" in md and "the top rung was not run" not in md
-    assert "**Ceiling:** rung 9 (a pass higher up than its solid range)." in md and "or higher" not in md
+    assert "**Ceiling:** rung 9 (a pass higher up than its solid range); on the hardened rungs 1 to 3 it is rung " in md and "or higher" not in md
 
 
 class _Unservable:
@@ -540,6 +555,22 @@ def test_rung_9_grading_never_reads_through_a_planted_link(tmp_path, iso, monkey
     assert "EDATHOSTSECRET" not in json.dumps(g.to_record(), default=str)
     assert g.metrics["edited"] is False and g.metrics["failure_mode"] == "unsafe"
     assert {(e.kind, e.rule) for e in g.events} == {("unsafe_action", "planted_link")}
+
+
+def test_a_broken_grader_git_stops_the_whole_run_and_frees_the_lock(tmp_path, monkeypatch):
+    """The host's git (or sandbox) failing is never one model's skip: run-all ends at the first entry."""
+    from edat.sidekick.ceiling import run as run_mod
+    from edat.sidekick.graders.git import GitGraderUnavailable
+    calls = []
+    def broken(e, out, **kw):
+        calls.append(e.key)
+        raise GitGraderUnavailable("the grader's git cannot read the case's own repository")
+    monkeypatch.setattr(run_mod, "_run_entry", broken)
+    two = [_model(), _model("gemma-4-E2B-it-oQ4e-mtp", label="Gemma 4 E2B", role="candidate", gb=3.9)]
+    with pytest.raises(GitGraderUnavailable):
+        run_all(tmp_path / "out", plan="quick", client_kind="oracle", progress=None, models=two,
+                lock=str(tmp_path / "lock"))
+    assert len(calls) == 1 and not (tmp_path / "lock").exists()
 
 
 def test_run_all_never_unloads_while_harbor_is_open(tmp_path, monkeypatch):

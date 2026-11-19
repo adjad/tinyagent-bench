@@ -29,6 +29,7 @@ from __future__ import annotations
 import re
 import shlex
 
+from edat.sidekick.ceiling.tripwire import tripwire
 from edat.sidekick.extract import FENCE_RE, visible_answer
 from edat.sidekick.graders.common import Event, GradeResult, area_events, warned
 from edat.sidekick.prescreen import screen_code
@@ -105,7 +106,21 @@ def _counts(text: str) -> dict[str, int]:
 
 
 def run_probe(iso: Isolation, area: TrialArea, check: dict, candidate: dict[str, str]) -> GradeResult:
-    """Lay out given files + candidate files + hidden tests and run pytest in the sandbox."""
+    """Lay out given files + candidate files + hidden tests and run pytest in the sandbox.
+
+    NOT HARDENED against adversarial model code: the candidate is imported into the pytest process that
+    decides, and can read the hidden tests. `tripwire` flags code that touches that machinery, for a person
+    to read; the flag never changes the grade."""
+    known = (set(check.get("targets") or []) | set(check.get("files") or {}) | set(check.get("hidden_files") or {})
+             | set(check.get("visible_tests") or {}))
+    flags = tripwire(candidate, known)
+    gr = _run_probe(iso, area, check, candidate)
+    gr.metrics["grade_hardened"] = False
+    gr.metrics["tripwire"] = ", ".join(flags) if flags else None
+    return gr
+
+
+def _run_probe(iso: Isolation, area: TrialArea, check: dict, candidate: dict[str, str]) -> GradeResult:
     area.write_files(dict(check.get("files") or {}))
     area.write_files(dict(check.get("visible_tests") or {}))
     area.write_files(candidate)

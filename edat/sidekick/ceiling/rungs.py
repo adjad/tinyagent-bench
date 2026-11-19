@@ -35,10 +35,27 @@ class Rung:
     level: str | None = None
     mode: str = "answer_only"   # answer_only | tool
 
+    @property
+    def hardened(self) -> bool:
+        """Whether this rung's grading holds against code written to attack the grader. The probe rungs do
+        not yet: see NOT_HARDENED."""
+        return self.source == "sidekick"
+
+
+NOT_HARDENED = "not hardened against adversarial model code"
+NOT_HARDENED_WHY = ("Rungs 4 to 9 are " + NOT_HARDENED + ": their hidden tests run in the same process as the "
+                    "model's code, so a model would have to attack the grader on purpose (read the reference "
+                    "from the test process, patch pytest, fake the exit code) to pass one. An honest wrong "
+                    "answer cannot pass by accident. Until they are rebuilt they stay out of any published or "
+                    "ranked score; code that touches the test machinery is flagged for a person to read. "
+                    "On rungs 1 to 3 the labelled sidekick tasks (git, written tests, explanations matched by "
+                    "key facts, commit messages, the shell and diff cases noted in the run sheet) carry the same label, so "
+                    "rungs 1 to 3 (and the ceiling) are worked out without them.")
+
 
 RUNGS = (
-    Rung(1, "sk-l1", "Simple one-step tasks: a short function, one shell command, read an error", "sidekick", "L1"),
-    Rung(2, "sk-l2", "Everyday helper tasks: fix a bug, a git fix, a regex, write tests", "sidekick", "L2"),
+    Rung(1, "sk-l1", "Simple one-step tasks: a short function, one shell command, a regex", "sidekick", "L1"),
+    Rung(2, "sk-l2", "Everyday helper tasks: fix a bug, a regex, a shell command", "sidekick", "L2"),
     Rung(3, "sk-l3", "The harder helper tasks: edge cases and tricky commands", "sidekick", "L3"),
     Rung(4, "rules", "A function with several rules that interact", "probe"),
     Rung(5, "state", "A small class that keeps track of state", "probe"),
@@ -131,12 +148,21 @@ def probe_templates() -> dict[str, list[Template]]:
     return out
 
 
+def _scored_case(case) -> bool:
+    """Whether a sidekick case's grading is on the allow-list (the label is the same on every seed)."""
+    from edat.sidekick.labels import grading_label
+    inst = case.template.build(random.Random(f"scored|{case.template.id}"))
+    return bool(grading_label(inst.grader, inst.check)["grade_hardened"])
+
+
 def ladder_cases(rungs: tuple[str, ...] | None = None) -> list[LadderCase]:
     """Every case of the selected rungs (default all), rung order then id."""
     from edat.sidekick.gen.core import build_cases
     want = set(rungs or RUNG_BY_ID)
     out: list[LadderCase] = []
-    sk = [c for c in build_cases(None) if c.core and c.group != "restraint"]
+    # Rungs 1 to 3 are worked out from scored rows only (labels.may_score), so their samples are drawn from
+    # the cases whose grading is on the allow-list; a labelled case would spend a trial that cannot count.
+    sk = [c for c in build_cases(None) if c.core and c.group != "restraint" and _scored_case(c)]
     by_t = probe_templates()
     for r in RUNGS:
         if r.id not in want:

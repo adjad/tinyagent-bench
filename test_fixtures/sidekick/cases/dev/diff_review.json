@@ -1,0 +1,643 @@
+{
+ "cases": [
+  {
+   "meta": {
+    "core": true,
+    "group": "diff_review",
+    "human_graded": false,
+    "id": "sk_diff_what_timeout_logging_1",
+    "lang": "text",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "diff_what_timeout_logging",
+    "tool_mode": false,
+    "type": "diff_review",
+    "variant": "what"
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "logged": [
+        "\\blog(s|ged|ging)?\\b.{0,60}(fail|error|exception)",
+        "(fail|error|exception)\\w*.{0,60}\\blog(s|ged|ging)?\\b",
+        "warning"
+       ],
+       "returns_none": [
+        "\\bNone\\b",
+        "returns? nothing",
+        "instead of (raising|crashing)"
+       ],
+       "timeout": [
+        "time.?out.{0,40}\\b15\\b",
+        "\\b15[\\s-]*(s|sec|seconds?)\\b"
+       ]
+      },
+      "forbid": []
+     },
+     "given_names": [],
+     "grader": "keyfacts",
+     "notes": "",
+     "prompt": "What does this change do? Two or three sentences.\n\n```diff\n--- a/client.py\n+++ b/client.py\n@@ -1,8 +1,13 @@\n import requests\n+import logging\n+\n+log = logging.getLogger(__name__)\n \n \n def fetch_invoice(url):\n-    resp = requests.get(url)\n-    return resp.json()\n+    try:\n+        resp = requests.get(url, timeout=15)\n+    except requests.RequestException as exc:\n+        log.warning(\"fetch_invoice failed: %s\", exc)\n+        return None\n+    return resp.json()\n```",
+     "references": [
+      "It adds a 15-second timeout to the request in `fetch_invoice` and catches request errors: a failure is logged as a warning and the function returns None instead of raising.",
+      "`fetch_invoice` now passes `timeout=15` to `requests.get`. If the call fails, the exception is logged and None is returned.",
+      "Requests now time out after 15 seconds; failures get logged with log.warning and the function returns None."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "It renames fetch_invoice and changes the URL.",
+      "It switches the HTTP library from requests to urllib."
+     ]
+    },
+    "2": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "logged": [
+        "\\blog(s|ged|ging)?\\b.{0,60}(fail|error|exception)",
+        "(fail|error|exception)\\w*.{0,60}\\blog(s|ged|ging)?\\b",
+        "warning"
+       ],
+       "returns_none": [
+        "\\bNone\\b",
+        "returns? nothing",
+        "instead of (raising|crashing)"
+       ],
+       "timeout": [
+        "time.?out.{0,40}\\b3\\b",
+        "\\b3[\\s-]*(s|sec|seconds?)\\b"
+       ]
+      },
+      "forbid": []
+     },
+     "given_names": [],
+     "grader": "keyfacts",
+     "notes": "",
+     "prompt": "What does this change do? Two or three sentences.\n\n```diff\n--- a/client.py\n+++ b/client.py\n@@ -1,8 +1,13 @@\n import requests\n+import logging\n+\n+log = logging.getLogger(__name__)\n \n \n def fetch_sample(url):\n-    resp = requests.get(url)\n-    return resp.json()\n+    try:\n+        resp = requests.get(url, timeout=3)\n+    except requests.RequestException as exc:\n+        log.warning(\"fetch_sample failed: %s\", exc)\n+        return None\n+    return resp.json()\n```",
+     "references": [
+      "It adds a 3-second timeout to the request in `fetch_sample` and catches request errors: a failure is logged as a warning and the function returns None instead of raising.",
+      "`fetch_sample` now passes `timeout=3` to `requests.get`. If the call fails, the exception is logged and None is returned.",
+      "Requests now time out after 3 seconds; failures get logged with log.warning and the function returns None."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "It renames fetch_sample and changes the URL.",
+      "It switches the HTTP library from requests to urllib."
+     ]
+    },
+    "3": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "logged": [
+        "\\blog(s|ged|ging)?\\b.{0,60}(fail|error|exception)",
+        "(fail|error|exception)\\w*.{0,60}\\blog(s|ged|ging)?\\b",
+        "warning"
+       ],
+       "returns_none": [
+        "\\bNone\\b",
+        "returns? nothing",
+        "instead of (raising|crashing)"
+       ],
+       "timeout": [
+        "time.?out.{0,40}\\b15\\b",
+        "\\b15[\\s-]*(s|sec|seconds?)\\b"
+       ]
+      },
+      "forbid": []
+     },
+     "given_names": [],
+     "grader": "keyfacts",
+     "notes": "",
+     "prompt": "What does this change do? Two or three sentences.\n\n```diff\n--- a/client.py\n+++ b/client.py\n@@ -1,8 +1,13 @@\n import requests\n+import logging\n+\n+log = logging.getLogger(__name__)\n \n \n def fetch_note(url):\n-    resp = requests.get(url)\n-    return resp.json()\n+    try:\n+        resp = requests.get(url, timeout=15)\n+    except requests.RequestException as exc:\n+        log.warning(\"fetch_note failed: %s\", exc)\n+        return None\n+    return resp.json()\n```",
+     "references": [
+      "It adds a 15-second timeout to the request in `fetch_note` and catches request errors: a failure is logged as a warning and the function returns None instead of raising.",
+      "`fetch_note` now passes `timeout=15` to `requests.get`. If the call fails, the exception is logged and None is returned.",
+      "Requests now time out after 15 seconds; failures get logged with log.warning and the function returns None."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "It renames fetch_note and changes the URL.",
+      "It switches the HTTP library from requests to urllib."
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": true,
+    "group": "diff_review",
+    "human_graded": false,
+    "id": "sk_diff_bug_is_string_1",
+    "lang": "python",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "diff_bug_is_string",
+    "tool_mode": false,
+    "type": "diff_review",
+    "variant": "bug"
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "cause": [
+        "identity",
+        "same object",
+        "(compar\\w+|check\\w*|test\\w*) (the )?(object|identity|id|memory)",
+        "\\bis\\b.{0,40}(not|isn.?t|doesn.?t).{0,30}(equal|compar|value|content)",
+        "(use|should be|instead of|replace\\w* with|change\\w* (it )?(back )?to|need|want).{0,20}==",
+        "(interning|interned)"
+       ],
+       "location": [
+        "mode is [\\\"']full",
+        "\\bline 13\\b",
+        "`?\\bis\\b`?.{0,30}(operator|comparison|compar|string)",
+        "\\bis\\b.{0,12}full",
+        "\\bpick_plan\\b",
+        "== ?(to|with)? ?`?is\\b|`is`"
+       ]
+      },
+      "forbid": [],
+      "has_bug": true
+     },
+     "given_names": [],
+     "grader": "diff_bug",
+     "notes": "",
+     "prompt": "Is there a bug in this diff? Start your answer with Yes or No.\n\n```diff\n--- a/modes.py\n+++ b/modes.py\n@@ -12,4 +12,4 @@\n def pick_plan(mode):\n-    if mode == \"full\":\n+    if mode is \"full\":\n         return 2\n     return 1\n```",
+     "references": [
+      "Yes. Line 13 compares strings with `is`, which tests object identity rather than equality. `mode is \"full\"` can be False even when the text matches; use `==`.",
+      "Yes, `mode is \"full\"` is a bug. `is` checks whether both names point to the same object, and equal strings are not guaranteed to be the same object. Go back to ==.",
+      "**Yes**: switching `==` to `is` makes the pick_plan check unreliable for strings (it depends on interning), so the fast path may never trigger. Equality should use `==`."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "No, the change looks fine.",
+      "Yes. `pick_plan` should return a string instead of an int."
+     ]
+    },
+    "2": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "cause": [
+        "identity",
+        "same object",
+        "(compar\\w+|check\\w*|test\\w*) (the )?(object|identity|id|memory)",
+        "\\bis\\b.{0,40}(not|isn.?t|doesn.?t).{0,30}(equal|compar|value|content)",
+        "(use|should be|instead of|replace\\w* with|change\\w* (it )?(back )?to|need|want).{0,20}==",
+        "(interning|interned)"
+       ],
+       "location": [
+        "mode is [\\\"']strict",
+        "\\bline 9\\b",
+        "`?\\bis\\b`?.{0,30}(operator|comparison|compar|string)",
+        "\\bis\\b.{0,12}strict",
+        "\\bpick_style\\b",
+        "== ?(to|with)? ?`?is\\b|`is`"
+       ]
+      },
+      "forbid": [],
+      "has_bug": true
+     },
+     "given_names": [],
+     "grader": "diff_bug",
+     "notes": "",
+     "prompt": "Is there a bug in this diff? Start your answer with Yes or No.\n\n```diff\n--- a/modes.py\n+++ b/modes.py\n@@ -8,4 +8,4 @@\n def pick_style(mode):\n-    if mode == \"strict\":\n+    if mode is \"strict\":\n         return 2\n     return 1\n```",
+     "references": [
+      "Yes. Line 9 compares strings with `is`, which tests object identity rather than equality. `mode is \"strict\"` can be False even when the text matches; use `==`.",
+      "Yes, `mode is \"strict\"` is a bug. `is` checks whether both names point to the same object, and equal strings are not guaranteed to be the same object. Go back to ==.",
+      "**Yes**: switching `==` to `is` makes the pick_style check unreliable for strings (it depends on interning), so the fast path may never trigger. Equality should use `==`."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "No, the change looks fine.",
+      "Yes. `pick_style` should return a string instead of an int."
+     ]
+    },
+    "3": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "cause": [
+        "identity",
+        "same object",
+        "(compar\\w+|check\\w*|test\\w*) (the )?(object|identity|id|memory)",
+        "\\bis\\b.{0,40}(not|isn.?t|doesn.?t).{0,30}(equal|compar|value|content)",
+        "(use|should be|instead of|replace\\w* with|change\\w* (it )?(back )?to|need|want).{0,20}==",
+        "(interning|interned)"
+       ],
+       "location": [
+        "mode is [\\\"']strict",
+        "\\bline 25\\b",
+        "`?\\bis\\b`?.{0,30}(operator|comparison|compar|string)",
+        "\\bis\\b.{0,12}strict",
+        "\\bpick_style\\b",
+        "== ?(to|with)? ?`?is\\b|`is`"
+       ]
+      },
+      "forbid": [],
+      "has_bug": true
+     },
+     "given_names": [],
+     "grader": "diff_bug",
+     "notes": "",
+     "prompt": "Is there a bug in this diff? Start your answer with Yes or No.\n\n```diff\n--- a/modes.py\n+++ b/modes.py\n@@ -24,4 +24,4 @@\n def pick_style(mode):\n-    if mode == \"strict\":\n+    if mode is \"strict\":\n         return 2\n     return 1\n```",
+     "references": [
+      "Yes. Line 25 compares strings with `is`, which tests object identity rather than equality. `mode is \"strict\"` can be False even when the text matches; use `==`.",
+      "Yes, `mode is \"strict\"` is a bug. `is` checks whether both names point to the same object, and equal strings are not guaranteed to be the same object. Go back to ==.",
+      "**Yes**: switching `==` to `is` makes the pick_style check unreliable for strings (it depends on interning), so the fast path may never trigger. Equality should use `==`."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "No, the change looks fine.",
+      "Yes. `pick_style` should return a string instead of an int."
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": false,
+    "group": "diff_review",
+    "human_graded": false,
+    "id": "sk_diff_clean_early_return_1",
+    "lang": "python",
+    "level": "L3",
+    "restraint": null,
+    "split": "dev",
+    "template": "diff_clean_early_return",
+    "tool_mode": false,
+    "type": "diff_review",
+    "variant": "clean"
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {},
+      "forbid": [],
+      "has_bug": false
+     },
+     "given_names": [],
+     "grader": "diff_bug",
+     "notes": "",
+     "prompt": "Is there a bug in this diff? Start your answer with Yes or No.\n\n```diff\n--- a/people.py\n+++ b/people.py\n@@ -39,5 +39,4 @@\n def display_name_of_account(account):\n-    if account is not None:\n-        if account.active:\n-            return account.name\n-    return None\n+    if account is None or not account.active:\n+        return None\n+    return account.name\n```",
+     "references": [
+      "No. It flattens the nested ifs into one guard clause. Both versions return None when `account` is missing or inactive and the name otherwise.",
+      "No bug: the condition is just rewritten with De Morgan's law, so the behaviour is identical.",
+      "No, this refactor is equivalent. `account` None or not active returns None, every other case returns the name."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "Yes. It now returns None when the account is active.",
+      "Yes, `account.name` fails when `account` is None."
+     ]
+    },
+    "2": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {},
+      "forbid": [],
+      "has_bug": false
+     },
+     "given_names": [],
+     "grader": "diff_bug",
+     "notes": "",
+     "prompt": "Is there a bug in this diff? Start your answer with Yes or No.\n\n```diff\n--- a/people.py\n+++ b/people.py\n@@ -14,5 +14,4 @@\n def display_name_of_guest(guest):\n-    if guest is not None:\n-        if guest.active:\n-            return guest.name\n-    return None\n+    if guest is None or not guest.active:\n+        return None\n+    return guest.name\n```",
+     "references": [
+      "No. It flattens the nested ifs into one guard clause. Both versions return None when `guest` is missing or inactive and the name otherwise.",
+      "No bug: the condition is just rewritten with De Morgan's law, so the behaviour is identical.",
+      "No, this refactor is equivalent. `guest` None or not active returns None, every other case returns the name."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "Yes. It now returns None when the guest is active.",
+      "Yes, `guest.name` fails when `guest` is None."
+     ]
+    },
+    "3": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {},
+      "forbid": [],
+      "has_bug": false
+     },
+     "given_names": [],
+     "grader": "diff_bug",
+     "notes": "",
+     "prompt": "Is there a bug in this diff? Start your answer with Yes or No.\n\n```diff\n--- a/people.py\n+++ b/people.py\n@@ -40,5 +40,4 @@\n def display_name_of_user(user):\n-    if user is not None:\n-        if user.active:\n-            return user.name\n-    return None\n+    if user is None or not user.active:\n+        return None\n+    return user.name\n```",
+     "references": [
+      "No. It flattens the nested ifs into one guard clause. Both versions return None when `user` is missing or inactive and the name otherwise.",
+      "No bug: the condition is just rewritten with De Morgan's law, so the behaviour is identical.",
+      "No, this refactor is equivalent. `user` None or not active returns None, every other case returns the name."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "Yes. It now returns None when the user is active.",
+      "Yes, `user.name` fails when `user` is None."
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": false,
+    "group": "diff_review",
+    "human_graded": false,
+    "id": "sk_diff_what_retry_backoff_2",
+    "lang": "python",
+    "level": "L2",
+    "restraint": null,
+    "split": "dev",
+    "template": "diff_what_retry_backoff",
+    "tool_mode": false,
+    "type": "diff_review",
+    "variant": "what"
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "count": [
+        "\\b5\\b",
+        "\\bfive\\b"
+       ],
+       "retry": [
+        "retr(y|ies|ied)",
+        "again",
+        "repeat",
+        "attempt"
+       ],
+       "wait": [
+        "sleep",
+        "wait",
+        "pause",
+        "delay",
+        "back.?off",
+        "doubl",
+        "exponential"
+       ]
+      },
+      "forbid": []
+     },
+     "given_names": [],
+     "grader": "keyfacts",
+     "notes": "",
+     "prompt": "What does this change do? Two or three sentences.\n\n```diff\n--- a/sender.py\n+++ b/sender.py\n@@ -9,2 +9,9 @@\n+import time\n+\n def send_plan(msg):\n-    return post(msg)\n+    for attempt in range(5):\n+        try:\n+            return post(msg)\n+        except ConnectionError:\n+            time.sleep(2 ** attempt)\n+    raise ConnectionError(\"gave up\")\n```",
+     "references": [
+      "`send_plan` now retries `post(msg)` up to 5 times when a ConnectionError happens, sleeping 1, 2, 4... seconds between attempts, and raises ConnectionError if every attempt fails.",
+      "A failed send is tried again: up to five attempts with an exponential backoff between them. After the last failure it raises a ConnectionError saying it gave up.",
+      "Instead of a single call, it loops 5 times, waits longer after each connection error (2 to the power of the attempt number seconds) and raises once it runs out of attempts."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "It adds logging for every failed `send_plan` call.",
+      "It runs `send_plan` in a background thread so the caller does not block."
+     ]
+    },
+    "2": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "count": [
+        "\\b3\\b",
+        "\\bthree\\b"
+       ],
+       "retry": [
+        "retr(y|ies|ied)",
+        "again",
+        "repeat",
+        "attempt"
+       ],
+       "wait": [
+        "sleep",
+        "wait",
+        "pause",
+        "delay",
+        "back.?off",
+        "doubl",
+        "exponential"
+       ]
+      },
+      "forbid": []
+     },
+     "given_names": [],
+     "grader": "keyfacts",
+     "notes": "",
+     "prompt": "What does this change do? Two or three sentences.\n\n```diff\n--- a/sender.py\n+++ b/sender.py\n@@ -10,2 +10,9 @@\n+import time\n+\n def send_task(msg):\n-    return post(msg)\n+    for attempt in range(3):\n+        try:\n+            return post(msg)\n+        except ConnectionError:\n+            time.sleep(2 ** attempt)\n+    raise ConnectionError(\"gave up\")\n```",
+     "references": [
+      "`send_task` now retries `post(msg)` up to 3 times when a ConnectionError happens, sleeping 1, 2, 4... seconds between attempts, and raises ConnectionError if every attempt fails.",
+      "A failed send is tried again: up to three attempts with an exponential backoff between them. After the last failure it raises a ConnectionError saying it gave up.",
+      "Instead of a single call, it loops 3 times, waits longer after each connection error (2 to the power of the attempt number seconds) and raises once it runs out of attempts."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "It adds logging for every failed `send_task` call.",
+      "It runs `send_task` in a background thread so the caller does not block."
+     ]
+    },
+    "3": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "count": [
+        "\\b5\\b",
+        "\\bfive\\b"
+       ],
+       "retry": [
+        "retr(y|ies|ied)",
+        "again",
+        "repeat",
+        "attempt"
+       ],
+       "wait": [
+        "sleep",
+        "wait",
+        "pause",
+        "delay",
+        "back.?off",
+        "doubl",
+        "exponential"
+       ]
+      },
+      "forbid": []
+     },
+     "given_names": [],
+     "grader": "keyfacts",
+     "notes": "",
+     "prompt": "What does this change do? Two or three sentences.\n\n```diff\n--- a/sender.py\n+++ b/sender.py\n@@ -14,2 +14,9 @@\n+import time\n+\n def send_entry(msg):\n-    return post(msg)\n+    for attempt in range(5):\n+        try:\n+            return post(msg)\n+        except ConnectionError:\n+            time.sleep(2 ** attempt)\n+    raise ConnectionError(\"gave up\")\n```",
+     "references": [
+      "`send_entry` now retries `post(msg)` up to 5 times when a ConnectionError happens, sleeping 1, 2, 4... seconds between attempts, and raises ConnectionError if every attempt fails.",
+      "A failed send is tried again: up to five attempts with an exponential backoff between them. After the last failure it raises a ConnectionError saying it gave up.",
+      "Instead of a single call, it loops 5 times, waits longer after each connection error (2 to the power of the attempt number seconds) and raises once it runs out of attempts."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "It adds logging for every failed `send_entry` call.",
+      "It runs `send_entry` in a background thread so the caller does not block."
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": false,
+    "group": "diff_review",
+    "human_graded": false,
+    "id": "sk_diff_bug_strict_equality_2",
+    "lang": "javascript",
+    "level": "L2",
+    "restraint": null,
+    "split": "dev",
+    "template": "diff_bug_strict_equality",
+    "tool_mode": false,
+    "type": "diff_review",
+    "variant": "bug"
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "cause": [
+        "(string|str)\\b.{0,60}(number|numeric|int)",
+        "(number|numeric|int)\\b.{0,60}(string|str)\\b",
+        "(different|mismatched|differing) types?",
+        "no longer (match|coerc|convert)",
+        "never (equal|match)",
+        "(strict|===).{0,60}(coerc|convert|type)",
+        "nothing (will )?match"
+       ],
+       "location": [
+        "={3}",
+        "\\bline 52\\b",
+        "r\\.level\\s*===",
+        "strict(er)? (equality|comparison)",
+        "\\bfilterByLevel\\b"
+       ]
+      },
+      "forbid": [],
+      "has_bug": true
+     },
+     "given_names": [],
+     "grader": "diff_bug",
+     "notes": "",
+     "prompt": "Is there a bug in this diff? Start your answer with Yes or No.\n\n```diff\n--- a/filters.js\n+++ b/filters.js\n@@ -50,4 +50,4 @@\n // level is a number (1, 2, 3); input.value comes from a <select>, so it is a string\n function filterByLevel(rows, input) {\n-  return rows.filter(r => r.level == input.value);\n+  return rows.filter(r => r.level === input.value);\n }\n```",
+     "references": [
+      "Yes. Line 52 switches to `===`, but `r.level` is a number while `input.value` is a string, so strict equality is never true and the filter returns nothing. Convert with `Number(input.value)` or keep `==`.",
+      "Yes, `===` does not coerce types. Comparing the number in `r.level` with a string from the select always fails, so every row gets filtered out.",
+      "**Yes**: the stricter comparison breaks filterByLevel. A string like \"2\" is not strictly equal to the number 2, so nothing matches any more."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "No, `===` is always safer than `==`, so this is an improvement.",
+      "Yes. `filterByLevel` should use `map` instead of `filter`."
+     ]
+    },
+    "2": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "cause": [
+        "(string|str)\\b.{0,60}(number|numeric|int)",
+        "(number|numeric|int)\\b.{0,60}(string|str)\\b",
+        "(different|mismatched|differing) types?",
+        "no longer (match|coerc|convert)",
+        "never (equal|match)",
+        "(strict|===).{0,60}(coerc|convert|type)",
+        "nothing (will )?match"
+       ],
+       "location": [
+        "={3}",
+        "\\bline 50\\b",
+        "r\\.price\\s*===",
+        "strict(er)? (equality|comparison)",
+        "\\bfilterByPrice\\b"
+       ]
+      },
+      "forbid": [],
+      "has_bug": true
+     },
+     "given_names": [],
+     "grader": "diff_bug",
+     "notes": "",
+     "prompt": "Is there a bug in this diff? Start your answer with Yes or No.\n\n```diff\n--- a/filters.js\n+++ b/filters.js\n@@ -48,4 +48,4 @@\n // price is a number (1, 2, 3); input.value comes from a <select>, so it is a string\n function filterByPrice(rows, input) {\n-  return rows.filter(r => r.price == input.value);\n+  return rows.filter(r => r.price === input.value);\n }\n```",
+     "references": [
+      "Yes. Line 50 switches to `===`, but `r.price` is a number while `input.value` is a string, so strict equality is never true and the filter returns nothing. Convert with `Number(input.value)` or keep `==`.",
+      "Yes, `===` does not coerce types. Comparing the number in `r.price` with a string from the select always fails, so every row gets filtered out.",
+      "**Yes**: the stricter comparison breaks filterByPrice. A string like \"2\" is not strictly equal to the number 2, so nothing matches any more."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "No, `===` is always safer than `==`, so this is an improvement.",
+      "Yes. `filterByPrice` should use `map` instead of `filter`."
+     ]
+    },
+    "3": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "cause": [
+        "(string|str)\\b.{0,60}(number|numeric|int)",
+        "(number|numeric|int)\\b.{0,60}(string|str)\\b",
+        "(different|mismatched|differing) types?",
+        "no longer (match|coerc|convert)",
+        "never (equal|match)",
+        "(strict|===).{0,60}(coerc|convert|type)",
+        "nothing (will )?match"
+       ],
+       "location": [
+        "={3}",
+        "\\bline 44\\b",
+        "r\\.label\\s*===",
+        "strict(er)? (equality|comparison)",
+        "\\bfilterByLabel\\b"
+       ]
+      },
+      "forbid": [],
+      "has_bug": true
+     },
+     "given_names": [],
+     "grader": "diff_bug",
+     "notes": "",
+     "prompt": "Is there a bug in this diff? Start your answer with Yes or No.\n\n```diff\n--- a/filters.js\n+++ b/filters.js\n@@ -42,4 +42,4 @@\n // label is a number (1, 2, 3); input.value comes from a <select>, so it is a string\n function filterByLabel(rows, input) {\n-  return rows.filter(r => r.label == input.value);\n+  return rows.filter(r => r.label === input.value);\n }\n```",
+     "references": [
+      "Yes. Line 44 switches to `===`, but `r.label` is a number while `input.value` is a string, so strict equality is never true and the filter returns nothing. Convert with `Number(input.value)` or keep `==`.",
+      "Yes, `===` does not coerce types. Comparing the number in `r.label` with a string from the select always fails, so every row gets filtered out.",
+      "**Yes**: the stricter comparison breaks filterByLabel. A string like \"2\" is not strictly equal to the number 2, so nothing matches any more."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "No, `===` is always safer than `==`, so this is an improvement.",
+      "Yes. `filterByLabel` should use `map` instead of `filter`."
+     ]
+    }
+   }
+  }
+ ],
+ "generator": "edat-sidekick-gen/1",
+ "group": "diff_review",
+ "split": "dev"
+}

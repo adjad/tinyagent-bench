@@ -1,0 +1,451 @@
+{
+ "cases": [
+  {
+   "meta": {
+    "core": true,
+    "group": "commit_msg",
+    "human_graded": true,
+    "id": "sk_commit_rename_function_1",
+    "lang": "text",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "commit_rename_function",
+    "tool_mode": false,
+    "type": "commit_msg",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "text",
+     "check": {
+      "diff_names": [
+       "grades.py",
+       "views.py",
+       "get_ite",
+       "get_item",
+       "grades",
+       "views",
+       "request.id",
+       "DB"
+      ],
+      "facts": {
+       "new": [
+        "\\bget_item\\b"
+       ],
+       "old": [
+        "\\bget_ite\\b"
+       ],
+       "rename": [
+        "\\brenam",
+        "\\b(old|previous) name\\b"
+       ]
+      },
+      "forbid": [],
+      "subject_max": 72
+     },
+     "given_names": [
+      "get_ite",
+      "get_item"
+     ],
+     "grader": "commit_msg",
+     "notes": "",
+     "prompt": "Write a commit message for this diff.\n\n```diff\ndiff --git a/grades.py b/grades.py\n--- a/grades.py\n+++ b/grades.py\n@@ -10,7 +10,7 @@\n-def get_ite(id):\n+def get_item(id):\n     return DB[id]\ndiff --git a/views.py b/views.py\n--- a/views.py\n+++ b/views.py\n@@ -3,9 +3,9 @@\n-from grades import get_ite\n+from grades import get_item\n@@ -20,4 +20,4 @@\n-    item = get_ite(request.id)\n+    item = get_item(request.id)\n@@ -41,4 +41,4 @@\n-    return get_ite(key)\n+    return get_item(key)\n```",
+     "references": [
+      "Rename get_ite to get_item\n\nUpdate the call sites in views.py.",
+      "```text\nRename get_ite() to get_item()\n```",
+      "refactor: rename get_ite to get_item\n\nThe old name was an abbreviation; views.py now imports get_item."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "Fixed stuff.",
+      "Renamed get_ite to get_item in grades.py, utils.py and models.py."
+     ]
+    },
+    "2": {
+     "answer_kind": "text",
+     "check": {
+      "diff_names": [
+       "studio.py",
+       "cli.py",
+       "get_rec",
+       "get_record",
+       "studio",
+       "cli",
+       "request.id",
+       "DB"
+      ],
+      "facts": {
+       "new": [
+        "\\bget_record\\b"
+       ],
+       "old": [
+        "\\bget_rec\\b"
+       ],
+       "rename": [
+        "\\brenam",
+        "\\b(old|previous) name\\b"
+       ]
+      },
+      "forbid": [],
+      "subject_max": 72
+     },
+     "given_names": [
+      "get_rec",
+      "get_record"
+     ],
+     "grader": "commit_msg",
+     "notes": "",
+     "prompt": "Write a commit message for this diff.\n\n```diff\ndiff --git a/studio.py b/studio.py\n--- a/studio.py\n+++ b/studio.py\n@@ -10,7 +10,7 @@\n-def get_rec(id):\n+def get_record(id):\n     return DB[id]\ndiff --git a/cli.py b/cli.py\n--- a/cli.py\n+++ b/cli.py\n@@ -3,9 +3,9 @@\n-from studio import get_rec\n+from studio import get_record\n@@ -20,4 +20,4 @@\n-    item = get_rec(request.id)\n+    item = get_record(request.id)\n@@ -41,4 +41,4 @@\n-    return get_rec(key)\n+    return get_record(key)\n```",
+     "references": [
+      "Rename get_rec to get_record\n\nUpdate the call sites in cli.py.",
+      "```text\nRename get_rec() to get_record()\n```",
+      "refactor: rename get_rec to get_record\n\nThe old name was an abbreviation; cli.py now imports get_record."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "Fixed stuff.",
+      "Renamed get_rec to get_record in studio.py, utils.py and models.py."
+     ]
+    },
+    "3": {
+     "answer_kind": "text",
+     "check": {
+      "diff_names": [
+       "rentals.py",
+       "views.py",
+       "get_ite",
+       "get_item",
+       "rentals",
+       "views",
+       "request.id",
+       "DB"
+      ],
+      "facts": {
+       "new": [
+        "\\bget_item\\b"
+       ],
+       "old": [
+        "\\bget_ite\\b"
+       ],
+       "rename": [
+        "\\brenam",
+        "\\b(old|previous) name\\b"
+       ]
+      },
+      "forbid": [],
+      "subject_max": 72
+     },
+     "given_names": [
+      "get_ite",
+      "get_item"
+     ],
+     "grader": "commit_msg",
+     "notes": "",
+     "prompt": "Write a commit message for this diff.\n\n```diff\ndiff --git a/rentals.py b/rentals.py\n--- a/rentals.py\n+++ b/rentals.py\n@@ -10,7 +10,7 @@\n-def get_ite(id):\n+def get_item(id):\n     return DB[id]\ndiff --git a/views.py b/views.py\n--- a/views.py\n+++ b/views.py\n@@ -3,9 +3,9 @@\n-from rentals import get_ite\n+from rentals import get_item\n@@ -20,4 +20,4 @@\n-    item = get_ite(request.id)\n+    item = get_item(request.id)\n@@ -41,4 +41,4 @@\n-    return get_ite(key)\n+    return get_item(key)\n```",
+     "references": [
+      "Rename get_ite to get_item\n\nUpdate the call sites in views.py.",
+      "```text\nRename get_ite() to get_item()\n```",
+      "refactor: rename get_ite to get_item\n\nThe old name was an abbreviation; views.py now imports get_item."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "Fixed stuff.",
+      "Renamed get_ite to get_item in rentals.py, utils.py and models.py."
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": true,
+    "group": "commit_msg",
+    "human_graded": true,
+    "id": "sk_commit_config_option_1",
+    "lang": "python",
+    "level": "L2",
+    "restraint": null,
+    "split": "dev",
+    "template": "commit_config_option",
+    "tool_mode": false,
+    "type": "commit_msg",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "text",
+     "check": {
+      "diff_names": [
+       "a/settings.py",
+       "b/settings.py",
+       "get_max_retries",
+       "get_setting",
+       "max_retries",
+       "settings.py"
+      ],
+      "facts": {
+       "default": [
+        "\\bdefault"
+       ],
+       "option": [
+        "\\bmax_retries\\b",
+        "max retries"
+       ],
+       "value": [
+        "\\b3(?![\\w])"
+       ]
+      },
+      "forbid": [],
+      "subject_max": 72
+     },
+     "given_names": [
+      "max_retries"
+     ],
+     "grader": "commit_msg",
+     "notes": "",
+     "prompt": "Write a commit message for this diff.\n\n```diff\ndiff --git a/settings.py b/settings.py\n--- a/settings.py\n+++ b/settings.py\n@@ -3,6 +3,11 @@\n DEFAULTS = {\n     \"theme\": \"light\",\n+    \"max_retries\": 3,\n }\n \n \n def get_setting(cfg, key):\n     return cfg.get(key, DEFAULTS[key])\n+\n+\n+def get_max_retries(cfg):\n+    return get_setting(cfg, \"max_retries\")\n```",
+     "references": [
+      "Add max_retries option with default 3\n\nRead it through the new get_max_retries helper.",
+      "Make max_retries configurable, defaulting to 3",
+      "Introduce max_retries setting\n\nIt defaults to 3 when the config does not set it."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "Add a new option",
+      "Add a setting with default 3 to config.py"
+     ]
+    },
+    "2": {
+     "answer_kind": "text",
+     "check": {
+      "diff_names": [
+       "a/settings.py",
+       "b/settings.py",
+       "get_page_size",
+       "get_setting",
+       "page_size",
+       "settings.py"
+      ],
+      "facts": {
+       "default": [
+        "\\bdefault"
+       ],
+       "option": [
+        "\\bpage_size\\b",
+        "page size"
+       ],
+       "value": [
+        "\\b25(?![\\w])"
+       ]
+      },
+      "forbid": [],
+      "subject_max": 72
+     },
+     "given_names": [
+      "page_size"
+     ],
+     "grader": "commit_msg",
+     "notes": "",
+     "prompt": "Write a commit message for this diff.\n\n```diff\ndiff --git a/settings.py b/settings.py\n--- a/settings.py\n+++ b/settings.py\n@@ -3,6 +3,11 @@\n DEFAULTS = {\n     \"theme\": \"light\",\n+    \"page_size\": 25,\n }\n \n \n def get_setting(cfg, key):\n     return cfg.get(key, DEFAULTS[key])\n+\n+\n+def get_page_size(cfg):\n+    return get_setting(cfg, \"page_size\")\n```",
+     "references": [
+      "Add page_size option with default 25\n\nRead it through the new get_page_size helper.",
+      "Make page_size configurable, defaulting to 25",
+      "Introduce page_size setting\n\nIt defaults to 25 when the config does not set it."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "Add a new option",
+      "Add a setting with default 25 to config.py"
+     ]
+    },
+    "3": {
+     "answer_kind": "text",
+     "check": {
+      "diff_names": [
+       "a/settings.py",
+       "b/settings.py",
+       "cache_ttl",
+       "get_cache_ttl",
+       "get_setting",
+       "settings.py"
+      ],
+      "facts": {
+       "default": [
+        "\\bdefault"
+       ],
+       "option": [
+        "\\bcache_ttl\\b",
+        "cache ttl"
+       ],
+       "value": [
+        "\\b300(?![\\w])"
+       ]
+      },
+      "forbid": [],
+      "subject_max": 72
+     },
+     "given_names": [
+      "cache_ttl"
+     ],
+     "grader": "commit_msg",
+     "notes": "",
+     "prompt": "Write a commit message for this diff.\n\n```diff\ndiff --git a/settings.py b/settings.py\n--- a/settings.py\n+++ b/settings.py\n@@ -3,6 +3,11 @@\n DEFAULTS = {\n     \"theme\": \"light\",\n+    \"cache_ttl\": 300,\n }\n \n \n def get_setting(cfg, key):\n     return cfg.get(key, DEFAULTS[key])\n+\n+\n+def get_cache_ttl(cfg):\n+    return get_setting(cfg, \"cache_ttl\")\n```",
+     "references": [
+      "Add cache_ttl option with default 300\n\nRead it through the new get_cache_ttl helper.",
+      "Make cache_ttl configurable, defaulting to 300",
+      "Introduce cache_ttl setting\n\nIt defaults to 300 when the config does not set it."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "Add a new option",
+      "Add a setting with default 300 to config.py"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": false,
+    "group": "commit_msg",
+    "human_graded": true,
+    "id": "sk_commit_bump_timeout_2",
+    "lang": "python",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "commit_bump_timeout",
+    "tool_mode": false,
+    "type": "commit_msg",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "text",
+     "check": {
+      "diff_names": [
+       "DEFAULT_TIMEOUT",
+       "a/orders.py",
+       "b/orders.py",
+       "fetch_item",
+       "orders.py"
+      ],
+      "facts": {
+       "timeout": [
+        "time.?out"
+       ],
+       "value": [
+        "\\b20(?!\\d)"
+       ]
+      },
+      "forbid": [],
+      "subject_max": 72
+     },
+     "given_names": [
+      "fetch_item"
+     ],
+     "grader": "commit_msg",
+     "notes": "",
+     "prompt": "Write a commit message for this diff.\n\n```diff\ndiff --git a/orders.py b/orders.py\n--- a/orders.py\n+++ b/orders.py\n@@ -4,7 +4,8 @@\n import requests\n \n-DEFAULT_TIMEOUT = 3\n+# the report endpoint can take more than 3 seconds to answer\n+DEFAULT_TIMEOUT = 20\n \n \n def fetch_item(url):\n     return requests.get(url, timeout=DEFAULT_TIMEOUT)\n```",
+     "references": [
+      "Increase request timeout from 3 to 20 seconds",
+      "Raise DEFAULT_TIMEOUT to 20\n\nThe report endpoint is slow, so fetch_item needs more time before it gives up.",
+      "Lengthen the HTTP timeout to 20s for slow endpoints"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "Update client",
+      "Increase timeout to 27 seconds"
+     ]
+    },
+    "2": {
+     "answer_kind": "text",
+     "check": {
+      "diff_names": [
+       "DEFAULT_TIMEOUT",
+       "a/rentals.py",
+       "b/rentals.py",
+       "fetch_record",
+       "rentals.py"
+      ],
+      "facts": {
+       "timeout": [
+        "time.?out"
+       ],
+       "value": [
+        "\\b20(?!\\d)"
+       ]
+      },
+      "forbid": [],
+      "subject_max": 72
+     },
+     "given_names": [
+      "fetch_record"
+     ],
+     "grader": "commit_msg",
+     "notes": "",
+     "prompt": "Write a commit message for this diff.\n\n```diff\ndiff --git a/rentals.py b/rentals.py\n--- a/rentals.py\n+++ b/rentals.py\n@@ -4,7 +4,8 @@\n import requests\n \n-DEFAULT_TIMEOUT = 5\n+# the report endpoint can take more than 5 seconds to answer\n+DEFAULT_TIMEOUT = 20\n \n \n def fetch_record(url):\n     return requests.get(url, timeout=DEFAULT_TIMEOUT)\n```",
+     "references": [
+      "Increase request timeout from 5 to 20 seconds",
+      "Raise DEFAULT_TIMEOUT to 20\n\nThe report endpoint is slow, so fetch_record needs more time before it gives up.",
+      "Lengthen the HTTP timeout to 20s for slow endpoints"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "Update client",
+      "Increase timeout to 27 seconds"
+     ]
+    },
+    "3": {
+     "answer_kind": "text",
+     "check": {
+      "diff_names": [
+       "DEFAULT_TIMEOUT",
+       "a/inventory.py",
+       "b/inventory.py",
+       "fetch_route",
+       "inventory.py"
+      ],
+      "facts": {
+       "timeout": [
+        "time.?out"
+       ],
+       "value": [
+        "\\b45(?!\\d)"
+       ]
+      },
+      "forbid": [],
+      "subject_max": 72
+     },
+     "given_names": [
+      "fetch_route"
+     ],
+     "grader": "commit_msg",
+     "notes": "",
+     "prompt": "Write a commit message for this diff.\n\n```diff\ndiff --git a/inventory.py b/inventory.py\n--- a/inventory.py\n+++ b/inventory.py\n@@ -4,7 +4,8 @@\n import requests\n \n-DEFAULT_TIMEOUT = 5\n+# the report endpoint can take more than 5 seconds to answer\n+DEFAULT_TIMEOUT = 45\n \n \n def fetch_route(url):\n     return requests.get(url, timeout=DEFAULT_TIMEOUT)\n```",
+     "references": [
+      "Increase request timeout from 5 to 45 seconds",
+      "Raise DEFAULT_TIMEOUT to 45\n\nThe report endpoint is slow, so fetch_route needs more time before it gives up.",
+      "Lengthen the HTTP timeout to 45s for slow endpoints"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "Update client",
+      "Increase timeout to 52 seconds"
+     ]
+    }
+   }
+  }
+ ],
+ "generator": "edat-sidekick-gen/1",
+ "group": "commit_msg",
+ "split": "dev"
+}

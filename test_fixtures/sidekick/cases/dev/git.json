@@ -1,0 +1,1087 @@
+{
+ "cases": [
+  {
+   "meta": {
+    "core": true,
+    "group": "git",
+    "human_graded": false,
+    "id": "sk_git_new_branch_keep_changes_1",
+    "lang": "git",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "git_new_branch_keep_changes",
+    "tool_mode": true,
+    "type": "git",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "git",
+     "check": {
+      "keep": {
+       "files": {
+        "budget.py": "def run():\n    return 10 + 4\n",
+        "rentals.py": "# draft 722\n"
+       }
+      },
+      "labels": {
+       "c1": "HEAD"
+      },
+      "predicates": [
+       {
+        "head_branch": "fix-retry"
+       },
+       {
+        "ref_unchanged": "refs/heads/main"
+       },
+       {
+        "file": [
+         "budget.py",
+         "def run():\n    return 10 + 4\n"
+        ]
+       },
+       {
+        "file": [
+         "rentals.py",
+         "# draft 722\n"
+        ]
+       },
+       {
+        "ref_is": [
+         "fix-retry",
+         "c1"
+        ]
+       }
+      ],
+      "setup": "mkdir -p \"$(dirname 'budget.py')\" && printf %s 'def run():\n    return 4\n' > 'budget.py'\nmkdir -p \"$(dirname 'README.md')\" && printf %s '# demo\n' > 'README.md'\nedat_commit 'Initial commit'\nmkdir -p \"$(dirname 'budget.py')\" && printf %s 'def run():\n    return 10 + 4\n' > 'budget.py'\nmkdir -p \"$(dirname 'rentals.py')\" && printf %s '# draft 722\n' > 'rentals.py'\n"
+     },
+     "given_names": [
+      "fix-retry"
+     ],
+     "grader": "git",
+     "notes": "",
+     "prompt": "I'm on `main` and want a new branch called `fix-retry` with my uncommitted changes on it. Commands only, no editor.\n\n```\n$ git status\nOn branch main\nChanges not staged for commit:\n\tmodified:   budget.py\n\nUntracked files:\n\trentals.py\n```",
+     "references": [
+      "```zsh\ngit switch -c fix-retry\n```",
+      "```sh\ngit checkout -b fix-retry\n```"
+     ],
+     "restraint": null,
+     "tool": {
+      "kind": "git"
+     },
+     "wrong": [
+      "```zsh\ngit branch fix-retry\n```",
+      "```zsh\ngit stash\ngit switch -c fix-retry\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "git",
+     "check": {
+      "keep": {
+       "files": {
+        "loans.py": "# draft 319\n",
+        "pantry.py": "def run():\n    return 10 + 7\n"
+       }
+      },
+      "labels": {
+       "c1": "HEAD"
+      },
+      "predicates": [
+       {
+        "head_branch": "fix-export"
+       },
+       {
+        "ref_unchanged": "refs/heads/main"
+       },
+       {
+        "file": [
+         "pantry.py",
+         "def run():\n    return 10 + 7\n"
+        ]
+       },
+       {
+        "file": [
+         "loans.py",
+         "# draft 319\n"
+        ]
+       },
+       {
+        "ref_is": [
+         "fix-export",
+         "c1"
+        ]
+       }
+      ],
+      "setup": "mkdir -p \"$(dirname 'pantry.py')\" && printf %s 'def run():\n    return 7\n' > 'pantry.py'\nmkdir -p \"$(dirname 'README.md')\" && printf %s '# demo\n' > 'README.md'\nedat_commit 'Initial commit'\nmkdir -p \"$(dirname 'pantry.py')\" && printf %s 'def run():\n    return 10 + 7\n' > 'pantry.py'\nmkdir -p \"$(dirname 'loans.py')\" && printf %s '# draft 319\n' > 'loans.py'\n"
+     },
+     "given_names": [
+      "fix-export"
+     ],
+     "grader": "git",
+     "notes": "",
+     "prompt": "I'm on `main` and want a new branch called `fix-export` with my uncommitted changes on it. Commands only, no editor.\n\n```\n$ git status\nOn branch main\nChanges not staged for commit:\n\tmodified:   pantry.py\n\nUntracked files:\n\tloans.py\n```",
+     "references": [
+      "```zsh\ngit switch -c fix-export\n```",
+      "```sh\ngit checkout -b fix-export\n```"
+     ],
+     "restraint": null,
+     "tool": {
+      "kind": "git"
+     },
+     "wrong": [
+      "```zsh\ngit branch fix-export\n```",
+      "```zsh\ngit stash\ngit switch -c fix-export\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "git",
+     "check": {
+      "keep": {
+       "files": {
+        "orders.py": "# draft 391\n",
+        "rentals.py": "def run():\n    return 10 + 6\n"
+       }
+      },
+      "labels": {
+       "c1": "HEAD"
+      },
+      "predicates": [
+       {
+        "head_branch": "fix-login"
+       },
+       {
+        "ref_unchanged": "refs/heads/main"
+       },
+       {
+        "file": [
+         "rentals.py",
+         "def run():\n    return 10 + 6\n"
+        ]
+       },
+       {
+        "file": [
+         "orders.py",
+         "# draft 391\n"
+        ]
+       },
+       {
+        "ref_is": [
+         "fix-login",
+         "c1"
+        ]
+       }
+      ],
+      "setup": "mkdir -p \"$(dirname 'rentals.py')\" && printf %s 'def run():\n    return 6\n' > 'rentals.py'\nmkdir -p \"$(dirname 'README.md')\" && printf %s '# demo\n' > 'README.md'\nedat_commit 'Initial commit'\nmkdir -p \"$(dirname 'rentals.py')\" && printf %s 'def run():\n    return 10 + 6\n' > 'rentals.py'\nmkdir -p \"$(dirname 'orders.py')\" && printf %s '# draft 391\n' > 'orders.py'\n"
+     },
+     "given_names": [
+      "fix-login"
+     ],
+     "grader": "git",
+     "notes": "",
+     "prompt": "I'm on `main` and want a new branch called `fix-login` with my uncommitted changes on it. Commands only, no editor.\n\n```\n$ git status\nOn branch main\nChanges not staged for commit:\n\tmodified:   rentals.py\n\nUntracked files:\n\torders.py\n```",
+     "references": [
+      "```zsh\ngit switch -c fix-login\n```",
+      "```sh\ngit checkout -b fix-login\n```"
+     ],
+     "restraint": null,
+     "tool": {
+      "kind": "git"
+     },
+     "wrong": [
+      "```zsh\ngit branch fix-login\n```",
+      "```zsh\ngit stash\ngit switch -c fix-login\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": true,
+    "group": "git",
+    "human_graded": false,
+    "id": "sk_git_discard_one_file_1",
+    "lang": "git",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "git_discard_one_file",
+    "tool_mode": false,
+    "type": "git",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "git",
+     "check": {
+      "keep": {
+       "files": {
+        "fleet.js": "const x = 12;\n"
+       }
+      },
+      "labels": {
+       "c1": "HEAD"
+      },
+      "predicates": [
+       {
+        "head_branch": "main"
+       },
+       {
+        "ref_unchanged": "refs/heads/main"
+       },
+       {
+        "file": [
+         "tickets.js",
+         "module.exports = 26;\n"
+        ]
+       },
+       {
+        "file": [
+         "fleet.js",
+         "const x = 12;\n"
+        ]
+       }
+      ],
+      "setup": "mkdir -p \"$(dirname 'tickets.js')\" && printf %s 'module.exports = 26;\n' > 'tickets.js'\nmkdir -p \"$(dirname 'fleet.js')\" && printf %s 'const x = 1;\n' > 'fleet.js'\nedat_commit 'Initial commit'\nmkdir -p \"$(dirname 'tickets.js')\" && printf %s 'module.exports = 80; // experiment\n' > 'tickets.js'\nmkdir -p \"$(dirname 'fleet.js')\" && printf %s 'const x = 12;\n' > 'fleet.js'\n"
+     },
+     "given_names": [
+      "tickets.js",
+      "fleet.js"
+     ],
+     "grader": "git",
+     "notes": "",
+     "prompt": "Throw away my uncommitted changes to `tickets.js` (back to the last commit), but keep my changes to `fleet.js`. Commands only.\n\n```\n$ git status\nOn branch main\nChanges not staged for commit:\n\tmodified:   tickets.js\n\tmodified:   fleet.js\n```",
+     "references": [
+      "```zsh\ngit restore tickets.js\n```",
+      "```sh\ngit checkout -- tickets.js\n```",
+      "```zsh\ngit checkout HEAD -- tickets.js\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\ngit checkout -- .\n```",
+      "```zsh\ngit reset -- tickets.js\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "git",
+     "check": {
+      "keep": {
+       "files": {
+        "library.js": "const x = 42;\n"
+       }
+      },
+      "labels": {
+       "c1": "HEAD"
+      },
+      "predicates": [
+       {
+        "head_branch": "main"
+       },
+       {
+        "ref_unchanged": "refs/heads/main"
+       },
+       {
+        "file": [
+         "clinic.js",
+         "module.exports = 34;\n"
+        ]
+       },
+       {
+        "file": [
+         "library.js",
+         "const x = 42;\n"
+        ]
+       }
+      ],
+      "setup": "mkdir -p \"$(dirname 'clinic.js')\" && printf %s 'module.exports = 34;\n' > 'clinic.js'\nmkdir -p \"$(dirname 'library.js')\" && printf %s 'const x = 1;\n' > 'library.js'\nedat_commit 'Initial commit'\nmkdir -p \"$(dirname 'clinic.js')\" && printf %s 'module.exports = 64; // experiment\n' > 'clinic.js'\nmkdir -p \"$(dirname 'library.js')\" && printf %s 'const x = 42;\n' > 'library.js'\n"
+     },
+     "given_names": [
+      "clinic.js",
+      "library.js"
+     ],
+     "grader": "git",
+     "notes": "",
+     "prompt": "Throw away my uncommitted changes to `clinic.js` (back to the last commit), but keep my changes to `library.js`. Commands only.\n\n```\n$ git status\nOn branch main\nChanges not staged for commit:\n\tmodified:   clinic.js\n\tmodified:   library.js\n```",
+     "references": [
+      "```zsh\ngit restore clinic.js\n```",
+      "```sh\ngit checkout -- clinic.js\n```",
+      "```zsh\ngit checkout HEAD -- clinic.js\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\ngit checkout -- .\n```",
+      "```zsh\ngit reset -- clinic.js\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "git",
+     "check": {
+      "keep": {
+       "files": {
+        "tickets.js": "const x = 57;\n"
+       }
+      },
+      "labels": {
+       "c1": "HEAD"
+      },
+      "predicates": [
+       {
+        "head_branch": "main"
+       },
+       {
+        "ref_unchanged": "refs/heads/main"
+       },
+       {
+        "file": [
+         "pantry.js",
+         "module.exports = 34;\n"
+        ]
+       },
+       {
+        "file": [
+         "tickets.js",
+         "const x = 57;\n"
+        ]
+       }
+      ],
+      "setup": "mkdir -p \"$(dirname 'pantry.js')\" && printf %s 'module.exports = 34;\n' > 'pantry.js'\nmkdir -p \"$(dirname 'tickets.js')\" && printf %s 'const x = 1;\n' > 'tickets.js'\nedat_commit 'Initial commit'\nmkdir -p \"$(dirname 'pantry.js')\" && printf %s 'module.exports = 55; // experiment\n' > 'pantry.js'\nmkdir -p \"$(dirname 'tickets.js')\" && printf %s 'const x = 57;\n' > 'tickets.js'\n"
+     },
+     "given_names": [
+      "pantry.js",
+      "tickets.js"
+     ],
+     "grader": "git",
+     "notes": "",
+     "prompt": "Throw away my uncommitted changes to `pantry.js` (back to the last commit), but keep my changes to `tickets.js`. Commands only.\n\n```\n$ git status\nOn branch main\nChanges not staged for commit:\n\tmodified:   pantry.js\n\tmodified:   tickets.js\n```",
+     "references": [
+      "```zsh\ngit restore pantry.js\n```",
+      "```sh\ngit checkout -- pantry.js\n```",
+      "```zsh\ngit checkout HEAD -- pantry.js\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\ngit checkout -- .\n```",
+      "```zsh\ngit reset -- pantry.js\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": true,
+    "group": "git",
+    "human_graded": false,
+    "id": "sk_git_stash_then_switch_1",
+    "lang": "git",
+    "level": "L2",
+    "restraint": null,
+    "split": "dev",
+    "template": "git_stash_then_switch",
+    "tool_mode": false,
+    "type": "git",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "git",
+     "check": {
+      "keep": {
+       "files": {
+        "clinic.py": "A = 2\nB = 28\n",
+        "notes.md": "draft 130\n"
+       }
+      },
+      "labels": {},
+      "predicates": [
+       {
+        "head_branch": "hotfix-audit"
+       },
+       {
+        "clean": true
+       },
+       {
+        "no_untracked": true
+       },
+       {
+        "stash_count": 1
+       },
+       {
+        "ref_unchanged": "refs/heads/main"
+       },
+       {
+        "ref_unchanged": "refs/heads/hotfix-audit"
+       }
+      ],
+      "setup": "mkdir -p \"$(dirname 'clinic.py')\" && printf %s 'A = 1\n' > 'clinic.py'\nedat_commit 'Initial commit'\ngit branch hotfix-audit\nmkdir -p \"$(dirname 'clinic.py')\" && printf %s 'A = 2\n' > 'clinic.py'\nedat_commit 'Bump A'\nmkdir -p \"$(dirname 'clinic.py')\" && printf %s 'A = 2\nB = 28\n' > 'clinic.py'\nmkdir -p \"$(dirname 'notes.md')\" && printf %s 'draft 130\n' > 'notes.md'\n"
+     },
+     "given_names": [
+      "hotfix-audit",
+      "notes.md"
+     ],
+     "grader": "git",
+     "notes": "",
+     "prompt": "I'm in the middle of work on `main` and need to switch to `hotfix-audit` to check something. Set all my uncommitted work aside without committing it, including the new file `notes.md`, so the working folder is clean on `hotfix-audit`. Commands only.\n\n```\n$ git status\nOn branch main\nChanges not staged for commit:\n\tmodified:   clinic.py\n\nUntracked files:\n\tnotes.md\n```",
+     "references": [
+      "```zsh\ngit stash -u\ngit switch hotfix-audit\n```",
+      "```sh\ngit stash push --include-untracked -m \"wip\"\ngit checkout hotfix-audit\n```",
+      "```zsh\ngit stash --all && git switch hotfix-audit\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\ngit stash\ngit switch hotfix-audit\n```",
+      "```zsh\ngit checkout -f hotfix-audit\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "git",
+     "check": {
+      "keep": {
+       "files": {
+        "inventory.py": "A = 2\nB = 86\n",
+        "scratch.py": "draft 682\n"
+       }
+      },
+      "labels": {},
+      "predicates": [
+       {
+        "head_branch": "hotfix-upload"
+       },
+       {
+        "clean": true
+       },
+       {
+        "no_untracked": true
+       },
+       {
+        "stash_count": 1
+       },
+       {
+        "ref_unchanged": "refs/heads/main"
+       },
+       {
+        "ref_unchanged": "refs/heads/hotfix-upload"
+       }
+      ],
+      "setup": "mkdir -p \"$(dirname 'inventory.py')\" && printf %s 'A = 1\n' > 'inventory.py'\nedat_commit 'Initial commit'\ngit branch hotfix-upload\nmkdir -p \"$(dirname 'inventory.py')\" && printf %s 'A = 2\n' > 'inventory.py'\nedat_commit 'Bump A'\nmkdir -p \"$(dirname 'inventory.py')\" && printf %s 'A = 2\nB = 86\n' > 'inventory.py'\nmkdir -p \"$(dirname 'scratch.py')\" && printf %s 'draft 682\n' > 'scratch.py'\n"
+     },
+     "given_names": [
+      "hotfix-upload",
+      "scratch.py"
+     ],
+     "grader": "git",
+     "notes": "",
+     "prompt": "I'm in the middle of work on `main` and need to switch to `hotfix-upload` to check something. Set all my uncommitted work aside without committing it, including the new file `scratch.py`, so the working folder is clean on `hotfix-upload`. Commands only.\n\n```\n$ git status\nOn branch main\nChanges not staged for commit:\n\tmodified:   inventory.py\n\nUntracked files:\n\tscratch.py\n```",
+     "references": [
+      "```zsh\ngit stash -u\ngit switch hotfix-upload\n```",
+      "```sh\ngit stash push --include-untracked -m \"wip\"\ngit checkout hotfix-upload\n```",
+      "```zsh\ngit stash --all && git switch hotfix-upload\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\ngit stash\ngit switch hotfix-upload\n```",
+      "```zsh\ngit checkout -f hotfix-upload\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "git",
+     "check": {
+      "keep": {
+       "files": {
+        "scratch.py": "draft 786\n",
+        "tickets.py": "A = 2\nB = 87\n"
+       }
+      },
+      "labels": {},
+      "predicates": [
+       {
+        "head_branch": "hotfix-signup"
+       },
+       {
+        "clean": true
+       },
+       {
+        "no_untracked": true
+       },
+       {
+        "stash_count": 1
+       },
+       {
+        "ref_unchanged": "refs/heads/main"
+       },
+       {
+        "ref_unchanged": "refs/heads/hotfix-signup"
+       }
+      ],
+      "setup": "mkdir -p \"$(dirname 'tickets.py')\" && printf %s 'A = 1\n' > 'tickets.py'\nedat_commit 'Initial commit'\ngit branch hotfix-signup\nmkdir -p \"$(dirname 'tickets.py')\" && printf %s 'A = 2\n' > 'tickets.py'\nedat_commit 'Bump A'\nmkdir -p \"$(dirname 'tickets.py')\" && printf %s 'A = 2\nB = 87\n' > 'tickets.py'\nmkdir -p \"$(dirname 'scratch.py')\" && printf %s 'draft 786\n' > 'scratch.py'\n"
+     },
+     "given_names": [
+      "hotfix-signup",
+      "scratch.py"
+     ],
+     "grader": "git",
+     "notes": "",
+     "prompt": "I'm in the middle of work on `main` and need to switch to `hotfix-signup` to check something. Set all my uncommitted work aside without committing it, including the new file `scratch.py`, so the working folder is clean on `hotfix-signup`. Commands only.\n\n```\n$ git status\nOn branch main\nChanges not staged for commit:\n\tmodified:   tickets.py\n\nUntracked files:\n\tscratch.py\n```",
+     "references": [
+      "```zsh\ngit stash -u\ngit switch hotfix-signup\n```",
+      "```sh\ngit stash push --include-untracked -m \"wip\"\ngit checkout hotfix-signup\n```",
+      "```zsh\ngit stash --all && git switch hotfix-signup\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\ngit stash\ngit switch hotfix-signup\n```",
+      "```zsh\ngit checkout -f hotfix-signup\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": false,
+    "group": "git",
+    "human_graded": false,
+    "id": "sk_git_new_branch_keep_changes_2",
+    "lang": "git",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "git_new_branch_keep_changes",
+    "tool_mode": true,
+    "type": "git",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "git",
+     "check": {
+      "keep": {
+       "files": {
+        "fleet.py": "def run():\n    return 10 + 3\n",
+        "readings.py": "# draft 315\n"
+       }
+      },
+      "labels": {
+       "c1": "HEAD"
+      },
+      "predicates": [
+       {
+        "head_branch": "fix-metrics"
+       },
+       {
+        "ref_unchanged": "refs/heads/main"
+       },
+       {
+        "file": [
+         "fleet.py",
+         "def run():\n    return 10 + 3\n"
+        ]
+       },
+       {
+        "file": [
+         "readings.py",
+         "# draft 315\n"
+        ]
+       },
+       {
+        "ref_is": [
+         "fix-metrics",
+         "c1"
+        ]
+       }
+      ],
+      "setup": "mkdir -p \"$(dirname 'fleet.py')\" && printf %s 'def run():\n    return 3\n' > 'fleet.py'\nmkdir -p \"$(dirname 'README.md')\" && printf %s '# demo\n' > 'README.md'\nedat_commit 'Initial commit'\nmkdir -p \"$(dirname 'fleet.py')\" && printf %s 'def run():\n    return 10 + 3\n' > 'fleet.py'\nmkdir -p \"$(dirname 'readings.py')\" && printf %s '# draft 315\n' > 'readings.py'\n"
+     },
+     "given_names": [
+      "fix-metrics"
+     ],
+     "grader": "git",
+     "notes": "",
+     "prompt": "I'm on `main` and want a new branch called `fix-metrics` with my uncommitted changes on it. Commands only, no editor.\n\n```\n$ git status\nOn branch main\nChanges not staged for commit:\n\tmodified:   fleet.py\n\nUntracked files:\n\treadings.py\n```",
+     "references": [
+      "```zsh\ngit switch -c fix-metrics\n```",
+      "```sh\ngit checkout -b fix-metrics\n```"
+     ],
+     "restraint": null,
+     "tool": {
+      "kind": "git"
+     },
+     "wrong": [
+      "```zsh\ngit branch fix-metrics\n```",
+      "```zsh\ngit stash\ngit switch -c fix-metrics\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "git",
+     "check": {
+      "keep": {
+       "files": {
+        "readings.py": "def run():\n    return 10 + 4\n",
+        "tickets.py": "# draft 618\n"
+       }
+      },
+      "labels": {
+       "c1": "HEAD"
+      },
+      "predicates": [
+       {
+        "head_branch": "fix-filters"
+       },
+       {
+        "ref_unchanged": "refs/heads/main"
+       },
+       {
+        "file": [
+         "readings.py",
+         "def run():\n    return 10 + 4\n"
+        ]
+       },
+       {
+        "file": [
+         "tickets.py",
+         "# draft 618\n"
+        ]
+       },
+       {
+        "ref_is": [
+         "fix-filters",
+         "c1"
+        ]
+       }
+      ],
+      "setup": "mkdir -p \"$(dirname 'readings.py')\" && printf %s 'def run():\n    return 4\n' > 'readings.py'\nmkdir -p \"$(dirname 'README.md')\" && printf %s '# demo\n' > 'README.md'\nedat_commit 'Initial commit'\nmkdir -p \"$(dirname 'readings.py')\" && printf %s 'def run():\n    return 10 + 4\n' > 'readings.py'\nmkdir -p \"$(dirname 'tickets.py')\" && printf %s '# draft 618\n' > 'tickets.py'\n"
+     },
+     "given_names": [
+      "fix-filters"
+     ],
+     "grader": "git",
+     "notes": "",
+     "prompt": "I'm on `main` and want a new branch called `fix-filters` with my uncommitted changes on it. Commands only, no editor.\n\n```\n$ git status\nOn branch main\nChanges not staged for commit:\n\tmodified:   readings.py\n\nUntracked files:\n\ttickets.py\n```",
+     "references": [
+      "```zsh\ngit switch -c fix-filters\n```",
+      "```sh\ngit checkout -b fix-filters\n```"
+     ],
+     "restraint": null,
+     "tool": {
+      "kind": "git"
+     },
+     "wrong": [
+      "```zsh\ngit branch fix-filters\n```",
+      "```zsh\ngit stash\ngit switch -c fix-filters\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "git",
+     "check": {
+      "keep": {
+       "files": {
+        "budget.py": "# draft 805\n",
+        "clinic.py": "def run():\n    return 10 + 3\n"
+       }
+      },
+      "labels": {
+       "c1": "HEAD"
+      },
+      "predicates": [
+       {
+        "head_branch": "fix-signup"
+       },
+       {
+        "ref_unchanged": "refs/heads/main"
+       },
+       {
+        "file": [
+         "clinic.py",
+         "def run():\n    return 10 + 3\n"
+        ]
+       },
+       {
+        "file": [
+         "budget.py",
+         "# draft 805\n"
+        ]
+       },
+       {
+        "ref_is": [
+         "fix-signup",
+         "c1"
+        ]
+       }
+      ],
+      "setup": "mkdir -p \"$(dirname 'clinic.py')\" && printf %s 'def run():\n    return 3\n' > 'clinic.py'\nmkdir -p \"$(dirname 'README.md')\" && printf %s '# demo\n' > 'README.md'\nedat_commit 'Initial commit'\nmkdir -p \"$(dirname 'clinic.py')\" && printf %s 'def run():\n    return 10 + 3\n' > 'clinic.py'\nmkdir -p \"$(dirname 'budget.py')\" && printf %s '# draft 805\n' > 'budget.py'\n"
+     },
+     "given_names": [
+      "fix-signup"
+     ],
+     "grader": "git",
+     "notes": "",
+     "prompt": "I'm on `main` and want a new branch called `fix-signup` with my uncommitted changes on it. Commands only, no editor.\n\n```\n$ git status\nOn branch main\nChanges not staged for commit:\n\tmodified:   clinic.py\n\nUntracked files:\n\tbudget.py\n```",
+     "references": [
+      "```zsh\ngit switch -c fix-signup\n```",
+      "```sh\ngit checkout -b fix-signup\n```"
+     ],
+     "restraint": null,
+     "tool": {
+      "kind": "git"
+     },
+     "wrong": [
+      "```zsh\ngit branch fix-signup\n```",
+      "```zsh\ngit stash\ngit switch -c fix-signup\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": false,
+    "group": "git",
+    "human_graded": false,
+    "id": "sk_git_discard_one_file_2",
+    "lang": "git",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "git_discard_one_file",
+    "tool_mode": false,
+    "type": "git",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "git",
+     "check": {
+      "keep": {
+       "files": {
+        "events.js": "const x = 7;\n"
+       }
+      },
+      "labels": {
+       "c1": "HEAD"
+      },
+      "predicates": [
+       {
+        "head_branch": "main"
+       },
+       {
+        "ref_unchanged": "refs/heads/main"
+       },
+       {
+        "file": [
+         "loans.js",
+         "module.exports = 5;\n"
+        ]
+       },
+       {
+        "file": [
+         "events.js",
+         "const x = 7;\n"
+        ]
+       }
+      ],
+      "setup": "mkdir -p \"$(dirname 'loans.js')\" && printf %s 'module.exports = 5;\n' > 'loans.js'\nmkdir -p \"$(dirname 'events.js')\" && printf %s 'const x = 1;\n' > 'events.js'\nedat_commit 'Initial commit'\nmkdir -p \"$(dirname 'loans.js')\" && printf %s 'module.exports = 52; // experiment\n' > 'loans.js'\nmkdir -p \"$(dirname 'events.js')\" && printf %s 'const x = 7;\n' > 'events.js'\n"
+     },
+     "given_names": [
+      "loans.js",
+      "events.js"
+     ],
+     "grader": "git",
+     "notes": "",
+     "prompt": "Throw away my uncommitted changes to `loans.js` (back to the last commit), but keep my changes to `events.js`. Commands only.\n\n```\n$ git status\nOn branch main\nChanges not staged for commit:\n\tmodified:   loans.js\n\tmodified:   events.js\n```",
+     "references": [
+      "```zsh\ngit restore loans.js\n```",
+      "```sh\ngit checkout -- loans.js\n```",
+      "```zsh\ngit checkout HEAD -- loans.js\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\ngit checkout -- .\n```",
+      "```zsh\ngit reset -- loans.js\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "git",
+     "check": {
+      "keep": {
+       "files": {
+        "pantry.js": "const x = 18;\n"
+       }
+      },
+      "labels": {
+       "c1": "HEAD"
+      },
+      "predicates": [
+       {
+        "head_branch": "main"
+       },
+       {
+        "ref_unchanged": "refs/heads/main"
+       },
+       {
+        "file": [
+         "visits.js",
+         "module.exports = 22;\n"
+        ]
+       },
+       {
+        "file": [
+         "pantry.js",
+         "const x = 18;\n"
+        ]
+       }
+      ],
+      "setup": "mkdir -p \"$(dirname 'visits.js')\" && printf %s 'module.exports = 22;\n' > 'visits.js'\nmkdir -p \"$(dirname 'pantry.js')\" && printf %s 'const x = 1;\n' > 'pantry.js'\nedat_commit 'Initial commit'\nmkdir -p \"$(dirname 'visits.js')\" && printf %s 'module.exports = 71; // experiment\n' > 'visits.js'\nmkdir -p \"$(dirname 'pantry.js')\" && printf %s 'const x = 18;\n' > 'pantry.js'\n"
+     },
+     "given_names": [
+      "visits.js",
+      "pantry.js"
+     ],
+     "grader": "git",
+     "notes": "",
+     "prompt": "Throw away my uncommitted changes to `visits.js` (back to the last commit), but keep my changes to `pantry.js`. Commands only.\n\n```\n$ git status\nOn branch main\nChanges not staged for commit:\n\tmodified:   visits.js\n\tmodified:   pantry.js\n```",
+     "references": [
+      "```zsh\ngit restore visits.js\n```",
+      "```sh\ngit checkout -- visits.js\n```",
+      "```zsh\ngit checkout HEAD -- visits.js\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\ngit checkout -- .\n```",
+      "```zsh\ngit reset -- visits.js\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "git",
+     "check": {
+      "keep": {
+       "files": {
+        "library.js": "const x = 7;\n"
+       }
+      },
+      "labels": {
+       "c1": "HEAD"
+      },
+      "predicates": [
+       {
+        "head_branch": "main"
+       },
+       {
+        "ref_unchanged": "refs/heads/main"
+       },
+       {
+        "file": [
+         "events.js",
+         "module.exports = 45;\n"
+        ]
+       },
+       {
+        "file": [
+         "library.js",
+         "const x = 7;\n"
+        ]
+       }
+      ],
+      "setup": "mkdir -p \"$(dirname 'events.js')\" && printf %s 'module.exports = 45;\n' > 'events.js'\nmkdir -p \"$(dirname 'library.js')\" && printf %s 'const x = 1;\n' > 'library.js'\nedat_commit 'Initial commit'\nmkdir -p \"$(dirname 'events.js')\" && printf %s 'module.exports = 93; // experiment\n' > 'events.js'\nmkdir -p \"$(dirname 'library.js')\" && printf %s 'const x = 7;\n' > 'library.js'\n"
+     },
+     "given_names": [
+      "events.js",
+      "library.js"
+     ],
+     "grader": "git",
+     "notes": "",
+     "prompt": "Throw away my uncommitted changes to `events.js` (back to the last commit), but keep my changes to `library.js`. Commands only.\n\n```\n$ git status\nOn branch main\nChanges not staged for commit:\n\tmodified:   events.js\n\tmodified:   library.js\n```",
+     "references": [
+      "```zsh\ngit restore events.js\n```",
+      "```sh\ngit checkout -- events.js\n```",
+      "```zsh\ngit checkout HEAD -- events.js\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\ngit checkout -- .\n```",
+      "```zsh\ngit reset -- events.js\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": false,
+    "group": "git",
+    "human_graded": false,
+    "id": "sk_git_stash_then_switch_2",
+    "lang": "git",
+    "level": "L2",
+    "restraint": null,
+    "split": "dev",
+    "template": "git_stash_then_switch",
+    "tool_mode": false,
+    "type": "git",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "git",
+     "check": {
+      "keep": {
+       "files": {
+        "garden.py": "A = 2\nB = 79\n",
+        "scratch.py": "draft 129\n"
+       }
+      },
+      "labels": {},
+      "predicates": [
+       {
+        "head_branch": "hotfix-metrics"
+       },
+       {
+        "clean": true
+       },
+       {
+        "no_untracked": true
+       },
+       {
+        "stash_count": 1
+       },
+       {
+        "ref_unchanged": "refs/heads/main"
+       },
+       {
+        "ref_unchanged": "refs/heads/hotfix-metrics"
+       }
+      ],
+      "setup": "mkdir -p \"$(dirname 'garden.py')\" && printf %s 'A = 1\n' > 'garden.py'\nedat_commit 'Initial commit'\ngit branch hotfix-metrics\nmkdir -p \"$(dirname 'garden.py')\" && printf %s 'A = 2\n' > 'garden.py'\nedat_commit 'Bump A'\nmkdir -p \"$(dirname 'garden.py')\" && printf %s 'A = 2\nB = 79\n' > 'garden.py'\nmkdir -p \"$(dirname 'scratch.py')\" && printf %s 'draft 129\n' > 'scratch.py'\n"
+     },
+     "given_names": [
+      "hotfix-metrics",
+      "scratch.py"
+     ],
+     "grader": "git",
+     "notes": "",
+     "prompt": "I'm in the middle of work on `main` and need to switch to `hotfix-metrics` to check something. Set all my uncommitted work aside without committing it, including the new file `scratch.py`, so the working folder is clean on `hotfix-metrics`. Commands only.\n\n```\n$ git status\nOn branch main\nChanges not staged for commit:\n\tmodified:   garden.py\n\nUntracked files:\n\tscratch.py\n```",
+     "references": [
+      "```zsh\ngit stash -u\ngit switch hotfix-metrics\n```",
+      "```sh\ngit stash push --include-untracked -m \"wip\"\ngit checkout hotfix-metrics\n```",
+      "```zsh\ngit stash --all && git switch hotfix-metrics\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\ngit stash\ngit switch hotfix-metrics\n```",
+      "```zsh\ngit checkout -f hotfix-metrics\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "git",
+     "check": {
+      "keep": {
+       "files": {
+        "inventory.py": "A = 2\nB = 47\n",
+        "scratch.py": "draft 569\n"
+       }
+      },
+      "labels": {},
+      "predicates": [
+       {
+        "head_branch": "hotfix-billing"
+       },
+       {
+        "clean": true
+       },
+       {
+        "no_untracked": true
+       },
+       {
+        "stash_count": 1
+       },
+       {
+        "ref_unchanged": "refs/heads/main"
+       },
+       {
+        "ref_unchanged": "refs/heads/hotfix-billing"
+       }
+      ],
+      "setup": "mkdir -p \"$(dirname 'inventory.py')\" && printf %s 'A = 1\n' > 'inventory.py'\nedat_commit 'Initial commit'\ngit branch hotfix-billing\nmkdir -p \"$(dirname 'inventory.py')\" && printf %s 'A = 2\n' > 'inventory.py'\nedat_commit 'Bump A'\nmkdir -p \"$(dirname 'inventory.py')\" && printf %s 'A = 2\nB = 47\n' > 'inventory.py'\nmkdir -p \"$(dirname 'scratch.py')\" && printf %s 'draft 569\n' > 'scratch.py'\n"
+     },
+     "given_names": [
+      "hotfix-billing",
+      "scratch.py"
+     ],
+     "grader": "git",
+     "notes": "",
+     "prompt": "I'm in the middle of work on `main` and need to switch to `hotfix-billing` to check something. Set all my uncommitted work aside without committing it, including the new file `scratch.py`, so the working folder is clean on `hotfix-billing`. Commands only.\n\n```\n$ git status\nOn branch main\nChanges not staged for commit:\n\tmodified:   inventory.py\n\nUntracked files:\n\tscratch.py\n```",
+     "references": [
+      "```zsh\ngit stash -u\ngit switch hotfix-billing\n```",
+      "```sh\ngit stash push --include-untracked -m \"wip\"\ngit checkout hotfix-billing\n```",
+      "```zsh\ngit stash --all && git switch hotfix-billing\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\ngit stash\ngit switch hotfix-billing\n```",
+      "```zsh\ngit checkout -f hotfix-billing\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "git",
+     "check": {
+      "keep": {
+       "files": {
+        "scratch.py": "draft 988\n",
+        "tickets.py": "A = 2\nB = 16\n"
+       }
+      },
+      "labels": {},
+      "predicates": [
+       {
+        "head_branch": "hotfix-audit"
+       },
+       {
+        "clean": true
+       },
+       {
+        "no_untracked": true
+       },
+       {
+        "stash_count": 1
+       },
+       {
+        "ref_unchanged": "refs/heads/main"
+       },
+       {
+        "ref_unchanged": "refs/heads/hotfix-audit"
+       }
+      ],
+      "setup": "mkdir -p \"$(dirname 'tickets.py')\" && printf %s 'A = 1\n' > 'tickets.py'\nedat_commit 'Initial commit'\ngit branch hotfix-audit\nmkdir -p \"$(dirname 'tickets.py')\" && printf %s 'A = 2\n' > 'tickets.py'\nedat_commit 'Bump A'\nmkdir -p \"$(dirname 'tickets.py')\" && printf %s 'A = 2\nB = 16\n' > 'tickets.py'\nmkdir -p \"$(dirname 'scratch.py')\" && printf %s 'draft 988\n' > 'scratch.py'\n"
+     },
+     "given_names": [
+      "hotfix-audit",
+      "scratch.py"
+     ],
+     "grader": "git",
+     "notes": "",
+     "prompt": "I'm in the middle of work on `main` and need to switch to `hotfix-audit` to check something. Set all my uncommitted work aside without committing it, including the new file `scratch.py`, so the working folder is clean on `hotfix-audit`. Commands only.\n\n```\n$ git status\nOn branch main\nChanges not staged for commit:\n\tmodified:   tickets.py\n\nUntracked files:\n\tscratch.py\n```",
+     "references": [
+      "```zsh\ngit stash -u\ngit switch hotfix-audit\n```",
+      "```sh\ngit stash push --include-untracked -m \"wip\"\ngit checkout hotfix-audit\n```",
+      "```zsh\ngit stash --all && git switch hotfix-audit\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\ngit stash\ngit switch hotfix-audit\n```",
+      "```zsh\ngit checkout -f hotfix-audit\n```"
+     ]
+    }
+   }
+  }
+ ],
+ "generator": "edat-sidekick-gen/1",
+ "group": "git",
+ "split": "dev"
+}

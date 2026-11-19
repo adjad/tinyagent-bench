@@ -1,0 +1,2018 @@
+{
+ "cases": [
+  {
+   "meta": {
+    "core": true,
+    "group": "shell",
+    "human_graded": false,
+    "id": "sk_shell_wc_csv_1",
+    "lang": "shell",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "shell_wc_csv",
+    "tool_mode": true,
+    "type": "shell",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "shell",
+     "check": {
+      "expect": [
+       {
+        "output": {
+         "mode": "pairs",
+         "value": [
+          [
+           "events.csv",
+           5
+          ],
+          [
+           "grades.csv",
+           27
+          ],
+          [
+           "library.csv",
+           37
+          ],
+          [
+           "total",
+           69
+          ]
+         ]
+        }
+       },
+       {
+        "output": {
+         "mode": "pairs",
+         "value": [
+          [
+           "extra.csv",
+           23
+          ],
+          [
+           "garden.csv",
+           31
+          ],
+          [
+           "orders.csv",
+           30
+          ],
+          [
+           "shipments.csv",
+           19
+          ],
+          [
+           "total",
+           103
+          ]
+         ]
+        }
+       }
+      ],
+      "setups": [
+       {
+        "files": {
+         "events.csv": "id,value\n1,323\n2,167\n3,620\n4,62\n",
+         "grades.csv": "id,value\n1,157\n2,450\n3,919\n4,672\n5,794\n6,871\n7,137\n8,320\n9,992\n10,127\n11,653\n12,155\n13,811\n14,250\n15,267\n16,565\n17,874\n18,395\n19,984\n20,826\n21,381\n22,35\n23,116\n24,790\n25,81\n26,695\n",
+         "library.csv": "id,value\n1,860\n2,869\n3,439\n4,871\n5,230\n6,14\n7,814\n8,548\n9,570\n10,391\n11,29\n12,48\n13,318\n14,6\n15,844\n16,124\n17,544\n18,876\n19,331\n20,181\n21,147\n22,273\n23,229\n24,365\n25,626\n26,924\n27,63\n28,556\n29,947\n30,202\n31,692\n32,193\n33,121\n34,308\n35,177\n36,210\n",
+         "notes.txt": "not a csv\nsecond line\n"
+        }
+       },
+       {
+        "files": {
+         "extra.csv": "id,value\n1,940\n2,697\n3,836\n4,657\n5,966\n6,653\n7,67\n8,705\n9,790\n10,672\n11,531\n12,78\n13,932\n14,163\n15,287\n16,193\n17,545\n18,968\n19,944\n20,672\n21,773\n22,594\n",
+         "garden.csv": "id,value\n1,470\n2,663\n3,534\n4,496\n5,449\n6,619\n7,966\n8,498\n9,622\n10,98\n11,27\n12,978\n13,722\n14,697\n15,114\n16,197\n17,408\n18,824\n19,65\n20,741\n21,695\n22,456\n23,800\n24,219\n25,154\n26,704\n27,660\n28,269\n29,475\n30,482\n",
+         "notes.txt": "not a csv\nsecond line\n",
+         "orders.csv": "id,value\n1,528\n2,153\n3,997\n4,218\n5,828\n6,557\n7,425\n8,528\n9,221\n10,433\n11,335\n12,169\n13,439\n14,684\n15,912\n16,61\n17,878\n18,158\n19,334\n20,721\n21,897\n22,102\n23,603\n24,559\n25,183\n26,99\n27,473\n28,515\n29,159\n",
+         "shipments.csv": "id,value\n1,111\n2,344\n3,354\n4,457\n5,932\n6,87\n7,171\n8,666\n9,52\n10,933\n11,546\n12,684\n13,571\n14,862\n15,769\n16,138\n17,230\n18,850\n"
+        }
+       }
+      ]
+     },
+     "given_names": [
+      "events.csv",
+      "grades.csv",
+      "library.csv"
+     ],
+     "grader": "shell",
+     "notes": "",
+     "prompt": "How many lines are in each .csv file in this folder, and in total? Give me one command.\n\n```\n$ ls\nevents.csv\ngrades.csv\nlibrary.csv\nnotes.txt\n```",
+     "references": [
+      "```zsh\nwc -l *.csv\n```",
+      "Use `wc`:\n\n```sh\nwc -l -- *.csv\n```"
+     ],
+     "restraint": null,
+     "tool": {
+      "files": {
+       "events.csv": "id,value\n1,323\n2,167\n3,620\n4,62\n",
+       "grades.csv": "id,value\n1,157\n2,450\n3,919\n4,672\n5,794\n6,871\n7,137\n8,320\n9,992\n10,127\n11,653\n12,155\n13,811\n14,250\n15,267\n16,565\n17,874\n18,395\n19,984\n20,826\n21,381\n22,35\n23,116\n24,790\n25,81\n26,695\n",
+       "library.csv": "id,value\n1,860\n2,869\n3,439\n4,871\n5,230\n6,14\n7,814\n8,548\n9,570\n10,391\n11,29\n12,48\n13,318\n14,6\n15,844\n16,124\n17,544\n18,876\n19,331\n20,181\n21,147\n22,273\n23,229\n24,365\n25,626\n26,924\n27,63\n28,556\n29,947\n30,202\n31,692\n32,193\n33,121\n34,308\n35,177\n36,210\n",
+       "notes.txt": "not a csv\nsecond line\n"
+      }
+     },
+     "wrong": [
+      "```zsh\nwc -l events.csv\n```",
+      "```zsh\nls *.csv | wc -l\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "shell",
+     "check": {
+      "expect": [
+       {
+        "output": {
+         "mode": "pairs",
+         "value": [
+          [
+           "clinic.csv",
+           19
+          ],
+          [
+           "grades.csv",
+           35
+          ],
+          [
+           "library.csv",
+           31
+          ],
+          [
+           "total",
+           85
+          ]
+         ]
+        }
+       },
+       {
+        "output": {
+         "mode": "pairs",
+         "value": [
+          [
+           "extra.csv",
+           40
+          ],
+          [
+           "pantry.csv",
+           32
+          ],
+          [
+           "tickets.csv",
+           17
+          ],
+          [
+           "visits.csv",
+           13
+          ],
+          [
+           "total",
+           102
+          ]
+         ]
+        }
+       }
+      ],
+      "setups": [
+       {
+        "files": {
+         "clinic.csv": "id,value\n1,119\n2,23\n3,953\n4,595\n5,420\n6,86\n7,270\n8,97\n9,97\n10,270\n11,318\n12,763\n13,554\n14,130\n15,220\n16,21\n17,904\n18,679\n",
+         "grades.csv": "id,value\n1,82\n2,552\n3,294\n4,842\n5,379\n6,594\n7,27\n8,649\n9,160\n10,418\n11,664\n12,892\n13,233\n14,978\n15,667\n16,390\n17,577\n18,776\n19,41\n20,88\n21,749\n22,660\n23,220\n24,815\n25,280\n26,938\n27,67\n28,276\n29,879\n30,78\n31,904\n32,745\n33,410\n34,727\n",
+         "library.csv": "id,value\n1,265\n2,96\n3,808\n4,217\n5,220\n6,426\n7,737\n8,696\n9,354\n10,581\n11,790\n12,48\n13,384\n14,210\n15,598\n16,424\n17,510\n18,128\n19,800\n20,741\n21,765\n22,238\n23,789\n24,857\n25,459\n26,25\n27,30\n28,814\n29,532\n30,57\n",
+         "notes.txt": "not a csv\nsecond line\n"
+        }
+       },
+       {
+        "files": {
+         "extra.csv": "id,value\n1,247\n2,127\n3,892\n4,669\n5,334\n6,955\n7,376\n8,391\n9,858\n10,550\n11,98\n12,661\n13,724\n14,113\n15,528\n16,79\n17,0\n18,205\n19,461\n20,135\n21,58\n22,333\n23,937\n24,642\n25,726\n26,166\n27,131\n28,900\n29,777\n30,663\n31,277\n32,262\n33,975\n34,231\n35,574\n36,626\n37,930\n38,260\n39,468\n",
+         "notes.txt": "not a csv\nsecond line\n",
+         "pantry.csv": "id,value\n1,7\n2,916\n3,586\n4,782\n5,321\n6,45\n7,799\n8,684\n9,715\n10,38\n11,984\n12,831\n13,460\n14,550\n15,119\n16,397\n17,367\n18,565\n19,227\n20,529\n21,189\n22,496\n23,320\n24,589\n25,879\n26,663\n27,544\n28,462\n29,411\n30,618\n31,285\n",
+         "tickets.csv": "id,value\n1,406\n2,944\n3,754\n4,681\n5,96\n6,775\n7,998\n8,19\n9,411\n10,764\n11,691\n12,232\n13,220\n14,713\n15,673\n16,235\n",
+         "visits.csv": "id,value\n1,415\n2,836\n3,536\n4,32\n5,708\n6,130\n7,455\n8,413\n9,917\n10,598\n11,979\n12,567\n"
+        }
+       }
+      ]
+     },
+     "given_names": [
+      "clinic.csv",
+      "grades.csv",
+      "library.csv"
+     ],
+     "grader": "shell",
+     "notes": "",
+     "prompt": "How many lines are in each .csv file in this folder, and in total? Give me one command.\n\n```\n$ ls\nclinic.csv\ngrades.csv\nlibrary.csv\nnotes.txt\n```",
+     "references": [
+      "```zsh\nwc -l *.csv\n```",
+      "Use `wc`:\n\n```sh\nwc -l -- *.csv\n```"
+     ],
+     "restraint": null,
+     "tool": {
+      "files": {
+       "clinic.csv": "id,value\n1,119\n2,23\n3,953\n4,595\n5,420\n6,86\n7,270\n8,97\n9,97\n10,270\n11,318\n12,763\n13,554\n14,130\n15,220\n16,21\n17,904\n18,679\n",
+       "grades.csv": "id,value\n1,82\n2,552\n3,294\n4,842\n5,379\n6,594\n7,27\n8,649\n9,160\n10,418\n11,664\n12,892\n13,233\n14,978\n15,667\n16,390\n17,577\n18,776\n19,41\n20,88\n21,749\n22,660\n23,220\n24,815\n25,280\n26,938\n27,67\n28,276\n29,879\n30,78\n31,904\n32,745\n33,410\n34,727\n",
+       "library.csv": "id,value\n1,265\n2,96\n3,808\n4,217\n5,220\n6,426\n7,737\n8,696\n9,354\n10,581\n11,790\n12,48\n13,384\n14,210\n15,598\n16,424\n17,510\n18,128\n19,800\n20,741\n21,765\n22,238\n23,789\n24,857\n25,459\n26,25\n27,30\n28,814\n29,532\n30,57\n",
+       "notes.txt": "not a csv\nsecond line\n"
+      }
+     },
+     "wrong": [
+      "```zsh\nwc -l clinic.csv\n```",
+      "```zsh\nls *.csv | wc -l\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "shell",
+     "check": {
+      "expect": [
+       {
+        "output": {
+         "mode": "pairs",
+         "value": [
+          [
+           "clinic.csv",
+           25
+          ],
+          [
+           "events.csv",
+           28
+          ],
+          [
+           "loans.csv",
+           7
+          ],
+          [
+           "total",
+           60
+          ]
+         ]
+        }
+       },
+       {
+        "output": {
+         "mode": "pairs",
+         "value": [
+          [
+           "extra.csv",
+           14
+          ],
+          [
+           "garden.csv",
+           40
+          ],
+          [
+           "pantry.csv",
+           17
+          ],
+          [
+           "survey.csv",
+           26
+          ],
+          [
+           "total",
+           97
+          ]
+         ]
+        }
+       }
+      ],
+      "setups": [
+       {
+        "files": {
+         "clinic.csv": "id,value\n1,221\n2,404\n3,325\n4,355\n5,710\n6,183\n7,292\n8,859\n9,456\n10,770\n11,647\n12,700\n13,838\n14,629\n15,677\n16,821\n17,173\n18,201\n19,767\n20,419\n21,106\n22,372\n23,688\n24,766\n",
+         "events.csv": "id,value\n1,869\n2,858\n3,714\n4,224\n5,446\n6,849\n7,171\n8,198\n9,708\n10,315\n11,680\n12,543\n13,61\n14,989\n15,350\n16,699\n17,267\n18,894\n19,988\n20,75\n21,451\n22,817\n23,710\n24,646\n25,578\n26,0\n27,165\n",
+         "loans.csv": "id,value\n1,246\n2,184\n3,567\n4,268\n5,117\n6,428\n",
+         "notes.txt": "not a csv\nsecond line\n"
+        }
+       },
+       {
+        "files": {
+         "extra.csv": "id,value\n1,761\n2,33\n3,358\n4,213\n5,439\n6,240\n7,729\n8,790\n9,911\n10,402\n11,315\n12,786\n13,287\n",
+         "garden.csv": "id,value\n1,84\n2,603\n3,523\n4,859\n5,224\n6,237\n7,275\n8,438\n9,306\n10,592\n11,711\n12,773\n13,385\n14,751\n15,88\n16,670\n17,911\n18,426\n19,177\n20,258\n21,262\n22,756\n23,423\n24,585\n25,484\n26,646\n27,905\n28,728\n29,224\n30,368\n31,478\n32,533\n33,501\n34,548\n35,437\n36,777\n37,394\n38,928\n39,726\n",
+         "notes.txt": "not a csv\nsecond line\n",
+         "pantry.csv": "id,value\n1,230\n2,295\n3,594\n4,528\n5,868\n6,762\n7,685\n8,242\n9,734\n10,122\n11,562\n12,147\n13,526\n14,932\n15,680\n16,877\n",
+         "survey.csv": "id,value\n1,567\n2,418\n3,357\n4,343\n5,289\n6,815\n7,469\n8,574\n9,499\n10,152\n11,226\n12,82\n13,592\n14,140\n15,371\n16,907\n17,715\n18,136\n19,867\n20,285\n21,97\n22,280\n23,307\n24,836\n25,488\n"
+        }
+       }
+      ]
+     },
+     "given_names": [
+      "clinic.csv",
+      "events.csv",
+      "loans.csv"
+     ],
+     "grader": "shell",
+     "notes": "",
+     "prompt": "How many lines are in each .csv file in this folder, and in total? Give me one command.\n\n```\n$ ls\nclinic.csv\nevents.csv\nloans.csv\nnotes.txt\n```",
+     "references": [
+      "```zsh\nwc -l *.csv\n```",
+      "Use `wc`:\n\n```sh\nwc -l -- *.csv\n```"
+     ],
+     "restraint": null,
+     "tool": {
+      "files": {
+       "clinic.csv": "id,value\n1,221\n2,404\n3,325\n4,355\n5,710\n6,183\n7,292\n8,859\n9,456\n10,770\n11,647\n12,700\n13,838\n14,629\n15,677\n16,821\n17,173\n18,201\n19,767\n20,419\n21,106\n22,372\n23,688\n24,766\n",
+       "events.csv": "id,value\n1,869\n2,858\n3,714\n4,224\n5,446\n6,849\n7,171\n8,198\n9,708\n10,315\n11,680\n12,543\n13,61\n14,989\n15,350\n16,699\n17,267\n18,894\n19,988\n20,75\n21,451\n22,817\n23,710\n24,646\n25,578\n26,0\n27,165\n",
+       "loans.csv": "id,value\n1,246\n2,184\n3,567\n4,268\n5,117\n6,428\n",
+       "notes.txt": "not a csv\nsecond line\n"
+      }
+     },
+     "wrong": [
+      "```zsh\nwc -l clinic.csv\n```",
+      "```zsh\nls *.csv | wc -l\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": true,
+    "group": "shell",
+    "human_graded": false,
+    "id": "sk_shell_unique_column_1",
+    "lang": "shell",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "shell_unique_column",
+    "tool_mode": false,
+    "type": "shell",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "shell",
+     "check": {
+      "expect": [
+       {
+        "output": {
+         "mode": "lines_set",
+         "value": [
+          "central",
+          "north",
+          "south"
+         ]
+        }
+       },
+       {
+        "output": {
+         "mode": "lines_set",
+         "value": [
+          "east",
+          "harbor",
+          "north",
+          "ridge",
+          "valley"
+         ]
+        }
+       }
+      ],
+      "setups": [
+       {
+        "files": {
+         "readings.csv": "id,owner,region,qty\n1,di,south,40\n2,cy,central,14\n3,cy,north,23\n4,cy,central,67\n5,cy,south,22\n6,cy,north,8\n7,di,central,36\n8,bo,south,62\n9,cy,south,87\n10,bo,central,79\n11,bo,central,70\n"
+        }
+       },
+       {
+        "files": {
+         "tickets.csv": "id,owner,region,qty\n1,di,east,50\n2,di,north,4\n3,bo,harbor,54\n4,di,ridge,66\n5,bo,valley,62\n6,bo,east,14\n7,bo,harbor,50\n8,di,east,33\n9,cy,north,40\n10,di,east,39\n11,bo,harbor,31\n12,ana,ridge,23\n13,cy,north,7\n14,bo,ridge,47\n15,ana,harbor,49\n16,di,north,41\n17,di,north,55\n18,ana,harbor,26\n19,ana,east,39\n20,di,east,83\n21,cy,ridge,79\n22,di,harbor,40\n"
+        }
+       }
+      ]
+     },
+     "given_names": [],
+     "grader": "shell",
+     "notes": "",
+     "prompt": "Print the distinct values of the `region` column (column 3) of the `.csv` file here, one per line. Skip the header row. One command.\n\n```\n$ ls\nreadings.csv\n```\n\nHeader: `id,owner,region,qty`",
+     "references": [
+      "```zsh\ntail -n +2 *.csv | cut -d, -f3 | sort -u\n```",
+      "```sh\nawk -F, 'NR > 1 { print $3 }' *.csv | sort | uniq\n```",
+      "```sh\nawk -F, 'NR > 1 && !seen[$3]++ { print $3 }' *.csv\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\ncut -d, -f3 *.csv | sort -u\n```",
+      "```zsh\ncut -f3 *.csv | sort -u\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "shell",
+     "check": {
+      "expect": [
+       {
+        "output": {
+         "mode": "lines_set",
+         "value": [
+          "east",
+          "harbor",
+          "north",
+          "south",
+          "west"
+         ]
+        }
+       },
+       {
+        "output": {
+         "mode": "lines_set",
+         "value": [
+          "central",
+          "north",
+          "ridge",
+          "south",
+          "valley"
+         ]
+        }
+       }
+      ],
+      "setups": [
+       {
+        "files": {
+         "studio.csv": "id,owner,region,qty\n1,bo,north,32\n2,bo,east,59\n3,ana,harbor,72\n4,cy,south,18\n5,bo,west,12\n6,ana,west,17\n7,cy,north,58\n8,ana,south,2\n9,ana,east,25\n10,cy,harbor,71\n11,di,west,68\n12,ana,south,1\n13,di,north,36\n14,di,harbor,6\n15,bo,harbor,8\n16,bo,east,21\n17,bo,south,59\n18,ana,harbor,72\n19,cy,harbor,28\n20,ana,west,5\n21,bo,east,31\n22,bo,west,4\n23,cy,west,25\n24,bo,east,74\n"
+        }
+       },
+       {
+        "files": {
+         "tickets.csv": "id,owner,region,qty\n1,bo,north,29\n2,cy,south,28\n3,ana,valley,32\n4,di,central,47\n5,ana,ridge,30\n6,di,central,24\n7,ana,valley,63\n8,bo,south,22\n9,bo,south,32\n10,cy,central,90\n11,di,valley,67\n12,di,south,62\n13,bo,central,12\n14,bo,ridge,65\n15,di,ridge,51\n16,ana,north,28\n17,bo,valley,63\n18,bo,valley,11\n19,cy,ridge,25\n20,ana,valley,42\n21,bo,ridge,65\n22,cy,central,52\n23,di,ridge,68\n24,bo,ridge,15\n25,di,south,23\n26,bo,north,45\n27,bo,north,87\n28,ana,central,43\n"
+        }
+       }
+      ]
+     },
+     "given_names": [],
+     "grader": "shell",
+     "notes": "",
+     "prompt": "Print the distinct values of the `region` column (column 3) of the `.csv` file here, one per line. Skip the header row. One command.\n\n```\n$ ls\nstudio.csv\n```\n\nHeader: `id,owner,region,qty`",
+     "references": [
+      "```zsh\ntail -n +2 *.csv | cut -d, -f3 | sort -u\n```",
+      "```sh\nawk -F, 'NR > 1 { print $3 }' *.csv | sort | uniq\n```",
+      "```sh\nawk -F, 'NR > 1 && !seen[$3]++ { print $3 }' *.csv\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\ncut -d, -f3 *.csv | sort -u\n```",
+      "```zsh\ncut -f3 *.csv | sort -u\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "shell",
+     "check": {
+      "expect": [
+       {
+        "output": {
+         "mode": "lines_set",
+         "value": [
+          "east",
+          "harbor",
+          "north",
+          "south"
+         ]
+        }
+       },
+       {
+        "output": {
+         "mode": "lines_set",
+         "value": [
+          "east",
+          "harbor",
+          "ridge",
+          "south",
+          "valley"
+         ]
+        }
+       }
+      ],
+      "setups": [
+       {
+        "files": {
+         "fleet.csv": "id,owner,region,qty\n1,cy,north,9\n2,bo,harbor,53\n3,di,south,5\n4,cy,east,16\n5,bo,east,45\n6,cy,east,23\n7,ana,harbor,81\n8,cy,north,41\n9,ana,north,83\n10,ana,north,50\n11,di,harbor,81\n12,di,harbor,65\n13,cy,north,84\n14,di,north,44\n15,cy,east,60\n16,ana,south,47\n17,cy,south,28\n18,ana,north,62\n19,di,south,29\n20,di,harbor,55\n21,bo,south,88\n22,ana,east,21\n23,cy,north,8\n24,bo,south,16\n25,bo,harbor,37\n"
+        }
+       },
+       {
+        "files": {
+         "orders.csv": "id,owner,region,qty\n1,bo,east,26\n2,di,ridge,62\n3,bo,south,66\n4,bo,valley,59\n5,ana,harbor,23\n6,ana,valley,23\n7,di,harbor,25\n8,di,harbor,58\n9,cy,valley,72\n10,di,valley,83\n11,ana,east,70\n12,cy,south,89\n13,bo,harbor,86\n14,ana,valley,80\n"
+        }
+       }
+      ]
+     },
+     "given_names": [],
+     "grader": "shell",
+     "notes": "",
+     "prompt": "Print the distinct values of the `region` column (column 3) of the `.csv` file here, one per line. Skip the header row. One command.\n\n```\n$ ls\nfleet.csv\n```\n\nHeader: `id,owner,region,qty`",
+     "references": [
+      "```zsh\ntail -n +2 *.csv | cut -d, -f3 | sort -u\n```",
+      "```sh\nawk -F, 'NR > 1 { print $3 }' *.csv | sort | uniq\n```",
+      "```sh\nawk -F, 'NR > 1 && !seen[$3]++ { print $3 }' *.csv\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\ncut -d, -f3 *.csv | sort -u\n```",
+      "```zsh\ncut -f3 *.csv | sort -u\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": true,
+    "group": "shell",
+    "human_graded": false,
+    "id": "sk_shell_rename_txt_md_1",
+    "lang": "shell",
+    "level": "L2",
+    "restraint": null,
+    "split": "dev",
+    "template": "shell_rename_txt_md",
+    "tool_mode": false,
+    "type": "shell",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "shell",
+     "check": {
+      "changes": [
+       "clinic.md",
+       "fleet.md",
+       "garden.md",
+       "grades.md",
+       "meeting log.md",
+       "my notes.md",
+       "pantry.md",
+       "rentals.md",
+       "survey.md"
+      ],
+      "expect": [
+       {
+        "tree": {
+         "exact": true,
+         "files": {
+          "fleet.csv": "a,b\n",
+          "my notes.md": "0.8694586475079353\n",
+          "pantry.md": "0.4449044731784513\n",
+          "readings.txt.bak": "backup\n",
+          "rentals.md": "0.9436139853428631\n",
+          "studio.md": "# kept\n",
+          "survey.md": "0.6721723024962024\n"
+         }
+        }
+       },
+       {
+        "tree": {
+         "exact": true,
+         "files": {
+          "clinic.md": "0.4365918411784374\n",
+          "fleet.md": "0.016365167969793815\n",
+          "garden.md": "0.05241259315744573\n",
+          "grades.md": "0.5908355122873123\n",
+          "library.md": "# kept\n",
+          "loans.csv": "a,b\n",
+          "meeting log.md": "0.8956369767683693\n",
+          "pantry.txt.bak": "backup\n"
+         }
+        }
+       }
+      ],
+      "removals": [
+       "clinic.txt",
+       "fleet.txt",
+       "garden.txt",
+       "grades.txt",
+       "meeting log.txt",
+       "my notes.txt",
+       "pantry.txt",
+       "rentals.txt",
+       "survey.txt"
+      ],
+      "setups": [
+       {
+        "files": {
+         "fleet.csv": "a,b\n",
+         "my notes.txt": "0.8694586475079353\n",
+         "pantry.txt": "0.4449044731784513\n",
+         "readings.txt.bak": "backup\n",
+         "rentals.txt": "0.9436139853428631\n",
+         "studio.md": "# kept\n",
+         "survey.txt": "0.6721723024962024\n"
+        }
+       },
+       {
+        "files": {
+         "clinic.txt": "0.4365918411784374\n",
+         "fleet.txt": "0.016365167969793815\n",
+         "garden.txt": "0.05241259315744573\n",
+         "grades.txt": "0.5908355122873123\n",
+         "library.md": "# kept\n",
+         "loans.csv": "a,b\n",
+         "meeting log.txt": "0.8956369767683693\n",
+         "pantry.txt.bak": "backup\n"
+        }
+       }
+      ]
+     },
+     "given_names": [],
+     "grader": "shell",
+     "notes": "",
+     "prompt": "Rename every `.txt` file in this folder so it ends in `.md` instead (same base name). Leave every other file as it is. Some names have spaces. One command.\n\n```\n$ ls\nfleet.csv\nmy notes.txt\npantry.txt\nreadings.txt.bak\nrentals.txt\nstudio.md\nsurvey.txt\n```",
+     "references": [
+      "```zsh\nfor f in *.txt; do mv -- \"$f\" \"${f%.txt}.md\"; done\n```",
+      "```zsh\nfor f in *.txt; do mv -- \"$f\" \"${f:r}.md\"; done\n```",
+      "```sh\nls -1 | grep '\\.txt$' | while IFS= read -r f; do mv -- \"$f\" \"${f%.txt}.md\"; done\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\nmv *.txt *.md\n```",
+      "```zsh\nfor f in *.txt; do cp \"$f\" \"${f%.txt}.md\"; done\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "shell",
+     "check": {
+      "changes": [
+       "budget.md",
+       "fleet.md",
+       "grades.md",
+       "meeting log.md",
+       "studio.md",
+       "tickets.md"
+      ],
+      "expect": [
+       {
+        "tree": {
+         "exact": true,
+         "files": {
+          "budget.csv": "a,b\n",
+          "fleet.md": "0.022227864544057452\n",
+          "garden.txt.bak": "backup\n",
+          "grades.md": "0.8803828225026153\n",
+          "meeting log.md": "0.26486531656522383\n",
+          "studio.md": "0.51097094157801\n",
+          "tickets.md": "0.38520390971811636\n",
+          "visits.md": "# kept\n"
+         }
+        }
+       },
+       {
+        "tree": {
+         "exact": true,
+         "files": {
+          "budget.md": "0.1216994355034694\n",
+          "fleet.md": "0.5805704188783923\n",
+          "garden.txt.bak": "backup\n",
+          "grades.md": "0.540934218238636\n",
+          "inventory.csv": "a,b\n",
+          "meeting log.md": "0.8993952588040318\n",
+          "readings.md": "# kept\n"
+         }
+        }
+       }
+      ],
+      "removals": [
+       "budget.txt",
+       "fleet.txt",
+       "grades.txt",
+       "meeting log.txt",
+       "studio.txt",
+       "tickets.txt"
+      ],
+      "setups": [
+       {
+        "files": {
+         "budget.csv": "a,b\n",
+         "fleet.txt": "0.022227864544057452\n",
+         "garden.txt.bak": "backup\n",
+         "grades.txt": "0.8803828225026153\n",
+         "meeting log.txt": "0.26486531656522383\n",
+         "studio.txt": "0.51097094157801\n",
+         "tickets.txt": "0.38520390971811636\n",
+         "visits.md": "# kept\n"
+        }
+       },
+       {
+        "files": {
+         "budget.txt": "0.1216994355034694\n",
+         "fleet.txt": "0.5805704188783923\n",
+         "garden.txt.bak": "backup\n",
+         "grades.txt": "0.540934218238636\n",
+         "inventory.csv": "a,b\n",
+         "meeting log.txt": "0.8993952588040318\n",
+         "readings.md": "# kept\n"
+        }
+       }
+      ]
+     },
+     "given_names": [],
+     "grader": "shell",
+     "notes": "",
+     "prompt": "Rename every `.txt` file in this folder so it ends in `.md` instead (same base name). Leave every other file as it is. Some names have spaces. One command.\n\n```\n$ ls\nbudget.csv\nfleet.txt\ngarden.txt.bak\ngrades.txt\nmeeting log.txt\nstudio.txt\ntickets.txt\nvisits.md\n```",
+     "references": [
+      "```zsh\nfor f in *.txt; do mv -- \"$f\" \"${f%.txt}.md\"; done\n```",
+      "```zsh\nfor f in *.txt; do mv -- \"$f\" \"${f:r}.md\"; done\n```",
+      "```sh\nls -1 | grep '\\.txt$' | while IFS= read -r f; do mv -- \"$f\" \"${f%.txt}.md\"; done\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\nmv *.txt *.md\n```",
+      "```zsh\nfor f in *.txt; do cp \"$f\" \"${f%.txt}.md\"; done\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "shell",
+     "check": {
+      "changes": [
+       "clinic.md",
+       "fleet.md",
+       "grades.md",
+       "meeting log.md",
+       "my notes.md",
+       "pantry.md",
+       "survey.md",
+       "tickets.md"
+      ],
+      "expect": [
+       {
+        "tree": {
+         "exact": true,
+         "files": {
+          "budget.md": "# kept\n",
+          "clinic.md": "0.4390827513555995\n",
+          "fleet.md": "0.5647834422106328\n",
+          "library.csv": "a,b\n",
+          "my notes.md": "0.42384215813589854\n",
+          "pantry.txt.bak": "backup\n",
+          "tickets.md": "0.35061273562649387\n"
+         }
+        }
+       },
+       {
+        "tree": {
+         "exact": true,
+         "files": {
+          "budget.txt.bak": "backup\n",
+          "clinic.md": "0.6179705561565718\n",
+          "fleet.md": "# kept\n",
+          "grades.md": "0.7024601356957422\n",
+          "meeting log.md": "0.57153483860248\n",
+          "pantry.md": "0.5129221575646055\n",
+          "shipments.csv": "a,b\n",
+          "survey.md": "0.06752120121234151\n"
+         }
+        }
+       }
+      ],
+      "removals": [
+       "clinic.txt",
+       "fleet.txt",
+       "grades.txt",
+       "meeting log.txt",
+       "my notes.txt",
+       "pantry.txt",
+       "survey.txt",
+       "tickets.txt"
+      ],
+      "setups": [
+       {
+        "files": {
+         "budget.md": "# kept\n",
+         "clinic.txt": "0.4390827513555995\n",
+         "fleet.txt": "0.5647834422106328\n",
+         "library.csv": "a,b\n",
+         "my notes.txt": "0.42384215813589854\n",
+         "pantry.txt.bak": "backup\n",
+         "tickets.txt": "0.35061273562649387\n"
+        }
+       },
+       {
+        "files": {
+         "budget.txt.bak": "backup\n",
+         "clinic.txt": "0.6179705561565718\n",
+         "fleet.md": "# kept\n",
+         "grades.txt": "0.7024601356957422\n",
+         "meeting log.txt": "0.57153483860248\n",
+         "pantry.txt": "0.5129221575646055\n",
+         "shipments.csv": "a,b\n",
+         "survey.txt": "0.06752120121234151\n"
+        }
+       }
+      ]
+     },
+     "given_names": [],
+     "grader": "shell",
+     "notes": "",
+     "prompt": "Rename every `.txt` file in this folder so it ends in `.md` instead (same base name). Leave every other file as it is. Some names have spaces. One command.\n\n```\n$ ls\nbudget.md\nclinic.txt\nfleet.txt\nlibrary.csv\nmy notes.txt\npantry.txt.bak\ntickets.txt\n```",
+     "references": [
+      "```zsh\nfor f in *.txt; do mv -- \"$f\" \"${f%.txt}.md\"; done\n```",
+      "```zsh\nfor f in *.txt; do mv -- \"$f\" \"${f:r}.md\"; done\n```",
+      "```sh\nls -1 | grep '\\.txt$' | while IFS= read -r f; do mv -- \"$f\" \"${f%.txt}.md\"; done\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\nmv *.txt *.md\n```",
+      "```zsh\nfor f in *.txt; do cp \"$f\" \"${f%.txt}.md\"; done\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": true,
+    "group": "shell",
+    "human_graded": false,
+    "id": "sk_shell_delete_empty_files_1",
+    "lang": "shell",
+    "level": "L2",
+    "restraint": null,
+    "split": "dev",
+    "template": "shell_delete_empty_files",
+    "tool_mode": false,
+    "type": "shell",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "shell",
+     "check": {
+      "expect": [
+       {
+        "tree": {
+         "exact": true,
+         "files": {
+          "budget8.txt": "0.1476470043584477\n",
+          "keep-blank.txt": "\n",
+          "logs/events7.txt": "0.8891065644314515\n"
+         }
+        }
+       },
+       {
+        "tree": {
+         "exact": true,
+         "files": {
+          "clinic8.dat": "0.5816827220924373\n",
+          "fleet4.txt": "0.7115814351255204\n",
+          "keep-blank.txt": "\n"
+         }
+        }
+       }
+      ],
+      "removals": [
+       "empty-one.txt",
+       "events6.log",
+       "library4.log",
+       "logs/events5.txt",
+       "logs/orders1.log",
+       "logs/readings9.txt",
+       "logs/tickets3.txt",
+       "my cache/events2.txt",
+       "my cache/garden3.dat",
+       "my cache/readings3.dat",
+       "my cache/tickets1.log",
+       "rentals1.dat"
+      ],
+      "setups": [
+       {
+        "files": {
+         "budget8.txt": "0.1476470043584477\n",
+         "empty-one.txt": "",
+         "keep-blank.txt": "\n",
+         "library4.log": "",
+         "logs/events7.txt": "0.8891065644314515\n",
+         "logs/readings9.txt": "",
+         "my cache/garden3.dat": "",
+         "my cache/tickets1.log": "",
+         "rentals1.dat": ""
+        }
+       },
+       {
+        "files": {
+         "clinic8.dat": "0.5816827220924373\n",
+         "empty-one.txt": "",
+         "events6.log": "",
+         "fleet4.txt": "0.7115814351255204\n",
+         "keep-blank.txt": "\n",
+         "logs/events5.txt": "",
+         "logs/orders1.log": "",
+         "logs/tickets3.txt": "",
+         "my cache/events2.txt": "",
+         "my cache/readings3.dat": ""
+        }
+       }
+      ]
+     },
+     "given_names": [],
+     "grader": "shell",
+     "notes": "",
+     "prompt": "Delete every empty (zero-byte) file under this folder, including subfolders. Files that have any content, even one newline, must stay. One command.\n\n```\n$ find . -type f\n./budget8.txt\n./empty-one.txt\n./keep-blank.txt\n./library4.log\n./logs/events7.txt\n./logs/readings9.txt\n./my cache/garden3.dat\n./my cache/tickets1.log\n./rentals1.dat\n```",
+     "references": [
+      "```zsh\nfind . -type f -empty -delete\n```",
+      "```zsh\nfind . -type f -size 0 -exec rm {} +\n```",
+      "```sh\nfind . -type f -empty -print0 | xargs -0 rm\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\nfind . -type f -delete\n```",
+      "```zsh\nrm -f *.txt\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "shell",
+     "check": {
+      "expect": [
+       {
+        "tree": {
+         "exact": true,
+         "files": {
+          "keep-blank.txt": "\n",
+          "logs/pantry3.dat": "0.06566646363481421\n",
+          "my cache/garden2.log": "0.9406488498502293\n",
+          "readings2.dat": "0.3031731766386301\n"
+         }
+        }
+       },
+       {
+        "tree": {
+         "exact": true,
+         "files": {
+          "keep-blank.txt": "\n",
+          "logs/inventory8.dat": "0.5976790949756441\n",
+          "my cache/fleet5.dat": "0.29686479070613925\n"
+         }
+        }
+       }
+      ],
+      "removals": [
+       "empty-one.txt",
+       "fleet6.txt",
+       "logs/budget7.dat",
+       "logs/orders1.log",
+       "logs/visits8.log",
+       "my cache/budget7.log",
+       "my cache/inventory7.log",
+       "my cache/visits6.dat",
+       "rentals4.txt",
+       "survey4.log",
+       "survey6.log"
+      ],
+      "setups": [
+       {
+        "files": {
+         "empty-one.txt": "",
+         "keep-blank.txt": "\n",
+         "logs/budget7.dat": "",
+         "logs/pantry3.dat": "0.06566646363481421\n",
+         "logs/visits8.log": "",
+         "my cache/budget7.log": "",
+         "my cache/garden2.log": "0.9406488498502293\n",
+         "readings2.dat": "0.3031731766386301\n",
+         "rentals4.txt": "",
+         "survey6.log": ""
+        }
+       },
+       {
+        "files": {
+         "empty-one.txt": "",
+         "fleet6.txt": "",
+         "keep-blank.txt": "\n",
+         "logs/inventory8.dat": "0.5976790949756441\n",
+         "logs/orders1.log": "",
+         "my cache/fleet5.dat": "0.29686479070613925\n",
+         "my cache/inventory7.log": "",
+         "my cache/visits6.dat": "",
+         "survey4.log": ""
+        }
+       }
+      ]
+     },
+     "given_names": [],
+     "grader": "shell",
+     "notes": "",
+     "prompt": "Delete every empty (zero-byte) file under this folder, including subfolders. Files that have any content, even one newline, must stay. One command.\n\n```\n$ find . -type f\n./empty-one.txt\n./keep-blank.txt\n./logs/budget7.dat\n./logs/pantry3.dat\n./logs/visits8.log\n./my cache/budget7.log\n./my cache/garden2.log\n./readings2.dat\n./rentals4.txt\n./survey6.log\n```",
+     "references": [
+      "```zsh\nfind . -type f -empty -delete\n```",
+      "```zsh\nfind . -type f -size 0 -exec rm {} +\n```",
+      "```sh\nfind . -type f -empty -print0 | xargs -0 rm\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\nfind . -type f -delete\n```",
+      "```zsh\nrm -f *.txt\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "shell",
+     "check": {
+      "expect": [
+       {
+        "tree": {
+         "exact": true,
+         "files": {
+          "keep-blank.txt": "\n",
+          "logs/survey1.dat": "0.9219329589940468\n",
+          "my cache/garden9.log": "0.8604249942252228\n",
+          "visits5.log": "0.44063588670357445\n"
+         }
+        }
+       },
+       {
+        "tree": {
+         "exact": true,
+         "files": {
+          "keep-blank.txt": "\n",
+          "my cache/garden1.dat": "0.5034065721687374\n",
+          "shipments4.log": "0.5412175782815024\n"
+         }
+        }
+       }
+      ],
+      "removals": [
+       "empty-one.txt",
+       "grades9.dat",
+       "logs/inventory7.dat",
+       "logs/shipments9.log",
+       "logs/studio5.log",
+       "my cache/clinic5.dat",
+       "my cache/loans8.txt",
+       "my cache/tickets7.dat",
+       "survey4.txt"
+      ],
+      "setups": [
+       {
+        "files": {
+         "empty-one.txt": "",
+         "grades9.dat": "",
+         "keep-blank.txt": "\n",
+         "logs/shipments9.log": "",
+         "logs/survey1.dat": "0.9219329589940468\n",
+         "my cache/clinic5.dat": "",
+         "my cache/garden9.log": "0.8604249942252228\n",
+         "visits5.log": "0.44063588670357445\n"
+        }
+       },
+       {
+        "files": {
+         "empty-one.txt": "",
+         "keep-blank.txt": "\n",
+         "logs/inventory7.dat": "",
+         "logs/studio5.log": "",
+         "my cache/garden1.dat": "0.5034065721687374\n",
+         "my cache/loans8.txt": "",
+         "my cache/tickets7.dat": "",
+         "shipments4.log": "0.5412175782815024\n",
+         "survey4.txt": ""
+        }
+       }
+      ]
+     },
+     "given_names": [],
+     "grader": "shell",
+     "notes": "",
+     "prompt": "Delete every empty (zero-byte) file under this folder, including subfolders. Files that have any content, even one newline, must stay. One command.\n\n```\n$ find . -type f\n./empty-one.txt\n./grades9.dat\n./keep-blank.txt\n./logs/shipments9.log\n./logs/survey1.dat\n./my cache/clinic5.dat\n./my cache/garden9.log\n./visits5.log\n```",
+     "references": [
+      "```zsh\nfind . -type f -empty -delete\n```",
+      "```zsh\nfind . -type f -size 0 -exec rm {} +\n```",
+      "```sh\nfind . -type f -empty -print0 | xargs -0 rm\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\nfind . -type f -delete\n```",
+      "```zsh\nrm -f *.txt\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": false,
+    "group": "shell",
+    "human_graded": false,
+    "id": "sk_shell_delete_ds_store_spaces_2",
+    "lang": "shell",
+    "level": "L3",
+    "restraint": null,
+    "split": "dev",
+    "template": "shell_delete_ds_store_spaces",
+    "tool_mode": true,
+    "type": "shell",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "shell",
+     "check": {
+      "expect": [
+       {
+        "tree": {
+         "exact": true,
+         "files": {
+          "docs/readings65.txt": "0.7070172724658775\n",
+          "docs/shipments87.txt": "0.24405631186783394\n",
+          "garden57.txt": "0.744296795078663\n",
+          "keep.DS_Store.txt": "not a .DS_Store file\n",
+          "src/my stuff/clinic70.txt": "0.43397183643184833\n",
+          "src/my stuff/orders51.txt": "0.3571454262528956\n",
+          "src/my stuff/survey56.txt": "0.7436798581056319\n",
+          "tickets files/library37.txt": "0.6790307547291737\n"
+         }
+        }
+       },
+       {
+        "tree": {
+         "exact": true,
+         "files": {
+          "docs/clinic68.txt": "0.2512548013907644\n",
+          "docs/events49.txt": "0.8271568693146587\n",
+          "docs/readings66.txt": "0.4806834346580101\n",
+          "events2.txt": "0.29987443667750724\n",
+          "keep.DS_Store.txt": "not a .DS_Store file\n",
+          "orders5.txt": "0.6552362083997432\n",
+          "src/my stuff/shipments6.txt": "0.6187117900877576\n",
+          "studio files/budget68.txt": "0.4411928046720567\n"
+         }
+        }
+       }
+      ],
+      "removals": [
+       ".DS_Store",
+       "docs/.DS_Store",
+       "src/my stuff/.DS_Store",
+       "studio files/.DS_Store",
+       "tickets files/.DS_Store"
+      ],
+      "setups": [
+       {
+        "files": {
+         ".DS_Store": "binaryish\n",
+         "docs/.DS_Store": "binaryish\n",
+         "docs/readings65.txt": "0.7070172724658775\n",
+         "docs/shipments87.txt": "0.24405631186783394\n",
+         "garden57.txt": "0.744296795078663\n",
+         "keep.DS_Store.txt": "not a .DS_Store file\n",
+         "src/my stuff/.DS_Store": "binaryish\n",
+         "src/my stuff/clinic70.txt": "0.43397183643184833\n",
+         "src/my stuff/orders51.txt": "0.3571454262528956\n",
+         "src/my stuff/survey56.txt": "0.7436798581056319\n",
+         "tickets files/.DS_Store": "binaryish\n",
+         "tickets files/library37.txt": "0.6790307547291737\n"
+        }
+       },
+       {
+        "files": {
+         ".DS_Store": "binaryish\n",
+         "docs/.DS_Store": "binaryish\n",
+         "docs/clinic68.txt": "0.2512548013907644\n",
+         "docs/events49.txt": "0.8271568693146587\n",
+         "docs/readings66.txt": "0.4806834346580101\n",
+         "events2.txt": "0.29987443667750724\n",
+         "keep.DS_Store.txt": "not a .DS_Store file\n",
+         "orders5.txt": "0.6552362083997432\n",
+         "src/my stuff/.DS_Store": "binaryish\n",
+         "src/my stuff/shipments6.txt": "0.6187117900877576\n",
+         "studio files/.DS_Store": "binaryish\n",
+         "studio files/budget68.txt": "0.4411928046720567\n"
+        }
+       }
+      ]
+     },
+     "given_names": [],
+     "grader": "shell",
+     "notes": "",
+     "prompt": "Delete every `.DS_Store` file under this project, including in folders with spaces in their names. Nothing else may change.\n\n```\n$ find . -type f\n./.DS_Store\n./docs/.DS_Store\n./docs/readings65.txt\n./docs/shipments87.txt\n./garden57.txt\n./keep.DS_Store.txt\n./src/my stuff/.DS_Store\n./src/my stuff/clinic70.txt\n./src/my stuff/orders51.txt\n./src/my stuff/survey56.txt\n./tickets files/.DS_Store\n./tickets files/library37.txt\n```",
+     "references": [
+      "```zsh\nfind . -name .DS_Store -type f -delete\n```",
+      "```zsh\nfind . -type f -name '.DS_Store' -print0 | xargs -0 rm -f\n```",
+      "```zsh\nrm -f -- **/.DS_Store(N) .DS_Store(N)\n```"
+     ],
+     "restraint": null,
+     "tool": {
+      "files": {
+       ".DS_Store": "binaryish\n",
+       "docs/.DS_Store": "binaryish\n",
+       "docs/readings65.txt": "0.7070172724658775\n",
+       "docs/shipments87.txt": "0.24405631186783394\n",
+       "garden57.txt": "0.744296795078663\n",
+       "keep.DS_Store.txt": "not a .DS_Store file\n",
+       "src/my stuff/.DS_Store": "binaryish\n",
+       "src/my stuff/clinic70.txt": "0.43397183643184833\n",
+       "src/my stuff/orders51.txt": "0.3571454262528956\n",
+       "src/my stuff/survey56.txt": "0.7436798581056319\n",
+       "tickets files/.DS_Store": "binaryish\n",
+       "tickets files/library37.txt": "0.6790307547291737\n"
+      }
+     },
+     "wrong": [
+      "```zsh\nrm .DS_Store\n```",
+      "```zsh\nfind . -name '*DS_Store*' -delete\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "shell",
+     "check": {
+      "expect": [
+       {
+        "tree": {
+         "exact": true,
+         "files": {
+          "docs/grades39.txt": "0.3089402602446625\n",
+          "docs/inventory25.txt": "0.4031918966129854\n",
+          "garden18.txt": "0.8077205496076886\n",
+          "grades43.txt": "0.4298329648240472\n",
+          "keep.DS_Store.txt": "not a .DS_Store file\n",
+          "rentals files/clinic13.txt": "0.18679012284713747\n",
+          "rentals files/shipments15.txt": "0.10345353313954908\n",
+          "rentals files/tickets27.txt": "0.8770283800748535\n",
+          "src/v2/inventory53.txt": "0.9049083975715533\n",
+          "src/v2/orders2.txt": "0.4929410156607197\n",
+          "src/v2/orders35.txt": "0.9747056542450859\n"
+         }
+        }
+       },
+       {
+        "tree": {
+         "exact": true,
+         "files": {
+          "docs/garden58.txt": "0.29985048353746857\n",
+          "keep.DS_Store.txt": "not a .DS_Store file\n",
+          "loans files/library78.txt": "0.875676432824976\n",
+          "loans files/loans22.txt": "0.07314109390125767\n",
+          "orders80.txt": "0.24143773769917698\n",
+          "src/old code/grades4.txt": "0.5249292436775633\n",
+          "src/old code/studio13.txt": "0.5197259702290851\n",
+          "src/old code/survey6.txt": "0.4136078244174036\n",
+          "visits92.txt": "0.7956447490930716\n"
+         }
+        }
+       }
+      ],
+      "removals": [
+       ".DS_Store",
+       "docs/.DS_Store",
+       "loans files/.DS_Store",
+       "rentals files/.DS_Store",
+       "src/old code/.DS_Store",
+       "src/v2/.DS_Store"
+      ],
+      "setups": [
+       {
+        "files": {
+         ".DS_Store": "binaryish\n",
+         "docs/.DS_Store": "binaryish\n",
+         "docs/grades39.txt": "0.3089402602446625\n",
+         "docs/inventory25.txt": "0.4031918966129854\n",
+         "garden18.txt": "0.8077205496076886\n",
+         "grades43.txt": "0.4298329648240472\n",
+         "keep.DS_Store.txt": "not a .DS_Store file\n",
+         "rentals files/.DS_Store": "binaryish\n",
+         "rentals files/clinic13.txt": "0.18679012284713747\n",
+         "rentals files/shipments15.txt": "0.10345353313954908\n",
+         "rentals files/tickets27.txt": "0.8770283800748535\n",
+         "src/v2/.DS_Store": "binaryish\n",
+         "src/v2/inventory53.txt": "0.9049083975715533\n",
+         "src/v2/orders2.txt": "0.4929410156607197\n",
+         "src/v2/orders35.txt": "0.9747056542450859\n"
+        }
+       },
+       {
+        "files": {
+         ".DS_Store": "binaryish\n",
+         "docs/.DS_Store": "binaryish\n",
+         "docs/garden58.txt": "0.29985048353746857\n",
+         "keep.DS_Store.txt": "not a .DS_Store file\n",
+         "loans files/.DS_Store": "binaryish\n",
+         "loans files/library78.txt": "0.875676432824976\n",
+         "loans files/loans22.txt": "0.07314109390125767\n",
+         "orders80.txt": "0.24143773769917698\n",
+         "src/old code/.DS_Store": "binaryish\n",
+         "src/old code/grades4.txt": "0.5249292436775633\n",
+         "src/old code/studio13.txt": "0.5197259702290851\n",
+         "src/old code/survey6.txt": "0.4136078244174036\n",
+         "visits92.txt": "0.7956447490930716\n"
+        }
+       }
+      ]
+     },
+     "given_names": [],
+     "grader": "shell",
+     "notes": "",
+     "prompt": "Delete every `.DS_Store` file under this project, including in folders with spaces in their names. Nothing else may change.\n\n```\n$ find . -type f\n./.DS_Store\n./docs/.DS_Store\n./docs/grades39.txt\n./docs/inventory25.txt\n./garden18.txt\n./grades43.txt\n./keep.DS_Store.txt\n./rentals files/.DS_Store\n./rentals files/clinic13.txt\n./rentals files/shipments15.txt\n./rentals files/tickets27.txt\n./src/v2/.DS_Store\n./src/v2/inventory53.txt\n./src/v2/orders2.txt\n./src/v2/orders35.txt\n```",
+     "references": [
+      "```zsh\nfind . -name .DS_Store -type f -delete\n```",
+      "```zsh\nfind . -type f -name '.DS_Store' -print0 | xargs -0 rm -f\n```",
+      "```zsh\nrm -f -- **/.DS_Store(N) .DS_Store(N)\n```"
+     ],
+     "restraint": null,
+     "tool": {
+      "files": {
+       ".DS_Store": "binaryish\n",
+       "docs/.DS_Store": "binaryish\n",
+       "docs/grades39.txt": "0.3089402602446625\n",
+       "docs/inventory25.txt": "0.4031918966129854\n",
+       "garden18.txt": "0.8077205496076886\n",
+       "grades43.txt": "0.4298329648240472\n",
+       "keep.DS_Store.txt": "not a .DS_Store file\n",
+       "rentals files/.DS_Store": "binaryish\n",
+       "rentals files/clinic13.txt": "0.18679012284713747\n",
+       "rentals files/shipments15.txt": "0.10345353313954908\n",
+       "rentals files/tickets27.txt": "0.8770283800748535\n",
+       "src/v2/.DS_Store": "binaryish\n",
+       "src/v2/inventory53.txt": "0.9049083975715533\n",
+       "src/v2/orders2.txt": "0.4929410156607197\n",
+       "src/v2/orders35.txt": "0.9747056542450859\n"
+      }
+     },
+     "wrong": [
+      "```zsh\nrm .DS_Store\n```",
+      "```zsh\nfind . -name '*DS_Store*' -delete\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "shell",
+     "check": {
+      "expect": [
+       {
+        "tree": {
+         "exact": true,
+         "files": {
+          "docs/survey28.txt": "0.8807145307641733\n",
+          "keep.DS_Store.txt": "not a .DS_Store file\n",
+          "orders34.txt": "0.5493541889370473\n",
+          "readings15.txt": "0.4639126884531831\n",
+          "rentals files/loans12.txt": "0.8488486482055705\n",
+          "src/v2/budget95.txt": "0.9687579062749895\n",
+          "tickets9.txt": "0.506524359027025\n"
+         }
+        }
+       },
+       {
+        "tree": {
+         "exact": true,
+         "files": {
+          "docs/rentals36.txt": "0.1976453388685565\n",
+          "docs/shipments22.txt": "0.8994413675642013\n",
+          "docs/studio43.txt": "0.8989249780640427\n",
+          "events files/grades16.txt": "0.46922227307242315\n",
+          "events files/tickets22.txt": "0.27370150227874934\n",
+          "events files/tickets56.txt": "0.3201180532000668\n",
+          "garden70.txt": "0.44834909626255715\n",
+          "keep.DS_Store.txt": "not a .DS_Store file\n",
+          "rentals52.txt": "0.19237776549319063\n",
+          "src/my stuff/readings68.txt": "0.2924845576004528\n",
+          "src/my stuff/shipments47.txt": "0.502382229102398\n",
+          "studio43.txt": "0.9190776260206828\n"
+         }
+        }
+       }
+      ],
+      "removals": [
+       ".DS_Store",
+       "docs/.DS_Store",
+       "events files/.DS_Store",
+       "rentals files/.DS_Store",
+       "src/my stuff/.DS_Store",
+       "src/v2/.DS_Store"
+      ],
+      "setups": [
+       {
+        "files": {
+         ".DS_Store": "binaryish\n",
+         "docs/.DS_Store": "binaryish\n",
+         "docs/survey28.txt": "0.8807145307641733\n",
+         "keep.DS_Store.txt": "not a .DS_Store file\n",
+         "orders34.txt": "0.5493541889370473\n",
+         "readings15.txt": "0.4639126884531831\n",
+         "rentals files/.DS_Store": "binaryish\n",
+         "rentals files/loans12.txt": "0.8488486482055705\n",
+         "src/v2/.DS_Store": "binaryish\n",
+         "src/v2/budget95.txt": "0.9687579062749895\n",
+         "tickets9.txt": "0.506524359027025\n"
+        }
+       },
+       {
+        "files": {
+         ".DS_Store": "binaryish\n",
+         "docs/.DS_Store": "binaryish\n",
+         "docs/rentals36.txt": "0.1976453388685565\n",
+         "docs/shipments22.txt": "0.8994413675642013\n",
+         "docs/studio43.txt": "0.8989249780640427\n",
+         "events files/.DS_Store": "binaryish\n",
+         "events files/grades16.txt": "0.46922227307242315\n",
+         "events files/tickets22.txt": "0.27370150227874934\n",
+         "events files/tickets56.txt": "0.3201180532000668\n",
+         "garden70.txt": "0.44834909626255715\n",
+         "keep.DS_Store.txt": "not a .DS_Store file\n",
+         "rentals52.txt": "0.19237776549319063\n",
+         "src/my stuff/.DS_Store": "binaryish\n",
+         "src/my stuff/readings68.txt": "0.2924845576004528\n",
+         "src/my stuff/shipments47.txt": "0.502382229102398\n",
+         "studio43.txt": "0.9190776260206828\n"
+        }
+       }
+      ]
+     },
+     "given_names": [],
+     "grader": "shell",
+     "notes": "",
+     "prompt": "Delete every `.DS_Store` file under this project, including in folders with spaces in their names. Nothing else may change.\n\n```\n$ find . -type f\n./.DS_Store\n./docs/.DS_Store\n./docs/survey28.txt\n./keep.DS_Store.txt\n./orders34.txt\n./readings15.txt\n./rentals files/.DS_Store\n./rentals files/loans12.txt\n./src/v2/.DS_Store\n./src/v2/budget95.txt\n./tickets9.txt\n```",
+     "references": [
+      "```zsh\nfind . -name .DS_Store -type f -delete\n```",
+      "```zsh\nfind . -type f -name '.DS_Store' -print0 | xargs -0 rm -f\n```",
+      "```zsh\nrm -f -- **/.DS_Store(N) .DS_Store(N)\n```"
+     ],
+     "restraint": null,
+     "tool": {
+      "files": {
+       ".DS_Store": "binaryish\n",
+       "docs/.DS_Store": "binaryish\n",
+       "docs/survey28.txt": "0.8807145307641733\n",
+       "keep.DS_Store.txt": "not a .DS_Store file\n",
+       "orders34.txt": "0.5493541889370473\n",
+       "readings15.txt": "0.4639126884531831\n",
+       "rentals files/.DS_Store": "binaryish\n",
+       "rentals files/loans12.txt": "0.8488486482055705\n",
+       "src/v2/.DS_Store": "binaryish\n",
+       "src/v2/budget95.txt": "0.9687579062749895\n",
+       "tickets9.txt": "0.506524359027025\n"
+      }
+     },
+     "wrong": [
+      "```zsh\nrm .DS_Store\n```",
+      "```zsh\nfind . -name '*DS_Store*' -delete\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": false,
+    "group": "shell",
+    "human_graded": false,
+    "id": "sk_shell_tail_log_2",
+    "lang": "shell",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "shell_tail_log",
+    "tool_mode": false,
+    "type": "shell",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "shell",
+     "check": {
+      "expect": [
+       {
+        "output": {
+         "mode": "exact",
+         "value": "10:05:35 INFO health ok-9\n10:06:47 WARN disk 71%-67\n10:07:52 INFO config reloaded-51"
+        }
+       },
+       {
+        "output": {
+         "mode": "exact",
+         "value": "10:04:13 INFO flush done-2\n10:05:01 WARN job finished-17\n10:06:25 WARN health ok-37"
+        }
+       }
+      ],
+      "setups": [
+       {
+        "files": {
+         "events.log": "10:00:57 WARN peer joined-31\n10:01:06 WARN flush done-96\n10:02:37 INFO cache warmed-77\n10:03:22 INFO slow query-8\n10:04:33 WARN job queued-96\n10:05:35 INFO health ok-9\n10:06:47 WARN disk 71%-67\n10:07:52 INFO config reloaded-51\n"
+        }
+       },
+       {
+        "files": {
+         "garden.log": "10:00:20 WARN peer joined-82\n10:01:05 INFO slow query-57\n10:02:45 WARN config reloaded-90\n10:03:40 WARN idle-15\n10:04:13 INFO flush done-2\n10:05:01 WARN job finished-17\n10:06:25 WARN health ok-37\n"
+        }
+       }
+      ]
+     },
+     "given_names": [],
+     "grader": "shell",
+     "notes": "",
+     "prompt": "Show the last 3 lines of the only `.log` file in this folder. One command.\n\n```\n$ ls\nevents.log\n```",
+     "references": [
+      "```zsh\ntail -n 3 *.log\n```",
+      "```sh\ntail -3 *.log\n```",
+      "```sh\ncat *.log | tail -n 3\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\nhead -n 3 *.log\n```",
+      "```zsh\ntail -n 3 events.log\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "shell",
+     "check": {
+      "expect": [
+       {
+        "output": {
+         "mode": "exact",
+         "value": "10:05:46 INFO job queued-19\n10:06:19 WARN flush done-2\n10:07:25 WARN peer joined-89"
+        }
+       },
+       {
+        "output": {
+         "mode": "exact",
+         "value": "10:07:10 WARN peer joined-29\n10:08:38 WARN health ok-68\n10:09:17 WARN started-37"
+        }
+       }
+      ],
+      "setups": [
+       {
+        "files": {
+         "readings.log": "10:00:18 WARN job finished-82\n10:01:08 INFO retrying-13\n10:02:04 INFO health ok-38\n10:03:51 WARN config reloaded-64\n10:04:52 WARN slow query-44\n10:05:46 INFO job queued-19\n10:06:19 WARN flush done-2\n10:07:25 WARN peer joined-89\n"
+        }
+       },
+       {
+        "files": {
+         "visits.log": "10:00:49 INFO config reloaded-37\n10:01:39 WARN job finished-73\n10:02:08 WARN idle-12\n10:03:55 WARN disk 71%-15\n10:04:26 WARN job queued-71\n10:05:14 WARN flush done-51\n10:06:41 WARN cache warmed-69\n10:07:10 WARN peer joined-29\n10:08:38 WARN health ok-68\n10:09:17 WARN started-37\n"
+        }
+       }
+      ]
+     },
+     "given_names": [],
+     "grader": "shell",
+     "notes": "",
+     "prompt": "Show the last 3 lines of the only `.log` file in this folder. One command.\n\n```\n$ ls\nreadings.log\n```",
+     "references": [
+      "```zsh\ntail -n 3 *.log\n```",
+      "```sh\ntail -3 *.log\n```",
+      "```sh\ncat *.log | tail -n 3\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\nhead -n 3 *.log\n```",
+      "```zsh\ntail -n 3 readings.log\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "shell",
+     "check": {
+      "expect": [
+       {
+        "output": {
+         "mode": "exact",
+         "value": "10:05:45 INFO idle-93\n10:06:56 INFO retrying-10\n10:07:50 INFO job finished-75"
+        }
+       },
+       {
+        "output": {
+         "mode": "exact",
+         "value": "10:06:30 INFO health ok-67\n10:07:36 INFO peer joined-38\n10:08:04 INFO job queued-31"
+        }
+       }
+      ],
+      "setups": [
+       {
+        "files": {
+         "clinic.log": "10:00:53 WARN health ok-51\n10:01:09 INFO slow query-47\n10:02:57 INFO started-83\n10:03:36 WARN config reloaded-68\n10:04:43 INFO flush done-30\n10:05:45 INFO idle-93\n10:06:56 INFO retrying-10\n10:07:50 INFO job finished-75\n"
+        }
+       },
+       {
+        "files": {
+         "visits.log": "10:00:02 WARN cache warmed-57\n10:01:40 WARN retrying-22\n10:02:33 INFO slow query-48\n10:03:26 WARN idle-61\n10:04:04 INFO flush done-87\n10:05:47 WARN started-5\n10:06:30 INFO health ok-67\n10:07:36 INFO peer joined-38\n10:08:04 INFO job queued-31\n"
+        }
+       }
+      ]
+     },
+     "given_names": [],
+     "grader": "shell",
+     "notes": "",
+     "prompt": "Show the last 3 lines of the only `.log` file in this folder. One command.\n\n```\n$ ls\nclinic.log\n```",
+     "references": [
+      "```zsh\ntail -n 3 *.log\n```",
+      "```sh\ntail -3 *.log\n```",
+      "```sh\ncat *.log | tail -n 3\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\nhead -n 3 *.log\n```",
+      "```zsh\ntail -n 3 clinic.log\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": false,
+    "group": "shell",
+    "human_graded": false,
+    "id": "sk_shell_common_word_2",
+    "lang": "shell",
+    "level": "L2",
+    "restraint": null,
+    "split": "dev",
+    "template": "shell_common_word",
+    "tool_mode": false,
+    "type": "shell",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "shell",
+     "check": {
+      "expect": [
+       {
+        "output": {
+         "forbid": [
+          "\\bbravo\\b",
+          "\\bdelta\\b",
+          "\\bcedar\\b",
+          "\\bember\\b"
+         ],
+         "mode": "pairs",
+         "value": [
+          [
+           "gamma",
+           9
+          ]
+         ]
+        }
+       },
+       {
+        "output": {
+         "forbid": [
+          "\\balpha\\b",
+          "\\bgamma\\b",
+          "\\bember\\b",
+          "\\bjuniper\\b"
+         ],
+         "mode": "pairs",
+         "value": [
+          [
+           "cedar",
+           12
+          ]
+         ]
+        }
+       }
+      ],
+      "setups": [
+       {
+        "files": {
+         "rentals.txt": "cedar\ngamma\nember\ncedar\ncedar\nember\ngamma\nbravo\ngamma\ncedar\ndelta\nember\ngamma\ndelta\nember\nember\nember\nbravo\ngamma\ngamma\ngamma\ngamma\ngamma\ndelta\nember\ndelta\nember\nbravo\ndelta\n"
+        }
+       },
+       {
+        "files": {
+         "library.txt": "ember\njuniper\ncedar\nember\nember\njuniper\ncedar\nember\nalpha\njuniper\nember\nalpha\ncedar\nember\nember\nalpha\nalpha\ncedar\ncedar\ncedar\nalpha\nalpha\nalpha\ncedar\njuniper\nalpha\njuniper\nember\nalpha\ncedar\nember\ncedar\nalpha\ncedar\nalpha\njuniper\njuniper\ncedar\njuniper\ncedar\ngamma\njuniper\nember\n"
+        }
+       }
+      ]
+     },
+     "given_names": [],
+     "grader": "shell",
+     "notes": "",
+     "prompt": "The only `.txt` file here has one word per line. Print the word that appears most often together with how many times it appears, and nothing else. One command.\n\n```\n$ ls\nrentals.txt\n```",
+     "references": [
+      "```zsh\nsort *.txt | uniq -c | sort -rn | head -n 1\n```",
+      "```sh\nsort *.txt | uniq -c | sort -nr | head -1\n```",
+      "```sh\nawk '{ c[$1]++ } END { for (w in c) print c[w], w }' *.txt | sort -rn | head -n 1\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\nsort *.txt | uniq -c | sort -n | head -n 1\n```",
+      "```zsh\nsort *.txt | uniq -c\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "shell",
+     "check": {
+      "expect": [
+       {
+        "output": {
+         "forbid": [
+          "\\bindigo\\b",
+          "\\bcedar\\b",
+          "\\bgamma\\b",
+          "\\bfjord\\b"
+         ],
+         "mode": "pairs",
+         "value": [
+          [
+           "juniper",
+           12
+          ]
+         ]
+        }
+       },
+       {
+        "output": {
+         "forbid": [
+          "\\bdelta\\b",
+          "\\bbravo\\b",
+          "\\bember\\b",
+          "\\bfjord\\b"
+         ],
+         "mode": "pairs",
+         "value": [
+          [
+           "alpha",
+           12
+          ]
+         ]
+        }
+       }
+      ],
+      "setups": [
+       {
+        "files": {
+         "rentals.txt": "juniper\ngamma\njuniper\ncedar\nfjord\ncedar\njuniper\nfjord\nindigo\nfjord\njuniper\nfjord\nfjord\njuniper\njuniper\njuniper\njuniper\njuniper\ncedar\ncedar\ngamma\ngamma\ngamma\njuniper\ngamma\ncedar\ncedar\ncedar\nfjord\njuniper\nfjord\njuniper\ncedar\ngamma\n"
+        }
+       },
+       {
+        "files": {
+         "orders.txt": "alpha\nalpha\nfjord\ndelta\ndelta\nalpha\nalpha\nfjord\nember\nember\nember\nalpha\ndelta\nfjord\ndelta\ndelta\nember\nbravo\nalpha\nfjord\nalpha\ndelta\nalpha\nalpha\ndelta\nalpha\ndelta\nfjord\nfjord\nfjord\nalpha\ndelta\nalpha\nember\nfjord\ndelta\n"
+        }
+       }
+      ]
+     },
+     "given_names": [],
+     "grader": "shell",
+     "notes": "",
+     "prompt": "The only `.txt` file here has one word per line. Print the word that appears most often together with how many times it appears, and nothing else. One command.\n\n```\n$ ls\nrentals.txt\n```",
+     "references": [
+      "```zsh\nsort *.txt | uniq -c | sort -rn | head -n 1\n```",
+      "```sh\nsort *.txt | uniq -c | sort -nr | head -1\n```",
+      "```sh\nawk '{ c[$1]++ } END { for (w in c) print c[w], w }' *.txt | sort -rn | head -n 1\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\nsort *.txt | uniq -c | sort -n | head -n 1\n```",
+      "```zsh\nsort *.txt | uniq -c\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "shell",
+     "check": {
+      "expect": [
+       {
+        "output": {
+         "forbid": [
+          "\\bindigo\\b",
+          "\\bgamma\\b",
+          "\\bember\\b",
+          "\\bjuniper\\b"
+         ],
+         "mode": "pairs",
+         "value": [
+          [
+           "kelp",
+           11
+          ]
+         ]
+        }
+       },
+       {
+        "output": {
+         "forbid": [
+          "\\bgamma\\b",
+          "\\bkelp\\b",
+          "\\bember\\b",
+          "\\bjuniper\\b"
+         ],
+         "mode": "pairs",
+         "value": [
+          [
+           "indigo",
+           12
+          ]
+         ]
+        }
+       }
+      ],
+      "setups": [
+       {
+        "files": {
+         "visits.txt": "indigo\nkelp\nkelp\ngamma\njuniper\nkelp\nkelp\nindigo\ngamma\nkelp\nkelp\nindigo\nember\ngamma\ngamma\ngamma\nember\nkelp\ngamma\njuniper\ngamma\nindigo\nkelp\njuniper\nember\ngamma\njuniper\njuniper\ngamma\nkelp\nindigo\nember\nember\njuniper\nkelp\njuniper\nkelp\nember\njuniper\n"
+        }
+       },
+       {
+        "files": {
+         "studio.txt": "kelp\nindigo\nkelp\nember\nkelp\nember\nindigo\nindigo\ngamma\ngamma\nkelp\nkelp\nember\ngamma\nindigo\nindigo\nindigo\nkelp\nindigo\ngamma\ngamma\ngamma\nember\njuniper\nindigo\nindigo\nkelp\ngamma\nindigo\ngamma\ngamma\nkelp\ngamma\njuniper\nkelp\nember\nember\nindigo\nindigo\ngamma\n"
+        }
+       }
+      ]
+     },
+     "given_names": [],
+     "grader": "shell",
+     "notes": "",
+     "prompt": "The only `.txt` file here has one word per line. Print the word that appears most often together with how many times it appears, and nothing else. One command.\n\n```\n$ ls\nvisits.txt\n```",
+     "references": [
+      "```zsh\nsort *.txt | uniq -c | sort -rn | head -n 1\n```",
+      "```sh\nsort *.txt | uniq -c | sort -nr | head -1\n```",
+      "```sh\nawk '{ c[$1]++ } END { for (w in c) print c[w], w }' *.txt | sort -rn | head -n 1\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\nsort *.txt | uniq -c | sort -n | head -n 1\n```",
+      "```zsh\nsort *.txt | uniq -c\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": false,
+    "group": "shell",
+    "human_graded": false,
+    "id": "sk_shell_loc_py_blanks_2",
+    "lang": "shell",
+    "level": "L3",
+    "restraint": null,
+    "split": "dev",
+    "template": "shell_loc_py_blanks",
+    "tool_mode": false,
+    "type": "shell",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "shell",
+     "check": {
+      "expect": [
+       {
+        "output": {
+         "mode": "number",
+         "value": 25
+        }
+       },
+       {
+        "output": {
+         "mode": "number",
+         "value": 21
+        }
+       }
+      ],
+      "setups": [
+       {
+        "files": {
+         "README.txt": "line\n\nline\n   \nline\n",
+         "my tools/inventory.py": "\nx = 1\n\nprint('hi')\nprint('hi')\ndef f():\nprint('hi')\n# note\n    \nend = True\n",
+         "my tools/studio.py": "# note\n# note\ndef f():\nprint('hi')\n    \n# note\n    \nend = True\n",
+         "pantry.py": "\t\ndef f():\n# note\n\n# note\nprint('hi')\n\n# note\n    \nend = True\n",
+         "pkg/data.json": "{\n\n}\n",
+         "pkg/garden.py": "x = 1\n\t\n\n\t\nx = 1\n\n    return 2\n\n    \nend = True\n",
+         "readings.py": "\ndef f():\n    \n    \nend = True\n"
+        }
+       },
+       {
+        "files": {
+         "README.txt": "line\n\nline\n   \nline\n",
+         "library.py": "def f():\n    return 2\nx = 1\n\n\n\n    \nend = True\n",
+         "my tools/library.py": "def f():\n    \n    return 2\ndef f():\n    \n\t\ndef f():\n    return 2\n    \nend = True\n",
+         "my tools/loans.py": "\nprint('hi')\n\nx = 1\ndef f():\n# note\n    \nend = True\n",
+         "pkg/data.json": "{\n\n}\n",
+         "pkg/inventory.py": "x = 1\n\t\ndef f():\n\n\n\n    return 2\n\n\t\n    \nend = True\n",
+         "visits.py": "print('hi')\n\n    \n\t\n    \n    \n\n    \nend = True\n"
+        }
+       }
+      ]
+     },
+     "given_names": [],
+     "grader": "shell",
+     "notes": "",
+     "prompt": "Count the lines of code in all `.py` files in this project, including subfolders (some folder names have spaces). Do not count blank lines, including lines that contain only spaces or tabs. Print one number: the total over all files. One command.\n\n```\n$ find . -type f\n./README.txt\n./my tools/inventory.py\n./my tools/studio.py\n./pantry.py\n./pkg/data.json\n./pkg/garden.py\n./readings.py\n```",
+     "references": [
+      "```zsh\nfind . -name '*.py' -exec cat {} + | grep -cv '^[[:space:]]*$'\n```",
+      "```zsh\nfind . -name '*.py' -print0 | xargs -0 cat | grep -c '[^[:space:]]'\n```",
+      "```zsh\ncat **/*.py | grep -c '[^[:space:]]'\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\ncat **/*.py | grep -c .\n```",
+      "```zsh\ncat **/*.py | wc -l\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "shell",
+     "check": {
+      "expect": [
+       {
+        "output": {
+         "mode": "number",
+         "value": 14
+        }
+       },
+       {
+        "output": {
+         "mode": "number",
+         "value": 21
+        }
+       }
+      ],
+      "setups": [
+       {
+        "files": {
+         "README.txt": "line\n\nline\n   \nline\n",
+         "old code/library.py": "\n\n\n    \nend = True\n",
+         "old code/pantry.py": "def f():\n\ndef f():\n    \nend = True\n",
+         "pantry.py": "    \nprint('hi')\n\t\nx = 1\n\nprint('hi')\ndef f():\n\n\n    \nend = True\n",
+         "pkg/data.json": "{\n\n}\n",
+         "pkg/survey.py": "def f():\n\ndef f():\n\n# note\n# note\n\n    \nend = True\n"
+        }
+       },
+       {
+        "files": {
+         "README.txt": "line\n\nline\n   \nline\n",
+         "garden.py": "\n# note\n\t\n    return 2\n# note\nx = 1\n    \n\t\n    return 2\n    \nend = True\n",
+         "old code/loans.py": "    \n\t\n\n\n\t\n    return 2\n# note\n# note\n\n    \nend = True\n",
+         "orders.py": "x = 1\n\n\t\nx = 1\nprint('hi')\n    \nend = True\n",
+         "pkg/data.json": "{\n\n}\n",
+         "pkg/garden.py": "    \n\n    return 2\n# note\n\n\ndef f():\n    \nend = True\n",
+         "pkg/readings.py": "\t\n\t\n\t\nprint('hi')\n\nx = 1\n\t\n    \nend = True\n"
+        }
+       }
+      ]
+     },
+     "given_names": [],
+     "grader": "shell",
+     "notes": "",
+     "prompt": "Count the lines of code in all `.py` files in this project, including subfolders (some folder names have spaces). Do not count blank lines, including lines that contain only spaces or tabs. Print one number: the total over all files. One command.\n\n```\n$ find . -type f\n./README.txt\n./old code/library.py\n./old code/pantry.py\n./pantry.py\n./pkg/data.json\n./pkg/survey.py\n```",
+     "references": [
+      "```zsh\nfind . -name '*.py' -exec cat {} + | grep -cv '^[[:space:]]*$'\n```",
+      "```zsh\nfind . -name '*.py' -print0 | xargs -0 cat | grep -c '[^[:space:]]'\n```",
+      "```zsh\ncat **/*.py | grep -c '[^[:space:]]'\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\ncat **/*.py | grep -c .\n```",
+      "```zsh\ncat **/*.py | wc -l\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "shell",
+     "check": {
+      "expect": [
+       {
+        "output": {
+         "mode": "number",
+         "value": 23
+        }
+       },
+       {
+        "output": {
+         "mode": "number",
+         "value": 20
+        }
+       }
+      ],
+      "setups": [
+       {
+        "files": {
+         "README.txt": "line\n\nline\n   \nline\n",
+         "my tools/orders.py": "print('hi')\nx = 1\n\n    \n\t\ndef f():\n\n    \nend = True\n",
+         "my tools/shipments.py": "    \n\n\nprint('hi')\n# note\n    \n    \ndef f():\n    \nend = True\n",
+         "pkg/data.json": "{\n\n}\n",
+         "pkg/rentals.py": "x = 1\n# note\nprint('hi')\nx = 1\n    \nend = True\n",
+         "studio.py": "# note\n    return 2\ndef f():\n    \n\n    return 2\n\n# note\n\t\n    \nend = True\n",
+         "visits.py": "    return 2\n\t\nprint('hi')\n\t\n\t\n\t\n# note\n    \nend = True\n"
+        }
+       },
+       {
+        "files": {
+         "README.txt": "line\n\nline\n   \nline\n",
+         "clinic.py": "\nx = 1\n# note\n    return 2\n    \nend = True\n",
+         "fleet.py": "    \n\n# note\nx = 1\n\n\t\n    return 2\nx = 1\n# note\n    \nend = True\n",
+         "old code/survey.py": "def f():\n# note\nprint('hi')\n\t\n    \n# note\n\t\n\t\ndef f():\n    \nend = True\n",
+         "pkg/data.json": "{\n\n}\n",
+         "pkg/readings.py": "\t\n# note\ndef f():\n\ndef f():\n    \n    \nend = True\n"
+        }
+       }
+      ]
+     },
+     "given_names": [],
+     "grader": "shell",
+     "notes": "",
+     "prompt": "Count the lines of code in all `.py` files in this project, including subfolders (some folder names have spaces). Do not count blank lines, including lines that contain only spaces or tabs. Print one number: the total over all files. One command.\n\n```\n$ find . -type f\n./README.txt\n./my tools/orders.py\n./my tools/shipments.py\n./pkg/data.json\n./pkg/rentals.py\n./studio.py\n./visits.py\n```",
+     "references": [
+      "```zsh\nfind . -name '*.py' -exec cat {} + | grep -cv '^[[:space:]]*$'\n```",
+      "```zsh\nfind . -name '*.py' -print0 | xargs -0 cat | grep -c '[^[:space:]]'\n```",
+      "```zsh\ncat **/*.py | grep -c '[^[:space:]]'\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```zsh\ncat **/*.py | grep -c .\n```",
+      "```zsh\ncat **/*.py | wc -l\n```"
+     ]
+    }
+   }
+  }
+ ],
+ "generator": "edat-sidekick-gen/1",
+ "group": "shell",
+ "split": "dev"
+}

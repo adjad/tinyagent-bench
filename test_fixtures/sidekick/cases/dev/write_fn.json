@@ -1,0 +1,3961 @@
+{
+ "cases": [
+  {
+   "meta": {
+    "core": true,
+    "group": "write_fn",
+    "human_graded": false,
+    "id": "sk_write_py_initials_1",
+    "lang": "python",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "write_py_initials",
+    "tool_mode": true,
+    "type": "write_fn",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": {
+       "n": 200,
+       "regenerate": true,
+       "sha256": "8fdace151591a0d4b7f7a1fc1415863a6d685ee45006fd1c0579b7abef7af679"
+      },
+      "entry": "initials",
+      "lang": "python",
+      "module": "text_utils",
+      "reference": "def initials(full_name: str) -> str:\n    return \"\".join(part[0].upper() for part in full_name.split())\n",
+      "tests": [
+       {
+        "args": [
+         "  ada  lovelace "
+        ],
+        "expect": "AL"
+       },
+       {
+        "args": [
+         "Grace Hopper"
+        ],
+        "expect": "GH"
+       },
+       {
+        "args": [
+         "alan"
+        ],
+        "expect": "A"
+       },
+       {
+        "args": [
+         ""
+        ],
+        "expect": ""
+       },
+       {
+        "args": [
+         "   "
+        ],
+        "expect": ""
+       },
+       {
+        "args": [
+         "a b c"
+        ],
+        "expect": "ABC"
+       },
+       {
+        "args": [
+         "zo\u00eb \u00f8rsted"
+        ],
+        "expect": "Z\u00d8"
+       },
+       {
+        "args": [
+         "Edsger W Dijkstra"
+        ],
+        "expect": "EWD"
+       },
+       {
+        "args": [
+         "x"
+        ],
+        "expect": "X"
+       },
+       {
+        "args": [
+         "mary-jane watson"
+        ],
+        "expect": "MW"
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         "  ada  lovelace "
+        ],
+        "expect": "AL"
+       },
+       {
+        "args": [
+         "Grace Hopper"
+        ],
+        "expect": "GH"
+       }
+      ]
+     },
+     "given_names": [
+      "initials"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "Write a Python function `initials(full_name: str) -> str` that returns the upper-case initials of a name, ignoring extra spaces. For example `initials(\"  ada  lovelace \")` returns `\"AL\"` and `initials(\"\")` returns `\"\"`.",
+     "references": [
+      "```python\ndef initials(full_name: str) -> str:\n    return \"\".join(part[0].upper() for part in full_name.split())\n```",
+      "```python\ndef initials(full_name: str) -> str:\n    out = ''\n    for w in full_name.strip().split():\n        out += w[0].upper()\n    return out\n```"
+     ],
+     "restraint": null,
+     "tool": {
+      "files": {
+       "text_utils.py": "def initials(full_name: str) -> str:\n    raise NotImplementedError\n"
+      },
+      "target": "text_utils.py"
+     },
+     "wrong": [
+      "```python\ndef initials(full_name: str) -> str:\n    return full_name[:2].upper()\n```",
+      "```python\ndef initials(full_name: str) -> str:\n    return ''.join(p[0] for p in full_name.split(' '))\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": {
+       "n": 200,
+       "regenerate": true,
+       "sha256": "20694d91b611ffcb023887eefaada621a2aca207c53f3ed0338058adfe00648b"
+      },
+      "entry": "name_initials",
+      "lang": "python",
+      "module": "people",
+      "reference": "def name_initials(full_name: str) -> str:\n    return \"\".join(part[0].upper() for part in full_name.split())\n",
+      "tests": [
+       {
+        "args": [
+         "  ada  lovelace "
+        ],
+        "expect": "AL"
+       },
+       {
+        "args": [
+         "Grace Hopper"
+        ],
+        "expect": "GH"
+       },
+       {
+        "args": [
+         "alan"
+        ],
+        "expect": "A"
+       },
+       {
+        "args": [
+         ""
+        ],
+        "expect": ""
+       },
+       {
+        "args": [
+         "   "
+        ],
+        "expect": ""
+       },
+       {
+        "args": [
+         "a b c"
+        ],
+        "expect": "ABC"
+       },
+       {
+        "args": [
+         "zo\u00eb \u00f8rsted"
+        ],
+        "expect": "Z\u00d8"
+       },
+       {
+        "args": [
+         "Edsger W Dijkstra"
+        ],
+        "expect": "EWD"
+       },
+       {
+        "args": [
+         "x"
+        ],
+        "expect": "X"
+       },
+       {
+        "args": [
+         "mary-jane watson"
+        ],
+        "expect": "MW"
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         "  ada  lovelace "
+        ],
+        "expect": "AL"
+       },
+       {
+        "args": [
+         "Grace Hopper"
+        ],
+        "expect": "GH"
+       }
+      ]
+     },
+     "given_names": [
+      "name_initials"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "Write a Python function `name_initials(full_name: str) -> str` that returns the upper-case initials of a name, ignoring extra spaces. For example `name_initials(\"  ada  lovelace \")` returns `\"AL\"` and `name_initials(\"\")` returns `\"\"`.",
+     "references": [
+      "```python\ndef name_initials(full_name: str) -> str:\n    return \"\".join(part[0].upper() for part in full_name.split())\n```",
+      "```python\ndef name_initials(full_name: str) -> str:\n    out = ''\n    for w in full_name.strip().split():\n        out += w[0].upper()\n    return out\n```"
+     ],
+     "restraint": null,
+     "tool": {
+      "files": {
+       "people.py": "def name_initials(full_name: str) -> str:\n    raise NotImplementedError\n"
+      },
+      "target": "people.py"
+     },
+     "wrong": [
+      "```python\ndef name_initials(full_name: str) -> str:\n    return full_name[:2].upper()\n```",
+      "```python\ndef name_initials(full_name: str) -> str:\n    return ''.join(p[0] for p in full_name.split(' '))\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": {
+       "n": 200,
+       "regenerate": true,
+       "sha256": "400a8d60c6eb8c5eace582f30db70fcc1f514cdf00f6bf2bdaf4e04d2a284065"
+      },
+      "entry": "initials",
+      "lang": "python",
+      "module": "names",
+      "reference": "def initials(full_name: str) -> str:\n    return \"\".join(part[0].upper() for part in full_name.split())\n",
+      "tests": [
+       {
+        "args": [
+         "  ada  lovelace "
+        ],
+        "expect": "AL"
+       },
+       {
+        "args": [
+         "Grace Hopper"
+        ],
+        "expect": "GH"
+       },
+       {
+        "args": [
+         "alan"
+        ],
+        "expect": "A"
+       },
+       {
+        "args": [
+         ""
+        ],
+        "expect": ""
+       },
+       {
+        "args": [
+         "   "
+        ],
+        "expect": ""
+       },
+       {
+        "args": [
+         "a b c"
+        ],
+        "expect": "ABC"
+       },
+       {
+        "args": [
+         "zo\u00eb \u00f8rsted"
+        ],
+        "expect": "Z\u00d8"
+       },
+       {
+        "args": [
+         "Edsger W Dijkstra"
+        ],
+        "expect": "EWD"
+       },
+       {
+        "args": [
+         "x"
+        ],
+        "expect": "X"
+       },
+       {
+        "args": [
+         "mary-jane watson"
+        ],
+        "expect": "MW"
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         "  ada  lovelace "
+        ],
+        "expect": "AL"
+       },
+       {
+        "args": [
+         "Grace Hopper"
+        ],
+        "expect": "GH"
+       }
+      ]
+     },
+     "given_names": [
+      "initials"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "Write a Python function `initials(full_name: str) -> str` that returns the upper-case initials of a name, ignoring extra spaces. For example `initials(\"  ada  lovelace \")` returns `\"AL\"` and `initials(\"\")` returns `\"\"`.",
+     "references": [
+      "```python\ndef initials(full_name: str) -> str:\n    return \"\".join(part[0].upper() for part in full_name.split())\n```",
+      "```python\ndef initials(full_name: str) -> str:\n    out = ''\n    for w in full_name.strip().split():\n        out += w[0].upper()\n    return out\n```"
+     ],
+     "restraint": null,
+     "tool": {
+      "files": {
+       "names.py": "def initials(full_name: str) -> str:\n    raise NotImplementedError\n"
+      },
+      "target": "names.py"
+     },
+     "wrong": [
+      "```python\ndef initials(full_name: str) -> str:\n    return full_name[:2].upper()\n```",
+      "```python\ndef initials(full_name: str) -> str:\n    return ''.join(p[0] for p in full_name.split(' '))\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": true,
+    "group": "write_fn",
+    "human_graded": false,
+    "id": "sk_write_py_clamp_1",
+    "lang": "python",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "write_py_clamp",
+    "tool_mode": false,
+    "type": "write_fn",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": {
+       "n": 200,
+       "regenerate": true,
+       "sha256": "4ab76665622521002a86ef2602eb6a6c847c0ff047b71be9f9a831938bd9a507"
+      },
+      "entry": "clamp",
+      "lang": "python",
+      "module": "ranges",
+      "reference": "def clamp(value, low, high):\n    if low > high:\n        raise ValueError(\"low must not exceed high\")\n    return max(low, min(value, high))\n",
+      "tests": [
+       {
+        "args": [
+         5,
+         0,
+         10
+        ],
+        "expect": 5
+       },
+       {
+        "args": [
+         -3,
+         0,
+         10
+        ],
+        "expect": 0
+       },
+       {
+        "args": [
+         15,
+         0,
+         10
+        ],
+        "expect": 10
+       },
+       {
+        "args": [
+         0,
+         0,
+         0
+        ],
+        "expect": 0
+       },
+       {
+        "args": [
+         7,
+         7,
+         7
+        ],
+        "expect": 7
+       },
+       {
+        "args": [
+         -5,
+         -10,
+         -1
+        ],
+        "expect": -5
+       },
+       {
+        "args": [
+         -20,
+         -10,
+         -1
+        ],
+        "expect": -10
+       },
+       {
+        "args": [
+         3,
+         5,
+         5
+        ],
+        "expect": 5
+       },
+       {
+        "args": [
+         10,
+         0,
+         10
+        ],
+        "expect": 10
+       },
+       {
+        "args": [
+         0,
+         0,
+         10
+        ],
+        "expect": 0
+       },
+       {
+        "args": [
+         2.5,
+         0,
+         2
+        ],
+        "expect": 2
+       },
+       {
+        "args": [
+         1,
+         5,
+         2
+        ],
+        "raises": "ValueError"
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         15,
+         0,
+         10
+        ],
+        "expect": 10
+       },
+       {
+        "args": [
+         -3,
+         0,
+         10
+        ],
+        "expect": 0
+       }
+      ]
+     },
+     "given_names": [
+      "clamp"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "Write a Python function `clamp(value, low, high)` that returns `value` limited to the range from `low` to `high` inclusive. If `low > high` it raises `ValueError`. For example `clamp(15, 0, 10)` returns `10` and `clamp(-3, 0, 10)` returns `0`.",
+     "references": [
+      "```python\ndef clamp(value, low, high):\n    if low > high:\n        raise ValueError(\"low must not exceed high\")\n    return max(low, min(value, high))\n```",
+      "```python\ndef clamp(value, low, high):\n    if low > high:\n        raise ValueError('bad range')\n    if value < low:\n        return low\n    if value > high:\n        return high\n    return value\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef clamp(value, low, high):\n    return min(value, high)\n```",
+      "```python\ndef clamp(value, low, high):\n    return max(low, min(value, high - 1))\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": {
+       "n": 200,
+       "regenerate": true,
+       "sha256": "6834462f90a9282b759d7866507a5ca9c3e16e831aafca1cfd0b622a095e282e"
+      },
+      "entry": "clamp_value",
+      "lang": "python",
+      "module": "mathutil",
+      "reference": "def clamp_value(value, low, high):\n    if low > high:\n        raise ValueError(\"low must not exceed high\")\n    return max(low, min(value, high))\n",
+      "tests": [
+       {
+        "args": [
+         5,
+         0,
+         10
+        ],
+        "expect": 5
+       },
+       {
+        "args": [
+         -3,
+         0,
+         10
+        ],
+        "expect": 0
+       },
+       {
+        "args": [
+         15,
+         0,
+         10
+        ],
+        "expect": 10
+       },
+       {
+        "args": [
+         0,
+         0,
+         0
+        ],
+        "expect": 0
+       },
+       {
+        "args": [
+         7,
+         7,
+         7
+        ],
+        "expect": 7
+       },
+       {
+        "args": [
+         -5,
+         -10,
+         -1
+        ],
+        "expect": -5
+       },
+       {
+        "args": [
+         -20,
+         -10,
+         -1
+        ],
+        "expect": -10
+       },
+       {
+        "args": [
+         3,
+         5,
+         5
+        ],
+        "expect": 5
+       },
+       {
+        "args": [
+         10,
+         0,
+         10
+        ],
+        "expect": 10
+       },
+       {
+        "args": [
+         0,
+         0,
+         10
+        ],
+        "expect": 0
+       },
+       {
+        "args": [
+         2.5,
+         0,
+         2
+        ],
+        "expect": 2
+       },
+       {
+        "args": [
+         1,
+         5,
+         2
+        ],
+        "raises": "ValueError"
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         15,
+         0,
+         10
+        ],
+        "expect": 10
+       },
+       {
+        "args": [
+         -3,
+         0,
+         10
+        ],
+        "expect": 0
+       }
+      ]
+     },
+     "given_names": [
+      "clamp_value"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "Write a Python function `clamp_value(value, low, high)` that returns `value` limited to the range from `low` to `high` inclusive. If `low > high` it raises `ValueError`. For example `clamp_value(15, 0, 10)` returns `10` and `clamp_value(-3, 0, 10)` returns `0`.",
+     "references": [
+      "```python\ndef clamp_value(value, low, high):\n    if low > high:\n        raise ValueError(\"low must not exceed high\")\n    return max(low, min(value, high))\n```",
+      "```python\ndef clamp_value(value, low, high):\n    if low > high:\n        raise ValueError('bad range')\n    if value < low:\n        return low\n    if value > high:\n        return high\n    return value\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef clamp_value(value, low, high):\n    return min(value, high)\n```",
+      "```python\ndef clamp_value(value, low, high):\n    return max(low, min(value, high - 1))\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": {
+       "n": 200,
+       "regenerate": true,
+       "sha256": "e5474e7b59a2cc7b95750ca463ef2ce0a1d4b63c3cf6ab84c6ef98373d4dd5f2"
+      },
+      "entry": "limit_to_range",
+      "lang": "python",
+      "module": "ranges",
+      "reference": "def limit_to_range(value, low, high):\n    if low > high:\n        raise ValueError(\"low must not exceed high\")\n    return max(low, min(value, high))\n",
+      "tests": [
+       {
+        "args": [
+         5,
+         0,
+         10
+        ],
+        "expect": 5
+       },
+       {
+        "args": [
+         -3,
+         0,
+         10
+        ],
+        "expect": 0
+       },
+       {
+        "args": [
+         15,
+         0,
+         10
+        ],
+        "expect": 10
+       },
+       {
+        "args": [
+         0,
+         0,
+         0
+        ],
+        "expect": 0
+       },
+       {
+        "args": [
+         7,
+         7,
+         7
+        ],
+        "expect": 7
+       },
+       {
+        "args": [
+         -5,
+         -10,
+         -1
+        ],
+        "expect": -5
+       },
+       {
+        "args": [
+         -20,
+         -10,
+         -1
+        ],
+        "expect": -10
+       },
+       {
+        "args": [
+         3,
+         5,
+         5
+        ],
+        "expect": 5
+       },
+       {
+        "args": [
+         10,
+         0,
+         10
+        ],
+        "expect": 10
+       },
+       {
+        "args": [
+         0,
+         0,
+         10
+        ],
+        "expect": 0
+       },
+       {
+        "args": [
+         2.5,
+         0,
+         2
+        ],
+        "expect": 2
+       },
+       {
+        "args": [
+         1,
+         5,
+         2
+        ],
+        "raises": "ValueError"
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         15,
+         0,
+         10
+        ],
+        "expect": 10
+       },
+       {
+        "args": [
+         -3,
+         0,
+         10
+        ],
+        "expect": 0
+       }
+      ]
+     },
+     "given_names": [
+      "limit_to_range"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "Write a Python function `limit_to_range(value, low, high)` that returns `value` limited to the range from `low` to `high` inclusive. If `low > high` it raises `ValueError`. For example `limit_to_range(15, 0, 10)` returns `10` and `limit_to_range(-3, 0, 10)` returns `0`.",
+     "references": [
+      "```python\ndef limit_to_range(value, low, high):\n    if low > high:\n        raise ValueError(\"low must not exceed high\")\n    return max(low, min(value, high))\n```",
+      "```python\ndef limit_to_range(value, low, high):\n    if low > high:\n        raise ValueError('bad range')\n    if value < low:\n        return low\n    if value > high:\n        return high\n    return value\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef limit_to_range(value, low, high):\n    return min(value, high)\n```",
+      "```python\ndef limit_to_range(value, low, high):\n    return max(low, min(value, high - 1))\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": true,
+    "group": "write_fn",
+    "human_graded": false,
+    "id": "sk_write_py_second_largest_1",
+    "lang": "python",
+    "level": "L2",
+    "restraint": null,
+    "split": "dev",
+    "template": "write_py_second_largest",
+    "tool_mode": false,
+    "type": "write_fn",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": {
+       "n": 200,
+       "regenerate": true,
+       "sha256": "2d319c6038062f4692f165f51fbcd133a4f489705bb2932ae4f0505727bdbc11"
+      },
+      "entry": "second_highest",
+      "lang": "python",
+      "module": "rankings",
+      "reference": "def second_highest(nums: list):\n    distinct = sorted(set(nums), reverse=True)\n    return distinct[1] if len(distinct) >= 2 else None\n",
+      "tests": [
+       {
+        "args": [
+         []
+        ],
+        "expect": null
+       },
+       {
+        "args": [
+         [
+          1
+         ]
+        ],
+        "expect": null
+       },
+       {
+        "args": [
+         [
+          2,
+          2
+         ]
+        ],
+        "expect": null
+       },
+       {
+        "args": [
+         [
+          1,
+          2
+         ]
+        ],
+        "expect": 1
+       },
+       {
+        "args": [
+         [
+          3,
+          1,
+          2
+         ]
+        ],
+        "expect": 2
+       },
+       {
+        "args": [
+         [
+          5,
+          5,
+          4
+         ]
+        ],
+        "expect": 4
+       },
+       {
+        "args": [
+         [
+          -1,
+          -5,
+          -3
+         ]
+        ],
+        "expect": -3
+       },
+       {
+        "args": [
+         [
+          10,
+          10,
+          10,
+          9
+         ]
+        ],
+        "expect": 9
+       },
+       {
+        "args": [
+         [
+          1,
+          2,
+          3,
+          4,
+          5
+         ]
+        ],
+        "expect": 4
+       },
+       {
+        "args": [
+         [
+          0,
+          0,
+          -1
+         ]
+        ],
+        "expect": -1
+       },
+       {
+        "args": [
+         [
+          7,
+          7,
+          7,
+          7
+         ]
+        ],
+        "expect": null
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         [
+          5,
+          5,
+          4
+         ]
+        ],
+        "expect": 4
+       },
+       {
+        "args": [
+         [
+          2,
+          2
+         ]
+        ],
+        "expect": null
+       }
+      ]
+     },
+     "given_names": [
+      "second_highest"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "Write a Python function `second_highest(nums: list)` that returns the second largest distinct value in a list of ints, or `None` if there are fewer than two distinct values. For example `second_highest([5, 5, 4])` returns `4` and `second_highest([2, 2])` returns `None`.",
+     "references": [
+      "```python\ndef second_highest(nums: list):\n    distinct = sorted(set(nums), reverse=True)\n    return distinct[1] if len(distinct) >= 2 else None\n```",
+      "```python\ndef second_highest(nums: list):\n    first = second = None\n    for n in nums:\n        if first is None or n > first:\n            if first is not None and n != first:\n                second = first\n            first = n\n        elif n != first and (second is None or n > second):\n            second = n\n    return second\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef second_highest(nums: list):\n    return sorted(nums)[-2]\n```",
+      "```python\ndef second_highest(nums: list):\n    return sorted(set(nums))[1] if len(set(nums)) > 1 else None\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": {
+       "n": 200,
+       "regenerate": true,
+       "sha256": "55b36daf2f432fa690445abbfb84a494f034577c346bdc957e7fd65da3e20e8c"
+      },
+      "entry": "runner_up",
+      "lang": "python",
+      "module": "rankings",
+      "reference": "def runner_up(nums: list):\n    distinct = sorted(set(nums), reverse=True)\n    return distinct[1] if len(distinct) >= 2 else None\n",
+      "tests": [
+       {
+        "args": [
+         []
+        ],
+        "expect": null
+       },
+       {
+        "args": [
+         [
+          1
+         ]
+        ],
+        "expect": null
+       },
+       {
+        "args": [
+         [
+          2,
+          2
+         ]
+        ],
+        "expect": null
+       },
+       {
+        "args": [
+         [
+          1,
+          2
+         ]
+        ],
+        "expect": 1
+       },
+       {
+        "args": [
+         [
+          3,
+          1,
+          2
+         ]
+        ],
+        "expect": 2
+       },
+       {
+        "args": [
+         [
+          5,
+          5,
+          4
+         ]
+        ],
+        "expect": 4
+       },
+       {
+        "args": [
+         [
+          -1,
+          -5,
+          -3
+         ]
+        ],
+        "expect": -3
+       },
+       {
+        "args": [
+         [
+          10,
+          10,
+          10,
+          9
+         ]
+        ],
+        "expect": 9
+       },
+       {
+        "args": [
+         [
+          1,
+          2,
+          3,
+          4,
+          5
+         ]
+        ],
+        "expect": 4
+       },
+       {
+        "args": [
+         [
+          0,
+          0,
+          -1
+         ]
+        ],
+        "expect": -1
+       },
+       {
+        "args": [
+         [
+          7,
+          7,
+          7,
+          7
+         ]
+        ],
+        "expect": null
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         [
+          5,
+          5,
+          4
+         ]
+        ],
+        "expect": 4
+       },
+       {
+        "args": [
+         [
+          2,
+          2
+         ]
+        ],
+        "expect": null
+       }
+      ]
+     },
+     "given_names": [
+      "runner_up"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "Write a Python function `runner_up(nums: list)` that returns the second largest distinct value in a list of ints, or `None` if there are fewer than two distinct values. For example `runner_up([5, 5, 4])` returns `4` and `runner_up([2, 2])` returns `None`.",
+     "references": [
+      "```python\ndef runner_up(nums: list):\n    distinct = sorted(set(nums), reverse=True)\n    return distinct[1] if len(distinct) >= 2 else None\n```",
+      "```python\ndef runner_up(nums: list):\n    first = second = None\n    for n in nums:\n        if first is None or n > first:\n            if first is not None and n != first:\n                second = first\n            first = n\n        elif n != first and (second is None or n > second):\n            second = n\n    return second\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef runner_up(nums: list):\n    return sorted(nums)[-2]\n```",
+      "```python\ndef runner_up(nums: list):\n    return sorted(set(nums))[1] if len(set(nums)) > 1 else None\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": {
+       "n": 200,
+       "regenerate": true,
+       "sha256": "1f67438b0e0f9683c55992a10e44a56d080b83e9d127b13c35943dbe5d0adf6a"
+      },
+      "entry": "runner_up",
+      "lang": "python",
+      "module": "numstats",
+      "reference": "def runner_up(nums: list):\n    distinct = sorted(set(nums), reverse=True)\n    return distinct[1] if len(distinct) >= 2 else None\n",
+      "tests": [
+       {
+        "args": [
+         []
+        ],
+        "expect": null
+       },
+       {
+        "args": [
+         [
+          1
+         ]
+        ],
+        "expect": null
+       },
+       {
+        "args": [
+         [
+          2,
+          2
+         ]
+        ],
+        "expect": null
+       },
+       {
+        "args": [
+         [
+          1,
+          2
+         ]
+        ],
+        "expect": 1
+       },
+       {
+        "args": [
+         [
+          3,
+          1,
+          2
+         ]
+        ],
+        "expect": 2
+       },
+       {
+        "args": [
+         [
+          5,
+          5,
+          4
+         ]
+        ],
+        "expect": 4
+       },
+       {
+        "args": [
+         [
+          -1,
+          -5,
+          -3
+         ]
+        ],
+        "expect": -3
+       },
+       {
+        "args": [
+         [
+          10,
+          10,
+          10,
+          9
+         ]
+        ],
+        "expect": 9
+       },
+       {
+        "args": [
+         [
+          1,
+          2,
+          3,
+          4,
+          5
+         ]
+        ],
+        "expect": 4
+       },
+       {
+        "args": [
+         [
+          0,
+          0,
+          -1
+         ]
+        ],
+        "expect": -1
+       },
+       {
+        "args": [
+         [
+          7,
+          7,
+          7,
+          7
+         ]
+        ],
+        "expect": null
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         [
+          5,
+          5,
+          4
+         ]
+        ],
+        "expect": 4
+       },
+       {
+        "args": [
+         [
+          2,
+          2
+         ]
+        ],
+        "expect": null
+       }
+      ]
+     },
+     "given_names": [
+      "runner_up"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "Write a Python function `runner_up(nums: list)` that returns the second largest distinct value in a list of ints, or `None` if there are fewer than two distinct values. For example `runner_up([5, 5, 4])` returns `4` and `runner_up([2, 2])` returns `None`.",
+     "references": [
+      "```python\ndef runner_up(nums: list):\n    distinct = sorted(set(nums), reverse=True)\n    return distinct[1] if len(distinct) >= 2 else None\n```",
+      "```python\ndef runner_up(nums: list):\n    first = second = None\n    for n in nums:\n        if first is None or n > first:\n            if first is not None and n != first:\n                second = first\n            first = n\n        elif n != first and (second is None or n > second):\n            second = n\n    return second\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef runner_up(nums: list):\n    return sorted(nums)[-2]\n```",
+      "```python\ndef runner_up(nums: list):\n    return sorted(set(nums))[1] if len(set(nums)) > 1 else None\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": true,
+    "group": "write_fn",
+    "human_graded": false,
+    "id": "sk_write_py_parse_kv_1",
+    "lang": "python",
+    "level": "L3",
+    "restraint": null,
+    "split": "dev",
+    "template": "write_py_parse_kv",
+    "tool_mode": false,
+    "type": "write_fn",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": {
+       "n": 200,
+       "regenerate": true,
+       "sha256": "4894d63949d0a451eaaf193fa293545a688bb3788832c98671ba77fa8e4c55df"
+      },
+      "entry": "parse_pairs",
+      "lang": "python",
+      "module": "configtext",
+      "reference": "def parse_pairs(text: str) -> dict:\n    out = {}\n    for part in text.split(\";\"):\n        if \"=\" not in part:\n            continue\n        key, value = part.split(\"=\", 1)\n        key = key.strip()\n        if key:\n            out[key] = value.strip()\n    return out\n",
+      "tests": [
+       {
+        "args": [
+         ""
+        ],
+        "expect": {}
+       },
+       {
+        "args": [
+         "a=1"
+        ],
+        "expect": {
+         "a": "1"
+        }
+       },
+       {
+        "args": [
+         "a=1;b=2"
+        ],
+        "expect": {
+         "a": "1",
+         "b": "2"
+        }
+       },
+       {
+        "args": [
+         " a = 1 ; b=2 "
+        ],
+        "expect": {
+         "a": "1",
+         "b": "2"
+        }
+       },
+       {
+        "args": [
+         "a=1;;b=2;"
+        ],
+        "expect": {
+         "a": "1",
+         "b": "2"
+        }
+       },
+       {
+        "args": [
+         "a=b=c"
+        ],
+        "expect": {
+         "a": "b=c"
+        }
+       },
+       {
+        "args": [
+         "novalue;a=1"
+        ],
+        "expect": {
+         "a": "1"
+        }
+       },
+       {
+        "args": [
+         "a=1;a=2"
+        ],
+        "expect": {
+         "a": "2"
+        }
+       },
+       {
+        "args": [
+         "=x;b=2"
+        ],
+        "expect": {
+         "b": "2"
+        }
+       },
+       {
+        "args": [
+         "k="
+        ],
+        "expect": {
+         "k": ""
+        }
+       },
+       {
+        "args": [
+         "\u043a\u043b\u044e\u0447=\u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435;na\u00efve=ok"
+        ],
+        "expect": {
+         "na\u00efve": "ok",
+         "\u043a\u043b\u044e\u0447": "\u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435"
+        }
+       },
+       {
+        "args": [
+         "  ;  ; "
+        ],
+        "expect": {}
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         " a = 1 ; b=x=y "
+        ],
+        "expect": {
+         "a": "1",
+         "b": "x=y"
+        }
+       },
+       {
+        "args": [
+         "a=1;;b=2;"
+        ],
+        "expect": {
+         "a": "1",
+         "b": "2"
+        }
+       }
+      ]
+     },
+     "given_names": [
+      "parse_pairs"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "Write a Python function `parse_pairs(text: str) -> dict` that parses settings written as `\"key=value;key2=value2\"` into a dict of strings. Trim spaces around every key and value. Split each pair on the first `=` only, so a value may contain `=`. Skip empty pieces, pieces with no `=`, and pairs whose key is empty. If a key repeats, the last value wins. For example `parse_pairs(\" a = 1 ; b=x=y \")` returns `{\"a\": \"1\", \"b\": \"x=y\"}`.",
+     "references": [
+      "```python\ndef parse_pairs(text: str) -> dict:\n    out = {}\n    for part in text.split(\";\"):\n        if \"=\" not in part:\n            continue\n        key, value = part.split(\"=\", 1)\n        key = key.strip()\n        if key:\n            out[key] = value.strip()\n    return out\n```",
+      "```python\ndef parse_pairs(text: str) -> dict:\n    result = {}\n    for chunk in text.split(';'):\n        k, sep, v = chunk.partition('=')\n        if sep and k.strip():\n            result[k.strip()] = v.strip()\n    return result\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef parse_pairs(text: str) -> dict:\n    return dict(p.split('=') for p in text.split(';'))\n```",
+      "```python\ndef parse_pairs(text: str) -> dict:\n    return {k: v for k, v in (p.split('=', 1) for p in text.split(';') if '=' in p)}\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": {
+       "n": 200,
+       "regenerate": true,
+       "sha256": "5b0c7c71b259e5cdd2afa55f9c005fb10dc9e5ad0c43cb40ca798717fc3f2d5f"
+      },
+      "entry": "parse_pairs",
+      "lang": "python",
+      "module": "settings",
+      "reference": "def parse_pairs(text: str) -> dict:\n    out = {}\n    for part in text.split(\";\"):\n        if \"=\" not in part:\n            continue\n        key, value = part.split(\"=\", 1)\n        key = key.strip()\n        if key:\n            out[key] = value.strip()\n    return out\n",
+      "tests": [
+       {
+        "args": [
+         ""
+        ],
+        "expect": {}
+       },
+       {
+        "args": [
+         "a=1"
+        ],
+        "expect": {
+         "a": "1"
+        }
+       },
+       {
+        "args": [
+         "a=1;b=2"
+        ],
+        "expect": {
+         "a": "1",
+         "b": "2"
+        }
+       },
+       {
+        "args": [
+         " a = 1 ; b=2 "
+        ],
+        "expect": {
+         "a": "1",
+         "b": "2"
+        }
+       },
+       {
+        "args": [
+         "a=1;;b=2;"
+        ],
+        "expect": {
+         "a": "1",
+         "b": "2"
+        }
+       },
+       {
+        "args": [
+         "a=b=c"
+        ],
+        "expect": {
+         "a": "b=c"
+        }
+       },
+       {
+        "args": [
+         "novalue;a=1"
+        ],
+        "expect": {
+         "a": "1"
+        }
+       },
+       {
+        "args": [
+         "a=1;a=2"
+        ],
+        "expect": {
+         "a": "2"
+        }
+       },
+       {
+        "args": [
+         "=x;b=2"
+        ],
+        "expect": {
+         "b": "2"
+        }
+       },
+       {
+        "args": [
+         "k="
+        ],
+        "expect": {
+         "k": ""
+        }
+       },
+       {
+        "args": [
+         "\u043a\u043b\u044e\u0447=\u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435;na\u00efve=ok"
+        ],
+        "expect": {
+         "na\u00efve": "ok",
+         "\u043a\u043b\u044e\u0447": "\u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435"
+        }
+       },
+       {
+        "args": [
+         "  ;  ; "
+        ],
+        "expect": {}
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         " a = 1 ; b=x=y "
+        ],
+        "expect": {
+         "a": "1",
+         "b": "x=y"
+        }
+       },
+       {
+        "args": [
+         "a=1;;b=2;"
+        ],
+        "expect": {
+         "a": "1",
+         "b": "2"
+        }
+       }
+      ]
+     },
+     "given_names": [
+      "parse_pairs"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "Write a Python function `parse_pairs(text: str) -> dict` that parses settings written as `\"key=value;key2=value2\"` into a dict of strings. Trim spaces around every key and value. Split each pair on the first `=` only, so a value may contain `=`. Skip empty pieces, pieces with no `=`, and pairs whose key is empty. If a key repeats, the last value wins. For example `parse_pairs(\" a = 1 ; b=x=y \")` returns `{\"a\": \"1\", \"b\": \"x=y\"}`.",
+     "references": [
+      "```python\ndef parse_pairs(text: str) -> dict:\n    out = {}\n    for part in text.split(\";\"):\n        if \"=\" not in part:\n            continue\n        key, value = part.split(\"=\", 1)\n        key = key.strip()\n        if key:\n            out[key] = value.strip()\n    return out\n```",
+      "```python\ndef parse_pairs(text: str) -> dict:\n    result = {}\n    for chunk in text.split(';'):\n        k, sep, v = chunk.partition('=')\n        if sep and k.strip():\n            result[k.strip()] = v.strip()\n    return result\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef parse_pairs(text: str) -> dict:\n    return dict(p.split('=') for p in text.split(';'))\n```",
+      "```python\ndef parse_pairs(text: str) -> dict:\n    return {k: v for k, v in (p.split('=', 1) for p in text.split(';') if '=' in p)}\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": {
+       "n": 200,
+       "regenerate": true,
+       "sha256": "bc89d39b0d6211957af03369aa650d1af786f490f9ad3b410e0f83a19689a1d5"
+      },
+      "entry": "parse_kv",
+      "lang": "python",
+      "module": "configtext",
+      "reference": "def parse_kv(text: str) -> dict:\n    out = {}\n    for part in text.split(\";\"):\n        if \"=\" not in part:\n            continue\n        key, value = part.split(\"=\", 1)\n        key = key.strip()\n        if key:\n            out[key] = value.strip()\n    return out\n",
+      "tests": [
+       {
+        "args": [
+         ""
+        ],
+        "expect": {}
+       },
+       {
+        "args": [
+         "a=1"
+        ],
+        "expect": {
+         "a": "1"
+        }
+       },
+       {
+        "args": [
+         "a=1;b=2"
+        ],
+        "expect": {
+         "a": "1",
+         "b": "2"
+        }
+       },
+       {
+        "args": [
+         " a = 1 ; b=2 "
+        ],
+        "expect": {
+         "a": "1",
+         "b": "2"
+        }
+       },
+       {
+        "args": [
+         "a=1;;b=2;"
+        ],
+        "expect": {
+         "a": "1",
+         "b": "2"
+        }
+       },
+       {
+        "args": [
+         "a=b=c"
+        ],
+        "expect": {
+         "a": "b=c"
+        }
+       },
+       {
+        "args": [
+         "novalue;a=1"
+        ],
+        "expect": {
+         "a": "1"
+        }
+       },
+       {
+        "args": [
+         "a=1;a=2"
+        ],
+        "expect": {
+         "a": "2"
+        }
+       },
+       {
+        "args": [
+         "=x;b=2"
+        ],
+        "expect": {
+         "b": "2"
+        }
+       },
+       {
+        "args": [
+         "k="
+        ],
+        "expect": {
+         "k": ""
+        }
+       },
+       {
+        "args": [
+         "\u043a\u043b\u044e\u0447=\u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435;na\u00efve=ok"
+        ],
+        "expect": {
+         "na\u00efve": "ok",
+         "\u043a\u043b\u044e\u0447": "\u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435"
+        }
+       },
+       {
+        "args": [
+         "  ;  ; "
+        ],
+        "expect": {}
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         " a = 1 ; b=x=y "
+        ],
+        "expect": {
+         "a": "1",
+         "b": "x=y"
+        }
+       },
+       {
+        "args": [
+         "a=1;;b=2;"
+        ],
+        "expect": {
+         "a": "1",
+         "b": "2"
+        }
+       }
+      ]
+     },
+     "given_names": [
+      "parse_kv"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "Write a Python function `parse_kv(text: str) -> dict` that parses settings written as `\"key=value;key2=value2\"` into a dict of strings. Trim spaces around every key and value. Split each pair on the first `=` only, so a value may contain `=`. Skip empty pieces, pieces with no `=`, and pairs whose key is empty. If a key repeats, the last value wins. For example `parse_kv(\" a = 1 ; b=x=y \")` returns `{\"a\": \"1\", \"b\": \"x=y\"}`.",
+     "references": [
+      "```python\ndef parse_kv(text: str) -> dict:\n    out = {}\n    for part in text.split(\";\"):\n        if \"=\" not in part:\n            continue\n        key, value = part.split(\"=\", 1)\n        key = key.strip()\n        if key:\n            out[key] = value.strip()\n    return out\n```",
+      "```python\ndef parse_kv(text: str) -> dict:\n    result = {}\n    for chunk in text.split(';'):\n        k, sep, v = chunk.partition('=')\n        if sep and k.strip():\n            result[k.strip()] = v.strip()\n    return result\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef parse_kv(text: str) -> dict:\n    return dict(p.split('=') for p in text.split(';'))\n```",
+      "```python\ndef parse_kv(text: str) -> dict:\n    return {k: v for k, v in (p.split('=', 1) for p in text.split(';') if '=' in p)}\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": false,
+    "group": "write_fn",
+    "human_graded": false,
+    "id": "sk_write_js_chunk_2",
+    "lang": "javascript",
+    "level": "L2",
+    "restraint": null,
+    "split": "dev",
+    "template": "write_js_chunk",
+    "tool_mode": true,
+    "type": "write_fn",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "javascript",
+     "check": {
+      "diff_inputs": {
+       "n": 200,
+       "regenerate": true,
+       "sha256": "970348c7ad71001d018ce661de54dc0d1da0d940ff7d6ff32341ddbfe6d06a74"
+      },
+      "entry": "batches",
+      "lang": "javascript",
+      "module": "listUtils",
+      "reference": "function batches(arr, size) {\n  if (size <= 0) throw new RangeError('size must be positive');\n  const out = [];\n  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));\n  return out;\n}\n",
+      "tests": [
+       {
+        "args": [
+         [
+          1,
+          2,
+          3,
+          4,
+          5
+         ],
+         2
+        ],
+        "expect": [
+         [
+          1,
+          2
+         ],
+         [
+          3,
+          4
+         ],
+         [
+          5
+         ]
+        ]
+       },
+       {
+        "args": [
+         [],
+         3
+        ],
+        "expect": []
+       },
+       {
+        "args": [
+         [
+          1
+         ],
+         1
+        ],
+        "expect": [
+         [
+          1
+         ]
+        ]
+       },
+       {
+        "args": [
+         [
+          1,
+          2,
+          3
+         ],
+         5
+        ],
+        "expect": [
+         [
+          1,
+          2,
+          3
+         ]
+        ]
+       },
+       {
+        "args": [
+         [
+          1,
+          2,
+          3,
+          4
+         ],
+         2
+        ],
+        "expect": [
+         [
+          1,
+          2
+         ],
+         [
+          3,
+          4
+         ]
+        ]
+       },
+       {
+        "args": [
+         [
+          "a",
+          "b",
+          "c"
+         ],
+         1
+        ],
+        "expect": [
+         [
+          "a"
+         ],
+         [
+          "b"
+         ],
+         [
+          "c"
+         ]
+        ]
+       },
+       {
+        "args": [
+         [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+         ],
+         3
+        ],
+        "expect": [
+         [
+          0,
+          0,
+          0
+         ],
+         [
+          0,
+          0,
+          0
+         ]
+        ]
+       },
+       {
+        "args": [
+         [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+         ],
+         3
+        ],
+        "expect": [
+         [
+          1,
+          2,
+          3
+         ],
+         [
+          4,
+          5,
+          6
+         ],
+         [
+          7
+         ]
+        ]
+       },
+       {
+        "args": [
+         [
+          1,
+          2
+         ],
+         0
+        ],
+        "raises": "RangeError"
+       },
+       {
+        "args": [
+         [
+          1,
+          2
+         ],
+         -1
+        ],
+        "raises": "RangeError"
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         [
+          1,
+          2,
+          3,
+          4,
+          5
+         ],
+         2
+        ],
+        "expect": [
+         [
+          1,
+          2
+         ],
+         [
+          3,
+          4
+         ],
+         [
+          5
+         ]
+        ]
+       }
+      ]
+     },
+     "given_names": [
+      "batches"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "Write a JavaScript function `batches(arr, size)` that splits an array into chunks of `size` elements; the last chunk may be shorter. If `size <= 0` it throws a `RangeError`. For example `batches([1, 2, 3, 4, 5], 2)` returns `[[1, 2], [3, 4], [5]]`.",
+     "references": [
+      "```javascript\nfunction batches(arr, size) {\n  if (size <= 0) throw new RangeError('size must be positive');\n  const out = [];\n  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));\n  return out;\n}\n```",
+      "```js\nconst batches = (arr, size) => {\n  if (!(size > 0)) throw new RangeError('bad size');\n  return Array.from({ length: Math.ceil(arr.length / size) }, (_, i) => arr.slice(i * size, (i + 1) * size));\n};\n```"
+     ],
+     "restraint": null,
+     "tool": {
+      "files": {
+       "listUtils.js": "function batches(arr, size) {\n  throw new Error('not implemented');\n}\n\nmodule.exports = { batches };\n"
+      },
+      "target": "listUtils.js"
+     },
+     "wrong": [
+      "```js\nfunction batches(arr, size) {\n  return [arr];\n}\n```",
+      "```js\nfunction batches(arr, size) {\n  if (size <= 0) return [];\n  const out = [];\n  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));\n  return out;\n}\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "javascript",
+     "check": {
+      "diff_inputs": {
+       "n": 200,
+       "regenerate": true,
+       "sha256": "74fe80d3f8cadf8ed3b3bdb2fd73d1979a22189d23433808db993125f6a940bf"
+      },
+      "entry": "batches",
+      "lang": "javascript",
+      "module": "listUtils",
+      "reference": "function batches(arr, size) {\n  if (size <= 0) throw new RangeError('size must be positive');\n  const out = [];\n  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));\n  return out;\n}\n",
+      "tests": [
+       {
+        "args": [
+         [
+          1,
+          2,
+          3,
+          4,
+          5
+         ],
+         2
+        ],
+        "expect": [
+         [
+          1,
+          2
+         ],
+         [
+          3,
+          4
+         ],
+         [
+          5
+         ]
+        ]
+       },
+       {
+        "args": [
+         [],
+         3
+        ],
+        "expect": []
+       },
+       {
+        "args": [
+         [
+          1
+         ],
+         1
+        ],
+        "expect": [
+         [
+          1
+         ]
+        ]
+       },
+       {
+        "args": [
+         [
+          1,
+          2,
+          3
+         ],
+         5
+        ],
+        "expect": [
+         [
+          1,
+          2,
+          3
+         ]
+        ]
+       },
+       {
+        "args": [
+         [
+          1,
+          2,
+          3,
+          4
+         ],
+         2
+        ],
+        "expect": [
+         [
+          1,
+          2
+         ],
+         [
+          3,
+          4
+         ]
+        ]
+       },
+       {
+        "args": [
+         [
+          "a",
+          "b",
+          "c"
+         ],
+         1
+        ],
+        "expect": [
+         [
+          "a"
+         ],
+         [
+          "b"
+         ],
+         [
+          "c"
+         ]
+        ]
+       },
+       {
+        "args": [
+         [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+         ],
+         3
+        ],
+        "expect": [
+         [
+          0,
+          0,
+          0
+         ],
+         [
+          0,
+          0,
+          0
+         ]
+        ]
+       },
+       {
+        "args": [
+         [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+         ],
+         3
+        ],
+        "expect": [
+         [
+          1,
+          2,
+          3
+         ],
+         [
+          4,
+          5,
+          6
+         ],
+         [
+          7
+         ]
+        ]
+       },
+       {
+        "args": [
+         [
+          1,
+          2
+         ],
+         0
+        ],
+        "raises": "RangeError"
+       },
+       {
+        "args": [
+         [
+          1,
+          2
+         ],
+         -1
+        ],
+        "raises": "RangeError"
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         [
+          1,
+          2,
+          3,
+          4,
+          5
+         ],
+         2
+        ],
+        "expect": [
+         [
+          1,
+          2
+         ],
+         [
+          3,
+          4
+         ],
+         [
+          5
+         ]
+        ]
+       }
+      ]
+     },
+     "given_names": [
+      "batches"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "Write a JavaScript function `batches(arr, size)` that splits an array into chunks of `size` elements; the last chunk may be shorter. If `size <= 0` it throws a `RangeError`. For example `batches([1, 2, 3, 4, 5], 2)` returns `[[1, 2], [3, 4], [5]]`.",
+     "references": [
+      "```javascript\nfunction batches(arr, size) {\n  if (size <= 0) throw new RangeError('size must be positive');\n  const out = [];\n  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));\n  return out;\n}\n```",
+      "```js\nconst batches = (arr, size) => {\n  if (!(size > 0)) throw new RangeError('bad size');\n  return Array.from({ length: Math.ceil(arr.length / size) }, (_, i) => arr.slice(i * size, (i + 1) * size));\n};\n```"
+     ],
+     "restraint": null,
+     "tool": {
+      "files": {
+       "listUtils.js": "function batches(arr, size) {\n  throw new Error('not implemented');\n}\n\nmodule.exports = { batches };\n"
+      },
+      "target": "listUtils.js"
+     },
+     "wrong": [
+      "```js\nfunction batches(arr, size) {\n  return [arr];\n}\n```",
+      "```js\nfunction batches(arr, size) {\n  if (size <= 0) return [];\n  const out = [];\n  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));\n  return out;\n}\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "javascript",
+     "check": {
+      "diff_inputs": {
+       "n": 200,
+       "regenerate": true,
+       "sha256": "69c56e9cbc1417e7b030386129e893c7deb68c58c13399918fd98ca4cb4548a0"
+      },
+      "entry": "splitIntoChunks",
+      "lang": "javascript",
+      "module": "listUtils",
+      "reference": "function splitIntoChunks(arr, size) {\n  if (size <= 0) throw new RangeError('size must be positive');\n  const out = [];\n  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));\n  return out;\n}\n",
+      "tests": [
+       {
+        "args": [
+         [
+          1,
+          2,
+          3,
+          4,
+          5
+         ],
+         2
+        ],
+        "expect": [
+         [
+          1,
+          2
+         ],
+         [
+          3,
+          4
+         ],
+         [
+          5
+         ]
+        ]
+       },
+       {
+        "args": [
+         [],
+         3
+        ],
+        "expect": []
+       },
+       {
+        "args": [
+         [
+          1
+         ],
+         1
+        ],
+        "expect": [
+         [
+          1
+         ]
+        ]
+       },
+       {
+        "args": [
+         [
+          1,
+          2,
+          3
+         ],
+         5
+        ],
+        "expect": [
+         [
+          1,
+          2,
+          3
+         ]
+        ]
+       },
+       {
+        "args": [
+         [
+          1,
+          2,
+          3,
+          4
+         ],
+         2
+        ],
+        "expect": [
+         [
+          1,
+          2
+         ],
+         [
+          3,
+          4
+         ]
+        ]
+       },
+       {
+        "args": [
+         [
+          "a",
+          "b",
+          "c"
+         ],
+         1
+        ],
+        "expect": [
+         [
+          "a"
+         ],
+         [
+          "b"
+         ],
+         [
+          "c"
+         ]
+        ]
+       },
+       {
+        "args": [
+         [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+         ],
+         3
+        ],
+        "expect": [
+         [
+          0,
+          0,
+          0
+         ],
+         [
+          0,
+          0,
+          0
+         ]
+        ]
+       },
+       {
+        "args": [
+         [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+         ],
+         3
+        ],
+        "expect": [
+         [
+          1,
+          2,
+          3
+         ],
+         [
+          4,
+          5,
+          6
+         ],
+         [
+          7
+         ]
+        ]
+       },
+       {
+        "args": [
+         [
+          1,
+          2
+         ],
+         0
+        ],
+        "raises": "RangeError"
+       },
+       {
+        "args": [
+         [
+          1,
+          2
+         ],
+         -1
+        ],
+        "raises": "RangeError"
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         [
+          1,
+          2,
+          3,
+          4,
+          5
+         ],
+         2
+        ],
+        "expect": [
+         [
+          1,
+          2
+         ],
+         [
+          3,
+          4
+         ],
+         [
+          5
+         ]
+        ]
+       }
+      ]
+     },
+     "given_names": [
+      "splitIntoChunks"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "Write a JavaScript function `splitIntoChunks(arr, size)` that splits an array into chunks of `size` elements; the last chunk may be shorter. If `size <= 0` it throws a `RangeError`. For example `splitIntoChunks([1, 2, 3, 4, 5], 2)` returns `[[1, 2], [3, 4], [5]]`.",
+     "references": [
+      "```javascript\nfunction splitIntoChunks(arr, size) {\n  if (size <= 0) throw new RangeError('size must be positive');\n  const out = [];\n  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));\n  return out;\n}\n```",
+      "```js\nconst splitIntoChunks = (arr, size) => {\n  if (!(size > 0)) throw new RangeError('bad size');\n  return Array.from({ length: Math.ceil(arr.length / size) }, (_, i) => arr.slice(i * size, (i + 1) * size));\n};\n```"
+     ],
+     "restraint": null,
+     "tool": {
+      "files": {
+       "listUtils.js": "function splitIntoChunks(arr, size) {\n  throw new Error('not implemented');\n}\n\nmodule.exports = { splitIntoChunks };\n"
+      },
+      "target": "listUtils.js"
+     },
+     "wrong": [
+      "```js\nfunction splitIntoChunks(arr, size) {\n  return [arr];\n}\n```",
+      "```js\nfunction splitIntoChunks(arr, size) {\n  if (size <= 0) return [];\n  const out = [];\n  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));\n  return out;\n}\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": false,
+    "group": "write_fn",
+    "human_graded": false,
+    "id": "sk_write_js_sum_digits_2",
+    "lang": "javascript",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "write_js_sum_digits",
+    "tool_mode": false,
+    "type": "write_fn",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "javascript",
+     "check": {
+      "diff_inputs": {
+       "n": 200,
+       "regenerate": true,
+       "sha256": "51b56c5fecbb5364ed203e60c5f1583da7dd43ae64335cdbcb37089f2553a4d0"
+      },
+      "entry": "addDigits",
+      "lang": "javascript",
+      "module": "numtools",
+      "reference": "function addDigits(n) {\n  let total = 0;\n  for (const ch of String(Math.abs(n))) total += Number(ch);\n  return total;\n}\n",
+      "tests": [
+       {
+        "args": [
+         0
+        ],
+        "expect": 0
+       },
+       {
+        "args": [
+         5
+        ],
+        "expect": 5
+       },
+       {
+        "args": [
+         123
+        ],
+        "expect": 6
+       },
+       {
+        "args": [
+         -123
+        ],
+        "expect": 6
+       },
+       {
+        "args": [
+         1000
+        ],
+        "expect": 1
+       },
+       {
+        "args": [
+         99999
+        ],
+        "expect": 45
+       },
+       {
+        "args": [
+         -7
+        ],
+        "expect": 7
+       },
+       {
+        "args": [
+         2147483647
+        ],
+        "expect": 46
+       },
+       {
+        "args": [
+         1000000000000
+        ],
+        "expect": 1
+       },
+       {
+        "args": [
+         909
+        ],
+        "expect": 18
+       },
+       {
+        "args": [
+         -1000000
+        ],
+        "expect": 1
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         123
+        ],
+        "expect": 6
+       },
+       {
+        "args": [
+         -45
+        ],
+        "expect": 9
+       }
+      ]
+     },
+     "given_names": [
+      "addDigits"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "Write a JavaScript function `addDigits(n)` that returns the sum of the decimal digits of an integer, ignoring its sign. For example `addDigits(123)` returns `6` and `addDigits(-45)` returns `9`.",
+     "references": [
+      "```javascript\nfunction addDigits(n) {\n  let total = 0;\n  for (const ch of String(Math.abs(n))) total += Number(ch);\n  return total;\n}\n```",
+      "```js\nconst addDigits = (n) => {\n  let x = Math.abs(n), s = 0;\n  while (x > 0) {\n    s += x % 10;\n    x = Math.floor(x / 10);\n  }\n  return s;\n};\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```js\nfunction addDigits(n) {\n  return String(n).split('').reduce((a, c) => a + Number(c), 0);\n}\n```",
+      "```js\nfunction addDigits(n) {\n  return n % 9;\n}\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "javascript",
+     "check": {
+      "diff_inputs": {
+       "n": 200,
+       "regenerate": true,
+       "sha256": "9299ae5c6317eb518663c4ad4e37c9393e8dbe4e774c2f0cc1a699ecbff6a095"
+      },
+      "entry": "sumDigits",
+      "lang": "javascript",
+      "module": "numtools",
+      "reference": "function sumDigits(n) {\n  let total = 0;\n  for (const ch of String(Math.abs(n))) total += Number(ch);\n  return total;\n}\n",
+      "tests": [
+       {
+        "args": [
+         0
+        ],
+        "expect": 0
+       },
+       {
+        "args": [
+         5
+        ],
+        "expect": 5
+       },
+       {
+        "args": [
+         123
+        ],
+        "expect": 6
+       },
+       {
+        "args": [
+         -123
+        ],
+        "expect": 6
+       },
+       {
+        "args": [
+         1000
+        ],
+        "expect": 1
+       },
+       {
+        "args": [
+         99999
+        ],
+        "expect": 45
+       },
+       {
+        "args": [
+         -7
+        ],
+        "expect": 7
+       },
+       {
+        "args": [
+         2147483647
+        ],
+        "expect": 46
+       },
+       {
+        "args": [
+         1000000000000
+        ],
+        "expect": 1
+       },
+       {
+        "args": [
+         909
+        ],
+        "expect": 18
+       },
+       {
+        "args": [
+         -1000000
+        ],
+        "expect": 1
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         123
+        ],
+        "expect": 6
+       },
+       {
+        "args": [
+         -45
+        ],
+        "expect": 9
+       }
+      ]
+     },
+     "given_names": [
+      "sumDigits"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "Write a JavaScript function `sumDigits(n)` that returns the sum of the decimal digits of an integer, ignoring its sign. For example `sumDigits(123)` returns `6` and `sumDigits(-45)` returns `9`.",
+     "references": [
+      "```javascript\nfunction sumDigits(n) {\n  let total = 0;\n  for (const ch of String(Math.abs(n))) total += Number(ch);\n  return total;\n}\n```",
+      "```js\nconst sumDigits = (n) => {\n  let x = Math.abs(n), s = 0;\n  while (x > 0) {\n    s += x % 10;\n    x = Math.floor(x / 10);\n  }\n  return s;\n};\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```js\nfunction sumDigits(n) {\n  return String(n).split('').reduce((a, c) => a + Number(c), 0);\n}\n```",
+      "```js\nfunction sumDigits(n) {\n  return n % 9;\n}\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "javascript",
+     "check": {
+      "diff_inputs": {
+       "n": 200,
+       "regenerate": true,
+       "sha256": "91ff91ef37e9ea5c2002d7a4d40c437fc6746e4d54037a80ba6e9e900820a4d5"
+      },
+      "entry": "addDigits",
+      "lang": "javascript",
+      "module": "mathbits",
+      "reference": "function addDigits(n) {\n  let total = 0;\n  for (const ch of String(Math.abs(n))) total += Number(ch);\n  return total;\n}\n",
+      "tests": [
+       {
+        "args": [
+         0
+        ],
+        "expect": 0
+       },
+       {
+        "args": [
+         5
+        ],
+        "expect": 5
+       },
+       {
+        "args": [
+         123
+        ],
+        "expect": 6
+       },
+       {
+        "args": [
+         -123
+        ],
+        "expect": 6
+       },
+       {
+        "args": [
+         1000
+        ],
+        "expect": 1
+       },
+       {
+        "args": [
+         99999
+        ],
+        "expect": 45
+       },
+       {
+        "args": [
+         -7
+        ],
+        "expect": 7
+       },
+       {
+        "args": [
+         2147483647
+        ],
+        "expect": 46
+       },
+       {
+        "args": [
+         1000000000000
+        ],
+        "expect": 1
+       },
+       {
+        "args": [
+         909
+        ],
+        "expect": 18
+       },
+       {
+        "args": [
+         -1000000
+        ],
+        "expect": 1
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         123
+        ],
+        "expect": 6
+       },
+       {
+        "args": [
+         -45
+        ],
+        "expect": 9
+       }
+      ]
+     },
+     "given_names": [
+      "addDigits"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "Write a JavaScript function `addDigits(n)` that returns the sum of the decimal digits of an integer, ignoring its sign. For example `addDigits(123)` returns `6` and `addDigits(-45)` returns `9`.",
+     "references": [
+      "```javascript\nfunction addDigits(n) {\n  let total = 0;\n  for (const ch of String(Math.abs(n))) total += Number(ch);\n  return total;\n}\n```",
+      "```js\nconst addDigits = (n) => {\n  let x = Math.abs(n), s = 0;\n  while (x > 0) {\n    s += x % 10;\n    x = Math.floor(x / 10);\n  }\n  return s;\n};\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```js\nfunction addDigits(n) {\n  return String(n).split('').reduce((a, c) => a + Number(c), 0);\n}\n```",
+      "```js\nfunction addDigits(n) {\n  return n % 9;\n}\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": false,
+    "group": "write_fn",
+    "human_graded": false,
+    "id": "sk_write_py_merge_sorted_2",
+    "lang": "python",
+    "level": "L2",
+    "restraint": null,
+    "split": "dev",
+    "template": "write_py_merge_sorted",
+    "tool_mode": false,
+    "type": "write_fn",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": {
+       "n": 200,
+       "regenerate": true,
+       "sha256": "81d45e1a99611c9551eafb13ad7594dd22bfdb5fe26d9c90060c91e89c20e831"
+      },
+      "entry": "merge_sorted",
+      "lang": "python",
+      "module": "seqtools",
+      "reference": "def merge_sorted(a: list, b: list) -> list:\n    out = []\n    i = j = 0\n    while i < len(a) and j < len(b):\n        if a[i] <= b[j]:\n            out.append(a[i])\n            i += 1\n        else:\n            out.append(b[j])\n            j += 1\n    out.extend(a[i:])\n    out.extend(b[j:])\n    return out\n",
+      "tests": [
+       {
+        "args": [
+         [],
+         []
+        ],
+        "expect": []
+       },
+       {
+        "args": [
+         [
+          1
+         ],
+         []
+        ],
+        "expect": [
+         1
+        ]
+       },
+       {
+        "args": [
+         [],
+         [
+          2
+         ]
+        ],
+        "expect": [
+         2
+        ]
+       },
+       {
+        "args": [
+         [
+          1,
+          3,
+          5
+         ],
+         [
+          2,
+          4,
+          6
+         ]
+        ],
+        "expect": [
+         1,
+         2,
+         3,
+         4,
+         5,
+         6
+        ]
+       },
+       {
+        "args": [
+         [
+          1,
+          2,
+          3
+         ],
+         [
+          4,
+          5
+         ]
+        ],
+        "expect": [
+         1,
+         2,
+         3,
+         4,
+         5
+        ]
+       },
+       {
+        "args": [
+         [
+          4,
+          5
+         ],
+         [
+          1,
+          2,
+          3
+         ]
+        ],
+        "expect": [
+         1,
+         2,
+         3,
+         4,
+         5
+        ]
+       },
+       {
+        "args": [
+         [
+          1,
+          1,
+          2
+         ],
+         [
+          1,
+          2,
+          2
+         ]
+        ],
+        "expect": [
+         1,
+         1,
+         1,
+         2,
+         2,
+         2
+        ]
+       },
+       {
+        "args": [
+         [
+          -5,
+          -1,
+          0
+         ],
+         [
+          -3,
+          2
+         ]
+        ],
+        "expect": [
+         -5,
+         -3,
+         -1,
+         0,
+         2
+        ]
+       },
+       {
+        "args": [
+         [
+          2
+         ],
+         [
+          2
+         ]
+        ],
+        "expect": [
+         2,
+         2
+        ]
+       },
+       {
+        "args": [
+         [
+          1,
+          2,
+          3
+         ],
+         [
+          1,
+          2,
+          3
+         ]
+        ],
+        "expect": [
+         1,
+         1,
+         2,
+         2,
+         3,
+         3
+        ]
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         [
+          1,
+          3,
+          5
+         ],
+         [
+          2,
+          4
+         ]
+        ],
+        "expect": [
+         1,
+         2,
+         3,
+         4,
+         5
+        ]
+       },
+       {
+        "args": [
+         [],
+         [
+          2
+         ]
+        ],
+        "expect": [
+         2
+        ]
+       }
+      ]
+     },
+     "given_names": [
+      "merge_sorted"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "Write a Python function `merge_sorted(a: list, b: list) -> list` that merges two lists that are each already sorted in ascending order into one new sorted list, keeping duplicates. Do not change the inputs. For example `merge_sorted([1, 3, 5], [2, 4])` returns `[1, 2, 3, 4, 5]`.",
+     "references": [
+      "```python\ndef merge_sorted(a: list, b: list) -> list:\n    out = []\n    i = j = 0\n    while i < len(a) and j < len(b):\n        if a[i] <= b[j]:\n            out.append(a[i])\n            i += 1\n        else:\n            out.append(b[j])\n            j += 1\n    out.extend(a[i:])\n    out.extend(b[j:])\n    return out\n```",
+      "```python\ndef merge_sorted(a: list, b: list) -> list:\n    return sorted(a + b)\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef merge_sorted(a: list, b: list) -> list:\n    return a + b\n```",
+      "```python\ndef merge_sorted(a: list, b: list) -> list:\n    return sorted(set(a + b))\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": {
+       "n": 200,
+       "regenerate": true,
+       "sha256": "3c5b4953953162c8e8521cf1167416ccdee65a7dc9ac3e7ea883934f0d96b00f"
+      },
+      "entry": "merge_lists",
+      "lang": "python",
+      "module": "merging",
+      "reference": "def merge_lists(a: list, b: list) -> list:\n    out = []\n    i = j = 0\n    while i < len(a) and j < len(b):\n        if a[i] <= b[j]:\n            out.append(a[i])\n            i += 1\n        else:\n            out.append(b[j])\n            j += 1\n    out.extend(a[i:])\n    out.extend(b[j:])\n    return out\n",
+      "tests": [
+       {
+        "args": [
+         [],
+         []
+        ],
+        "expect": []
+       },
+       {
+        "args": [
+         [
+          1
+         ],
+         []
+        ],
+        "expect": [
+         1
+        ]
+       },
+       {
+        "args": [
+         [],
+         [
+          2
+         ]
+        ],
+        "expect": [
+         2
+        ]
+       },
+       {
+        "args": [
+         [
+          1,
+          3,
+          5
+         ],
+         [
+          2,
+          4,
+          6
+         ]
+        ],
+        "expect": [
+         1,
+         2,
+         3,
+         4,
+         5,
+         6
+        ]
+       },
+       {
+        "args": [
+         [
+          1,
+          2,
+          3
+         ],
+         [
+          4,
+          5
+         ]
+        ],
+        "expect": [
+         1,
+         2,
+         3,
+         4,
+         5
+        ]
+       },
+       {
+        "args": [
+         [
+          4,
+          5
+         ],
+         [
+          1,
+          2,
+          3
+         ]
+        ],
+        "expect": [
+         1,
+         2,
+         3,
+         4,
+         5
+        ]
+       },
+       {
+        "args": [
+         [
+          1,
+          1,
+          2
+         ],
+         [
+          1,
+          2,
+          2
+         ]
+        ],
+        "expect": [
+         1,
+         1,
+         1,
+         2,
+         2,
+         2
+        ]
+       },
+       {
+        "args": [
+         [
+          -5,
+          -1,
+          0
+         ],
+         [
+          -3,
+          2
+         ]
+        ],
+        "expect": [
+         -5,
+         -3,
+         -1,
+         0,
+         2
+        ]
+       },
+       {
+        "args": [
+         [
+          2
+         ],
+         [
+          2
+         ]
+        ],
+        "expect": [
+         2,
+         2
+        ]
+       },
+       {
+        "args": [
+         [
+          1,
+          2,
+          3
+         ],
+         [
+          1,
+          2,
+          3
+         ]
+        ],
+        "expect": [
+         1,
+         1,
+         2,
+         2,
+         3,
+         3
+        ]
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         [
+          1,
+          3,
+          5
+         ],
+         [
+          2,
+          4
+         ]
+        ],
+        "expect": [
+         1,
+         2,
+         3,
+         4,
+         5
+        ]
+       },
+       {
+        "args": [
+         [],
+         [
+          2
+         ]
+        ],
+        "expect": [
+         2
+        ]
+       }
+      ]
+     },
+     "given_names": [
+      "merge_lists"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "Write a Python function `merge_lists(a: list, b: list) -> list` that merges two lists that are each already sorted in ascending order into one new sorted list, keeping duplicates. Do not change the inputs. For example `merge_lists([1, 3, 5], [2, 4])` returns `[1, 2, 3, 4, 5]`.",
+     "references": [
+      "```python\ndef merge_lists(a: list, b: list) -> list:\n    out = []\n    i = j = 0\n    while i < len(a) and j < len(b):\n        if a[i] <= b[j]:\n            out.append(a[i])\n            i += 1\n        else:\n            out.append(b[j])\n            j += 1\n    out.extend(a[i:])\n    out.extend(b[j:])\n    return out\n```",
+      "```python\ndef merge_lists(a: list, b: list) -> list:\n    return sorted(a + b)\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef merge_lists(a: list, b: list) -> list:\n    return a + b\n```",
+      "```python\ndef merge_lists(a: list, b: list) -> list:\n    return sorted(set(a + b))\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": {
+       "n": 200,
+       "regenerate": true,
+       "sha256": "69e90a42d234e33bd050cc1860dfd1049d9545aea2a0f7a65a76b7a5c8b4c557"
+      },
+      "entry": "merge_sorted",
+      "lang": "python",
+      "module": "merging",
+      "reference": "def merge_sorted(a: list, b: list) -> list:\n    out = []\n    i = j = 0\n    while i < len(a) and j < len(b):\n        if a[i] <= b[j]:\n            out.append(a[i])\n            i += 1\n        else:\n            out.append(b[j])\n            j += 1\n    out.extend(a[i:])\n    out.extend(b[j:])\n    return out\n",
+      "tests": [
+       {
+        "args": [
+         [],
+         []
+        ],
+        "expect": []
+       },
+       {
+        "args": [
+         [
+          1
+         ],
+         []
+        ],
+        "expect": [
+         1
+        ]
+       },
+       {
+        "args": [
+         [],
+         [
+          2
+         ]
+        ],
+        "expect": [
+         2
+        ]
+       },
+       {
+        "args": [
+         [
+          1,
+          3,
+          5
+         ],
+         [
+          2,
+          4,
+          6
+         ]
+        ],
+        "expect": [
+         1,
+         2,
+         3,
+         4,
+         5,
+         6
+        ]
+       },
+       {
+        "args": [
+         [
+          1,
+          2,
+          3
+         ],
+         [
+          4,
+          5
+         ]
+        ],
+        "expect": [
+         1,
+         2,
+         3,
+         4,
+         5
+        ]
+       },
+       {
+        "args": [
+         [
+          4,
+          5
+         ],
+         [
+          1,
+          2,
+          3
+         ]
+        ],
+        "expect": [
+         1,
+         2,
+         3,
+         4,
+         5
+        ]
+       },
+       {
+        "args": [
+         [
+          1,
+          1,
+          2
+         ],
+         [
+          1,
+          2,
+          2
+         ]
+        ],
+        "expect": [
+         1,
+         1,
+         1,
+         2,
+         2,
+         2
+        ]
+       },
+       {
+        "args": [
+         [
+          -5,
+          -1,
+          0
+         ],
+         [
+          -3,
+          2
+         ]
+        ],
+        "expect": [
+         -5,
+         -3,
+         -1,
+         0,
+         2
+        ]
+       },
+       {
+        "args": [
+         [
+          2
+         ],
+         [
+          2
+         ]
+        ],
+        "expect": [
+         2,
+         2
+        ]
+       },
+       {
+        "args": [
+         [
+          1,
+          2,
+          3
+         ],
+         [
+          1,
+          2,
+          3
+         ]
+        ],
+        "expect": [
+         1,
+         1,
+         2,
+         2,
+         3,
+         3
+        ]
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         [
+          1,
+          3,
+          5
+         ],
+         [
+          2,
+          4
+         ]
+        ],
+        "expect": [
+         1,
+         2,
+         3,
+         4,
+         5
+        ]
+       },
+       {
+        "args": [
+         [],
+         [
+          2
+         ]
+        ],
+        "expect": [
+         2
+        ]
+       }
+      ]
+     },
+     "given_names": [
+      "merge_sorted"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "Write a Python function `merge_sorted(a: list, b: list) -> list` that merges two lists that are each already sorted in ascending order into one new sorted list, keeping duplicates. Do not change the inputs. For example `merge_sorted([1, 3, 5], [2, 4])` returns `[1, 2, 3, 4, 5]`.",
+     "references": [
+      "```python\ndef merge_sorted(a: list, b: list) -> list:\n    out = []\n    i = j = 0\n    while i < len(a) and j < len(b):\n        if a[i] <= b[j]:\n            out.append(a[i])\n            i += 1\n        else:\n            out.append(b[j])\n            j += 1\n    out.extend(a[i:])\n    out.extend(b[j:])\n    return out\n```",
+      "```python\ndef merge_sorted(a: list, b: list) -> list:\n    return sorted(a + b)\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef merge_sorted(a: list, b: list) -> list:\n    return a + b\n```",
+      "```python\ndef merge_sorted(a: list, b: list) -> list:\n    return sorted(set(a + b))\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": false,
+    "group": "write_fn",
+    "human_graded": false,
+    "id": "sk_write_py_format_bytes_2",
+    "lang": "python",
+    "level": "L3",
+    "restraint": null,
+    "split": "dev",
+    "template": "write_py_format_bytes",
+    "tool_mode": false,
+    "type": "write_fn",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": {
+       "n": 200,
+       "regenerate": true,
+       "sha256": "c73054ac311851faeed497dc3d07235bf954888bb194478edd788d345c7236cc"
+      },
+      "entry": "human_size",
+      "lang": "python",
+      "module": "sizes",
+      "reference": "def human_size(n: int) -> str:\n    if n < 0:\n        raise ValueError(\"n must not be negative\")\n    if n < 1024:\n        return f\"{n} B\"\n    if n < 1024 * 1024:\n        return f\"{n // 1024} KB\"\n    return f\"{n // (1024 * 1024)} MB\"\n",
+      "tests": [
+       {
+        "args": [
+         0
+        ],
+        "expect": "0 B"
+       },
+       {
+        "args": [
+         1
+        ],
+        "expect": "1 B"
+       },
+       {
+        "args": [
+         1023
+        ],
+        "expect": "1023 B"
+       },
+       {
+        "args": [
+         1024
+        ],
+        "expect": "1 KB"
+       },
+       {
+        "args": [
+         1536
+        ],
+        "expect": "1 KB"
+       },
+       {
+        "args": [
+         2047
+        ],
+        "expect": "1 KB"
+       },
+       {
+        "args": [
+         1048575
+        ],
+        "expect": "1023 KB"
+       },
+       {
+        "args": [
+         1048576
+        ],
+        "expect": "1 MB"
+       },
+       {
+        "args": [
+         5242887
+        ],
+        "expect": "5 MB"
+       },
+       {
+        "args": [
+         1000000000
+        ],
+        "expect": "953 MB"
+       },
+       {
+        "args": [
+         3072
+        ],
+        "expect": "3 KB"
+       },
+       {
+        "args": [
+         -1
+        ],
+        "raises": "ValueError"
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         1536
+        ],
+        "expect": "1 KB"
+       },
+       {
+        "args": [
+         512
+        ],
+        "expect": "512 B"
+       }
+      ]
+     },
+     "given_names": [
+      "human_size"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "Write a Python function `human_size(n: int) -> str` that formats a byte count as text. Below 1024 give `\"<n> B\"`; from 1024 up to (but not including) 1024*1024 give whole kilobytes `\"<n> KB\"` (1 KB = 1024 bytes, rounded down); from 1024*1024 up give whole megabytes `\"<n> MB\"` (rounded down, no larger unit). A negative `n` raises `ValueError`. For example `human_size(1536)` returns `\"1 KB\"` and `human_size(512)` returns `\"512 B\"`.",
+     "references": [
+      "```python\ndef human_size(n: int) -> str:\n    if n < 0:\n        raise ValueError(\"n must not be negative\")\n    if n < 1024:\n        return f\"{n} B\"\n    if n < 1024 * 1024:\n        return f\"{n // 1024} KB\"\n    return f\"{n // (1024 * 1024)} MB\"\n```",
+      "```python\ndef human_size(n: int) -> str:\n    if n < 0:\n        raise ValueError('negative')\n    if n >= 1 << 20:\n        return str(n >> 20) + ' MB'\n    if n >= 1 << 10:\n        return str(n >> 10) + ' KB'\n    return str(n) + ' B'\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef human_size(n: int) -> str:\n    return f\"{round(n / 1024)} KB\"\n```",
+      "```python\ndef human_size(n: int) -> str:\n    if n <= 1024:\n        return f\"{n} B\"\n    return f\"{n // 1024} KB\"\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": {
+       "n": 200,
+       "regenerate": true,
+       "sha256": "de3ad83713386aa27c48cbc6e4aa652f7c3d9965226e9c168488ce0554d317c2"
+      },
+      "entry": "format_bytes",
+      "lang": "python",
+      "module": "diskinfo",
+      "reference": "def format_bytes(n: int) -> str:\n    if n < 0:\n        raise ValueError(\"n must not be negative\")\n    if n < 1024:\n        return f\"{n} B\"\n    if n < 1024 * 1024:\n        return f\"{n // 1024} KB\"\n    return f\"{n // (1024 * 1024)} MB\"\n",
+      "tests": [
+       {
+        "args": [
+         0
+        ],
+        "expect": "0 B"
+       },
+       {
+        "args": [
+         1
+        ],
+        "expect": "1 B"
+       },
+       {
+        "args": [
+         1023
+        ],
+        "expect": "1023 B"
+       },
+       {
+        "args": [
+         1024
+        ],
+        "expect": "1 KB"
+       },
+       {
+        "args": [
+         1536
+        ],
+        "expect": "1 KB"
+       },
+       {
+        "args": [
+         2047
+        ],
+        "expect": "1 KB"
+       },
+       {
+        "args": [
+         1048575
+        ],
+        "expect": "1023 KB"
+       },
+       {
+        "args": [
+         1048576
+        ],
+        "expect": "1 MB"
+       },
+       {
+        "args": [
+         5242887
+        ],
+        "expect": "5 MB"
+       },
+       {
+        "args": [
+         1000000000
+        ],
+        "expect": "953 MB"
+       },
+       {
+        "args": [
+         3072
+        ],
+        "expect": "3 KB"
+       },
+       {
+        "args": [
+         -1
+        ],
+        "raises": "ValueError"
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         1536
+        ],
+        "expect": "1 KB"
+       },
+       {
+        "args": [
+         512
+        ],
+        "expect": "512 B"
+       }
+      ]
+     },
+     "given_names": [
+      "format_bytes"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "Write a Python function `format_bytes(n: int) -> str` that formats a byte count as text. Below 1024 give `\"<n> B\"`; from 1024 up to (but not including) 1024*1024 give whole kilobytes `\"<n> KB\"` (1 KB = 1024 bytes, rounded down); from 1024*1024 up give whole megabytes `\"<n> MB\"` (rounded down, no larger unit). A negative `n` raises `ValueError`. For example `format_bytes(1536)` returns `\"1 KB\"` and `format_bytes(512)` returns `\"512 B\"`.",
+     "references": [
+      "```python\ndef format_bytes(n: int) -> str:\n    if n < 0:\n        raise ValueError(\"n must not be negative\")\n    if n < 1024:\n        return f\"{n} B\"\n    if n < 1024 * 1024:\n        return f\"{n // 1024} KB\"\n    return f\"{n // (1024 * 1024)} MB\"\n```",
+      "```python\ndef format_bytes(n: int) -> str:\n    if n < 0:\n        raise ValueError('negative')\n    if n >= 1 << 20:\n        return str(n >> 20) + ' MB'\n    if n >= 1 << 10:\n        return str(n >> 10) + ' KB'\n    return str(n) + ' B'\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef format_bytes(n: int) -> str:\n    return f\"{round(n / 1024)} KB\"\n```",
+      "```python\ndef format_bytes(n: int) -> str:\n    if n <= 1024:\n        return f\"{n} B\"\n    return f\"{n // 1024} KB\"\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": {
+       "n": 200,
+       "regenerate": true,
+       "sha256": "cc1908cc14e1511d52f57c8d8253e43ae9d44e1280e2bb8e67d40d09df307194"
+      },
+      "entry": "human_size",
+      "lang": "python",
+      "module": "sizes",
+      "reference": "def human_size(n: int) -> str:\n    if n < 0:\n        raise ValueError(\"n must not be negative\")\n    if n < 1024:\n        return f\"{n} B\"\n    if n < 1024 * 1024:\n        return f\"{n // 1024} KB\"\n    return f\"{n // (1024 * 1024)} MB\"\n",
+      "tests": [
+       {
+        "args": [
+         0
+        ],
+        "expect": "0 B"
+       },
+       {
+        "args": [
+         1
+        ],
+        "expect": "1 B"
+       },
+       {
+        "args": [
+         1023
+        ],
+        "expect": "1023 B"
+       },
+       {
+        "args": [
+         1024
+        ],
+        "expect": "1 KB"
+       },
+       {
+        "args": [
+         1536
+        ],
+        "expect": "1 KB"
+       },
+       {
+        "args": [
+         2047
+        ],
+        "expect": "1 KB"
+       },
+       {
+        "args": [
+         1048575
+        ],
+        "expect": "1023 KB"
+       },
+       {
+        "args": [
+         1048576
+        ],
+        "expect": "1 MB"
+       },
+       {
+        "args": [
+         5242887
+        ],
+        "expect": "5 MB"
+       },
+       {
+        "args": [
+         1000000000
+        ],
+        "expect": "953 MB"
+       },
+       {
+        "args": [
+         3072
+        ],
+        "expect": "3 KB"
+       },
+       {
+        "args": [
+         -1
+        ],
+        "raises": "ValueError"
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         1536
+        ],
+        "expect": "1 KB"
+       },
+       {
+        "args": [
+         512
+        ],
+        "expect": "512 B"
+       }
+      ]
+     },
+     "given_names": [
+      "human_size"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "Write a Python function `human_size(n: int) -> str` that formats a byte count as text. Below 1024 give `\"<n> B\"`; from 1024 up to (but not including) 1024*1024 give whole kilobytes `\"<n> KB\"` (1 KB = 1024 bytes, rounded down); from 1024*1024 up give whole megabytes `\"<n> MB\"` (rounded down, no larger unit). A negative `n` raises `ValueError`. For example `human_size(1536)` returns `\"1 KB\"` and `human_size(512)` returns `\"512 B\"`.",
+     "references": [
+      "```python\ndef human_size(n: int) -> str:\n    if n < 0:\n        raise ValueError(\"n must not be negative\")\n    if n < 1024:\n        return f\"{n} B\"\n    if n < 1024 * 1024:\n        return f\"{n // 1024} KB\"\n    return f\"{n // (1024 * 1024)} MB\"\n```",
+      "```python\ndef human_size(n: int) -> str:\n    if n < 0:\n        raise ValueError('negative')\n    if n >= 1 << 20:\n        return str(n >> 20) + ' MB'\n    if n >= 1 << 10:\n        return str(n >> 10) + ' KB'\n    return str(n) + ' B'\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef human_size(n: int) -> str:\n    return f\"{round(n / 1024)} KB\"\n```",
+      "```python\ndef human_size(n: int) -> str:\n    if n <= 1024:\n        return f\"{n} B\"\n    return f\"{n // 1024} KB\"\n```"
+     ]
+    }
+   }
+  }
+ ],
+ "generator": "edat-sidekick-gen/1",
+ "group": "write_fn",
+ "split": "dev"
+}

@@ -1,0 +1,1410 @@
+{
+ "cases": [
+  {
+   "meta": {
+    "core": true,
+    "group": "regex",
+    "human_graded": false,
+    "id": "sk_regex_write_order_code_1",
+    "lang": "regex",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "regex_write_order_code",
+    "tool_mode": false,
+    "type": "regex",
+    "variant": "write"
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "regex",
+     "check": {
+      "flags": "",
+      "hidden_neg": [
+       "N_9355",
+       "fg_9165",
+       " ZD_2636",
+       "ST_59197",
+       "LX.6195",
+       "DL1517",
+       " FN_1595",
+       "UW_962P",
+       "JU_681S",
+       "LV_12893",
+       "YE_659E",
+       " HI_1153",
+       "PG_879V",
+       "vr_8793",
+       "F_6695",
+       "C_4956",
+       "LW_654T",
+       "uf_4103",
+       "QA_33229",
+       "KL/1734"
+      ],
+      "hidden_pos": [
+       "UB_1968",
+       "PJ_8859",
+       "UI_2383",
+       "MQ_1562",
+       "TF_2863",
+       "ZV_0172",
+       "SI_5337",
+       "BH_7981",
+       "IE_4196",
+       "XX_0608",
+       "PX_7872",
+       "PZ_3509",
+       "SA_3771",
+       "CJ_1882",
+       "PK_3860",
+       "EL_1999",
+       "KB_5766",
+       "XN_7964",
+       "AR_7535",
+       "RW_3987"
+      ],
+      "mode": "fullmatch",
+      "negatives": [
+       "YQ_07260",
+       "jv_6492",
+       "JZ_35687",
+       "VV_32572",
+       "fp_5573",
+       "MI0973",
+       "FA-9628",
+       "HE2592",
+       "RV_640W",
+       "OK3653"
+      ],
+      "positives": [
+       "WE_1979",
+       "VO_8591",
+       "ZX_7308",
+       "YW_8775",
+       "KI_5385",
+       "TE_6623",
+       "JK_4734",
+       "LE_7440",
+       "QP_7532",
+       "OR_7563"
+      ]
+     },
+     "given_names": [],
+     "grader": "regex_write",
+     "notes": "",
+     "prompt": "Write a Python regular expression for an order code: 2 capital letters, a `_`, then 4 digits, e.g. `WE_1979`. It will be used with `re.fullmatch` on each string.\n\nShould match:\n  WE_1979\n  VO_8591\n  ZX_7308\n  YW_8775\n  KI_5385\n  TE_6623\n  JK_4734\n  LE_7440\n  QP_7532\n  OR_7563\n\nShould not match:\n  YQ_07260\n  jv_6492\n  JZ_35687\n  VV_32572\n  fp_5573\n  MI0973\n  FA-9628\n  HE2592\n  RV_640W\n  OK3653",
+     "references": [
+      "```regex\n[A-Z]{2}_\\d{4}\n```",
+      "```regex\n^[A-Z]{2}_[0-9]{4}$\n```",
+      "```python\nimport re\nCODE = re.compile(r\"[A-Z]{2}_[0-9]{4}\")\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```regex\n[A-Za-z]+_\\d+\n```",
+      "```regex\n[A-Z]{2}.\\d{4}\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "regex",
+     "check": {
+      "flags": "",
+      "hidden_neg": [
+       " QYQ-5385",
+       "JCA-829G",
+       " LXH-2707",
+       "RFX-618V",
+       "SE-8101",
+       "WWJ-077E",
+       " MZZ-7524",
+       "UQU6488",
+       " EUZ-8159",
+       "JVV-502A",
+       " IUN-3449",
+       "hjm-7152",
+       "YSU_4723",
+       "DMU/9808",
+       " WFO-4229",
+       "XKU/1398",
+       "UKW-99169",
+       "vlo-8854",
+       "SCJ1661",
+       "CT-6785"
+      ],
+      "hidden_pos": [
+       "AJM-3392",
+       "BIG-2826",
+       "XMK-3150",
+       "PMV-8991",
+       "XNW-3179",
+       "ZJM-7666",
+       "KUL-2897",
+       "KAC-3583",
+       "ZIU-5187",
+       "WBJ-0893",
+       "GFP-6235",
+       "KYE-9277",
+       "TYD-1034",
+       "GWT-0973",
+       "ATU-3516",
+       "IQG-8924",
+       "BQX-1650",
+       "ZYS-7841",
+       "TZN-3049",
+       "VZV-1545"
+      ],
+      "mode": "fullmatch",
+      "negatives": [
+       "LXI-71335",
+       "MWR5212",
+       "RGN7252",
+       "SIT_3958",
+       "SEE-55419",
+       "TNS-32471",
+       "ORH_8316",
+       " JEI-8498",
+       " JOW-5962",
+       "tmg-3388"
+      ],
+      "positives": [
+       "VYZ-6904",
+       "WJO-3550",
+       "GWE-8233",
+       "QKN-8078",
+       "DDR-5644",
+       "TZD-2743",
+       "TSD-3771",
+       "VNW-7422",
+       "PMT-6425",
+       "AKC-7629"
+      ]
+     },
+     "given_names": [],
+     "grader": "regex_write",
+     "notes": "",
+     "prompt": "Write a Python regular expression for an order code: 3 capital letters, a `-`, then 4 digits, e.g. `VYZ-6904`. It will be used with `re.fullmatch` on each string.\n\nShould match:\n  VYZ-6904\n  WJO-3550\n  GWE-8233\n  QKN-8078\n  DDR-5644\n  TZD-2743\n  TSD-3771\n  VNW-7422\n  PMT-6425\n  AKC-7629\n\nShould not match:\n  LXI-71335\n  MWR5212\n  RGN7252\n  SIT_3958\n  SEE-55419\n  TNS-32471\n  ORH_8316\n   JEI-8498\n   JOW-5962\n  tmg-3388",
+     "references": [
+      "```regex\n[A-Z]{3}\\-\\d{4}\n```",
+      "```regex\n^[A-Z]{3}\\-[0-9]{4}$\n```",
+      "```python\nimport re\nCODE = re.compile(r\"[A-Z]{3}\\-[0-9]{4}\")\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```regex\n[A-Za-z]+\\-\\d+\n```",
+      "```regex\n[A-Z]{3}.\\d{4}\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "regex",
+     "check": {
+      "flags": "",
+      "hidden_neg": [
+       "flo_1671",
+       "AS_0901",
+       "ZUN_586J",
+       "WSI_19246",
+       " VPB_6568",
+       "MER_257Y",
+       "ash_9941",
+       " GSH_9683",
+       "COB_919U",
+       "MBT_47175",
+       "GWE3282",
+       "AJE/9950",
+       " ATD_2235",
+       "SHV-1025",
+       " USX_2429",
+       "TIH.0442",
+       "rqs_1348",
+       "EUQ_89934",
+       "frh_7259",
+       "GIW.3913"
+      ],
+      "hidden_pos": [
+       "QIN_9043",
+       "WUE_1126",
+       "MFL_8093",
+       "UTF_2003",
+       "CDZ_4256",
+       "DKB_5042",
+       "HPZ_8750",
+       "EUQ_9291",
+       "CBP_2737",
+       "HPB_6115",
+       "RPM_9823",
+       "GII_3227",
+       "VFU_6032",
+       "TAJ_4335",
+       "YBL_2922",
+       "EQR_8302",
+       "PCY_8773",
+       "GCW_7836",
+       "XNP_2465",
+       "RUC_7150"
+      ],
+      "mode": "fullmatch",
+      "negatives": [
+       "hui_7036",
+       " XUA_7238",
+       "PEC-5938",
+       "SSS.1020",
+       "DBT_173J",
+       "lgs_4063",
+       "DE_6591",
+       "NPB_544L",
+       "JCU_50470",
+       "BSH/0383"
+      ],
+      "positives": [
+       "IGZ_2320",
+       "QYL_8513",
+       "UEN_8270",
+       "UTI_2349",
+       "UCO_8199",
+       "XRI_7393",
+       "HGP_5085",
+       "AVO_0209",
+       "XPT_6414",
+       "CHR_0367"
+      ]
+     },
+     "given_names": [],
+     "grader": "regex_write",
+     "notes": "",
+     "prompt": "Write a Python regular expression for an order code: 3 capital letters, a `_`, then 4 digits, e.g. `IGZ_2320`. It will be used with `re.fullmatch` on each string.\n\nShould match:\n  IGZ_2320\n  QYL_8513\n  UEN_8270\n  UTI_2349\n  UCO_8199\n  XRI_7393\n  HGP_5085\n  AVO_0209\n  XPT_6414\n  CHR_0367\n\nShould not match:\n  hui_7036\n   XUA_7238\n  PEC-5938\n  SSS.1020\n  DBT_173J\n  lgs_4063\n  DE_6591\n  NPB_544L\n  JCU_50470\n  BSH/0383",
+     "references": [
+      "```regex\n[A-Z]{3}_\\d{4}\n```",
+      "```regex\n^[A-Z]{3}_[0-9]{4}$\n```",
+      "```python\nimport re\nCODE = re.compile(r\"[A-Z]{3}_[0-9]{4}\")\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```regex\n[A-Za-z]+_\\d+\n```",
+      "```regex\n[A-Z]{3}.\\d{4}\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": true,
+    "group": "regex",
+    "human_graded": false,
+    "id": "sk_regex_write_semver_1",
+    "lang": "regex",
+    "level": "L2",
+    "restraint": null,
+    "split": "dev",
+    "template": "regex_write_semver",
+    "tool_mode": false,
+    "type": "regex",
+    "variant": "write"
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "regex",
+     "check": {
+      "flags": "",
+      "hidden_neg": [
+       "24..738.0",
+       "11..0.0",
+       "947.0.1-beta",
+       "353..0.0",
+       "7.8",
+       "v19.0.89",
+       "07.0.0",
+       "0.0.244-rc1",
+       "rc1.60.0",
+       "0.0.04",
+       "v267.0.0",
+       "4,0.4",
+       "404.225.238.",
+       "0.44.398-beta",
+       "6.365.9.",
+       "0..0.1",
+       "708.01.23",
+       "87.0.1.",
+       "0,9.86",
+       "v137.0.309"
+      ],
+      "hidden_pos": [
+       "0.513.11",
+       "6.569.85",
+       "0.69.0",
+       "14.26.0",
+       "0.0.0",
+       "0.0.3",
+       "4.0.0",
+       "67.0.962",
+       "92.256.0",
+       "0.1.268",
+       "786.0.0",
+       "0.3.658",
+       "1.971.0",
+       "41.0.942",
+       "0.2.497",
+       "836.3.4",
+       "0.0.8",
+       "0.0.29",
+       "0.0.4",
+       "0.391.3"
+      ],
+      "mode": "fullmatch",
+      "negatives": [
+       "8.0.5-dev",
+       "2..87.0",
+       "0.0.0.0",
+       "76..0.0",
+       "0.505.0.5",
+       "0.525.280-beta",
+       "52,454.0",
+       "0.2",
+       "0.89.a",
+       "5.60.7."
+      ],
+      "positives": [
+       "0.3.0",
+       "74.0.0",
+       "82.46.328",
+       "4.5.193",
+       "6.0.0",
+       "0.5.65",
+       "0.0.6",
+       "0.5.44",
+       "0.7.0",
+       "70.8.42"
+      ]
+     },
+     "given_names": [],
+     "grader": "regex_write",
+     "notes": "",
+     "prompt": "Write a Python regular expression for a version number `MAJOR.MINOR.PATCH`: three whole numbers separated by dots, e.g. `87.1.856`. A number is `0` or has no leading zero. No prefix and no suffix. It will be used with `re.fullmatch` on each string.\n\nShould match:\n  0.3.0\n  74.0.0\n  82.46.328\n  4.5.193\n  6.0.0\n  0.5.65\n  0.0.6\n  0.5.44\n  0.7.0\n  70.8.42\n\nShould not match:\n  8.0.5-dev\n  2..87.0\n  0.0.0.0\n  76..0.0\n  0.505.0.5\n  0.525.280-beta\n  52,454.0\n  0.2\n  0.89.a\n  5.60.7.",
+     "references": [
+      "```regex\n(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\n```",
+      "```regex\n^(0|[1-9][0-9]*)(\\.(0|[1-9][0-9]*)){2}$\n```",
+      "```python\nimport re\nVERSION = re.compile(r\"(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\")\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```regex\n\\d+\\.\\d+\\.\\d+\n```",
+      "```regex\n\\d\\.\\d\\.\\d\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "regex",
+     "check": {
+      "flags": "",
+      "hidden_neg": [
+       "102..0.0",
+       "0.rc1.6",
+       "18.0.x",
+       "v0.78.4",
+       "405.rc1.0",
+       "0.0.rc1",
+       "5.6.373-rc1",
+       "2.beta.1",
+       "0.0.02",
+       "682.0.527.160",
+       "0.850.beta",
+       "0.0.a",
+       "484.01.28",
+       "0..0.97",
+       "5.140.0.",
+       "14.x.968",
+       "0,751.0",
+       "3,0.66",
+       "0..6.6",
+       "0..53.96"
+      ],
+      "hidden_pos": [
+       "0.0.12",
+       "8.0.81",
+       "3.42.0",
+       "623.283.661",
+       "0.525.17",
+       "10.0.42",
+       "97.0.0",
+       "0.42.6",
+       "5.492.9",
+       "127.678.0",
+       "0.8.0",
+       "6.84.410",
+       "0.43.0",
+       "705.6.863",
+       "889.0.49",
+       "153.0.1",
+       "6.170.84",
+       "0.7.0",
+       "91.0.78",
+       "0.75.0"
+      ],
+      "mode": "fullmatch",
+      "negatives": [
+       "73,42.5",
+       "0,0.0",
+       "0.0.0.",
+       "3.0",
+       "394.58.0.",
+       "v0.0.783",
+       "827.3.0.",
+       "0,21.0",
+       "26.0.6-rc1",
+       "v0.9.7"
+      ],
+      "positives": [
+       "0.64.0",
+       "9.646.43",
+       "86.0.304",
+       "785.0.53",
+       "0.2.30",
+       "0.0.0",
+       "642.231.16",
+       "92.53.0",
+       "6.0.232",
+       "0.3.0"
+      ]
+     },
+     "given_names": [],
+     "grader": "regex_write",
+     "notes": "",
+     "prompt": "Write a Python regular expression for a version number `MAJOR.MINOR.PATCH`: three whole numbers separated by dots, e.g. `9.608.8`. A number is `0` or has no leading zero. No prefix and no suffix. It will be used with `re.fullmatch` on each string.\n\nShould match:\n  0.64.0\n  9.646.43\n  86.0.304\n  785.0.53\n  0.2.30\n  0.0.0\n  642.231.16\n  92.53.0\n  6.0.232\n  0.3.0\n\nShould not match:\n  73,42.5\n  0,0.0\n  0.0.0.\n  3.0\n  394.58.0.\n  v0.0.783\n  827.3.0.\n  0,21.0\n  26.0.6-rc1\n  v0.9.7",
+     "references": [
+      "```regex\n(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\n```",
+      "```regex\n^(0|[1-9][0-9]*)(\\.(0|[1-9][0-9]*)){2}$\n```",
+      "```python\nimport re\nVERSION = re.compile(r\"(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\")\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```regex\n\\d+\\.\\d+\\.\\d+\n```",
+      "```regex\n\\d\\.\\d\\.\\d\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "regex",
+     "check": {
+      "flags": "",
+      "hidden_neg": [
+       "520.473",
+       "x.44.0",
+       "0.beta.48",
+       "0.54.767.",
+       "16,42.0",
+       "01.73.230",
+       "3.0.03",
+       "25..0.661",
+       "0.35.666.146",
+       "beta.0.0",
+       "0.04.0",
+       "0,0.0",
+       "v1.52.0",
+       "21.0.0.",
+       "0..98.147",
+       "rc1.12.5",
+       "0.5.691.",
+       "1.0.8.",
+       "30.0.0.",
+       "v0.0.0"
+      ],
+      "hidden_pos": [
+       "0.4.942",
+       "72.3.0",
+       "0.4.30",
+       "176.310.0",
+       "0.6.6",
+       "0.988.1",
+       "851.197.0",
+       "0.3.1",
+       "6.465.0",
+       "9.15.947",
+       "0.954.5",
+       "8.0.32",
+       "979.576.0",
+       "0.41.88",
+       "74.0.0",
+       "736.0.20",
+       "494.0.0",
+       "0.0.2",
+       "0.1.6",
+       "481.1.6"
+      ],
+      "mode": "fullmatch",
+      "negatives": [
+       "3.a.0",
+       "0..1.0",
+       "2.794.0.90",
+       "6..56.814",
+       "151.0.515.",
+       "416..0.616",
+       "0.81.beta",
+       "0,0.37",
+       "beta.27.172",
+       "132..3.0"
+      ],
+      "positives": [
+       "0.6.9",
+       "499.0.417",
+       "8.7.61",
+       "0.84.339",
+       "66.0.11",
+       "0.928.39",
+       "0.357.95",
+       "55.6.2",
+       "9.8.430",
+       "6.793.31"
+      ]
+     },
+     "given_names": [],
+     "grader": "regex_write",
+     "notes": "",
+     "prompt": "Write a Python regular expression for a version number `MAJOR.MINOR.PATCH`: three whole numbers separated by dots, e.g. `0.0.0`. A number is `0` or has no leading zero. No prefix and no suffix. It will be used with `re.fullmatch` on each string.\n\nShould match:\n  0.6.9\n  499.0.417\n  8.7.61\n  0.84.339\n  66.0.11\n  0.928.39\n  0.357.95\n  55.6.2\n  9.8.430\n  6.793.31\n\nShould not match:\n  3.a.0\n  0..1.0\n  2.794.0.90\n  6..56.814\n  151.0.515.\n  416..0.616\n  0.81.beta\n  0,0.37\n  beta.27.172\n  132..3.0",
+     "references": [
+      "```regex\n(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\n```",
+      "```regex\n^(0|[1-9][0-9]*)(\\.(0|[1-9][0-9]*)){2}$\n```",
+      "```python\nimport re\nVERSION = re.compile(r\"(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\")\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```regex\n\\d+\\.\\d+\\.\\d+\n```",
+      "```regex\n\\d\\.\\d\\.\\d\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": true,
+    "group": "regex",
+    "human_graded": false,
+    "id": "sk_regex_read_optional_group_1",
+    "lang": "regex",
+    "level": "L2",
+    "restraint": null,
+    "split": "dev",
+    "template": "regex_read_optional_group",
+    "tool_mode": false,
+    "type": "regex",
+    "variant": "read"
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "text",
+     "check": {
+      "answer": [
+       "A",
+       "B"
+      ],
+      "flags": "",
+      "labels": {
+       "A": "85-161",
+       "B": "82",
+       "C": "abc",
+       "D": "93-1392",
+       "E": "812",
+       "F": "59-"
+      },
+      "mode": "fullmatch",
+      "pattern": "^\\d{2}(-\\d{3})?$"
+     },
+     "given_names": [],
+     "grader": "regex_read",
+     "notes": "",
+     "prompt": "Which of these strings does `^\\d{2}(-\\d{3})?$` fully match (Python `re.fullmatch`)? Start your answer with the letters, like \"B, D\".\n\nA `85-161`  B `82`  C `abc`  D `93-1392`  E `812`  F `59-`",
+     "references": [
+      "A, B",
+      "A, B. The group `(-\\d{3})?` is optional and the anchors require the whole string to match.",
+      "**A, B**"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "C, D",
+      "A, B, C, D, E, F"
+     ]
+    },
+    "2": {
+     "answer_kind": "text",
+     "check": {
+      "answer": [
+       "D",
+       "F"
+      ],
+      "flags": "",
+      "labels": {
+       "A": "497-899",
+       "B": "65-17680",
+       "C": "abc",
+       "D": "191-5784",
+       "E": "1652",
+       "F": "581",
+       "G": "852-"
+      },
+      "mode": "fullmatch",
+      "pattern": "^\\d{3}(-\\d{4})?$"
+     },
+     "given_names": [],
+     "grader": "regex_read",
+     "notes": "",
+     "prompt": "Which of these strings does `^\\d{3}(-\\d{4})?$` fully match (Python `re.fullmatch`)? Start your answer with the letters, like \"B, D\".\n\nA `497-899`  B `65-17680`  C `abc`  D `191-5784`  E `1652`  F `581`  G `852-`",
+     "references": [
+      "D, F",
+      "D, F. The group `(-\\d{4})?` is optional and the anchors require the whole string to match.",
+      "**D, F**"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "A, B",
+      "A, B, C, D, E, F, G"
+     ]
+    },
+    "3": {
+     "answer_kind": "text",
+     "check": {
+      "answer": [
+       "A",
+       "B"
+      ],
+      "flags": "",
+      "labels": {
+       "A": "891-7250",
+       "B": "993",
+       "C": "0992",
+       "D": "abc",
+       "E": "839-",
+       "F": "464-703",
+       "G": "18-64230"
+      },
+      "mode": "fullmatch",
+      "pattern": "^\\d{3}(-\\d{4})?$"
+     },
+     "given_names": [],
+     "grader": "regex_read",
+     "notes": "",
+     "prompt": "Which of these strings does `^\\d{3}(-\\d{4})?$` fully match (Python `re.fullmatch`)? Start your answer with the letters, like \"B, D\".\n\nA `891-7250`  B `993`  C `0992`  D `abc`  E `839-`  F `464-703`  G `18-64230`",
+     "references": [
+      "A, B",
+      "A, B. The group `(-\\d{4})?` is optional and the anchors require the whole string to match.",
+      "**A, B**"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "C, D",
+      "A, B, C, D, E, F, G"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": false,
+    "group": "regex",
+    "human_graded": false,
+    "id": "sk_regex_write_order_code_2",
+    "lang": "regex",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "regex_write_order_code",
+    "tool_mode": false,
+    "type": "regex",
+    "variant": "write"
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "regex",
+     "check": {
+      "flags": "",
+      "hidden_neg": [
+       "rkn-2191",
+       "JKG9405",
+       "GN-1502",
+       " XQZ-2706",
+       "DGU.5561",
+       "NIO/3931",
+       "KVD-242D",
+       "hze-8405",
+       "RNH-674N",
+       "VFF_0072",
+       " EJC-3297",
+       " GMD-8543",
+       "TL-2072",
+       "DGT/5693",
+       "SVD6519",
+       "JOS-389W",
+       "VED/1343",
+       "GVO-89214",
+       "ITD-546X",
+       "XSB-40615"
+      ],
+      "hidden_pos": [
+       "ACX-4076",
+       "GUQ-4098",
+       "QHV-5398",
+       "GJS-6647",
+       "FKS-1892",
+       "SNI-2235",
+       "ZZN-9650",
+       "YND-5660",
+       "RVS-0759",
+       "XLN-7361",
+       "TCI-3917",
+       "ZUN-0748",
+       "HDS-9559",
+       "DER-9624",
+       "ONY-4866",
+       "MPS-9188",
+       "IWP-8287",
+       "SME-9408",
+       "NBW-8533",
+       "CEG-5049"
+      ],
+      "mode": "fullmatch",
+      "negatives": [
+       "PBU-07396",
+       "ZDB6471",
+       "KOQ6468",
+       "DDB-840F",
+       "PT-8130",
+       "SE-1072",
+       "nox-0913",
+       "mxj-0448",
+       "HQF/5517",
+       "SND-450C"
+      ],
+      "positives": [
+       "XRZ-4421",
+       "VEY-1972",
+       "DJU-6925",
+       "JQV-7861",
+       "HVZ-2786",
+       "PJN-4717",
+       "JVD-0789",
+       "QEO-5446",
+       "OEP-4843",
+       "BPZ-7655"
+      ]
+     },
+     "given_names": [],
+     "grader": "regex_write",
+     "notes": "",
+     "prompt": "Write a Python regular expression for an order code: 3 capital letters, a `-`, then 4 digits, e.g. `XRZ-4421`. It will be used with `re.fullmatch` on each string.\n\nShould match:\n  XRZ-4421\n  VEY-1972\n  DJU-6925\n  JQV-7861\n  HVZ-2786\n  PJN-4717\n  JVD-0789\n  QEO-5446\n  OEP-4843\n  BPZ-7655\n\nShould not match:\n  PBU-07396\n  ZDB6471\n  KOQ6468\n  DDB-840F\n  PT-8130\n  SE-1072\n  nox-0913\n  mxj-0448\n  HQF/5517\n  SND-450C",
+     "references": [
+      "```regex\n[A-Z]{3}\\-\\d{4}\n```",
+      "```regex\n^[A-Z]{3}\\-[0-9]{4}$\n```",
+      "```python\nimport re\nCODE = re.compile(r\"[A-Z]{3}\\-[0-9]{4}\")\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```regex\n[A-Za-z]+\\-\\d+\n```",
+      "```regex\n[A-Z]{3}.\\d{4}\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "regex",
+     "check": {
+      "flags": "",
+      "hidden_neg": [
+       "ZX/278072",
+       "NY_47824",
+       "XP-81746",
+       "ZA.88507",
+       "wr/24660",
+       "JI.75332",
+       "PW/998793",
+       " IU/07910",
+       "C/81773",
+       "TZ_43710",
+       "PJ/985220",
+       "EX/323598",
+       "fp/70708",
+       "DU/7353Q",
+       "NF96575",
+       "ZV11825",
+       "DM/0082N",
+       "FZ/680378",
+       "TF/7311L",
+       " YD/97935"
+      ],
+      "hidden_pos": [
+       "NQ/50165",
+       "MI/06580",
+       "ZS/33084",
+       "WN/06750",
+       "OL/14049",
+       "MK/80148",
+       "DZ/32020",
+       "DO/97950",
+       "AT/21944",
+       "AR/18238",
+       "AR/15770",
+       "IG/77164",
+       "AB/67073",
+       "XJ/98556",
+       "FS/65950",
+       "DQ/60835",
+       "ND/50731",
+       "OW/19675",
+       "XS/79833",
+       "NS/98230"
+      ],
+      "mode": "fullmatch",
+      "negatives": [
+       "PP.16936",
+       "V/22957",
+       "HQ/350921",
+       "J/64028",
+       "IS-53596",
+       "QX99955",
+       "KW_49464",
+       "KL_15919",
+       "TY_94215",
+       "HZ/8371E"
+      ],
+      "positives": [
+       "AT/10664",
+       "TF/17905",
+       "RC/78153",
+       "UO/97618",
+       "KP/13649",
+       "TL/66327",
+       "UF/10528",
+       "VL/41643",
+       "JE/63836",
+       "EQ/31219"
+      ]
+     },
+     "given_names": [],
+     "grader": "regex_write",
+     "notes": "",
+     "prompt": "Write a Python regular expression for an order code: 2 capital letters, a `/`, then 5 digits, e.g. `AT/10664`. It will be used with `re.fullmatch` on each string.\n\nShould match:\n  AT/10664\n  TF/17905\n  RC/78153\n  UO/97618\n  KP/13649\n  TL/66327\n  UF/10528\n  VL/41643\n  JE/63836\n  EQ/31219\n\nShould not match:\n  PP.16936\n  V/22957\n  HQ/350921\n  J/64028\n  IS-53596\n  QX99955\n  KW_49464\n  KL_15919\n  TY_94215\n  HZ/8371E",
+     "references": [
+      "```regex\n[A-Z]{2}/\\d{5}\n```",
+      "```regex\n^[A-Z]{2}/[0-9]{5}$\n```",
+      "```python\nimport re\nCODE = re.compile(r\"[A-Z]{2}/[0-9]{5}\")\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```regex\n[A-Za-z]+/\\d+\n```",
+      "```regex\n[A-Z]{2}.\\d{5}\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "regex",
+     "check": {
+      "flags": "",
+      "hidden_neg": [
+       "YW-6762X",
+       "BO/90289",
+       "PP-2640E",
+       "BB17282",
+       "DU/68273",
+       " RO-73722",
+       "DQ.34920",
+       "QJ-3950M",
+       "ZH-315148",
+       " YC-27536",
+       "JW-2727Y",
+       "YB_46587",
+       "UM-843861",
+       "ks-20939",
+       "JA-2663O",
+       "QM-256793",
+       "JF-4189C",
+       "L-37298",
+       "IZ_41987",
+       "SK-1776Q"
+      ],
+      "hidden_pos": [
+       "QQ-43850",
+       "DZ-65334",
+       "QA-11087",
+       "NR-32445",
+       "SM-54169",
+       "BV-09308",
+       "FX-74268",
+       "YF-14684",
+       "AG-21482",
+       "WZ-30825",
+       "VS-48323",
+       "LN-47358",
+       "AP-83226",
+       "CM-38398",
+       "MZ-52541",
+       "OS-49608",
+       "PB-69598",
+       "SX-29830",
+       "OH-98253",
+       "MJ-96361"
+      ],
+      "mode": "fullmatch",
+      "negatives": [
+       "PE-832336",
+       "xe-90248",
+       "M-64852",
+       " YQ-91467",
+       "L-83292",
+       "da-34636",
+       " OW-10287",
+       "ZE-098862",
+       " CJ-49368",
+       "ZZ-2619S"
+      ],
+      "positives": [
+       "UX-19022",
+       "NN-95207",
+       "KZ-88825",
+       "AU-82233",
+       "RF-20764",
+       "BQ-75691",
+       "LC-39335",
+       "XW-33297",
+       "HI-81041",
+       "TZ-71173"
+      ]
+     },
+     "given_names": [],
+     "grader": "regex_write",
+     "notes": "",
+     "prompt": "Write a Python regular expression for an order code: 2 capital letters, a `-`, then 5 digits, e.g. `UX-19022`. It will be used with `re.fullmatch` on each string.\n\nShould match:\n  UX-19022\n  NN-95207\n  KZ-88825\n  AU-82233\n  RF-20764\n  BQ-75691\n  LC-39335\n  XW-33297\n  HI-81041\n  TZ-71173\n\nShould not match:\n  PE-832336\n  xe-90248\n  M-64852\n   YQ-91467\n  L-83292\n  da-34636\n   OW-10287\n  ZE-098862\n   CJ-49368\n  ZZ-2619S",
+     "references": [
+      "```regex\n[A-Z]{2}\\-\\d{5}\n```",
+      "```regex\n^[A-Z]{2}\\-[0-9]{5}$\n```",
+      "```python\nimport re\nCODE = re.compile(r\"[A-Z]{2}\\-[0-9]{5}\")\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```regex\n[A-Za-z]+\\-\\d+\n```",
+      "```regex\n[A-Z]{2}.\\d{5}\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": false,
+    "group": "regex",
+    "human_graded": false,
+    "id": "sk_regex_write_semver_2",
+    "lang": "regex",
+    "level": "L2",
+    "restraint": null,
+    "split": "dev",
+    "template": "regex_write_semver",
+    "tool_mode": false,
+    "type": "regex",
+    "variant": "write"
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "regex",
+     "check": {
+      "flags": "",
+      "hidden_neg": [
+       "0.346.2.",
+       "6.1.881.7",
+       "v0.0.35",
+       "0.0.6.",
+       "25.21",
+       "0.0.0.4",
+       "0.08.33",
+       "66.01.0",
+       "a.7.42",
+       "0.6.96-dev",
+       "v193.0.89",
+       "0,336.0",
+       "400.0.08",
+       "0.40.97.",
+       "0..0.61",
+       "8..76.0",
+       "0.0.04",
+       "806.0.0.",
+       "04.793.0",
+       "0.0.0."
+      ],
+      "hidden_pos": [
+       "498.0.0",
+       "11.5.667",
+       "0.30.0",
+       "0.72.5",
+       "0.799.542",
+       "49.0.0",
+       "0.1.2",
+       "141.5.0",
+       "74.0.0",
+       "236.553.0",
+       "0.0.47",
+       "342.85.1",
+       "643.8.8",
+       "215.0.97",
+       "12.0.26",
+       "6.7.0",
+       "21.0.0",
+       "395.0.0",
+       "126.0.0",
+       "0.12.60"
+      ],
+      "mode": "fullmatch",
+      "negatives": [
+       "0.0.0.3",
+       "10.90.07",
+       "44.5",
+       "0.79",
+       "0.0.x",
+       "962.5.1-rc1",
+       "0.0.09",
+       "0.0",
+       "51.0.0-rc1",
+       "0.5.beta"
+      ],
+      "positives": [
+       "8.4.8",
+       "4.658.0",
+       "0.0.2",
+       "509.0.52",
+       "75.0.236",
+       "6.0.2",
+       "0.1.0",
+       "60.0.950",
+       "937.699.99",
+       "468.432.16"
+      ]
+     },
+     "given_names": [],
+     "grader": "regex_write",
+     "notes": "",
+     "prompt": "Write a Python regular expression for a version number `MAJOR.MINOR.PATCH`: three whole numbers separated by dots, e.g. `260.598.0`. A number is `0` or has no leading zero. No prefix and no suffix. It will be used with `re.fullmatch` on each string.\n\nShould match:\n  8.4.8\n  4.658.0\n  0.0.2\n  509.0.52\n  75.0.236\n  6.0.2\n  0.1.0\n  60.0.950\n  937.699.99\n  468.432.16\n\nShould not match:\n  0.0.0.3\n  10.90.07\n  44.5\n  0.79\n  0.0.x\n  962.5.1-rc1\n  0.0.09\n  0.0\n  51.0.0-rc1\n  0.5.beta",
+     "references": [
+      "```regex\n(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\n```",
+      "```regex\n^(0|[1-9][0-9]*)(\\.(0|[1-9][0-9]*)){2}$\n```",
+      "```python\nimport re\nVERSION = re.compile(r\"(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\")\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```regex\n\\d+\\.\\d+\\.\\d+\n```",
+      "```regex\n\\d\\.\\d\\.\\d\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "regex",
+     "check": {
+      "flags": "",
+      "hidden_neg": [
+       "991..609.0",
+       "0.57.239-beta",
+       "a.6.4",
+       "v693.70.91",
+       "65..71.0",
+       "0,0.415",
+       "07.0.0",
+       "78..602.5",
+       "0.0.0-beta",
+       "2.0",
+       "0.0",
+       "44.63",
+       "0..17.0",
+       "0,681.0",
+       "8.8.96.0",
+       "70.683.0.",
+       "0,0.0",
+       "0.11.6-rc1",
+       "0,656.5",
+       "5.857"
+      ],
+      "hidden_pos": [
+       "91.8.3",
+       "0.999.594",
+       "5.0.0",
+       "755.0.0",
+       "51.0.0",
+       "0.884.0",
+       "1.544.5",
+       "9.530.0",
+       "5.794.868",
+       "2.0.0",
+       "0.143.0",
+       "0.43.6",
+       "6.663.925",
+       "0.616.277",
+       "3.409.50",
+       "235.3.20",
+       "6.686.640",
+       "0.0.0",
+       "0.5.0",
+       "0.0.909"
+      ],
+      "mode": "fullmatch",
+      "negatives": [
+       "0,45.183",
+       "0..153.0",
+       "0.0.0-rc1",
+       "beta.111.0",
+       "14.0.0-rc1",
+       "5.x.0",
+       "62..25.5",
+       "0.776",
+       "a.854.0",
+       "0.0.4-beta"
+      ],
+      "positives": [
+       "81.8.0",
+       "0.795.0",
+       "0.59.1",
+       "365.0.0",
+       "28.0.0",
+       "606.405.0",
+       "73.977.5",
+       "827.305.0",
+       "33.119.0",
+       "4.0.0"
+      ]
+     },
+     "given_names": [],
+     "grader": "regex_write",
+     "notes": "",
+     "prompt": "Write a Python regular expression for a version number `MAJOR.MINOR.PATCH`: three whole numbers separated by dots, e.g. `0.0.92`. A number is `0` or has no leading zero. No prefix and no suffix. It will be used with `re.fullmatch` on each string.\n\nShould match:\n  81.8.0\n  0.795.0\n  0.59.1\n  365.0.0\n  28.0.0\n  606.405.0\n  73.977.5\n  827.305.0\n  33.119.0\n  4.0.0\n\nShould not match:\n  0,45.183\n  0..153.0\n  0.0.0-rc1\n  beta.111.0\n  14.0.0-rc1\n  5.x.0\n  62..25.5\n  0.776\n  a.854.0\n  0.0.4-beta",
+     "references": [
+      "```regex\n(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\n```",
+      "```regex\n^(0|[1-9][0-9]*)(\\.(0|[1-9][0-9]*)){2}$\n```",
+      "```python\nimport re\nVERSION = re.compile(r\"(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\")\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```regex\n\\d+\\.\\d+\\.\\d+\n```",
+      "```regex\n\\d\\.\\d\\.\\d\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "regex",
+     "check": {
+      "flags": "",
+      "hidden_neg": [
+       "1.859.0.75",
+       "768.5.0.18",
+       "9.0.0.",
+       "12.0.0.",
+       "0,0.90",
+       "0.76.128.6",
+       "506.65",
+       "v9.166.0",
+       "4.0.4.",
+       "681.0",
+       "0.0",
+       "03.88.0",
+       "v0.539.78",
+       "0.9",
+       "4.x.0",
+       "978..81.389",
+       "3.0.4.",
+       "721.171",
+       "0.782",
+       "8.0"
+      ],
+      "hidden_pos": [
+       "8.0.916",
+       "0.6.4",
+       "0.0.61",
+       "616.0.93",
+       "0.0.0",
+       "68.7.0",
+       "6.261.378",
+       "0.5.0",
+       "9.6.0",
+       "1.861.2",
+       "853.0.0",
+       "8.5.0",
+       "54.91.258",
+       "583.0.4",
+       "71.0.0",
+       "5.0.20",
+       "0.8.399",
+       "0.0.533",
+       "5.0.0",
+       "1.0.0"
+      ],
+      "mode": "fullmatch",
+      "negatives": [
+       "412.0.0-beta",
+       "853,195.0",
+       "315.0.01",
+       "3.0.326.63",
+       "405.49.0.0",
+       "v70.0.489",
+       "6.31.beta",
+       "83..0.0",
+       "0,48.379",
+       "0.2"
+      ],
+      "positives": [
+       "837.6.0",
+       "5.8.335",
+       "4.0.0",
+       "1.8.0",
+       "95.95.10",
+       "0.109.96",
+       "9.4.205",
+       "0.0.9",
+       "8.3.696",
+       "74.5.0"
+      ]
+     },
+     "given_names": [],
+     "grader": "regex_write",
+     "notes": "",
+     "prompt": "Write a Python regular expression for a version number `MAJOR.MINOR.PATCH`: three whole numbers separated by dots, e.g. `3.17.0`. A number is `0` or has no leading zero. No prefix and no suffix. It will be used with `re.fullmatch` on each string.\n\nShould match:\n  837.6.0\n  5.8.335\n  4.0.0\n  1.8.0\n  95.95.10\n  0.109.96\n  9.4.205\n  0.0.9\n  8.3.696\n  74.5.0\n\nShould not match:\n  412.0.0-beta\n  853,195.0\n  315.0.01\n  3.0.326.63\n  405.49.0.0\n  v70.0.489\n  6.31.beta\n  83..0.0\n  0,48.379\n  0.2",
+     "references": [
+      "```regex\n(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\n```",
+      "```regex\n^(0|[1-9][0-9]*)(\\.(0|[1-9][0-9]*)){2}$\n```",
+      "```python\nimport re\nVERSION = re.compile(r\"(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\")\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```regex\n\\d+\\.\\d+\\.\\d+\n```",
+      "```regex\n\\d\\.\\d\\.\\d\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": false,
+    "group": "regex",
+    "human_graded": false,
+    "id": "sk_regex_read_optional_group_2",
+    "lang": "regex",
+    "level": "L2",
+    "restraint": null,
+    "split": "dev",
+    "template": "regex_read_optional_group",
+    "tool_mode": false,
+    "type": "regex",
+    "variant": "read"
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "text",
+     "check": {
+      "answer": [
+       "F",
+       "H"
+      ],
+      "flags": "",
+      "labels": {
+       "A": "5838-",
+       "B": "33437",
+       "C": "029-161",
+       "D": "4621-2",
+       "E": "abc",
+       "F": "6768",
+       "G": "8009-050",
+       "H": "9266-00"
+      },
+      "mode": "fullmatch",
+      "pattern": "^\\d{4}(-\\d{2})?$"
+     },
+     "given_names": [],
+     "grader": "regex_read",
+     "notes": "",
+     "prompt": "Which of these strings does `^\\d{4}(-\\d{2})?$` fully match (Python `re.fullmatch`)? Start your answer with the letters, like \"B, D\".\n\nA `5838-`  B `33437`  C `029-161`  D `4621-2`  E `abc`  F `6768`  G `8009-050`  H `9266-00`",
+     "references": [
+      "F, H",
+      "F, H. The group `(-\\d{2})?` is optional and the anchors require the whole string to match.",
+      "**F, H**"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "A, B",
+      "A, B, C, D, E, F, G, H"
+     ]
+    },
+    "2": {
+     "answer_kind": "text",
+     "check": {
+      "answer": [
+       "C",
+       "H"
+      ],
+      "flags": "",
+      "labels": {
+       "A": "98-11288",
+       "B": "1953",
+       "C": "681-4545",
+       "D": "abc",
+       "E": "271-",
+       "F": "565-90228",
+       "G": "312-269",
+       "H": "976"
+      },
+      "mode": "fullmatch",
+      "pattern": "^\\d{3}(-\\d{4})?$"
+     },
+     "given_names": [],
+     "grader": "regex_read",
+     "notes": "",
+     "prompt": "Which of these strings does `^\\d{3}(-\\d{4})?$` fully match (Python `re.fullmatch`)? Start your answer with the letters, like \"B, D\".\n\nA `98-11288`  B `1953`  C `681-4545`  D `abc`  E `271-`  F `565-90228`  G `312-269`  H `976`",
+     "references": [
+      "C, H",
+      "C, H. The group `(-\\d{4})?` is optional and the anchors require the whole string to match.",
+      "**C, H**"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "A, B",
+      "A, B, C, D, E, F, G, H"
+     ]
+    },
+    "3": {
+     "answer_kind": "text",
+     "check": {
+      "answer": [
+       "E"
+      ],
+      "flags": "",
+      "labels": {
+       "A": "7-8292",
+       "B": "87-42",
+       "C": "792",
+       "D": "54-",
+       "E": "62",
+       "F": "abc"
+      },
+      "mode": "fullmatch",
+      "pattern": "^\\d{2}(-\\d{3})?$"
+     },
+     "given_names": [],
+     "grader": "regex_read",
+     "notes": "",
+     "prompt": "Which of these strings does `^\\d{2}(-\\d{3})?$` fully match (Python `re.fullmatch`)? Start your answer with the letters, like \"B, D\".\n\nA `7-8292`  B `87-42`  C `792`  D `54-`  E `62`  F `abc`",
+     "references": [
+      "E",
+      "E. The group `(-\\d{3})?` is optional and the anchors require the whole string to match.",
+      "**E**"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "A, B",
+      "A, B, C, D, E, F"
+     ]
+    }
+   }
+  }
+ ],
+ "generator": "edat-sidekick-gen/1",
+ "group": "regex",
+ "split": "dev"
+}

@@ -1,0 +1,640 @@
+"""The routine agentic run on this Mac: both loops, one model resident at a time.
+
+    python -m edat.cases.agentic_run plan      --out OUT [--plan smoke|routine] [--measured DIR]
+    python -m edat.cases.agentic_run preflight --out OUT [--engine] [--weights]
+    python -m edat.cases.agentic_run run       --out OUT --plan smoke|routine --board-version V
+                                               [--lock DIR] [--max-minutes N]
+
+What a run does (docs: edat/cases/RUN_SHEET.md):
+
+* **Selection.** `routine` is the core set (spec 02 §5.6.4, §11): every case
+  tagged `core` in the development split and in the private held-out split
+  (the 7 headline families, privacy, preferences, memory, date-time,
+  oversized results and the long sessions), plus the noisy variants of each
+  split's 30 core seeds. English only. The scaling probe is not in it.
+  `smoke` is 9 development cases (`smoke_cases`), one trial, on the first model.
+  Every record carries `selection` {tier, manifest_sha256, n_items,
+  ci95_half_width_pts}; the manifest (the sorted case ids) is written to
+  OUT/<plan>/selection.json.
+* **Models.** The two references, tuned first: `Gemma-Wisp r5` then base
+  Gemma 4 E4B, each in the thinking mode it ships in (off) with the author's
+  sampling (temperature 1.0, top_p 0.95, top_k 64) sent on every request and
+  recorded as `author_recommended`. Trials 1-3: world seed t, sampling seed
+  1000 + t.
+* **Loops.** Each case-trial runs through the minimal reference loop (the
+  headline, suite `reference-loop`) and, for the column's cases (§5.6.1:
+  assistant-lane core of the 7 families with privacy, date-time and
+  oversized), Harbor's own Ask turn (suite `harbor-loop`); a column case
+  Harbor's host refuses is recorded `not_applicable` without a model call.
+  The neutral lane, preferences, memory, long sessions and noisy variants
+  have no Harbor-loop trial. Harbor's loop runs in this process
+  from the repository's code; it needs no Harbor port, only oMLX on
+  127.0.0.1.
+* **Isolation.** The process first runs Toolbench's `isolate()`: a throwaway
+  Harbor home, outbound network refused except loopback to the engine port,
+  subprocesses refused except read-only probes. Every tool is simulated (an
+  in-memory world); nothing a model writes is executed.
+* **Safety.** The run takes the shared heavy-job lock (mkdir; it stops if the
+  lock exists and removes it only if it made it), refuses to start while
+  Harbor or Wisp is open, saves the engine's loaded models, unloads every
+  other chat model before each model, and restores the saved set at the end,
+  also after a failure or a stop. It stops between trials on OUT/STOP, the
+  time limit, free memory under 15 %, more than 2 % engine faults after 50
+  trials, or Harbor opening. A second `run` with the same OUT resumes: trials
+  already recorded are not run again.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import math
+import os
+import random
+import subprocess
+import sys
+import tempfile
+import time
+from contextlib import contextmanager
+from dataclasses import dataclass, replace
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[2]
+LOCK = "/private/tmp/claude-501/wisp-heavy.lock"
+TRIALS = 3
+MEMORY_FLOOR_PCT = 15
+EXCLUDED_LIMIT = 0.02
+EXCLUDED_FROM = 50
+HOST_CHECK_EVERY = 10                 # trials between Harbor and memory checks
+ASSUMED_S_PER_TURN = 10.0             # spec 02 §11: about 10 s per single-turn case-trial on the M5 Pro
+SMOKE_FAMILIES = ("select", "parallel", "sequential", "mixed", "pev", "recovery", "abstain")
+SUITE_ORDER = ("reference-loop", "harbor-loop")
+APPS = ("MacOS/Harbor", "MacOS/Wisp")   # either shares oMLX with this run
+
+
+@dataclass(frozen=True)
+class ModelEntry:
+    engine_id: str
+    label: str
+    role: str
+    thinking: bool                    # the mode it ships in
+    sampling: dict
+    basis: str
+
+
+def references() -> list[ModelEntry]:
+    """The two references in run order (tuned first), from the sidekick ceiling's model facts."""
+    from edat.sidekick.ceiling.models import FIRST, KNOWN, SAMPLING
+    out = []
+    for eid in reversed(FIRST):       # FIRST lists base then tuned; the tuned reference runs first here
+        label, role, ships = KNOWN[eid]
+        prof = SAMPLING["gemma4"][ships][0]
+        out.append(ModelEntry(eid, label, role, ships, dict(prof.sampling), prof.basis))
+    return out
+
+
+def sampling_for(m: ModelEntry):
+    from edat.models.base import Sampling
+    return Sampling(**m.sampling, source="author_recommended")
+
+
+# ------------------------------------------------------------------ selection
+
+@dataclass(frozen=True)
+class Unit:
+    model: str
+    suite: str
+    split: str
+    case_id: str
+    trial: int
+
+    @property
+    def key(self) -> tuple:
+        return (self.model, self.suite, self.split, self.case_id, self.trial)
+
+
+def variant_rng(split: str) -> random.Random:
+    return random.Random(f"agentic-routine|variants|{split}")
+
+
+def core_cases(split: str) -> list[dict]:
+    from edat.cases.loader import load_split
+    return [c for c in load_split(split) if "core" in (c.get("tags") or [])]
+
+
+def noisy_core(split: str) -> list[dict]:
+    """The noisy variants of the split's 30 core seeds (§3.18): typo, transcript, paraphrase."""
+    from edat.cases.loader import load_split
+    from edat.cases.variants import build_variants, select_seeds
+    rng = variant_rng(split)
+    seeds = select_seeds(load_split(split), rng)
+    return build_variants(seeds.core, rng).variants
+
+
+def smoke_cases() -> list[dict]:
+    """One single-turn development case per headline family that both loops run (date-time cases last),
+    one neutral case and one multi-turn preferences case (reference loop only): 9 cases, 16 trials."""
+    from edat.cases.harbor_loop import in_column
+    from edat.cases.variants import single_turn
+    dev = sorted(core_cases("dev"), key=lambda c: ("datetime" in (c.get("tags") or []), c["id"]))
+    out = [next(c for c in dev if c["family"] == f and in_column(c) and single_turn(c)) for f in SMOKE_FAMILIES]
+    out.append(next(c for c in dev if c["lane"] == "neutral" and c["family"] == "select" and single_turn(c)))
+    out.append(next(c for c in dev if c["lane"] == "assistant" and c["family"] == "preferences"
+                    and not single_turn(c)))
+    return out
+
+
+def select(plan: str) -> list[dict]:
+    if plan == "smoke":
+        return smoke_cases()
+    if plan != "routine":
+        raise ValueError(f"unknown plan {plan!r}")
+    out = []
+    for split in ("dev", "heldout"):
+        out.extend(core_cases(split))
+        out.extend(noisy_core(split))
+    return out
+
+
+def interleave(cases: list[dict]) -> list[dict]:
+    """Families round-robin within each split, so a run stopped early still covers every family."""
+    out = []
+    for split in ("dev", "heldout"):
+        fam: dict[str, list[dict]] = {}
+        for c in sorted((c for c in cases if c.get("split", "dev") == split), key=lambda c: c["id"]):
+            fam.setdefault(c["family"], []).append(c)
+        queues = [fam[k] for k in sorted(fam)]
+        while any(queues):
+            for q in queues:
+                if q:
+                    out.append(q.pop(0))
+    return out
+
+
+def manifest(cases: list[dict], plan: str) -> dict:
+    ids = sorted(f"{c.get('split', 'dev')}/{c['id']}" for c in cases)
+    sha = hashlib.sha256("\n".join(ids).encode()).hexdigest()
+    groups: dict[str, int] = {}
+    for c in cases:
+        groups[group_of(c)] = groups.get(group_of(c), 0) + 1
+    return {"tier": "core" if plan == "routine" else plan, "manifest_sha256": sha, "n_cases": len(ids),
+            "groups": groups, "case_ids": ids}
+
+
+def group_of(case: dict) -> str:
+    return f"{case.get('split', 'dev')}/{case['lane']}/{case['family']}"
+
+
+def selection_field(man: dict, case: dict) -> dict:
+    n = man["groups"][group_of(case)]
+    return {"tier": man["tier"], "manifest_sha256": man["manifest_sha256"], "n_items": n,
+            "ci95_half_width_pts": round(100 * 1.96 * math.sqrt(0.25 / n), 1)}
+
+
+def user_turns(case: dict) -> int:
+    from edat.cases.bind import bind
+    return max(1, sum(len(s.get("turns") or []) for s in bind(case, 1)["sessions"]))
+
+
+# ------------------------------------------------------------------ the plan and its time
+
+def harbor_column(case: dict) -> bool:
+    """The Harbor-loop column's cases (§5.6.1): assistant-lane core of the 7 families plus privacy,
+    date-time and oversized; never the neutral lane or a noisy variant. Others get no Harbor-loop trial."""
+    from edat.cases.harbor_loop import in_column
+    return in_column(case) and not case.get("variant_of")
+
+
+def units(cases: list[dict], models: list[ModelEntry], trials: int, *, column=None) -> list[Unit]:
+    column = column or harbor_column
+    return [Unit(m.engine_id, suite, c.get("split", "dev"), c["id"], t)
+            for m in models for c in cases for t in range(1, trials + 1) for suite in SUITE_ORDER
+            if suite == "reference-loop" or column(c)]
+
+
+def done_keys(store: Path) -> set[tuple]:
+    out = set()
+    for f in Path(store).glob("runs/*/records.jsonl"):
+        for line in f.read_text().splitlines():
+            if line.strip():
+                r = json.loads(line)
+                out.add((r["model"]["id"], r["suite"], r["split"], r["case_id"], r["trial"]))
+    return out
+
+
+def measured_rates(folder: Path) -> dict[str, float]:
+    """Seconds per user turn, per suite, from a run's timing.jsonl (trials that called the model)."""
+    sums: dict[str, list[float]] = {}
+    for f in Path(folder).rglob("timing.jsonl"):
+        for line in f.read_text().splitlines():
+            if line.strip():
+                t = json.loads(line)
+                if t.get("status") == "ok":
+                    s = sums.setdefault(t["suite"], [0.0, 0.0])
+                    s[0] += t["seconds"]
+                    s[1] += t["turns"]
+    return {k: v[0] / v[1] for k, v in sums.items() if v[1]}
+
+
+def estimate(cases: list[dict], models: list[ModelEntry], trials: int, *, rates: dict[str, float] | None = None,
+             harbor_applicable=None, done: set[tuple] = frozenset(), column=None) -> dict:
+    """Hours per model and suite (and per split): user turns x trials x seconds per turn (measured,
+    else 10 s). A column case Harbor's host refuses (recorded not_applicable) costs nothing."""
+    rates = rates or {}
+    turns = {(c.get("split", "dev"), c["id"]): user_turns(c) for c in cases}
+    applicable = {(c.get("split", "dev"), c["id"]): (harbor_applicable(c) if harbor_applicable else True)
+                  for c in cases}
+    rows: dict[str, dict] = {}
+    for u in units(cases, models, trials, column=column):
+        if u.key in done:
+            continue
+        m = rows.setdefault(u.model, {**{s: {"case_trials": 0, "turns": 0, "hours": 0.0} for s in SUITE_ORDER},
+                                      "by_split_hours": {}})
+        if u.suite == "harbor-loop" and not applicable[(u.split, u.case_id)]:
+            continue
+        n = turns[(u.split, u.case_id)]
+        h = n * rates.get(u.suite, ASSUMED_S_PER_TURN) / 3600
+        m[u.suite]["case_trials"] += 1
+        m[u.suite]["turns"] += n
+        m[u.suite]["hours"] += h
+        m["by_split_hours"][u.split] = m["by_split_hours"].get(u.split, 0.0) + h
+    for m in rows.values():
+        for k in SUITE_ORDER:
+            m[k]["hours"] = round(m[k]["hours"], 2)
+        m["by_split_hours"] = {k: round(v, 2) for k, v in m["by_split_hours"].items()}
+        m["total_hours"] = round(sum(m[k]["hours"] for k in SUITE_ORDER), 2)
+    return {"seconds_per_turn": {s: rates.get(s, ASSUMED_S_PER_TURN) for s in SUITE_ORDER},
+            "rates_source": "measured" if rates else "assumed (spec 02: 10 s per case-trial)",
+            "models": rows, "total_hours": round(sum(m["total_hours"] for m in rows.values()), 2)}
+
+
+# ------------------------------------------------------------------ host checks
+
+def app_running() -> str | None:
+    for name in APPS:
+        if subprocess.run(["pgrep", "-f", name], capture_output=True, text=True).stdout.strip():
+            return name.split("/")[-1]
+    return None
+
+
+def memory_free_pct() -> int | None:
+    from edat.sidekick.ceiling.run import memory_free_pct as mp
+    return mp()
+
+
+def engine_key() -> str | None:
+    """oMLX's own API key, for loopback requests only. Never printed or written."""
+    try:
+        s = json.loads((Path.home() / ".omlx" / "settings.json").read_text())
+        return (s.get("auth") or {}).get("api_key") or None
+    except (OSError, ValueError):
+        return None
+
+
+def engine_version() -> str | None:
+    try:
+        v = json.loads((Path.home() / ".omlx" / "settings.json").read_text()).get("version")
+        return str(v)[:64] if v else None
+    except (OSError, ValueError):
+        return None
+
+
+def outside_repo(out: Path) -> bool:
+    out = Path(out).expanduser().resolve()
+    return not (out == REPO or REPO in out.parents)
+
+
+def under_private(out: Path) -> bool:
+    p = os.environ.get("EDAT_PRIVATE_DIR")
+    return bool(p) and Path(out).expanduser().resolve().is_relative_to(Path(p).resolve())
+
+
+def preflight(out: Path, *, engine: bool = False, weights: bool = False, lock: str = LOCK,
+              base_url: str = "http://127.0.0.1:8000") -> list[tuple[str, bool, str]]:
+    """Read-only checks; the run starts only if every row is ok. No model is loaded or called.
+    `engine` lists the engine's models and what is loaded (GET only); `weights` hashes each reference's
+    weights (several GB read, cached in OUT/weights.json)."""
+    rows: list[tuple[str, bool, str]] = []
+    add = lambda name, ok, detail="": rows.append((name, bool(ok), detail))
+    out = Path(out).expanduser().resolve()
+    add("results folder outside the repository", outside_repo(out), "")
+    add("results folder under $EDAT_PRIVATE_DIR (held-out records)", under_private(out), "")
+    from edat.cases.loader import heldout_dir
+    hd = heldout_dir()
+    add("held-out cases present", bool(hd and hd.is_dir() and any(hd.rglob("*.yaml"))), "")
+    add("heavy-job lock free", not Path(lock).exists(), lock)
+    app = app_running()
+    add("Harbor and Wisp are closed (they share oMLX)", not app, f"{app} is running" if app else "")
+    free = memory_free_pct()
+    add("free memory at least 30%", free is None or free >= 30, f"{free}%" if free is not None else "unknown")
+    import shutil
+    probe = out if out.exists() else out.parent
+    while not probe.exists():
+        probe = probe.parent
+    disk = shutil.disk_usage(probe)
+    add("disk: 5 GB free for results", disk.free > 5e9, f"{disk.free / 1e9:.0f} GB free")
+    from edat.sidekick.ceiling.models import model_dir_from_settings, scan
+    from edat.sidekick.ceiling.run import engine_context
+    mdir = model_dir_from_settings()
+    models = {m.engine_id: m for m in (scan(mdir)[0] if mdir and mdir.is_dir() else [])}
+    for m in references():
+        add(f"model folder: {m.engine_id}", m.engine_id in models, m.label)
+        ctx, src = engine_context(m.engine_id)
+        add(f"context window: {m.engine_id}", ctx is None or ctx >= 16384, f"{ctx} tokens ({src}); needs 16384")
+        if weights and m.engine_id in models:
+            from edat.sidekick.ceiling.run import weights_for
+            add(f"weights_sha256: {m.engine_id}", True, weights_for(out, mdir, models[m.engine_id]))
+    if engine:
+        import httpx
+        from scripts.productbench.engine_prep import _headers
+        try:
+            with httpx.Client(base_url=base_url, headers=_headers(), timeout=30, trust_env=False) as c:
+                ids = [x.get("id") for x in c.get("/v1/models").json().get("data", [])]
+                loaded = [x["id"] for x in c.get("/v1/models/status").json().get("models", []) if x.get("loaded")]
+            for m in references():
+                add(f"engine lists {m.engine_id}", m.engine_id in ids, "")
+            add("engine: loaded now (saved and restored by the run)", True, ", ".join(loaded) or "none")
+        except Exception as exc:  # noqa: BLE001
+            add("engine reachable on loopback", False, f"{type(exc).__name__}")
+    return rows
+
+
+# ------------------------------------------------------------------ the run
+
+@contextmanager
+def heavy_lock(path: str | None):
+    """mkdir the lock or stop; remove it only if this run made it."""
+    if not path:
+        yield
+        return
+    try:
+        os.mkdir(path)
+    except FileExistsError:
+        raise SystemExit(f"{path} exists: another heavy job is running; not starting") from None
+    try:
+        yield
+    finally:
+        os.rmdir(path)
+
+
+class Engine:
+    """One model resident at a time; the engine's loaded set is saved first and restored at the end."""
+
+    def __init__(self, out: Path, *, prep=None) -> None:
+        self.saved = Path(out) / "resident-before.json"
+        self.prep = prep
+        self.touched = False
+
+    def _main(self, argv: list[str]) -> int:
+        if self.prep is None:
+            from scripts.productbench import engine_prep
+            self.prep = engine_prep.main
+        return self.prep(argv)
+
+    def keep(self, engine_id: str) -> None:
+        self.touched = True
+        if self._main(["keep", engine_id, "--save", str(self.saved)]) != 0:
+            raise RuntimeError(f"other chat models are still loaded; {engine_id} was not started")
+
+    def restore(self) -> str:
+        if not self.touched or not self.saved.exists():
+            return "engine untouched"
+        rc = self._main(["restore", str(self.saved)])
+        return "engine restored" if rc == 0 else f"engine restore FAILED (exit {rc}); see {self.saved}"
+
+
+def should_stop(out: Path, t0: float, max_minutes: float | None, statuses: list[str], n: int,
+                *, free=memory_free_pct, app=app_running) -> str | None:
+    if (out / "STOP").exists():
+        return "the STOP file exists"
+    if max_minutes and (time.monotonic() - t0) / 60 >= max_minutes:
+        return f"the {max_minutes:g}-minute limit was reached"
+    if len(statuses) >= EXCLUDED_FROM and statuses.count("excluded") / len(statuses) > EXCLUDED_LIMIT:
+        return f"{statuses.count('excluded')} of {len(statuses)} model trials hit engine faults (over 2%)"
+    if n % HOST_CHECK_EVERY == 0:
+        f = free()
+        if f is not None and f < MEMORY_FLOOR_PCT:
+            return f"free memory {f}% is under {MEMORY_FLOOR_PCT}%"
+        a = app()
+        if a:
+            return f"{a} was opened during the run"
+    return None
+
+
+def device_block(device_id: str) -> dict:
+    from edat.sidekick.ceiling.run import device_block as db
+    return db(device_id)
+
+
+def run(out: Path, *, plan: str, board_version: str, trials: int | None = None, lock: str | None = LOCK,
+        max_minutes: float | None = None, models: list[ModelEntry] | None = None, clients=None,
+        engine: Engine | None = None, isolate: bool = True, weights=None, device_id: str = "this-mac",
+        port: int = 8000, progress=print, host_free=memory_free_pct, host_app=app_running,
+        loops: dict | None = None, column=None) -> dict:
+    """The run. `clients(model, loop_name)` returns the model client for a loop (tests pass stubs);
+    by default oMLX for the reference loop and Harbor's own client for the Harbor loop."""
+    out = Path(out).expanduser().resolve()
+    if not outside_repo(out):
+        raise SystemExit("results go to a private folder outside the repository")
+    if plan == "routine" and not under_private(out):
+        raise SystemExit("the routine run includes held-out cases: OUT must be under $EDAT_PRIVATE_DIR")
+    trials = trials or (1 if plan == "smoke" else TRIALS)
+    models = models or (references()[:1] if plan == "smoke" else references())
+    if clients is None and host_app():
+        raise SystemExit(f"{host_app()} is running (it shares oMLX): close it first; nothing was touched")
+    folder = out / plan
+    folder.mkdir(parents=True, exist_ok=True)
+    report = {"plan": plan, "started_at": _now(), "models": [m.engine_id for m in models], "trials": trials}
+    with heavy_lock(lock):
+        if isolate:
+            _isolate(folder, port)
+        cases = interleave(select(plan))
+        man = manifest(cases, plan)
+        (folder / "selection.json").write_text(json.dumps(man, indent=1))
+        engine = engine or (Engine(out) if clients is None else Engine(out, prep=lambda argv: 0))
+        try:
+            report.update(_run_models(folder, cases, man, models, trials, board_version=board_version,
+                                      max_minutes=max_minutes, clients=clients, engine=engine, weights=weights,
+                                      device_id=device_id, port=port, progress=progress,
+                                      host_free=host_free, host_app=host_app, loops=loops, column=column))
+        except BaseException as exc:
+            report["failed"] = f"{type(exc).__name__}: {str(exc)[:300]}"
+            raise
+        finally:
+            report["engine"] = engine.restore()
+            report["finished_at"] = _now()
+            (folder / "run-report.json").write_text(json.dumps(report, indent=1, default=str))
+            if progress:
+                progress(f"{plan}: {report.get('stopped') or report.get('failed') or 'finished'}; {report['engine']}")
+    return report
+
+
+def _now() -> str:
+    from edat.grading.records import utc_now
+    return utc_now()
+
+
+def _isolate(folder: Path, port: int) -> None:
+    from scripts.toolbench import runner
+    home = Path(tempfile.mkdtemp(prefix="edat-agentic-home-"))
+    runner.isolate(home, omlx_port=port)
+    key = engine_key()
+    if key:                                    # Harbor's client reads it; loopback only, never written down
+        os.environ.setdefault(runner.OPENAI_KEY_ENV, key)
+
+
+def _default_clients(port: int):
+    from edat.cases.harbor_loop import open_session
+    from edat.models import OmlxClient
+    cache: dict = {}
+
+    def get(m: ModelEntry, loop_name: str):
+        k = (m.engine_id, loop_name)
+        if k not in cache:
+            if loop_name == "harbor-loop":
+                cache[k] = open_session(m.engine_id, omlx_port=port)     # isolate() already ran
+            else:
+                cache[k] = OmlxClient(m.engine_id, base_url=f"http://127.0.0.1:{port}", api_key=engine_key())
+        return cache[k]
+    return get
+
+
+def _run_models(folder: Path, cases, man, models, trials, *, board_version, max_minutes, clients, engine,
+                weights, device_id, port, progress, host_free, host_app, loops=None, column=None) -> dict:
+    from edat.cases.harbor_loop import HarborLoop
+    from edat.cases.runner import run_trial
+    from edat.grading.records import RunWriter
+    from edat.loop import LoopSettings, get_loop
+    from edat.sidekick.records import harness_commit
+    store = folder / "store"
+    done = done_keys(store)
+    commit, dirty = harness_commit()
+    loops = loops or {"reference-loop": get_loop("reference"), "harbor-loop": HarborLoop()}
+    get_client = clients or _default_clients(port)
+    device = device_block(device_id)
+    by_key = {(c.get("split", "dev"), c["id"]): c for c in cases}
+    t0 = time.monotonic()
+    statuses: list[str] = []
+    n = 0
+    counts = {"ran": 0, "skipped_done": 0, "errors": 0}
+    timing = (folder / "timing.jsonl").open("a")
+    try:
+        for m in models:
+            todo = [u for u in units(cases, [m], trials, column=column) if u.key not in done]
+            counts["skipped_done"] += len(units(cases, [m], trials, column=column)) - len(todo)
+            if not todo:
+                continue
+            engine.keep(m.engine_id)
+            sha = weights(m) if weights else _weights(folder, m)
+            model = {"id": m.engine_id, "role": m.role, "weights_sha256": sha, "headline_entry": True}
+            runtime = {"reference-loop": {"name": "omlx", "version": engine_version()},
+                       "harbor-loop": {"name": "harbor-omlx", "version": engine_version(), "commit": commit}}
+            settings = LoopSettings(thinking=m.thinking, sampling=sampling_for(m))
+            with RunWriter(store) as w:
+                for u in todo:
+                    why = should_stop(folder, t0, max_minutes, statuses, n, free=host_free, app=host_app)
+                    if why:
+                        return {"stopped": why, "counts": counts}
+                    case = by_key[(u.split, u.case_id)]
+                    started = time.monotonic()
+                    try:
+                        r = run_trial(case, get_client(m, u.suite), trial=u.trial, loop=loops[u.suite],
+                                      settings=replace(settings))
+                    except Exception as exc:  # noqa: BLE001  (logged, not recorded; a resume retries it)
+                        counts["errors"] += 1
+                        _log(folder / "errors.jsonl", {**u.__dict__, "error": f"{type(exc).__name__}: {exc}"[:500]})
+                        if counts["errors"] >= 5:
+                            return {"stopped": "5 trials raised errors (see errors.jsonl)", "counts": counts}
+                        continue
+                    secs = time.monotonic() - started
+                    rec = w.append(r, board_version=board_version, harness_commit=commit + ("-dirty" if dirty else ""),
+                                   model=model, runtime=runtime[u.suite], device=device,
+                                   selection=selection_field(man, case))
+                    if rec["status"] != "not_applicable":
+                        statuses.append(rec["status"])
+                    timing.write(json.dumps({**u.__dict__, "status": rec["status"], "seconds": round(secs, 3),
+                                             "turns": user_turns(case)}) + "\n")
+                    timing.flush()
+                    n += 1
+                    counts["ran"] += 1
+                    if progress and n % 25 == 0:
+                        progress(f"{m.engine_id}: {n} trials, {(time.monotonic() - t0) / 60:.0f} min")
+    finally:
+        timing.close()
+    return {"counts": counts}
+
+
+def _weights(folder: Path, m: ModelEntry) -> str:
+    from edat.sidekick.ceiling.models import model_dir_from_settings, scan
+    from edat.sidekick.ceiling.run import weights_for
+    mdir = model_dir_from_settings()
+    found = {x.engine_id: x for x in scan(mdir)[0]} if mdir else {}
+    if m.engine_id not in found:
+        raise RuntimeError(f"no model folder for {m.engine_id}")
+    return weights_for(folder.parent, mdir, found[m.engine_id])
+
+
+def _log(path: Path, row: dict) -> None:
+    with path.open("a") as fh:
+        fh.write(json.dumps(row, default=str) + "\n")
+
+
+# ------------------------------------------------------------------ CLI
+
+def _harbor_applicable():
+    from edat.cases.bind import bind
+    from edat.cases.harbor_loop import HarborLoop
+    loop = HarborLoop()
+    return lambda c: loop.unsupported(bind(c, 1)) is None
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(prog="python -m edat.cases.agentic_run", description=__doc__.split("\n")[0])
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    p = sub.add_parser("plan", help="the selection and its time (no model, no engine)")
+    p.add_argument("--out", required=True)
+    p.add_argument("--plan", choices=("smoke", "routine"), default="routine")
+    p.add_argument("--measured", help="a folder with timing.jsonl (the smoke run): re-estimate from measured speed")
+    f = sub.add_parser("preflight", help="read-only checks before a run")
+    f.add_argument("--out", required=True)
+    f.add_argument("--engine", action="store_true", help="also list the engine's models (GET only)")
+    f.add_argument("--weights", action="store_true", help="also hash both references' weights (read only)")
+    f.add_argument("--lock", default=LOCK)
+    r = sub.add_parser("run", help="run a plan on oMLX (needs the go-ahead)")
+    r.add_argument("--out", required=True)
+    r.add_argument("--plan", choices=("smoke", "routine"), required=True)
+    r.add_argument("--board-version", required=True)
+    r.add_argument("--trials", type=int)
+    r.add_argument("--lock", default=LOCK)
+    r.add_argument("--max-minutes", type=float)
+    r.add_argument("--port", type=int, default=int(os.environ.get("TINYAGENT_ENGINE_PORT", "8000")))
+    r.add_argument("--device-id", default="this-mac")
+    a = ap.parse_args(argv)
+    out = Path(a.out).expanduser()
+    if a.cmd == "preflight":
+        rows = preflight(out, engine=a.engine, weights=a.weights, lock=a.lock)
+        for name, ok, detail in rows:
+            print(f"{'ok  ' if ok else 'FAIL'}  {name}" + (f"  ({detail})" if detail else ""))
+        return 0 if all(ok for _, ok, _ in rows) else 1
+    if a.cmd == "plan":
+        _isolate(Path(tempfile.mkdtemp(prefix="edat-agentic-plan-")), 8000)   # no request is sent
+        cases = select(a.plan)
+        models = references()[:1] if a.plan == "smoke" else references()
+        trials = 1 if a.plan == "smoke" else TRIALS
+        rates = measured_rates(Path(a.measured)) if a.measured else None
+        done = done_keys(out / a.plan / "store") if (out / a.plan / "store").exists() else set()
+        man = manifest(cases, a.plan)
+        est = estimate(cases, models, trials, rates=rates, harbor_applicable=_harbor_applicable(), done=done)
+        print(json.dumps({"cases": man["n_cases"], "manifest_sha256": man["manifest_sha256"],
+                          "already_recorded": len(done), **est}, indent=1))
+        return 0
+    import signal
+    signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))     # a kill still restores the engine and the lock
+    rep = run(out, plan=a.plan, board_version=a.board_version, trials=a.trials, lock=a.lock,
+              max_minutes=a.max_minutes, port=a.port, device_id=a.device_id)
+    print(json.dumps({k: v for k, v in rep.items() if k != "models"}, indent=1, default=str))
+    return 0 if not rep.get("failed") else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

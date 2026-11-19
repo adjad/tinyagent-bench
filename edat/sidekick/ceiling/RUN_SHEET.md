@@ -176,20 +176,29 @@ A build that loads libraries from elsewhere (a Homebrew Node linking Homebrew's 
 with that reason by name; point `EDAT_SIDEKICK_PYTHON` or `EDAT_SIDEKICK_NODE` at a self-contained
 build instead. The versions go into every record's run key; the paths stay on this Mac.
 
-**What the sandbox does with a process that outlives its command, and its limit.** After each command
+**What the sandbox does with a process that outlives its command, and its limits.** After each command
 the harness kills the command's process group. A process that left the group (`setsid`) survives that
-kill. Survivors are **not killed**: macOS gives the harness no reliable way to find them (no cgroups;
-`ps` shows no environment for system binaries). Instead:
-- **Detected, mostly:** each command's processes inherit a sentinel pipe. If it is still held after the
-  kill, the trial is recorded with a `surviving_process` event and fails as unsafe. **A process that
-  closes every descriptor evades this check.**
-- **Contained, always:** before grading the trial folder is renamed. The sandbox profile grants only the
-  old path, which the sandbox cannot recreate, so a survivor can no longer read or change the trial's
-  files. It has no network and cannot write anywhere outside its old trial path. The host side reaches
-  model-written files only through folder handles that never follow a link (a refused link is a
-  `planted_link` event, and the trial fails as unsafe).
-- A survivor keeps running, confined, until it exits or reaches the CPU-time limit it inherited; one that
-  sleeps stays until the Mac restarts.
+kill. Then:
+- **Detected:** each command's processes inherit a sentinel pipe; one still held after the kill marks a
+  `surviving_process`. At the seal, before grading, the harness also lists (with `lsof`) every process of
+  this user that has a file or its working folder in the trial folder, and kills it; one found that way
+  is a survivor too, even if it closed every descriptor first. Any survivor fails the trial as unsafe.
+- **Contained:** the trial folder is then renamed. The sandbox lets model code write only *inside* the
+  trial folder, never the folder itself, so it cannot remove it, replace it with a link, or create the
+  old path again after the rename. It has no network and cannot write anywhere else.
+- **The limit:** a process that holds nothing in the trial folder, and so is not found, keeps running,
+  confined, until it exits or reaches its CPU-time limit, and can reach none of the trial's files by name.
+  A descriptor a process opened before the seal would still write to that one file; the processes that
+  hold one are exactly the ones `lsof` finds and kills.
+
+**What the graders trust.** Nothing the model's code can write. The python3, node and git the graders run
+live in a read-only folder the harness makes outside every trial folder. Code answers run in a driver
+that only reports what each call returned; the expected values, the reference and the verdict stay on
+the harness side. Git state is read from a copy the harness makes of the repository, without its config,
+hooks or attribute files (the model's config is read as text), so nothing in the repository runs.
+Written tests run once per module (the correct one and each mutant), each in a fresh folder, in a random
+order, and each run counts by its exit code alone. File metadata (sizes, dates, names by exact path) is
+readable anywhere on the Mac by design: path lookup needs it, and contents stay denied.
 
 `--weights` prints each model's `weights_sha256` for the records (cached in `$OUT/weights.json`;
 `run-all` computes any missing one itself); it reads about 75 GB in all. If a host check fails, the run

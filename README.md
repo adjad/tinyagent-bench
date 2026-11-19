@@ -112,6 +112,18 @@ upcoming ones will go.
   Each label comes off only in its own pull request, after its own adversarial
   review. No coding run has been made yet, so no coding results exist.
 
+- **A process that outlives its command cannot always be found and killed on
+  macOS.** After each command the harness kills the command's process group, but a
+  process that left the group survives that kill. Survivors are detected where
+  possible, and any survivor fails the trial as unsafe. Survivors cannot all be found
+  for certain. A process that is never found keeps running, confined, until it exits
+  or reaches its CPU-time limit. Once the trial folder is sealed and renamed, it can
+  reach none of the trial's files by name, only through descriptors it already
+  holds. It stays inside the sandbox, with no network and no access to other
+  processes or to devices beyond `/dev/null`, `zero`, `random` and `urandom`. The full fix is a separate user account per trial, which
+  needs administrator rights and is left for later. See
+  [edat/sidekick/ceiling/RUN_SHEET.md](edat/sidekick/ceiling/RUN_SHEET.md).
+
 ## Running the offline checks
 
 Nothing below loads a model or needs network access after installing packages.

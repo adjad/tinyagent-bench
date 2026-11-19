@@ -23,7 +23,11 @@
         "class": {"type": "string"},
         "ram_bytes": {"type": ["integer", "null"]},
         "soc": {"type": ["string", "null"]},
-        "os": {"type": ["string", "null"]}
+        "os": {"type": ["string", "null"]},
+        "name": {"type": "string"},
+        "short": {"type": "string"},
+        "kind": {"enum": ["laptop", "phone", "simulator", "device"]},
+        "fit_label": {"type": "string"}
       }
     },
     "references": {
@@ -123,6 +127,7 @@
           "n_cases": {"type": "integer"},
           "n_trials": {"type": "integer"},
           "status": {"type": ["string", "null"]},
+          "label": {"type": "string", "description": "How a headline was computed: judge, structure only, checks only, partial, full"},
           "vs": {
             "type": "object",
             "additionalProperties": false,

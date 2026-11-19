@@ -63,19 +63,46 @@ def device_id(rec: dict) -> str:
     return "cloud" if rec.get("device") is None else rec["device"]["id"]
 
 
+def selection_of(rec: dict) -> dict | None:
+    """The record's selection tier (core, extended, full) and manifest, or None.
+
+    Reads the `selection` field; records the media runner wrote before the field
+    existed carry the same values in `metrics` (`media_tier`, `manifest_sha256`,
+    `tier_n`, `ci95_half_width_pts`) and are read the same way."""
+    sel = rec.get("selection")
+    if sel:
+        return sel
+    m = rec.get("metrics") or {}
+    if isinstance(m.get("media_tier"), str):
+        return {"tier": m["media_tier"], "manifest_sha256": m.get("manifest_sha256"),
+                "n_items": m.get("tier_n"), "ci95_half_width_pts": m.get("ci95_half_width_pts")}
+    return None
+
+
+def selection_key(rec: dict) -> str | None:
+    """`<tier>/<manifest sha256>`: two records pool only when this is equal (None for both included)."""
+    sel = selection_of(rec)
+    return None if sel is None else f"{sel['tier']}/{sel.get('manifest_sha256')}"
+
+
 def comparison_key(rec: dict) -> dict:
     """What every record of one run shares, and what two runs must share to be
     merged or compared (thinking is checked per entry, not per run)."""
-    return {"board_version": rec["board_version"], "harness_commit": rec["harness_commit"],
-            "sampling_class": sampling_class(rec["settings"]["sampling_source"]),
-            "lang": rec["lang"], "tier": rec["tier"],
-            "policy_fingerprint": rec["settings"].get("policy_fingerprint")}
+    key = {"board_version": rec["board_version"], "harness_commit": rec["harness_commit"],
+           "sampling_class": sampling_class(rec["settings"]["sampling_source"]),
+           "lang": rec["lang"], "tier": rec["tier"],
+           "policy_fingerprint": rec["settings"].get("policy_fingerprint")}
+    sel = selection_key(rec)
+    if sel is not None:
+        key["selection"] = sel
+    return key
 
 
-_HARD = ("board_version", "harness_commit", "sampling_class", "lang", "tier")
+_HARD = ("board_version", "harness_commit", "sampling_class", "lang", "tier", "selection")
 _LABELS = {"board_version": "board version", "harness_commit": "harness commit",
            "sampling_class": "sampling", "lang": "language", "tier": "tier",
-           "policy_fingerprint": "run policy"}
+           "policy_fingerprint": "run policy", "selection": "selection tier (core/extended/full and manifest)"}
+WITHOUT_SELECTION = tuple(f for f in _HARD if f != "selection")
 
 
 def check_same(a: dict, b: dict, *, what: str, fields: Iterable[str] = _HARD,

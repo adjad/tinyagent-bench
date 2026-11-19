@@ -82,6 +82,8 @@ def _vs_row(e: dict, tier: str, key: str, as_pct: bool) -> dict:
                          "n_cases": d.get("n_cases"), "wins": d.get("wins"), "losses": d.get("losses")}
             if d.get("warning"):
                 out[role]["warning"] = d["warning"]
+            if t.get("cross_selection"):
+                out[role]["cross_selection"] = t["cross_selection"]
             if "ratio" in d:
                 out[role]["ratio"] = _r(d["ratio"])
         else:
@@ -295,6 +297,22 @@ def findings_file(records: list[dict], raw_of, *, board: str, device_id: str, sa
     return out
 
 
+def _split_selection(e: dict, rows: list[dict]) -> None:
+    """Rows of a selection block keep the plain tier name and carry `selection`
+    ({tier, manifest, n_items, ci95_half_width_pts}), so the board can print
+    "core, ±x points" beside the number and never puts two selections in one cell."""
+    from edat.results.aggregate import SELECTION_SEP, base_view
+    for row in rows:
+        key = row["tier"]
+        if SELECTION_SEP not in key:
+            continue
+        sel = (e["tiers"].get(key) or {}).get("selection") or {}
+        row["tier"] = base_view(key)
+        row["selection"] = {"tier": sel.get("tier") or key.split(SELECTION_SEP, 1)[1],
+                            "manifest": (sel.get("manifest_sha256") or "")[:12] or None,
+                            "n_items": sel.get("n_items"), "ci95_half_width_pts": _r(sel.get("ci95_half_width_pts"))}
+
+
 def site_board(agg: dict, device_id: str, entries: list[dict], *, sample: bool, notice: str | None,
                now: str | None = None) -> dict:
     models, variants, runs, results, safety, curves, ranking, loops = {}, [], [], [], [], [], [], []
@@ -313,12 +331,13 @@ def site_board(agg: dict, device_id: str, entries: list[dict], *, sample: bool, 
         runs.append(_run_row(e))
         loops += loop_rows(e)
         r, s, c = site_rows(e)
+        rk = [{"variant": e["entry_key"], "tier": tier, "metric": metric, "rank_range": rr}
+              for tier, b in e["tiers"].items() for metric, rr in sorted((b.get("rank_ranges") or {}).items())]
+        _split_selection(e, r + s + rk)
         results += r
         safety += s
         curves += c
-        for tier, b in e["tiers"].items():
-            for metric, rr in sorted((b.get("rank_ranges") or {}).items()):
-                ranking.append({"variant": e["entry_key"], "tier": tier, "metric": metric, "rank_range": rr})
+        ranking += rk
     dev = next((e.get("device") for e in entries if e.get("device")), None)
     device = None if device_id == "cloud" else {
         "id": device_id, "class": (dev or {}).get("class") or device_id, "ram_bytes": (dev or {}).get("ram_bytes"),

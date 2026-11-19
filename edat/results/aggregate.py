@@ -51,6 +51,9 @@ class Options:
     facet_resamples: int = 2_000
     composite_resamples: int = 2_000
     seed: int = stats.BOOTSTRAP_SEED
+    # Differences from a reference measured on another selection tier (core vs full, ...)
+    # are refused unless asked for; when asked, they are labelled `cross_selection`.
+    cross_selection: bool = False
 
 
 # --- helpers ---------------------------------------------------------------
@@ -386,6 +389,29 @@ def view_of(rec: dict) -> str:
     return f"{rec['tier']}_{loop}" if loop and rec["tier"] in LOOP_TIERS else rec["tier"]
 
 
+SELECTION_SEP = "@"
+
+
+def view_key(rec: dict) -> str:
+    """The view, plus `@<selection tier>` when the record carries one: records of
+    different selections land in different blocks and are never pooled."""
+    sel = keys.selection_of(rec)
+    return view_of(rec) + (f"{SELECTION_SEP}{sel['tier']}" if sel else "")
+
+
+def base_view(key: str) -> str:
+    return key.split(SELECTION_SEP, 1)[0]
+
+
+def _selection_block(records: list[dict]) -> dict | None:
+    sels = [keys.selection_of(r) for r in records]
+    if not sels or sels[0] is None:
+        return None
+    one = lambda name: (lambda vals: vals.pop() if len(vals) == 1 else None)({s.get(name) for s in sels})
+    return {"tier": sels[0]["tier"], "manifest_sha256": sels[0].get("manifest_sha256"),
+            "n_items": one("n_items"), "ci95_half_width_pts": one("ci95_half_width_pts")}
+
+
 def _loop_empty_reason(e: dict) -> str:
     """Why an entry has no Harbor-loop column."""
     if e["kind"] == "cloud_reference":
@@ -452,7 +478,8 @@ def _loop_gaps(e: dict, views: dict[str, list[dict]], opts: Options) -> dict:
     return out
 
 
-def _tier_block(records: list[dict], tier: str, opts: Options) -> dict:
+def _tier_block(records: list[dict], key: str, opts: Options) -> dict:
+    tier = base_view(key)
     entry_level = [r for r in records if composites.is_entry_record(r)]
     records = [r for r in records if not composites.is_entry_record(r)]
     graded = [r for r in records if r["status"] == "ok"]
@@ -470,6 +497,9 @@ def _tier_block(records: list[dict], tier: str, opts: Options) -> dict:
              "policy_fingerprints": sorted({r["settings"].get("policy_fingerprint") for r in records} - {None}),
              "splits": sorted({r["split"] for r in records})}
     block["invalid"] = bool(block["excluded_rate"] and block["excluded_rate"] > EXCLUDED_LIMIT)
+    sel = _selection_block(records)
+    if sel is not None:
+        block["selection"] = sel
     if tier == "perf":
         block["curves"] = _perf_curves(records)
         return block
@@ -552,6 +582,7 @@ def _comparable(a: dict, b: dict) -> str | None:
 
 
 def _deltas(entry_recs: list[dict], ref_recs: list[dict], tier: str, opts: Options) -> dict:
+    tier = base_view(tier)
     out = {}
     if tier in QUALITY_TIERS:
         out.update(composites.paired_headlines(entry_recs, ref_recs, resamples=opts.composite_resamples,
@@ -605,7 +636,13 @@ def aggregate(records: list[dict], options: Options | None = None) -> dict:
     tier_recs: dict[tuple, dict[str, list[dict]]] = defaultdict(lambda: defaultdict(list))
     for (ek, dev, sclass), recs in groups.items():
         for r in recs:
-            tier_recs[(ek, dev, sclass)][view_of(r)].append(r)
+            tier_recs[(ek, dev, sclass)][view_key(r)].append(r)
+        for vk, vrecs in tier_recs[(ek, dev, sclass)].items():
+            manifests = {keys.selection_key(r) for r in vrecs}
+            if len(manifests) > 1:
+                raise keys.IncompatibleResults(
+                    f"refusing to pool {ek} {vk}: records from different selection manifests {sorted(manifests)}; "
+                    "a selection is pinned by its manifest within one board version")
         if sclass != "recommended":
             continue
         ident = _identity(recs[0])
@@ -691,10 +728,18 @@ def _vs(e: dict, ref: dict | None, tier_recs: dict, opts: Options) -> dict:
     for tier, block in e["tiers"].items():
         if tier == "perf":
             continue
-        rblock = ref["tiers"].get(tier)
+        rblock, cross = ref["tiers"].get(tier), None
         if rblock is None:
-            out[tier] = {"refused": f"the reference has no {tier} results"}
-            continue
+            others = sorted(k for k in ref["tiers"] if k != tier and base_view(k) == base_view(tier))
+            if others and opts.cross_selection:
+                rblock, cross = ref["tiers"][others[0]], others[0]
+            elif others:
+                out[tier] = {"refused": f"the reference has {base_view(tier)} only on another selection "
+                                        f"({', '.join(others)}); selections are not compared unless asked"}
+                continue
+            else:
+                out[tier] = {"refused": f"the reference has no {tier} results"}
+                continue
         why = _comparable(block, rblock)
         if why:
             out[tier] = {"refused": f"not comparable with the reference: {why}"}
@@ -703,7 +748,10 @@ def _vs(e: dict, ref: dict | None, tier_recs: dict, opts: Options) -> dict:
             out[tier] = {"self": True}
             continue
         out[tier] = _deltas(tier_recs[(e["entry_key"], e["device_id"], "recommended")][tier],
-                            tier_recs[(ref["entry_key"], ref["device_id"], "recommended")][tier], tier, opts)
+                            tier_recs[(ref["entry_key"], ref["device_id"], "recommended")][cross or tier], tier, opts)
+        if cross:
+            out[tier]["cross_selection"] = (f"{(block.get('selection') or {}).get('tier', 'whole suite')} vs "
+                                            f"{(rblock.get('selection') or {}).get('tier', 'whole suite')}")
     return {"reference": ref["entry_key"], "device_id": ref["device_id"], "tiers": out}
 
 

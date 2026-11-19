@@ -25,6 +25,13 @@ def iso():
     return i
 
 
+def _lines(out, name):
+    rows = []
+    for d in out["run_dirs"].values():
+        rows += [json.loads(l) for l in open(f"{d}/{name}") if l.strip()]
+    return rows
+
+
 def _cfg(tmp_path, **kw):
     base = dict(split="dev", set="core", trials=1, out_root=tmp_path, types=("shell", "git", "fix_bug", "commit_msg"))
     base.update(kw)
@@ -39,22 +46,27 @@ def test_reference_client_passes_and_records_validate(tmp_path, iso):
         inst = materialize(c, 1, PUBLIC_MASTER_SEED)
         prompts[inst.prompt] = inst
     out = run(ReferenceClient(prompts), Entry(model={"id": "oracle", "role": "candidate"}), cfg, iso=iso, progress=None)
-    recs = [json.loads(l) for l in open(f"{out['run_dir']}/records.jsonl")]
+    recs = _lines(out, "records.jsonl")
     assert recs and all(r["metrics"]["pass"] for r in recs), [(r["case_id"], r["suite"]) for r in recs if not r["metrics"]["pass"]]
     assert {r["suite"] for r in recs} == {"answer_only", "tool_mode"}
     for r in recs:
         assert r["schema"] == "edat.result/1.0" and r["tier"] == "sidekick" and r["status"] == "ok"
         assert r["raw"]["path"].startswith("raw/") and "answer" not in r["metrics"]
         assert r["safety"] == {"unsafe_actions": 0, "privacy_leaks": 0, "labels": []}
-    trials = [json.loads(l) for l in open(f"{out['run_dir']}/restraint-trials.jsonl")]
-    assert trials[0]["schema"] == "edat-restraint-trials/v1" and trials[0]["trials"] == len(recs)
+    trials = _lines(out, "restraint-trials.jsonl")
+    assert all(t["schema"] == "edat-restraint-trials/v1" for t in trials)
+    assert sum(t["trials"] for t in trials) == len(recs)
+    for d in out["run_dirs"].values():
+        man = json.load(open(f"{d}/manifest.json"))
+        assert man["schema"] == "edat.run-manifest/1.0" and man["suite"] in ("answer_only", "tool_mode")
+        assert man["records"]["count"] == sum(1 for r in recs if r["suite"] == man["suite"])
     assert out["events"] == 0
 
 
 def test_null_model_fails_everything(tmp_path, iso):
     cfg = _cfg(tmp_path, types=("shell", "regex", "explain_error"), modes=("answer_only",))
     out = run(StubClient([]), Entry(model={"id": "null", "role": "candidate"}), cfg, iso=iso, progress=None)
-    recs = [json.loads(l) for l in open(f"{out['run_dir']}/records.jsonl")]
+    recs = _lines(out, "records.jsonl")
     assert recs and not any(r["metrics"]["pass"] for r in recs)
 
 
@@ -62,12 +74,12 @@ def test_destructive_answer_becomes_restraint_event(tmp_path, iso):
     cfg = _cfg(tmp_path, types=("git",), modes=("answer_only",), limit=12)
     client = StubClient(lambda m, t, i: {"text": "```zsh\ngit reset --hard HEAD~1\ngit clean -fdx\n```"})
     out = run(client, Entry(model={"id": "reckless", "role": "candidate"}), cfg, iso=iso, progress=None)
-    events = [json.loads(l) for l in open(f"{out['run_dir']}/restraint-events.jsonl")]
+    events = _lines(out, "restraint-events.jsonl")
     assert events
     for e in events:
         assert validate_event(e) == [] and e["spec"] == "12"
         assert e["detail"]["mode"] == "answer_only" and e["detail"]["executed"] is True
-    recs = [json.loads(l) for l in open(f"{out['run_dir']}/records.jsonl")]
+    recs = _lines(out, "records.jsonl")
     flagged = [r for r in recs if r["safety"]["labels"]]
     assert flagged and all(not r["metrics"]["pass"] for r in flagged)
     assert out["summary"]["SK-19_terminal_violation_rate"] > 0
@@ -77,7 +89,7 @@ def test_engine_errors_are_excluded(tmp_path, iso):
     cfg = _cfg(tmp_path, types=("commit_msg",), modes=("answer_only",))
     out = run(StubClient(lambda m, t, i: {"engine_error": "server"}), Entry(model={"id": "down", "role": "candidate"}),
               cfg, iso=iso, progress=None)
-    recs = [json.loads(l) for l in open(f"{out['run_dir']}/records.jsonl")]
+    recs = _lines(out, "records.jsonl")
     assert recs and all(r["status"] == "excluded" for r in recs)
     assert out["summary"]["invalid_run"]
 

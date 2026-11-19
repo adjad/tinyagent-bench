@@ -33,10 +33,9 @@ from edat.sidekick.gen.core import PUBLIC_MASTER_SEED, Case, Instance, build_cas
 from edat.sidekick.graders import grade_answer
 from edat.sidekick.loop_glue import MiniSettings, StubClient, is_engine_error
 from edat.sidekick.prescreen import rules_version
-from edat.sidekick.records import (LocalRunWriter, harness_commit, make_record, manifest, new_run_id,
-                                   results_root, utc_now)
+from edat.sidekick.records import LocalRunWriter, harness_commit, make_record, new_run_id, results_root, utc_now
 from edat.sidekick.report import summarize
-from edat.sidekick.restraint import event_record, trials_record, write_jsonl
+from edat.sidekick.restraint import event_record, trials_record
 from edat.sidekick.sandbox.denials import read_denials
 from edat.sidekick.sandbox.run import ExecResult, Isolation, TrialArea, get_isolation
 from edat.sidekick.sandbox.selftest import require_sandbox
@@ -93,7 +92,7 @@ class Entry:
     model: dict
     thinking: str = "off"
     kind: str = "local"
-    runtime: dict = field(default_factory=lambda: {"name": "stub"})
+    runtime: dict = field(default_factory=lambda: {"name": "stub", "version": "0"})
     device: dict | None = None
     sampling: dict | None = None
     sampling_source: str = "author_recommended"
@@ -203,16 +202,22 @@ def run(client, entry: Entry, cfg: RunConfig, *, iso: Isolation | None = None, p
                "generator": GENERATOR_VERSION, "toolset": TOOLSET, "selftest_passed": selftest.passed,
                "split": cfg.split, "set": cfg.set, "trials": cfg.trials}
     root = cfg.out_root or results_root(cfg.split)
-    writer = LocalRunWriter(root, run_id, manifest(run_id, board_version=cfg.board_version, entry=entry.to_dict(),
-                                                   run_key=run_key))
+    sampling_class = "fixed_sensitivity" if entry.sampling_source == "fixed_sensitivity" else "recommended"
+    # One run directory per mode: answer-only and tool mode are separate entries (spec §3.5),
+    # and the store keys a trial by entry, device, case and trial number.
+    writers = {mode: LocalRunWriter(root, f"{run_id}-{'ao' if mode == 'answer_only' else 'tm'}",
+                                    board_version=cfg.board_version, kind=entry.kind, commit=commit,
+                                    sampling_class=sampling_class, run_key=dict(run_key, mode=mode), suite=mode)
+               for mode in cfg.modes}
     thinking = entry.thinking == "on"
     by_mode = {m: 0 for m in cfg.modes}
-    events_out: list[dict] = []
+    events_out: dict[str, list[dict]] = {m: [] for m in cfg.modes}
     records: list[dict] = []
     for case in cases:
         for mode in cfg.modes:
             if mode == "tool_mode" and not case.tool_mode:
                 continue
+            writer = writers[mode]
             for trial in range(1, cfg.trials + 1):
                 inst = materialize(case, trial, master_seed(case.split))
                 seed = trial_seed(case.id, trial, case.split)
@@ -234,10 +239,10 @@ def run(client, entry: Entry, cfg: RunConfig, *, iso: Isolation | None = None, p
                             metrics["pass"] = False
                 ev = [event_record(e, case_id=case.id, trial=trial, model_key=entry.key,
                                    board_version=cfg.board_version, mode=mode) for e in events]
-                events_out.extend(ev)
+                events_out[mode].extend(ev)
                 by_mode[mode] += 1
                 raw_ref = writer.put_raw(raw)
-                rec = make_record(run_id=run_id, board_version=cfg.board_version, entry=entry.to_dict(),
+                rec = make_record(run_id=writer.run_id, board_version=cfg.board_version, entry=entry.to_dict(),
                                   case_meta=case.meta(), trial=trial, suite=mode, grade=None, status=status,
                                   status_detail=detail, metrics=metrics if status == "ok" else {},
                                   events=[{"kind": e["kind"]} for e in ev], started_at=started, seed=seed,
@@ -247,13 +252,18 @@ def run(client, entry: Entry, cfg: RunConfig, *, iso: Isolation | None = None, p
                 if progress:
                     progress(f"{case.id} {mode} t{trial}: {'PASS' if metrics.get('pass') else status if status != 'ok' else 'fail'}"
                              + (f" [{', '.join(sorted({e['kind'] for e in ev}))}]" if ev else ""))
-    writer.close()
-    write_jsonl(writer.dir / "restraint-events.jsonl", events_out)
-    write_jsonl(writer.dir / "restraint-trials.jsonl",
-                [trials_record(model_key=entry.key, board_version=cfg.board_version, by_mode=by_mode)])
     summary = summarize(records)
-    (writer.dir / "sidekick-summary.json").write_text(json.dumps(summary, indent=1, default=str))
-    return {"run_dir": str(writer.dir), "records": len(records), "events": len(events_out), "summary": summary}
+    for mode, writer in writers.items():
+        writer.attach("restraint-events.jsonl", "".join(json.dumps(e, sort_keys=True) + "\n" for e in events_out[mode]),
+                      "edat-restraint-event/v1")
+        writer.attach("restraint-trials.jsonl", json.dumps(trials_record(model_key=entry.key, board_version=cfg.board_version,
+                                                                         by_mode={mode: by_mode[mode]}), sort_keys=True) + "\n",
+                      "edat-restraint-trials/v1")
+        writer.attach("sidekick-summary.json", json.dumps(summary, indent=1, default=str), "sidekick_summary")
+        writer.close()
+    n_events = sum(len(v) for v in events_out.values())
+    return {"run_dirs": {m: str(w.dir) for m, w in writers.items()}, "run_dir": str(writers[cfg.modes[0]].dir),
+            "records": len(records), "events": n_events, "summary": summary}
 
 
 # ------------------------------------------------------------------ clients
@@ -281,10 +291,10 @@ class ReferenceClient(StubClient):
 
 def client_from_spec(spec: str, base_url: str | None = None):
     if spec == "null":
-        return StubClient([]), {"id": "null-model", "role": "candidate"}, {"name": "stub"}
+        return StubClient([]), {"id": "null-model", "role": "candidate"}, {"name": "stub", "version": "0"}
     if spec.startswith("stub:"):
         turns = json.loads(Path(spec[5:]).read_text())
-        return StubClient(turns), {"id": "stub-model", "role": "candidate"}, {"name": "stub"}
+        return StubClient(turns), {"id": "stub-model", "role": "candidate"}, {"name": "stub", "version": "0"}
     kind, _, mid = spec.partition(":")
     try:
         import edat.models as M  # type: ignore
@@ -322,7 +332,7 @@ def main(argv: list[str] | None = None) -> int:
                     out_root=Path(a.out) if a.out else None, limit=a.limit)
     out = run(client, entry, cfg)
     s = out["summary"]
-    print(json.dumps({"run_dir": out["run_dir"], "records": out["records"], "restraint_events": out["events"],
+    print(json.dumps({"run_dirs": out["run_dirs"], "records": out["records"], "restraint_events": out["events"],
                       "sidekick_score": s.get("SK-1_sidekick_score"), "tool_mode_score": s.get("SK-5_tool_mode_score"),
                       "terminal_violation_rate": s.get("SK-19_terminal_violation_rate")}, indent=1))
     return 0

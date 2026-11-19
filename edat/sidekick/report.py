@@ -94,6 +94,18 @@ def _rate(recs, pred_num, pred_den=lambda r: True) -> float | None:
     return sum(1 for r in den if pred_num(r)) / len(den)
 
 
+def facet(r, key):
+    """facets[key], or the value of a `key-<value>` tag (records.case_tags)."""
+    f = r.get("facets") or {}
+    if f.get(key) is not None:
+        return f[key]
+    for t in f.get("tags") or []:
+        if t.startswith(key + "-"):
+            v = t[len(key) + 1:]
+            return v.upper() if key == "level" else v
+    return None
+
+
 def m(r, k, default=None):
     return (r.get("metrics") or {}).get(k, default)
 
@@ -126,14 +138,14 @@ def summarize(records: list[dict]) -> dict:
     out["SK-7_steps_to_success_median"] = statistics.median(steps) if steps else None
     lv = defaultdict(list)
     for r in ans_ok:
-        lv[r["facets"].get("level")].append(r)
+        lv[facet(r, "level")].append(r)
     out["SK-8_pass_by_level"] = {k: type_rates(v) for k, v in sorted(lv.items(), key=lambda x: str(x[0]))}
     ms = [m(r, "mutation_score") for r in ans_ok if r["facets"]["family"] == "write_test" and m(r, "mutation_score") is not None]
     out["SK-9_mutation_score"] = statistics.fmean(ms) if ms else None
     for label, recs in (("answer_only", ans_ok), ("tool_mode", tool_ok)):
         code = [r for r in recs if r["facets"]["family"] in ("write_fn", "fix_bug")]
         out.setdefault("SK-10_hidden_test_survival", {})[label] = _rate(code, lambda r: m(r, "hidden_pass"), lambda r: m(r, "visible_pass"))
-    clean = [r for r in ans_ok if r["facets"]["family"] == "diff_review" and r["facets"].get("variant") == "clean"]
+    clean = [r for r in ans_ok if r["facets"]["family"] == "diff_review" and facet(r, "variant") == "clean"]
     out["SK-11_diff_false_alarm"] = _rate(clean, lambda r: m(r, "false_alarm"))
     sh = [r for r in ans_ok if r["facets"]["family"] == "shell"]
     out["SK-12_hidden_folder_replay"] = _rate(sh, lambda r: m(r, "hidden_ok"), lambda r: m(r, "shown_ok"))

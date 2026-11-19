@@ -61,6 +61,19 @@ def results_root(split: str) -> Path:
     return Path(os.environ.get("EDAT_RESULTS_DIR") or (Path.home() / ".edat" / "results"))
 
 
+def case_tags(case_meta: dict) -> list[str]:
+    """Facets the store has no key for go in tags (pattern ^[a-z][a-z0-9_-]*$)."""
+    tags = ["core" if case_meta["core"] else "full", f"level-{case_meta['level'].lower()}",
+            f"lang-{case_meta['lang']}"]
+    if case_meta.get("variant"):
+        tags.append(f"variant-{case_meta['variant']}")
+    if case_meta.get("restraint"):
+        tags.append(f"restraint-{case_meta['restraint']}")
+    if case_meta.get("tool_mode"):
+        tags.append("tool-mode-case")
+    return tags
+
+
 def make_record(*, run_id: str, board_version: str, entry: dict, case_meta: dict, trial: int, suite: str,
                 grade: dict | None, status: str, status_detail: str | None, metrics: dict, events: list[dict],
                 started_at: str, seed, raw_ref: dict | None, commit: str, dirty: bool) -> dict:
@@ -71,17 +84,15 @@ def make_record(*, run_id: str, board_version: str, entry: dict, case_meta: dict
     rec = {
         "schema": SCHEMA, "kind": "cloud_reference" if cloud else "local", "tier": TIER, "suite": suite,
         "run_id": run_id, "board_version": board_version, "lang": "en", "model": model,
-        "runtime": entry.get("runtime") or {"name": "stub"},
+        "runtime": entry.get("runtime") or {"name": "stub", "version": "0"},
         "device": None if cloud else entry.get("device"),
         "settings": {"thinking": entry.get("thinking", "off"), "sampling": entry.get("sampling") or {},
                      "sampling_source": entry.get("sampling_source", "author_recommended"), "seed": seed,
                      "world_seed": None},
         "harness_commit": commit, "harness_dirty": dirty, "started_at": started_at,
         "case_id": case_meta["id"], "split": case_meta["split"], "trial": trial, "status": status,
-        "facets": {"family": case_meta["type"], "category": case_meta["group"], "level": case_meta["level"],
-                   "lang": case_meta["lang"], "variant": case_meta.get("variant") or None,
-                   "tags": [t for t in ("core" if case_meta["core"] else "full", case_meta.get("restraint") and f"restraint:{case_meta['restraint']}") if t]},
-        "metrics": metrics,
+        "facets": {"family": case_meta["type"], "category": case_meta["group"], "tags": case_tags(case_meta)},
+        "metrics": {k: (v[:64] if isinstance(v, str) else v) for k, v in metrics.items()},
         "safety": {"unsafe_actions": unsafe, "privacy_leaks": leaks, "labels": sorted({e["kind"] for e in events})},
         "raw": raw_ref,
     }
@@ -95,13 +106,22 @@ def make_record(*, run_id: str, board_version: str, entry: dict, case_meta: dict
 
 
 class LocalRunWriter:
-    """The results store's run layout, for use until edat.results is on main."""
+    """The results store's run layout (records.jsonl, manifest.json, raw/), for use until
+    edat.results is on main. The manifest follows edat.run-manifest/1.0; the sidekick run
+    key, Restraint events and summary are attachments."""
 
-    def __init__(self, root: Path, run_id: str, manifest: dict):
+    def __init__(self, root: Path, run_id: str, *, board_version: str, kind: str, commit: str,
+                 sampling_class: str, run_key: dict, suite: str | None = None):
         self.dir = Path(root) / run_id
         (self.dir / "raw").mkdir(parents=True, exist_ok=True)
-        self.manifest = manifest
+        self.run_id, self.board_version, self.kind, self.commit = run_id, board_version, kind, commit
+        self.sampling_class = sampling_class
+        self.suite = suite
+        self.created = utc_now()
+        self.entries: dict[str, dict] = {}
         self.n = 0
+        self.attachments: list[dict] = []
+        self.attach("sidekick-run-key.json", json.dumps(run_key, indent=1, sort_keys=True), "sidekick_run_key")
 
     def put_raw(self, obj) -> dict:
         data = json.dumps(obj, sort_keys=True, default=str).encode()
@@ -115,14 +135,29 @@ class LocalRunWriter:
         with (self.dir / "records.jsonl").open("a") as f:
             f.write(json.dumps(rec, sort_keys=True) + "\n")
         self.n += 1
+        key = f"{rec['model']['id']}|{rec['settings']['thinking']}"
+        e = self.entries.setdefault(key, {"entry_key": key, "model_id": rec["model"]["id"],
+                                          "thinking": rec["settings"]["thinking"],
+                                          "device_id": (rec.get("device") or {}).get("id"),
+                                          "sampling_source": rec["settings"]["sampling_source"], "records": 0})
+        e["records"] += 1
+
+    def attach(self, name: str, text: str, kind: str) -> None:
+        (self.dir / name).write_text(text)
+        self.attachments = [a for a in self.attachments if a["name"] != name]
+        self.attachments.append({"name": name, "sha256": hashlib.sha256(text.encode()).hexdigest(), "kind": kind})
 
     def close(self) -> None:
-        m = dict(self.manifest)
-        m["records"] = self.n
+        rp = self.dir / "records.jsonl"
+        if not rp.exists():
+            rp.write_text("")
+        m = {"schema": "edat.run-manifest/1.0", "run_id": self.run_id, "tier": TIER, "suite": self.suite,
+             "kind": self.kind, "board_version": self.board_version, "harness_commit": self.commit,
+             "created_at": self.created, "updated_at": utc_now(),
+             "comparison_key": {"board_version": self.board_version, "harness_commit": self.commit,
+                                "sampling_class": self.sampling_class, "lang": "en", "tier": TIER},
+             "entries": list(self.entries.values()),
+             "records": {"path": "records.jsonl", "count": self.n, "sha256": hashlib.sha256(rp.read_bytes()).hexdigest()},
+             "raw": {"dir": "raw", "count": len(list((self.dir / "raw").glob("*.json")))},
+             "attachments": self.attachments}
         (self.dir / "manifest.json").write_text(json.dumps(m, indent=1, sort_keys=True))
-
-
-def manifest(run_id: str, *, board_version: str, entry: dict, run_key: dict) -> dict:
-    return {"schema": "edat.run-manifest/1.0", "run_id": run_id, "tier": TIER, "board_version": board_version,
-            "generator": GENERATOR_VERSION, "entry": {"model": entry["model"].get("id"), "thinking": entry.get("thinking")},
-            "run_key": run_key, "created_at": utc_now()}

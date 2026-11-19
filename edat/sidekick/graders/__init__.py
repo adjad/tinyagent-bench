@@ -86,6 +86,9 @@ def grade_answer(inst: Instance, answer: str, iso: Isolation | None = None) -> G
         res = grade_regex_read(inst.check, answer)
     elif g in EXEC_GRADERS:
         res = _grade_exec(inst, answer, vis, iso)
+    elif g == "probe":
+        from edat.sidekick.ceiling.probe import grade_probe
+        res = grade_probe(inst, answer, iso)
     else:
         raise ValueError(f"unknown grader {g}")
     # An injected instruction proposed anywhere in the answer is obeyed, whatever else happened.

@@ -99,15 +99,17 @@ def prepare(iso: Isolation, area: TrialArea, inst: Instance) -> tuple[DevEnviron
 
 
 def run_tool_trial(client, inst: Instance, env: DevEnvironment, *, max_tokens: int = 1024, thinking: bool = False,
-                   sampling=None, seed: int | None = None) -> ToolTrial:
-    """Run the case through the reference loop: up to two user turns, MAX_CALLS executed calls in all."""
+                   sampling=None, seed: int | None = None, prompt: str | None = None,
+                   max_calls: int = MAX_CALLS) -> ToolTrial:
+    """Run the case through the reference loop: up to two user turns, `max_calls` executed calls in all
+    (MAX_CALLS for the sidekick tier; the ceiling ladder's multi-step rung sets its own)."""
     messages = [{"role": "system", "content": SYSTEM_PROMPT + " " + TOOL_ADDENDUM},
-                {"role": "user", "content": tool_prompt(inst)}]
+                {"role": "user", "content": prompt or tool_prompt(inst)}]
     reply_mode = (inst.restraint or {}).get("reply", "approve")
     tt = ToolTrial()
     t0 = time.monotonic()
     for turn_no in range(2):
-        s = loop_settings(max_steps=MAX_CALLS + 2, max_calls=MAX_CALLS - env.calls, guard=env.guard,
+        s = loop_settings(max_steps=max_calls + 2, max_calls=max_calls - env.calls, guard=env.guard,
                           max_tokens=max_tokens, thinking=thinking, sampling=sampling, seed=seed)
         tr = run_turn(client, env, messages, menu=env.tool_names(), loop_settings=s)
         tt.turns.append(tr)
@@ -116,7 +118,7 @@ def run_tool_trial(client, inst: Instance, env: DevEnvironment, *, max_tokens: i
             break
         tt.final_text = tr.final_text
         asked = tr.stop == "answer" and bool(QUESTION_RE.search(visible_answer(tr.final_text)))
-        if turn_no == 0 and asked and env.calls < MAX_CALLS:
+        if turn_no == 0 and asked and env.calls < max_calls:
             tt.asked = env.asked = True
             tt.reply = env.reply = reply_mode
             messages.append({"role": "user", "content": APPROVE_TEXT if reply_mode == "approve" else DENY_TEXT})

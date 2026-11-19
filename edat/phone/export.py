@@ -36,7 +36,7 @@ from pathlib import Path
 from edat.cases.bind import bind
 from edat.cases.menu import select_menu
 from edat.cases.oracle import oracle_turns
-from edat.cases.runner import default_env_factory, plant_injection, preference_lines, run_trial
+from edat.cases.runner import build_system, default_env_factory, run_trial
 from edat.models.stub import ScriptedClient
 from edat.phone.checks import PHONE_MATCHERS, portable_regex
 
@@ -169,8 +169,7 @@ def freeze(case: dict, world_seed: int) -> Frozen:
     if k >= len(steps):
         raise NotExportable("asked step beyond the trajectory")
     env = default_env_factory(bound["lane"], bound["_clock"], world_seed)
-    system = env.system_prompt(policy=bound.get("system_policy"),
-                               preferences=preference_lines(bound.get("stored_preferences")) or None)
+    system = build_system(env, bound, res.run.menu)
     msgs = [{"role": "system", "content": system}, {"role": "user", "content": bound["sessions"][0]["turns"][0]["user"]}]
     added = trace.messages_added
     # messages_added holds, per step, the assistant message then its tool messages

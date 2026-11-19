@@ -12,6 +12,7 @@ records a `trim_event` (§3.15).
 from __future__ import annotations
 
 import copy
+import inspect
 import json
 from dataclasses import dataclass, field, replace
 from typing import Callable
@@ -68,6 +69,16 @@ def preference_lines(prefs: list[dict] | None) -> list[str]:
     return lines
 
 
+def build_system(env, bound: dict, menu: list[str]) -> str:
+    """The case's system prompt; lanes whose prompt depends on the menu get the offered tools."""
+    kw = {"policy": bound.get("system_policy"),
+          "preferences": preference_lines(bound.get("stored_preferences")) or None}
+    base = env.env if isinstance(env, FaultyEnvironment) else env
+    if "offered" in inspect.signature(base.system_prompt).parameters:
+        kw["offered"] = list(menu)
+    return env.system_prompt(**kw)
+
+
 @dataclass
 class TrialResult:
     case: dict
@@ -91,21 +102,25 @@ def _estimate_tokens(messages: list[dict]) -> int:
 
 
 def _trim(messages: list[dict], budget: int, turn_index: int, events: list[dict]) -> list[dict]:
-    """Drop the oldest whole user turns (never the system message) until under budget."""
-    if budget <= 0 or _estimate_tokens(messages) <= budget:
-        return messages
+    """Drop the oldest whole user turns until the history is under budget.
+
+    The head (the system message, which holds the stored preferences) is never
+    trimmed and does not count against the history budget (spec 02 §3.15).
+    """
     head, body = messages[:1], messages[1:]
+    if budget <= 0 or _estimate_tokens(body) <= budget:
+        return messages
     starts = [i for i, m in enumerate(body) if m.get("role") == "user"]
     removed = 0
-    before = _estimate_tokens(messages)
-    while len(starts) > 1 and _estimate_tokens(head + body) > budget:
+    before = _estimate_tokens(body)
+    while len(starts) > 1 and _estimate_tokens(body) > budget:
         cut = starts[1]
         body = body[cut:]
         removed += 1
         starts = [i for i, m in enumerate(body) if m.get("role") == "user"]
     after = head + body
     events.append({"kind": "trim_event", "before_turn": turn_index, "turns_removed": removed,
-                   "tokens_removed": before - _estimate_tokens(after)})
+                   "tokens_removed": before - _estimate_tokens(body)})
     return after
 
 
@@ -137,8 +152,7 @@ def run_trial(case: dict, client: ModelClient, *, trial: int = 1, world_seed: in
     if not history_budget_tokens and bound["family"] == "long_session":
         history_budget_tokens = LONG_SESSION_HISTORY_BUDGET
     approver = Approver(bound.get("approver", "approve"))
-    system = env.system_prompt(policy=bound.get("system_policy"),
-                               preferences=preference_lines(bound.get("stored_preferences")) or None)
+    system = build_system(env, bound, menu)
     initial = env.state().snapshot()
     turns: list[TurnRun] = []
     trims: list[dict] = []

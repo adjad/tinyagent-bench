@@ -613,6 +613,8 @@ def _area(rng: random.Random, *, theme: str, scale: float, abstain: bool) -> Ren
         c.polyline(top, color=col, width=2)
     for vals, col in zip(series, colors):
         for x, v in zip(px, vals):
+            # a background halo keeps each point readable over the other series' shading
+            c.ellipse(x - 7.5, y_of(v) - 7.5, x + 7.5, y_of(v) + 7.5, fill="bg")
             c.ellipse(x - 4.5, y_of(v) - 4.5, x + 4.5, y_of(v) + 4.5, fill=col)
     subject = rng.choice(SUBJECTS)
     _heads(c, f"{subject} per {word}, {YEAR}", "Shaded area chart; the lower series sits in front"

@@ -24,8 +24,10 @@ ROOT = Path(__file__).resolve().parents[1]
 class FakeEngine:
     """oMLX's /v1/models/status, unload and load, in memory. Records every call and whether a key came."""
 
-    def __init__(self, models: dict[str, dict]):
+    def __init__(self, models: dict[str, dict], lag: int = 0):
         self.models = {k: dict(v) for k, v in models.items()}
+        self.lag = lag                    # status polls an unload or load takes to show (oMLX queues them)
+        self.pending: dict[str, list] = {}
         self.calls: list[str] = []
         self.keys_seen = 0
         eng = self
@@ -50,6 +52,11 @@ class FakeEngine:
             def do_GET(self):
                 self._seen()
                 if self.path == "/v1/models/status":
+                    for mid, p in list(eng.pending.items()):
+                        p[1] -= 1
+                        if p[1] < 0:
+                            eng.models[mid]["loaded"] = p[0]
+                            del eng.pending[mid]
                     return self._reply(200, {"models": [{"id": k, **v} for k, v in eng.models.items()]})
                 return self._reply(404, {})
 
@@ -60,7 +67,10 @@ class FakeEngine:
                     m = eng.models.get(parts[2])
                     if m is None:
                         return self._reply(404, {})
-                    m["loaded"] = parts[3] == "load"
+                    if eng.lag:
+                        eng.pending[parts[2]] = [parts[3] == "load", eng.lag]
+                    else:
+                        m["loaded"] = parts[3] == "load"
                     return self._reply(200, {"ok": True})
                 return self._reply(404, {})
 
@@ -270,3 +280,29 @@ def test_restore_waits_while_harbor_runs_and_the_next_sitting_refuses(tmp_path, 
         go(tmp_path, eng)
     assert live.main(["restore", "--out", str(tmp_path / "out"), "--base-url", eng.url]) == 0
     assert eng.loaded() == {"user-chat-a", "user-chat-b", "bge-embed-small"}
+
+
+def test_queued_unloads_and_loads_are_waited_for(tmp_path, host, monkeypatch):
+    monkeypatch.setattr(live, "_settle", lambda url, done, timeout_s=10.0, poll_s=0.01:
+                        _REAL_SETTLE(url, done, timeout_s=timeout_s, poll_s=poll_s))
+    slow = FakeEngine(START, lag=3)
+    try:
+        log = go(tmp_path, slow)
+        assert live.run_ok(log) and log["restored"] is True
+        assert slow.loaded() == {"user-chat-a", "user-chat-b", "bge-embed-small"}
+    finally:
+        slow.close()
+
+
+def test_a_pin_changed_during_the_run_is_reported(tmp_path, eng, host, monkeypatch):
+    real = live.run_trial
+
+    def unpin(*a, **k):
+        eng.models["user-chat-a"]["pinned"] = False
+        return real(*a, **k)
+    monkeypatch.setattr(live, "run_trial", unpin)
+    log = go(tmp_path, eng)
+    assert "pin changed on user-chat-a" in str(log["restored"]) and not live.run_ok(log)
+
+
+_REAL_SETTLE = live._settle

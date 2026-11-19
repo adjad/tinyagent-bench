@@ -404,13 +404,28 @@ def engine_save(state_file: Path, base_url: str, sitting: str) -> dict:
     return state
 
 
+ENGINE_SETTLE_S = 120.0        # an unload of a busy model is queued; a load takes a while
+
+
+def _settle(base_url: str, done, timeout_s: float = ENGINE_SETTLE_S, poll_s: float = 0.5) -> list[dict]:
+    """Status rows once `done(rows)` holds, or the last rows after `timeout_s`."""
+    end = time.monotonic() + timeout_s
+    while True:
+        rows = engine_rows(base_url)
+        if done(rows) or time.monotonic() >= end:
+            return rows
+        time.sleep(poll_s)
+
+
 def engine_keep(base_url: str, keep: str) -> None:
     """Unload every chat model except `keep` (helper models stay); the engine loads `keep` on first request."""
     from scripts.productbench.engine_prep import plan_keep
     now = [r["id"] for r in engine_rows(base_url) if r["loaded"]]
+    gone = plan_keep(now, keep)
     with _engine(base_url) as c:
-        for mid in plan_keep(now, keep):
+        for mid in gone:
             c.post(f"/v1/models/{mid}/unload").raise_for_status()
+    _settle(base_url, lambda rows: not any(r["id"] in gone and (r["loaded"] or r["is_loading"]) for r in rows))
     left = engine_check(keep, base_url)
     if left:
         raise RuntimeError(f"could not make {keep} the only chat model: {left}")
@@ -432,13 +447,21 @@ def engine_restore(state_file: Path, base_url: str | None = None) -> dict:
             c.post(f"/v1/models/{mid}/unload").raise_for_status()
         for mid in load:
             c.post(f"/v1/models/{mid}/load").raise_for_status()
-    after = {r["id"]: r for r in engine_rows(url)}
+    rows = _settle(url, lambda rs: all(any(r["id"] == mid and r["loaded"] for r in rs) for mid in before)
+                   and not any(r["id"] in unload and r["loaded"] for r in rs))
+    after = {r["id"]: r for r in rows}
     missing = [mid for mid in before if not after.get(mid, {}).get("loaded")]
-    state.update(restored=not missing, restored_at=utc_now(), unloaded=unload, loaded=load,
-                 pinned_before=[r["id"] for r in state["rows"] if r["pinned"]], not_back=missing)
+    # Pins are oMLX settings; unload and load never change them and this tier never calls the settings
+    # endpoint. Checked anyway: a changed pin is reported, not silently accepted.
+    pins_changed = sorted(r["id"] for r in state["rows"] if r["id"] in after and after[r["id"]].get("pinned") != r["pinned"])
+    state.update(restored=not missing and not pins_changed, restored_at=utc_now(), unloaded=unload, loaded=load,
+                 pinned_before=[r["id"] for r in state["rows"] if r["pinned"]], not_back=missing,
+                 pins_changed=pins_changed)
     _write_json(state_file, state)
-    if missing:
-        raise RuntimeError(f"restore incomplete: {', '.join(missing)} not loaded again")
+    if missing or pins_changed:
+        raise RuntimeError("restore incomplete: " + "; ".join(
+            x for x in (f"{', '.join(missing)} not loaded again" if missing else "",
+                        f"pin changed on {', '.join(pins_changed)}" if pins_changed else "") if x))
     return state
 
 

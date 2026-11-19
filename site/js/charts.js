@@ -31,7 +31,7 @@
 
   /* Quality against cost scatter with CI whiskers and a Pareto frontier */
   function scatter(o) {
-    const W = 980, H = 400, m = { l: 48, r: 24, t: 22, b: 44 };
+    const W = o.W || 980, H = o.H || 400, m = { l: 48, r: 24, t: 22, b: 44 };
     const pts = o.points.filter((p) => p.x != null && p.y != null);
     const xMax = niceMax(Math.max(...pts.map((p) => p.x)) * 1.08);
     const refs = o.refLines || [];
@@ -221,6 +221,46 @@
     return s + "</svg>";
   }
 
+  /* Two values per row on one 0 to 100 axis, joined: a hollow ring for the first, a filled diamond for the second.
+   * rows: [{label, href?, a:{v, ci?, tip}, b:{v, ci?, tip} | null, note?, noteCls?, missing?}]
+   * o: {aria, labelW?, domain?:[lo,hi], step?} */
+  function dumbbell(o) {
+    const rowH = 34, lw = o.labelW || 170, W = 640, m = { r: 150, t: 24, b: 10 };
+    const H = m.t + o.rows.length * rowH + m.b, lo = (o.domain || [0, 100])[0], hi = (o.domain || [0, 100])[1];
+    const X = (v) => lw + ((Math.min(Math.max(v, lo), hi) - lo) / (hi - lo)) * (W - lw - m.r);
+    let s = `<svg class="chart" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.aria)}">`;
+    for (let t = lo; t <= hi + 1e-9; t += o.step || 20) s += `<line class="grid" x1="${X(t)}" x2="${X(t)}" y1="${m.t - 6}" y2="${H - m.b}"/><text x="${X(t)}" y="${m.t - 10}" text-anchor="middle">${t}</text>`;
+    o.rows.forEach((r, i) => {
+      const y = m.t + i * rowH + rowH / 2;
+      const lab = `<text class="${r.hl ? "lbl-strong" : "lbl"}" x="${lw - 12}" y="${y + 4}" text-anchor="end">${esc(r.label)}</text>`;
+      s += r.href ? `<a href="${r.href}">${lab}</a>` : lab;
+      if (!r.a || r.a.v == null) { s += `<text x="${lw}" y="${y + 4}">${esc(r.missing || "Not measured")}</text>`; return; }
+      const ci = (p, dy) => (p.ci ? `<line class="ci" x1="${X(p.ci[0])}" x2="${X(p.ci[1])}" y1="${y + dy}" y2="${y + dy}"/>` : "");
+      if (r.b && r.b.v != null) s += `<line class="join" x1="${X(r.a.v)}" x2="${X(r.b.v)}" y1="${y}" y2="${y}"/>`;
+      s += ci(r.a, -5) + (r.b && r.b.v != null ? ci(r.b, 5) : "");
+      s += marker("circle", X(r.a.v), y, 4.5, "ring", r.a.tip);
+      if (r.b && r.b.v != null) s += marker("diamond", X(r.b.v), y, 4.5, "dot hl", r.b.tip);
+      else if (r.b) s += `<text class="lbl" x="${X(r.a.v) + 12}" y="${y + 4}">${esc(r.b.missing || "")}</text>`;
+      if (r.note) s += `<text class="${r.noteCls || "lbl"}" x="${W - m.r + 12}" y="${y + 4}">${esc(r.note)}</text>`;
+    });
+    return s + "</svg>";
+  }
+
+  /* Small scatter on two percentage axes, both from zero, with an optional y = x line (a rate that cannot exceed the other).
+   * points: [{x, y, shape, hl?, label?, tip, href?}]; o: {xLabel, yLabel, aria, diagonal?, diagLabel?} */
+  function xy(o) {
+    const W = 360, H = 260, m = { l: 40, r: 14, t: 16, b: 38 };
+    const X = (v) => m.l + (v / 100) * (W - m.l - m.r), Y = (v) => H - m.b - (v / 100) * (H - m.t - m.b);
+    let s = `<svg class="chart" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.aria)}">`;
+    [0, 25, 50, 75, 100].forEach((t) => { s += `<line class="grid" x1="${m.l}" x2="${W - m.r}" y1="${Y(t)}" y2="${Y(t)}"/><text x="${m.l - 6}" y="${Y(t) + 4}" text-anchor="end">${t}</text><text x="${X(t)}" y="${H - m.b + 15}" text-anchor="middle">${t}</text>`; });
+    s += `<line class="axis" x1="${m.l}" x2="${W - m.r}" y1="${H - m.b}" y2="${H - m.b}"/>`;
+    if (o.diagonal) s += `<line class="frontier" x1="${X(0)}" y1="${Y(0)}" x2="${X(100)}" y2="${Y(100)}"/><text class="lbl" x="${X(62)}" y="${Y(62) - 8}" text-anchor="end" transform="rotate(-${Math.atan2(H - m.t - m.b, W - m.l - m.r) * 180 / Math.PI} ${X(62)} ${Y(62) - 8})">${esc(o.diagLabel || "")}</text>`;
+    s += `<text x="${W - m.r}" y="${H - 4}" text-anchor="end">${esc(o.xLabel)}</text><text x="${m.l - 34}" y="${m.t - 6}">${esc(o.yLabel)}</text>`;
+    o.points.slice().sort((a, b) => (a.hl ? 1 : 0) - (b.hl ? 1 : 0)).forEach((p) => { s += `<g class="${p.hl ? "hl" : ""}">${marker(p.shape || "circle", X(p.x), Y(p.y), p.hl ? 5.5 : 4.5, "dot", p.tip, p.href)}</g>`; });
+    o.points.filter((p) => p.label).forEach((p) => { const right = X(p.x) < W * 0.62; s += `<text class="${p.hl ? "lbl-strong" : "lbl"}" x="${X(p.x) + (right ? 9 : -9)}" y="${Y(p.y) + 4}" text-anchor="${right ? "start" : "end"}">${esc(p.label)}</text>`; });
+    return s + "</svg>";
+  }
+
   /* shared hover layer */
   function bindTips(root) {
     let tip = document.querySelector(".tip");
@@ -232,7 +272,7 @@
     root.addEventListener("focusout", () => tip.classList.remove("on"));
   }
 
-  const api = { hbars, scatter, dotRows, contextChart, stackBar, budgetBars, sustain, bindTips, shapeSwatch, marker, fmt, esc };
+  const api = { hbars, scatter, dumbbell, xy, dotRows, contextChart, stackBar, budgetBars, sustain, bindTips, shapeSwatch, marker, fmt, esc };
   window.EDAT = window.EDAT || {};
   window.EDAT.charts = api;
   window.CHARTS = api;

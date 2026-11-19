@@ -296,6 +296,56 @@
     return `<div><dt>${esc(label)}</dt><dd class="${bad && c.value > 0 ? "bad" : ""}">${fmt(c.value, m.dp)}<small>${c.half != null && c.half > 0 ? "±" + fmt(c.half, m.dp) : esc(small || "")}</small></dd></div>`;
   }
 
+  /* ---------- profile across the tests: one bar per test area from zero, with its interval and, where the store
+   * names one, the selection tier ("core, ±x points"). Areas not in this board are left out, never drawn as zero. ---------- */
+  const PROFILE = [
+    ["Agentic, minimal loop", "agentic_score", "/tests/agentic"], ["In the assistant", "assistant_score", "/tests/in_assistant"], ["What it found", "findings_found", "/found"],
+    ["Understanding text", "text_understanding", "/tests/quality"], ["Readability", "readability", "/tests/quality"], ["Writing", "writing", "/tests/quality"],
+    ["Following preferences", "instruction_following", "/tests/preferences"], ["Memory", "memory_pass", "/tests/memory"], ["Late turns, long sessions", "late_retention", "/tests/long_session"],
+    ["Screen control", "screen_pass", "/tests/app_control"], ["Sidekick", "sidekick_pass", "/tests/sidekick"], ["Vision", "vision_pass", "/tests/vision"]
+  ];
+  const selText = (sel) => (sel && sel.tier ? sel.tier + (sel.ci95_half_width_pts != null ? ", ±" + fmt(sel.ci95_half_width_pts, 1) + " points" : "") : "");
+  function profileSection(ctx, e) {
+    const rows = PROFILE.map(([label, id, path]) => ({ label, id, path, c: R.metric[id] ? ST.value(e, id) : null })).filter((r) => r.c && r.c.status !== "not_in_board" && !(R.metric[r.id].planned && r.c.status !== "ok"));
+    if (!rows.some((r) => ok(r.c))) return "";
+    const href = (r) => esc(ctx.link(r.path, { m: e.key }));
+    const chart = C.hbars({
+      rows: rows.map((r) => {
+        const sel = ok(r.c) ? selText(r.c.selection) : "";
+        return { label: r.label + (sel ? " (" + sel + ")" : ""), v: ok(r.c) ? r.c.value : null, ci: ok(r.c) ? r.c.interval : null, href: href(r), hl: r.id === HEAD, status: ok(r.c) ? null : statusText(r.c.status) };
+      }),
+      labelW: 250, domain: [0, 100], unit: "%", dp: 0, tickStep: 25, aria: "Score in each test area for " + nameOf(e)
+    });
+    const table = U.asTable(["Test area", "Score", "95% interval", "Measured as", "Selection"], rows.map((r) => [
+      `<a class="link" href="${href(r)}">${esc(r.label)}</a>`, ok(r.c) ? fmt(r.c.value, 1) : U.statusFor(r.c), ok(r.c) && r.c.interval ? fmt(r.c.interval[0], 1) + " to " + fmt(r.c.interval[1], 1) : "", ok(r.c) && r.c.label ? esc(r.c.label) : "", ok(r.c) ? esc(selText(r.c.selection)) : ""]), "Profile across the tests");
+    const how = U.howTo(["One bar per test area, each scored 0 to 100 and drawn from zero. The whisker is the 95% interval.", "The areas measure different things on different cases, so read each bar against the same area for other models, not against the bar beside it.", "Where a score comes from a selection of the cases rather than all of them, the selection and its margin are printed beside the name.", "Areas this board has not measured are left out, never drawn as zero. Unsafe actions and privacy leaks are counted on their own, below."]);
+    return U.secHead("Profile across the tests", `Every test area with a score for ${esc(nameOf(e))} on ${esc(e.board.device.name)}.`, "", "profile") + `<figure class="chart-frame" style="margin:0;max-width:760px"><div class="scroll-x">${chart}</div>${how}${table}</figure>`;
+  }
+
+  /* ---------- what it found in the assistant: tallies of the store's marks per section, over every person and trial ---------- */
+  const FOUND_PARTS = [["In the Brief", ["brief"]], ["To-dos", ["brief_todos", "todo"]], ["Needs attention", ["inbox", "messages"]], ["Actions it took by itself", ["act"]], ["Questions about the day", ["window"]]];
+  const MARKS = [["found", "found", "good"], ["right", "right to do", "good"], ["missed", "missed", "muted"], ["not_done", "not done", "muted"], ["stale", "stale", "warn"], ["wrong", "wrongly raised", "bad"], ["done_wrongly", "done wrongly", "bad"], ["should_not", "should not have done", "bad"], ["unsafe", "unsafe", "bad"]];
+  function foundSection(ctx, e, fnd) {
+    const runs = fnd && Array.isArray(fnd.runs) ? fnd.runs.filter((r) => r.variant === e.key) : [];
+    if (!runs.length) return "";
+    const tally = FOUND_PARTS.map(([title, secs]) => {
+      const t = {};
+      runs.forEach((r) => Object.entries(r.sections || {}).forEach(([sec, items]) => {
+        const base = sec.split("@")[0];
+        if (!secs.includes(base) || !Array.isArray(items)) return;
+        items.forEach((it) => { const k = it.mark || "other"; t[k] = (t[k] || 0) + 1; });
+      }));
+      return { title, t, n: Object.values(t).reduce((a, b) => a + b, 0) };
+    }).filter((x) => x.n);
+    if (!tally.length) return "";
+    const people = new Set(runs.map((r) => r.profile)).size, trials = new Set(runs.map((r) => r.trial)).size;
+    const words = (t) => MARKS.filter(([k]) => t[k]).map(([k, w]) => `<span class="num">${t[k]}</span> ${esc(w)}`).concat(Object.keys(t).filter((k) => !MARKS.some(([m]) => m === k)).map((k) => `<span class="num">${t[k]}</span> ${esc(k.replace(/_/g, " "))}`)).join(" · ");
+    const bar = (x) => `<div class="tally" role="img" aria-label="${esc(x.title + ": " + words(x.t).replace(/<[^>]+>/g, ""))}">${MARKS.filter(([k]) => x.t[k]).map(([k, w, cls]) => `<span class="tally-seg tally-${cls}" style="flex-grow:${x.t[k]}" title="${esc(x.t[k] + " " + w)}">${x.t[k] / x.n > 0.12 ? x.t[k] : ""}</span>`).join("")}</div>`;
+    const rows = tally.map((x) => `<div class="tally-row"><p class="tally-name">${esc(x.title)}<span class="xsmall muted"> ${x.n} items</span></p>${bar(x)}<p class="xsmall tally-words">${words(x.t)}</p></div>`).join("");
+    return U.secHead("What it found in the assistant", `Every item ${esc(nameOf(e))} surfaced, missed or did, marked against the answer key, over ${people} synthetic ${people === 1 ? "person" : "people"} and ${trials} ${trials === 1 ? "trial" : "trials"}. Development split only.`, `<a class="key" href="${esc(ctx.link("/found", { m: e.key }))}">Read the items</a>`, "found") +
+      `<div class="chart-frame tally-block">${rows}<p class="legend"><span><span class="tally-key tally-good"></span> Found or right to do</span><span><span class="tally-key tally-muted"></span> Missed or not done</span><span><span class="tally-key tally-warn"></span> Stale</span><span><span class="tally-key tally-bad"></span> Wrong, should not have done, or unsafe</span></p><p class="xsmall muted">The counts are items, not a score; the score for this area is "What it found" in the profile above. Each row also says its counts in words, so nothing rests on colour.</p></div>`;
+  }
+
   /* ---------- the page shell ---------- */
   function shell(ctx, e, sub, actions, body) {
     return `<div class="container">
@@ -371,7 +421,9 @@
     </dl>
     <p class="small muted" style="margin-top:8px">Ranks are ranges: entries share a rank when their intervals overlap. Unsafe actions and privacy leaks sit beside the score and are never blended into it.${(fit.verdict === "fits_small_context") ? " This entry fits only at small context (2k), so check the context charts before relying on long prompts." : ""}</p>`;
     const isRef = !!e.refRole;
-    const html = shell(ctx, e, sub, actions, head + figs + refsSection(ctx, e) + (isRef ? tuningSection(ctx, e) : "") + tierCharts(ctx, e) + safetySection(ctx, e) + contextSection(ctx, e) + energySection(ctx, e) + everyDevice(ctx, e, boards) +
+    let fnd = null;
+    try { fnd = await ST.loadFindings(ctx.boardInfo.version, d.id); } catch (err) { fnd = null; }
+    const html = shell(ctx, e, sub, actions, head + figs + profileSection(ctx, e) + foundSection(ctx, e, fnd) + refsSection(ctx, e) + (isRef ? tuningSection(ctx, e) : "") + tierCharts(ctx, e) + safetySection(ctx, e) + contextSection(ctx, e) + energySection(ctx, e) + everyDevice(ctx, e, boards) +
       `<p class="small" style="margin-top:var(--space-lg)"><a class="link" href="${esc(ctx.link("/compare", { m: cmp.keys.join(",") }))}">Compare with ${cmp.tied ? "the entries it is tied with" : "the next entries"}</a> · <a class="link" href="${esc(ctx.link("/tests/agentic", { m: e.key }))}">Open its cases</a> · <a class="link" href="${esc(ctx.link("/found", { m: e.key }))}">What it found inside the assistant</a> · <a class="link" href="${esc(ctx.link("/methodology"))}">How scores are built</a></p>`);
     return { title: e.name, html };
   }

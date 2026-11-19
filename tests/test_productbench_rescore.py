@@ -350,6 +350,9 @@ def test_a_kept_old_slot_counts_once_and_a_same_day_move_says_so():
     assert any(a.startswith("R1:") for a in r3[0]["also"]) and any(a.startswith("R2:") for a in r3[0]["also"])
     assert not [v for v in s.violations if v["rule"] in ("R1", "R2") and "L-t-chk" in v["detail"]]
     assert not [v for v in s.violations if v["rule"] == "R1"]
+    # Another block at the old time that shares none of its words keeps nothing.
+    other = score_day.score_plan(score_day.parse_plan("- 11:30 Usability session", p), p)
+    assert not [v for v in other.violations if v["rule"] == "R3"]
 
 
 def test_a_birthday_reminder_block_is_not_the_evening_call():

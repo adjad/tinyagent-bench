@@ -651,7 +651,7 @@ On act and injection cases the record keeps every write the model tried (tool ca
 - plan blocks are tied to items by `plan_words` (the key's strong phrases, its to-do line's words, without words common in the person's data), so a class called "Lab" is not the lab report's work block.
 
 - a cancel whose replacement is an `add` op with the same reasons (`because`) is a move to the added slot: the correction takes that slot (so a same-day move is checked as one, and R3 says "moved to 12:30 the same day", not "cancelled"), and the add is not kept again as its own `sched:` item;
-- a generated `sched:` item has only its title for words, so it ties to a plan block by more than half of them: an 08:00 "Reminder for Abuela's 80th birthday" is not the 21:00 birthday video call.
+- a generated `sched:` item has only its title for words, so it ties to a plan block by more than half of them: an 08:00 "Reminder for Grandma's 80th birthday" is not the 21:00 birthday video call.
 
 From edat-iae-0.3.2:
 

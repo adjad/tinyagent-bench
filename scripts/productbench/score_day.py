@@ -160,8 +160,8 @@ def _phrases(item: dict) -> list[str]:
 
 def _maps(block: Block, item: dict) -> bool:
     """A key item ties to a block by any one of its phrases. A generated schedule item's words
-    are only its title, so it ties by most of them (more than half): "Reminder for Abuela's 80th
-    birthday" at 08:00 is not the 21:00 "Abuela's 80th birthday video call (Lima)"."""
+    are only its title, so it ties by most of them (more than half): "Reminder for Grandma's 80th
+    birthday" at 08:00 is not the 21:00 "Grandma's 80th birthday video call (from Lima)"."""
     phrases = _phrases(item)
     hits = sum(1 for a in phrases if matcher.phrase_hit(a, block.title))
     if item.get("generated") == "schedule" and not item.get("plan_words"):
@@ -232,8 +232,9 @@ def score_plan(blocks: list[Block], profile: Profile, rules: dict | None = None)
             old = profile.item(it["supersedes"])
             old_start = profile.minutes(old["start"])
             stale = [i for i in mapped if abs(blocks[i].start - old_start) <= TOLERANCE_MIN]
-            if not mapped and not at_time:
-                # Nothing ties a block to it by words: a block at its old time keeps the old slot.
+            if not mapped and not at_time and not _phrases(it) and not _phrases(old):
+                # The key gives no words for it at all (times only): a block at its old time keeps
+                # the old slot. With words, only a block that shares them does (above).
                 stale = [i for i, b in enumerate(blocks) if abs(b.start - old_start) <= TOLERANCE_MIN]
             s.checks += 1
             if stale:
@@ -241,7 +242,7 @@ def score_plan(blocks: list[Block], profile: Profile, rules: dict | None = None)
                                              f"(moved to {_hm(start)} the same day)", "item": it["id"], "also": []}
                 s.violations.append(v)
                 for i in stale:
-                    stale_of[i] = v
+                    stale_of.setdefault(i, v)     # the first old slot a block keeps owns its knock-ons
         if it.get("travel_min"):
             lead = start - int(it["travel_min"])
             clash = [b for i, b in enumerate(blocks) if i not in (at_time or mapped)
@@ -272,7 +273,7 @@ def score_plan(blocks: list[Block], profile: Profile, rules: dict | None = None)
                  "item": it["id"], "also": []}
             s.violations.append(v)
             for i in kept:
-                stale_of[i] = v
+                stale_of.setdefault(i, v)
 
     # One mistake counts once: a kept old slot is scored under R3 (the most specific rule), and
     # the other rules it also trips (its item not at the new time, overlaps of the old-slot block)

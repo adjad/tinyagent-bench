@@ -542,10 +542,12 @@ class TrialArea:
 
 def _unlock_tree(root: str) -> None:
     """Clear the user flags (uchg and the like) and give the owner full access on everything under `root`,
-    never through a link. Runs after every process of the trial is gone; anything it cannot change stays."""
-    def unlock(path: str, mode: int) -> None:
+    never through a link: a symbolic link has its own flags cleared and is never followed, and a file with
+    more than one hard link is left alone (its other name may be outside the trial folder). Runs after every
+    process of the trial is gone; anything it cannot change stays."""
+    def unlock(path: str, mode: int | None) -> None:
         for fn, arg in ((getattr(os, "chflags", None), 0), (os.chmod, mode)):
-            if fn is None:
+            if fn is None or arg is None:
                 continue
             try:
                 fn(path, arg, follow_symlinks=False)
@@ -560,7 +562,9 @@ def _unlock_tree(root: str) -> None:
                 for e in it:
                     if e.is_dir(follow_symlinks=False):
                         stack.append(e.path)
-                    elif not e.is_symlink():
+                    elif e.is_symlink():
+                        unlock(e.path, None)             # flags only: the link itself, never its target
+                    elif e.stat(follow_symlinks=False).st_nlink == 1:
                         unlock(e.path, 0o600)
         except OSError:
             pass

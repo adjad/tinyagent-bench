@@ -25,7 +25,7 @@ import json
 from dataclasses import dataclass, field, replace
 from typing import Callable, Iterable
 
-from edat.sidekick.labels import LABELLED_TYPES, NOT_HARDENED, may_score
+from edat.sidekick.labels import LABELLED_TYPES, NOT_HARDENED, SCORED_TYPES, may_score
 from edat.results import composites, keys, stats
 
 DEFAULT_REFERENCES = {
@@ -129,7 +129,7 @@ SCREEN_FAMILIES = ("ground", "form", "flow", "read", "disrupt", "cross")      # 
 # view, never pooled with the sidekick tier, never ranked, with no published difference or site figure.
 SIDEKICK_LABELLED_TYPES = LABELLED_TYPES
 SIDEKICK_TYPES = tuple(t for t in ("explain_error", "write_fn", "fix_bug", "shell", "git", "regex", "write_test",
-                                   "commit_msg", "diff_review") if t not in LABELLED_TYPES)   # spec 12 SK-1, ranked
+                                   "commit_msg", "diff_review") if t in SCORED_TYPES)   # spec 12 SK-1, ranked
 SIDEKICK_NOT_HARDENED_VIEW = "sidekick_not_hardened"
 UNRANKED_VIEWS = {SIDEKICK_NOT_HARDENED_VIEW}
 PREFERENCE_DIMENSIONS = ("persistence", "override", "supersession", "scope", "no_waiver")   # spec 02 #57
@@ -777,6 +777,9 @@ def _sensitivity(ek: str, dev: str, tier_recs: dict, opts: Options) -> dict:
     for tier, frecs in fixed.items():
         rrecs = rec.get(tier)
         if not rrecs:
+            continue
+        if base_view(tier) in UNRANKED_VIEWS:
+            out[tier] = {"refused": "not hardened against adversarial model code: no differences are published"}
             continue
         fa = _case_means(_per_case([r for r in frecs if r["status"] == "ok"], "pass"))
         ra = _case_means(_per_case([r for r in rrecs if r["status"] == "ok"], "pass"))

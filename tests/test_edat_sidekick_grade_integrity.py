@@ -300,6 +300,28 @@ def test_a_flagged_probe_answer_keeps_its_grade(iso):
     assert g.passed and g.metrics["tripwire"] and g.metrics["grade_hardened"] is False
 
 
+def test_cleanup_unlocks_a_locked_link_and_never_touches_a_hard_link(tmp_path):
+    """A user-immutable symbolic link is unlocked itself (never its target) so its folder goes; a file with a
+    second hard link keeps its flags and mode, since its other name may be outside the trial folder."""
+    import shutil
+    import stat
+    from edat.sidekick.sandbox.run import _unlock_tree
+    outside = tmp_path / "outside"
+    outside.write_text("x")
+    os.chmod(outside, 0o400)
+    root = tmp_path / "trial"
+    (root / "d").mkdir(parents=True)
+    os.symlink(outside, root / "d" / "ln")
+    os.chflags(root / "d" / "ln", stat.UF_IMMUTABLE, follow_symlinks=False)
+    os.link(outside, root / "hard")
+    os.chmod(root / "d", 0o500)
+    _unlock_tree(str(root))
+    assert stat.S_IMODE(os.stat(outside).st_mode) == 0o400 and not os.stat(outside).st_flags
+    assert not os.lstat(root / "d" / "ln").st_flags
+    shutil.rmtree(root)
+    assert not root.exists() and outside.read_text() == "x"
+
+
 def test_a_folder_the_model_locked_is_still_removed(iso):
     """Mode 000 folders and a user-immutable file, made by the model's own command: cleanup unlocks, then
     removes, and leaves nothing behind."""

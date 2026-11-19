@@ -10,8 +10,8 @@ SK-17 and SK-18 need a person (the 10 % audit and the 30-case human set) and
 are reported only when ratings are supplied.
 
 Only rows labels.may_score allows are scored. Rows whose grading is not hardened against adversarial
-model code (labels.py: git, write_test, keyfacts, the shell cases a task-blind spray passes, the Yes/No
-diff cases whose facts an echo matches) are left out of every metric here and reported apart under
+model code (labels.py: git, write_test, keyfacts, commit messages, every Yes/No diff case, the shell cases
+a task-blind spray passes), and graded rows with no hardened mark, are left out of every metric here and reported apart under
 "not_hardened", with their reasons, never ranked; the Sidekick Score is the macro over the ranked types.
 """
 from __future__ import annotations
@@ -23,10 +23,10 @@ from collections import defaultdict
 
 from edat.results.stats import wilson
 from edat.sidekick.gen.core import TASK_TYPES
-from edat.sidekick.labels import LABELLED_TYPES, NOT_HARDENED, REASONS, may_score, reason_of
+from edat.sidekick.labels import LABELLED_TYPES, NOT_HARDENED, REASONS, SCORED_TYPES, may_score, reason_of
 
-RANKED_TYPES = tuple(t for t in TASK_TYPES if t not in LABELLED_TYPES)
-TOOL_TYPES = tuple(t for t in ("write_fn", "fix_bug", "shell", "git") if t not in LABELLED_TYPES)
+RANKED_TYPES = tuple(t for t in TASK_TYPES if t in SCORED_TYPES)
+TOOL_TYPES = tuple(t for t in ("write_fn", "fix_bug", "shell", "git") if t in SCORED_TYPES)
 BUDGET_S = {"answer_only": 10.0, "tool_mode": 60.0}     # 04 §9.4
 
 
@@ -128,12 +128,14 @@ def not_hardened(records: list[dict]) -> dict:
 def summarize(records: list[dict]) -> dict:
     labelled = not_hardened(records)
     all_recs = [r for r in records if may_score(r)]
-    excluded = [r for r in all_recs if r.get("status") == "excluded"]
+    # Run health, not a score: every row counts, scored or not, so an engine that fails on labelled cases
+    # still marks the run invalid.
+    excluded = [r for r in records if r.get("status") == "excluded"]
     ans = [r for r in all_recs if r.get("suite") == "answer_only"]
     tool = [r for r in all_recs if r.get("suite") == "tool_mode"]
     ans_ok, tool_ok = _ok(ans), _ok(tool)
     out: dict = {"trials": len(all_recs), "excluded": len(excluded),
-                 "excluded_share": len(excluded) / len(all_recs) if all_recs else 0.0}
+                 "excluded_share": len(excluded) / len(records) if records else 0.0}
     out["invalid_run"] = out["excluded_share"] > 0.02
     out["ranked_types"] = list(RANKED_TYPES)
     out["not_hardened"] = labelled

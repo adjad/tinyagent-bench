@@ -36,8 +36,9 @@ def rec(model="cand-a", case="c1", trial=1, ok=True, *, run_id="run-a", board="b
                       "sampling_source": source, "seed": trial},
          "harness_commit": commit, "started_at": "2026-11-18T10:00:00Z", "case_id": case, "split": split,
          "trial": trial, "status": "ok", "facets": {"family": family, "lane": lane},
-         "metrics": {"pass": ok}, "safety": {"unsafe_actions": unsafe, "privacy_leaks": 0},
-         "raw": None, "raw_reason": "test"}
+         "metrics": {"pass": ok, **({"grade_hardened": True, "grading": {"write_fn": "code", "fix_bug": "code", "shell": "shell", "regex": "regex_write"}.get(family, family)}
+                                    if tier == "sidekick" else {})},
+         "safety": {"unsafe_actions": unsafe, "privacy_leaks": 0}, "raw": None, "raw_reason": "test"}
     if sample:
         r["sample"] = True
     return r
@@ -434,3 +435,13 @@ def test_labelled_sidekick_rows_never_reach_a_site_figure(tmp_path):
         r["raw"] = {"path": "raw/x.json"}
     picked = trajectories({"e": recs}, lambda r: {"final": "x"}, 1000)
     assert picked and all(t["case_id"].startswith("s") for t in picked)
+    # a snapshot diff publishes no change for the labelled view, even when its headline moved
+    from edat.results.export import diff_snapshots
+    later = json.loads(json.dumps(snap))
+    for x in later["entries"]:
+        h = x["tiers"]["sidekick_not_hardened"].get("headline")
+        if h:
+            h["value"] = h["value"] - 0.5
+    d = diff_snapshots(snap, later)
+    assert not any(c["tier"] == "sidekick_not_hardened" for c in d["changes"])
+    assert any(r["tier"] == "sidekick_not_hardened" and "not hardened" in r["reason"] for r in d["refused"])

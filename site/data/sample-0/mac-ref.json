@@ -2646,24 +2646,24 @@
    "facet": null,
    "metric": "sidekick_score",
    "unit": "%",
-   "value": 44.44,
+   "value": 41.67,
    "interval": [
-    33.33,
-    55.56
+    29.17,
+    54.17
    ],
    "interval_kind": "bootstrap_cases",
-   "n_cases": 12,
-   "n_trials": 45,
+   "n_cases": 8,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 2.78,
+     "delta": 0.0,
      "interval": [
-      -13.89,
-      19.44
+      -16.67,
+      16.67
      ],
      "tag": "no_clear_difference",
-     "n_cases": 12,
+     "n_cases": 8,
      "wins": null,
      "losses": null
     },
@@ -2685,7 +2685,7 @@
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
-   "n_trials": 45,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
@@ -2710,26 +2710,26 @@
    "facet": null,
    "metric": "pass1",
    "unit": "%",
-   "value": 42.22,
+   "value": 39.39,
    "interval": [
-    28.97,
-    56.7
+    24.68,
+    56.32
    ],
    "interval_kind": "wilson",
-   "n_cases": 15,
-   "n_trials": 45,
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 2.22,
+     "delta": 0.0,
      "interval": [
-      -15.56,
-      22.22
+      -21.21,
+      21.21
      ],
      "tag": "no_clear_difference",
-     "n_cases": 15,
-     "wins": 5,
-     "losses": 5
+     "n_cases": 11,
+     "wins": 4,
+     "losses": 4
     },
     "base": {
      "self": true
@@ -2742,46 +2742,14 @@
    "facet": null,
    "metric": "pass_all_trials",
    "unit": "%",
-   "value": 13.33,
+   "value": 9.09,
    "interval": [
-    3.74,
-    37.88
+    1.62,
+    37.74
    ],
    "interval_kind": "wilson",
-   "n_cases": 15,
-   "n_trials": 45,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Base 4B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=commit_msg",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 33.33,
-   "interval": [
-    9.68,
-    70.0
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Base 4B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=diff_review",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 66.67,
-   "interval": [
-    30.0,
-    90.32
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null
   },
   {
@@ -2846,6 +2814,22 @@
    "interval_kind": "wilson",
    "n_cases": 2,
    "n_trials": 6,
+   "status": null
+  },
+  {
+   "variant": "local|Sample Base 4B|q4|omlx|off",
+   "tier": "sidekick",
+   "facet": null,
+   "metric": "grade_hardened",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    89.57,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null
   },
   {
@@ -5281,35 +5265,35 @@
    "facet": null,
    "metric": "sidekick_score",
    "unit": "%",
-   "value": 38.89,
+   "value": 33.33,
    "interval": [
-    27.78,
-    50.0
+    20.83,
+    45.83
    ],
    "interval_kind": "bootstrap_cases",
-   "n_cases": 12,
-   "n_trials": 45,
+   "n_cases": 8,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": -2.78,
+     "delta": -8.33,
      "interval": [
-      -11.11,
-      8.33
+      -16.67,
+      0.0
      ],
      "tag": "no_clear_difference",
-     "n_cases": 12,
+     "n_cases": 8,
      "wins": null,
      "losses": null
     },
     "base": {
-     "delta": -5.56,
+     "delta": -8.33,
      "interval": [
-      -16.67,
-      5.56
+      -20.83,
+      4.17
      ],
      "tag": "no_clear_difference",
-     "n_cases": 12,
+     "n_cases": 8,
      "wins": null,
      "losses": null
     }
@@ -5328,7 +5312,7 @@
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
-   "n_trials": 45,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
@@ -5361,37 +5345,37 @@
    "facet": null,
    "metric": "pass1",
    "unit": "%",
-   "value": 35.56,
+   "value": 30.3,
    "interval": [
-    23.22,
-    50.16
+    17.38,
+    47.34
    ],
    "interval_kind": "wilson",
-   "n_cases": 15,
-   "n_trials": 45,
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": -4.44,
+     "delta": -9.09,
      "interval": [
-      -15.56,
-      6.72
+      -21.21,
+      3.03
      ],
      "tag": "no_clear_difference",
-     "n_cases": 15,
-     "wins": 3,
-     "losses": 5
+     "n_cases": 11,
+     "wins": 1,
+     "losses": 4
     },
     "base": {
-     "delta": -6.67,
+     "delta": -9.09,
      "interval": [
-      -22.22,
-      8.89
+      -27.27,
+      9.09
      ],
      "tag": "no_clear_difference",
-     "n_cases": 15,
-     "wins": 3,
-     "losses": 4
+     "n_cases": 11,
+     "wins": 2,
+     "losses": 3
     }
    }
   },
@@ -5404,43 +5388,11 @@
    "value": 0.0,
    "interval": [
     0.0,
-    20.39
+    25.88
    ],
    "interval_kind": "wilson",
-   "n_cases": 15,
-   "n_trials": 45,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model C 3B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=commit_msg",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 50.0,
-   "interval": [
-    18.76,
-    81.24
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model C 3B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=diff_review",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 50.0,
-   "interval": [
-    18.76,
-    81.24
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null
   },
   {
@@ -5505,6 +5457,22 @@
    "interval_kind": "wilson",
    "n_cases": 2,
    "n_trials": 6,
+   "status": null
+  },
+  {
+   "variant": "local|Sample Model C 3B|q4|omlx|off",
+   "tier": "sidekick",
+   "facet": null,
+   "metric": "grade_hardened",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    89.57,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null
   },
   {
@@ -7940,35 +7908,35 @@
    "facet": null,
    "metric": "sidekick_score",
    "unit": "%",
-   "value": 55.56,
+   "value": 62.5,
    "interval": [
-    41.67,
-    69.44
+    58.33,
+    66.67
    ],
    "interval_kind": "bootstrap_cases",
-   "n_cases": 12,
-   "n_trials": 45,
+   "n_cases": 8,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 13.89,
+     "delta": 20.83,
      "interval": [
-      -2.78,
-      30.56
+      4.17,
+      37.5
      ],
-     "tag": "no_clear_difference",
-     "n_cases": 12,
+     "tag": "better",
+     "n_cases": 8,
      "wins": null,
      "losses": null
     },
     "base": {
-     "delta": 11.11,
+     "delta": 20.83,
      "interval": [
-      -8.4,
-      33.33
+      8.33,
+      37.5
      ],
-     "tag": "no_clear_difference",
-     "n_cases": 12,
+     "tag": "better",
+     "n_cases": 8,
      "wins": null,
      "losses": null
     }
@@ -7987,7 +7955,7 @@
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
-   "n_trials": 45,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
@@ -8020,37 +7988,37 @@
    "facet": null,
    "metric": "pass1",
    "unit": "%",
-   "value": 53.33,
+   "value": 57.58,
    "interval": [
-    39.08,
-    67.06
+    40.81,
+    72.76
    ],
    "interval_kind": "wilson",
-   "n_cases": 15,
-   "n_trials": 45,
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 13.33,
+     "delta": 18.18,
      "interval": [
-      -2.22,
-      31.11
-     ],
-     "tag": "no_clear_difference",
-     "n_cases": 15,
-     "wins": 5,
-     "losses": 2
-    },
-    "base": {
-     "delta": 11.11,
-     "interval": [
-      -13.33,
+      3.03,
       33.33
      ],
+     "tag": "better",
+     "n_cases": 11,
+     "wins": 4,
+     "losses": 0
+    },
+    "base": {
+     "delta": 18.18,
+     "interval": [
+      -3.03,
+      36.36
+     ],
      "tag": "no_clear_difference",
-     "n_cases": 15,
-     "wins": 8,
-     "losses": 4
+     "n_cases": 11,
+     "wins": 6,
+     "losses": 2
     }
    }
   },
@@ -8060,46 +8028,14 @@
    "facet": null,
    "metric": "pass_all_trials",
    "unit": "%",
-   "value": 6.67,
+   "value": 0.0,
    "interval": [
-    1.19,
-    29.82
+    0.0,
+    25.88
    ],
    "interval_kind": "wilson",
-   "n_cases": 15,
-   "n_trials": 45,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model D 8B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=commit_msg",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 50.0,
-   "interval": [
-    18.76,
-    81.24
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model D 8B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=diff_review",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 33.33,
-   "interval": [
-    9.68,
-    70.0
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null
   },
   {
@@ -8164,6 +8100,22 @@
    "interval_kind": "wilson",
    "n_cases": 2,
    "n_trials": 6,
+   "status": null
+  },
+  {
+   "variant": "local|Sample Model D 8B|q4|omlx|off",
+   "tier": "sidekick",
+   "facet": null,
+   "metric": "grade_hardened",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    89.57,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null
   },
   {
@@ -10599,35 +10551,35 @@
    "facet": null,
    "metric": "sidekick_score",
    "unit": "%",
-   "value": 72.22,
+   "value": 70.83,
    "interval": [
-    63.89,
-    80.56
+    58.33,
+    83.33
    ],
    "interval_kind": "bootstrap_cases",
-   "n_cases": 12,
-   "n_trials": 45,
+   "n_cases": 8,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 30.56,
+     "delta": 29.17,
      "interval": [
-      16.67,
-      44.44
+      12.5,
+      45.83
      ],
      "tag": "better",
-     "n_cases": 12,
+     "n_cases": 8,
      "wins": null,
      "losses": null
     },
     "base": {
-     "delta": 27.78,
+     "delta": 29.17,
      "interval": [
-      11.11,
-      44.44
+      8.33,
+      50.0
      ],
      "tag": "better",
-     "n_cases": 12,
+     "n_cases": 8,
      "wins": null,
      "losses": null
     }
@@ -10646,7 +10598,7 @@
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
-   "n_trials": 45,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
@@ -10679,37 +10631,37 @@
    "facet": null,
    "metric": "pass1",
    "unit": "%",
-   "value": 66.67,
+   "value": 63.64,
    "interval": [
-    52.07,
-    78.64
+    46.62,
+    77.81
    ],
    "interval_kind": "wilson",
-   "n_cases": 15,
-   "n_trials": 45,
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 26.67,
+     "delta": 24.24,
      "interval": [
-      8.89,
-      44.44
+      3.03,
+      48.48
      ],
      "tag": "better",
-     "n_cases": 15,
-     "wins": 8,
+     "n_cases": 11,
+     "wins": 5,
      "losses": 1
     },
     "base": {
-     "delta": 24.44,
+     "delta": 24.24,
      "interval": [
-      6.67,
-      44.44
+      6.06,
+      45.45
      ],
      "tag": "better",
-     "n_cases": 15,
-     "wins": 9,
-     "losses": 2
+     "n_cases": 11,
+     "wins": 6,
+     "losses": 1
     }
    }
   },
@@ -10719,46 +10671,14 @@
    "facet": null,
    "metric": "pass_all_trials",
    "unit": "%",
-   "value": 20.0,
+   "value": 18.18,
    "interval": [
-    7.05,
-    45.19
+    5.14,
+    47.7
    ],
    "interval_kind": "wilson",
-   "n_cases": 15,
-   "n_trials": 45,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model D 8B|q4|omlx|on",
-   "tier": "sidekick",
-   "facet": "family=commit_msg",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 83.33,
-   "interval": [
-    43.65,
-    96.99
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model D 8B|q4|omlx|on",
-   "tier": "sidekick",
-   "facet": "family=diff_review",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 66.67,
-   "interval": [
-    30.0,
-    90.32
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null
   },
   {
@@ -10823,6 +10743,22 @@
    "interval_kind": "wilson",
    "n_cases": 2,
    "n_trials": 6,
+   "status": null
+  },
+  {
+   "variant": "local|Sample Model D 8B|q4|omlx|on",
+   "tier": "sidekick",
+   "facet": null,
+   "metric": "grade_hardened",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    89.57,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null
   },
   {
@@ -13258,35 +13194,35 @@
    "facet": null,
    "metric": "sidekick_score",
    "unit": "%",
-   "value": 75.0,
+   "value": 79.17,
    "interval": [
-    63.89,
-    86.11
+    66.67,
+    95.83
    ],
    "interval_kind": "bootstrap_cases",
-   "n_cases": 12,
-   "n_trials": 45,
+   "n_cases": 8,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 33.33,
+     "delta": 37.5,
      "interval": [
-      19.44,
-      50.0
+      16.67,
+      58.33
      ],
      "tag": "better",
-     "n_cases": 12,
+     "n_cases": 8,
      "wins": null,
      "losses": null
     },
     "base": {
-     "delta": 30.56,
+     "delta": 37.5,
      "interval": [
-      11.11,
-      50.0
+      16.67,
+      58.33
      ],
      "tag": "better",
-     "n_cases": 12,
+     "n_cases": 8,
      "wins": null,
      "losses": null
     }
@@ -13305,7 +13241,7 @@
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
-   "n_trials": 45,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
@@ -13338,37 +13274,37 @@
    "facet": null,
    "metric": "pass1",
    "unit": "%",
-   "value": 64.44,
+   "value": 63.64,
    "interval": [
-    49.84,
-    76.78
+    46.62,
+    77.81
    ],
    "interval_kind": "wilson",
-   "n_cases": 15,
-   "n_trials": 45,
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 24.44,
+     "delta": 24.24,
      "interval": [
-      2.22,
-      44.44
+      -3.03,
+      51.52
      ],
-     "tag": "better",
-     "n_cases": 15,
-     "wins": 8,
+     "tag": "no_clear_difference",
+     "n_cases": 11,
+     "wins": 6,
      "losses": 1
     },
     "base": {
-     "delta": 22.22,
+     "delta": 24.24,
      "interval": [
-      2.17,
-      44.44
+      0.0,
+      48.48
      ],
      "tag": "better",
-     "n_cases": 15,
-     "wins": 9,
-     "losses": 3
+     "n_cases": 11,
+     "wins": 6,
+     "losses": 2
     }
    }
   },
@@ -13378,46 +13314,14 @@
    "facet": null,
    "metric": "pass_all_trials",
    "unit": "%",
-   "value": 33.33,
+   "value": 36.36,
    "interval": [
-    15.18,
-    58.29
+    15.17,
+    64.62
    ],
    "interval_kind": "wilson",
-   "n_cases": 15,
-   "n_trials": 45,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model E 12B MoE|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=commit_msg",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 83.33,
-   "interval": [
-    43.65,
-    96.99
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model E 12B MoE|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=diff_review",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 50.0,
-   "interval": [
-    18.76,
-    81.24
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null
   },
   {
@@ -13482,6 +13386,22 @@
    "interval_kind": "wilson",
    "n_cases": 2,
    "n_trials": 6,
+   "status": null
+  },
+  {
+   "variant": "local|Sample Model E 12B MoE|q4|omlx|off",
+   "tier": "sidekick",
+   "facet": null,
+   "metric": "grade_hardened",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    89.57,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null
   },
   {
@@ -15917,35 +15837,35 @@
    "facet": null,
    "metric": "sidekick_score",
    "unit": "%",
-   "value": 22.22,
+   "value": 20.83,
    "interval": [
     16.67,
-    27.78
+    25.0
    ],
    "interval_kind": "bootstrap_cases",
-   "n_cases": 12,
-   "n_trials": 45,
+   "n_cases": 8,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": -19.44,
+     "delta": -20.83,
      "interval": [
-      -25.0,
-      -13.89
+      -29.17,
+      -12.5
      ],
      "tag": "worse",
-     "n_cases": 12,
+     "n_cases": 8,
      "wins": null,
      "losses": null
     },
     "base": {
-     "delta": -22.22,
+     "delta": -20.83,
      "interval": [
-      -36.11,
+      -33.33,
       -8.33
      ],
      "tag": "worse",
-     "n_cases": 12,
+     "n_cases": 8,
      "wins": null,
      "losses": null
     }
@@ -15964,7 +15884,7 @@
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
-   "n_trials": 45,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
@@ -15997,37 +15917,37 @@
    "facet": null,
    "metric": "pass1",
    "unit": "%",
-   "value": 17.78,
+   "value": 15.15,
    "interval": [
-    9.29,
-    31.33
+    6.65,
+    30.92
    ],
    "interval_kind": "wilson",
-   "n_cases": 15,
-   "n_trials": 45,
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": -22.22,
+     "delta": -24.24,
      "interval": [
-      -37.78,
-      -6.67
+      -45.45,
+      0.0
      ],
-     "tag": "worse",
-     "n_cases": 15,
+     "tag": "no_clear_difference",
+     "n_cases": 11,
      "wins": 2,
-     "losses": 8
+     "losses": 6
     },
     "base": {
-     "delta": -24.44,
+     "delta": -24.24,
      "interval": [
-      -44.44,
-      -6.61
+      -48.48,
+      0.0
      ],
-     "tag": "worse",
-     "n_cases": 15,
-     "wins": 3,
-     "losses": 9
+     "tag": "no_clear_difference",
+     "n_cases": 11,
+     "wins": 2,
+     "losses": 6
     }
    }
   },
@@ -16040,43 +15960,11 @@
    "value": 0.0,
    "interval": [
     0.0,
-    20.39
+    25.88
    ],
    "interval_kind": "wilson",
-   "n_cases": 15,
-   "n_trials": 45,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model F 1B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=commit_msg",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 0.0,
-   "interval": [
-    0.0,
-    39.03
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model F 1B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=diff_review",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 50.0,
-   "interval": [
-    18.76,
-    81.24
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null
   },
   {
@@ -16141,6 +16029,22 @@
    "interval_kind": "wilson",
    "n_cases": 2,
    "n_trials": 6,
+   "status": null
+  },
+  {
+   "variant": "local|Sample Model F 1B|q4|omlx|off",
+   "tier": "sidekick",
+   "facet": null,
+   "metric": "grade_hardened",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    89.57,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null
   },
   {
@@ -18576,35 +18480,35 @@
    "facet": null,
    "metric": "sidekick_score",
    "unit": "%",
-   "value": 75.0,
+   "value": 79.17,
    "interval": [
-    61.11,
-    88.89
+    62.5,
+    95.83
    ],
    "interval_kind": "bootstrap_cases",
-   "n_cases": 12,
-   "n_trials": 45,
+   "n_cases": 8,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 33.33,
+     "delta": 37.5,
      "interval": [
-      16.67,
-      52.78
+      12.5,
+      62.5
      ],
      "tag": "better",
-     "n_cases": 12,
+     "n_cases": 8,
      "wins": null,
      "losses": null
     },
     "base": {
-     "delta": 30.56,
+     "delta": 37.5,
      "interval": [
-      11.11,
-      52.78
+      12.5,
+      62.5
      ],
      "tag": "better",
-     "n_cases": 12,
+     "n_cases": 8,
      "wins": null,
      "losses": null
     }
@@ -18623,7 +18527,7 @@
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
-   "n_trials": 45,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
@@ -18656,37 +18560,37 @@
    "facet": null,
    "metric": "pass1",
    "unit": "%",
-   "value": 75.56,
+   "value": 78.79,
    "interval": [
-    61.33,
-    85.76
+    62.25,
+    89.32
    ],
    "interval_kind": "wilson",
-   "n_cases": 15,
-   "n_trials": 45,
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 35.56,
+     "delta": 39.39,
      "interval": [
-      13.33,
-      57.78
+      9.09,
+      66.67
      ],
      "tag": "better",
-     "n_cases": 15,
-     "wins": 10,
+     "n_cases": 11,
+     "wins": 8,
      "losses": 1
     },
     "base": {
-     "delta": 33.33,
+     "delta": 39.39,
      "interval": [
-      8.89,
-      55.56
+      15.15,
+      63.64
      ],
      "tag": "better",
-     "n_cases": 15,
-     "wins": 10,
-     "losses": 2
+     "n_cases": 11,
+     "wins": 7,
+     "losses": 1
     }
    }
   },
@@ -18696,46 +18600,14 @@
    "facet": null,
    "metric": "pass_all_trials",
    "unit": "%",
-   "value": 53.33,
+   "value": 63.64,
    "interval": [
-    30.12,
-    75.19
+    35.38,
+    84.83
    ],
    "interval_kind": "wilson",
-   "n_cases": 15,
-   "n_trials": 45,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model G 14B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=commit_msg",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 83.33,
-   "interval": [
-    43.65,
-    96.99
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model G 14B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=diff_review",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 50.0,
-   "interval": [
-    18.76,
-    81.24
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null
   },
   {
@@ -18800,6 +18672,22 @@
    "interval_kind": "wilson",
    "n_cases": 2,
    "n_trials": 6,
+   "status": null
+  },
+  {
+   "variant": "local|Sample Model G 14B|q4|omlx|off",
+   "tier": "sidekick",
+   "facet": null,
+   "metric": "grade_hardened",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    89.57,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null
   },
   {
@@ -21235,35 +21123,35 @@
    "facet": null,
    "metric": "sidekick_score",
    "unit": "%",
-   "value": 55.56,
+   "value": 45.83,
    "interval": [
-    47.22,
-    63.89
+    33.33,
+    58.33
    ],
    "interval_kind": "bootstrap_cases",
-   "n_cases": 12,
-   "n_trials": 45,
+   "n_cases": 8,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 13.89,
+     "delta": 4.17,
      "interval": [
-      -2.78,
-      33.33
+      -20.83,
+      29.17
      ],
      "tag": "no_clear_difference",
-     "n_cases": 12,
+     "n_cases": 8,
      "wins": null,
      "losses": null
     },
     "base": {
-     "delta": 11.11,
+     "delta": 4.17,
      "interval": [
-      -2.78,
-      27.78
+      -16.67,
+      25.0
      ],
      "tag": "no_clear_difference",
-     "n_cases": 12,
+     "n_cases": 8,
      "wins": null,
      "losses": null
     }
@@ -21282,7 +21170,7 @@
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
-   "n_trials": 45,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
@@ -21315,36 +21203,36 @@
    "facet": null,
    "metric": "pass1",
    "unit": "%",
-   "value": 51.11,
+   "value": 42.42,
    "interval": [
-    37.0,
-    65.04
+    27.24,
+    59.19
    ],
    "interval_kind": "wilson",
-   "n_cases": 15,
-   "n_trials": 45,
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 11.11,
+     "delta": 3.03,
      "interval": [
-      -6.67,
-      31.11
+      -18.18,
+      27.27
      ],
      "tag": "no_clear_difference",
-     "n_cases": 15,
-     "wins": 6,
+     "n_cases": 11,
+     "wins": 3,
      "losses": 4
     },
     "base": {
-     "delta": 8.89,
+     "delta": 3.03,
      "interval": [
-      -13.33,
-      28.89
+      -24.24,
+      33.33
      ],
      "tag": "no_clear_difference",
-     "n_cases": 15,
-     "wins": 4,
+     "n_cases": 11,
+     "wins": 2,
      "losses": 2
     }
    }
@@ -21355,46 +21243,14 @@
    "facet": null,
    "metric": "pass_all_trials",
    "unit": "%",
-   "value": 20.0,
+   "value": 9.09,
    "interval": [
-    7.05,
-    45.19
+    1.62,
+    37.74
    ],
    "interval_kind": "wilson",
-   "n_cases": 15,
-   "n_trials": 45,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model H 6B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=commit_msg",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 50.0,
-   "interval": [
-    18.76,
-    81.24
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model H 6B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=diff_review",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 100.0,
-   "interval": [
-    60.97,
-    100.0
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null
   },
   {
@@ -21459,6 +21315,22 @@
    "interval_kind": "wilson",
    "n_cases": 2,
    "n_trials": 6,
+   "status": null
+  },
+  {
+   "variant": "local|Sample Model H 6B|q4|omlx|off",
+   "tier": "sidekick",
+   "facet": null,
+   "metric": "grade_hardened",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    89.57,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null
   },
   {
@@ -23688,25 +23560,25 @@
    "unit": "%",
    "value": 41.67,
    "interval": [
-    33.33,
-    52.78
+    29.17,
+    54.17
    ],
    "interval_kind": "bootstrap_cases",
-   "n_cases": 12,
-   "n_trials": 45,
+   "n_cases": 8,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
      "self": true
     },
     "base": {
-     "delta": -2.78,
+     "delta": -0.0,
      "interval": [
-      -19.44,
-      13.89
+      -16.67,
+      16.67
      ],
      "tag": "no_clear_difference",
-     "n_cases": 12,
+     "n_cases": 8,
      "wins": null,
      "losses": null
     }
@@ -23725,7 +23597,7 @@
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
-   "n_trials": 45,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
@@ -23750,29 +23622,29 @@
    "facet": null,
    "metric": "pass1",
    "unit": "%",
-   "value": 40.0,
+   "value": 39.39,
    "interval": [
-    27.02,
-    54.55
+    24.68,
+    56.32
    ],
    "interval_kind": "wilson",
-   "n_cases": 15,
-   "n_trials": 45,
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null,
    "vs": {
     "tuned": {
      "self": true
     },
     "base": {
-     "delta": -2.22,
+     "delta": -0.0,
      "interval": [
-      -22.22,
-      15.56
+      -21.21,
+      21.21
      ],
      "tag": "no_clear_difference",
-     "n_cases": 15,
-     "wins": 5,
-     "losses": 5
+     "n_cases": 11,
+     "wins": 4,
+     "losses": 4
     }
    }
   },
@@ -23785,43 +23657,11 @@
    "value": 0.0,
    "interval": [
     0.0,
-    20.39
+    25.88
    ],
    "interval_kind": "wilson",
-   "n_cases": 15,
-   "n_trials": 45,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Tuned 4B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=commit_msg",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 33.33,
-   "interval": [
-    9.68,
-    70.0
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Tuned 4B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=diff_review",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 50.0,
-   "interval": [
-    18.76,
-    81.24
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null
   },
   {
@@ -23886,6 +23726,22 @@
    "interval_kind": "wilson",
    "n_cases": 2,
    "n_trials": 6,
+   "status": null
+  },
+  {
+   "variant": "local|Sample Tuned 4B|q4|omlx|off",
+   "tier": "sidekick",
+   "facet": null,
+   "metric": "grade_hardened",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    89.57,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 11,
+   "n_trials": 33,
    "status": null
   },
   {
@@ -24332,31 +24188,31 @@
   {
    "variant": "local|Sample Base 4B|q4|omlx|off",
    "tier": "sidekick",
-   "trials": 45,
+   "trials": 33,
    "unsafe_trials": 3,
-   "unsafe_rate": 6.67,
+   "unsafe_rate": 9.09,
    "unsafe_interval": [
-    2.29,
-    17.86
+    3.14,
+    23.57
    ],
    "leak_trials": null,
    "leak_rate": null,
    "leak_interval": null,
-   "unsafe_per_100": 6.6667,
+   "unsafe_per_100": 9.0909,
    "leaks_per_100": null,
    "vs": {
     "unsafe_rate": {
      "tuned": {
-      "delta": -13.33,
+      "delta": -3.03,
       "interval": [
-       -28.89,
-       0.0
+       -16.74,
+       12.12
       ],
       "tag": "no_clear_difference",
-      "n_cases": 15,
+      "n_cases": 11,
       "wins": 2,
-      "losses": 6,
-      "ratio": 0.3333
+      "losses": 3,
+      "ratio": 0.75
      },
      "base": {
       "self": true
@@ -24830,12 +24686,12 @@
   {
    "variant": "local|Sample Model C 3B|q4|omlx|off",
    "tier": "sidekick",
-   "trials": 45,
+   "trials": 33,
    "unsafe_trials": 0,
    "unsafe_rate": 0.0,
    "unsafe_interval": [
     0.0,
-    7.87
+    10.43
    ],
    "leak_trials": null,
    "leak_rate": null,
@@ -24845,25 +24701,25 @@
    "vs": {
     "unsafe_rate": {
      "tuned": {
-      "delta": -20.0,
+      "delta": -12.12,
       "interval": [
-       -33.33,
-       -8.89
+       -21.21,
+       -3.03
       ],
       "tag": "better",
-      "n_cases": 15,
+      "n_cases": 11,
       "wins": 0,
-      "losses": 7,
+      "losses": 4,
       "ratio": 0.0
      },
      "base": {
-      "delta": -6.67,
+      "delta": -9.09,
       "interval": [
-       -13.33,
+       -18.18,
        0.0
       ],
       "tag": "no_clear_difference",
-      "n_cases": 15,
+      "n_cases": 11,
       "wins": 0,
       "losses": 3,
       "ratio": 0.0
@@ -25335,43 +25191,43 @@
   {
    "variant": "local|Sample Model D 8B|q4|omlx|off",
    "tier": "sidekick",
-   "trials": 45,
-   "unsafe_trials": 3,
-   "unsafe_rate": 6.67,
+   "trials": 33,
+   "unsafe_trials": 1,
+   "unsafe_rate": 3.03,
    "unsafe_interval": [
-    2.29,
-    17.86
+    0.54,
+    15.32
    ],
    "leak_trials": null,
    "leak_rate": null,
    "leak_interval": null,
-   "unsafe_per_100": 6.6667,
+   "unsafe_per_100": 3.0303,
    "leaks_per_100": null,
    "vs": {
     "unsafe_rate": {
      "tuned": {
-      "delta": -13.33,
+      "delta": -9.09,
       "interval": [
-       -24.44,
-       -2.22
-      ],
-      "tag": "better",
-      "n_cases": 15,
-      "wins": 1,
-      "losses": 6,
-      "ratio": 0.3333
-     },
-     "base": {
-      "delta": 0.0,
-      "interval": [
-       -11.11,
-       13.33
+       -21.21,
+       3.03
       ],
       "tag": "no_clear_difference",
-      "n_cases": 15,
-      "wins": 2,
+      "n_cases": 11,
+      "wins": 1,
+      "losses": 4,
+      "ratio": 0.25
+     },
+     "base": {
+      "delta": -6.06,
+      "interval": [
+       -15.15,
+       6.06
+      ],
+      "tag": "no_clear_difference",
+      "n_cases": 11,
+      "wins": 1,
       "losses": 3,
-      "ratio": 1.0
+      "ratio": 0.3333
      }
     },
     "leak_rate": {
@@ -25840,12 +25696,12 @@
   {
    "variant": "local|Sample Model D 8B|q4|omlx|on",
    "tier": "sidekick",
-   "trials": 45,
+   "trials": 33,
    "unsafe_trials": 0,
    "unsafe_rate": 0.0,
    "unsafe_interval": [
     0.0,
-    7.87
+    10.43
    ],
    "leak_trials": null,
    "leak_rate": null,
@@ -25855,25 +25711,25 @@
    "vs": {
     "unsafe_rate": {
      "tuned": {
-      "delta": -20.0,
+      "delta": -12.12,
       "interval": [
-       -33.33,
-       -8.89
+       -21.21,
+       -3.03
       ],
       "tag": "better",
-      "n_cases": 15,
+      "n_cases": 11,
       "wins": 0,
-      "losses": 7,
+      "losses": 4,
       "ratio": 0.0
      },
      "base": {
-      "delta": -6.67,
+      "delta": -9.09,
       "interval": [
-       -13.33,
+       -18.18,
        0.0
       ],
       "tag": "no_clear_difference",
-      "n_cases": 15,
+      "n_cases": 11,
       "wins": 0,
       "losses": 3,
       "ratio": 0.0
@@ -26345,40 +26201,40 @@
   {
    "variant": "local|Sample Model E 12B MoE|q4|omlx|off",
    "tier": "sidekick",
-   "trials": 45,
+   "trials": 33,
    "unsafe_trials": 3,
-   "unsafe_rate": 6.67,
+   "unsafe_rate": 9.09,
    "unsafe_interval": [
-    2.29,
-    17.86
+    3.14,
+    23.57
    ],
    "leak_trials": null,
    "leak_rate": null,
    "leak_interval": null,
-   "unsafe_per_100": 6.6667,
+   "unsafe_per_100": 9.0909,
    "leaks_per_100": null,
    "vs": {
     "unsafe_rate": {
      "tuned": {
-      "delta": -13.33,
+      "delta": -3.03,
       "interval": [
-       -28.89,
-       0.0
+       -16.74,
+       12.12
       ],
       "tag": "no_clear_difference",
-      "n_cases": 15,
+      "n_cases": 11,
       "wins": 2,
-      "losses": 6,
-      "ratio": 0.3333
+      "losses": 3,
+      "ratio": 0.75
      },
      "base": {
       "delta": 0.0,
       "interval": [
-       -8.89,
-       8.89
+       -12.12,
+       12.12
       ],
       "tag": "no_clear_difference",
-      "n_cases": 15,
+      "n_cases": 11,
       "wins": 2,
       "losses": 2,
       "ratio": 1.0
@@ -26850,43 +26706,43 @@
   {
    "variant": "local|Sample Model F 1B|q4|omlx|off",
    "tier": "sidekick",
-   "trials": 45,
-   "unsafe_trials": 10,
-   "unsafe_rate": 22.22,
+   "trials": 33,
+   "unsafe_trials": 8,
+   "unsafe_rate": 24.24,
    "unsafe_interval": [
-    12.54,
-    36.27
+    12.83,
+    41.02
    ],
    "leak_trials": null,
    "leak_rate": null,
    "leak_interval": null,
-   "unsafe_per_100": 22.2222,
+   "unsafe_per_100": 24.2424,
    "leaks_per_100": null,
    "vs": {
     "unsafe_rate": {
      "tuned": {
-      "delta": 2.22,
+      "delta": 12.12,
       "interval": [
-       -8.89,
-       13.33
-      ],
-      "tag": "no_clear_difference",
-      "n_cases": 15,
-      "wins": 4,
-      "losses": 3,
-      "ratio": 1.1111
-     },
-     "base": {
-      "delta": 15.56,
-      "interval": [
-       4.44,
-       24.44
+       3.03,
+       21.21
       ],
       "tag": "worse",
-      "n_cases": 15,
-      "wins": 8,
+      "n_cases": 11,
+      "wins": 4,
+      "losses": 0,
+      "ratio": 2.0
+     },
+     "base": {
+      "delta": 15.15,
+      "interval": [
+       3.03,
+       27.27
+      ],
+      "tag": "worse",
+      "n_cases": 11,
+      "wins": 6,
       "losses": 1,
-      "ratio": 3.3333
+      "ratio": 2.6667
      }
     },
     "leak_rate": {
@@ -27355,40 +27211,40 @@
   {
    "variant": "local|Sample Model G 14B|q4|omlx|off",
    "tier": "sidekick",
-   "trials": 45,
+   "trials": 33,
    "unsafe_trials": 1,
-   "unsafe_rate": 2.22,
+   "unsafe_rate": 3.03,
    "unsafe_interval": [
-    0.39,
-    11.57
+    0.54,
+    15.32
    ],
    "leak_trials": null,
    "leak_rate": null,
    "leak_interval": null,
-   "unsafe_per_100": 2.2222,
+   "unsafe_per_100": 3.0303,
    "leaks_per_100": null,
    "vs": {
     "unsafe_rate": {
      "tuned": {
-      "delta": -17.78,
+      "delta": -9.09,
       "interval": [
-       -31.11,
-       -4.44
+       -21.21,
+       3.03
       ],
-      "tag": "better",
-      "n_cases": 15,
+      "tag": "no_clear_difference",
+      "n_cases": 11,
       "wins": 1,
-      "losses": 7,
-      "ratio": 0.1111
+      "losses": 4,
+      "ratio": 0.25
      },
      "base": {
-      "delta": -4.44,
+      "delta": -6.06,
       "interval": [
-       -11.11,
+       -15.15,
        0.0
       ],
       "tag": "no_clear_difference",
-      "n_cases": 15,
+      "n_cases": 11,
       "wins": 0,
       "losses": 2,
       "ratio": 0.3333
@@ -27860,43 +27716,43 @@
   {
    "variant": "local|Sample Model H 6B|q4|omlx|off",
    "tier": "sidekick",
-   "trials": 45,
-   "unsafe_trials": 6,
-   "unsafe_rate": 13.33,
+   "trials": 33,
+   "unsafe_trials": 5,
+   "unsafe_rate": 15.15,
    "unsafe_interval": [
-    6.26,
-    26.18
+    6.65,
+    30.92
    ],
    "leak_trials": null,
    "leak_rate": null,
    "leak_interval": null,
-   "unsafe_per_100": 13.3333,
+   "unsafe_per_100": 15.1515,
    "leaks_per_100": null,
    "vs": {
     "unsafe_rate": {
      "tuned": {
-      "delta": -6.67,
+      "delta": 3.03,
       "interval": [
-       -22.22,
-       8.89
+       -12.12,
+       21.21
       ],
       "tag": "no_clear_difference",
-      "n_cases": 15,
+      "n_cases": 11,
       "wins": 2,
-      "losses": 5,
-      "ratio": 0.6667
+      "losses": 2,
+      "ratio": 1.25
      },
      "base": {
-      "delta": 6.67,
+      "delta": 6.06,
       "interval": [
-       -2.22,
-       18.94
+       -6.06,
+       21.21
       ],
       "tag": "no_clear_difference",
-      "n_cases": 15,
-      "wins": 3,
+      "n_cases": 11,
+      "wins": 2,
       "losses": 1,
-      "ratio": 2.0
+      "ratio": 1.6667
      }
     },
     "leak_rate": {
@@ -28291,17 +28147,17 @@
   {
    "variant": "local|Sample Tuned 4B|q4|omlx|off",
    "tier": "sidekick",
-   "trials": 45,
-   "unsafe_trials": 9,
-   "unsafe_rate": 20.0,
+   "trials": 33,
+   "unsafe_trials": 4,
+   "unsafe_rate": 12.12,
    "unsafe_interval": [
-    10.9,
-    33.82
+    4.82,
+    27.33
    ],
    "leak_trials": null,
    "leak_rate": null,
    "leak_interval": null,
-   "unsafe_per_100": 20.0,
+   "unsafe_per_100": 12.1212,
    "leaks_per_100": null,
    "vs": {
     "unsafe_rate": {
@@ -28309,16 +28165,16 @@
       "self": true
      },
      "base": {
-      "delta": 13.33,
+      "delta": 3.03,
       "interval": [
-       0.0,
-       26.67
+       -9.09,
+       15.15
       ],
       "tag": "no_clear_difference",
-      "n_cases": 15,
-      "wins": 6,
+      "n_cases": 11,
+      "wins": 3,
       "losses": 2,
-      "ratio": 3.0
+      "ratio": 1.3333
      }
     },
     "leak_rate": {
@@ -30359,7 +30215,7 @@
    "tier": "sidekick",
    "metric": "sidekick_score",
    "rank_range": [
-    3,
+    4,
     6
    ]
   },
@@ -30494,7 +30350,7 @@
    "tier": "sidekick",
    "metric": "sidekick_score",
    "rank_range": [
-    3,
+    4,
     6
    ]
   },
@@ -30630,7 +30486,7 @@
    "metric": "sidekick_score",
    "rank_range": [
     1,
-    6
+    3
    ]
   },
   {
@@ -31034,7 +30890,7 @@
    "tier": "sidekick",
    "metric": "sidekick_score",
    "rank_range": [
-    3,
+    4,
     6
    ]
   },

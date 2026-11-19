@@ -34,6 +34,112 @@ def test_keyfacts_all_required_and_forbid():
     assert not grade_keyfacts(check, "").passed
 
 
+
+# An invented explain-style prompt for the copy guard (no case's text).
+_SRC = """My report crashes. Why? A missing count should default to zero.
+
+```python
+def summarise(entry):
+    count = entry["visits"]
+    return f"{count} visits"
+```
+
+```text
+Traceback (most recent call last):
+  File "report.py", line 7, in <module>
+    summarise({"name": "pine"})
+  File "report.py", line 2, in summarise
+    count = entry["visits"]
+KeyError: 'visits'
+```"""
+_CHECK = {"facts": {"where": [r"\bline 2\b", r"\bsummarise\b"],
+                    "cause": [r"KeyError.{0,10}visits", r"(no|missing|lacks?|without).{0,40}visits", r"visits.{0,40}(missing|absent|not (there|present))"],
+                    "fix": [r"\.get\(", r"[\"']visits[\"'] in entry", r"\bdefault\b"]}}
+_HONEST = 'In summarise, line 2 reads entry["visits"], but that entry has no "visits" key. Use entry.get("visits", 0).'
+
+
+def test_keyfacts_copying_the_prompt_earns_nothing():
+    src_words = [w for w in __import__("re").findall(r"[A-Za-z0-9_]+", _SRC)]
+    assert grade_keyfacts(_CHECK, _HONEST, source=_SRC).passed
+    # the honest answer followed by the whole source quoted back still passes: its facts are its own
+    assert grade_keyfacts(_CHECK, _HONEST + "\n\nYour code:\n" + _SRC, source=_SRC).passed
+    # the source alone, padded with other words, or with prompt words, or reordered, passes nothing
+    for echo in (_SRC, " ".join(w + " qq" for w in src_words), " ".join(w + " so" for w in src_words),
+                 " ".join(w + " " + src_words[k * 7 % len(src_words)] for k, w in enumerate(src_words)),
+                 "\n".join(reversed(_SRC.splitlines())), " ".join(sorted(set(src_words))), "\n".join([_SRC] * 3)):
+        r = grade_keyfacts(_CHECK, echo, source=_SRC)
+        assert not r.passed, echo[:60]
+    r = grade_keyfacts(_CHECK, _SRC, source=_SRC)
+    assert r.metrics["copied_words"] > 20 and r.metrics.get("facts_only_in_copy")
+    # without the source the old matcher would have passed the echo: the guard is what fails it
+    assert grade_keyfacts(_CHECK, _SRC).passed
+
+
+def test_keyfacts_reuse_cap_and_length_cap():
+    src_words = sorted(set(__import__("re").findall(r"[A-Za-z0-9_]+", _SRC)))
+    salad = _HONEST + " " + " and ".join(src_words)            # facts present, but most of the prompt's words
+    r = grade_keyfacts(_CHECK, salad, source=_SRC)
+    assert not r.passed and r.metrics["reproduces_source"] and r.metrics["source_reuse"] > 0.5
+    assert grade_keyfacts(_CHECK, _HONEST, source=_SRC).metrics["source_reuse"] <= 0.5
+    long = _HONEST + " " + "ok " * 2001
+    r = grade_keyfacts(_CHECK, long, source=_SRC)
+    assert not r.passed and r.metrics["answer_words"] > 2000
+
+
+def test_diff_bug_facts_from_the_diff_do_not_count():
+    diff = """Is there a bug in this diff? Start your answer with Yes or No.
+
+```diff
+-    for i in range(0, len(items)):
++    for i in range(1, len(items)):
+         total += items[i].weight
+```"""
+    check = {"has_bug": True, "facts": {"where": [r"range\(1,"], "cause": [r"skip|first|index 0|miss"]}}
+    assert grade_diff_bug(check, "Yes. range(1, len(items)) skips the first item, index 0.", source=diff).passed
+    assert not grade_diff_bug(check, "Yes. " + diff, source=diff).passed
+    assert not grade_diff_bug(check, "Yes. " + " ".join(w + " qq" for w in diff.split()), source=diff).passed
+
+
+def test_commit_message_quoting_the_diff_earns_nothing():
+    diff = """Write a commit message for this change.
+
+```diff
+-def fetch(url, timeout=30):
++def fetch(url, timeout=5):
+     return http_get(url, timeout=timeout)
+```"""
+    check = {"facts": {"what": [r"timeout"], "value": [r"\b5\b"]}, "diff_names": ["fetch", "http_get"]}
+    assert grade_commit_msg(check, "Lower the fetch timeout to 5 seconds", source=diff).passed
+    body = diff.split("```diff\n", 1)[1].split("```", 1)[0]
+    for forged in ("Update code\n\n" + body,
+                   "Update code\n\n" + body + "\n\nRename and remove unused dead code, handle empty input."):
+        assert grade_commit_msg(check, forged).passed               # the matcher alone takes it: the guard fails it
+        assert not grade_commit_msg(check, forged, source=diff).passed
+
+
+def test_every_explanation_case_refuses_its_own_prompt():
+    """Through grade_answer (which passes the prompt): each template's references pass, the prompt echoed
+    back (with "Yes." for a diff with a bug) fails, and so does a wrong answer with the shown code quoted."""
+    import random
+    from edat.sidekick.extract import fences
+    from edat.sidekick.gen.registry import all_templates
+    n = 0
+    for t in all_templates():
+        for seed in range(2):
+            inst = t.build(random.Random(f"echo{seed}"))
+            if inst.grader not in ("keyfacts", "diff_bug", "commit_msg") or (inst.grader == "diff_bug" and not inst.check.get("has_bug")):
+                continue
+            n += 1
+            pre = {"diff_bug": "Yes. ", "commit_msg": "Update code\n\n"}.get(inst.grader, "")
+            code = "\n".join(b for _, b in fences(inst.prompt))
+            for ref in inst.references:
+                assert grade_answer(inst, ref).passed, t.id
+            for echo in (pre + inst.prompt, pre + code, pre + " ".join(w + " qq" for w in inst.prompt.split())):
+                assert not grade_answer(inst, echo).passed, (t.id, echo[:50])
+            for w in inst.wrong:
+                assert not grade_answer(inst, w + "\n```\n" + code + "\n```").passed, t.id
+    assert n >= 50
+
 def test_commit_format_rules():
     check = {"facts": {"what": [r"renam"]}, "diff_names": ["get_user", "get_usr", "accounts.py"]}
     assert grade_commit_msg(check, "Rename get_usr to get_user").passed

@@ -230,7 +230,10 @@ forbids an output (they held against nine spray commands): 118 of 228 cases, and
 - write_test (`source_compare`): a test that compares the module against the shown source passes;
 - every answer whose verdict comes from the fact matcher, which looks for the facts anywhere in the
   answer's free text, so an answer that contains the prompt passes (`prompt_echo`): every explain_error
-  case, the diff "what" cases, the Yes/No diff cases that have a bug, and commit messages;
+  case, the diff "what" cases, the Yes/No diff cases that have a bug, and commit messages, until the copy
+  guard has had its own adversarial pass. Under the guard, text copied from the prompt is blanked before
+  the facts are matched, what is left may use at most half of the prompt's distinct words, and an answer
+  over 2,000 words fails;
 - the Yes/No diff cases without a bug (`guessable`): "No." passes every one (so every diff_review case is
   labelled);
 - the shell cases whose output check takes any line holding a name and its number, with no forbidden

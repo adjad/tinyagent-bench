@@ -46,9 +46,9 @@ written only for this benchmark goes in the benchmark's own folders.
 | Website | `site/` | Today a mock-up. The real site renders from `site/data/`. Design: [06-ui-design](benchmark/06-ui-design.md). |
 | Hosted reference (unranked, quality tests only) | `edat/hosted/`, reusing `service/inference/providers.py`, `remote_policy.py` and `service/config/endpoints.py` | Synthetic data only. Credentials come from the Keychain at run time and never enter the repository ([REMOTE_INFERENCE](REMOTE_INFERENCE.md)). |
 | Model adapters | `edat/models/` | One adapter per runtime or provider, so the harness talks to every model the same way. |
-| Sidekick tasks (light coding and terminal) | `edat/sidekick/`, cases in `test_fixtures/sidekick/` | Planned. |
-| On-screen app control | `edat/screen/`, cases in `test_fixtures/screen/` | Planned. |
-| Standing preferences, long sessions | Cases in `test_fixtures/` next to the harness that runs them; new harness code in `edat/` | [14-standing-preferences](benchmark/14-standing-preferences.md); long sessions are designed in a later document. |
+| Sidekick tasks (light coding and terminal) | `edat/sidekick/`, cases in `test_fixtures/sidekick/` | Planned. Design: [12-sidekick-coding-spec](benchmark/12-sidekick-coding-spec.md). |
+| On-screen app control | `edat/screen/`, cases in `test_fixtures/screen/` | Planned. Design: [11-screen-control-spec](benchmark/11-screen-control-spec.md). |
+| Standing preferences, long sessions | Cases in `test_fixtures/` next to the harness that runs them; new harness code in `edat/` | [14-standing-preferences](benchmark/14-standing-preferences.md); long sessions in [02-agentic-spec](benchmark/02-agentic-spec.md) §3.15. |
 | Tests for new benchmark code | `tests/test_edat_*.py` for `edat/`, next to the imported tests | Keeps one `pytest.ini`. |
 
 Rules for new work:

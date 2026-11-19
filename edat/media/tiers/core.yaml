@@ -1,0 +1,26 @@
+# tinyagent-bench media tier 1 ("core"): spec 05 §17.7, about 7-8 Mac hours per model.
+# Every count here is a prefix of the same seeded order as extended.yaml and full.yaml,
+# so core items are extended items are full items (§17, nested tiers).
+tier: core
+seed: 20261119
+a1:  {librispeech_clean: 150, librispeech_other: 100, ami_sdm: 75, earnings22: 75, strata: [speaker, meeting, file]}
+a4:  {base: a1.librispeech_clean, n: 60, conditions: [snr10, snr0, rir3m, sir5, dbfs-40, clip12, dropouts], noise_source: generated}
+a3:  {single: 150, entity_dense: 75, single_sources: [agentic], followups: 15, corrections: 15, disfluency: 15,
+      noise: {n: 40, snr_db: [10]}, voice_variance: off, configurations: [two_pass], native_one_call: optional}
+a5:  {non_speech: 100, trailing_silence: 50, answer_leak: 50, speech_inside_noise: 0}
+a7:  {conversations: 50, cremad: 150, esc10: 100, generated_sounds: 0, urgency: 50,
+      recordings: {memos: 6, meetings: 0, talks: 0, questions: 30}, der: off, big_bench_audio: off}
+a8:  {rungs_s: [31, 120, 600, 1800], clips_per_rung: 1}
+a9:  {runs_min: [10], source: a8}
+a2:  {lengths_s: [2, 5, 10, 20, 30], clips_per_length: 5}
+v1:  {families: all, images_per_family: 25, questions_per_image: 2, readings_per_family: 5}
+v2:  {ocrbench: 200}
+v3:  {n: 80}
+v5:  {images: 40, conditions: [text9px, side768, rot15, crop_partial, glare_strong, blur_mid, jpeg20, dark], unreadable: 40,
+      questions_per_image: 1}
+v7:  {counting: 50, spatial: 50, control_location: 50, multi_image: 30, chart_trend: 0, screenspot: 0}
+v4:  {images_per_request: [1, 2, 4, 8, 9, 16], per_rung: 5, long_side_px: [512, 768, 1024, 1568, 2048, 3000],
+      tiling_at: [3000], per_size: 10, token_budgets: [70, 140, 280, 560, 1120], per_budget: 10}
+strip: {measures: [M1, M2, M3, M4, M4b, M8], m4_prompts: 100}
+thinking_entries: ["off"]
+trials: 3

@@ -1,0 +1,985 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-receipts_forms-dev-0000",
+ "family": "receipts_forms",
+ "template": "receipt_shop",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 0,
+ "variant": {
+  "theme": "light",
+  "dpr": 1,
+  "abstain": false,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-receipts_forms-dev-0000.png",
+  "sha256": "dec3d988e5782939f8428f751f29e108f38e51750ab93f5072c240056bda4a9b",
+  "width": 360,
+  "height": 680,
+  "logical": [
+   360,
+   680
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2028,
+ "data": {
+  "template": "receipt_shop",
+  "layout": 1,
+  "style": {
+   "align": "left",
+   "upper": false,
+   "sep": "line",
+   "qty": "prefix",
+   "tax": "Tax",
+   "disc": true
+  },
+  "merchant": "Nexoura Bakery",
+  "address": "3 Ulstead Lane, Rosmere",
+  "phone": "(503) 555-0166",
+  "date": "2028-06-14",
+  "time": "21:17",
+  "receipt_number": "585075",
+  "lines": [
+   {
+    "name": "Rice 2kg",
+    "qty": 1,
+    "unit": 1.59,
+    "amount": 1.59
+   },
+   {
+    "name": "Apples",
+    "qty": 1,
+    "unit": 13.51,
+    "amount": 13.51
+   },
+   {
+    "name": "Sponges",
+    "qty": 2,
+    "unit": 19.93,
+    "amount": 39.86
+   },
+   {
+    "name": "Granola",
+    "qty": 1,
+    "unit": 18.61,
+    "amount": 18.61
+   },
+   {
+    "name": "Oat milk",
+    "qty": 1,
+    "unit": 1.85,
+    "amount": 1.85
+   },
+   {
+    "name": "Spinach",
+    "qty": 1,
+    "unit": 2.24,
+    "amount": 2.24
+   }
+  ],
+  "subtotal": 77.66,
+  "discount": 3.88,
+  "tax_rate": 0.0875,
+  "tax": 6.46,
+  "tip": 0.0,
+  "total": 80.24,
+  "payment": "Debit card",
+  "server": null,
+  "table": null
+ },
+ "fields": {
+  "merchant": {
+   "name": "merchant",
+   "kind": "text",
+   "value": "Nexoura Bakery",
+   "text": "Nexoura Bakery",
+   "bbox": [
+    35,
+    33,
+    173,
+    52
+   ],
+   "size_px": 19,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e5066d1beb3e1dc57baa6346e61ea8a00e65256835ab03b489cbbf507996408b",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "receipt_number": {
+   "name": "receipt_number",
+   "kind": "text",
+   "value": "585075",
+   "text": "Order 585075",
+   "bbox": [
+    36,
+    100,
+    113,
+    109
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "47709068aee140090078a02f883ba84f99e2079a4c0fb417e456dcb716fe26c7",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "date": {
+   "name": "date",
+   "kind": "date",
+   "value": "2028-06-14",
+   "text": "Jun 14, 2028",
+   "bbox": [
+    36,
+    120,
+    108,
+    131
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "6396ef962f1ad198619e864f7a93b8a753d2fabd609efb95c7d243650968d931",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "time": {
+   "name": "time",
+   "kind": "time",
+   "value": "21:17",
+   "text": "9:17 PM",
+   "bbox": [
+    280,
+    120,
+    324,
+    129
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b1dd84c0fb1f3063fe8bd3560c798b3edd005377a3d8efc63c8d6dbffc4226a1",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_0_name": {
+   "name": "item_0_name",
+   "kind": "text",
+   "value": "Rice 2kg",
+   "text": "Rice 2kg",
+   "bbox": [
+    36,
+    152,
+    84,
+    164
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "139689ab94d288e54c21c46ea272c2339521503bbd8e187330ba5da87b24c089",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_0_amount": {
+   "name": "item_0_amount",
+   "kind": "money",
+   "value": "1.59",
+   "text": "$1.59",
+   "bbox": [
+    293,
+    151,
+    324,
+    162
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "99bf9ffefa4c998050c1a6c6544194971a84d7c17485bf06dbcb8fce0172b4b5",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_1_name": {
+   "name": "item_1_name",
+   "kind": "text",
+   "value": "Apples",
+   "text": "Apples",
+   "bbox": [
+    36,
+    170,
+    74,
+    182
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1dbf94e55c35f5a08ef9757b4ba40d9bfdd983c9aa02ac8883f8473702de8c17",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_1_amount": {
+   "name": "item_1_amount",
+   "kind": "money",
+   "value": "13.51",
+   "text": "$13.51",
+   "bbox": [
+    286,
+    169,
+    324,
+    180
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1bd7306a09ef8011c95f42a8f0b0d074d18029f75d139f3b22c708f5f7c7eceb",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_2_name": {
+   "name": "item_2_name",
+   "kind": "text",
+   "value": "Sponges",
+   "text": "2 x Sponges",
+   "bbox": [
+    36,
+    188,
+    103,
+    200
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "67c04878dc75b04e99cc5ef856737c93bad184cd4d71ee5424a6e6d049c263be",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_2_amount": {
+   "name": "item_2_amount",
+   "kind": "money",
+   "value": "39.86",
+   "text": "$39.86",
+   "bbox": [
+    286,
+    187,
+    324,
+    198
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0a90b303ff5ef35a10065a1c54f361b4000fbcd30ba565972589f9b8ff11d374",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_3_name": {
+   "name": "item_3_name",
+   "kind": "text",
+   "value": "Granola",
+   "text": "Granola",
+   "bbox": [
+    36,
+    206,
+    80,
+    215
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "bcc27514c2fa956199c5f01a2aba61efcb658d7223057d3bfc7328292aaaacc1",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_3_amount": {
+   "name": "item_3_amount",
+   "kind": "money",
+   "value": "18.61",
+   "text": "$18.61",
+   "bbox": [
+    286,
+    205,
+    324,
+    216
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "816c93e1f30443e903dc05218bc6b4efc935412e005b127466cb57bc3d195459",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_4_name": {
+   "name": "item_4_name",
+   "kind": "text",
+   "value": "Oat milk",
+   "text": "Oat milk",
+   "bbox": [
+    36,
+    224,
+    83,
+    233
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e024499e986e0075742d9ce60ad1eb03d95b87348a75b17c4104fab3600903d0",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_4_amount": {
+   "name": "item_4_amount",
+   "kind": "money",
+   "value": "1.85",
+   "text": "$1.85",
+   "bbox": [
+    293,
+    223,
+    324,
+    234
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "25e3ac5567e6003857d3590ae5a5f79d5858d44854f8a030517d7e22d3eea557",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_5_name": {
+   "name": "item_5_name",
+   "kind": "text",
+   "value": "Spinach",
+   "text": "Spinach",
+   "bbox": [
+    36,
+    242,
+    80,
+    254
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "8a761a29980b54eccf893aedd006cf0fac38e1ab3a707e3470dfd7a8e88db842",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_5_amount": {
+   "name": "item_5_amount",
+   "kind": "money",
+   "value": "2.24",
+   "text": "$2.24",
+   "bbox": [
+    292,
+    241,
+    324,
+    252
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1666e2c4804349a3602ec23da0cab60c8b41e4adc060c9e0000b79430d93f0ed",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "subtotal": {
+   "name": "subtotal",
+   "kind": "money",
+   "value": "77.66",
+   "text": "$77.66",
+   "bbox": [
+    286,
+    271,
+    324,
+    282
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "fe1e9d7c253b5dc4e49b080927ed212f72d7f470891c0b9890bc1a1ef2e18f81",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "discount": {
+   "name": "discount",
+   "kind": "money",
+   "value": "3.88",
+   "text": "-$3.88",
+   "bbox": [
+    290,
+    289,
+    324,
+    300
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ceb92282ee7f641674d637972731e31a65322fbad270f5dda166ffa0071a383e",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "tax": {
+   "name": "tax",
+   "kind": "money",
+   "value": "6.46",
+   "text": "$6.46",
+   "bbox": [
+    293,
+    307,
+    324,
+    318
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ed4f71783724e0f32e3bc877129a65ced3b38f59c55f25bede7f8f0b61d2e23d",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "total": {
+   "name": "total",
+   "kind": "money",
+   "value": "80.24",
+   "text": "$80.24",
+   "bbox": [
+    273,
+    329,
+    323,
+    344
+   ],
+   "size_px": 15,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "60ec9d909a98c1946fa0c9f6231d869907a67003f36e398247868d93f4734b1c",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "payment": {
+   "name": "payment",
+   "kind": "text",
+   "value": "Debit card",
+   "text": "Debit card",
+   "bbox": [
+    266,
+    360,
+    324,
+    369
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "bc3d89aab313ca16a1c4f28f4919326a66d96950c58665c5467a7a0e765009c2",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  }
+ },
+ "elements": [],
+ "text_runs": [
+  {
+   "text": "Nexoura Bakery",
+   "bbox": [
+    35,
+    33,
+    173,
+    52
+   ],
+   "size_px": 19,
+   "field": "merchant",
+   "reading": true
+  },
+  {
+   "text": "3 Ulstead Lane, Rosmere",
+   "bbox": [
+    36,
+    58,
+    163,
+    67
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "(503) 555-0166",
+   "bbox": [
+    36,
+    76,
+    109,
+    86
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Order 585075",
+   "bbox": [
+    36,
+    100,
+    113,
+    109
+   ],
+   "size_px": 12,
+   "field": "receipt_number",
+   "reading": true
+  },
+  {
+   "text": "Jun 14, 2028",
+   "bbox": [
+    36,
+    120,
+    108,
+    131
+   ],
+   "size_px": 12,
+   "field": "date",
+   "reading": true
+  },
+  {
+   "text": "9:17 PM",
+   "bbox": [
+    280,
+    120,
+    324,
+    129
+   ],
+   "size_px": 12,
+   "field": "time",
+   "reading": true
+  },
+  {
+   "text": "Rice 2kg",
+   "bbox": [
+    36,
+    152,
+    84,
+    164
+   ],
+   "size_px": 12,
+   "field": "item_0_name",
+   "reading": true
+  },
+  {
+   "text": "$1.59",
+   "bbox": [
+    293,
+    151,
+    324,
+    162
+   ],
+   "size_px": 12,
+   "field": "item_0_amount",
+   "reading": true
+  },
+  {
+   "text": "Apples",
+   "bbox": [
+    36,
+    170,
+    74,
+    182
+   ],
+   "size_px": 12,
+   "field": "item_1_name",
+   "reading": true
+  },
+  {
+   "text": "$13.51",
+   "bbox": [
+    286,
+    169,
+    324,
+    180
+   ],
+   "size_px": 12,
+   "field": "item_1_amount",
+   "reading": true
+  },
+  {
+   "text": "2 x Sponges",
+   "bbox": [
+    36,
+    188,
+    103,
+    200
+   ],
+   "size_px": 12,
+   "field": "item_2_name",
+   "reading": true
+  },
+  {
+   "text": "$39.86",
+   "bbox": [
+    286,
+    187,
+    324,
+    198
+   ],
+   "size_px": 12,
+   "field": "item_2_amount",
+   "reading": true
+  },
+  {
+   "text": "Granola",
+   "bbox": [
+    36,
+    206,
+    80,
+    215
+   ],
+   "size_px": 12,
+   "field": "item_3_name",
+   "reading": true
+  },
+  {
+   "text": "$18.61",
+   "bbox": [
+    286,
+    205,
+    324,
+    216
+   ],
+   "size_px": 12,
+   "field": "item_3_amount",
+   "reading": true
+  },
+  {
+   "text": "Oat milk",
+   "bbox": [
+    36,
+    224,
+    83,
+    233
+   ],
+   "size_px": 12,
+   "field": "item_4_name",
+   "reading": true
+  },
+  {
+   "text": "$1.85",
+   "bbox": [
+    293,
+    223,
+    324,
+    234
+   ],
+   "size_px": 12,
+   "field": "item_4_amount",
+   "reading": true
+  },
+  {
+   "text": "Spinach",
+   "bbox": [
+    36,
+    242,
+    80,
+    254
+   ],
+   "size_px": 12,
+   "field": "item_5_name",
+   "reading": true
+  },
+  {
+   "text": "$2.24",
+   "bbox": [
+    292,
+    241,
+    324,
+    252
+   ],
+   "size_px": 12,
+   "field": "item_5_amount",
+   "reading": true
+  },
+  {
+   "text": "Subtotal",
+   "bbox": [
+    36,
+    272,
+    81,
+    281
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "$77.66",
+   "bbox": [
+    286,
+    271,
+    324,
+    282
+   ],
+   "size_px": 12,
+   "field": "subtotal",
+   "reading": true
+  },
+  {
+   "text": "Coupon",
+   "bbox": [
+    36,
+    290,
+    80,
+    302
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "-$3.88",
+   "bbox": [
+    290,
+    289,
+    324,
+    300
+   ],
+   "size_px": 12,
+   "field": "discount",
+   "reading": true
+  },
+  {
+   "text": "Tax 8.75%",
+   "bbox": [
+    36,
+    308,
+    93,
+    317
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "$6.46",
+   "bbox": [
+    293,
+    307,
+    324,
+    318
+   ],
+   "size_px": 12,
+   "field": "tax",
+   "reading": true
+  },
+  {
+   "text": "Total",
+   "bbox": [
+    35,
+    330,
+    73,
+    343
+   ],
+   "size_px": 15,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "$80.24",
+   "bbox": [
+    273,
+    329,
+    323,
+    344
+   ],
+   "size_px": 15,
+   "field": "total",
+   "reading": true
+  },
+  {
+   "text": "Paid by:",
+   "bbox": [
+    36,
+    360,
+    80,
+    372
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Debit card",
+   "bbox": [
+    266,
+    360,
+    324,
+    369
+   ],
+   "size_px": 12,
+   "field": "payment",
+   "reading": true
+  },
+  {
+   "text": "Thank you for shopping with us",
+   "bbox": [
+    98,
+    391,
+    261,
+    402
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  }
+ ],
+ "reading_text": "Nexoura Bakery\n3 Ulstead Lane, Rosmere\n(503) 555-0166\nOrder 585075\nJun 14, 2028\n9:17 PM\nRice 2kg\n$1.59\nApples\n$13.51\n2 x Sponges\n$39.86\nGranola\n$18.61\nOat milk\n$1.85\nSpinach\n$2.24\nSubtotal\n$77.66\nCoupon\n-$3.88\nTax 8.75%\n$6.46\nTotal\n$80.24\nPaid by:\nDebit card\nThank you for shopping with us",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_items_sum",
+   "qtype": "sum",
+   "question": "What do the line item amounts add up to?",
+   "answer": "77.66",
+   "kind": "field",
+   "canon": "money",
+   "fields": [
+    "item_0_amount",
+    "item_1_amount",
+    "item_2_amount",
+    "item_3_amount",
+    "item_4_amount",
+    "item_5_amount"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_merchant",
+   "qtype": "lookup",
+   "question": "What is the name of the business on this receipt?",
+   "answer": "Nexoura Bakery",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "merchant"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_discount",
+   "qtype": "lookup",
+   "question": "How much was the discount?",
+   "answer": "3.88",
+   "kind": "field",
+   "canon": "money",
+   "fields": [
+    "discount"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_multi",
+   "qtype": "multi",
+   "question": "Give the business name and the receipt number, separated by a comma.",
+   "answer": "Nexoura Bakery, 585075",
+   "kind": "anls",
+   "canon": "text",
+   "fields": [
+    "merchant",
+    "receipt_number"
+   ],
+   "accept": [
+    "Nexoura Bakery; 585075",
+    "Nexoura Bakery 585075"
+   ]
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the receipt.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

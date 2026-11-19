@@ -1,0 +1,28 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "fonts-handwriting-optional",
+ "group": "fonts",
+ "licence_checked": "2026-11-18",
+ "suites": [],
+ "split": "Kalam Bold and Nanum Pen Script (optional, 3.2 MB for Hangul)",
+ "homepage": "https://github.com/google/fonts",
+ "licence": "OFL-1.1",
+ "licence_note": "OFL-1.1",
+ "licence_url": "https://github.com/google/fonts/tree/5bd87dfc525c8a0d1d8529d3684716e00c3fc59a/ofl",
+ "licence_verified": true,
+ "verified": true,
+ "redistributable": "yes",
+ "access": "http",
+ "status": "ready",
+ "needed_v1": "no",
+ "pinned_revision": "5bd87dfc525c8a0d1d8529d3684716e00c3fc59a",
+ "bytes_total": 3671467,
+ "file_count": 4,
+ "notes": "google/fonts commit 5bd87dfc525c8a0d1d8529d3684716e00c3fc59a (main 2026-11-18). Licence read from METADATA.pb ('license:' field); file includes the licence text. No checksum published (git blob only). google/fonts commit 5bd87dfc525c8a0d1d8529d3684716e00c3fc59a (main 2026-11-18). Licence read from METADATA.pb ('license:' field); file includes the licence text. No checksum published (git blob only). Nanum Pen Script is 3.2 MB because of Hangul; skip it if size matters.",
+ "files": [
+  {"url": "https://raw.githubusercontent.com/google/fonts/5bd87dfc525c8a0d1d8529d3684716e00c3fc59a/ofl/kalam/Kalam-Bold.ttf", "bytes": 460896, "checksum": "none published", "licence": "OFL-1.1", "licence_url": "https://github.com/google/fonts/blob/5bd87dfc525c8a0d1d8529d3684716e00c3fc59a/ofl/kalam/METADATA.pb"},
+  {"url": "https://raw.githubusercontent.com/google/fonts/5bd87dfc525c8a0d1d8529d3684716e00c3fc59a/ofl/kalam/OFL.txt", "bytes": 4373, "checksum": "none published", "licence": "OFL-1.1"},
+  {"url": "https://raw.githubusercontent.com/google/fonts/5bd87dfc525c8a0d1d8529d3684716e00c3fc59a/ofl/nanumpenscript/NanumPenScript-Regular.ttf", "bytes": 3201664, "checksum": "none published", "licence": "OFL-1.1", "licence_url": "https://github.com/google/fonts/blob/5bd87dfc525c8a0d1d8529d3684716e00c3fc59a/ofl/nanumpenscript/METADATA.pb"},
+  {"url": "https://raw.githubusercontent.com/google/fonts/5bd87dfc525c8a0d1d8529d3684716e00c3fc59a/ofl/nanumpenscript/OFL.txt", "bytes": 4534, "checksum": "none published", "licence": "OFL-1.1"}
+ ]
+}

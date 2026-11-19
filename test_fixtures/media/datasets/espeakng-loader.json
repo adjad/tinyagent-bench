@@ -1,0 +1,31 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "espeakng-loader",
+ "group": "speech_engine",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "A3"
+ ],
+ "split": "0.2.4 macOS arm64 wheel, bundles espeak-ng",
+ "homepage": "https://pypi.org/project/espeakng-loader/0.2.4/",
+ "licence": "unverified: no licence field on PyPI; wraps espeak-ng (GPL-3.0-or-later)",
+ "licence_note": "No licence field on PyPI; wraps espeak-ng (GPL-3.0-or-later)",
+ "licence_url": "https://pypi.org/project/espeakng-loader/0.2.4/",
+ "licence_verified": false,
+ "verified": false,
+ "redistributable": "unverified",
+ "access": "http",
+ "packages": [
+  "espeakng-loader==0.2.4"
+ ],
+ "status": "fetch_at_run_time",
+ "status_reason": "the licence text the wheel ships is unverified; install from the wheel, never commit it",
+ "needed_v1": "yes",
+ "never_commit": true,
+ "bytes_total": 9892565,
+ "file_count": 1,
+ "notes": "This is the espeak-ng dependency of Kokoro; the wheel carries the library and data, so no separate espeak-ng install is needed. UNVERIFIED which licence text the wheel itself ships.",
+ "files": [
+  {"url": "https://files.pythonhosted.org/packages/a8/26/258c0cd43b9bc1043301c5f61767d6a6c3b679df82790c9cb43a3277b865/espeakng_loader-0.2.4-py3-none-macosx_11_0_arm64.whl", "bytes": 9892565, "sha256": "d27cdca31112226e7299d8562e889d3e38a1e48055c9ee381b45d669072ee59f"}
+ ]
+}

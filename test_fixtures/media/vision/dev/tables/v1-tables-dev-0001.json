@@ -1,0 +1,3278 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-tables-dev-0001",
+ "family": "tables",
+ "template": "zebra",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 1,
+ "variant": {
+  "theme": "light",
+  "dpr": 1,
+  "abstain": false,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-tables-dev-0001.png",
+  "sha256": "a5f7522e33d0056ceaab320ea515c6023d0d8236228ecea549ee93c1cbb9cab0",
+  "width": 640,
+  "height": 600,
+  "logical": [
+   640,
+   600
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "columns": [
+   "Parcel",
+   "Depot",
+   "Weight",
+   "Fee",
+   "State"
+  ],
+  "rows": [
+   "MT1347",
+   "PX2931",
+   "HL2012",
+   "MX2349",
+   "UZ4748",
+   "KJ3612",
+   "QL8644",
+   "CL5244",
+   "VZ5548",
+   "BJ0014",
+   "SJ7577",
+   "AJ8008",
+   "KD2368",
+   "PW2642",
+   "FB8613",
+   "JP1833",
+   "CK8769"
+  ],
+  "values": [
+   [
+    "MT1347",
+    "East",
+    "18",
+    "24.12",
+    "Returned"
+   ],
+   [
+    "PX2931",
+    "South",
+    "27",
+    "52.62",
+    "Late"
+   ],
+   [
+    "HL2012",
+    "North",
+    "18",
+    "46.82",
+    "Late"
+   ],
+   [
+    "MX2349",
+    "North",
+    "35",
+    "45.16",
+    "Delivered"
+   ],
+   [
+    "UZ4748",
+    "North",
+    "29",
+    "38.19",
+    "Returned"
+   ],
+   [
+    "KJ3612",
+    "East",
+    "36",
+    "63.96",
+    "Returned"
+   ],
+   [
+    "QL8644",
+    "North",
+    "9",
+    "7.51",
+    "Returned"
+   ],
+   [
+    "CL5244",
+    "South",
+    "33",
+    "54.27",
+    "Delivered"
+   ],
+   [
+    "VZ5548",
+    "East",
+    "7",
+    "5.93",
+    "Late"
+   ],
+   [
+    "BJ0014",
+    "North",
+    "36",
+    "10.32",
+    "Late"
+   ],
+   [
+    "SJ7577",
+    "East",
+    "23",
+    "43.40",
+    "Late"
+   ],
+   [
+    "AJ8008",
+    "South",
+    "7",
+    "37.87",
+    "Returned"
+   ],
+   [
+    "KD2368",
+    "East",
+    "32",
+    "78.62",
+    "Returned"
+   ],
+   [
+    "PW2642",
+    "South",
+    "26",
+    "32.32",
+    "Delivered"
+   ],
+   [
+    "FB8613",
+    "West",
+    "39",
+    "51.54",
+    "Late"
+   ],
+   [
+    "JP1833",
+    "South",
+    "28",
+    "36.03",
+    "Returned"
+   ],
+   [
+    "CK8769",
+    "East",
+    "18",
+    "26.30",
+    "Delivered"
+   ]
+  ],
+  "groups": [],
+  "totals": null,
+  "zebra": true,
+  "month": "June",
+  "year": 2027
+ },
+ "fields": {
+  "row_0": {
+   "name": "row_0",
+   "kind": "text",
+   "value": "MT1347",
+   "text": "MT1347",
+   "bbox": [
+    34,
+    112,
+    80,
+    121
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c31f314a215011cea83ff5b1874e151b0088df499f974ec616bea67e402ed700",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_0_1": {
+   "name": "cell_0_1",
+   "kind": "text",
+   "value": "East",
+   "text": "East",
+   "bbox": [
+    156,
+    112,
+    180,
+    121
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f7a2824af907f82d05c66a9de58ad5e6cadcd693fc2d02bb40e50e95b8842df4",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_0_2": {
+   "name": "cell_0_2",
+   "kind": "number",
+   "value": "18",
+   "text": "18",
+   "bbox": [
+    348,
+    112,
+    362,
+    121
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "55c930b1a4aa995db4075aae154b7fadd2b3ef2bf57563596a35f26c0f6c12e1",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_0_3": {
+   "name": "cell_0_3",
+   "kind": "money",
+   "value": "24.12",
+   "text": "$24.12",
+   "bbox": [
+    439,
+    111,
+    477,
+    122
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "994fefae894091347d0cbdb0606ed735c0f2bf1161aa34f2a20f5f92b7d7cdb1",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_0_4": {
+   "name": "cell_0_4",
+   "kind": "text",
+   "value": "Returned",
+   "text": "Returned",
+   "bbox": [
+    497,
+    112,
+    548,
+    121
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d73f981206cbba4182af4d403eaf0230730523f520df405ec5d0609aad892fcc",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "row_1": {
+   "name": "row_1",
+   "kind": "text",
+   "value": "PX2931",
+   "text": "PX2931",
+   "bbox": [
+    34,
+    140,
+    77,
+    149
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "da67b24476b5b73660c3e2c75619f5de71fc10d43701a2d70dfdf443915a04e2",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_1_1": {
+   "name": "cell_1_1",
+   "kind": "text",
+   "value": "South",
+   "text": "South",
+   "bbox": [
+    156,
+    140,
+    187,
+    149
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b04e97d77f3d9045297b5dd649a7d535fa27a5be0a0ea0f0f81a6edba18a1f25",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_1_2": {
+   "name": "cell_1_2",
+   "kind": "number",
+   "value": "27",
+   "text": "27",
+   "bbox": [
+    348,
+    140,
+    362,
+    149
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4354b1dc148a132b78d6dd2ebac065821d60c1430e9430af3b358b0f5a2b4794",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_1_3": {
+   "name": "cell_1_3",
+   "kind": "money",
+   "value": "52.62",
+   "text": "$52.62",
+   "bbox": [
+    439,
+    139,
+    477,
+    150
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "8ff901df6d13b820d787bea319b51b1ee1b53ba5849b48bc118227cf2a6fe596",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_1_4": {
+   "name": "cell_1_4",
+   "kind": "text",
+   "value": "Late",
+   "text": "Late",
+   "bbox": [
+    497,
+    140,
+    522,
+    149
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4ab1ddfdbcaa9d65090dcf35daca3dc16668f0e179590db48a8c1e781344d997",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "row_2": {
+   "name": "row_2",
+   "kind": "text",
+   "value": "HL2012",
+   "text": "HL2012",
+   "bbox": [
+    34,
+    168,
+    78,
+    177
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "258c3aff9f7d08c118fa7274b3768843313ef79f265d0ceaa3c19ab372ffbf9f",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_2_1": {
+   "name": "cell_2_1",
+   "kind": "text",
+   "value": "North",
+   "text": "North",
+   "bbox": [
+    156,
+    168,
+    186,
+    177
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5e9fdd6d48b848cbac531d0baaa38c04be90245e65249e87ffe15a8b84ba4a94",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_2_2": {
+   "name": "cell_2_2",
+   "kind": "number",
+   "value": "18",
+   "text": "18",
+   "bbox": [
+    348,
+    168,
+    362,
+    177
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "55c930b1a4aa995db4075aae154b7fadd2b3ef2bf57563596a35f26c0f6c12e1",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_2_3": {
+   "name": "cell_2_3",
+   "kind": "money",
+   "value": "46.82",
+   "text": "$46.82",
+   "bbox": [
+    439,
+    167,
+    477,
+    178
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "00ed463d0b115b5b5e300e2a7249e3eec0b261f063efc7872840baff76c83b72",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_2_4": {
+   "name": "cell_2_4",
+   "kind": "text",
+   "value": "Late",
+   "text": "Late",
+   "bbox": [
+    497,
+    168,
+    522,
+    177
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f43e72ee77ab2dc84081863928824e814cf6e4c136273a5856be61d786df800e",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "row_3": {
+   "name": "row_3",
+   "kind": "text",
+   "value": "MX2349",
+   "text": "MX2349",
+   "bbox": [
+    34,
+    196,
+    80,
+    205
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b3ccbb9f998123395b3c0ec71cc3b27fac9865779f1b696887ab6b2178ca8230",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_3_1": {
+   "name": "cell_3_1",
+   "kind": "text",
+   "value": "North",
+   "text": "North",
+   "bbox": [
+    156,
+    196,
+    186,
+    205
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c6ec862074c02d604c34c65d1c10a9b12fb63f786c42baf54d5ea69f924e8101",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_3_2": {
+   "name": "cell_3_2",
+   "kind": "number",
+   "value": "35",
+   "text": "35",
+   "bbox": [
+    348,
+    196,
+    362,
+    205
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d174e347ba7c0b1cb1929eecff28d203d50e75215238dbb25ce70c88bd04869f",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_3_3": {
+   "name": "cell_3_3",
+   "kind": "money",
+   "value": "45.16",
+   "text": "$45.16",
+   "bbox": [
+    439,
+    195,
+    477,
+    206
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "50db4fba259dc54efd6c15b699bd48be3c8cac4d28b8c970fbcd560bb0f48654",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_3_4": {
+   "name": "cell_3_4",
+   "kind": "text",
+   "value": "Delivered",
+   "text": "Delivered",
+   "bbox": [
+    497,
+    196,
+    550,
+    205
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "aa8d14346ad8f8bf561a3295c8fc4b4a79e0212dcf136ded0c42ef6db8787459",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "row_4": {
+   "name": "row_4",
+   "kind": "text",
+   "value": "UZ4748",
+   "text": "UZ4748",
+   "bbox": [
+    34,
+    224,
+    78,
+    233
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b7b05324729ba042bc2257b95d4cbda0115d355e40aace9b87b06d03dca64fd9",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_4_1": {
+   "name": "cell_4_1",
+   "kind": "text",
+   "value": "North",
+   "text": "North",
+   "bbox": [
+    156,
+    224,
+    186,
+    233
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5e9fdd6d48b848cbac531d0baaa38c04be90245e65249e87ffe15a8b84ba4a94",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_4_2": {
+   "name": "cell_4_2",
+   "kind": "number",
+   "value": "29",
+   "text": "29",
+   "bbox": [
+    348,
+    224,
+    362,
+    233
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "13c83fa1ec07f9be00350bce7920b4044fa19ba6a43fc936d0e01f1e64dee8de",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_4_3": {
+   "name": "cell_4_3",
+   "kind": "money",
+   "value": "38.19",
+   "text": "$38.19",
+   "bbox": [
+    439,
+    223,
+    477,
+    234
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0b4946abc1a2c3bf1da19aa01cfe7bde2c603edbe673c5236eaa0f8d1bbf0542",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_4_4": {
+   "name": "cell_4_4",
+   "kind": "text",
+   "value": "Returned",
+   "text": "Returned",
+   "bbox": [
+    497,
+    224,
+    548,
+    233
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d73f981206cbba4182af4d403eaf0230730523f520df405ec5d0609aad892fcc",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "row_5": {
+   "name": "row_5",
+   "kind": "text",
+   "value": "KJ3612",
+   "text": "KJ3612",
+   "bbox": [
+    34,
+    252,
+    76,
+    261
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "dd89c792d54fe996261e5038b97fc3967d5337bd68e8709bd37fe85e68cd8d4f",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_5_1": {
+   "name": "cell_5_1",
+   "kind": "text",
+   "value": "East",
+   "text": "East",
+   "bbox": [
+    156,
+    252,
+    180,
+    261
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "6883d1b17fdbc12ad48f6c691c86a541f10f7eba7bd84cd29e45a4f2ea10bd6e",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_5_2": {
+   "name": "cell_5_2",
+   "kind": "number",
+   "value": "36",
+   "text": "36",
+   "bbox": [
+    348,
+    252,
+    362,
+    261
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "7cecaad75b2f39b308ba77b92d8188645190c4aa850ebdec415ce08d8b9fb5b5",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_5_3": {
+   "name": "cell_5_3",
+   "kind": "money",
+   "value": "63.96",
+   "text": "$63.96",
+   "bbox": [
+    439,
+    251,
+    477,
+    262
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "519a10b862a7369e38d3d677c4d6fba87cd55f0a51eb4531096254231dfa7eb3",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_5_4": {
+   "name": "cell_5_4",
+   "kind": "text",
+   "value": "Returned",
+   "text": "Returned",
+   "bbox": [
+    497,
+    252,
+    548,
+    261
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "19633ab3abdb4f14e0408bcc4fb2d5cab7514f2b4c9a692b23fc821117c9eec6",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "row_6": {
+   "name": "row_6",
+   "kind": "text",
+   "value": "QL8644",
+   "text": "QL8644",
+   "bbox": [
+    34,
+    280,
+    79,
+    290
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "fd616bc885d4b831b8d999d582a62e57ba062996057be43676314503d3bfb612",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_6_1": {
+   "name": "cell_6_1",
+   "kind": "text",
+   "value": "North",
+   "text": "North",
+   "bbox": [
+    156,
+    280,
+    186,
+    289
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5e9fdd6d48b848cbac531d0baaa38c04be90245e65249e87ffe15a8b84ba4a94",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_6_2": {
+   "name": "cell_6_2",
+   "kind": "number",
+   "value": "9",
+   "text": "9",
+   "bbox": [
+    355,
+    280,
+    362,
+    289
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d73782128f1d1838dd483289237409b9fea4d2e2afe58a370e8cba7f4e36339e",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_6_3": {
+   "name": "cell_6_3",
+   "kind": "money",
+   "value": "7.51",
+   "text": "$7.51",
+   "bbox": [
+    446,
+    279,
+    477,
+    290
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "dbee543c658ff72b6eec63281687904ee0613e21f366e7d7bd6e34e1a21bcb21",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_6_4": {
+   "name": "cell_6_4",
+   "kind": "text",
+   "value": "Returned",
+   "text": "Returned",
+   "bbox": [
+    497,
+    280,
+    548,
+    289
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d73f981206cbba4182af4d403eaf0230730523f520df405ec5d0609aad892fcc",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "row_7": {
+   "name": "row_7",
+   "kind": "text",
+   "value": "CL5244",
+   "text": "CL5244",
+   "bbox": [
+    34,
+    308,
+    79,
+    317
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c61666f7f3b16346140af53aca80c71ea8a8e5301d70d412d884d81e972c8cda",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_7_1": {
+   "name": "cell_7_1",
+   "kind": "text",
+   "value": "South",
+   "text": "South",
+   "bbox": [
+    156,
+    308,
+    187,
+    317
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b04e97d77f3d9045297b5dd649a7d535fa27a5be0a0ea0f0f81a6edba18a1f25",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_7_2": {
+   "name": "cell_7_2",
+   "kind": "number",
+   "value": "33",
+   "text": "33",
+   "bbox": [
+    348,
+    308,
+    362,
+    317
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "63a35e9c9aa0fe81cc81379a2f96436b425e079be5eea0c649b8173b6c11ec37",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_7_3": {
+   "name": "cell_7_3",
+   "kind": "money",
+   "value": "54.27",
+   "text": "$54.27",
+   "bbox": [
+    439,
+    307,
+    477,
+    318
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "2044dc5661f5a72e6658d89e73939bdb649bd7fabf04dc6e6cbdb38b19d5f2a6",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_7_4": {
+   "name": "cell_7_4",
+   "kind": "text",
+   "value": "Delivered",
+   "text": "Delivered",
+   "bbox": [
+    497,
+    308,
+    550,
+    317
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "aa8d14346ad8f8bf561a3295c8fc4b4a79e0212dcf136ded0c42ef6db8787459",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "row_8": {
+   "name": "row_8",
+   "kind": "text",
+   "value": "VZ5548",
+   "text": "VZ5548",
+   "bbox": [
+    34,
+    336,
+    77,
+    345
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1b971c274b897c24bc779b3b21938e6683d39e0b2c141931b5859f3c22b40a53",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_8_1": {
+   "name": "cell_8_1",
+   "kind": "text",
+   "value": "East",
+   "text": "East",
+   "bbox": [
+    156,
+    336,
+    180,
+    345
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f7a2824af907f82d05c66a9de58ad5e6cadcd693fc2d02bb40e50e95b8842df4",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_8_2": {
+   "name": "cell_8_2",
+   "kind": "number",
+   "value": "7",
+   "text": "7",
+   "bbox": [
+    355,
+    336,
+    362,
+    345
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "09b5830dac7fd7ba495393db05a5fd9c45ffaaa29b684f1627e43e03b3c2bc38",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_8_3": {
+   "name": "cell_8_3",
+   "kind": "money",
+   "value": "5.93",
+   "text": "$5.93",
+   "bbox": [
+    446,
+    335,
+    477,
+    346
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "2ad452b4210ce33d66114794428c20e62779ce81bec80351f16d9d4897b0a416",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_8_4": {
+   "name": "cell_8_4",
+   "kind": "text",
+   "value": "Late",
+   "text": "Late",
+   "bbox": [
+    497,
+    336,
+    522,
+    345
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f43e72ee77ab2dc84081863928824e814cf6e4c136273a5856be61d786df800e",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "row_9": {
+   "name": "row_9",
+   "kind": "text",
+   "value": "BJ0014",
+   "text": "BJ0014",
+   "bbox": [
+    34,
+    364,
+    77,
+    373
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "67ce534b3a3c52b111d0ab107fd9177206828acc6145d073b66529e0dbe2ad26",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_9_1": {
+   "name": "cell_9_1",
+   "kind": "text",
+   "value": "North",
+   "text": "North",
+   "bbox": [
+    156,
+    364,
+    186,
+    373
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c6ec862074c02d604c34c65d1c10a9b12fb63f786c42baf54d5ea69f924e8101",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_9_2": {
+   "name": "cell_9_2",
+   "kind": "number",
+   "value": "36",
+   "text": "36",
+   "bbox": [
+    348,
+    364,
+    362,
+    373
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "7cecaad75b2f39b308ba77b92d8188645190c4aa850ebdec415ce08d8b9fb5b5",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_9_3": {
+   "name": "cell_9_3",
+   "kind": "money",
+   "value": "10.32",
+   "text": "$10.32",
+   "bbox": [
+    439,
+    363,
+    477,
+    374
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "25dfd193222799f1f9290756ad946e84f0ee0c43db8cb9fc93cfd4240afadf8c",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_9_4": {
+   "name": "cell_9_4",
+   "kind": "text",
+   "value": "Late",
+   "text": "Late",
+   "bbox": [
+    497,
+    364,
+    522,
+    373
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4ab1ddfdbcaa9d65090dcf35daca3dc16668f0e179590db48a8c1e781344d997",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "row_10": {
+   "name": "row_10",
+   "kind": "text",
+   "value": "SJ7577",
+   "text": "SJ7577",
+   "bbox": [
+    34,
+    392,
+    75,
+    401
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c8eaf48bf23bbc2c9a1e4e7c5da0880fe701bbc2852fc402ae29e7e6bb6d0f28",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_10_1": {
+   "name": "cell_10_1",
+   "kind": "text",
+   "value": "East",
+   "text": "East",
+   "bbox": [
+    156,
+    392,
+    180,
+    401
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f7a2824af907f82d05c66a9de58ad5e6cadcd693fc2d02bb40e50e95b8842df4",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_10_2": {
+   "name": "cell_10_2",
+   "kind": "number",
+   "value": "23",
+   "text": "23",
+   "bbox": [
+    348,
+    392,
+    362,
+    401
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "cbba6349f91623d65e611df7bdd94a6c76b86ca77beef7f688864dc65abea221",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_10_3": {
+   "name": "cell_10_3",
+   "kind": "money",
+   "value": "43.40",
+   "text": "$43.40",
+   "bbox": [
+    439,
+    391,
+    477,
+    402
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "74f7f593ffb323d4793e117919bfba82423d65e28bf3396ddb4bcaf99ba0df9d",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_10_4": {
+   "name": "cell_10_4",
+   "kind": "text",
+   "value": "Late",
+   "text": "Late",
+   "bbox": [
+    497,
+    392,
+    522,
+    401
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f43e72ee77ab2dc84081863928824e814cf6e4c136273a5856be61d786df800e",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "row_11": {
+   "name": "row_11",
+   "kind": "text",
+   "value": "AJ8008",
+   "text": "AJ8008",
+   "bbox": [
+    34,
+    420,
+    77,
+    429
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b19a4b6170300fbfa1a8cb96f0b75c2ec0e563b8d918c4de361958a2ac5f42f8",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_11_1": {
+   "name": "cell_11_1",
+   "kind": "text",
+   "value": "South",
+   "text": "South",
+   "bbox": [
+    156,
+    420,
+    187,
+    429
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b04e97d77f3d9045297b5dd649a7d535fa27a5be0a0ea0f0f81a6edba18a1f25",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_11_2": {
+   "name": "cell_11_2",
+   "kind": "number",
+   "value": "7",
+   "text": "7",
+   "bbox": [
+    355,
+    420,
+    362,
+    429
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d15d174d551f1828ef7c7b21aea82f83b72b7cf6817fb0c2683ea65198d3cd53",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_11_3": {
+   "name": "cell_11_3",
+   "kind": "money",
+   "value": "37.87",
+   "text": "$37.87",
+   "bbox": [
+    439,
+    419,
+    477,
+    430
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e48e658cabdabb65c9344386d7158f8c42916bf0f943ea579da3e4fcb26c4d5e",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_11_4": {
+   "name": "cell_11_4",
+   "kind": "text",
+   "value": "Returned",
+   "text": "Returned",
+   "bbox": [
+    497,
+    420,
+    548,
+    429
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "19633ab3abdb4f14e0408bcc4fb2d5cab7514f2b4c9a692b23fc821117c9eec6",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "row_12": {
+   "name": "row_12",
+   "kind": "text",
+   "value": "KD2368",
+   "text": "KD2368",
+   "bbox": [
+    34,
+    448,
+    77,
+    457
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "56186fc3971047582d7866f1452be1dcbe71949a8eb7a9fdc583463158ea7b33",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_12_1": {
+   "name": "cell_12_1",
+   "kind": "text",
+   "value": "East",
+   "text": "East",
+   "bbox": [
+    156,
+    448,
+    180,
+    457
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f7a2824af907f82d05c66a9de58ad5e6cadcd693fc2d02bb40e50e95b8842df4",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_12_2": {
+   "name": "cell_12_2",
+   "kind": "number",
+   "value": "32",
+   "text": "32",
+   "bbox": [
+    348,
+    448,
+    362,
+    457
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "afd98f6998d165ee2141a5734d8190e734d9f2c15ce58b841552de4427fe7207",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_12_3": {
+   "name": "cell_12_3",
+   "kind": "money",
+   "value": "78.62",
+   "text": "$78.62",
+   "bbox": [
+    439,
+    447,
+    477,
+    458
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "a825b85e1b17c9990104d4bf0a879e7c660a351c766a02247f544f742f9fb077",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_12_4": {
+   "name": "cell_12_4",
+   "kind": "text",
+   "value": "Returned",
+   "text": "Returned",
+   "bbox": [
+    497,
+    448,
+    548,
+    457
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d73f981206cbba4182af4d403eaf0230730523f520df405ec5d0609aad892fcc",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "row_13": {
+   "name": "row_13",
+   "kind": "text",
+   "value": "PW2642",
+   "text": "PW2642",
+   "bbox": [
+    34,
+    476,
+    80,
+    485
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "938bcc702c225ec25732dfad7932c9813043afcc4650ea84539669f494a51352",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_13_1": {
+   "name": "cell_13_1",
+   "kind": "text",
+   "value": "South",
+   "text": "South",
+   "bbox": [
+    156,
+    476,
+    187,
+    485
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b04e97d77f3d9045297b5dd649a7d535fa27a5be0a0ea0f0f81a6edba18a1f25",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_13_2": {
+   "name": "cell_13_2",
+   "kind": "number",
+   "value": "26",
+   "text": "26",
+   "bbox": [
+    348,
+    476,
+    362,
+    485
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e86a4d2d76f50a931141d63517ccb8b28c23af2170678dfcc1332a5804e672db",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_13_3": {
+   "name": "cell_13_3",
+   "kind": "money",
+   "value": "32.32",
+   "text": "$32.32",
+   "bbox": [
+    439,
+    475,
+    477,
+    486
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b463d96115c8158fd736a780016f59d5593fdb59e8573d870a3ac38e1358fb03",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_13_4": {
+   "name": "cell_13_4",
+   "kind": "text",
+   "value": "Delivered",
+   "text": "Delivered",
+   "bbox": [
+    497,
+    476,
+    550,
+    485
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "aa8d14346ad8f8bf561a3295c8fc4b4a79e0212dcf136ded0c42ef6db8787459",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "row_14": {
+   "name": "row_14",
+   "kind": "text",
+   "value": "FB8613",
+   "text": "FB8613",
+   "bbox": [
+    34,
+    504,
+    76,
+    513
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d0efabf8289efad1e995cc402e27d6fa812c2234e9d5b97d82b3c7121ee65bfa",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_14_1": {
+   "name": "cell_14_1",
+   "kind": "text",
+   "value": "West",
+   "text": "West",
+   "bbox": [
+    156,
+    504,
+    184,
+    513
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "32fc079ae9c1b3e75c25e95007d73f64a3b5a0a1577c9779ea09deb68d9902a3",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_14_2": {
+   "name": "cell_14_2",
+   "kind": "number",
+   "value": "39",
+   "text": "39",
+   "bbox": [
+    348,
+    504,
+    362,
+    513
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d6cc9e0bc0aca4ac8d40f0aa932eac64687586fea599dc6a7c375443e4240f1e",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_14_3": {
+   "name": "cell_14_3",
+   "kind": "money",
+   "value": "51.54",
+   "text": "$51.54",
+   "bbox": [
+    439,
+    503,
+    478,
+    514
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1244f391acdb60c5a8a47b2aeaea73ea6d29b8012a40f870d404b424ad44d44f",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_14_4": {
+   "name": "cell_14_4",
+   "kind": "text",
+   "value": "Late",
+   "text": "Late",
+   "bbox": [
+    497,
+    504,
+    522,
+    513
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f43e72ee77ab2dc84081863928824e814cf6e4c136273a5856be61d786df800e",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "row_15": {
+   "name": "row_15",
+   "kind": "text",
+   "value": "JP1833",
+   "text": "JP1833",
+   "bbox": [
+    34,
+    532,
+    76,
+    541
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e02809ddef59a9796274cc4d8f8ec65afd567d74b4c5c8105781a1312f89df37",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_15_1": {
+   "name": "cell_15_1",
+   "kind": "text",
+   "value": "South",
+   "text": "South",
+   "bbox": [
+    156,
+    532,
+    187,
+    541
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b04e97d77f3d9045297b5dd649a7d535fa27a5be0a0ea0f0f81a6edba18a1f25",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_15_2": {
+   "name": "cell_15_2",
+   "kind": "number",
+   "value": "28",
+   "text": "28",
+   "bbox": [
+    348,
+    532,
+    362,
+    541
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "db6ef925b0569d045e168c579325fa54d5a43a9365b8805b744b289da121820c",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_15_3": {
+   "name": "cell_15_3",
+   "kind": "money",
+   "value": "36.03",
+   "text": "$36.03",
+   "bbox": [
+    439,
+    531,
+    477,
+    542
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b42029e66950c3fe02741c8d02a612c41561e1161a6e705ae60cad8754f605ea",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_15_4": {
+   "name": "cell_15_4",
+   "kind": "text",
+   "value": "Returned",
+   "text": "Returned",
+   "bbox": [
+    497,
+    532,
+    548,
+    541
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "19633ab3abdb4f14e0408bcc4fb2d5cab7514f2b4c9a692b23fc821117c9eec6",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "row_16": {
+   "name": "row_16",
+   "kind": "text",
+   "value": "CK8769",
+   "text": "CK8769",
+   "bbox": [
+    34,
+    560,
+    78,
+    569
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "3147982210993ba10017c36e2e7ea6ed83a7cf447fbd72ca2f4993560d83ba4e",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_16_1": {
+   "name": "cell_16_1",
+   "kind": "text",
+   "value": "East",
+   "text": "East",
+   "bbox": [
+    156,
+    560,
+    180,
+    569
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f7a2824af907f82d05c66a9de58ad5e6cadcd693fc2d02bb40e50e95b8842df4",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_16_2": {
+   "name": "cell_16_2",
+   "kind": "number",
+   "value": "18",
+   "text": "18",
+   "bbox": [
+    348,
+    560,
+    362,
+    569
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "55c930b1a4aa995db4075aae154b7fadd2b3ef2bf57563596a35f26c0f6c12e1",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_16_3": {
+   "name": "cell_16_3",
+   "kind": "money",
+   "value": "26.30",
+   "text": "$26.30",
+   "bbox": [
+    439,
+    559,
+    477,
+    570
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "72437bd39c70958c894f4b80278591dedcf18d5d92a29a185e3d308eac9c53ee",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_16_4": {
+   "name": "cell_16_4",
+   "kind": "text",
+   "value": "Delivered",
+   "text": "Delivered",
+   "bbox": [
+    497,
+    560,
+    550,
+    569
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "94975f28320580a2d71680243d5094a1871b3303d6b17c5ce779e85a749b040a",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  }
+ },
+ "elements": [],
+ "text_runs": [
+  {
+   "text": "Ruvaisto parcel report",
+   "bbox": [
+    23,
+    21,
+    206,
+    41
+   ],
+   "size_px": 18,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Figures for June 2027",
+   "bbox": [
+    24,
+    46,
+    136,
+    57
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Parcel",
+   "bbox": [
+    34,
+    84,
+    69,
+    93
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Depot",
+   "bbox": [
+    156,
+    84,
+    189,
+    96
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Weight",
+   "bbox": [
+    322,
+    84,
+    362,
+    96
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Fee",
+   "bbox": [
+    456,
+    84,
+    477,
+    93
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "State",
+   "bbox": [
+    497,
+    84,
+    525,
+    93
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "MT1347",
+   "bbox": [
+    34,
+    112,
+    80,
+    121
+   ],
+   "size_px": 12,
+   "field": "row_0",
+   "reading": true
+  },
+  {
+   "text": "East",
+   "bbox": [
+    156,
+    112,
+    180,
+    121
+   ],
+   "size_px": 12,
+   "field": "cell_0_1",
+   "reading": true
+  },
+  {
+   "text": "18",
+   "bbox": [
+    348,
+    112,
+    362,
+    121
+   ],
+   "size_px": 12,
+   "field": "cell_0_2",
+   "reading": true
+  },
+  {
+   "text": "$24.12",
+   "bbox": [
+    439,
+    111,
+    477,
+    122
+   ],
+   "size_px": 12,
+   "field": "cell_0_3",
+   "reading": true
+  },
+  {
+   "text": "Returned",
+   "bbox": [
+    497,
+    112,
+    548,
+    121
+   ],
+   "size_px": 12,
+   "field": "cell_0_4",
+   "reading": true
+  },
+  {
+   "text": "PX2931",
+   "bbox": [
+    34,
+    140,
+    77,
+    149
+   ],
+   "size_px": 12,
+   "field": "row_1",
+   "reading": true
+  },
+  {
+   "text": "South",
+   "bbox": [
+    156,
+    140,
+    187,
+    149
+   ],
+   "size_px": 12,
+   "field": "cell_1_1",
+   "reading": true
+  },
+  {
+   "text": "27",
+   "bbox": [
+    348,
+    140,
+    362,
+    149
+   ],
+   "size_px": 12,
+   "field": "cell_1_2",
+   "reading": true
+  },
+  {
+   "text": "$52.62",
+   "bbox": [
+    439,
+    139,
+    477,
+    150
+   ],
+   "size_px": 12,
+   "field": "cell_1_3",
+   "reading": true
+  },
+  {
+   "text": "Late",
+   "bbox": [
+    497,
+    140,
+    522,
+    149
+   ],
+   "size_px": 12,
+   "field": "cell_1_4",
+   "reading": true
+  },
+  {
+   "text": "HL2012",
+   "bbox": [
+    34,
+    168,
+    78,
+    177
+   ],
+   "size_px": 12,
+   "field": "row_2",
+   "reading": true
+  },
+  {
+   "text": "North",
+   "bbox": [
+    156,
+    168,
+    186,
+    177
+   ],
+   "size_px": 12,
+   "field": "cell_2_1",
+   "reading": true
+  },
+  {
+   "text": "18",
+   "bbox": [
+    348,
+    168,
+    362,
+    177
+   ],
+   "size_px": 12,
+   "field": "cell_2_2",
+   "reading": true
+  },
+  {
+   "text": "$46.82",
+   "bbox": [
+    439,
+    167,
+    477,
+    178
+   ],
+   "size_px": 12,
+   "field": "cell_2_3",
+   "reading": true
+  },
+  {
+   "text": "Late",
+   "bbox": [
+    497,
+    168,
+    522,
+    177
+   ],
+   "size_px": 12,
+   "field": "cell_2_4",
+   "reading": true
+  },
+  {
+   "text": "MX2349",
+   "bbox": [
+    34,
+    196,
+    80,
+    205
+   ],
+   "size_px": 12,
+   "field": "row_3",
+   "reading": true
+  },
+  {
+   "text": "North",
+   "bbox": [
+    156,
+    196,
+    186,
+    205
+   ],
+   "size_px": 12,
+   "field": "cell_3_1",
+   "reading": true
+  },
+  {
+   "text": "35",
+   "bbox": [
+    348,
+    196,
+    362,
+    205
+   ],
+   "size_px": 12,
+   "field": "cell_3_2",
+   "reading": true
+  },
+  {
+   "text": "$45.16",
+   "bbox": [
+    439,
+    195,
+    477,
+    206
+   ],
+   "size_px": 12,
+   "field": "cell_3_3",
+   "reading": true
+  },
+  {
+   "text": "Delivered",
+   "bbox": [
+    497,
+    196,
+    550,
+    205
+   ],
+   "size_px": 12,
+   "field": "cell_3_4",
+   "reading": true
+  },
+  {
+   "text": "UZ4748",
+   "bbox": [
+    34,
+    224,
+    78,
+    233
+   ],
+   "size_px": 12,
+   "field": "row_4",
+   "reading": true
+  },
+  {
+   "text": "North",
+   "bbox": [
+    156,
+    224,
+    186,
+    233
+   ],
+   "size_px": 12,
+   "field": "cell_4_1",
+   "reading": true
+  },
+  {
+   "text": "29",
+   "bbox": [
+    348,
+    224,
+    362,
+    233
+   ],
+   "size_px": 12,
+   "field": "cell_4_2",
+   "reading": true
+  },
+  {
+   "text": "$38.19",
+   "bbox": [
+    439,
+    223,
+    477,
+    234
+   ],
+   "size_px": 12,
+   "field": "cell_4_3",
+   "reading": true
+  },
+  {
+   "text": "Returned",
+   "bbox": [
+    497,
+    224,
+    548,
+    233
+   ],
+   "size_px": 12,
+   "field": "cell_4_4",
+   "reading": true
+  },
+  {
+   "text": "KJ3612",
+   "bbox": [
+    34,
+    252,
+    76,
+    261
+   ],
+   "size_px": 12,
+   "field": "row_5",
+   "reading": true
+  },
+  {
+   "text": "East",
+   "bbox": [
+    156,
+    252,
+    180,
+    261
+   ],
+   "size_px": 12,
+   "field": "cell_5_1",
+   "reading": true
+  },
+  {
+   "text": "36",
+   "bbox": [
+    348,
+    252,
+    362,
+    261
+   ],
+   "size_px": 12,
+   "field": "cell_5_2",
+   "reading": true
+  },
+  {
+   "text": "$63.96",
+   "bbox": [
+    439,
+    251,
+    477,
+    262
+   ],
+   "size_px": 12,
+   "field": "cell_5_3",
+   "reading": true
+  },
+  {
+   "text": "Returned",
+   "bbox": [
+    497,
+    252,
+    548,
+    261
+   ],
+   "size_px": 12,
+   "field": "cell_5_4",
+   "reading": true
+  },
+  {
+   "text": "QL8644",
+   "bbox": [
+    34,
+    280,
+    79,
+    290
+   ],
+   "size_px": 12,
+   "field": "row_6",
+   "reading": true
+  },
+  {
+   "text": "North",
+   "bbox": [
+    156,
+    280,
+    186,
+    289
+   ],
+   "size_px": 12,
+   "field": "cell_6_1",
+   "reading": true
+  },
+  {
+   "text": "9",
+   "bbox": [
+    355,
+    280,
+    362,
+    289
+   ],
+   "size_px": 12,
+   "field": "cell_6_2",
+   "reading": true
+  },
+  {
+   "text": "$7.51",
+   "bbox": [
+    446,
+    279,
+    477,
+    290
+   ],
+   "size_px": 12,
+   "field": "cell_6_3",
+   "reading": true
+  },
+  {
+   "text": "Returned",
+   "bbox": [
+    497,
+    280,
+    548,
+    289
+   ],
+   "size_px": 12,
+   "field": "cell_6_4",
+   "reading": true
+  },
+  {
+   "text": "CL5244",
+   "bbox": [
+    34,
+    308,
+    79,
+    317
+   ],
+   "size_px": 12,
+   "field": "row_7",
+   "reading": true
+  },
+  {
+   "text": "South",
+   "bbox": [
+    156,
+    308,
+    187,
+    317
+   ],
+   "size_px": 12,
+   "field": "cell_7_1",
+   "reading": true
+  },
+  {
+   "text": "33",
+   "bbox": [
+    348,
+    308,
+    362,
+    317
+   ],
+   "size_px": 12,
+   "field": "cell_7_2",
+   "reading": true
+  },
+  {
+   "text": "$54.27",
+   "bbox": [
+    439,
+    307,
+    477,
+    318
+   ],
+   "size_px": 12,
+   "field": "cell_7_3",
+   "reading": true
+  },
+  {
+   "text": "Delivered",
+   "bbox": [
+    497,
+    308,
+    550,
+    317
+   ],
+   "size_px": 12,
+   "field": "cell_7_4",
+   "reading": true
+  },
+  {
+   "text": "VZ5548",
+   "bbox": [
+    34,
+    336,
+    77,
+    345
+   ],
+   "size_px": 12,
+   "field": "row_8",
+   "reading": true
+  },
+  {
+   "text": "East",
+   "bbox": [
+    156,
+    336,
+    180,
+    345
+   ],
+   "size_px": 12,
+   "field": "cell_8_1",
+   "reading": true
+  },
+  {
+   "text": "7",
+   "bbox": [
+    355,
+    336,
+    362,
+    345
+   ],
+   "size_px": 12,
+   "field": "cell_8_2",
+   "reading": true
+  },
+  {
+   "text": "$5.93",
+   "bbox": [
+    446,
+    335,
+    477,
+    346
+   ],
+   "size_px": 12,
+   "field": "cell_8_3",
+   "reading": true
+  },
+  {
+   "text": "Late",
+   "bbox": [
+    497,
+    336,
+    522,
+    345
+   ],
+   "size_px": 12,
+   "field": "cell_8_4",
+   "reading": true
+  },
+  {
+   "text": "BJ0014",
+   "bbox": [
+    34,
+    364,
+    77,
+    373
+   ],
+   "size_px": 12,
+   "field": "row_9",
+   "reading": true
+  },
+  {
+   "text": "North",
+   "bbox": [
+    156,
+    364,
+    186,
+    373
+   ],
+   "size_px": 12,
+   "field": "cell_9_1",
+   "reading": true
+  },
+  {
+   "text": "36",
+   "bbox": [
+    348,
+    364,
+    362,
+    373
+   ],
+   "size_px": 12,
+   "field": "cell_9_2",
+   "reading": true
+  },
+  {
+   "text": "$10.32",
+   "bbox": [
+    439,
+    363,
+    477,
+    374
+   ],
+   "size_px": 12,
+   "field": "cell_9_3",
+   "reading": true
+  },
+  {
+   "text": "Late",
+   "bbox": [
+    497,
+    364,
+    522,
+    373
+   ],
+   "size_px": 12,
+   "field": "cell_9_4",
+   "reading": true
+  },
+  {
+   "text": "SJ7577",
+   "bbox": [
+    34,
+    392,
+    75,
+    401
+   ],
+   "size_px": 12,
+   "field": "row_10",
+   "reading": true
+  },
+  {
+   "text": "East",
+   "bbox": [
+    156,
+    392,
+    180,
+    401
+   ],
+   "size_px": 12,
+   "field": "cell_10_1",
+   "reading": true
+  },
+  {
+   "text": "23",
+   "bbox": [
+    348,
+    392,
+    362,
+    401
+   ],
+   "size_px": 12,
+   "field": "cell_10_2",
+   "reading": true
+  },
+  {
+   "text": "$43.40",
+   "bbox": [
+    439,
+    391,
+    477,
+    402
+   ],
+   "size_px": 12,
+   "field": "cell_10_3",
+   "reading": true
+  },
+  {
+   "text": "Late",
+   "bbox": [
+    497,
+    392,
+    522,
+    401
+   ],
+   "size_px": 12,
+   "field": "cell_10_4",
+   "reading": true
+  },
+  {
+   "text": "AJ8008",
+   "bbox": [
+    34,
+    420,
+    77,
+    429
+   ],
+   "size_px": 12,
+   "field": "row_11",
+   "reading": true
+  },
+  {
+   "text": "South",
+   "bbox": [
+    156,
+    420,
+    187,
+    429
+   ],
+   "size_px": 12,
+   "field": "cell_11_1",
+   "reading": true
+  },
+  {
+   "text": "7",
+   "bbox": [
+    355,
+    420,
+    362,
+    429
+   ],
+   "size_px": 12,
+   "field": "cell_11_2",
+   "reading": true
+  },
+  {
+   "text": "$37.87",
+   "bbox": [
+    439,
+    419,
+    477,
+    430
+   ],
+   "size_px": 12,
+   "field": "cell_11_3",
+   "reading": true
+  },
+  {
+   "text": "Returned",
+   "bbox": [
+    497,
+    420,
+    548,
+    429
+   ],
+   "size_px": 12,
+   "field": "cell_11_4",
+   "reading": true
+  },
+  {
+   "text": "KD2368",
+   "bbox": [
+    34,
+    448,
+    77,
+    457
+   ],
+   "size_px": 12,
+   "field": "row_12",
+   "reading": true
+  },
+  {
+   "text": "East",
+   "bbox": [
+    156,
+    448,
+    180,
+    457
+   ],
+   "size_px": 12,
+   "field": "cell_12_1",
+   "reading": true
+  },
+  {
+   "text": "32",
+   "bbox": [
+    348,
+    448,
+    362,
+    457
+   ],
+   "size_px": 12,
+   "field": "cell_12_2",
+   "reading": true
+  },
+  {
+   "text": "$78.62",
+   "bbox": [
+    439,
+    447,
+    477,
+    458
+   ],
+   "size_px": 12,
+   "field": "cell_12_3",
+   "reading": true
+  },
+  {
+   "text": "Returned",
+   "bbox": [
+    497,
+    448,
+    548,
+    457
+   ],
+   "size_px": 12,
+   "field": "cell_12_4",
+   "reading": true
+  },
+  {
+   "text": "PW2642",
+   "bbox": [
+    34,
+    476,
+    80,
+    485
+   ],
+   "size_px": 12,
+   "field": "row_13",
+   "reading": true
+  },
+  {
+   "text": "South",
+   "bbox": [
+    156,
+    476,
+    187,
+    485
+   ],
+   "size_px": 12,
+   "field": "cell_13_1",
+   "reading": true
+  },
+  {
+   "text": "26",
+   "bbox": [
+    348,
+    476,
+    362,
+    485
+   ],
+   "size_px": 12,
+   "field": "cell_13_2",
+   "reading": true
+  },
+  {
+   "text": "$32.32",
+   "bbox": [
+    439,
+    475,
+    477,
+    486
+   ],
+   "size_px": 12,
+   "field": "cell_13_3",
+   "reading": true
+  },
+  {
+   "text": "Delivered",
+   "bbox": [
+    497,
+    476,
+    550,
+    485
+   ],
+   "size_px": 12,
+   "field": "cell_13_4",
+   "reading": true
+  },
+  {
+   "text": "FB8613",
+   "bbox": [
+    34,
+    504,
+    76,
+    513
+   ],
+   "size_px": 12,
+   "field": "row_14",
+   "reading": true
+  },
+  {
+   "text": "West",
+   "bbox": [
+    156,
+    504,
+    184,
+    513
+   ],
+   "size_px": 12,
+   "field": "cell_14_1",
+   "reading": true
+  },
+  {
+   "text": "39",
+   "bbox": [
+    348,
+    504,
+    362,
+    513
+   ],
+   "size_px": 12,
+   "field": "cell_14_2",
+   "reading": true
+  },
+  {
+   "text": "$51.54",
+   "bbox": [
+    439,
+    503,
+    478,
+    514
+   ],
+   "size_px": 12,
+   "field": "cell_14_3",
+   "reading": true
+  },
+  {
+   "text": "Late",
+   "bbox": [
+    497,
+    504,
+    522,
+    513
+   ],
+   "size_px": 12,
+   "field": "cell_14_4",
+   "reading": true
+  },
+  {
+   "text": "JP1833",
+   "bbox": [
+    34,
+    532,
+    76,
+    541
+   ],
+   "size_px": 12,
+   "field": "row_15",
+   "reading": true
+  },
+  {
+   "text": "South",
+   "bbox": [
+    156,
+    532,
+    187,
+    541
+   ],
+   "size_px": 12,
+   "field": "cell_15_1",
+   "reading": true
+  },
+  {
+   "text": "28",
+   "bbox": [
+    348,
+    532,
+    362,
+    541
+   ],
+   "size_px": 12,
+   "field": "cell_15_2",
+   "reading": true
+  },
+  {
+   "text": "$36.03",
+   "bbox": [
+    439,
+    531,
+    477,
+    542
+   ],
+   "size_px": 12,
+   "field": "cell_15_3",
+   "reading": true
+  },
+  {
+   "text": "Returned",
+   "bbox": [
+    497,
+    532,
+    548,
+    541
+   ],
+   "size_px": 12,
+   "field": "cell_15_4",
+   "reading": true
+  },
+  {
+   "text": "CK8769",
+   "bbox": [
+    34,
+    560,
+    78,
+    569
+   ],
+   "size_px": 12,
+   "field": "row_16",
+   "reading": true
+  },
+  {
+   "text": "East",
+   "bbox": [
+    156,
+    560,
+    180,
+    569
+   ],
+   "size_px": 12,
+   "field": "cell_16_1",
+   "reading": true
+  },
+  {
+   "text": "18",
+   "bbox": [
+    348,
+    560,
+    362,
+    569
+   ],
+   "size_px": 12,
+   "field": "cell_16_2",
+   "reading": true
+  },
+  {
+   "text": "$26.30",
+   "bbox": [
+    439,
+    559,
+    477,
+    570
+   ],
+   "size_px": 12,
+   "field": "cell_16_3",
+   "reading": true
+  },
+  {
+   "text": "Delivered",
+   "bbox": [
+    497,
+    560,
+    550,
+    569
+   ],
+   "size_px": 12,
+   "field": "cell_16_4",
+   "reading": true
+  }
+ ],
+ "reading_text": "Ruvaisto parcel report\nFigures for June 2027\nParcel\nDepot\nWeight\nFee\nState\nMT1347\nEast\n18\n$24.12\nReturned\nPX2931\nSouth\n27\n$52.62\nLate\nHL2012\nNorth\n18\n$46.82\nLate\nMX2349\nNorth\n35\n$45.16\nDelivered\nUZ4748\nNorth\n29\n$38.19\nReturned\nKJ3612\nEast\n36\n$63.96\nReturned\nQL8644\nNorth\n9\n$7.51\nReturned\nCL5244\nSouth\n33\n$54.27\nDelivered\nVZ5548\nEast\n7\n$5.93\nLate\nBJ0014\nNorth\n36\n$10.32\nLate\nSJ7577\nEast\n23\n$43.40\nLate\nAJ8008\nSouth\n7\n$37.87\nReturned\nKD2368\nEast\n32\n$78.62\nReturned\nPW2642\nSouth\n26\n$32.32\nDelivered\nFB8613\nWest\n39\n$51.54\nLate\nJP1833\nSouth\n28\n$36.03\nReturned\nCK8769\nEast\n18\n$26.30\nDelivered",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_cell",
+   "qtype": "cell",
+   "question": "In the table, what is the Fee for BJ0014?",
+   "answer": "10.32",
+   "kind": "field",
+   "canon": "money",
+   "fields": [
+    "row_9",
+    "cell_9_3"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_count",
+   "qtype": "count",
+   "question": "How many data rows does the table have (not counting the header rows or the Total row)?",
+   "answer": "17",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "row_0",
+    "row_1",
+    "row_2",
+    "row_3",
+    "row_4",
+    "row_5",
+    "row_6",
+    "row_7",
+    "row_8",
+    "row_9",
+    "row_10",
+    "row_11",
+    "row_12",
+    "row_13",
+    "row_14",
+    "row_15",
+    "row_16"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_sum",
+   "qtype": "sum",
+   "question": "What is the sum of the Fee column (the data rows only)?",
+   "answer": "654.98",
+   "kind": "field",
+   "canon": "money",
+   "fields": [
+    "cell_0_3",
+    "cell_1_3",
+    "cell_2_3",
+    "cell_3_3",
+    "cell_4_3",
+    "cell_5_3",
+    "cell_6_3",
+    "cell_7_3",
+    "cell_8_3",
+    "cell_9_3",
+    "cell_10_3",
+    "cell_11_3",
+    "cell_12_3",
+    "cell_13_3",
+    "cell_14_3",
+    "cell_15_3",
+    "cell_16_3"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_filter",
+   "qtype": "count",
+   "question": "How many rows have Depot = East?",
+   "answer": "6",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "cell_0_1",
+    "cell_1_1",
+    "cell_2_1",
+    "cell_3_1",
+    "cell_4_1",
+    "cell_5_1",
+    "cell_6_1",
+    "cell_7_1",
+    "cell_8_1",
+    "cell_9_1",
+    "cell_10_1",
+    "cell_11_1",
+    "cell_12_1",
+    "cell_13_1",
+    "cell_14_1",
+    "cell_15_1",
+    "cell_16_1"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the table.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

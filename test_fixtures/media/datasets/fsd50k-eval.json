@@ -1,0 +1,53 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "fsd50k-eval",
+ "group": "sounds",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "A4",
+  "A7"
+ ],
+ "split": "eval split, 10,231 clips downloaded; 8,403 CC0 and CC BY clips usable",
+ "homepage": "https://zenodo.org/records/4060432",
+ "licence": "CC0-1.0 / CC-BY-4.0 per clip (filtered); CC-BY-NC and Sampling+ clips excluded",
+ "licence_note": "Per-clip: CC0, CC BY, CC BY-NC, CC Sampling+; dataset as a whole CC BY. Eval split: CC0 4,914 + CC BY 3,489 + CC BY-NC 1,425 + CC Sampling+ 403",
+ "licence_url": "https://zenodo.org/records/4060432",
+ "licence_verified": true,
+ "verified": true,
+ "redistributable": "yes",
+ "attribution": "FSD50K (Fonseca et al.), per-clip Freesound licences",
+ "access": "http",
+ "status": "ready",
+ "needed_v1": "yes",
+ "bytes_total": 6265943762,
+ "file_count": 5,
+ "licence_filter": {
+  "keep": [
+   "CC0-1.0",
+   "CC-BY-4.0"
+  ],
+  "drop": [
+   "CC-BY-NC",
+   "Sampling+"
+  ],
+  "metadata": "FSD50K.metadata.zip: eval_clips_info_FSD50K.json, field 'license'",
+  "clips": {
+   "CC0": 4914,
+   "CC-BY": 3489,
+   "CC-BY-NC": 1425,
+   "Sampling+": 403,
+   "usable": 8403
+  },
+  "rule": "Only CC0 and CC BY clips may be used or committed; filter by the metadata before use.",
+  "unverified": "The 200-class vocabulary was not read, so coverage of the wanted classes is unconfirmed."
+ },
+ "join": "zip -s 0 FSD50K.eval_audio.zip --out joined.zip",
+ "notes": "Best concrete option. Filter by the clip licence field in eval_clips_info_FSD50K.json (inside FSD50K.metadata.zip) to keep the 8,403 CC0 and CC BY clips (82%); the NC and Sampling+ clips are then dropped. Join the two zip parts with `zip -s 0 FSD50K.eval_audio.zip --out joined.zip` before unzipping. 6,258,901,239 B of audio (6,265,943,762 B with the three small files). UNVERIFIED: that the 200-class vocabulary (ground_truth zip) has every wanted class (doorbell, smoke alarm, baby crying, glass, kettle, phone, knock, dog, water, car horn, cafe, street, TV, music, cough, breathing); I could not read the vocabulary without downloading. Sound Events sets on Zenodo and Freesound CC0 packs were not found to be better and need an API key for per-clip licences (not researched further).",
+ "files": [
+  {"url": "https://zenodo.org/api/records/4060432/files/FSD50K.eval_audio.z01/content", "bytes": 3221225472, "md5": "3090670eaeecc013ca1ff84fe4442aeb"},
+  {"url": "https://zenodo.org/api/records/4060432/files/FSD50K.eval_audio.zip/content", "bytes": 3037675767, "md5": "6fa47636c3a3ad5c7dfeba99f2637982"},
+  {"url": "https://zenodo.org/api/records/4060432/files/FSD50K.metadata.zip/content", "bytes": 6700838, "md5": "b9ea0c829a411c1d42adb9da539ed237"},
+  {"url": "https://zenodo.org/api/records/4060432/files/FSD50K.ground_truth.zip/content", "bytes": 334701, "md5": "ca27382c195e37d2269c4c866dd73485"},
+  {"url": "https://zenodo.org/api/records/4060432/files/FSD50K.doc.zip/content", "bytes": 6984, "md5": "3516162b82dc2945d3e7feba0904e800"}
+ ]
+}

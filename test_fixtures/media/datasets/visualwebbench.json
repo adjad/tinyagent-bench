@@ -1,0 +1,39 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "visualwebbench",
+ "group": "vision_eval",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "V2"
+ ],
+ "split": "7 task parquets",
+ "homepage": "https://huggingface.co/datasets/visualwebbench/VisualWebBench",
+ "licence": "Apache-2.0 (HF tag); screenshots of third-party sites",
+ "licence_note": "Apache-2.0 (HF tag); screenshots are of third-party sites, so image rights are not covered by the tag",
+ "licence_url": "https://huggingface.co/datasets/visualwebbench/VisualWebBench",
+ "licence_verified": true,
+ "verified": true,
+ "redistributable": "no",
+ "access": "http",
+ "hf": {
+  "repo": "visualwebbench/VisualWebBench"
+ },
+ "status": "fetch_at_run_time",
+ "status_reason": "project rule: third-party screenshots, fetch at run time, never commit the images",
+ "needed_v1": "yes",
+ "never_commit": true,
+ "pinned_revision": "9dace8acebf210929bd47256d7ded44439377946",
+ "checksum_kind": "sha256 equals the Git LFS oid (a content hash); files without a published hash say so per file",
+ "bytes_total": 1180596389,
+ "file_count": 7,
+ "notes": "HF repo sha 9dace8acebf210929bd47256d7ded44439377946. 1,180,606,128 B across action_ground, action_prediction, element_ground, element_ocr, heading_ocr, web_caption, webqa. Coordinator: fetch at run time, never commit the images.",
+ "files": [
+  {"url": "https://huggingface.co/datasets/visualwebbench/VisualWebBench/resolve/9dace8acebf210929bd47256d7ded44439377946/action_ground/test-00000-of-00001.parquet", "bytes": 116152003, "sha256": "da7ca77c39d54ac85064493f9a1549cb7a20c5a935b8c1cc3b1d3040702d127e"},
+  {"url": "https://huggingface.co/datasets/visualwebbench/VisualWebBench/resolve/9dace8acebf210929bd47256d7ded44439377946/action_prediction/test-00000-of-00001.parquet", "bytes": 212176366, "sha256": "bc195bc6db942a9b9df079f1fbd5bdecb6a980038f0be825d1439e1dea506938"},
+  {"url": "https://huggingface.co/datasets/visualwebbench/VisualWebBench/resolve/9dace8acebf210929bd47256d7ded44439377946/element_ground/test-00000-of-00001.parquet", "bytes": 425203495, "sha256": "0b7de1676ddab78e61c09ce75b41e8dd189ae4aa0e81aff1675af0220a2c4605"},
+  {"url": "https://huggingface.co/datasets/visualwebbench/VisualWebBench/resolve/9dace8acebf210929bd47256d7ded44439377946/element_ocr/test-00000-of-00001.parquet", "bytes": 177036578, "sha256": "d57d0e2484add92bbfb1a9f56427b70c056986d9e33032c4156220eef76feeb4"},
+  {"url": "https://huggingface.co/datasets/visualwebbench/VisualWebBench/resolve/9dace8acebf210929bd47256d7ded44439377946/heading_ocr/test-00000-of-00001.parquet", "bytes": 36401829, "sha256": "556189159c578370ee002a033940ce83747c9f0c834c04a5917c1619c21b2d6c"},
+  {"url": "https://huggingface.co/datasets/visualwebbench/VisualWebBench/resolve/9dace8acebf210929bd47256d7ded44439377946/web_caption/test-00000-of-00001.parquet", "bytes": 112864700, "sha256": "cd976413767e570342f56ee35358991a3c3dafcb717832c6e4ce0df7d0788921"},
+  {"url": "https://huggingface.co/datasets/visualwebbench/VisualWebBench/resolve/9dace8acebf210929bd47256d7ded44439377946/webqa/test-00000-of-00001.parquet", "bytes": 100761418, "sha256": "7cbd3ab4284f4d62c8023fd7aba606986478fe392a0236eecc59e41d792d2526"}
+ ]
+}

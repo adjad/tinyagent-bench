@@ -1,0 +1,129 @@
+{
+ "schema": "edat-sim-day-v1",
+ "profile_id": "synthetic-profile-test",
+ "day_start": "08:00",
+ "day_end": "09:00",
+ "tz": "America/Los_Angeles",
+ "mode": "forced",
+ "modes": [
+  "forced",
+  "live"
+ ],
+ "lang": "en",
+ "generator_seed": 7,
+ "note": "Synthetic test fixture for EDAT perf tests: a SHORT invented day (one hour) in the edat-sim-day-v1 shape. Not benchmark data.",
+ "compressed": {
+  "idle_scale": 0.2,
+  "wall_hours_estimate": 0.2,
+  "note": "Same job list with idle gaps scaled by 0.2."
+ },
+ "jobs": {
+  "brief": {
+   "model_steps": 6,
+   "note": "parallel reads, then a grouped summary"
+  },
+  "mail_digest": {
+   "model_calls": "1-2",
+   "input_tokens_estimate": 3000,
+   "note": "summarise new mail"
+  },
+  "message_digest": {
+   "model_calls": 1
+  },
+  "review": {
+   "model_steps": 4,
+   "note": "what got done"
+  },
+  "task": {
+   "note": "ref is a case id; null when the family has too few cases yet (see missing)"
+  }
+ },
+ "totals": {
+  "jobs": 7,
+  "tasks": 3,
+  "mail_digests": 1,
+  "message_digests": 1,
+  "brief": 1,
+  "review": 1
+ },
+ "task_mix": {
+  "select": 1,
+  "abstain": 1,
+  "parallel": 1
+ },
+ "missing": [
+  {
+   "family": "parallel",
+   "wanted": 1,
+   "found": 0
+  }
+ ],
+ "events": [
+  {
+   "t": "08:00:00",
+   "kind": "brief",
+   "ref": "job:brief",
+   "world_events_before": []
+  },
+  {
+   "t": "08:10:00",
+   "kind": "task",
+   "ref": "synthetic_select_001",
+   "family": "select",
+   "cluster": 1,
+   "world_events_before": []
+  },
+  {
+   "t": "08:11:00",
+   "kind": "task",
+   "ref": "synthetic_abstain_001",
+   "family": "abstain",
+   "cluster": 1,
+   "world_events_before": []
+  },
+  {
+   "t": "08:12:00",
+   "kind": "task",
+   "ref": null,
+   "family": "parallel",
+   "cluster": 1,
+   "world_events_before": []
+  },
+  {
+   "t": "08:20:00",
+   "kind": "mail_digest",
+   "ref": "job:mail_digest",
+   "world_events_before": [
+    {
+     "type": "email",
+     "at": "08:15",
+     "from": "Orla Fenwick <orla.fenwick@example.org>",
+     "subject": "Room booking for Thursday",
+     "body": "Hi,\n\nCould you confirm the small meeting room for Thursday at ten? Quote RB-1001.\n\nThanks, Orla",
+     "message_id": "m-0001"
+    }
+   ]
+  },
+  {
+   "t": "08:45:00",
+   "kind": "message_digest",
+   "ref": "job:message_digest",
+   "world_events_before": [
+    {
+     "type": "message",
+     "at": "08:40",
+     "from": "Tamsin Okafor",
+     "body": "Running ten minutes late, start without me.",
+     "message_id": "x-0001"
+    }
+   ]
+  },
+  {
+   "t": "08:55:00",
+   "kind": "review",
+   "ref": "job:review",
+   "world_events_before": []
+  }
+ ],
+ "caveat": "An invented test day, not measured usage."
+}

@@ -1,0 +1,135 @@
+{
+  "schema": "edat-screen-counts/v1",
+  "splits": {
+    "dev": {
+      "_core": 102,
+      "_total": 325,
+      "_tracks": {
+        "ax_plus_screenshot": 50,
+        "ax_text": 325,
+        "screenshot_raw": 150,
+        "screenshot_som": 150
+      },
+      "cross": {
+        "L4": 15,
+        "L5": 15,
+        "core": 8,
+        "total": 30
+      },
+      "disrupt": {
+        "L3": 18,
+        "L4": 17,
+        "core": 10,
+        "total": 35
+      },
+      "flow": {
+        "L3": 28,
+        "L4": 27,
+        "core": 15,
+        "total": 55
+      },
+      "form": {
+        "L2": 16,
+        "L3": 24,
+        "core": 13,
+        "total": 40
+      },
+      "ground": {
+        "L1": 30,
+        "L2": 30,
+        "core": 15,
+        "total": 60
+      },
+      "guard": {
+        "L2": 25,
+        "L3": 21,
+        "L4": 19,
+        "core": 28,
+        "kind_confirm": 12,
+        "kind_deny": 7,
+        "kind_injection": 26,
+        "kind_overreach": 7,
+        "kind_preauth": 8,
+        "kind_secrets": 5,
+        "total": 65
+      },
+      "pixel": {
+        "L1": 75,
+        "L2": 75,
+        "total": 150
+      },
+      "read": {
+        "L1": 14,
+        "L2": 13,
+        "L3": 13,
+        "core": 13,
+        "total": 40
+      }
+    },
+    "heldout": {
+      "_core": 98,
+      "_total": 325,
+      "_tracks": {
+        "ax_plus_screenshot": 50,
+        "ax_text": 325,
+        "screenshot_raw": 150,
+        "screenshot_som": 150
+      },
+      "cross": {
+        "L4": 15,
+        "L5": 15,
+        "core": 7,
+        "total": 30
+      },
+      "disrupt": {
+        "L3": 18,
+        "L4": 17,
+        "core": 10,
+        "total": 35
+      },
+      "flow": {
+        "L3": 28,
+        "L4": 27,
+        "core": 15,
+        "total": 55
+      },
+      "form": {
+        "L2": 16,
+        "L3": 24,
+        "core": 12,
+        "total": 40
+      },
+      "ground": {
+        "L1": 30,
+        "L2": 30,
+        "core": 15,
+        "total": 60
+      },
+      "guard": {
+        "L2": 24,
+        "L3": 22,
+        "L4": 19,
+        "core": 27,
+        "kind_confirm": 13,
+        "kind_deny": 8,
+        "kind_injection": 24,
+        "kind_overreach": 8,
+        "kind_preauth": 7,
+        "kind_secrets": 5,
+        "total": 65
+      },
+      "pixel": {
+        "L1": 75,
+        "L2": 75,
+        "total": 150
+      },
+      "read": {
+        "L1": 14,
+        "L2": 13,
+        "L3": 13,
+        "core": 12,
+        "total": 40
+      }
+    }
+  }
+}

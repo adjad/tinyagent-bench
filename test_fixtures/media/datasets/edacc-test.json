@@ -1,0 +1,43 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "edacc-test",
+ "group": "asr_eval",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "A1"
+ ],
+ "split": "test (10 parquet shards)",
+ "homepage": "https://huggingface.co/datasets/edinburghcstr/edacc",
+ "licence": "unverified (Hugging Face card says 'Public Domain, CC-BY-SA')",
+ "licence_note": "HF card: 'Public Domain, CC-BY-SA' (ambiguous); official page states no licence I could read",
+ "licence_url": "https://huggingface.co/datasets/edinburghcstr/edacc",
+ "licence_verified": false,
+ "verified": false,
+ "redistributable": "unverified",
+ "access": "http",
+ "hf": {
+  "repo": "edinburghcstr/edacc",
+  "split": "test"
+ },
+ "status": "fetch_at_run_time",
+ "status_reason": "project rule: licence unverified, use locally, never commit",
+ "needed_v1": "if_confirmed",
+ "never_commit": true,
+ "pinned_revision": "d9ae7bd344f0562b766ec93ee5ce8f2f9568ce66",
+ "checksum_kind": "sha256 equals the Git LFS oid (a content hash); files without a published hash say so per file",
+ "bytes_total": 3615855518,
+ "file_count": 10,
+ "notes": "HF repo sha d9ae7bd344f0562b766ec93ee5ce8f2f9568ce66. Licence UNVERIFIED, so fetch at run time only. The 6 validation shards (3,335,308,804 B) are not needed.",
+ "files": [
+  {"url": "https://huggingface.co/datasets/edinburghcstr/edacc/resolve/d9ae7bd344f0562b766ec93ee5ce8f2f9568ce66/data/test-00000-of-00010-f0aceb1ca4406ff1.parquet", "bytes": 471245844, "sha256": "1aeffcba6a8a77b7b2c0be70fa7a30fa437f8a5705b02d1d5cab2932d76af767"},
+  {"url": "https://huggingface.co/datasets/edinburghcstr/edacc/resolve/d9ae7bd344f0562b766ec93ee5ce8f2f9568ce66/data/test-00001-of-00010-856b016d9d438ff3.parquet", "bytes": 274199976, "sha256": "3bbfdd17383d39ffb90f0f28079b9150618312da73f82c4125ad7fbf731d087c"},
+  {"url": "https://huggingface.co/datasets/edinburghcstr/edacc/resolve/d9ae7bd344f0562b766ec93ee5ce8f2f9568ce66/data/test-00002-of-00010-2b021baedb4deb8a.parquet", "bytes": 333196154, "sha256": "c165a89a35511863acf301fbca747a92b44a2694a344ebf3edc0586de337ba26"},
+  {"url": "https://huggingface.co/datasets/edinburghcstr/edacc/resolve/d9ae7bd344f0562b766ec93ee5ce8f2f9568ce66/data/test-00003-of-00010-4de275e704375a02.parquet", "bytes": 497673001, "sha256": "ca21548f35f7a0c6320ddda70795dd22f5c7ffe5484e381bfb6c0b899dbecde9"},
+  {"url": "https://huggingface.co/datasets/edinburghcstr/edacc/resolve/d9ae7bd344f0562b766ec93ee5ce8f2f9568ce66/data/test-00004-of-00010-806407c9bc68112a.parquet", "bytes": 257093852, "sha256": "923dde356508439b93babc65940567d80915ffe34d6fed8dad23e09931388320"},
+  {"url": "https://huggingface.co/datasets/edinburghcstr/edacc/resolve/d9ae7bd344f0562b766ec93ee5ce8f2f9568ce66/data/test-00005-of-00010-9c97c4c4c8d01f82.parquet", "bytes": 282260196, "sha256": "5ac07084e88f5acbf3564ed4824bd09cc8bd94f625d0945583317b258f6dc0d4"},
+  {"url": "https://huggingface.co/datasets/edinburghcstr/edacc/resolve/d9ae7bd344f0562b766ec93ee5ce8f2f9568ce66/data/test-00006-of-00010-cc4648d0f66f65a4.parquet", "bytes": 353729499, "sha256": "e04f9147c20671e023b9ec52f282e36e3f0702a842a8764c99b9082262c108a2"},
+  {"url": "https://huggingface.co/datasets/edinburghcstr/edacc/resolve/d9ae7bd344f0562b766ec93ee5ce8f2f9568ce66/data/test-00007-of-00010-ea5ed4464ecff3c9.parquet", "bytes": 438747542, "sha256": "77a3b90cfe5a07b3037314e382736c50bd79fc50a2e21850978e8f63c7e45f15"},
+  {"url": "https://huggingface.co/datasets/edinburghcstr/edacc/resolve/d9ae7bd344f0562b766ec93ee5ce8f2f9568ce66/data/test-00008-of-00010-d1aa19b51ad423da.parquet", "bytes": 408862837, "sha256": "9056bf79642ea7ef6044486b44a2e087cc2b2640bba50dde9f922882d8551598"},
+  {"url": "https://huggingface.co/datasets/edinburghcstr/edacc/resolve/d9ae7bd344f0562b766ec93ee5ce8f2f9568ce66/data/test-00009-of-00010-648ce5002d124496.parquet", "bytes": 298846617, "sha256": "4878c2f93d395f3fdc44d8d09e45032c44204f238458a05631e06226531f4a71"}
+ ]
+}

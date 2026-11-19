@@ -1,0 +1,41 @@
+{
+  "by_family": {
+    "abstain": 15,
+    "mixed": 9,
+    "parallel": 20,
+    "pev": 5,
+    "recovery": 9,
+    "restraint": 18,
+    "select": 30,
+    "sequential": 3
+  },
+  "by_lane": {
+    "assistant": 80,
+    "neutral": 29
+  },
+  "exporter": "edat-phone-export/1",
+  "file": "parity-items.jsonl",
+  "items": 109,
+  "note": "rendered_prompt and template/weights hashes are recorded on the Mac at run time",
+  "schema": "edat-phone-manifest/v1",
+  "selection_seed": 6061,
+  "sha256": "d99bf3412c72cfbb3a12e8e96f053657fc6b0080f17efdf6f1ec983bde99d890",
+  "skip_reasons": {
+    "rec_neu_overflow_003": "no faulted step",
+    "seq_ast_dinner_003": "send_message.text: regex not portable (lookbehind)",
+    "seq_ast_invoice_002": "send_message.text: regex not portable (lookbehind)",
+    "seq_ast_invoice_004": "send_message.text: regex not portable (lookbehind)",
+    "seq_ast_invoice_005": "send_message.text: regex not portable (lookbehind)",
+    "seq_ast_moveevent_002": "send_message.text: regex not portable (lookbehind)",
+    "seq_ast_proposal_001": "send_message.text: regex not portable (lookbehind)",
+    "seq_ast_proposal_004": "send_message.text: regex not portable (lookbehind)",
+    "seq_ast_timetext_002": "send_message.text: regex not portable (lookbehind)"
+  },
+  "skipped": {
+    "recovery": 1,
+    "sequential": 8
+  },
+  "template_sha256": null,
+  "weights_sha256": null,
+  "world_seed": 1
+}

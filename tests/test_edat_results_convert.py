@@ -698,7 +698,9 @@ def test_converted_perf_verdicts_link_to_agentic_entries(tmp_path):
     assert x["fit"]["verdict"] == "fits"
     assert x["fit"]["max_level_fits"] == 10240
     assert x["ranked"] is True and x["rank_group"] == "ranked"
-    assert x["tiers"]["agentic"]["pass1"]["value"] == pytest.approx(4 / 6)
+    # Toolbench rows are their own view, never averaged with the reference loop's agentic cases.
+    assert "agentic" not in x["tiers"]
+    assert x["tiers"]["toolbench"]["pass1"]["value"] == pytest.approx(4 / 6)
     assert "perf" in x["tiers"]
     assert y["fit"]["verdict"] == "does_not_fit"
     assert y["ranked"] is False and y["rank_group"] == "does_not_fit"
@@ -876,3 +878,100 @@ def test_productbench_cloud_row(tmp_path):
     assert rec["model"]["requested_model"] == "vendor/model-c"
     assert rec["settings"]["thinking"] == "minimal"
     assert rec["settings"]["sampling_source"] == "provider_default"
+
+
+# --- the iPhone runner's export (tinyagent-bench-<run_id>.zip) -------------
+
+PHONE_RUN_ID = "2026-12-02T08-00-00Z-ab12"
+
+
+def phone_doc() -> dict:
+    """The runner's run document shape: mixed-bit weights as a bit-width -> layer-count map,
+    a speculation field and a load block on each sample (invented values)."""
+    doc = perf_doc(run_id=PHONE_RUN_ID)
+    doc["device"] = {"class": "iphone-ref", "model_id": "iPhone99,1", "soc": "A99 Pro", "ram_bytes": 12 * 2**30,
+                     "os": "iOS 27.1", "os_build": "27B1"}
+    doc["runtime"] = {"name": "mlx-swift", "version": "0.30.0", "backend": "metal"}
+    doc["models"] = [copy.deepcopy(doc["models"][0])]
+    doc["models"][0]["quant"] = {"scheme": "mlx-affine", "bits": 4, "group_size": 64, "mixed": {"5": 84, "6": 18}}
+    doc["models"][0]["speculation"] = "mtp"
+    doc["samples"] = [s for s in doc["samples"] if s["model_id"] == "model-x"]
+    doc["samples"][1]["load"] = {"t_load_start_ns": 1_000_000_000, "t_ready_ns": 3_500_000_000,
+                                 "t_first_token_possible_ns": 4_250_000_000, "cold_verified": False}
+    doc["verdicts"] = [doc["verdicts"][0]]
+    return doc
+
+
+def write_export(tmp_path, *, doc=None, tamper=None, extra_entry=None, manifest=True, nested=True):
+    import zipfile
+    files = {f"run-{PHONE_RUN_ID}.json": json.dumps(doc or phone_doc()).encode(),
+             f"mem-{PHONE_RUN_ID}.jsonl": b'{"t_ns": 1, "footprint_bytes": 1000}\n',
+             f"phone-{PHONE_RUN_ID}.jsonl": b'{"schema": "edat-phone-result/v1", "case_id": "x", "pass": true}\n'}
+    listed = [{"name": n, "sha256": hashlib.sha256(b).hexdigest(), "bytes": len(b)} for n, b in files.items()]
+    if tamper:
+        files[tamper] = files[tamper] + b" "
+    if manifest:
+        files[f"manifest-{PHONE_RUN_ID}.json"] = json.dumps(
+            {"schema": "edat.export-manifest/1", "record_schema": "edat.perf/1.0", "run_id": PHONE_RUN_ID,
+             "files": listed}).encode()
+    path = tmp_path / f"tinyagent-bench-{PHONE_RUN_ID}.zip"
+    prefix = f"tinyagent-bench-{PHONE_RUN_ID}/" if nested else ""
+    with zipfile.ZipFile(path, "w") as z:
+        for n, b in files.items():
+            z.writestr(prefix + n, b)
+        if extra_entry:
+            z.writestr(extra_entry, b"x")
+    return path
+
+
+def test_iphone_export_with_mixed_bit_quant_converts_and_validates(tmp_path):
+    run = convert_perf(write_export(tmp_path), tmp_path / "store", board_version=BOARD)
+    rs = read_set(run, deep=True)
+    rec = find(rs.records, "model-x", "level/2048")
+    assert rec["model"]["quant"]["mixed"] == {"5": 84, "6": 18}
+    assert rec["model"]["speculation"] == "mtp"
+    assert rec["device"]["class"] == "iphone-ref" and rec["runtime"]["name"] == "mlx-swift"
+    assert rec["metrics"]["load_s"] == pytest.approx(2.5)
+    assert rec["metrics"]["load_to_first_token_s"] == pytest.approx(3.25)
+    kinds = sorted(a["kind"] for a in json.loads((run / "manifest.json").read_text())["attachments"])
+    assert {"footprint_log", "phone_results"} <= set(kinds)
+    assert not [r for r in rs.records if r["tier"] != "perf"]     # phone grades stay attachments
+
+
+def test_iphone_export_unpacked_folder_also_reads(tmp_path):
+    import zipfile
+    folder = tmp_path / "unpacked"
+    with zipfile.ZipFile(write_export(tmp_path, nested=False)) as z:
+        z.extractall(folder)
+    run = convert_perf(folder, tmp_path / "store", board_version=BOARD)
+    assert read_set(run, deep=True).records
+
+
+@pytest.mark.parametrize("mixed", [{}, {"5": 84, "6": 18}, True, False, None])
+def test_mixed_quant_forms_accepted(mixed):
+    r = make_record(model={"id": "model-x", "role": "candidate", "weights_sha256": W64,
+                           "quant": {"scheme": "mlx-affine", "bits": 4, "mixed": mixed}})
+    assert record_errors(r) == []
+
+
+@pytest.mark.parametrize("mixed", [{"five": 84}, {"5": -1}, {"5": 1.5}, "mixed", [5, 6]])
+def test_malformed_mixed_quant_refused(mixed):
+    r = make_record(model={"id": "model-x", "role": "candidate", "weights_sha256": W64,
+                           "quant": {"scheme": "mlx-affine", "mixed": mixed}})
+    assert record_errors(r)
+
+
+def test_iphone_export_altered_file_refused(tmp_path):
+    with pytest.raises(ConversionError, match="does not match the export manifest"):
+        convert_perf(write_export(tmp_path, tamper=f"mem-{PHONE_RUN_ID}.jsonl"), tmp_path / "store",
+                     board_version=BOARD)
+
+
+def test_iphone_export_entry_outside_the_folder_refused(tmp_path):
+    with pytest.raises(ConversionError, match="outside the folder"):
+        convert_perf(write_export(tmp_path, extra_entry="../escape.txt"), tmp_path / "store", board_version=BOARD)
+
+
+def test_iphone_export_without_manifest_refused(tmp_path):
+    with pytest.raises(ConversionError, match="manifest"):
+        convert_perf(write_export(tmp_path, manifest=False), tmp_path / "store", board_version=BOARD)

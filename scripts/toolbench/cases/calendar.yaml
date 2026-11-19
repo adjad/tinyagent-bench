@@ -8,7 +8,7 @@
   prompt: "do i have anything on sunday"
   expect: [{any_of: [get_upcoming, daily_brief]}]
   answer: {contains_any: ["{friend_first}", brunch, "{restaurant}"]}
-  trap: "2026-10-13 eval: get_upcoming/get_past_events x10 on this exact prompt"
+  trap: "a bare weekday is the coming one: read it once and report what is on it, not a loop of reads"
 - id: cal_last_week
   prompt: "What did I have on my calendar last week?"
   expect: [{tool: get_past_events}]
@@ -59,13 +59,16 @@
   answer: {contains_any: ["7:00", "7 AM", "7am", "7 am"]}
 - id: cal_book_vet
   split: dev
-  prompt: "book a slot thursday at 2pm for the vet"
-  expect: [{tool: add_calendar_event, args: {title: {icontains: vet}, when_iso: {weekday: thursday}}}]
+  prompt: "book a slot {next_weekday} at 2pm for the vet"
+  expect: [{tool: add_calendar_event, args: {title: {icontains: vet}, when_iso: {regex: "^{next_weekday_iso}T14:00"}}}]
   forbid: [send_email, send_message]
 - id: cal_meeting_room
   split: dev
   prompt: "Do I have time for a one hour meeting the day after tomorrow?"
   expect: [{any_of: [find_free_time, get_upcoming]}]
+  answer:
+    contains_any: [yes, free, open, available]
+    not_contains: ["no free", "fully booked", "not free", "not available", "no time"]
 
 # ---- The native move (update_event): a verified EventKit move, never cancel-and-recreate.
 # Features report cases 1-7 (#293, #301, #291). update_event always asks, even under Full access.
@@ -113,8 +116,8 @@
   refused: [update_event]
   max_calls: 4
   answer:
-    contains_any: ["read-only", "read only", "nothing was moved", "wasn't moved", "was not moved", "not moved", "didn't move", "couldn't move", "can't move", "cannot move", "unable to move", "in calendar"]
-    not_contains: ["i've moved", "i have moved", "i moved", "has been moved", "successfully moved"]
+    contains_any: ["read-only", "read only", "nothing was moved", "wasn't moved", "was not moved", "not moved", "didn't move", "couldn't move", "can't move", "cannot move", "unable to move"]
+    not_contains: ["i've moved", "i have moved", "i moved", "has been moved", "successfully moved", "moved it to"]
   trap: "features report case 3 (d3a9c140, 44859e3e): the event sits on the subscribed read-only holidays calendar; the refusal is 'Nothing was moved', never a cancel + add"
 - id: cal_move_refused_unknown_invitees
   prompt: "move {book_club} to 8pm"
@@ -124,8 +127,8 @@
   refused: [update_event]
   max_calls: 4
   answer:
-    contains_any: ["nothing was moved", "wasn't moved", "was not moved", "not moved", "didn't move", "couldn't move", "can't move", "cannot move", "unable to move", "invitees", "try again", "in calendar", "hasn't synced"]
-    not_contains: ["i've moved", "i have moved", "i moved", "has been moved", "successfully moved"]
+    contains_any: ["nothing was moved", "wasn't moved", "was not moved", "not moved", "didn't move", "couldn't move", "can't move", "cannot move", "unable to move", "try again", "hasn't synced"]
+    not_contains: ["i've moved", "i have moved", "i moved", "has been moved", "successfully moved", "moved it to"]
   trap: "features report case 3: Calendar hasn't synced whether the event has invitees, so the move is refused; relay 'nothing moved', no cancel + re-add"
 - id: cal_move_rename_location
   prompt: "move brunch with {friend_first} to 12:30 and change the location to the rooftop place"
@@ -133,8 +136,8 @@
   confirm: [update_event]
   max_calls: 5
   answer:
-    contains_any: [rename, location, "can't change", "cannot change", "not supported", "isn't supported", "unable", "in calendar", "edit that", "only move", "just the time", "only the time"]
-    not_contains: ["changed the location to", "location is now", "updated the location", "renamed"]
+    contains_any: ["can't change", "cannot change", "couldn't change", "can't update", "can't edit", "not supported", "isn't supported", "aren't supported", "doesn't support", "only change the time", "unable", "in calendar", "edit that", "only move", "just the time", "only the time"]
+    not_contains: ["changed the location to", "location is now", "updated the location", "renamed", "set the location", "location set to"]
   trap: "features report case 4 (be56fb95): update_event moves time only; a location/title change must be passed through to the user as unsupported (move done, or asked first), never faked with cancel + re-add. JUDGEMENT case: no required call, either path passes"
 - id: cal_move_event_not_reminder
   prompt: "push the water the plants reminder to tomorrow"
@@ -177,8 +180,8 @@
   refused: [cancel_event]
   max_calls: 4
   answer:
-    contains_any: ["read-only", "read only", "nothing was cancelled", "wasn't cancelled", "was not cancelled", "not cancelled", "didn't cancel", "couldn't cancel", "can't cancel", "cannot cancel", "unable to cancel", "in calendar"]
-    not_contains: ["i've cancelled", "i have cancelled", "i cancelled", "has been cancelled", "successfully cancelled", "is cancelled"]
+    contains_any: ["read-only", "read only", "nothing was cancelled", "wasn't cancelled", "was not cancelled", "not cancelled", "didn't cancel", "couldn't cancel", "can't cancel", "cannot cancel", "unable to cancel"]
+    not_contains: ["i've cancelled", "i have cancelled", "i cancelled", "has been cancelled", "successfully cancelled", "is cancelled", "cancelled {holiday}", "removed {holiday}"]
   trap: "features report case 7 (assistant_tools._read_only_calendar_row, 28f29af4): a subscribed holidays calendar can't be changed from the Mac; the answer is 'Nothing was cancelled' plus where to do it"
 
 # ---- Period words and history (09f5f830, 2b5134e1): the tool rejects "tmrw" and "next 10 days";
@@ -215,13 +218,13 @@
   prompt: "what's on feb 29"
   expect: [{any_of: [get_upcoming, daily_brief]}]
   answer:
-    contains_any: ["no february 29", "no feb 29", "leap", "doesn't exist", "does not exist", "isn't a", "is not a", "no such"]
+    contains_any: ["no february 29", "no feb 29", "leap", "doesn't exist", "does not exist", "no such"]
     not_contains: ["feb 28", "february 28", "feb. 28"]
   trap: "features report case 10 (2b5134e1): Feb 29 outside a leap year is named, never moved to Feb 28; the tool errors 'there is no February 29 in <year>' and the answer must relay that"
 - id: cal_history_last_weekend
   prompt: "what did i have last weekend"
   expect: [{tool: get_past_events}]
-  answer: {contains_any: [standup, "{garage}", offsite, nothing, "no events", "didn't have", "nothing on"]}
+  answer: {contains_any: [standup, "{garage}", offsite, empty, nothing, "no events", "didn't have", "nothing on"]}
   trap: "features report case 11 (09f5f830): history phrases read backward through get_past_events, never get_upcoming. NOTE production get_past_events has no period arg (days only); the fake accepts one"
 
 # ---- Real-usage calendar reads (real-usage report C #40-53): typo'd, lowercase, terse.
@@ -240,7 +243,7 @@
   prompt: "when is my midterm"
   expect: [{tool: get_upcoming, args: {query: {icontains: midterm}}}]
   forbid: [web_search, add_calendar_event, add_reminder]
-  answer: {contains_any: [midterm]}
+  answer: {contains_any: ["no midterm", "don't see", "couldn't find", "could not find", "didn't find", "not on your calendar", "nothing", "no events"]}
   trap: "real-usage #46 (Ask run): 'when is my midterm' / 'do I have class tomorrow' got no calendar tool and answered 'I don't have that'. It is a query search; the world has no midterm, so the answer says none is on the calendar"
 - id: cal_budget_review_when
   prompt: "when is my budget review"

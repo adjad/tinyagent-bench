@@ -21,10 +21,11 @@ Rules (docs/benchmark/results-record.md sections 6 and 7):
 from __future__ import annotations
 
 from collections import defaultdict
-from dataclasses import dataclass, field
-from typing import Iterable
+import json
+from dataclasses import dataclass, field, replace
+from typing import Callable, Iterable
 
-from edat.results import keys, stats
+from edat.results import composites, keys, stats
 
 DEFAULT_REFERENCES = {
     "tuned": ("Gemma-Wisp", "gemma-4-E4B-it-r5-step-01800-oQ4e-mtp"),
@@ -48,6 +49,7 @@ class Options:
     references: dict = field(default_factory=lambda: {k: tuple(v) for k, v in DEFAULT_REFERENCES.items()})
     resamples: int = stats.BOOTSTRAP_RESAMPLES
     facet_resamples: int = 2_000
+    composite_resamples: int = 2_000
     seed: int = stats.BOOTSTRAP_SEED
 
 
@@ -111,41 +113,140 @@ def _rate_block(records: list[dict], metric: str) -> dict | None:
             "n_trials": n}
 
 
+# --- tier composites --------------------------------------------------------
+#
+# Each composite is a weighted mean of stratum means (cases within a stratum
+# weigh equally), with a stratified case bootstrap interval. A Composite says
+# which records count (`keep`), how they split into strata (`stratum`) and how
+# the strata are weighted (`weights`, renormalised over the strata present).
+
+SCREEN_FAMILIES = ("ground", "form", "flow", "read", "disrupt", "cross")      # spec 11 SC1; guard, pixel apart
+SIDEKICK_TYPES = ("explain_error", "write_fn", "fix_bug", "shell", "git", "regex", "write_test",
+                  "commit_msg", "diff_review")                                  # spec 12 SK-1
+PREFERENCE_DIMENSIONS = ("persistence", "override", "supersession", "scope", "no_waiver")   # spec 02 #57
+
+
+@dataclass(frozen=True)
+class Composite:
+    name: str
+    metric: str                                  # per-record metric averaged: "pass" or "score"
+    stratum: Callable[[dict], str | None]        # record -> stratum, or None to leave it out
+    weights: Callable[[set[str]], dict[str, float]]
+    complete: tuple[str, ...] = ()               # strata a complete composite has (else flagged)
+
+
+def _equal(strata: set[str]) -> dict[str, float]:
+    return {s: 1.0 / len(strata) for s in strata} if strata else {}
+
+
+def _family_lane_weights(strata: set[str]) -> dict[str, float]:
+    lanes = defaultdict(set)
+    for s in strata:
+        fam, lane = s.split("/")
+        lanes[fam].add(lane)
+    return {s: 1.0 / (len(lanes) * len(lanes[s.split("/")[0]])) for s in strata}
+
+
+def _facet(name: str):
+    return lambda r: r.get("facets", {}).get(name)
+
+
+def _agentic_stratum(r: dict) -> str | None:
+    f = r.get("facets", {})
+    if f.get("family") in AGENTIC_FAMILIES and f.get("lane") in AGENTIC_LANES:
+        return f"{f['family']}/{f['lane']}"
+    return None
+
+
+def _dimension(r: dict) -> str | None:
+    d = r.get("facets", {}).get("dimension") or r["metrics"].get("dimension")
+    return d if d in PREFERENCE_DIMENSIONS else None
+
+
+def _screen(track: str):
+    def f(r: dict) -> str | None:
+        fa = r.get("facets", {})
+        tr = fa.get("track") or fa.get("category")
+        return fa.get("family") if fa.get("family") in SCREEN_FAMILIES and tr == track else None
+    return f
+
+
+def _sidekick(r: dict) -> str | None:
+    fam = r.get("facets", {}).get("family")
+    mode = r.get("facets", {}).get("mode") or r.get("suite")
+    return fam if fam in SIDEKICK_TYPES and mode == "answer_only" else None
+
+
+def _tagged(tag: str, stratum: str = "all"):
+    return lambda r: stratum if tag in (r.get("facets", {}).get("tags") or ()) else None
+
+
+COMPOSITE_DEFS: dict[str, tuple[Composite, ...]] = {
+    "agentic": (Composite("agentic_score", "pass", _agentic_stratum, _family_lane_weights, AGENTIC_FAMILIES),),
+    "in_assistant": (Composite("assistant_score", "score", lambda r: _facet("surface")(r)
+                               if _facet("surface")(r) in IN_ASSISTANT_WEIGHTS else None,
+                               lambda st: {s: IN_ASSISTANT_WEIGHTS[s] for s in st}),),
+    "preferences": (Composite("preferences_score", "pass", _dimension, _equal, PREFERENCE_DIMENSIONS),),
+    "memory": (Composite("memory_score", "pass", lambda r: "all", _equal),
+               Composite("forget_compliance", "pass", _tagged("forget"), _equal)),
+    "long_session": (Composite("late_retention", "pass",
+                               lambda r: "late" if _facet("band")(r) == "late" and
+                               "fact_probe" in (_facet("tags")(r) or ()) else None, _equal),),
+    "app_control": (Composite("screen_score", "pass", _screen("ax_text"), _equal, SCREEN_FAMILIES),
+                    Composite("screen_score_screenshot", "pass", _screen("screenshot_som"), _equal,
+                              SCREEN_FAMILIES)),
+    "sidekick": (Composite("sidekick_score", "pass", _sidekick, _equal, SIDEKICK_TYPES),
+                 Composite("sidekick_tool_mode", "pass",
+                           lambda r: "all" if (_facet("mode")(r) or r.get("suite")) == "tool_mode" else None,
+                           _equal)),
+}
+
+# --- the second agent loop ---------------------------------------------------
+#
+# The reference loop is the headline. The same assistant-lane cases run through
+# Harbor's own loop (suite `harbor-loop`) are a second column per tier, never
+# averaged into the first, with the per-model gap between the two loops.
+
+LOOP_SUITES = {"harbor-loop": "harbor_loop"}           # suite -> view suffix
+LOOP_TIERS = ("agentic", "preferences", "memory", "long_session")
+LOOP_LANE = "assistant"
+GAP_METRIC = "loop_gap"     # provisional: 02 names the gap metric; Harbor loop minus reference loop
+
+
+def _assistant_lane(c: Composite) -> Composite:
+    def stratum(r: dict, inner=c.stratum) -> str | None:
+        lane = r.get("facets", {}).get("lane")
+        return inner(r) if lane in (None, LOOP_LANE) else None
+    return replace(c, stratum=stratum)
+
+
+for _t in LOOP_TIERS:
+    for _suffix in LOOP_SUITES.values():
+        COMPOSITE_DEFS[f"{_t}_{_suffix}"] = tuple(replace(_assistant_lane(c), name=f"{c.name}_{_suffix}")
+                                                  for c in COMPOSITE_DEFS[_t])
+
+COMPOSITES = {view: (defs[0].name, defs[0].metric) for view, defs in COMPOSITE_DEFS.items()}
+
+
+def _strata_of(records: list[dict], c: Composite) -> tuple[dict[str, dict[str, float]], dict[str, float]]:
+    groups: dict[str, list[dict]] = defaultdict(list)
+    for r in records:
+        s = c.stratum(r)
+        if s is not None:
+            groups[s].append(r)
+    means = {s: _case_means(_per_case(g, c.metric)) for s, g in groups.items()}
+    means = {s: v for s, v in means.items() if v}
+    return means, c.weights(set(means))
+
+
 def _strata(records: list[dict], tier: str, metric: str) -> tuple[dict[str, dict[str, float]], dict[str, float]]:
-    """Per-stratum per-case means and stratum weights for a tier composite."""
-    if tier == "agentic":
-        groups: dict[str, list[dict]] = defaultdict(list)
-        for r in records:
-            f = r.get("facets", {})
-            if f.get("family") in AGENTIC_FAMILIES and f.get("lane") in AGENTIC_LANES:
-                groups[f"{f['family']}/{f['lane']}"].append(r)
-        lanes_per_family = defaultdict(set)
-        for s in groups:
-            fam, lane = s.split("/")
-            lanes_per_family[fam].add(lane)
-        n_fam = len(lanes_per_family)
-        weights = {s: 1.0 / (n_fam * len(lanes_per_family[s.split("/")[0]])) for s in groups}
-        return {s: _case_means(_per_case(g, metric)) for s, g in groups.items()}, weights
-    if tier == "in_assistant":
-        groups = defaultdict(list)
-        for r in records:
-            surface = r.get("facets", {}).get("surface")
-            if surface in IN_ASSISTANT_WEIGHTS:
-                groups[surface].append(r)
-        return ({s: _case_means(_per_case(g, metric)) for s, g in groups.items()},
-                {s: IN_ASSISTANT_WEIGHTS[s] for s in groups})
-    return {}, {}
+    """Strata of the view's primary composite (kept for callers of the first release)."""
+    defs = COMPOSITE_DEFS.get(tier)
+    return _strata_of(records, defs[0]) if defs else ({}, {})
 
 
-COMPOSITES = {"agentic": ("agentic_score", "pass"), "in_assistant": ("assistant_score", "score")}
-
-
-def _composite(records: list[dict], tier: str, opts: Options) -> dict | None:
-    if tier not in COMPOSITES:
-        return None
-    name, metric = COMPOSITES[tier]
-    strata, weights = _strata(records, tier, metric)
-    strata = {s: v for s, v in strata.items() if v}
+def _one_composite(records: list[dict], c: Composite, opts: Options) -> dict | None:
+    strata, weights = _strata_of(records, c)
     if not strata:
         return None
     res = stats.stratified_composite({s: list(v.values()) for s, v in strata.items()}, weights,
@@ -153,11 +254,47 @@ def _composite(records: list[dict], tier: str, opts: Options) -> dict | None:
     if res is None:
         return None
     res.pop("tag", None)
-    res.update(metric=name, interval_kind="bootstrap_cases")
-    if tier == "agentic":
+    res.update(metric=c.name, interval_kind="bootstrap_cases")
+    res["n_trials"] = sum(len(v) for v in _per_case([r for r in records if c.stratum(r)], c.metric).values())
+    if c.complete:
+        res["present"] = sorted(strata)
+        missing = sorted({s.split("/")[0] for s in c.complete} - {s.split("/")[0] for s in strata})
+        res["complete"] = not missing
+        if missing:
+            res["missing"] = missing
+            res["label"] = "partial"
+    if c.name == "agentic_score":
         res["families"] = sorted({s.split("/")[0] for s in strata})
-        res["complete"] = len(res["families"]) == len(AGENTIC_FAMILIES)
     return res
+
+
+def _composites(records: list[dict], tier: str, opts: Options) -> dict[str, dict]:
+    out = {}
+    for c in COMPOSITE_DEFS.get(tier, ()):
+        res = _one_composite(records, c, opts)
+        if res is not None:
+            out[c.name] = res
+    return out
+
+
+def _composite(records: list[dict], tier: str, opts: Options) -> dict | None:
+    defs = COMPOSITE_DEFS.get(tier)
+    return _one_composite(records, defs[0], opts) if defs else None
+
+
+def _composite_deltas(ga: list[dict], gb: list[dict], tier: str, opts: Options) -> dict[str, dict]:
+    out = {}
+    for c in COMPOSITE_DEFS.get(tier, ()):
+        sta, wa = _strata_of(ga, c)
+        stb, _ = _strata_of(gb, c)
+        diffs = {s: [sta[s][k] - stb[s][k] for k in sorted(set(sta[s]) & set(stb.get(s, {})))]
+                 for s in sta if s in stb}
+        diffs = {s: v for s, v in diffs.items() if v}
+        res = stats.stratified_composite(diffs, c.weights(set(diffs)), resamples=opts.resamples, seed=opts.seed)
+        if res:
+            res["delta"] = res.pop("value")
+            out[c.name] = res
+    return out
 
 
 def _safety(records: list[dict]) -> dict | None:
@@ -232,7 +369,92 @@ def _fit_for(ident: dict, verdicts: dict) -> dict:
     return out
 
 
+QUALITY_TIERS = ("quality",)
+
+
+# Suites whose records share a tier but must not be averaged with the tier's
+# other suites: each becomes its own view (a key under an entry's `tiers`).
+SUITE_VIEWS = {("in_assistant", "productbench-findings"): "in_assistant_findings",
+               ("agentic", "toolbench"): "toolbench"}
+
+
+def view_of(rec: dict) -> str:
+    view = SUITE_VIEWS.get((rec["tier"], rec.get("suite")))
+    if view:
+        return view
+    loop = LOOP_SUITES.get(rec.get("suite"))
+    return f"{rec['tier']}_{loop}" if loop and rec["tier"] in LOOP_TIERS else rec["tier"]
+
+
+def _loop_empty_reason(e: dict) -> str:
+    """Why an entry has no Harbor-loop column."""
+    if e["kind"] == "cloud_reference":
+        return "cloud references run through the reference loop only"
+    cls = str((e.get("device") or {}).get("class") or e["device_id"])
+    if cls.startswith("iphone"):
+        return "the phone runs the single-step parity subset, not Harbor's loop"
+    return "not run through Harbor's loop"
+
+
+def _sampling_values(recs: list[dict]) -> set[str]:
+    return {json.dumps(r["settings"].get("sampling") or {}, sort_keys=True) for r in recs}
+
+
+def _loop_gaps(e: dict, views: dict[str, list[dict]], opts: Options) -> dict:
+    """tier -> the Harbor-loop column's state and its paired gap to the reference loop.
+
+    Same entry (model, quantisation, runtime, thinking), same device and sampling
+    class by construction; refused unless the harness commit, the sampling values
+    and the run policy are also the same. The gap is computed on the assistant-lane
+    cases both loops graded: Harbor loop minus reference loop."""
+    out = {}
+    for tier in LOOP_TIERS:
+        if tier not in e["tiers"]:
+            continue
+        for suite, suffix in LOOP_SUITES.items():
+            view = f"{tier}_{suffix}"
+            row: dict = {"loop": suite, "view": view, "reference_view": tier,
+                         "lanes": {"neutral": "not_applicable: Harbor's loop has no neutral lane"}
+                         if tier == "agentic" else {}}
+            hb, rb = e["tiers"].get(view), e["tiers"][tier]
+            if hb is None or not hb.get("graded"):
+                row.update(empty=True, empty_reason=_loop_empty_reason(e) if hb is None
+                           else "every case was not applicable in Harbor's loop", gap=None)
+                out[tier] = row
+                continue
+            row["empty"] = False
+            ref = [r for r in views.get(tier, []) if r["status"] == "ok"
+                   and r.get("facets", {}).get("lane") in (None, LOOP_LANE)]
+            har = [r for r in views.get(view, []) if r["status"] == "ok"]
+            why = _comparable(hb, rb)
+            if why is None and _sampling_values(ref) != _sampling_values(har):
+                why = "different sampling values"
+            if why:
+                row["gap"] = {"refused": why}
+                out[tier] = row
+                continue
+            primary = COMPOSITE_DEFS[view][0]
+            ref_comp = _one_composite(ref, primary, opts)
+            if ref_comp is not None:
+                ref_comp["metric"] = f"{COMPOSITE_DEFS[tier][0].name}_{LOOP_LANE}_lane"
+            row["reference_assistant_lane"] = ref_comp
+            gap = _composite_deltas(har, ref, view, opts).get(primary.name)
+            pa, pb = _case_means(_per_case(har, primary.metric)), _case_means(_per_case(ref, primary.metric))
+            paired = stats.paired_bootstrap(pa, pb, resamples=opts.resamples, seed=opts.seed)
+            if gap is not None:
+                gap = {**gap, "metric": GAP_METRIC, "of": primary.name, "interval_kind": "bootstrap_cases",
+                       "n_cases_paired": paired["n_cases"] if paired else 0}
+                if paired:
+                    gap.update(wins=paired["wins"], losses=paired["losses"], ties=paired["ties"])
+            row["gap"] = gap
+            row["pass1_gap"] = paired
+            out[tier] = row
+    return out
+
+
 def _tier_block(records: list[dict], tier: str, opts: Options) -> dict:
+    entry_level = [r for r in records if composites.is_entry_record(r)]
+    records = [r for r in records if not composites.is_entry_record(r)]
     graded = [r for r in records if r["status"] == "ok"]
     status_counts = defaultdict(int)
     for r in records:
@@ -253,7 +475,15 @@ def _tier_block(records: list[dict], tier: str, opts: Options) -> dict:
         return block
     block["pass1"] = _pass_block(graded, opts, opts.resamples)
     block["score"] = _mean_block(graded, "score", opts, opts.resamples)
-    block["composite"] = _composite(graded, tier, opts)
+    block["composites"] = _composites(graded, tier, opts)
+    block["composite"] = next(iter(block["composites"].values()), None)
+    if tier in QUALITY_TIERS:
+        heads = composites.headlines(records + entry_level, resamples=opts.composite_resamples, seed=opts.seed)
+        block["composites"].update(heads)
+        order = composites.QUALITY_HEADLINES
+        primary = next((heads[n] for n in order if n in heads), None)
+        if primary is not None:
+            block["composite"] = primary
     block["safety"] = _safety(graded)
     facets: dict[str, dict] = {}
     for fname in FACETS:
@@ -322,25 +552,21 @@ def _comparable(a: dict, b: dict) -> str | None:
 
 
 def _deltas(entry_recs: list[dict], ref_recs: list[dict], tier: str, opts: Options) -> dict:
+    out = {}
+    if tier in QUALITY_TIERS:
+        out.update(composites.paired_headlines(entry_recs, ref_recs, resamples=opts.composite_resamples,
+                                               seed=opts.seed))
+    entry_recs = [r for r in entry_recs if not composites.is_entry_record(r)]
+    ref_recs = [r for r in ref_recs if not composites.is_entry_record(r)]
     ga = [r for r in entry_recs if r["status"] == "ok"]
     gb = [r for r in ref_recs if r["status"] == "ok"]
-    out = {}
     pa, pb = _case_means(_per_case(ga, "pass")), _case_means(_per_case(gb, "pass"))
     if pa and pb:
         out["pass1"] = stats.paired_bootstrap(pa, pb, resamples=opts.resamples, seed=opts.seed)
     sa, sb = _case_means(_per_case(ga, "score")), _case_means(_per_case(gb, "score"))
     if sa and sb:
         out["score"] = stats.paired_bootstrap(sa, sb, resamples=opts.resamples, seed=opts.seed)
-    if tier in COMPOSITES:
-        name, metric = COMPOSITES[tier]
-        sta, wa = _strata(ga, tier, metric)
-        stb, _ = _strata(gb, tier, metric)
-        diffs = {s: [sta[s][c] - stb[s][c] for c in sorted(set(sta[s]) & set(stb.get(s, {})))]
-                 for s in sta if s in stb}
-        res = stats.stratified_composite(diffs, wa, resamples=opts.resamples, seed=opts.seed)
-        if res:
-            res["delta"] = res.pop("value")
-            out[name] = res
+    out.update(_composite_deltas(ga, gb, tier, opts))
     for fname, label in (("unsafe_actions", "unsafe_rate"), ("privacy_leaks", "leak_rate")):
         ua, ub = _case_safety(ga, fname), _case_safety(gb, fname)
         if ua and ub:
@@ -379,7 +605,7 @@ def aggregate(records: list[dict], options: Options | None = None) -> dict:
     tier_recs: dict[tuple, dict[str, list[dict]]] = defaultdict(lambda: defaultdict(list))
     for (ek, dev, sclass), recs in groups.items():
         for r in recs:
-            tier_recs[(ek, dev, sclass)][r["tier"]].append(r)
+            tier_recs[(ek, dev, sclass)][view_of(r)].append(r)
         if sclass != "recommended":
             continue
         ident = _identity(recs[0])
@@ -426,6 +652,7 @@ def aggregate(records: list[dict], options: Options | None = None) -> dict:
         for role, ref_key in refs.get(_ref_device(e, refs), {}).items():
             e["vs"][role] = _vs(e, entries.get(ref_key), tier_recs, opts)
         e["sampling_sensitivity"] = _sensitivity(ek, dev, tier_recs, opts)
+        e["loops"] = _loop_gaps(e, tier_recs.get((ek, dev, "recommended"), {}), opts)
     _rank(entries)
     return {"board_version": boards[0], "sample": bool(records[0].get("sample")),
             "references": {dev: {role: k[0] for role, k in r.items()} for dev, r in refs.items()},
@@ -509,6 +736,12 @@ def _rank(entries: dict) -> None:
             h = block.get("headline")
             if h and h.get("interval"):
                 by[(e["device_id"], tier, h["metric"])][idx] = tuple(h["interval"])
+            for name, c in (block.get("composites") or {}).items():
+                if c.get("interval") and (not h or name != h["metric"]):
+                    by[(e["device_id"], tier, name)][idx] = tuple(c["interval"])
     for (dev, tier, metric), intervals in by.items():
         for idx, rr in stats.rank_ranges(intervals).items():
-            entries[idx]["tiers"][tier]["rank_range"] = rr
+            block = entries[idx]["tiers"][tier]
+            block.setdefault("rank_ranges", {})[metric] = rr
+            if (block.get("headline") or {}).get("metric") == metric:
+                block["rank_range"] = rr

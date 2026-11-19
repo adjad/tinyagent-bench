@@ -131,7 +131,7 @@ def roomies(b: ProfileBuilder) -> None:
         ("23:20", ME, "i'll be there! i'm off work tues now", _id("msg-roomies-me-there")),
     ])
     t.script(0, [
-        ("07:12", B, "who used the last of the hot water i'm crying in a cold shower", U),
+        ("07:12", B, "who used the last of the hot water i'm crying in a cold shower", _id("msg-roomies-hotwater", unread=True)),
         ("07:30", J, "not me, i showered last night lol", U),
     ])
 
@@ -175,7 +175,7 @@ def frisbee(b: ProfileBuilder) -> None:
         ("21:35", T, "mine"),
     ])
     t.script(-6, [
-        ("16:45", S, "Practice CANCELLED tonight, Ridgeline is flooded 🌧️"),
+        ("16:45", S, "Practice CANCELLED tonight, Ridgeline is flooded 🌧️", _id("msg-frisbee-cancel-dm6")),
         ("16:46", Da, "noooo 😭😭😭"),
         ("16:50", L, "aquatic ultimate when"),
         ("18:25", ME, "honestly fine bc i have a stats pset 😭"),
@@ -229,7 +229,7 @@ def frisbee(b: ProfileBuilder) -> None:
         ("22:41", S, "No worries, thanks for letting me know!"),
     ])
     t.script(0, [
-        ("07:05", Da, "who's bringing the speaker saturday 🔊🎶🎶", U),
+        ("07:05", Da, "who's bringing the speaker saturday 🔊🎶🎶", _id("msg-frisbee-speaker", unread=True)),
         ("07:22", I, "I can bring mine!! Also does anyone have a spare white jersey? Mine is at my parents' place", U),
     ])
 

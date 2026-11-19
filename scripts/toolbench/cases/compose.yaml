@@ -255,7 +255,7 @@
   trap: "real-usage 1A #10 verbatim. production guard blocks get_upcoming and draft_message (found 2026-10-29): model_only.pure_writing treats it as pure writing because 'my upcoming events' is not in _STORED_CONTENT and the lowercase 'mom' is no destination (_DESTINATION needs a capital). Right behaviour is a draft with the events, so this fails as a production bug"
 
 - id: compose_literal_text
-  prompt: "text jules saying running 10 min late"
+  prompt: "text {friend_lower} saying running 10 min late"
   expect:
     - tool: send_message
       args:

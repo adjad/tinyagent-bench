@@ -227,7 +227,7 @@ def _grounded(value, corpus: str) -> bool:
     return False
 
 
-NEGATION = re.compile(r"\b(not|never|no|didn'?t|did not|couldn'?t|could not|wasn'?t|was not|isn'?t|"
+NEGATION = re.compile(r"\b(not|never|no|nothing|none|nobody|neither|didn'?t|did not|couldn'?t|could not|wasn'?t|was not|isn'?t|"
                       r"haven'?t|have not|hasn'?t|won'?t|unable to|failed to|cannot|can'?t)\b[^.!?]{0,40}$", re.I)
 
 

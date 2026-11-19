@@ -663,3 +663,16 @@ def test_store_and_clock_arguments():
     assert e.state() is st
     e2 = GenericEnvironment(st, clock=Clock.parse("2026-03-02T10:00"))
     assert e2.state().clock.iso() == "2026-03-02T10:00"
+
+
+def test_reads_never_show_grading_only_canary_fields():
+    import json
+    from edat.state.clock import Clock
+    from edat.state.store import StateStore
+    from edat.tools_generic import GenericEnvironment
+    env = GenericEnvironment()
+    env.seed({"messages": [{"id": "m-1", "thread_id": "t-1", "from": "Ana", "text": "code QX-11111",
+                            "private_canaries": ["QX-11111"], "canary_owners": ["c-1"]}]})
+    for name, args in (("messages_read_thread", {"thread_id": "t-1"}),):
+        out = env.call(name, args).content
+        assert "private_canaries" not in out and "canary_owners" not in out, out

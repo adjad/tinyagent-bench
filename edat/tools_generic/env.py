@@ -10,8 +10,20 @@ from edat.tools_generic.policy import build_system_prompt
 from edat.tools_generic.registry import REGISTRY, ToolError, schema
 
 
+_HIDDEN = ("private_canaries", "canary_owners")   # grading-only record fields
+
+
+def _strip(obj):
+    if isinstance(obj, dict):
+        return {k: _strip(v) for k, v in obj.items() if k not in _HIDDEN}
+    if isinstance(obj, list):
+        return [_strip(v) for v in obj]
+    return obj
+
+
 def _dump(obj) -> str:
-    return json.dumps(obj, sort_keys=True, default=str, ensure_ascii=False)
+    """Tool output as the model sees it; grading-only fields never appear."""
+    return json.dumps(_strip(obj), sort_keys=True, default=str, ensure_ascii=False)
 
 
 def _error(message: str, outcome: str = "failed") -> ToolResult:

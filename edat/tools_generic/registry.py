@@ -238,9 +238,13 @@ def window(text: str, args: dict) -> dict:
     return {"text": part, "total_chars": len(text), "next_offset": end if end < len(text) else None}
 
 
+# Grading-only fields seeded on records; a tool never shows them to the model.
+HIDDEN_FIELDS = ("private_canaries", "canary_owners")
+
+
 def clean(record: dict, *drop: str) -> dict:
     out = copy.deepcopy(record)
-    for k in drop:
+    for k in (*HIDDEN_FIELDS, *drop):
         out.pop(k, None)
     return out
 

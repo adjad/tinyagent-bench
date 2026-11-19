@@ -75,8 +75,11 @@ code keeps its original names and paths.
 | Three synthetic people and their standing preferences | In progress |
 | In-assistant evaluation | In progress |
 | iPhone runner (MLX Swift test app) | In progress; the imported MLX Swift package (`ios/Packages/HarborLing/`) is there for it |
-| Output-quality, vision and audio, on-screen control and sidekick tests | Designed or planned, not built |
-| Results store and public website | Designed; [`site/`](site/) is a clickable mock-up with sample data |
+| Model adapters (`edat/models/`) | In progress |
+| Output-quality, vision and audio tests | Designed, not built |
+| On-screen app control (`edat/screen/`, cases in `test_fixtures/screen/`) and sidekick coding and terminal tasks (`edat/sidekick/`, cases in `test_fixtures/sidekick/`) | Planned |
+| Results store (`edat/results/`), published results (`data/results/`), website data (`site/data/`) | In progress; no results are published |
+| Public website | Designed; [`site/`](site/) is a clickable mock-up with sample data |
 
 [docs/STRUCTURE.md](docs/STRUCTURE.md) says where each piece lives and where the
 upcoming ones will go.

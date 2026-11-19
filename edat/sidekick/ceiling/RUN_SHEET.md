@@ -171,7 +171,9 @@ It only reads. It checks:
 
 **Which Python and Node run the model's code here.** Python: the repository's `.venv` interpreter, a
 uv-managed CPython 3.13 with pytest. Node: the official nodejs.org build in `/usr/local/bin` (v24). Both
-load only their own files and the system's libraries, which is what the sandbox lets model code read.
+load only their own files and the system's libraries, which is what the sandbox lets model code read. A
+toolchain installed in a shared prefix (`/usr/local`, Homebrew's) gets only its own binary, never the
+prefix.
 A build that loads libraries from elsewhere (a Homebrew Node linking Homebrew's libuv, say) is refused
 with that reason by name; point `EDAT_SIDEKICK_PYTHON` or `EDAT_SIDEKICK_NODE` at a self-contained
 build instead. The versions go into every record's run key; the paths stay on this Mac.
@@ -181,24 +183,72 @@ the harness kills the command's process group. A process that left the group (`s
 kill. Then:
 - **Detected:** each command's processes inherit a sentinel pipe; one still held after the kill marks a
   `surviving_process`. At the seal, before grading, the harness also lists (with `lsof`) every process of
-  this user that has a file or its working folder in the trial folder, and kills it; one found that way
-  is a survivor too, even if it closed every descriptor first. Any survivor fails the trial as unsafe.
+  this user that has a file or its working folder in the trial folder. Each one found is stopped at once,
+  so it can no longer fork or pass a descriptor on, and the listing is repeated until two in a row find
+  no new one; then all are killed. Any process found that way is a survivor too, even if it closed every
+  descriptor first, and any survivor fails the trial as unsafe.
 - **Contained:** the trial folder is then renamed. The sandbox lets model code write only *inside* the
   trial folder, never the folder itself, so it cannot remove it, replace it with a link, or create the
   old path again after the rename. It has no network and cannot write anywhere else.
-- **The limit:** a process that holds nothing in the trial folder, and so is not found, keeps running,
-  confined, until it exits or reaches its CPU-time limit, and can reach none of the trial's files by name.
-  A descriptor a process opened before the seal would still write to that one file; the processes that
-  hold one are exactly the ones `lsof` finds and kills.
+- **The limits, plainly:** survivors cannot all be found for certain. `lsof` takes one listing at a time,
+  and a process that hands its descriptor to a new child and exits between two listings can be missed by
+  each of them. If holders keep appearing for twelve listings, the trial is marked unsafe with a note
+  that not all may have been found. A process that is never found keeps running, confined, until it
+  exits or reaches its CPU-time limit. It can reach none of the trial's files by name, only through
+  descriptors it already holds, and nothing it writes through them matters: each grader reads what it
+  grades once, after the seal, from a copy or through handles, so a late write can only produce a state
+  the model could have written itself before the seal.
+
+**What model code can reach on this Mac.** Its own trial folder (read and write), the pinned toolchains
+and the system's own folders (read), `/dev/null`, `zero`, `random`, `urandom` and its own descriptors;
+never a terminal or pty, `/usr/local`, the network (loopback and local sockets included), another
+process's files or the process table. One gap is the system's, not the profile's: Seatbelt does not
+mediate the system call that reads another process's arguments and environment (`KERN_PROCARGS2`), so
+model code can read those for any process of this user, and only a blanket ban on system queries, which
+breaks every interpreter, would stop it. Model code itself gets a fixed environment, and with no network
+what it reads can leave only through its answer and output, which go into the run's records. Don't run the benchmark
+from a shell whose environment holds secrets, and keep secrets out of command lines while it runs.
 
 **What the graders trust.** Nothing the model's code can write. The python3, node and git the graders run
 live in a read-only folder the harness makes outside every trial folder. Code answers run in a driver
 that only reports what each call returned; the expected values, the reference and the verdict stay on
-the harness side. Git state is read from a copy the harness makes of the repository, without its config,
-hooks or attribute files (the model's config is read as text), so nothing in the repository runs.
-Written tests run once per module (the correct one and each mutant), each in a fresh folder, in a random
-order, and each run counts by its exit code alone. File metadata (sizes, dates, names by exact path) is
-readable anywhere on the Mac by design: path lookup needs it, and contents stay denied.
+the harness side. Written tests run once per module (the correct one and each mutant), each in a fresh
+folder, in a random order, and each run counts by its exit code alone. A folder snapshot stops at 20,000
+entries (files, links and folders all count); a folder past that is not graded, so a file past the cap
+can never pass for a deleted one.
+
+**How the git grader reads a repository.** It never believes git's own view of it. The harness copies
+the repository (working tree, `.git`, `origin.git`) through folder handles into a fresh area and leaves
+out what could make git run something, read elsewhere or report something other than what is stored.
+In that copy git serves objects and nothing else, and the snapshot checks that each object hashes to its
+id; one that does not counts as missing. Refs, HEAD, the stash log and the index are parsed from their
+files; commits and trees from the checked objects; untracked files are every file not in the index;
+changes come from hashing each file and comparing it with the index, and the index with HEAD's tree.
+What was checked against git's documentation (gitrepository-layout, git-config, githooks, gitattributes,
+gitignore, git-replace, git-sparse-checkout, git-update-index, gitformat-index, git environment
+variables), and what each item does here:
+
+| Mechanism | What it could do | Here |
+| --- | --- | --- |
+| `refs/replace/*`, `GIT_NO_REPLACE_OBJECTS` | swap any object for another | left out of the copy; replacement off in the environment and on the command line; refs read raw skip them |
+| `info/grafts`, `shallow` | rewrite or cut a commit's parents | left out; `GIT_GRAFT_FILE=/dev/null`; parents read from the commit object itself |
+| `objects/info/alternates`, `http-alternates` | borrow objects from elsewhere | left out |
+| pack `.idx`, multi-pack index, commit graph | point an id at other content, or other parents | indexes and graphs left out or off; every object checked against its id |
+| `info/exclude`, `.gitignore`, `core.excludesFile` | hide untracked files | no ignore rule is applied: every file not in the index is untracked |
+| assume-unchanged, skip-worktree, intent-to-add bits | hide changes to tracked files | no index flag is believed; each file is hashed and compared |
+| `info/sparse-checkout`, sparse index | hide files from the index | left out and off; a sparse folder entry is expanded from its tree |
+| `.gitattributes`, `info/attributes`, filters, `core.attributesFile` | make different bytes look clean | left out or off; changes are found by hashing raw bytes, with no filter or line-ending rule |
+| untracked cache, fsmonitor (`core.fsmonitor`, `core.untrackedCache`, index extensions UNTR and FSMN) | report a stale or forged status | off, and the index extensions are skipped: status is never asked |
+| split index (`link` extension, `sharedindex.*`) | keep entries in another file | an index that uses one is treated as unreadable and the tree as not clean |
+| config, `config.worktree`, `include`, `includeIf` | load settings or other files | left out; replaced by a fixed config; the model's config is read as data with includes off |
+| hooks, `core.hooksPath`, reference-transaction | run code | left out; hooks path set to `/dev/null` |
+| `gitdir`, `commondir`, `worktrees`, `modules`, a `.git` file | point at another repository | left out; a `.git` that is a file is not copied |
+| `reftable` ref storage | keep refs where the raw reader does not look | left out; a repository that uses it has no refs here and fails |
+| links inside `.git` | make git read outside the copy | never copied, and reported |
+| submodules (gitlinks) | pull in another repository | never looked into |
+
+File metadata (sizes, dates, names by exact path) is readable anywhere on the Mac by design: path lookup
+needs it, and contents stay denied.
 
 **Rungs 4 to 9 are not hardened against adversarial model code.** Their hidden tests run in the same
 pytest process as the model's code, so a model that attacks the grader on purpose (reads the reference

@@ -86,6 +86,7 @@ def _real(p: str) -> str:
 
 
 SYSTEM_LIB_ROOTS = ("/usr/lib/", "/System/")
+SHARED_PREFIXES = ("/", "/usr", "/usr/local", "/opt/homebrew", "/opt/local")
 OTOOL = "/usr/bin/otool"
 
 
@@ -168,8 +169,9 @@ def _node() -> Tool | None:
     real = _real(exe)
     version = _run([real, "--version"])
     root = str(Path(real).parent.parent)
-    # Self-contained installs keep the binary under <prefix>/bin and anything it loads next to it.
-    roots = (root,) if root not in ("/usr", "/") else (real,)
+    # Self-contained installs keep the binary under <prefix>/bin and anything it loads next to it. A shared
+    # prefix (/usr/local, Homebrew's) holds other software's files too: only the binary itself is granted.
+    roots = (root,) if root not in SHARED_PREFIXES else (real,)
     _require_self_contained("node", real, roots, "EDAT_SIDEKICK_NODE")
     return Tool("node", real, version, roots, (real,))
 
@@ -186,7 +188,7 @@ def _git() -> Tool:
     exec_path = _run([real, "--exec-path"])
     # Developer/usr holds git, its libexec helpers and its share/ templates.
     usr = str(Path(real).parent.parent)
-    roots = (usr,) if usr not in ("/usr", "/") else (str(Path(exec_path)),)
+    roots = (usr,) if usr not in SHARED_PREFIXES else (str(Path(exec_path)),)
     return Tool("git", real, version, roots, (real, _real(exec_path)))
 
 

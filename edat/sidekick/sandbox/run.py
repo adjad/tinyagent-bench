@@ -417,23 +417,28 @@ class TrialArea:
 
     def seal(self) -> None:
         """End of the model's part. Processes that outlived their command and still hold anything in this
-        folder (an open file, their working folder) are found and killed, and counted as survivors. Then the trial folder is renamed:
+        folder (an open file, their working folder) are found, stopped and killed, and counted as survivors
+        (see `stop_and_kill_holders`). Then the trial folder is renamed:
         the sandbox profile lets sandboxed code write only inside the old path, never create the path
-        itself, so whatever is left can no longer reach the files by name. (A descriptor opened before
-        the seal by a process that was not found keeps working on that one file; the graders read what they
-        grade once, through handles, and never trust it.) If the working folder was swapped for something
+        itself, so whatever is left can no longer reach the files by name. (A process that was not found
+        keeps only the descriptors it already had. What it writes through them is something the model could
+        have written before the seal anyway: each grader reads its input once, after the seal, from a copy
+        or through handles, and never compares two reads.) If the working folder was swapped for something
         else, the original is put back and reported. Never raises: a folder that cannot be sealed is
         reported, and the trial fails as unsafe."""
         if self.sealed:
             return
         self.sealed = True
         try:
-            # Always looked for (one lsof listing, a tenth of a second): a process can close the sentinel
-            # pipe it was started with and so not be counted as a survivor when its command ended.
-            n = kill_holders(self.root)
+            # Always looked for (two or more lsof listings, a tenth of a second each): a process can close
+            # the sentinel pipe it was started with and so not be counted as a survivor when its command
+            # ended. Any holder found makes the trial unsafe, whatever it did.
+            n, settled = stop_and_kill_holders(self.root)
             self.killed += n
-            if n and not self.survivors:
+            if n:
                 self.survivors.append("(a process still holding the trial folder at the seal)")
+            if not settled:
+                self.survivors.append("(processes kept taking over the trial folder; not all may have been found)")
             new = self.root.with_name(self.root.name + "-sealed")
             for _ in range(100):
                 try:
@@ -739,7 +744,7 @@ class SeatbeltIsolation:
         self._checked = True
 
     def describe(self) -> dict:
-        return {"isolation": self.name, "profile": "edat-sidekick-sb/1",
+        return {"isolation": self.name, "profile": "edat-sidekick-sb/2",
                 "profile_sha256": profile_template_sha256(), "network": "denied"}
 
     def run(self, area: TrialArea, script: str, *, cwd: Path | None = None,
@@ -871,16 +876,13 @@ class SeatbeltIsolation:
             pids=pids, pid=proc.pid, started=started, ended=time.time(), survivor=survivor)
 
 
-def kill_holders(root: Path) -> int:
-    """Kill every process of this user, other than this one, that holds a file under `root` open or has its
-    working folder there; the number killed. These are the processes that outlived a command (`setsid`) and
-    could still touch the trial's files; one that holds nothing there can no longer reach them by name."""
-    prefix = str(root)
+def _holders(prefix: str) -> set[int]:
+    """Processes of this user, other than this one, holding a file under `prefix` open or working there."""
     try:
         out = subprocess.run(["/usr/sbin/lsof", "-n", "-P", "-w", "-F", "pn", "-u", str(os.getuid())],
                              capture_output=True, text=True, timeout=20).stdout
     except (OSError, subprocess.SubprocessError):
-        return 0
+        return set()
     pids, pid = set(), None
     for line in out.splitlines():
         if line.startswith("p"):
@@ -889,14 +891,50 @@ def kill_holders(root: Path) -> int:
             name = line[1:]
             if name == prefix or name.startswith(prefix + "/"):
                 pids.add(pid)
+    return pids
+
+
+HOLDER_ROUNDS = 12        # listings at most
+HOLDER_QUIET = 2          # listings in a row with no new holder before the search counts as settled
+
+
+def stop_and_kill_holders(root: Path) -> tuple[int, bool]:
+    """Find and kill the processes that outlived a command (`setsid`) and still hold something under `root`.
+    One listing is not enough: a process can pass its descriptor to a child and exit between the listing
+    and the kill. So every holder found is stopped at once (it can no longer fork or pass anything on), and
+    the listing is repeated until HOLDER_QUIET listings in a row find no new one; then all are killed.
+    Returns (number found, settled). Not settled means holders kept appearing for HOLDER_ROUNDS listings and
+    some may not have been found: the caller reports that plainly. A process that holds nothing under
+    `root` when the folder is sealed can no longer reach it by name."""
+    prefix = str(root)
+    seen: set[int] = set()
+    quiet = 0
+    for _ in range(HOLDER_ROUNDS):
+        new = _holders(prefix) - seen
+        if not new:
+            quiet += 1
+            if quiet >= HOLDER_QUIET:
+                break
+            continue
+        quiet = 0
+        for p in new:
+            try:
+                os.kill(p, signal.SIGSTOP)
+            except (ProcessLookupError, PermissionError):
+                pass
+        seen |= new
     n = 0
-    for p in pids:
+    for p in seen:
         try:
             os.kill(p, signal.SIGKILL)
             n += 1
         except (ProcessLookupError, PermissionError):
             pass
-    return n
+    return len(seen), quiet >= HOLDER_QUIET
+
+
+def kill_holders(root: Path) -> int:
+    return stop_and_kill_holders(root)[0]
 
 
 def _still_held(fd: int, wait_s: float) -> bool:

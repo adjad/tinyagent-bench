@@ -975,6 +975,29 @@ def test_screen_score_uses_the_text_track_and_leaves_guard_and_pixel_out():
     assert c["screen_score_screenshot"]["label"] == "partial"
 
 
+def test_labelled_sidekick_rows_never_reach_the_ranked_tier():
+    """Git rows (by type, by tag or by metric) go to their own unranked view: not in the sidekick composites,
+    pass rate, facets or metrics, never ranked, and no difference from a reference is published."""
+    from edat.results.aggregate import SIDEKICK_LABELLED_TYPES, SIDEKICK_TYPES
+    from edat.sidekick.graders import LABELLED_TYPES
+    assert tuple(SIDEKICK_LABELLED_TYPES) == tuple(LABELLED_TYPES) and "git" not in SIDEKICK_TYPES
+    hardened = [facet_rec("sidekick", "a1", False, suite="answer_only", family="fix_bug", mode="answer_only"),
+                facet_rec("sidekick", "a2", False, suite="answer_only", family="shell", mode="answer_only")]
+    by_type = facet_rec("sidekick", "g1", True, suite="answer_only", family="git", mode="answer_only")
+    by_tag = facet_rec("sidekick", "g2", True, suite="answer_only", family="shell", mode="answer_only",
+                       tags=["grade-not-hardened"])
+    by_metric = facet_rec("sidekick", "g3", True, suite="tool_mode", family="fix_bug", mode="tool_mode")
+    by_metric["metrics"]["grade_hardened"] = False
+    e = entry(agg(hardened + [by_type, by_tag, by_metric]))
+    sk = e["tiers"]["sidekick"]
+    assert sk["records"] == 2 and sk["composites"]["sidekick_score"]["value"] == pytest.approx(0.0)
+    assert "sidekick_tool_mode" not in sk["composites"] and sk["pass1"]["value"] == pytest.approx(0.0)
+    assert not any("git" in k for k in sk["facets"])
+    nh = e["tiers"]["sidekick_not_hardened"]
+    assert nh["records"] == 3 and nh["ranked"] is False and "rank_range" not in nh and not nh.get("rank_ranges")
+    assert nh["label"] == "not hardened against adversarial model code"
+
+
 def test_sidekick_score_counts_answer_only_and_tool_mode_apart():
     recs = [facet_rec("sidekick", "a1", True, suite="answer_only", family="fix_bug", mode="answer_only"),
             facet_rec("sidekick", "a2", False, suite="answer_only", family="shell", mode="answer_only"),

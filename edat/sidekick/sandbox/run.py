@@ -529,12 +529,41 @@ class TrialArea:
             self._work_fd = -1
         if not self.keep:
             shutil.rmtree(self.root, ignore_errors=True)
+            if os.path.lexists(self.root):           # a folder the model locked (mode 000, uchg): unlock, remove
+                _unlock_tree(str(self.root))
+                shutil.rmtree(self.root, ignore_errors=True)
 
     def __enter__(self) -> "TrialArea":
         return self
 
     def __exit__(self, *exc) -> None:
         self.cleanup()
+
+
+def _unlock_tree(root: str) -> None:
+    """Clear the user flags (uchg and the like) and give the owner full access on everything under `root`,
+    never through a link. Runs after every process of the trial is gone; anything it cannot change stays."""
+    def unlock(path: str, mode: int) -> None:
+        for fn, arg in ((getattr(os, "chflags", None), 0), (os.chmod, mode)):
+            if fn is None:
+                continue
+            try:
+                fn(path, arg, follow_symlinks=False)
+            except (OSError, NotImplementedError, ValueError):
+                pass
+    stack = [root]
+    while stack:
+        d = stack.pop()
+        unlock(d, 0o700)
+        try:
+            with os.scandir(d) as it:
+                for e in it:
+                    if e.is_dir(follow_symlinks=False):
+                        stack.append(e.path)
+                    elif not e.is_symlink():
+                        unlock(e.path, 0o600)
+        except OSError:
+            pass
 
 
 def clean_env(area: TrialArea) -> dict[str, str]:

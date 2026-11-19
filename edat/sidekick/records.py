@@ -18,9 +18,9 @@ from pathlib import Path
 
 from edat.results.writer import default_store
 from edat.sidekick import TIER
+from edat.sidekick.labels import NOT_HARDENED_TAG, may_score
 
 SCHEMA = "edat.result/1.0"
-NOT_HARDENED_TAG = "grade-not-hardened"
 SUITES = ("answer_only", "tool_mode")
 
 def new_run_id() -> str:
@@ -49,12 +49,8 @@ def results_root(split: str) -> Path:
 
 
 def is_hardened(rec: dict) -> bool:
-    """A row whose grading holds against code written to attack it: not tagged, not marked, and not of a
-    type whose cases are all graded by a not-hardened grader. Any one of the three keeps a row out."""
-    from edat.sidekick.graders import LABELLED_TYPES
-    f = rec.get("facets") or {}
-    return (NOT_HARDENED_TAG not in (f.get("tags") or []) and (rec.get("metrics") or {}).get("grade_hardened") is not False
-            and f.get("family") not in LABELLED_TYPES)
+    """labels.may_score: the one decision on which rows may be scored."""
+    return may_score(rec)
 
 
 def case_tags(case_meta: dict) -> list[str]:

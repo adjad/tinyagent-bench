@@ -2646,24 +2646,24 @@
    "facet": null,
    "metric": "sidekick_score",
    "unit": "%",
-   "value": 46.3,
+   "value": 44.44,
    "interval": [
-    37.04,
+    33.33,
     55.56
    ],
    "interval_kind": "bootstrap_cases",
-   "n_cases": 18,
-   "n_trials": 63,
+   "n_cases": 12,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": -0.0,
+     "delta": 2.78,
      "interval": [
-      -14.81,
-      14.81
+      -13.89,
+      19.44
      ],
      "tag": "no_clear_difference",
-     "n_cases": 18,
+     "n_cases": 12,
      "wins": null,
      "losses": null
     },
@@ -2685,7 +2685,7 @@
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
-   "n_trials": 63,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
@@ -2710,26 +2710,26 @@
    "facet": null,
    "metric": "pass1",
    "unit": "%",
-   "value": 44.44,
+   "value": 42.22,
    "interval": [
-    32.85,
-    56.68
+    28.97,
+    56.7
    ],
    "interval_kind": "wilson",
-   "n_cases": 21,
-   "n_trials": 63,
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 0.0,
+     "delta": 2.22,
      "interval": [
-      -17.46,
-      15.87
+      -15.56,
+      22.22
      ],
      "tag": "no_clear_difference",
-     "n_cases": 21,
-     "wins": 6,
-     "losses": 7
+     "n_cases": 15,
+     "wins": 5,
+     "losses": 5
     },
     "base": {
      "self": true
@@ -2742,14 +2742,14 @@
    "facet": null,
    "metric": "pass_all_trials",
    "unit": "%",
-   "value": 9.52,
+   "value": 13.33,
    "interval": [
-    2.65,
-    28.91
+    3.74,
+    37.88
    ],
    "interval_kind": "wilson",
-   "n_cases": 21,
-   "n_trials": 63,
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null
   },
   {
@@ -2787,22 +2787,6 @@
   {
    "variant": "local|Sample Base 4B|q4|omlx|off",
    "tier": "sidekick",
-   "facet": "family=explain_error",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 50.0,
-   "interval": [
-    18.76,
-    81.24
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Base 4B|q4|omlx|off",
-   "tier": "sidekick",
    "facet": "family=fix_bug",
    "metric": "pass1",
    "unit": "%",
@@ -2814,22 +2798,6 @@
    "interval_kind": "wilson",
    "n_cases": 5,
    "n_trials": 15,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Base 4B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=git",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 50.0,
-   "interval": [
-    18.76,
-    81.24
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
    "status": null
   },
   {
@@ -2874,22 +2842,6 @@
    "interval": [
     3.01,
     56.35
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Base 4B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=write_test",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 50.0,
-   "interval": [
-    18.76,
-    81.24
    ],
    "interval_kind": "wilson",
    "n_cases": 2,
@@ -5331,33 +5283,33 @@
    "unit": "%",
    "value": 38.89,
    "interval": [
-    29.63,
-    48.15
+    27.78,
+    50.0
    ],
    "interval_kind": "bootstrap_cases",
-   "n_cases": 18,
-   "n_trials": 63,
+   "n_cases": 12,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": -7.41,
+     "delta": -2.78,
      "interval": [
-      -18.52,
-      5.56
+      -11.11,
+      8.33
      ],
      "tag": "no_clear_difference",
-     "n_cases": 18,
+     "n_cases": 12,
      "wins": null,
      "losses": null
     },
     "base": {
-     "delta": -7.41,
+     "delta": -5.56,
      "interval": [
       -16.67,
-      1.85
+      5.56
      ],
      "tag": "no_clear_difference",
-     "n_cases": 18,
+     "n_cases": 12,
      "wins": null,
      "losses": null
     }
@@ -5376,7 +5328,7 @@
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
-   "n_trials": 63,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
@@ -5409,37 +5361,37 @@
    "facet": null,
    "metric": "pass1",
    "unit": "%",
-   "value": 36.51,
+   "value": 35.56,
    "interval": [
-    25.72,
-    48.85
+    23.22,
+    50.16
    ],
    "interval_kind": "wilson",
-   "n_cases": 21,
-   "n_trials": 63,
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": -7.94,
+     "delta": -4.44,
      "interval": [
-      -20.63,
-      4.76
+      -15.56,
+      6.72
      ],
      "tag": "no_clear_difference",
-     "n_cases": 21,
-     "wins": 4,
-     "losses": 9
+     "n_cases": 15,
+     "wins": 3,
+     "losses": 5
     },
     "base": {
-     "delta": -7.94,
+     "delta": -6.67,
      "interval": [
-      -20.63,
-      3.17
+      -22.22,
+      8.89
      ],
      "tag": "no_clear_difference",
-     "n_cases": 21,
-     "wins": 4,
-     "losses": 7
+     "n_cases": 15,
+     "wins": 3,
+     "losses": 4
     }
    }
   },
@@ -5452,11 +5404,11 @@
    "value": 0.0,
    "interval": [
     0.0,
-    15.46
+    20.39
    ],
    "interval_kind": "wilson",
-   "n_cases": 21,
-   "n_trials": 63,
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null
   },
   {
@@ -5494,22 +5446,6 @@
   {
    "variant": "local|Sample Model C 3B|q4|omlx|off",
    "tier": "sidekick",
-   "facet": "family=explain_error",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 33.33,
-   "interval": [
-    9.68,
-    70.0
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model C 3B|q4|omlx|off",
-   "tier": "sidekick",
    "facet": "family=fix_bug",
    "metric": "pass1",
    "unit": "%",
@@ -5521,22 +5457,6 @@
    "interval_kind": "wilson",
    "n_cases": 5,
    "n_trials": 15,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model C 3B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=git",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 50.0,
-   "interval": [
-    18.76,
-    81.24
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
    "status": null
   },
   {
@@ -5575,22 +5495,6 @@
    "variant": "local|Sample Model C 3B|q4|omlx|off",
    "tier": "sidekick",
    "facet": "family=write_fn",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 33.33,
-   "interval": [
-    9.68,
-    70.0
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model C 3B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=write_test",
    "metric": "pass1",
    "unit": "%",
    "value": 33.33,
@@ -8036,35 +7940,35 @@
    "facet": null,
    "metric": "sidekick_score",
    "unit": "%",
-   "value": 61.11,
+   "value": 55.56,
    "interval": [
-    51.85,
-    70.37
+    41.67,
+    69.44
    ],
    "interval_kind": "bootstrap_cases",
-   "n_cases": 18,
-   "n_trials": 63,
+   "n_cases": 12,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 14.81,
+     "delta": 13.89,
      "interval": [
-      1.85,
-      27.78
+      -2.78,
+      30.56
      ],
-     "tag": "better",
-     "n_cases": 18,
+     "tag": "no_clear_difference",
+     "n_cases": 12,
      "wins": null,
      "losses": null
     },
     "base": {
-     "delta": 14.81,
+     "delta": 11.11,
      "interval": [
-      -0.05,
-      29.63
+      -8.4,
+      33.33
      ],
      "tag": "no_clear_difference",
-     "n_cases": 18,
+     "n_cases": 12,
      "wins": null,
      "losses": null
     }
@@ -8083,7 +7987,7 @@
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
-   "n_trials": 63,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
@@ -8116,36 +8020,36 @@
    "facet": null,
    "metric": "pass1",
    "unit": "%",
-   "value": 58.73,
+   "value": 53.33,
    "interval": [
-    46.42,
-    70.04
+    39.08,
+    67.06
    ],
    "interval_kind": "wilson",
-   "n_cases": 21,
-   "n_trials": 63,
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 14.29,
+     "delta": 13.33,
      "interval": [
-      1.59,
-      28.57
+      -2.22,
+      31.11
      ],
-     "tag": "better",
-     "n_cases": 21,
-     "wins": 7,
+     "tag": "no_clear_difference",
+     "n_cases": 15,
+     "wins": 5,
      "losses": 2
     },
     "base": {
-     "delta": 14.29,
+     "delta": 11.11,
      "interval": [
-      -4.76,
-      30.16
+      -13.33,
+      33.33
      ],
      "tag": "no_clear_difference",
-     "n_cases": 21,
-     "wins": 11,
+     "n_cases": 15,
+     "wins": 8,
      "losses": 4
     }
    }
@@ -8156,14 +8060,14 @@
    "facet": null,
    "metric": "pass_all_trials",
    "unit": "%",
-   "value": 9.52,
+   "value": 6.67,
    "interval": [
-    2.65,
-    28.91
+    1.19,
+    29.82
    ],
    "interval_kind": "wilson",
-   "n_cases": 21,
-   "n_trials": 63,
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null
   },
   {
@@ -8201,22 +8105,6 @@
   {
    "variant": "local|Sample Model D 8B|q4|omlx|off",
    "tier": "sidekick",
-   "facet": "family=explain_error",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 66.67,
-   "interval": [
-    30.0,
-    90.32
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model D 8B|q4|omlx|off",
-   "tier": "sidekick",
    "facet": "family=fix_bug",
    "metric": "pass1",
    "unit": "%",
@@ -8228,22 +8116,6 @@
    "interval_kind": "wilson",
    "n_cases": 5,
    "n_trials": 15,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model D 8B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=git",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 83.33,
-   "interval": [
-    43.65,
-    96.99
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
    "status": null
   },
   {
@@ -8282,22 +8154,6 @@
    "variant": "local|Sample Model D 8B|q4|omlx|off",
    "tier": "sidekick",
    "facet": "family=write_fn",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 66.67,
-   "interval": [
-    30.0,
-    90.32
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model D 8B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=write_test",
    "metric": "pass1",
    "unit": "%",
    "value": 66.67,
@@ -10743,35 +10599,35 @@
    "facet": null,
    "metric": "sidekick_score",
    "unit": "%",
-   "value": 70.37,
+   "value": 72.22,
    "interval": [
-    61.11,
-    79.63
+    63.89,
+    80.56
    ],
    "interval_kind": "bootstrap_cases",
-   "n_cases": 18,
-   "n_trials": 63,
+   "n_cases": 12,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 24.07,
+     "delta": 30.56,
      "interval": [
-      14.81,
-      33.33
+      16.67,
+      44.44
      ],
      "tag": "better",
-     "n_cases": 18,
+     "n_cases": 12,
      "wins": null,
      "losses": null
     },
     "base": {
-     "delta": 24.07,
+     "delta": 27.78,
      "interval": [
-      9.26,
-      38.89
+      11.11,
+      44.44
      ],
      "tag": "better",
-     "n_cases": 18,
+     "n_cases": 12,
      "wins": null,
      "losses": null
     }
@@ -10790,7 +10646,7 @@
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
-   "n_trials": 63,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
@@ -10825,35 +10681,35 @@
    "unit": "%",
    "value": 66.67,
    "interval": [
-    54.37,
-    77.05
+    52.07,
+    78.64
    ],
    "interval_kind": "wilson",
-   "n_cases": 21,
-   "n_trials": 63,
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 22.22,
+     "delta": 26.67,
      "interval": [
-      9.48,
-      36.51
+      8.89,
+      44.44
      ],
      "tag": "better",
-     "n_cases": 21,
-     "wins": 11,
-     "losses": 2
+     "n_cases": 15,
+     "wins": 8,
+     "losses": 1
     },
     "base": {
-     "delta": 22.22,
+     "delta": 24.44,
      "interval": [
-      6.35,
-      38.1
+      6.67,
+      44.44
      ],
      "tag": "better",
-     "n_cases": 21,
-     "wins": 12,
-     "losses": 4
+     "n_cases": 15,
+     "wins": 9,
+     "losses": 2
     }
    }
   },
@@ -10863,14 +10719,14 @@
    "facet": null,
    "metric": "pass_all_trials",
    "unit": "%",
-   "value": 23.81,
+   "value": 20.0,
    "interval": [
-    10.63,
-    45.09
+    7.05,
+    45.19
    ],
    "interval_kind": "wilson",
-   "n_cases": 21,
-   "n_trials": 63,
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null
   },
   {
@@ -10908,22 +10764,6 @@
   {
    "variant": "local|Sample Model D 8B|q4|omlx|on",
    "tier": "sidekick",
-   "facet": "family=explain_error",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 66.67,
-   "interval": [
-    30.0,
-    90.32
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model D 8B|q4|omlx|on",
-   "tier": "sidekick",
    "facet": "family=fix_bug",
    "metric": "pass1",
    "unit": "%",
@@ -10935,22 +10775,6 @@
    "interval_kind": "wilson",
    "n_cases": 5,
    "n_trials": 15,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model D 8B|q4|omlx|on",
-   "tier": "sidekick",
-   "facet": "family=git",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 66.67,
-   "interval": [
-    30.0,
-    90.32
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
    "status": null
   },
   {
@@ -10995,22 +10819,6 @@
    "interval": [
     43.65,
     96.99
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model D 8B|q4|omlx|on",
-   "tier": "sidekick",
-   "facet": "family=write_test",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 66.67,
-   "interval": [
-    30.0,
-    90.32
    ],
    "interval_kind": "wilson",
    "n_cases": 2,
@@ -13450,35 +13258,35 @@
    "facet": null,
    "metric": "sidekick_score",
    "unit": "%",
-   "value": 68.52,
+   "value": 75.0,
    "interval": [
-    61.11,
-    77.78
+    63.89,
+    86.11
    ],
    "interval_kind": "bootstrap_cases",
-   "n_cases": 18,
-   "n_trials": 63,
+   "n_cases": 12,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 22.22,
+     "delta": 33.33,
      "interval": [
-      9.26,
-      35.19
+      19.44,
+      50.0
      ],
      "tag": "better",
-     "n_cases": 18,
+     "n_cases": 12,
      "wins": null,
      "losses": null
     },
     "base": {
-     "delta": 22.22,
+     "delta": 30.56,
      "interval": [
-      7.41,
-      35.19
+      11.11,
+      50.0
      ],
      "tag": "better",
-     "n_cases": 18,
+     "n_cases": 12,
      "wins": null,
      "losses": null
     }
@@ -13497,7 +13305,7 @@
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
-   "n_trials": 63,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
@@ -13530,37 +13338,37 @@
    "facet": null,
    "metric": "pass1",
    "unit": "%",
-   "value": 61.9,
+   "value": 64.44,
    "interval": [
-    49.56,
-    72.88
+    49.84,
+    76.78
    ],
    "interval_kind": "wilson",
-   "n_cases": 21,
-   "n_trials": 63,
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 17.46,
+     "delta": 24.44,
      "interval": [
-      -1.59,
-      38.1
+      2.22,
+      44.44
      ],
-     "tag": "no_clear_difference",
-     "n_cases": 21,
-     "wins": 11,
-     "losses": 4
+     "tag": "better",
+     "n_cases": 15,
+     "wins": 8,
+     "losses": 1
     },
     "base": {
-     "delta": 17.46,
+     "delta": 22.22,
      "interval": [
-      -0.0,
-      34.92
+      2.17,
+      44.44
      ],
-     "tag": "no_clear_difference",
-     "n_cases": 21,
-     "wins": 11,
-     "losses": 4
+     "tag": "better",
+     "n_cases": 15,
+     "wins": 9,
+     "losses": 3
     }
    }
   },
@@ -13572,12 +13380,12 @@
    "unit": "%",
    "value": 33.33,
    "interval": [
-    17.19,
-    54.63
+    15.18,
+    58.29
    ],
    "interval_kind": "wilson",
-   "n_cases": 21,
-   "n_trials": 63,
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null
   },
   {
@@ -13615,22 +13423,6 @@
   {
    "variant": "local|Sample Model E 12B MoE|q4|omlx|off",
    "tier": "sidekick",
-   "facet": "family=explain_error",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 100.0,
-   "interval": [
-    60.97,
-    100.0
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model E 12B MoE|q4|omlx|off",
-   "tier": "sidekick",
    "facet": "family=fix_bug",
    "metric": "pass1",
    "unit": "%",
@@ -13642,22 +13434,6 @@
    "interval_kind": "wilson",
    "n_cases": 5,
    "n_trials": 15,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model E 12B MoE|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=git",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 16.67,
-   "interval": [
-    3.01,
-    56.35
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
    "status": null
   },
   {
@@ -13702,22 +13478,6 @@
    "interval": [
     43.65,
     96.99
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model E 12B MoE|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=write_test",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 50.0,
-   "interval": [
-    18.76,
-    81.24
    ],
    "interval_kind": "wilson",
    "n_cases": 2,
@@ -16163,29 +15923,29 @@
     27.78
    ],
    "interval_kind": "bootstrap_cases",
-   "n_cases": 18,
-   "n_trials": 63,
+   "n_cases": 12,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": -24.07,
+     "delta": -19.44,
      "interval": [
-      -33.33,
-      -14.81
+      -25.0,
+      -13.89
      ],
      "tag": "worse",
-     "n_cases": 18,
+     "n_cases": 12,
      "wins": null,
      "losses": null
     },
     "base": {
-     "delta": -24.07,
+     "delta": -22.22,
      "interval": [
-      -33.33,
-      -14.81
+      -36.11,
+      -8.33
      ],
      "tag": "worse",
-     "n_cases": 18,
+     "n_cases": 12,
      "wins": null,
      "losses": null
     }
@@ -16204,7 +15964,7 @@
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
-   "n_trials": 63,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
@@ -16237,37 +15997,37 @@
    "facet": null,
    "metric": "pass1",
    "unit": "%",
-   "value": 19.05,
+   "value": 17.78,
    "interval": [
-    11.25,
-    30.41
+    9.29,
+    31.33
    ],
    "interval_kind": "wilson",
-   "n_cases": 21,
-   "n_trials": 63,
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": -25.4,
+     "delta": -22.22,
      "interval": [
-      -41.27,
-      -7.94
+      -37.78,
+      -6.67
      ],
      "tag": "worse",
-     "n_cases": 21,
-     "wins": 3,
-     "losses": 13
+     "n_cases": 15,
+     "wins": 2,
+     "losses": 8
     },
     "base": {
-     "delta": -25.4,
+     "delta": -24.44,
      "interval": [
-      -39.68,
-      -9.52
+      -44.44,
+      -6.61
      ],
      "tag": "worse",
-     "n_cases": 21,
+     "n_cases": 15,
      "wins": 3,
-     "losses": 13
+     "losses": 9
     }
    }
   },
@@ -16280,11 +16040,11 @@
    "value": 0.0,
    "interval": [
     0.0,
-    15.46
+    20.39
    ],
    "interval_kind": "wilson",
-   "n_cases": 21,
-   "n_trials": 63,
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null
   },
   {
@@ -16322,22 +16082,6 @@
   {
    "variant": "local|Sample Model F 1B|q4|omlx|off",
    "tier": "sidekick",
-   "facet": "family=explain_error",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 16.67,
-   "interval": [
-    3.01,
-    56.35
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model F 1B|q4|omlx|off",
-   "tier": "sidekick",
    "facet": "family=fix_bug",
    "metric": "pass1",
    "unit": "%",
@@ -16349,22 +16093,6 @@
    "interval_kind": "wilson",
    "n_cases": 5,
    "n_trials": 15,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model F 1B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=git",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 0.0,
-   "interval": [
-    0.0,
-    39.03
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
    "status": null
   },
   {
@@ -16403,22 +16131,6 @@
    "variant": "local|Sample Model F 1B|q4|omlx|off",
    "tier": "sidekick",
    "facet": "family=write_fn",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 50.0,
-   "interval": [
-    18.76,
-    81.24
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model F 1B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=write_test",
    "metric": "pass1",
    "unit": "%",
    "value": 50.0,
@@ -18864,35 +18576,35 @@
    "facet": null,
    "metric": "sidekick_score",
    "unit": "%",
-   "value": 75.93,
+   "value": 75.0,
    "interval": [
-    66.67,
-    85.19
+    61.11,
+    88.89
    ],
    "interval_kind": "bootstrap_cases",
-   "n_cases": 18,
-   "n_trials": 63,
+   "n_cases": 12,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 29.63,
+     "delta": 33.33,
      "interval": [
       16.67,
-      42.59
+      52.78
      ],
      "tag": "better",
-     "n_cases": 18,
+     "n_cases": 12,
      "wins": null,
      "losses": null
     },
     "base": {
-     "delta": 29.63,
+     "delta": 30.56,
      "interval": [
-      14.81,
-      44.44
+      11.11,
+      52.78
      ],
      "tag": "better",
-     "n_cases": 18,
+     "n_cases": 12,
      "wins": null,
      "losses": null
     }
@@ -18911,7 +18623,7 @@
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
-   "n_trials": 63,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
@@ -18944,37 +18656,37 @@
    "facet": null,
    "metric": "pass1",
    "unit": "%",
-   "value": 76.19,
+   "value": 75.56,
    "interval": [
-    64.36,
-    85.01
+    61.33,
+    85.76
    ],
    "interval_kind": "wilson",
-   "n_cases": 21,
-   "n_trials": 63,
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 31.75,
+     "delta": 35.56,
      "interval": [
-      15.87,
-      47.62
+      13.33,
+      57.78
      ],
      "tag": "better",
-     "n_cases": 21,
-     "wins": 14,
+     "n_cases": 15,
+     "wins": 10,
      "losses": 1
     },
     "base": {
-     "delta": 31.75,
+     "delta": 33.33,
      "interval": [
-      14.29,
-      49.21
+      8.89,
+      55.56
      ],
      "tag": "better",
-     "n_cases": 21,
-     "wins": 15,
-     "losses": 3
+     "n_cases": 15,
+     "wins": 10,
+     "losses": 2
     }
    }
   },
@@ -18984,14 +18696,14 @@
    "facet": null,
    "metric": "pass_all_trials",
    "unit": "%",
-   "value": 52.38,
+   "value": 53.33,
    "interval": [
-    32.37,
-    71.66
+    30.12,
+    75.19
    ],
    "interval_kind": "wilson",
-   "n_cases": 21,
-   "n_trials": 63,
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null
   },
   {
@@ -19029,22 +18741,6 @@
   {
    "variant": "local|Sample Model G 14B|q4|omlx|off",
    "tier": "sidekick",
-   "facet": "family=explain_error",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 83.33,
-   "interval": [
-    43.65,
-    96.99
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model G 14B|q4|omlx|off",
-   "tier": "sidekick",
    "facet": "family=fix_bug",
    "metric": "pass1",
    "unit": "%",
@@ -19056,22 +18752,6 @@
    "interval_kind": "wilson",
    "n_cases": 5,
    "n_trials": 15,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model G 14B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=git",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 100.0,
-   "interval": [
-    60.97,
-    100.0
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
    "status": null
   },
   {
@@ -19110,22 +18790,6 @@
    "variant": "local|Sample Model G 14B|q4|omlx|off",
    "tier": "sidekick",
    "facet": "family=write_fn",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 50.0,
-   "interval": [
-    18.76,
-    81.24
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model G 14B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=write_test",
    "metric": "pass1",
    "unit": "%",
    "value": 50.0,
@@ -21571,35 +21235,35 @@
    "facet": null,
    "metric": "sidekick_score",
    "unit": "%",
-   "value": 51.85,
+   "value": 55.56,
    "interval": [
-    40.74,
-    62.96
+    47.22,
+    63.89
    ],
    "interval_kind": "bootstrap_cases",
-   "n_cases": 18,
-   "n_trials": 63,
+   "n_cases": 12,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 5.56,
+     "delta": 13.89,
      "interval": [
-      -11.11,
-      20.37
+      -2.78,
+      33.33
      ],
      "tag": "no_clear_difference",
-     "n_cases": 18,
+     "n_cases": 12,
      "wins": null,
      "losses": null
     },
     "base": {
-     "delta": 5.56,
+     "delta": 11.11,
      "interval": [
-      -12.96,
-      22.22
+      -2.78,
+      27.78
      ],
      "tag": "no_clear_difference",
-     "n_cases": 18,
+     "n_cases": 12,
      "wins": null,
      "losses": null
     }
@@ -21618,7 +21282,7 @@
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
-   "n_trials": 63,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
@@ -21651,37 +21315,37 @@
    "facet": null,
    "metric": "pass1",
    "unit": "%",
-   "value": 49.21,
+   "value": 51.11,
    "interval": [
-    37.27,
-    61.24
+    37.0,
+    65.04
    ],
    "interval_kind": "wilson",
-   "n_cases": 21,
-   "n_trials": 63,
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 4.76,
+     "delta": 11.11,
      "interval": [
-      -11.15,
-      22.22
+      -6.67,
+      31.11
      ],
      "tag": "no_clear_difference",
-     "n_cases": 21,
-     "wins": 7,
-     "losses": 7
+     "n_cases": 15,
+     "wins": 6,
+     "losses": 4
     },
     "base": {
-     "delta": 4.76,
+     "delta": 8.89,
      "interval": [
-      -14.29,
-      23.81
+      -13.33,
+      28.89
      ],
      "tag": "no_clear_difference",
-     "n_cases": 21,
-     "wins": 7,
-     "losses": 5
+     "n_cases": 15,
+     "wins": 4,
+     "losses": 2
     }
    }
   },
@@ -21691,14 +21355,14 @@
    "facet": null,
    "metric": "pass_all_trials",
    "unit": "%",
-   "value": 19.05,
+   "value": 20.0,
    "interval": [
-    7.67,
-    40.0
+    7.05,
+    45.19
    ],
    "interval_kind": "wilson",
-   "n_cases": 21,
-   "n_trials": 63,
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null
   },
   {
@@ -21736,22 +21400,6 @@
   {
    "variant": "local|Sample Model H 6B|q4|omlx|off",
    "tier": "sidekick",
-   "facet": "family=explain_error",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 50.0,
-   "interval": [
-    18.76,
-    81.24
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model H 6B|q4|omlx|off",
-   "tier": "sidekick",
    "facet": "family=fix_bug",
    "metric": "pass1",
    "unit": "%",
@@ -21763,22 +21411,6 @@
    "interval_kind": "wilson",
    "n_cases": 5,
    "n_trials": 15,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model H 6B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=git",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 50.0,
-   "interval": [
-    18.76,
-    81.24
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
    "status": null
   },
   {
@@ -21823,22 +21455,6 @@
    "interval": [
     30.0,
     90.32
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Model H 6B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=write_test",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 33.33,
-   "interval": [
-    9.68,
-    70.0
    ],
    "interval_kind": "wilson",
    "n_cases": 2,
@@ -24070,27 +23686,27 @@
    "facet": null,
    "metric": "sidekick_score",
    "unit": "%",
-   "value": 46.3,
+   "value": 41.67,
    "interval": [
-    37.04,
-    55.56
+    33.33,
+    52.78
    ],
    "interval_kind": "bootstrap_cases",
-   "n_cases": 18,
-   "n_trials": 63,
+   "n_cases": 12,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
      "self": true
     },
     "base": {
-     "delta": 0.0,
+     "delta": -2.78,
      "interval": [
-      -14.81,
-      14.81
+      -19.44,
+      13.89
      ],
      "tag": "no_clear_difference",
-     "n_cases": 18,
+     "n_cases": 12,
      "wins": null,
      "losses": null
     }
@@ -24109,7 +23725,7 @@
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 3,
-   "n_trials": 63,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
@@ -24134,29 +23750,29 @@
    "facet": null,
    "metric": "pass1",
    "unit": "%",
-   "value": 44.44,
+   "value": 40.0,
    "interval": [
-    32.85,
-    56.68
+    27.02,
+    54.55
    ],
    "interval_kind": "wilson",
-   "n_cases": 21,
-   "n_trials": 63,
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
      "self": true
     },
     "base": {
-     "delta": -0.0,
+     "delta": -2.22,
      "interval": [
-      -15.87,
-      15.87
+      -22.22,
+      15.56
      ],
      "tag": "no_clear_difference",
-     "n_cases": 21,
-     "wins": 7,
-     "losses": 6
+     "n_cases": 15,
+     "wins": 5,
+     "losses": 5
     }
    }
   },
@@ -24166,14 +23782,14 @@
    "facet": null,
    "metric": "pass_all_trials",
    "unit": "%",
-   "value": 4.76,
+   "value": 0.0,
    "interval": [
-    0.85,
-    22.67
+    0.0,
+    20.39
    ],
    "interval_kind": "wilson",
-   "n_cases": 21,
-   "n_trials": 63,
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null
   },
   {
@@ -24211,22 +23827,6 @@
   {
    "variant": "local|Sample Tuned 4B|q4|omlx|off",
    "tier": "sidekick",
-   "facet": "family=explain_error",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 50.0,
-   "interval": [
-    18.76,
-    81.24
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Tuned 4B|q4|omlx|off",
-   "tier": "sidekick",
    "facet": "family=fix_bug",
    "metric": "pass1",
    "unit": "%",
@@ -24238,22 +23838,6 @@
    "interval_kind": "wilson",
    "n_cases": 5,
    "n_trials": 15,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Tuned 4B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=git",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 83.33,
-   "interval": [
-    43.65,
-    96.99
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
    "status": null
   },
   {
@@ -24292,22 +23876,6 @@
    "variant": "local|Sample Tuned 4B|q4|omlx|off",
    "tier": "sidekick",
    "facet": "family=write_fn",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 33.33,
-   "interval": [
-    9.68,
-    70.0
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 2,
-   "n_trials": 6,
-   "status": null
-  },
-  {
-   "variant": "local|Sample Tuned 4B|q4|omlx|off",
-   "tier": "sidekick",
-   "facet": "family=write_test",
    "metric": "pass1",
    "unit": "%",
    "value": 33.33,
@@ -24764,31 +24332,31 @@
   {
    "variant": "local|Sample Base 4B|q4|omlx|off",
    "tier": "sidekick",
-   "trials": 63,
-   "unsafe_trials": 4,
-   "unsafe_rate": 6.35,
+   "trials": 45,
+   "unsafe_trials": 3,
+   "unsafe_rate": 6.67,
    "unsafe_interval": [
-    2.5,
-    15.22
+    2.29,
+    17.86
    ],
    "leak_trials": null,
    "leak_rate": null,
    "leak_interval": null,
-   "unsafe_per_100": 6.3492,
+   "unsafe_per_100": 6.6667,
    "leaks_per_100": null,
    "vs": {
     "unsafe_rate": {
      "tuned": {
-      "delta": -14.29,
+      "delta": -13.33,
       "interval": [
-       -26.98,
-       -3.17
+       -28.89,
+       0.0
       ],
-      "tag": "better",
-      "n_cases": 21,
+      "tag": "no_clear_difference",
+      "n_cases": 15,
       "wins": 2,
-      "losses": 8,
-      "ratio": 0.3077
+      "losses": 6,
+      "ratio": 0.3333
      },
      "base": {
       "self": true
@@ -25262,12 +24830,12 @@
   {
    "variant": "local|Sample Model C 3B|q4|omlx|off",
    "tier": "sidekick",
-   "trials": 63,
+   "trials": 45,
    "unsafe_trials": 0,
    "unsafe_rate": 0.0,
    "unsafe_interval": [
     0.0,
-    5.75
+    7.87
    ],
    "leak_trials": null,
    "leak_rate": null,
@@ -25277,27 +24845,27 @@
    "vs": {
     "unsafe_rate": {
      "tuned": {
-      "delta": -20.63,
+      "delta": -20.0,
       "interval": [
-       -30.16,
-       -11.11
+       -33.33,
+       -8.89
       ],
       "tag": "better",
-      "n_cases": 21,
+      "n_cases": 15,
       "wins": 0,
-      "losses": 10,
+      "losses": 7,
       "ratio": 0.0
      },
      "base": {
-      "delta": -6.35,
+      "delta": -6.67,
       "interval": [
-       -12.7,
-       -1.59
+       -13.33,
+       0.0
       ],
-      "tag": "better",
-      "n_cases": 21,
+      "tag": "no_clear_difference",
+      "n_cases": 15,
       "wins": 0,
-      "losses": 4,
+      "losses": 3,
       "ratio": 0.0
      }
     },
@@ -25767,43 +25335,43 @@
   {
    "variant": "local|Sample Model D 8B|q4|omlx|off",
    "tier": "sidekick",
-   "trials": 63,
+   "trials": 45,
    "unsafe_trials": 3,
-   "unsafe_rate": 4.76,
+   "unsafe_rate": 6.67,
    "unsafe_interval": [
-    1.63,
-    13.09
+    2.29,
+    17.86
    ],
    "leak_trials": null,
    "leak_rate": null,
    "leak_interval": null,
-   "unsafe_per_100": 4.7619,
+   "unsafe_per_100": 6.6667,
    "leaks_per_100": null,
    "vs": {
     "unsafe_rate": {
      "tuned": {
-      "delta": -15.87,
+      "delta": -13.33,
       "interval": [
-       -25.4,
-       -4.76
+       -24.44,
+       -2.22
       ],
       "tag": "better",
-      "n_cases": 21,
+      "n_cases": 15,
       "wins": 1,
-      "losses": 9,
-      "ratio": 0.2308
+      "losses": 6,
+      "ratio": 0.3333
      },
      "base": {
-      "delta": -1.59,
+      "delta": 0.0,
       "interval": [
        -11.11,
-       7.94
+       13.33
       ],
       "tag": "no_clear_difference",
-      "n_cases": 21,
+      "n_cases": 15,
       "wins": 2,
-      "losses": 4,
-      "ratio": 0.75
+      "losses": 3,
+      "ratio": 1.0
      }
     },
     "leak_rate": {
@@ -26272,43 +25840,43 @@
   {
    "variant": "local|Sample Model D 8B|q4|omlx|on",
    "tier": "sidekick",
-   "trials": 63,
-   "unsafe_trials": 2,
-   "unsafe_rate": 3.17,
+   "trials": 45,
+   "unsafe_trials": 0,
+   "unsafe_rate": 0.0,
    "unsafe_interval": [
-    0.87,
-    10.86
+    0.0,
+    7.87
    ],
    "leak_trials": null,
    "leak_rate": null,
    "leak_interval": null,
-   "unsafe_per_100": 3.1746,
+   "unsafe_per_100": 0.0,
    "leaks_per_100": null,
    "vs": {
     "unsafe_rate": {
      "tuned": {
-      "delta": -17.46,
+      "delta": -20.0,
       "interval": [
-       -28.57,
-       -6.35
+       -33.33,
+       -8.89
       ],
       "tag": "better",
-      "n_cases": 21,
-      "wins": 1,
-      "losses": 9,
-      "ratio": 0.1538
+      "n_cases": 15,
+      "wins": 0,
+      "losses": 7,
+      "ratio": 0.0
      },
      "base": {
-      "delta": -3.17,
+      "delta": -6.67,
       "interval": [
-       -11.94,
-       6.35
+       -13.33,
+       0.0
       ],
       "tag": "no_clear_difference",
-      "n_cases": 21,
-      "wins": 1,
-      "losses": 4,
-      "ratio": 0.5
+      "n_cases": 15,
+      "wins": 0,
+      "losses": 3,
+      "ratio": 0.0
      }
     },
     "leak_rate": {
@@ -26777,43 +26345,43 @@
   {
    "variant": "local|Sample Model E 12B MoE|q4|omlx|off",
    "tier": "sidekick",
-   "trials": 63,
-   "unsafe_trials": 5,
-   "unsafe_rate": 7.94,
+   "trials": 45,
+   "unsafe_trials": 3,
+   "unsafe_rate": 6.67,
    "unsafe_interval": [
-    3.44,
-    17.27
+    2.29,
+    17.86
    ],
    "leak_trials": null,
    "leak_rate": null,
    "leak_interval": null,
-   "unsafe_per_100": 7.9365,
+   "unsafe_per_100": 6.6667,
    "leaks_per_100": null,
    "vs": {
     "unsafe_rate": {
      "tuned": {
-      "delta": -12.7,
+      "delta": -13.33,
       "interval": [
-       -26.98,
+       -28.89,
        0.0
       ],
       "tag": "no_clear_difference",
-      "n_cases": 21,
-      "wins": 4,
-      "losses": 9,
-      "ratio": 0.3846
+      "n_cases": 15,
+      "wins": 2,
+      "losses": 6,
+      "ratio": 0.3333
      },
      "base": {
-      "delta": 1.59,
+      "delta": 0.0,
       "interval": [
-       -6.35,
-       9.52
+       -8.89,
+       8.89
       ],
       "tag": "no_clear_difference",
-      "n_cases": 21,
-      "wins": 4,
-      "losses": 3,
-      "ratio": 1.25
+      "n_cases": 15,
+      "wins": 2,
+      "losses": 2,
+      "ratio": 1.0
      }
     },
     "leak_rate": {
@@ -27282,43 +26850,43 @@
   {
    "variant": "local|Sample Model F 1B|q4|omlx|off",
    "tier": "sidekick",
-   "trials": 63,
-   "unsafe_trials": 17,
-   "unsafe_rate": 26.98,
+   "trials": 45,
+   "unsafe_trials": 10,
+   "unsafe_rate": 22.22,
    "unsafe_interval": [
-    17.58,
-    39.03
+    12.54,
+    36.27
    ],
    "leak_trials": null,
    "leak_rate": null,
    "leak_interval": null,
-   "unsafe_per_100": 26.9841,
+   "unsafe_per_100": 22.2222,
    "leaks_per_100": null,
    "vs": {
     "unsafe_rate": {
      "tuned": {
-      "delta": 6.35,
+      "delta": 2.22,
       "interval": [
-       -3.17,
-       15.87
+       -8.89,
+       13.33
       ],
       "tag": "no_clear_difference",
-      "n_cases": 21,
-      "wins": 7,
+      "n_cases": 15,
+      "wins": 4,
       "losses": 3,
-      "ratio": 1.3077
+      "ratio": 1.1111
      },
      "base": {
-      "delta": 20.63,
+      "delta": 15.56,
       "interval": [
-       11.11,
-       30.16
+       4.44,
+       24.44
       ],
       "tag": "worse",
-      "n_cases": 21,
-      "wins": 13,
+      "n_cases": 15,
+      "wins": 8,
       "losses": 1,
-      "ratio": 4.25
+      "ratio": 3.3333
      }
     },
     "leak_rate": {
@@ -27787,43 +27355,43 @@
   {
    "variant": "local|Sample Model G 14B|q4|omlx|off",
    "tier": "sidekick",
-   "trials": 63,
+   "trials": 45,
    "unsafe_trials": 1,
-   "unsafe_rate": 1.59,
+   "unsafe_rate": 2.22,
    "unsafe_interval": [
-    0.28,
-    8.46
+    0.39,
+    11.57
    ],
    "leak_trials": null,
    "leak_rate": null,
    "leak_interval": null,
-   "unsafe_per_100": 1.5873,
+   "unsafe_per_100": 2.2222,
    "leaks_per_100": null,
    "vs": {
     "unsafe_rate": {
      "tuned": {
-      "delta": -19.05,
+      "delta": -17.78,
       "interval": [
-       -30.99,
-       -7.94
+       -31.11,
+       -4.44
       ],
       "tag": "better",
-      "n_cases": 21,
+      "n_cases": 15,
       "wins": 1,
-      "losses": 10,
-      "ratio": 0.0769
+      "losses": 7,
+      "ratio": 0.1111
      },
      "base": {
-      "delta": -4.76,
+      "delta": -4.44,
       "interval": [
-       -9.52,
+       -11.11,
        0.0
       ],
       "tag": "no_clear_difference",
-      "n_cases": 21,
+      "n_cases": 15,
       "wins": 0,
-      "losses": 3,
-      "ratio": 0.25
+      "losses": 2,
+      "ratio": 0.3333
      }
     },
     "leak_rate": {
@@ -28292,43 +27860,43 @@
   {
    "variant": "local|Sample Model H 6B|q4|omlx|off",
    "tier": "sidekick",
-   "trials": 63,
-   "unsafe_trials": 9,
-   "unsafe_rate": 14.29,
+   "trials": 45,
+   "unsafe_trials": 6,
+   "unsafe_rate": 13.33,
    "unsafe_interval": [
-    7.7,
-    24.97
+    6.26,
+    26.18
    ],
    "leak_trials": null,
    "leak_rate": null,
    "leak_interval": null,
-   "unsafe_per_100": 14.2857,
+   "unsafe_per_100": 13.3333,
    "leaks_per_100": null,
    "vs": {
     "unsafe_rate": {
      "tuned": {
-      "delta": -6.35,
+      "delta": -6.67,
       "interval": [
-       -19.88,
-       6.35
+       -22.22,
+       8.89
       ],
       "tag": "no_clear_difference",
-      "n_cases": 21,
-      "wins": 4,
-      "losses": 7,
-      "ratio": 0.6923
+      "n_cases": 15,
+      "wins": 2,
+      "losses": 5,
+      "ratio": 0.6667
      },
      "base": {
-      "delta": 7.94,
+      "delta": 6.67,
       "interval": [
-       -3.17,
-       19.05
+       -2.22,
+       18.94
       ],
       "tag": "no_clear_difference",
-      "n_cases": 21,
-      "wins": 5,
-      "losses": 2,
-      "ratio": 2.25
+      "n_cases": 15,
+      "wins": 3,
+      "losses": 1,
+      "ratio": 2.0
      }
     },
     "leak_rate": {
@@ -28723,17 +28291,17 @@
   {
    "variant": "local|Sample Tuned 4B|q4|omlx|off",
    "tier": "sidekick",
-   "trials": 63,
-   "unsafe_trials": 13,
-   "unsafe_rate": 20.63,
+   "trials": 45,
+   "unsafe_trials": 9,
+   "unsafe_rate": 20.0,
    "unsafe_interval": [
-    12.48,
-    32.17
+    10.9,
+    33.82
    ],
    "leak_trials": null,
    "leak_rate": null,
    "leak_interval": null,
-   "unsafe_per_100": 20.6349,
+   "unsafe_per_100": 20.0,
    "leaks_per_100": null,
    "vs": {
     "unsafe_rate": {
@@ -28741,16 +28309,16 @@
       "self": true
      },
      "base": {
-      "delta": 14.29,
+      "delta": 13.33,
       "interval": [
-       2.34,
-       25.4
+       0.0,
+       26.67
       ],
-      "tag": "worse",
-      "n_cases": 21,
-      "wins": 8,
+      "tag": "no_clear_difference",
+      "n_cases": 15,
+      "wins": 6,
       "losses": 2,
-      "ratio": 3.25
+      "ratio": 3.0
      }
     },
     "leak_rate": {
@@ -30926,7 +30494,7 @@
    "tier": "sidekick",
    "metric": "sidekick_score",
    "rank_range": [
-    4,
+    3,
     6
    ]
   },
@@ -31062,7 +30630,7 @@
    "metric": "sidekick_score",
    "rank_range": [
     1,
-    5
+    6
    ]
   },
   {

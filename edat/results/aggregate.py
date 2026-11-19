@@ -25,6 +25,7 @@ import json
 from dataclasses import dataclass, field, replace
 from typing import Callable, Iterable
 
+from edat.sidekick.labels import LABELLED_TYPES, NOT_HARDENED, may_score
 from edat.results import composites, keys, stats
 
 DEFAULT_REFERENCES = {
@@ -124,8 +125,13 @@ def _rate_block(records: list[dict], metric: str) -> dict | None:
 # the strata are weighted (`weights`, renormalised over the strata present).
 
 SCREEN_FAMILIES = ("ground", "form", "flow", "read", "disrupt", "cross")      # spec 11 SC1; guard, pixel apart
-SIDEKICK_TYPES = ("explain_error", "write_fn", "fix_bug", "shell", "git", "regex", "write_test",
-                  "commit_msg", "diff_review")                                  # spec 12 SK-1
+# Sidekick rows labels.may_score refuses (not hardened against adversarial model code) go to their own
+# view, never pooled with the sidekick tier, never ranked, with no published difference or site figure.
+SIDEKICK_LABELLED_TYPES = LABELLED_TYPES
+SIDEKICK_TYPES = tuple(t for t in ("explain_error", "write_fn", "fix_bug", "shell", "git", "regex", "write_test",
+                                   "commit_msg", "diff_review") if t not in LABELLED_TYPES)   # spec 12 SK-1, ranked
+SIDEKICK_NOT_HARDENED_VIEW = "sidekick_not_hardened"
+UNRANKED_VIEWS = {SIDEKICK_NOT_HARDENED_VIEW}
 PREFERENCE_DIMENSIONS = ("persistence", "override", "supersession", "scope", "no_waiver")   # spec 02 #57
 
 
@@ -382,6 +388,8 @@ SUITE_VIEWS = {("in_assistant", "productbench-findings"): "in_assistant_findings
 
 
 def view_of(rec: dict) -> str:
+    if rec["tier"] == "sidekick" and not may_score(rec):
+        return SIDEKICK_NOT_HARDENED_VIEW
     view = SUITE_VIEWS.get((rec["tier"], rec.get("suite")))
     if view:
         return view
@@ -533,6 +541,9 @@ def _tier_block(records: list[dict], key: str, opts: Options) -> dict:
                          else _mean_block(graded, name, opts, opts.facet_resamples))
     block["metrics"] = metrics
     block["headline"] = _headline(block)
+    if tier in UNRANKED_VIEWS:
+        block["ranked"] = False
+        block["label"] = NOT_HARDENED
     return block
 
 
@@ -728,6 +739,9 @@ def _vs(e: dict, ref: dict | None, tier_recs: dict, opts: Options) -> dict:
     for tier, block in e["tiers"].items():
         if tier == "perf":
             continue
+        if base_view(tier) in UNRANKED_VIEWS:
+            out[tier] = {"refused": "not hardened against adversarial model code: no differences are published"}
+            continue
         rblock, cross = ref["tiers"].get(tier), None
         if rblock is None:
             others = sorted(k for k in ref["tiers"] if k != tier and base_view(k) == base_view(tier))
@@ -781,6 +795,8 @@ def _rank(entries: dict) -> None:
         if not e["ranked"]:
             continue
         for tier, block in e["tiers"].items():
+            if block.get("ranked") is False:
+                continue
             h = block.get("headline")
             if h and h.get("interval"):
                 by[(e["device_id"], tier, h["metric"])][idx] = tuple(h["interval"])

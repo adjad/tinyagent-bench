@@ -28,18 +28,29 @@ Tests: `tests/test_edat_sidekick_*.py`.
 
 ## Known limits
 
-- **What is hardened against adversarial model code:** the code, write_test, shell and regex graders and
-  the text graders (key facts, commit messages, Yes/No diff bugs). A model's code runs in the sealed
-  sandbox; the expected values, references and verdicts stay on the harness side.
-- **What is labelled `not hardened against adversarial model code`:** the git tasks, and the ceiling
-  ladder's rungs 4 to 9 until their conversion lands. Git tasks are graded by real git reading a sanitised
+- **What is hardened against adversarial model code:** the code and regex graders, the shell cases with
+  an exact or forbidding output check, the commit-message grader and the Yes/No diff cases without a bug.
+  A model's code runs in the sealed sandbox; the expected values, references and verdicts stay on the
+  harness side.
+- **What is labelled `not hardened against adversarial model code`,** and why (`edat/sidekick/labels.py`):
+  - git: graded by real git reading a repository the model controls (below);
+  - write_test: a test that compares the module against the shown source passes;
+  - explanations matched by key facts (explain_error, and the diff "what" cases): echoing the prompt can
+    pass; the Yes/No diff cases that have a bug use the same matcher;
+  - the shell cases whose check takes any line holding a name and its number: task-blind output can pass;
+  - the ceiling ladder's rungs 4 to 9, until their conversion lands.
+
+  Each is hardened in a small change of its own before its label comes off. Git tasks are graded by real git reading a sanitised
   copy of a repository the model controls; the known view mechanisms (replace refs, grafts, ignore rules,
   index flags, attributes, the model's config, pointers elsewhere) are closed, but that view is not one
   the model cannot shape. A strict raw reader of the same copy is a tripwire: where it disagrees with
   git, the trial carries a `git_view_mismatch` flag for a person to read, and the grade is unchanged.
-  Labelled rows are tagged `grade-not-hardened` from how the case is graded, and stay out of the Sidekick
-  Score (the macro over the other eight types) and every ranked or published number; the summary reports
-  them apart under `not_hardened`. A later change rebuilds the repository on the host before grading.
+  A later change rebuilds the repository on the host before grading.
+- **How a label holds:** a labelled row is tagged `grade-not-hardened` from how its case is graded, before
+  grading starts. One function, `labels.may_score`, decides whether a row may be scored, and the runner's
+  summary, the results aggregate, the export, the site data and the ceiling report all use it. Labelled
+  rows stay out of the Sidekick Score (the macro over the ranked types) and every ranked or published
+  number; they are reported apart, with their reasons.
 - **The sandbox:** a sandboxed test program cannot read other processes (their arguments, environment,
   paths or the process list) or devices beyond `/dev/null`, `zero`, `random`, `urandom` and its own
   descriptors; it has no network, loopback included. A process that outlives its command is stopped and

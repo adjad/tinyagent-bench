@@ -634,11 +634,14 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
                                   started_at=started, seed=seed, raw_ref=w.put_raw(json.loads(json.dumps(raw, default=str))),
                                   commit=commit, dirty=dirty)
                 rec["facets"]["tags"] += [f"rung-{u.case.rung.n}", f"sampling-{profile.name}"]
-                # by rung and grading method, and by how the case is graded (git cases on rungs 1 to 3)
-                if (not row_hardened(u.case.rung, metrics if status == "ok" else {})
-                        or not grading_label(inst.grader)["grade_hardened"]) \
-                        and "grade-not-hardened" not in rec["facets"]["tags"]:
-                    rec["facets"]["tags"].append("grade-not-hardened")
+                # by rung and grading method (rungs 4 to 9), and by how the case is graded (rungs 1 to 3)
+                lab = grading_label(inst.grader, inst.check)
+                if not row_hardened(u.case.rung, metrics if status == "ok" else {}) or not lab["grade_hardened"]:
+                    if "grade-not-hardened" not in rec["facets"]["tags"]:
+                        rec["facets"]["tags"].append("grade-not-hardened")
+                    if status == "ok":
+                        rec["metrics"]["grade_hardened"] = False
+                        rec["metrics"]["not_hardened_reason"] = lab.get("not_hardened_reason") or "probe_in_process"
                 if status == "ok" and model.bits_per_weight is not None:
                     rec["metrics"]["bits_per_weight"] = model.bits_per_weight
                 w.append(rec)

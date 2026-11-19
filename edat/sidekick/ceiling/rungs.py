@@ -61,13 +61,14 @@ NOT_HARDENED_WHY = ("Rungs 4 to 9 are " + NOT_HARDENED + ": their hidden tests r
                     "from the test process, patch pytest, fake the exit code) to pass one. An honest wrong "
                     "answer cannot pass by accident. Until they are rebuilt they stay out of any published or "
                     "ranked score; code that touches the test machinery is flagged for a person to read. "
-                    "The git tasks on rungs 1 to 3 carry the same label: they are graded by real git reading a "
-                    "repository the model controls, and are left out of the ceiling on rungs 1 to 3.")
+                    "On rungs 1 to 3 the labelled sidekick tasks (git, written tests, explanations matched by "
+                    "key facts, the shell and diff cases noted in the run sheet) carry the same label, so "
+                    "rungs 1 to 3 (and the ceiling) are worked out without them.")
 
 
 RUNGS = (
-    Rung(1, "sk-l1", "Simple one-step tasks: a short function, one shell command, read an error", "sidekick", "L1"),
-    Rung(2, "sk-l2", "Everyday helper tasks: fix a bug, a git fix, a regex, write tests", "sidekick", "L2"),
+    Rung(1, "sk-l1", "Simple one-step tasks: a short function, one shell command, a regex", "sidekick", "L1"),
+    Rung(2, "sk-l2", "Everyday helper tasks: fix a bug, a regex, a commit message", "sidekick", "L2"),
     Rung(3, "sk-l3", "The harder helper tasks: edge cases and tricky commands", "sidekick", "L3"),
     Rung(4, "rules", "A function with several rules that interact", "probe"),
     Rung(5, "state", "A small class that keeps track of state", "probe"),

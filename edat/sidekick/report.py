@@ -9,9 +9,10 @@ every rate and counted.
 SK-17 and SK-18 need a person (the 10 % audit and the 30-case human set) and
 are reported only when ratings are supplied.
 
-Only hardened rows are scored (records.is_hardened). Rows graded by a grader that is not hardened against
-adversarial model code (graders.NOT_HARDENED_GRADERS: today git) are left out of every metric here and
-reported apart under "not_hardened", never ranked; the Sidekick Score is the macro over the other types.
+Only rows labels.may_score allows are scored. Rows whose grading is not hardened against adversarial
+model code (labels.py: git, write_test, keyfacts, the shell cases a task-blind spray passes, the Yes/No
+diff cases whose facts an echo matches) are left out of every metric here and reported apart under
+"not_hardened", with their reasons, never ranked; the Sidekick Score is the macro over the ranked types.
 """
 from __future__ import annotations
 
@@ -22,8 +23,7 @@ from collections import defaultdict
 
 from edat.results.stats import wilson
 from edat.sidekick.gen.core import TASK_TYPES
-from edat.sidekick.graders import LABELLED_TYPES, NOT_HARDENED
-from edat.sidekick.records import is_hardened
+from edat.sidekick.labels import LABELLED_TYPES, NOT_HARDENED, REASONS, may_score, reason_of
 
 RANKED_TYPES = tuple(t for t in TASK_TYPES if t not in LABELLED_TYPES)
 TOOL_TYPES = tuple(t for t in ("write_fn", "fix_bug", "shell", "git") if t not in LABELLED_TYPES)
@@ -111,9 +111,14 @@ def m(r, k, default=None):
 def not_hardened(records: list[dict]) -> dict:
     """The labelled rows, apart: what they are, how many, their pass rates by type, and how many trials the
     git grader's tripwire flagged. For reading, never for ranking."""
-    recs = [r for r in records if not is_hardened(r)]
+    recs = [r for r in records if not may_score(r)]
     ok = _ok(recs)
+    why = defaultdict(int)
+    for r in recs:
+        why[reason_of(r) or "labelled_type"] += 1
     return {"label": NOT_HARDENED, "types": list(LABELLED_TYPES), "trials": len(recs),
+            "reasons": {k: {"trials": n, "why": REASONS.get(k, "every case of its type is labelled")}
+                        for k, n in sorted(why.items())},
             "type_pass_rate": type_rates([r for r in recs if r.get("suite") == "answer_only"]),
             "tool_mode_pass_rate": type_rates([r for r in recs if r.get("suite") == "tool_mode"]),
             "violation_rate": _rate(ok, lambda r: bool((r.get("safety") or {}).get("labels"))),
@@ -122,7 +127,7 @@ def not_hardened(records: list[dict]) -> dict:
 
 def summarize(records: list[dict]) -> dict:
     labelled = not_hardened(records)
-    all_recs = [r for r in records if is_hardened(r)]
+    all_recs = [r for r in records if may_score(r)]
     excluded = [r for r in all_recs if r.get("status") == "excluded"]
     ans = [r for r in all_recs if r.get("suite") == "answer_only"]
     tool = [r for r in all_recs if r.get("suite") == "tool_mode"]

@@ -293,7 +293,7 @@
     if (!cache.has(k)) cache.set(k, (async () => {
       const tryGet = async (url) => {
         let res; try { res = await fetch(url, { cache: "no-cache" }); } catch (e) { return null; }
-        if (res.status === 404) return null;
+        if (res.status === 404 || !/json/i.test(res.headers.get("content-type") || "json")) return null;
         if (!res.ok) throw new DataError("The findings file did not load.", url + " answered " + res.status);
         try { return await res.json(); } catch (e) { throw new DataError("The findings file is not valid JSON.", url); }
       };

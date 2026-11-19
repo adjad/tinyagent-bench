@@ -1,0 +1,573 @@
+{
+ "schema": "edat-agent-trajectory-v1",
+ "lang": "en",
+ "generator_seed": 41,
+ "prefix_tokens": 800,
+ "generator": "synthetic-test-v0",
+ "note": "Synthetic test fixture for EDAT perf-pack tests. Invented text; not benchmark data.",
+ "task": "Before my 2pm, find what Lena asked for in her email, set a reminder for it, check tomorrow's weather in Porto and draft her a reply saying it's handled.",
+ "decode_cap_tokens": 256,
+ "prefix": {
+  "messages": [
+   {
+    "role": "system",
+    "content": "You are a careful on-device assistant. Use the tools you are given when a request needs information from the user's mail, calendar, notes or reminders. Answer briefly and never invent details that a tool did not return. Always read tool results before replying and mention which source an answer came from. When a request has several parts, work through them in order and say which part is done. Ask one short question when a required detail is missing instead of guessing it. Never send a message or email without being asked; prepare a draft and say so. Times use the twenty four hour clock unless the user writes otherwise. Keep a friendly, plain tone, avoid lists unless the user asks for one, and keep answers under six sentences. If a tool fails, say what failed in one sentence and offer the next best step. Treat names, addresses and numbers in tool results as private and repeat only what the request needs. Prefer the most recent items when several results match, and say how many you looked at. When you set a reminder, repeat its title and time so the user can check it.\n\nThe current date and time is Wednesday, November 18, 2026 at 8:30 AM. Resolve relative dates/times against this."
+   },
+   {
+    "role": "user",
+    "content": "Catch me up before the day starts: my mail, my notes and my messages."
+   },
+   {
+    "role": "assistant",
+    "content": null,
+    "tool_calls": [
+     {
+      "id": "call_0035",
+      "type": "function",
+      "function": {
+       "name": "get_upcoming",
+       "arguments": "{\"days\": 3}"
+      }
+     },
+     {
+      "id": "call_0036",
+      "type": "function",
+      "function": {
+       "name": "get_upcoming",
+       "arguments": "{\"days\": 3}"
+      }
+     },
+     {
+      "id": "call_0037",
+      "type": "function",
+      "function": {
+       "name": "search_notes",
+       "arguments": "{\"query\": \"plan\", \"limit\": 3}"
+      }
+     },
+     {
+      "id": "call_0038",
+      "type": "function",
+      "function": {
+       "name": "search_reminders",
+       "arguments": "{\"query\": \"open\", \"limit\": 5}"
+      }
+     },
+     {
+      "id": "call_0039",
+      "type": "function",
+      "function": {
+       "name": "get_weather",
+       "arguments": "{\"city\": \"Porto\", \"days\": 2}"
+      }
+     },
+     {
+      "id": "call_0040",
+      "type": "function",
+      "function": {
+       "name": "get_upcoming",
+       "arguments": "{\"days\": 3}"
+      }
+     }
+    ]
+   },
+   {
+    "role": "tool",
+    "tool_call_id": "call_0035",
+    "content": "Upcoming events: 10:30 review for Odalys Brennick about a venue change for the autumn workshop at room 25. 11:30 sync with Noor Fenwick about the quarterly lantern inventory at room 9. 13:30 call with Ines Valcourt about a reschedule of the violin lesson at room 7."
+   },
+   {
+    "role": "tool",
+    "tool_call_id": "call_0036",
+    "content": "Upcoming events: 09:30 review for Wilhelm Archer about the draft of the harbor newsletter at room 32. 10:00 lunch with Wilhelm Archer about the quarterly lantern inventory at room 39. 11:00 lunch with Jonas Peregrine about the shared reading list at room 32. 12:00 call with Noor Fenwick about the garden committee budget at room 15."
+   },
+   {
+    "role": "tool",
+    "tool_call_id": "call_0037",
+    "content": "Note titled travel plans for the cartography meetup: The printer jammed twice, so the copies are late. No rush on the small items, only the first one matters. There is a spare chair by the window if anyone joins. I will be offline between lunch and the late afternoon. Call Rafael Ostrander on 555-0148 before day 25."
+   },
+   {
+    "role": "tool",
+    "tool_call_id": "call_0038",
+    "content": "Open reminders: 1. print Devon about the garden committee budget due day 14. 2. collect Lena about keys for the community studio due day 7. 3. collect Corin about slides for Thursday's tasting session due day 2."
+   },
+   {
+    "role": "tool",
+    "tool_call_id": "call_0039",
+    "content": "Forecast for Aarhus: clear skies, high 17 low 11, wind 4 km/h, rain chance 27 percent. No rush on the small items, only the first one matters."
+   },
+   {
+    "role": "tool",
+    "tool_call_id": "call_0040",
+    "content": "Upcoming events: 07:00 sync with Jonas Peregrine about travel plans for the cartography meetup at room 36. 08:30 sync with Pavel Dunmore about keys for the community studio at room 30. 09:00 sync with Edmund Laroche about the draft of the harbor newsletter at room 21."
+   },
+   {
+    "role": "assistant",
+    "content": "The message is about the garden committee budget; No rush on the small items, only the first one matters. I noted Greta Holloway as the contact. The message is about a reschedule of the violin lesson; There is a spare chair by the window if anyone joins. I noted Wilhelm Archer as the contact. The message is about the invoice for the pottery order; I attached nothing, since the folder is shared. I noted Corin Vasquez as the contact. Most of it concerns slides for Thursday's tasting session; I attached nothing, since the folder is shared. I noted Yara Whitcombe as the contact. The message is about the shared reading list; No rush on the small items, only the first one matters. I noted Tobias Wren as the contact. Most of it concerns a venue change for the autumn workshop; I attached nothing, since the folder is shared. I noted Anil Thackeray as the contact."
+   }
+  ],
+  "tools": [
+   {
+    "type": "function",
+    "function": {
+     "name": "view_emails",
+     "description": "List recent emails from a folder, newest first.",
+     "parameters": {
+      "type": "object",
+      "properties": {
+       "folder": {
+        "type": "string",
+        "description": "Folder name such as inbox"
+       },
+       "limit": {
+        "type": "integer",
+        "description": "How many messages"
+       }
+      },
+      "required": [
+       "folder"
+      ]
+     }
+    }
+   },
+   {
+    "type": "function",
+    "function": {
+     "name": "get_upcoming",
+     "description": "List calendar events for the next few days.",
+     "parameters": {
+      "type": "object",
+      "properties": {
+       "days": {
+        "type": "integer",
+        "description": "Days ahead to look"
+       }
+      },
+      "required": []
+     }
+    }
+   },
+   {
+    "type": "function",
+    "function": {
+     "name": "add_reminder",
+     "description": "Create a reminder with a due time.",
+     "parameters": {
+      "type": "object",
+      "properties": {
+       "title": {
+        "type": "string",
+        "description": "Short reminder title"
+       },
+       "due": {
+        "type": "string",
+        "description": "Due time, 24 hour clock"
+       }
+      },
+      "required": [
+       "title",
+       "due"
+      ]
+     }
+    }
+   },
+   {
+    "type": "function",
+    "function": {
+     "name": "get_weather",
+     "description": "Get the forecast for a city.",
+     "parameters": {
+      "type": "object",
+      "properties": {
+       "city": {
+        "type": "string",
+        "description": "City name"
+       },
+       "days": {
+        "type": "integer",
+        "description": "Days ahead"
+       }
+      },
+      "required": [
+       "city"
+      ]
+     }
+    }
+   },
+   {
+    "type": "function",
+    "function": {
+     "name": "draft_email",
+     "description": "Prepare an email draft without sending it.",
+     "parameters": {
+      "type": "object",
+      "properties": {
+       "to": {
+        "type": "string",
+        "description": "Recipient address"
+       },
+       "body": {
+        "type": "string",
+        "description": "Message text"
+       }
+      },
+      "required": [
+       "to",
+       "body"
+      ]
+     }
+    }
+   },
+   {
+    "type": "function",
+    "function": {
+     "name": "search_reminders",
+     "description": "Search open reminders by text.",
+     "parameters": {
+      "type": "object",
+      "properties": {
+       "query": {
+        "type": "string",
+        "description": "Words to look for"
+       },
+       "limit": {
+        "type": "integer",
+        "description": "Maximum results"
+       }
+      },
+      "required": [
+       "query"
+      ]
+     }
+    }
+   }
+  ],
+  "trim": {
+   "message_range": [
+    1,
+    -1
+   ],
+   "unit": "whole_records_then_tokens",
+   "target_tokens": 800
+  }
+ },
+ "steps": [
+  {
+   "step": 1,
+   "messages": [
+    {
+     "role": "user",
+     "content": "Before my 2pm, find what Lena asked for in her email, set a reminder for it, check tomorrow's weather in Porto and draft her a reply saying it's handled."
+    }
+   ],
+   "tools": [
+    "view_emails",
+    "get_upcoming",
+    "add_reminder",
+    "get_weather",
+    "draft_email",
+    "search_reminders"
+   ],
+   "canned_assistant": {
+    "role": "assistant",
+    "content": null,
+    "tool_calls": [
+     {
+      "id": "call_t01",
+      "type": "function",
+      "function": {
+       "name": "get_upcoming",
+       "arguments": "{\"days\": 2}"
+      }
+     },
+     {
+      "id": "call_t02",
+      "type": "function",
+      "function": {
+       "name": "view_emails",
+       "arguments": "{\"query\": \"Lena\", \"count\": 1}"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    {
+     "role": "tool",
+     "tool_call_id": "call_t01",
+     "content": "Next 2 days: 4 events. 09:00 stand-up with the studio team at room 4. 11:30 lunch with Odalys Brennick at room 12. 14:00 call with Tobias Wren about the lantern inventory at room 7. 16:30 pottery pickup at room 2."
+    },
+    {
+     "role": "tool",
+     "tool_call_id": "call_t02",
+     "content": "From: Lena Okonkwo lena.okonkwo@example.com Subject: harbor newsletter draft Body: Hi, could you send me the corrected opening paragraph before your two o'clock call? The printer jammed twice, so I need the text by one. Thanks again for the quick turnaround last week. Reference 5521-C."
+    }
+   ]
+  },
+  {
+   "step": 2,
+   "messages": [
+    {
+     "role": "assistant",
+     "content": null,
+     "tool_calls": [
+      {
+       "id": "call_t01",
+       "type": "function",
+       "function": {
+        "name": "get_upcoming",
+        "arguments": "{\"days\": 2}"
+       }
+      },
+      {
+       "id": "call_t02",
+       "type": "function",
+       "function": {
+        "name": "view_emails",
+        "arguments": "{\"query\": \"Lena\", \"count\": 1}"
+       }
+      }
+     ]
+    },
+    {
+     "role": "tool",
+     "tool_call_id": "call_t01",
+     "content": "Next 2 days: 4 events. 09:00 stand-up with the studio team at room 4. 11:30 lunch with Odalys Brennick at room 12. 14:00 call with Tobias Wren about the lantern inventory at room 7. 16:30 pottery pickup at room 2."
+    },
+    {
+     "role": "tool",
+     "tool_call_id": "call_t02",
+     "content": "From: Lena Okonkwo lena.okonkwo@example.com Subject: harbor newsletter draft Body: Hi, could you send me the corrected opening paragraph before your two o'clock call? The printer jammed twice, so I need the text by one. Thanks again for the quick turnaround last week. Reference 5521-C."
+    }
+   ],
+   "tools": [
+    "view_emails",
+    "get_upcoming",
+    "add_reminder",
+    "get_weather",
+    "draft_email",
+    "search_reminders"
+   ],
+   "canned_assistant": {
+    "role": "assistant",
+    "content": null,
+    "tool_calls": [
+     {
+      "id": "call_t03",
+      "type": "function",
+      "function": {
+       "name": "add_reminder",
+       "arguments": "{\"title\": \"Send Lena the corrected newsletter opening\", \"when_iso\": \"2026-11-18T13:30\"}"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    {
+     "role": "tool",
+     "tool_call_id": "call_t03",
+     "content": "Reminder set."
+    }
+   ]
+  },
+  {
+   "step": 3,
+   "messages": [
+    {
+     "role": "assistant",
+     "content": null,
+     "tool_calls": [
+      {
+       "id": "call_t03",
+       "type": "function",
+       "function": {
+        "name": "add_reminder",
+        "arguments": "{\"title\": \"Send Lena the corrected newsletter opening\", \"when_iso\": \"2026-11-18T13:30\"}"
+       }
+      }
+     ]
+    },
+    {
+     "role": "tool",
+     "tool_call_id": "call_t03",
+     "content": "Reminder set."
+    }
+   ],
+   "tools": [
+    "view_emails",
+    "get_upcoming",
+    "add_reminder",
+    "get_weather",
+    "draft_email",
+    "search_reminders"
+   ],
+   "canned_assistant": {
+    "role": "assistant",
+    "content": null,
+    "tool_calls": [
+     {
+      "id": "call_t04",
+      "type": "function",
+      "function": {
+       "name": "get_weather",
+       "arguments": "{\"location\": \"Porto\", \"period\": \"tomorrow\"}"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    {
+     "role": "tool",
+     "tool_call_id": "call_t04",
+     "content": "Porto tomorrow: light rain in the morning, clear skies after noon, high 19 low 11, wind 14 km/h, rain chance 40 percent."
+    }
+   ]
+  },
+  {
+   "step": 4,
+   "messages": [
+    {
+     "role": "assistant",
+     "content": null,
+     "tool_calls": [
+      {
+       "id": "call_t04",
+       "type": "function",
+       "function": {
+        "name": "get_weather",
+        "arguments": "{\"location\": \"Porto\", \"period\": \"tomorrow\"}"
+       }
+      }
+     ]
+    },
+    {
+     "role": "tool",
+     "tool_call_id": "call_t04",
+     "content": "Porto tomorrow: light rain in the morning, clear skies after noon, high 19 low 11, wind 14 km/h, rain chance 40 percent."
+    }
+   ],
+   "tools": [
+    "view_emails",
+    "get_upcoming",
+    "add_reminder",
+    "get_weather",
+    "draft_email",
+    "search_reminders"
+   ],
+   "canned_assistant": {
+    "role": "assistant",
+    "content": null,
+    "tool_calls": [
+     {
+      "id": "call_t05",
+      "type": "function",
+      "function": {
+       "name": "draft_email",
+       "arguments": "{\"to\": \"lena.okonkwo@example.com\", \"subject\": \"Re: harbor newsletter draft\", \"body\": \"Hi Lena, it is handled: I set a reminder to send the corrected opening before one. Tomorrow in Porto looks clear after a rainy morning.\"}"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    {
+     "role": "tool",
+     "tool_call_id": "call_t05",
+     "content": "Draft opened in Mail, not sent."
+    }
+   ]
+  },
+  {
+   "step": 5,
+   "messages": [
+    {
+     "role": "assistant",
+     "content": null,
+     "tool_calls": [
+      {
+       "id": "call_t05",
+       "type": "function",
+       "function": {
+        "name": "draft_email",
+        "arguments": "{\"to\": \"lena.okonkwo@example.com\", \"subject\": \"Re: harbor newsletter draft\", \"body\": \"Hi Lena, it is handled: I set a reminder to send the corrected opening before one. Tomorrow in Porto looks clear after a rainy morning.\"}"
+       }
+      }
+     ]
+    },
+    {
+     "role": "tool",
+     "tool_call_id": "call_t05",
+     "content": "Draft opened in Mail, not sent."
+    }
+   ],
+   "tools": [
+    "view_emails",
+    "get_upcoming",
+    "add_reminder",
+    "get_weather",
+    "draft_email",
+    "search_reminders"
+   ],
+   "canned_assistant": {
+    "role": "assistant",
+    "content": null,
+    "tool_calls": [
+     {
+      "id": "call_t06",
+      "type": "function",
+      "function": {
+       "name": "search_reminders",
+       "arguments": "{\"query\": \"Lena\", \"scope\": \"today\"}"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    {
+     "role": "tool",
+     "tool_call_id": "call_t06",
+     "content": "Incomplete reminders: Send Lena the corrected newsletter opening due 13:00."
+    }
+   ]
+  },
+  {
+   "step": 6,
+   "messages": [
+    {
+     "role": "assistant",
+     "content": null,
+     "tool_calls": [
+      {
+       "id": "call_t06",
+       "type": "function",
+       "function": {
+        "name": "search_reminders",
+        "arguments": "{\"query\": \"Lena\", \"scope\": \"today\"}"
+       }
+      }
+     ]
+    },
+    {
+     "role": "tool",
+     "tool_call_id": "call_t06",
+     "content": "Incomplete reminders: Send Lena the corrected newsletter opening due 13:00."
+    }
+   ],
+   "tools": [
+    "view_emails",
+    "get_upcoming",
+    "add_reminder",
+    "get_weather",
+    "draft_email",
+    "search_reminders"
+   ],
+   "canned_assistant": {
+    "role": "assistant",
+    "content": "Done. Lena wants the corrected opening paragraph before one, so I set a reminder for 13:00. Porto tomorrow is rainy in the morning and clear after noon. I saved a reply draft telling her it is handled; it is not sent yet."
+   },
+   "canned_tool_results": []
+  }
+ ],
+ "notes": [
+  "step.messages are appended to the conversation before the step's generation; the canned assistant message and its tool results of step k are part of step k+1's input.",
+  "step.tools names the menu; the schemas are in prefix.tools."
+ ]
+}

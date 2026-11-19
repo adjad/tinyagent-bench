@@ -1,0 +1,601 @@
+{
+ "schema": "edat-long-session-v1",
+ "lang": "en",
+ "window_tokens": 1024,
+ "note": "Synthetic test fixture (PROVISIONAL format) for EDAT perf tests; invented text, small window.",
+ "system": "You are a careful on-device assistant. Use the tools when a request needs the user's messages. Answer briefly.",
+ "tools": [
+  {
+   "name": "search_messages",
+   "description": "Search the user's messages.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "query": {
+      "type": "string"
+     }
+    }
+   }
+  }
+ ],
+ "turns": [
+  {
+   "user": "Pell wrote about the garden fence (turn 0); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the garden fence.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "garden fence"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 0: one message from Pell about the garden fence. line0 the garden fence needs item0 by Friday and Pell will confirm. line1 the garden fence needs item1 by Friday and Pell will confirm. line2 the garden fence needs item2 by Friday and Pell will confirm. line3 the garden fence needs item3 by Friday and Pell will confirm. line4 the garden fence needs item4 by Friday and Pell will confirm. line5 the garden fence needs item5 by Friday and Pell will confirm. line6 the garden fence needs item6 by Friday and Pell will confirm."
+   ]
+  },
+  {
+   "user": "Quarry wrote about the book club (turn 1); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the book club.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "book club"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 1: one message from Quarry about the book club. line0 the book club needs item0 by Friday and Quarry will confirm. line1 the book club needs item1 by Friday and Quarry will confirm. line2 the book club needs item2 by Friday and Quarry will confirm. line3 the book club needs item3 by Friday and Quarry will confirm. line4 the book club needs item4 by Friday and Quarry will confirm. line5 the book club needs item5 by Friday and Quarry will confirm. line6 the book club needs item6 by Friday and Quarry will confirm."
+   ]
+  },
+  {
+   "user": "Rowan wrote about the quarterly report (turn 2); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the quarterly report.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "quarterly report"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 2: one message from Rowan about the quarterly report. line0 the quarterly report needs item0 by Friday and Rowan will confirm. line1 the quarterly report needs item1 by Friday and Rowan will confirm. line2 the quarterly report needs item2 by Friday and Rowan will confirm. line3 the quarterly report needs item3 by Friday and Rowan will confirm. line4 the quarterly report needs item4 by Friday and Rowan will confirm. line5 the quarterly report needs item5 by Friday and Rowan will confirm. line6 the quarterly report needs item6 by Friday and Rowan will confirm."
+   ]
+  },
+  {
+   "user": "Sable wrote about the conference badge (turn 3); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the conference badge.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "conference badge"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 3: one message from Sable about the conference badge. line0 the conference badge needs item0 by Friday and Sable will confirm. line1 the conference badge needs item1 by Friday and Sable will confirm. line2 the conference badge needs item2 by Friday and Sable will confirm. line3 the conference badge needs item3 by Friday and Sable will confirm. line4 the conference badge needs item4 by Friday and Sable will confirm. line5 the conference badge needs item5 by Friday and Sable will confirm. line6 the conference badge needs item6 by Friday and Sable will confirm."
+   ]
+  },
+  {
+   "user": "Tarn wrote about the bike repair (turn 4); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the bike repair.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "bike repair"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 4: one message from Tarn about the bike repair. line0 the bike repair needs item0 by Friday and Tarn will confirm. line1 the bike repair needs item1 by Friday and Tarn will confirm. line2 the bike repair needs item2 by Friday and Tarn will confirm. line3 the bike repair needs item3 by Friday and Tarn will confirm. line4 the bike repair needs item4 by Friday and Tarn will confirm. line5 the bike repair needs item5 by Friday and Tarn will confirm. line6 the bike repair needs item6 by Friday and Tarn will confirm."
+   ]
+  },
+  {
+   "user": "Umber wrote about the school picnic (turn 5); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the school picnic.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "school picnic"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 5: one message from Umber about the school picnic. line0 the school picnic needs item0 by Friday and Umber will confirm. line1 the school picnic needs item1 by Friday and Umber will confirm. line2 the school picnic needs item2 by Friday and Umber will confirm. line3 the school picnic needs item3 by Friday and Umber will confirm. line4 the school picnic needs item4 by Friday and Umber will confirm. line5 the school picnic needs item5 by Friday and Umber will confirm. line6 the school picnic needs item6 by Friday and Umber will confirm."
+   ]
+  },
+  {
+   "user": "Vale wrote about the library card (turn 6); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the library card.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "library card"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 6: one message from Vale about the library card. line0 the library card needs item0 by Friday and Vale will confirm. line1 the library card needs item1 by Friday and Vale will confirm. line2 the library card needs item2 by Friday and Vale will confirm. line3 the library card needs item3 by Friday and Vale will confirm. line4 the library card needs item4 by Friday and Vale will confirm. line5 the library card needs item5 by Friday and Vale will confirm. line6 the library card needs item6 by Friday and Vale will confirm."
+   ]
+  },
+  {
+   "user": "Wren wrote about the team lunch (turn 7); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the team lunch.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "team lunch"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 7: one message from Wren about the team lunch. line0 the team lunch needs item0 by Friday and Wren will confirm. line1 the team lunch needs item1 by Friday and Wren will confirm. line2 the team lunch needs item2 by Friday and Wren will confirm. line3 the team lunch needs item3 by Friday and Wren will confirm. line4 the team lunch needs item4 by Friday and Wren will confirm. line5 the team lunch needs item5 by Friday and Wren will confirm. line6 the team lunch needs item6 by Friday and Wren will confirm."
+   ]
+  },
+  {
+   "user": "Yarrow wrote about the dentist visit (turn 8); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the dentist visit.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "dentist visit"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 8: one message from Yarrow about the dentist visit. line0 the dentist visit needs item0 by Friday and Yarrow will confirm. line1 the dentist visit needs item1 by Friday and Yarrow will confirm. line2 the dentist visit needs item2 by Friday and Yarrow will confirm. line3 the dentist visit needs item3 by Friday and Yarrow will confirm. line4 the dentist visit needs item4 by Friday and Yarrow will confirm. line5 the dentist visit needs item5 by Friday and Yarrow will confirm. line6 the dentist visit needs item6 by Friday and Yarrow will confirm."
+   ]
+  },
+  {
+   "user": "Zephyr wrote about the car service (turn 9); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the car service.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "car service"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 9: one message from Zephyr about the car service. line0 the car service needs item0 by Friday and Zephyr will confirm. line1 the car service needs item1 by Friday and Zephyr will confirm. line2 the car service needs item2 by Friday and Zephyr will confirm. line3 the car service needs item3 by Friday and Zephyr will confirm. line4 the car service needs item4 by Friday and Zephyr will confirm. line5 the car service needs item5 by Friday and Zephyr will confirm. line6 the car service needs item6 by Friday and Zephyr will confirm."
+   ]
+  },
+  {
+   "user": "Alder wrote about the plant swap (turn 10); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the plant swap.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "plant swap"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 10: one message from Alder about the plant swap. line0 the plant swap needs item0 by Friday and Alder will confirm. line1 the plant swap needs item1 by Friday and Alder will confirm. line2 the plant swap needs item2 by Friday and Alder will confirm. line3 the plant swap needs item3 by Friday and Alder will confirm. line4 the plant swap needs item4 by Friday and Alder will confirm. line5 the plant swap needs item5 by Friday and Alder will confirm. line6 the plant swap needs item6 by Friday and Alder will confirm."
+   ]
+  },
+  {
+   "user": "Birch wrote about the band practice (turn 11); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the band practice.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "band practice"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 11: one message from Birch about the band practice. line0 the band practice needs item0 by Friday and Birch will confirm. line1 the band practice needs item1 by Friday and Birch will confirm. line2 the band practice needs item2 by Friday and Birch will confirm. line3 the band practice needs item3 by Friday and Birch will confirm. line4 the band practice needs item4 by Friday and Birch will confirm. line5 the band practice needs item5 by Friday and Birch will confirm. line6 the band practice needs item6 by Friday and Birch will confirm."
+   ]
+  },
+  {
+   "user": "Pell wrote about the garden fence (turn 12); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the garden fence.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "garden fence"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 12: one message from Pell about the garden fence. line0 the garden fence needs item0 by Friday and Pell will confirm. line1 the garden fence needs item1 by Friday and Pell will confirm. line2 the garden fence needs item2 by Friday and Pell will confirm. line3 the garden fence needs item3 by Friday and Pell will confirm. line4 the garden fence needs item4 by Friday and Pell will confirm. line5 the garden fence needs item5 by Friday and Pell will confirm. line6 the garden fence needs item6 by Friday and Pell will confirm."
+   ]
+  },
+  {
+   "user": "Quarry wrote about the book club (turn 13); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the book club.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "book club"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 13: one message from Quarry about the book club. line0 the book club needs item0 by Friday and Quarry will confirm. line1 the book club needs item1 by Friday and Quarry will confirm. line2 the book club needs item2 by Friday and Quarry will confirm. line3 the book club needs item3 by Friday and Quarry will confirm. line4 the book club needs item4 by Friday and Quarry will confirm. line5 the book club needs item5 by Friday and Quarry will confirm. line6 the book club needs item6 by Friday and Quarry will confirm."
+   ]
+  },
+  {
+   "user": "Rowan wrote about the quarterly report (turn 14); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the quarterly report.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "quarterly report"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 14: one message from Rowan about the quarterly report. line0 the quarterly report needs item0 by Friday and Rowan will confirm. line1 the quarterly report needs item1 by Friday and Rowan will confirm. line2 the quarterly report needs item2 by Friday and Rowan will confirm. line3 the quarterly report needs item3 by Friday and Rowan will confirm. line4 the quarterly report needs item4 by Friday and Rowan will confirm. line5 the quarterly report needs item5 by Friday and Rowan will confirm. line6 the quarterly report needs item6 by Friday and Rowan will confirm."
+   ]
+  },
+  {
+   "user": "Sable wrote about the conference badge (turn 15); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the conference badge.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "conference badge"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 15: one message from Sable about the conference badge. line0 the conference badge needs item0 by Friday and Sable will confirm. line1 the conference badge needs item1 by Friday and Sable will confirm. line2 the conference badge needs item2 by Friday and Sable will confirm. line3 the conference badge needs item3 by Friday and Sable will confirm. line4 the conference badge needs item4 by Friday and Sable will confirm. line5 the conference badge needs item5 by Friday and Sable will confirm. line6 the conference badge needs item6 by Friday and Sable will confirm."
+   ]
+  },
+  {
+   "user": "Tarn wrote about the bike repair (turn 16); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the bike repair.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "bike repair"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 16: one message from Tarn about the bike repair. line0 the bike repair needs item0 by Friday and Tarn will confirm. line1 the bike repair needs item1 by Friday and Tarn will confirm. line2 the bike repair needs item2 by Friday and Tarn will confirm. line3 the bike repair needs item3 by Friday and Tarn will confirm. line4 the bike repair needs item4 by Friday and Tarn will confirm. line5 the bike repair needs item5 by Friday and Tarn will confirm. line6 the bike repair needs item6 by Friday and Tarn will confirm."
+   ]
+  },
+  {
+   "user": "Umber wrote about the school picnic (turn 17); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the school picnic.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "school picnic"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 17: one message from Umber about the school picnic. line0 the school picnic needs item0 by Friday and Umber will confirm. line1 the school picnic needs item1 by Friday and Umber will confirm. line2 the school picnic needs item2 by Friday and Umber will confirm. line3 the school picnic needs item3 by Friday and Umber will confirm. line4 the school picnic needs item4 by Friday and Umber will confirm. line5 the school picnic needs item5 by Friday and Umber will confirm. line6 the school picnic needs item6 by Friday and Umber will confirm."
+   ]
+  },
+  {
+   "user": "Vale wrote about the library card (turn 18); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the library card.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "library card"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 18: one message from Vale about the library card. line0 the library card needs item0 by Friday and Vale will confirm. line1 the library card needs item1 by Friday and Vale will confirm. line2 the library card needs item2 by Friday and Vale will confirm. line3 the library card needs item3 by Friday and Vale will confirm. line4 the library card needs item4 by Friday and Vale will confirm. line5 the library card needs item5 by Friday and Vale will confirm. line6 the library card needs item6 by Friday and Vale will confirm."
+   ]
+  },
+  {
+   "user": "Wren wrote about the team lunch (turn 19); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the team lunch.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "team lunch"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 19: one message from Wren about the team lunch. line0 the team lunch needs item0 by Friday and Wren will confirm. line1 the team lunch needs item1 by Friday and Wren will confirm. line2 the team lunch needs item2 by Friday and Wren will confirm. line3 the team lunch needs item3 by Friday and Wren will confirm. line4 the team lunch needs item4 by Friday and Wren will confirm. line5 the team lunch needs item5 by Friday and Wren will confirm. line6 the team lunch needs item6 by Friday and Wren will confirm."
+   ]
+  },
+  {
+   "user": "Yarrow wrote about the dentist visit (turn 20); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the dentist visit.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "dentist visit"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 20: one message from Yarrow about the dentist visit. line0 the dentist visit needs item0 by Friday and Yarrow will confirm. line1 the dentist visit needs item1 by Friday and Yarrow will confirm. line2 the dentist visit needs item2 by Friday and Yarrow will confirm. line3 the dentist visit needs item3 by Friday and Yarrow will confirm. line4 the dentist visit needs item4 by Friday and Yarrow will confirm. line5 the dentist visit needs item5 by Friday and Yarrow will confirm. line6 the dentist visit needs item6 by Friday and Yarrow will confirm."
+   ]
+  },
+  {
+   "user": "Zephyr wrote about the car service (turn 21); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the car service.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "car service"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 21: one message from Zephyr about the car service. line0 the car service needs item0 by Friday and Zephyr will confirm. line1 the car service needs item1 by Friday and Zephyr will confirm. line2 the car service needs item2 by Friday and Zephyr will confirm. line3 the car service needs item3 by Friday and Zephyr will confirm. line4 the car service needs item4 by Friday and Zephyr will confirm. line5 the car service needs item5 by Friday and Zephyr will confirm. line6 the car service needs item6 by Friday and Zephyr will confirm."
+   ]
+  },
+  {
+   "user": "Alder wrote about the plant swap (turn 22); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the plant swap.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "plant swap"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 22: one message from Alder about the plant swap. line0 the plant swap needs item0 by Friday and Alder will confirm. line1 the plant swap needs item1 by Friday and Alder will confirm. line2 the plant swap needs item2 by Friday and Alder will confirm. line3 the plant swap needs item3 by Friday and Alder will confirm. line4 the plant swap needs item4 by Friday and Alder will confirm. line5 the plant swap needs item5 by Friday and Alder will confirm. line6 the plant swap needs item6 by Friday and Alder will confirm."
+   ]
+  },
+  {
+   "user": "Birch wrote about the band practice (turn 23); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the band practice.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "band practice"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 23: one message from Birch about the band practice. line0 the band practice needs item0 by Friday and Birch will confirm. line1 the band practice needs item1 by Friday and Birch will confirm. line2 the band practice needs item2 by Friday and Birch will confirm. line3 the band practice needs item3 by Friday and Birch will confirm. line4 the band practice needs item4 by Friday and Birch will confirm. line5 the band practice needs item5 by Friday and Birch will confirm. line6 the band practice needs item6 by Friday and Birch will confirm."
+   ]
+  },
+  {
+   "user": "Pell wrote about the garden fence (turn 24); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the garden fence.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "garden fence"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 24: one message from Pell about the garden fence. line0 the garden fence needs item0 by Friday and Pell will confirm. line1 the garden fence needs item1 by Friday and Pell will confirm. line2 the garden fence needs item2 by Friday and Pell will confirm. line3 the garden fence needs item3 by Friday and Pell will confirm. line4 the garden fence needs item4 by Friday and Pell will confirm. line5 the garden fence needs item5 by Friday and Pell will confirm. line6 the garden fence needs item6 by Friday and Pell will confirm."
+   ]
+  },
+  {
+   "user": "Quarry wrote about the book club (turn 25); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the book club.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "book club"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 25: one message from Quarry about the book club. line0 the book club needs item0 by Friday and Quarry will confirm. line1 the book club needs item1 by Friday and Quarry will confirm. line2 the book club needs item2 by Friday and Quarry will confirm. line3 the book club needs item3 by Friday and Quarry will confirm. line4 the book club needs item4 by Friday and Quarry will confirm. line5 the book club needs item5 by Friday and Quarry will confirm. line6 the book club needs item6 by Friday and Quarry will confirm."
+   ]
+  },
+  {
+   "user": "Rowan wrote about the quarterly report (turn 26); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the quarterly report.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "quarterly report"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 26: one message from Rowan about the quarterly report. line0 the quarterly report needs item0 by Friday and Rowan will confirm. line1 the quarterly report needs item1 by Friday and Rowan will confirm. line2 the quarterly report needs item2 by Friday and Rowan will confirm. line3 the quarterly report needs item3 by Friday and Rowan will confirm. line4 the quarterly report needs item4 by Friday and Rowan will confirm. line5 the quarterly report needs item5 by Friday and Rowan will confirm. line6 the quarterly report needs item6 by Friday and Rowan will confirm."
+   ]
+  },
+  {
+   "user": "Sable wrote about the conference badge (turn 27); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the conference badge.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "conference badge"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 27: one message from Sable about the conference badge. line0 the conference badge needs item0 by Friday and Sable will confirm. line1 the conference badge needs item1 by Friday and Sable will confirm. line2 the conference badge needs item2 by Friday and Sable will confirm. line3 the conference badge needs item3 by Friday and Sable will confirm. line4 the conference badge needs item4 by Friday and Sable will confirm. line5 the conference badge needs item5 by Friday and Sable will confirm. line6 the conference badge needs item6 by Friday and Sable will confirm."
+   ]
+  },
+  {
+   "user": "Tarn wrote about the bike repair (turn 28); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the bike repair.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "bike repair"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 28: one message from Tarn about the bike repair. line0 the bike repair needs item0 by Friday and Tarn will confirm. line1 the bike repair needs item1 by Friday and Tarn will confirm. line2 the bike repair needs item2 by Friday and Tarn will confirm. line3 the bike repair needs item3 by Friday and Tarn will confirm. line4 the bike repair needs item4 by Friday and Tarn will confirm. line5 the bike repair needs item5 by Friday and Tarn will confirm. line6 the bike repair needs item6 by Friday and Tarn will confirm."
+   ]
+  },
+  {
+   "user": "Umber wrote about the school picnic (turn 29); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the school picnic.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "school picnic"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 29: one message from Umber about the school picnic. line0 the school picnic needs item0 by Friday and Umber will confirm. line1 the school picnic needs item1 by Friday and Umber will confirm. line2 the school picnic needs item2 by Friday and Umber will confirm. line3 the school picnic needs item3 by Friday and Umber will confirm. line4 the school picnic needs item4 by Friday and Umber will confirm. line5 the school picnic needs item5 by Friday and Umber will confirm. line6 the school picnic needs item6 by Friday and Umber will confirm."
+   ]
+  },
+  {
+   "user": "Vale wrote about the library card (turn 30); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the library card.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "library card"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 30: one message from Vale about the library card. line0 the library card needs item0 by Friday and Vale will confirm. line1 the library card needs item1 by Friday and Vale will confirm. line2 the library card needs item2 by Friday and Vale will confirm. line3 the library card needs item3 by Friday and Vale will confirm. line4 the library card needs item4 by Friday and Vale will confirm. line5 the library card needs item5 by Friday and Vale will confirm. line6 the library card needs item6 by Friday and Vale will confirm."
+   ]
+  },
+  {
+   "user": "Wren wrote about the team lunch (turn 31); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the team lunch.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "team lunch"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 31: one message from Wren about the team lunch. line0 the team lunch needs item0 by Friday and Wren will confirm. line1 the team lunch needs item1 by Friday and Wren will confirm. line2 the team lunch needs item2 by Friday and Wren will confirm. line3 the team lunch needs item3 by Friday and Wren will confirm. line4 the team lunch needs item4 by Friday and Wren will confirm. line5 the team lunch needs item5 by Friday and Wren will confirm. line6 the team lunch needs item6 by Friday and Wren will confirm."
+   ]
+  },
+  {
+   "user": "Yarrow wrote about the dentist visit (turn 32); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the dentist visit.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "dentist visit"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 32: one message from Yarrow about the dentist visit. line0 the dentist visit needs item0 by Friday and Yarrow will confirm. line1 the dentist visit needs item1 by Friday and Yarrow will confirm. line2 the dentist visit needs item2 by Friday and Yarrow will confirm. line3 the dentist visit needs item3 by Friday and Yarrow will confirm. line4 the dentist visit needs item4 by Friday and Yarrow will confirm. line5 the dentist visit needs item5 by Friday and Yarrow will confirm. line6 the dentist visit needs item6 by Friday and Yarrow will confirm."
+   ]
+  },
+  {
+   "user": "Zephyr wrote about the car service (turn 33); please tell me what I still need to do before Friday.",
+   "canned_assistant": {
+    "content": "Let me look up the messages about the car service.",
+    "tool_calls": [
+     {
+      "name": "search_messages",
+      "arguments": {
+       "query": "car service"
+      }
+     }
+    ]
+   },
+   "canned_tool_results": [
+    "Result 33: one message from Zephyr about the car service. line0 the car service needs item0 by Friday and Zephyr will confirm. line1 the car service needs item1 by Friday and Zephyr will confirm. line2 the car service needs item2 by Friday and Zephyr will confirm. line3 the car service needs item3 by Friday and Zephyr will confirm. line4 the car service needs item4 by Friday and Zephyr will confirm. line5 the car service needs item5 by Friday and Zephyr will confirm. line6 the car service needs item6 by Friday and Zephyr will confirm."
+   ]
+  }
+ ]
+}

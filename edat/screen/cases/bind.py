@@ -133,8 +133,9 @@ def bind(case: dict, world_seed: int) -> Bound:
     if gen not in SCENARIOS:
         raise KeyError(f"{case['id']}: unknown scenario {gen!r}")
     world.slots = dict(slots)
-    slots.update(SCENARIOS[gen](world, rng, params, case) or {})
-    slots.update(world.slots)
+    returned = SCENARIOS[gen](world, rng, params, case) or {}
+    slots.update(world.slots)      # what the scenario wrote to world.slots
+    slots.update(returned)         # then what it returned: a scenario's own slots win over the apps'
     world.slots = slots
     filled = fill(copy.deepcopy({k: v for k, v in case.items() if k not in ("world",)}), slots)
     filled["world"] = copy.deepcopy(case.get("world") or {})

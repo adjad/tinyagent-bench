@@ -2,8 +2,10 @@
 # and the only network access is installing the pinned requirements.
 #
 # The macOS job is the gate. The Linux job runs the same files for
-# information only (continue-on-error), to show which tests are not tied to
-# macOS; it never makes a pull request red.
+# information only, to show which tests are not tied to macOS. It ALWAYS
+# REPORTS SUCCESS, whatever its tests do: its green tick is not evidence that
+# anything passed. Read its log (or the warnings it adds) for the per-file
+# results; only the macOS job's result counts.
 #
 # Each test file runs in its own pytest process, as the README recommends:
 # some imported tests reload modules or patch process-wide state.
@@ -65,7 +67,7 @@ jobs:
           exit $status
 
   linux:
-    name: offline tests (Linux, informational)
+    name: Linux report (always green, not evidence)
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     continue-on-error: true
@@ -82,10 +84,18 @@ jobs:
             requirements-dev.txt
       - name: Install requirements
         run: python -m pip install -r requirements-dev.txt
-      - name: Run the offline test files, one result line per file
+      - name: Run the offline test files, one result line per file (never fails)
         run: |
           files=$(python tools/ci_test_files.py) || exit 1
+          bad=0
           for f in $files; do
             line=$(python -m pytest -q --no-header "$f" 2>&1 | tail -1)
             echo "$f :: $line"
+            case "$line" in
+              *failed*|*rror*|*"no tests ran"*)
+                bad=$((bad + 1))
+                echo "::warning title=Linux report (not evidence)::$f :: $line" ;;
+            esac
           done
+          echo "Linux report: $bad file(s) did not pass. This job reports success regardless; only the macOS job is the gate."
+          exit 0

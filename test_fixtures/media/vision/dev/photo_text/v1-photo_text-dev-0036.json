@@ -1,0 +1,428 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-photo_text-dev-0036",
+ "family": "photo_text",
+ "template": "flyer",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 36,
+ "variant": {
+  "theme": "dark",
+  "dpr": 1,
+  "abstain": true,
+  "long_side": null,
+  "scale": 1.0,
+  "damage": 0
+ },
+ "image": {
+  "file": "v1-photo_text-dev-0036.png",
+  "sha256": "83fac4f7390b22466acada374bdf69fb342700ce6bd5a9b94f27d82ce2111db0",
+  "width": 525,
+  "height": 742,
+  "logical": [
+   420,
+   594
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "title": "Open Air Jazz Night",
+  "date": "2027-05-31",
+  "date_text": "Monday, May 31, 2027",
+  "start": "19:45",
+  "end": "21:45",
+  "time_text": "Starts 7:45 PM",
+  "venue": "The Brenella Room",
+  "address": "8 Marquist Rd, Tavistead",
+  "price": 18,
+  "price_text": "Entry $18",
+  "phone": "(808) 555-0164",
+  "tagline": "Bring a friend",
+  "note": "Limited seats",
+  "host": "Sorrova Collective",
+  "dishes": []
+ },
+ "fields": {
+  "title": {
+   "name": "title",
+   "kind": "text",
+   "value": "Open Air Jazz Night",
+   "text": "Open Air Jazz Night",
+   "bbox": [
+    75,
+    78,
+    343,
+    108
+   ],
+   "size_px": 30,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0587bf2765e5908efa21d9228b7d7204841bc6dc10c027247b6b559fd6541d6d",
+   "fg": [
+    10,
+    10,
+    12
+   ],
+   "plot_value": false
+  },
+  "date": {
+   "name": "date",
+   "kind": "date",
+   "value": "2027-05-31",
+   "text": "Monday, May 31, 2027",
+   "bbox": [
+    106,
+    208,
+    312,
+    229
+   ],
+   "size_px": 20,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "442ebdb7ee4f1b35740f744d9d0b93732df36a5b33b72413b58683ed2364b29c",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "time": {
+   "name": "time",
+   "kind": "time",
+   "value": "19:45",
+   "text": "Starts 7:45 PM",
+   "bbox": [
+    150,
+    245,
+    269,
+    258
+   ],
+   "size_px": 18,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "87514fd8febc49e8fb9f41d49592cec4aea1297092b2509a9c47690bb6ee8c64",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "venue": {
+   "name": "venue",
+   "kind": "text",
+   "value": "The Brenella Room",
+   "text": "The Brenella Room",
+   "bbox": [
+    134,
+    289,
+    286,
+    302
+   ],
+   "size_px": 18,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "9a4a4fdc03d30d5f0b4aaa9b4eefd1595700a3536ba43680726ab42a862e048a",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "price": {
+   "name": "price",
+   "kind": "money",
+   "value": "18.00",
+   "text": "Entry $18",
+   "bbox": [
+    159,
+    359,
+    259,
+    383
+   ],
+   "size_px": 22,
+   "visible": false,
+   "obscured": "blur",
+   "crop_sha256": "f044cbb7da3eca699146d6ffb7274eacdf32c8cf82bd5b12005a7ae42d79b8b1",
+   "fg": [
+    90,
+    210,
+    120
+   ],
+   "plot_value": false
+  }
+ },
+ "text_runs": [
+  {
+   "text": "Sorrova Collective presents",
+   "bbox": [
+    134,
+    41,
+    285,
+    53
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Open Air Jazz Night",
+   "bbox": [
+    75,
+    78,
+    343,
+    108
+   ],
+   "size_px": 30,
+   "field": "title",
+   "reading": true
+  },
+  {
+   "text": "Bring a friend",
+   "bbox": [
+    171,
+    143,
+    249,
+    156
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Monday, May 31, 2027",
+   "bbox": [
+    106,
+    208,
+    312,
+    229
+   ],
+   "size_px": 20,
+   "field": "date",
+   "reading": true
+  },
+  {
+   "text": "Starts 7:45 PM",
+   "bbox": [
+    150,
+    245,
+    269,
+    258
+   ],
+   "size_px": 18,
+   "field": "time",
+   "reading": true
+  },
+  {
+   "text": "The Brenella Room",
+   "bbox": [
+    134,
+    289,
+    286,
+    302
+   ],
+   "size_px": 18,
+   "field": "venue",
+   "reading": true
+  },
+  {
+   "text": "8 Marquist Rd, Tavistead",
+   "bbox": [
+    140,
+    315,
+    279,
+    327
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Entry $18",
+   "bbox": [
+    159,
+    359,
+    259,
+    383
+   ],
+   "size_px": 22,
+   "field": "price",
+   "reading": false
+  },
+  {
+   "text": "Limited seats",
+   "bbox": [
+    172,
+    405,
+    248,
+    414
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Please recycle this flyer",
+   "bbox": [
+    150,
+    530,
+    271,
+    541
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  }
+ ],
+ "reading_text": "Sorrova Collective presents\nOpen Air Jazz Night\nBring a friend\nMonday, May 31, 2027\nStarts 7:45 PM\nThe Brenella Room\n8 Marquist Rd, Tavistead\nLimited seats\nPlease recycle this flyer",
+ "damage": {
+  "level": 0,
+  "ops": [
+   {
+    "op": "composite",
+    "size": [
+     525,
+     742
+    ],
+    "offset": [
+     59.8,
+     84.01
+    ]
+   },
+   {
+    "op": "perspective",
+    "corners": [
+     [
+      51.52,
+      79.9
+     ],
+     [
+      466.73,
+      82.8
+     ],
+     [
+      467.43,
+      687.37
+     ],
+     [
+      67.45,
+      692.19
+     ]
+    ]
+   }
+  ],
+  "field_boxes": {
+   "title": [
+    128,
+    163,
+    393,
+    196
+   ],
+   "date": [
+    161,
+    299,
+    363,
+    322
+   ],
+   "time": [
+    205,
+    337,
+    322,
+    352
+   ],
+   "venue": [
+    190,
+    382,
+    339,
+    397
+   ],
+   "price": [
+    216,
+    454,
+    314,
+    480
+   ]
+  }
+ },
+ "questions": [
+  {
+   "qid": "q_title",
+   "qtype": "event",
+   "question": "What is the name of the event?",
+   "answer": "Open Air Jazz Night",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "title"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_date",
+   "qtype": "event",
+   "question": "On what date is the event? Give the date.",
+   "answer": "2027-05-31",
+   "kind": "field",
+   "canon": "date",
+   "fields": [
+    "date"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_time",
+   "qtype": "event",
+   "question": "What time does the event start?",
+   "answer": "19:45",
+   "kind": "field",
+   "canon": "time",
+   "fields": [
+    "time"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_venue",
+   "qtype": "event",
+   "question": "Where is the event held? Give the venue name.",
+   "answer": "The Brenella Room",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "venue"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read all the text on the flyer.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  },
+  {
+   "qid": "q_price_abstain",
+   "qtype": "absence",
+   "question": "How much is a ticket?",
+   "answer": "not shown",
+   "kind": "abstain",
+   "canon": "text",
+   "fields": [
+    "price"
+   ],
+   "accept": []
+  }
+ ]
+}

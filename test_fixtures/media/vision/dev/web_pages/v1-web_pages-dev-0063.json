@@ -1,0 +1,433 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-web_pages-dev-0063",
+ "family": "web_pages",
+ "template": "product",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 63,
+ "variant": {
+  "theme": "dark",
+  "dpr": 1,
+  "abstain": true,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-web_pages-dev-0063.png",
+  "sha256": "4cca938b8ebefebfb2630fcab3fc1fecdd486e3d3413c599bd67c87a71b3f08b",
+  "width": 1280,
+  "height": 800,
+  "logical": [
+   1280,
+   800
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "site": "Gildum",
+  "domain": "gildum.example",
+  "product": "Vantaura Speaker",
+  "price": 168.61,
+  "list_price": 189.1,
+  "rating": "4.3",
+  "reviews": 756,
+  "stock": 38
+ },
+ "fields": {
+  "url": {
+   "name": "url",
+   "kind": "text",
+   "value": "gildum.example",
+   "text": "https://gildum.example/product/p/4821",
+   "bbox": [
+    44,
+    52,
+    279,
+    64
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e0e43551ab1eb3ee9b64b57034a861f0d2fe109163cb746e678ada727c3f5786",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "product": {
+   "name": "product",
+   "kind": "text",
+   "value": "Vantaura Speaker",
+   "text": "Vantaura Speaker",
+   "bbox": [
+    619,
+    166,
+    895,
+    201
+   ],
+   "size_px": 34,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "529ef02bef8c7a50fe4713be399a222397d7ca976895ec282033404f62c3e59b",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "rating": {
+   "name": "rating",
+   "kind": "number",
+   "value": "4.3",
+   "text": "4.3 out of 5",
+   "bbox": [
+    620,
+    224,
+    712,
+    238
+   ],
+   "size_px": 18,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "bab4cbfaa4ad483cd4c7f5d6982cbaaa37ff67d1c9a1b3670f45b41b83022f3e",
+   "fg": [
+    255,
+    190,
+    80
+   ],
+   "plot_value": false
+  },
+  "reviews": {
+   "name": "reviews",
+   "kind": "number",
+   "value": "756",
+   "text": "756 reviews",
+   "bbox": [
+    800,
+    226,
+    881,
+    237
+   ],
+   "size_px": 15,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "dfe90776663b2bacf29a89b4ef948530a6898cc7cc51fc841b538db0ae1fe8d8",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "price": {
+   "name": "price",
+   "kind": "money",
+   "value": "168.61",
+   "text": "$168.61",
+   "bbox": [
+    619,
+    283,
+    786,
+    324
+   ],
+   "size_px": 44,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0019b7f1fc3f7e609b637a397037366f764ed6219998c75d0023d6e438634590",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "list_price": {
+   "name": "list_price",
+   "kind": "money",
+   "value": "189.10",
+   "text": "List price $189.10",
+   "bbox": [
+    620,
+    343,
+    740,
+    358
+   ],
+   "size_px": 15,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "3bd4fd6b885cedc62b6f72f770922454509b3c6eeb1f50bb7ee86310d77f43f5",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "stock": {
+   "name": "stock",
+   "kind": "number",
+   "value": "38",
+   "text": "38 left in stock",
+   "bbox": [
+    620,
+    394,
+    735,
+    407
+   ],
+   "size_px": 17,
+   "visible": false,
+   "obscured": "blur",
+   "crop_sha256": "8b4dd98a592bffa619fe6f031053415f90834b308c0daed2cea55b6ca3bc2fe9",
+   "fg": [
+    90,
+    210,
+    120
+   ],
+   "plot_value": false
+  }
+ },
+ "text_runs": [
+  {
+   "text": "Gildum",
+   "bbox": [
+    116,
+    18,
+    157,
+    27
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "https://gildum.example/product/p/4821",
+   "bbox": [
+    44,
+    52,
+    279,
+    64
+   ],
+   "size_px": 13,
+   "field": "url",
+   "reading": true
+  },
+  {
+   "text": "Gildum",
+   "bbox": [
+    39,
+    86,
+    127,
+    107
+   ],
+   "size_px": 26,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Shop",
+   "bbox": [
+    940,
+    91,
+    974,
+    105
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Deals",
+   "bbox": [
+    1024,
+    91,
+    1061,
+    102
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Support",
+   "bbox": [
+    1108,
+    92,
+    1160,
+    105
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Account",
+   "bbox": [
+    1192,
+    92,
+    1247,
+    102
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Vantaura Speaker",
+   "bbox": [
+    619,
+    166,
+    895,
+    201
+   ],
+   "size_px": 34,
+   "field": "product",
+   "reading": true
+  },
+  {
+   "text": "4.3 out of 5",
+   "bbox": [
+    620,
+    224,
+    712,
+    238
+   ],
+   "size_px": 18,
+   "field": "rating",
+   "reading": true
+  },
+  {
+   "text": "756 reviews",
+   "bbox": [
+    800,
+    226,
+    881,
+    237
+   ],
+   "size_px": 15,
+   "field": "reviews",
+   "reading": true
+  },
+  {
+   "text": "$168.61",
+   "bbox": [
+    619,
+    283,
+    786,
+    324
+   ],
+   "size_px": 44,
+   "field": "price",
+   "reading": true
+  },
+  {
+   "text": "List price $189.10",
+   "bbox": [
+    620,
+    343,
+    740,
+    358
+   ],
+   "size_px": 15,
+   "field": "list_price",
+   "reading": true
+  },
+  {
+   "text": "38 left in stock",
+   "bbox": [
+    620,
+    394,
+    735,
+    407
+   ],
+   "size_px": 17,
+   "field": "stock",
+   "reading": false
+  },
+  {
+   "text": "Add to cart",
+   "bbox": [
+    707,
+    560,
+    810,
+    577
+   ],
+   "size_px": 20,
+   "field": null,
+   "reading": true
+  }
+ ],
+ "reading_text": "Gildum\nhttps://gildum.example/product/p/4821\nGildum\nShop\nDeals\nSupport\nAccount\nVantaura Speaker\n4.3 out of 5\n756 reviews\n$168.61\nList price $189.10\nAdd to cart",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_price",
+   "qtype": "lookup",
+   "question": "What is the current price of the product?",
+   "answer": "168.61",
+   "kind": "field",
+   "canon": "money",
+   "fields": [
+    "price"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_rating",
+   "qtype": "lookup",
+   "question": "What is the customer rating out of 5?",
+   "answer": "4.3",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "rating"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_save",
+   "qtype": "difference",
+   "question": "How much cheaper is the current price than the list price?",
+   "answer": "20.49",
+   "kind": "field",
+   "canon": "money",
+   "fields": [
+    "price",
+    "list_price"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_stock",
+   "qtype": "absence",
+   "question": "How many units are left in stock?",
+   "answer": "not shown",
+   "kind": "abstain",
+   "canon": "text",
+   "fields": [
+    "stock"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the screen.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

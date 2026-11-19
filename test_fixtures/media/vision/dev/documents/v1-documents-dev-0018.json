@@ -1,0 +1,998 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-documents-dev-0018",
+ "family": "documents",
+ "template": "receipt",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 18,
+ "variant": {
+  "theme": "dark",
+  "dpr": 1,
+  "abstain": true,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-documents-dev-0018.png",
+  "sha256": "1e8a5c67c694400ccbe0c21e5ecba145ad356366cbd804798d228bf57e222fce",
+  "width": 360,
+  "height": 640,
+  "logical": [
+   360,
+   640
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "merchant": "Brenock Pharmacy",
+  "address": "521 Holrow Way, Ostervale",
+  "date": "2027-04-21",
+  "time": "18:38",
+  "receipt_number": "X631268",
+  "lines": [
+   {
+    "name": "Rice 2kg",
+    "qty": 1,
+    "unit": 15.39,
+    "amount": 15.39
+   },
+   {
+    "name": "Dish soap",
+    "qty": 1,
+    "unit": 3.3,
+    "amount": 3.3
+   },
+   {
+    "name": "Spinach",
+    "qty": 3,
+    "unit": 17.12,
+    "amount": 51.36
+   },
+   {
+    "name": "Rye loaf",
+    "qty": 1,
+    "unit": 13.12,
+    "amount": 13.12
+   },
+   {
+    "name": "Oat milk",
+    "qty": 1,
+    "unit": 11.44,
+    "amount": 11.44
+   },
+   {
+    "name": "Tomatoes",
+    "qty": 1,
+    "unit": 14.75,
+    "amount": 14.75
+   },
+   {
+    "name": "Coffee beans",
+    "qty": 1,
+    "unit": 11.29,
+    "amount": 11.29
+   }
+  ],
+  "subtotal": 120.65,
+  "tax_rate": 0.08,
+  "tax": 9.65,
+  "total": 130.3,
+  "layout": 7
+ },
+ "fields": {
+  "merchant": {
+   "name": "merchant",
+   "kind": "text",
+   "value": "Brenock Pharmacy",
+   "text": "BRENOCK PHARMACY",
+   "bbox": [
+    81,
+    29,
+    278,
+    44
+   ],
+   "size_px": 19,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "53eb53d9dd1bf1cc87709bf2886edb0049a164c2fa901ea4dadbc17692b00337",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "receipt_number": {
+   "name": "receipt_number",
+   "kind": "text",
+   "value": "X631268",
+   "text": "RECEIPT X631268",
+   "bbox": [
+    130,
+    73,
+    231,
+    82
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "034fafdad1237d7f22c1dbe94e3654d7dd5631f785aa022e58716065f63432ca",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "date": {
+   "name": "date",
+   "kind": "date",
+   "value": "2027-04-21",
+   "text": "Apr 21, 2027",
+   "bbox": [
+    24,
+    93,
+    94,
+    105
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "8b47d8d74e981b6af45f14287c5651081c3c36a977f57f2359dbf60e97725708",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "time": {
+   "name": "time",
+   "kind": "time",
+   "value": "18:38",
+   "text": "6:38 PM",
+   "bbox": [
+    292,
+    93,
+    336,
+    102
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1b06997e96619ca032d786192d86c02562fc30d8020712727f35ec36c4bf00c0",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_0_name": {
+   "name": "item_0_name",
+   "kind": "text",
+   "value": "Rice 2kg",
+   "text": "Rice 2kg",
+   "bbox": [
+    24,
+    129,
+    72,
+    141
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1bd483b12a28a0806711d414e147208964cc55c847a0d07cf6cf08ed9732e2ee",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_0_amount": {
+   "name": "item_0_amount",
+   "kind": "money",
+   "value": "15.39",
+   "text": "$15.39",
+   "bbox": [
+    298,
+    128,
+    336,
+    139
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d06ab53659e2786ee78669cfba7b561c41ec6ec913cde827c296f283319ded66",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_1_name": {
+   "name": "item_1_name",
+   "kind": "text",
+   "value": "Dish soap",
+   "text": "Dish soap",
+   "bbox": [
+    24,
+    147,
+    78,
+    159
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "99841177ca54dd4019a5eb00437d3982148bd251af449e0b4758ac48ad7dfb7f",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_1_amount": {
+   "name": "item_1_amount",
+   "kind": "money",
+   "value": "3.30",
+   "text": "$3.30",
+   "bbox": [
+    305,
+    146,
+    336,
+    157
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "35c886e2fffa57088da174c0a6172ddc786ac28c51a7ac43df6e39adfff93fe8",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_2_name": {
+   "name": "item_2_name",
+   "kind": "text",
+   "value": "Spinach",
+   "text": "Spinach",
+   "bbox": [
+    24,
+    165,
+    68,
+    177
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "91dc0eabc877690437d1a2a70c758ab4bd8157f54dec7979a0c8be5d08e8fc6b",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_2_amount": {
+   "name": "item_2_amount",
+   "kind": "money",
+   "value": "51.36",
+   "text": "$51.36",
+   "bbox": [
+    298,
+    164,
+    336,
+    175
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4e8d835c274c187085e92b72df76251b7030814e66654045e3a6ca7fa4222e88",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_3_name": {
+   "name": "item_3_name",
+   "kind": "text",
+   "value": "Rye loaf",
+   "text": "Rye loaf",
+   "bbox": [
+    24,
+    197,
+    68,
+    210
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "88eaa4040a822c3f798c003a59b87963117251eb78e048879643c3af8657df11",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_3_amount": {
+   "name": "item_3_amount",
+   "kind": "money",
+   "value": "13.12",
+   "text": "$13.12",
+   "bbox": [
+    298,
+    197,
+    336,
+    208
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "2636bb271927b77e7d8e46957b5bdef4d212f08b47ef372eedf2c7884ca43dbd",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_4_name": {
+   "name": "item_4_name",
+   "kind": "text",
+   "value": "Oat milk",
+   "text": "Oat milk",
+   "bbox": [
+    24,
+    216,
+    71,
+    225
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "33449c6b757b81b9dd8556517ec731e81509c8279487f5c91abdb2393ca36745",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_4_amount": {
+   "name": "item_4_amount",
+   "kind": "money",
+   "value": "11.44",
+   "text": "$11.44",
+   "bbox": [
+    297,
+    215,
+    336,
+    226
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0c458f4f5e8b7b7e666adf0380032cabd5b201a84ed01bf3a2a17fb21239e80b",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_5_name": {
+   "name": "item_5_name",
+   "kind": "text",
+   "value": "Tomatoes",
+   "text": "Tomatoes",
+   "bbox": [
+    24,
+    234,
+    81,
+    243
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "83692db3c61e314e55c627b8e1fc699f9d6f201b90254d0eb0ee8d5ea9e66296",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_5_amount": {
+   "name": "item_5_amount",
+   "kind": "money",
+   "value": "14.75",
+   "text": "$14.75",
+   "bbox": [
+    298,
+    233,
+    336,
+    244
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "dbb44343af77296b8f8f54a7298a9cae5e12161ee01ae80416b85d6a7f6890c5",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_6_name": {
+   "name": "item_6_name",
+   "kind": "text",
+   "value": "Coffee beans",
+   "text": "Coffee beans",
+   "bbox": [
+    24,
+    251,
+    97,
+    261
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "36e3a1ec819ebfbd0ee550081954570a2a3d525a455d3869764db70386e2fccf",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "item_6_amount": {
+   "name": "item_6_amount",
+   "kind": "money",
+   "value": "11.29",
+   "text": "$11.29",
+   "bbox": [
+    298,
+    251,
+    336,
+    262
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "6475f9b40d7ff29591f948336c3836cef72f0c41b189d5bb41525ed76c2b948a",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "subtotal": {
+   "name": "subtotal",
+   "kind": "money",
+   "value": "120.65",
+   "text": "$120.65",
+   "bbox": [
+    291,
+    281,
+    336,
+    292
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "76d2f8327b3167d352946455a650af38c84c60848e0a379f03720dd0ac70f332",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "tax": {
+   "name": "tax",
+   "kind": "money",
+   "value": "9.65",
+   "text": "$9.65",
+   "bbox": [
+    305,
+    299,
+    336,
+    310
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "92ff2412dd760163c5e085c53149318f05a29fe09bd60ff66387a1d259737053",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "total": {
+   "name": "total",
+   "kind": "money",
+   "value": "130.30",
+   "text": "$130.30",
+   "bbox": [
+    276,
+    319,
+    335,
+    334
+   ],
+   "size_px": 15,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ab73d9f6fede16503971ebc88fad1135c3c2a58c2f861fa8de428cee7091ce36",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cashier": {
+   "name": "cashier",
+   "kind": "text",
+   "value": "Ilse Rosrow",
+   "text": "",
+   "bbox": null,
+   "size_px": 0,
+   "visible": false,
+   "obscured": "absent",
+   "crop_sha256": null,
+   "fg": null,
+   "plot_value": false
+  }
+ },
+ "text_runs": [
+  {
+   "text": "BRENOCK PHARMACY",
+   "bbox": [
+    81,
+    29,
+    278,
+    44
+   ],
+   "size_px": 19,
+   "field": "merchant",
+   "reading": true
+  },
+  {
+   "text": "521 HOLROW WAY, OSTERVALE",
+   "bbox": [
+    102,
+    54,
+    257,
+    63
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "RECEIPT X631268",
+   "bbox": [
+    130,
+    73,
+    231,
+    82
+   ],
+   "size_px": 12,
+   "field": "receipt_number",
+   "reading": true
+  },
+  {
+   "text": "Apr 21, 2027",
+   "bbox": [
+    24,
+    93,
+    94,
+    105
+   ],
+   "size_px": 12,
+   "field": "date",
+   "reading": true
+  },
+  {
+   "text": "6:38 PM",
+   "bbox": [
+    292,
+    93,
+    336,
+    102
+   ],
+   "size_px": 12,
+   "field": "time",
+   "reading": true
+  },
+  {
+   "text": "------------------------------------------------",
+   "bbox": [
+    24,
+    117,
+    168,
+    121
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": false
+  },
+  {
+   "text": "Rice 2kg",
+   "bbox": [
+    24,
+    129,
+    72,
+    141
+   ],
+   "size_px": 12,
+   "field": "item_0_name",
+   "reading": true
+  },
+  {
+   "text": "$15.39",
+   "bbox": [
+    298,
+    128,
+    336,
+    139
+   ],
+   "size_px": 12,
+   "field": "item_0_amount",
+   "reading": true
+  },
+  {
+   "text": "Dish soap",
+   "bbox": [
+    24,
+    147,
+    78,
+    159
+   ],
+   "size_px": 12,
+   "field": "item_1_name",
+   "reading": true
+  },
+  {
+   "text": "$3.30",
+   "bbox": [
+    305,
+    146,
+    336,
+    157
+   ],
+   "size_px": 12,
+   "field": "item_1_amount",
+   "reading": true
+  },
+  {
+   "text": "Spinach",
+   "bbox": [
+    24,
+    165,
+    68,
+    177
+   ],
+   "size_px": 12,
+   "field": "item_2_name",
+   "reading": true
+  },
+  {
+   "text": "$51.36",
+   "bbox": [
+    298,
+    164,
+    336,
+    175
+   ],
+   "size_px": 12,
+   "field": "item_2_amount",
+   "reading": true
+  },
+  {
+   "text": "3 @ $17.12",
+   "bbox": [
+    36,
+    181,
+    89,
+    191
+   ],
+   "size_px": 10,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Rye loaf",
+   "bbox": [
+    24,
+    197,
+    68,
+    210
+   ],
+   "size_px": 12,
+   "field": "item_3_name",
+   "reading": true
+  },
+  {
+   "text": "$13.12",
+   "bbox": [
+    298,
+    197,
+    336,
+    208
+   ],
+   "size_px": 12,
+   "field": "item_3_amount",
+   "reading": true
+  },
+  {
+   "text": "Oat milk",
+   "bbox": [
+    24,
+    216,
+    71,
+    225
+   ],
+   "size_px": 12,
+   "field": "item_4_name",
+   "reading": true
+  },
+  {
+   "text": "$11.44",
+   "bbox": [
+    297,
+    215,
+    336,
+    226
+   ],
+   "size_px": 12,
+   "field": "item_4_amount",
+   "reading": true
+  },
+  {
+   "text": "Tomatoes",
+   "bbox": [
+    24,
+    234,
+    81,
+    243
+   ],
+   "size_px": 12,
+   "field": "item_5_name",
+   "reading": true
+  },
+  {
+   "text": "$14.75",
+   "bbox": [
+    298,
+    233,
+    336,
+    244
+   ],
+   "size_px": 12,
+   "field": "item_5_amount",
+   "reading": true
+  },
+  {
+   "text": "Coffee beans",
+   "bbox": [
+    24,
+    251,
+    97,
+    261
+   ],
+   "size_px": 12,
+   "field": "item_6_name",
+   "reading": true
+  },
+  {
+   "text": "$11.29",
+   "bbox": [
+    298,
+    251,
+    336,
+    262
+   ],
+   "size_px": 12,
+   "field": "item_6_amount",
+   "reading": true
+  },
+  {
+   "text": "------------------------------------------------",
+   "bbox": [
+    24,
+    270,
+    168,
+    274
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": false
+  },
+  {
+   "text": "Subtotal",
+   "bbox": [
+    24,
+    282,
+    69,
+    291
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "$120.65",
+   "bbox": [
+    291,
+    281,
+    336,
+    292
+   ],
+   "size_px": 12,
+   "field": "subtotal",
+   "reading": true
+  },
+  {
+   "text": "Tax 8%",
+   "bbox": [
+    24,
+    300,
+    64,
+    309
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "$9.65",
+   "bbox": [
+    305,
+    299,
+    336,
+    310
+   ],
+   "size_px": 12,
+   "field": "tax",
+   "reading": true
+  },
+  {
+   "text": "TOTAL",
+   "bbox": [
+    23,
+    321,
+    75,
+    333
+   ],
+   "size_px": 15,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "$130.30",
+   "bbox": [
+    276,
+    319,
+    335,
+    334
+   ],
+   "size_px": 15,
+   "field": "total",
+   "reading": true
+  },
+  {
+   "text": "Thank you for shopping with us",
+   "bbox": [
+    98,
+    347,
+    261,
+    358
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  }
+ ],
+ "reading_text": "BRENOCK PHARMACY\n521 HOLROW WAY, OSTERVALE\nRECEIPT X631268\nApr 21, 2027\n6:38 PM\nRice 2kg\n$15.39\nDish soap\n$3.30\nSpinach\n$51.36\n3 @ $17.12\nRye loaf\n$13.12\nOat milk\n$11.44\nTomatoes\n$14.75\nCoffee beans\n$11.29\nSubtotal\n$120.65\nTax 8%\n$9.65\nTOTAL\n$130.30\nThank you for shopping with us",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_merchant",
+   "qtype": "lookup",
+   "question": "What is the name of the store on this receipt?",
+   "answer": "Brenock Pharmacy",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "merchant"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_date",
+   "qtype": "lookup",
+   "question": "On what date was this purchase made? Give the date.",
+   "answer": "2027-04-21",
+   "kind": "field",
+   "canon": "date",
+   "fields": [
+    "date"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_count",
+   "qtype": "count",
+   "question": "How many different products are listed on the receipt?",
+   "answer": "7",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "item_0_name",
+    "item_1_name",
+    "item_2_name",
+    "item_3_name",
+    "item_4_name",
+    "item_5_name",
+    "item_6_name"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_sum",
+   "qtype": "sum",
+   "question": "What is the subtotal plus the tax?",
+   "answer": "130.30",
+   "kind": "field",
+   "canon": "money",
+   "fields": [
+    "subtotal",
+    "tax"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the receipt.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  },
+  {
+   "qid": "q_cashier",
+   "qtype": "absence",
+   "question": "What is the name of the cashier on this receipt?",
+   "answer": "not shown",
+   "kind": "abstain",
+   "canon": "text",
+   "fields": [
+    "cashier"
+   ],
+   "accept": []
+  }
+ ]
+}

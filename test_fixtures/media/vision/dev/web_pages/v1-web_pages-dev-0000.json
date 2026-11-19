@@ -1,0 +1,433 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-web_pages-dev-0000",
+ "family": "web_pages",
+ "template": "product",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 0,
+ "variant": {
+  "theme": "light",
+  "dpr": 1,
+  "abstain": false,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-web_pages-dev-0000.png",
+  "sha256": "ec5f702a72c248ca2cee7cae9ebdacf63a4783e75963cdd5a564d10b65879f1e",
+  "width": 1280,
+  "height": 800,
+  "logical": [
+   1280,
+   800
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "site": "Pellura",
+  "domain": "pellura.example",
+  "product": "Zellura Kettle",
+  "price": 39.64,
+  "list_price": 55.43,
+  "rating": "3.4",
+  "reviews": 865,
+  "stock": 17
+ },
+ "fields": {
+  "url": {
+   "name": "url",
+   "kind": "text",
+   "value": "pellura.example",
+   "text": "https://pellura.example/product/p/4821",
+   "bbox": [
+    44,
+    52,
+    278,
+    64
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0fa2d6a4c1edd1771857485942e79cf434d36120d1949144689bb284cbc43657",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "product": {
+   "name": "product",
+   "kind": "text",
+   "value": "Zellura Kettle",
+   "text": "Zellura Kettle",
+   "bbox": [
+    619,
+    166,
+    823,
+    194
+   ],
+   "size_px": 34,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "abd5ad97d097b1731e9a8160f7f0bf2a1f499c35692ebfc19eeff0aa42b72bb1",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "rating": {
+   "name": "rating",
+   "kind": "number",
+   "value": "3.4",
+   "text": "3.4 out of 5",
+   "bbox": [
+    620,
+    224,
+    712,
+    238
+   ],
+   "size_px": 18,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0f5b2970033c6c53cc8f5bcbdfd9756ade575df6b0322e3ecb17431a2b4c6425",
+   "fg": [
+    153,
+    92,
+    0
+   ],
+   "plot_value": false
+  },
+  "reviews": {
+   "name": "reviews",
+   "kind": "number",
+   "value": "865",
+   "text": "865 reviews",
+   "bbox": [
+    800,
+    226,
+    881,
+    237
+   ],
+   "size_px": 15,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "59f6825e55ba601ae193f05f1c0c698085bfe5d6e945fc7c84c8fd62673042c1",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "price": {
+   "name": "price",
+   "kind": "money",
+   "value": "39.64",
+   "text": "$39.64",
+   "bbox": [
+    619,
+    283,
+    760,
+    324
+   ],
+   "size_px": 44,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "cf88d89264de7c48771a051d9f4fda02dc82b4e8bc373820bf874e43417d9698",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "list_price": {
+   "name": "list_price",
+   "kind": "money",
+   "value": "55.43",
+   "text": "List price $55.43",
+   "bbox": [
+    620,
+    343,
+    731,
+    358
+   ],
+   "size_px": 15,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c4bfc140d25e06f944b13d5caa6cbfb3f9a84e0ec4848d8750099a08b662e744",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "stock": {
+   "name": "stock",
+   "kind": "number",
+   "value": "17",
+   "text": "17 left in stock",
+   "bbox": [
+    620,
+    394,
+    735,
+    407
+   ],
+   "size_px": 17,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c212869da39f08a837d8b5572bf97178f2e2b4aae6468be1494893f7a22ee7ee",
+   "fg": [
+    22,
+    120,
+    60
+   ],
+   "plot_value": false
+  }
+ },
+ "text_runs": [
+  {
+   "text": "Pellura",
+   "bbox": [
+    116,
+    18,
+    154,
+    27
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "https://pellura.example/product/p/4821",
+   "bbox": [
+    44,
+    52,
+    278,
+    64
+   ],
+   "size_px": 13,
+   "field": "url",
+   "reading": true
+  },
+  {
+   "text": "Pellura",
+   "bbox": [
+    39,
+    86,
+    125,
+    107
+   ],
+   "size_px": 26,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Shop",
+   "bbox": [
+    940,
+    91,
+    974,
+    105
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Deals",
+   "bbox": [
+    1024,
+    91,
+    1061,
+    102
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Support",
+   "bbox": [
+    1108,
+    92,
+    1160,
+    105
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Account",
+   "bbox": [
+    1192,
+    92,
+    1247,
+    102
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Zellura Kettle",
+   "bbox": [
+    619,
+    166,
+    823,
+    194
+   ],
+   "size_px": 34,
+   "field": "product",
+   "reading": true
+  },
+  {
+   "text": "3.4 out of 5",
+   "bbox": [
+    620,
+    224,
+    712,
+    238
+   ],
+   "size_px": 18,
+   "field": "rating",
+   "reading": true
+  },
+  {
+   "text": "865 reviews",
+   "bbox": [
+    800,
+    226,
+    881,
+    237
+   ],
+   "size_px": 15,
+   "field": "reviews",
+   "reading": true
+  },
+  {
+   "text": "$39.64",
+   "bbox": [
+    619,
+    283,
+    760,
+    324
+   ],
+   "size_px": 44,
+   "field": "price",
+   "reading": true
+  },
+  {
+   "text": "List price $55.43",
+   "bbox": [
+    620,
+    343,
+    731,
+    358
+   ],
+   "size_px": 15,
+   "field": "list_price",
+   "reading": true
+  },
+  {
+   "text": "17 left in stock",
+   "bbox": [
+    620,
+    394,
+    735,
+    407
+   ],
+   "size_px": 17,
+   "field": "stock",
+   "reading": true
+  },
+  {
+   "text": "Add to cart",
+   "bbox": [
+    707,
+    560,
+    810,
+    577
+   ],
+   "size_px": 20,
+   "field": null,
+   "reading": true
+  }
+ ],
+ "reading_text": "Pellura\nhttps://pellura.example/product/p/4821\nPellura\nShop\nDeals\nSupport\nAccount\nZellura Kettle\n3.4 out of 5\n865 reviews\n$39.64\nList price $55.43\n17 left in stock\nAdd to cart",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_price",
+   "qtype": "lookup",
+   "question": "What is the current price of the product?",
+   "answer": "39.64",
+   "kind": "field",
+   "canon": "money",
+   "fields": [
+    "price"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_rating",
+   "qtype": "lookup",
+   "question": "What is the customer rating out of 5?",
+   "answer": "3.4",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "rating"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_save",
+   "qtype": "difference",
+   "question": "How much cheaper is the current price than the list price?",
+   "answer": "15.79",
+   "kind": "field",
+   "canon": "money",
+   "fields": [
+    "price",
+    "list_price"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_stock",
+   "qtype": "lookup",
+   "question": "How many units are left in stock?",
+   "answer": "17",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "stock"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the screen.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

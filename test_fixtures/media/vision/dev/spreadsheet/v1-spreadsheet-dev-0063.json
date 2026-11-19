@@ -1,0 +1,2008 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-spreadsheet-dev-0063",
+ "family": "spreadsheet",
+ "template": "expenses",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 63,
+ "variant": {
+  "theme": "dark",
+  "dpr": 1,
+  "abstain": true,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-spreadsheet-dev-0063.png",
+  "sha256": "a48d1a8e06bf6e0beeda9a57928bf4d6c361cba4c97dc8d786f758e2d53790b8",
+  "width": 1000,
+  "height": 720,
+  "logical": [
+   1000,
+   720
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "template": "expenses",
+  "headers": [
+   "Date",
+   "Vendor",
+   "Category",
+   "Paid by",
+   "Amount"
+  ],
+  "rows": [
+   [
+    "2027-03-21",
+    "Brenura Cafe",
+    "Meals",
+    "Mateo",
+    "460.16"
+   ],
+   [
+    "2027-07-30",
+    "Pellella Hardware",
+    "Software",
+    "Bram",
+    "887.13"
+   ],
+   [
+    "2027-05-16",
+    "Tavisto Pharmacy",
+    "Office",
+    "Noor",
+    "652.44"
+   ],
+   [
+    "2027-04-29",
+    "Corvane Books",
+    "Meals",
+    "Ines",
+    "43.66"
+   ],
+   [
+    "2027-09-18",
+    "Wexent Cafe",
+    "Meals",
+    "Emeka",
+    "193.85"
+   ],
+   [
+    "2027-06-28",
+    "Ruvaella Kitchen",
+    "Travel",
+    "Dmitri",
+    "438.85"
+   ],
+   [
+    "2027-07-25",
+    "Zellent Books",
+    "Software",
+    "Nadia",
+    "559.25"
+   ],
+   [
+    "2027-04-19",
+    "Yarrane Cafe",
+    "Office",
+    "Mateo",
+    "894.29"
+   ],
+   [
+    "2027-01-26",
+    "Wexella Florist",
+    "Software",
+    "Emeka",
+    "709.02"
+   ]
+  ],
+  "totals_row": false,
+  "highest_or_lowest": "max"
+ },
+ "fields": {
+  "A2": {
+   "name": "A2",
+   "kind": "date",
+   "value": "2027-03-21",
+   "text": "03/21/2027",
+   "bbox": [
+    58,
+    103,
+    130,
+    113
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b9a9592c156150141c0dfdecfd31ddffcb317ce29d0a56f73a242ed63df6559a",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "B2": {
+   "name": "B2",
+   "kind": "text",
+   "value": "Brenura Cafe",
+   "text": "Brenura Cafe",
+   "bbox": [
+    170,
+    102,
+    246,
+    112
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "39d5e13cba232c4a18ad0ee388f3216131a3972b2ef49382e99970532fee9b09",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "C2": {
+   "name": "C2",
+   "kind": "text",
+   "value": "Meals",
+   "text": "Meals",
+   "bbox": [
+    317,
+    103,
+    352,
+    112
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b4193560e5434757c6916b27e1e9c7fc8f561a1a1d9de0ec79ce6cad3456b5ad",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "D2": {
+   "name": "D2",
+   "kind": "text",
+   "value": "Mateo",
+   "text": "Mateo",
+   "bbox": [
+    413,
+    103,
+    451,
+    112
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "908a85a13a9acec8739a60fbed661bebfec5cb23f6d7bbe186d30e6a6e15d249",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "E2": {
+   "name": "E2",
+   "kind": "money",
+   "value": "460.16",
+   "text": "$460.16",
+   "bbox": [
+    526,
+    102,
+    577,
+    113
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "79266ba5ece74ec6beab228e5c7635da0bfedb7882b060b1354e9d8483d9db42",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "A3": {
+   "name": "A3",
+   "kind": "date",
+   "value": "2027-07-30",
+   "text": "07/30/2027",
+   "bbox": [
+    58,
+    131,
+    130,
+    141
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "fa34f2b8079716a9dc526e6d38ac0389f537ceb4ffb9b52ccc1841256b0c67e6",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "B3": {
+   "name": "B3",
+   "kind": "text",
+   "value": "Pellella Hardware",
+   "text": "Pellella Hardware",
+   "bbox": [
+    170,
+    131,
+    270,
+    140
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0409e7239d28d14a00a2ed47374025ed73aa64f21cf11d76176bbb18d0766990",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "C3": {
+   "name": "C3",
+   "kind": "text",
+   "value": "Software",
+   "text": "Software",
+   "bbox": [
+    317,
+    130,
+    370,
+    140
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0aa5d4b2b1921fb28257b5feca1f7d830e4875fbfc0b9445d373b88038783077",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "D3": {
+   "name": "D3",
+   "kind": "text",
+   "value": "Bram",
+   "text": "Bram",
+   "bbox": [
+    413,
+    131,
+    443,
+    140
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f9cd5b6cb02a9e53c03971a008a007239bc20007bc14dc114094596d3f301eb4",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "E3": {
+   "name": "E3",
+   "kind": "money",
+   "value": "887.13",
+   "text": "$887.13",
+   "bbox": [
+    526,
+    130,
+    577,
+    141
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1badcb39dbc2143c71a32e68f2fe7448a0b65bfcaad8823181742b3534dcb9c4",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "A4": {
+   "name": "A4",
+   "kind": "date",
+   "value": "2027-05-16",
+   "text": "05/16/2027",
+   "bbox": [
+    58,
+    159,
+    130,
+    169
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "51d8eeaa42394c2e53c3e8299a235b9eaf4cdf98bbcb32e604e5c54d74b72262",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "B4": {
+   "name": "B4",
+   "kind": "text",
+   "value": "Tavisto Pharmacy",
+   "text": "Tavisto Pharmacy",
+   "bbox": [
+    170,
+    159,
+    277,
+    171
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "30a7b5bacfe49af8391d4bf9771871c470a9a350635fa8742acd13cd102b0f4c",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "C4": {
+   "name": "C4",
+   "kind": "text",
+   "value": "Office",
+   "text": "Office",
+   "bbox": [
+    317,
+    158,
+    352,
+    168
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "6899cb731d7228ed3c9947261a7f800a58c21ee11dfa1a089fb9e4975ff8ae8f",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "D4": {
+   "name": "D4",
+   "kind": "text",
+   "value": "Noor",
+   "text": "Noor",
+   "bbox": [
+    413,
+    159,
+    445,
+    168
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4369bf12595116dff7f1f8aa060be1d3b951b79560d083c3e912cc8c062c05f8",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "E4": {
+   "name": "E4",
+   "kind": "money",
+   "value": "652.44",
+   "text": "$652.44",
+   "bbox": [
+    526,
+    158,
+    577,
+    169
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "03b66334b8fa4a1fdd21bc45ec002526dbd535f04d39252e19f01198f4346e76",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "A5": {
+   "name": "A5",
+   "kind": "date",
+   "value": "2027-04-29",
+   "text": "04/29/2027",
+   "bbox": [
+    58,
+    187,
+    130,
+    197
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "a44305f064d8f2bbc142b01cc2af8e36fca2673b8b46c7d898a7de76871bbcb1",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "B5": {
+   "name": "B5",
+   "kind": "text",
+   "value": "Corvane Books",
+   "text": "Corvane Books",
+   "bbox": [
+    170,
+    187,
+    264,
+    196
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "10e29e0b2e6f8c4e3e3a99fe544c68a3a2d9931b0d706dcb1d8267413d5f8c2f",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "C5": {
+   "name": "C5",
+   "kind": "text",
+   "value": "Meals",
+   "text": "Meals",
+   "bbox": [
+    317,
+    187,
+    352,
+    196
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "673b90740460734aa9a3a564c0884500663138c041ab7a986419aceaa07bc4b4",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "D5": {
+   "name": "D5",
+   "kind": "text",
+   "value": "Ines",
+   "text": "Ines",
+   "bbox": [
+    413,
+    187,
+    438,
+    196
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "46dd3b2891d3a8161b63b0154bd6220f4febb151d437d19d390df3784bf05a82",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "E5": {
+   "name": "E5",
+   "kind": "money",
+   "value": "43.66",
+   "text": "$43.66",
+   "bbox": [
+    534,
+    186,
+    577,
+    197
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c789fdb674a3e579789659c380d9d99bc3700579a8b4aaa78455307838480d36",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "A6": {
+   "name": "A6",
+   "kind": "date",
+   "value": "2027-09-18",
+   "text": "09/18/2027",
+   "bbox": [
+    58,
+    215,
+    130,
+    225
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "2771300f0827b4e27f04d972f08606fd0b49005c9d07122991e3ee0d04c9c6b3",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "B6": {
+   "name": "B6",
+   "kind": "text",
+   "value": "Wexent Cafe",
+   "text": "Wexent Cafe",
+   "bbox": [
+    170,
+    214,
+    244,
+    224
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e92a1de1a88219aff697717afbe3a342507c11c339e2a6e1828d54735a0489da",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "C6": {
+   "name": "C6",
+   "kind": "text",
+   "value": "Meals",
+   "text": "Meals",
+   "bbox": [
+    317,
+    215,
+    352,
+    224
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b4193560e5434757c6916b27e1e9c7fc8f561a1a1d9de0ec79ce6cad3456b5ad",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "D6": {
+   "name": "D6",
+   "kind": "text",
+   "value": "Emeka",
+   "text": "Emeka",
+   "bbox": [
+    413,
+    215,
+    452,
+    224
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "3ecd8d6c9c5cabb23fb6983d7619d20afad308515a59ab7f50462e839dc35b7c",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "E6": {
+   "name": "E6",
+   "kind": "money",
+   "value": "193.85",
+   "text": "$193.85",
+   "bbox": [
+    526,
+    214,
+    577,
+    225
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "311105713803cae243c17401303db9921969793d477e40352baf48a790c74d50",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "A7": {
+   "name": "A7",
+   "kind": "date",
+   "value": "2027-06-28",
+   "text": "06/28/2027",
+   "bbox": [
+    58,
+    243,
+    130,
+    253
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "3f2735464d24dfd4e55c8300f37b3d62ddbca53b9890929b0b9d6f0ead16e03f",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "B7": {
+   "name": "B7",
+   "kind": "text",
+   "value": "Ruvaella Kitchen",
+   "text": "Ruvaella Kitchen",
+   "bbox": [
+    170,
+    243,
+    268,
+    252
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d177206e01c14d41e6a2ab6d2f2937ca3425986cb83aa2074031c012d398ee80",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "C7": {
+   "name": "C7",
+   "kind": "text",
+   "value": "Travel",
+   "text": "Travel",
+   "bbox": [
+    317,
+    243,
+    353,
+    252
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f92d84048b0ce94e30bfa71dc832d6162714cbc3fba6182eb10745b04af15f0d",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "D7": {
+   "name": "D7",
+   "kind": "text",
+   "value": "Dmitri",
+   "text": "Dmitri",
+   "bbox": [
+    413,
+    243,
+    447,
+    252
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "20ba5ed329c418704429a4b37139e64589f6fa287ec349e1eeea77b39a7ab310",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "E7": {
+   "name": "E7",
+   "kind": "money",
+   "value": "438.85",
+   "text": "$438.85",
+   "bbox": [
+    526,
+    242,
+    577,
+    253
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "3b0dc99126db636470615271c193f28ef64b5a249537df097fceacb017e8fc57",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "A8": {
+   "name": "A8",
+   "kind": "date",
+   "value": "2027-07-25",
+   "text": "07/25/2027",
+   "bbox": [
+    58,
+    271,
+    130,
+    281
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d7fd6652b5c8e787cfb2e0abd63a654c31a38e0374debcfecd3fff377c61dd09",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "B8": {
+   "name": "B8",
+   "kind": "text",
+   "value": "Zellent Books",
+   "text": "Zellent Books",
+   "bbox": [
+    170,
+    271,
+    253,
+    280
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c1860bdf8115ce67451202f41b775dae56feb029a0a7ee91cb8b994de9fdce20",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "C8": {
+   "name": "C8",
+   "kind": "text",
+   "value": "Software",
+   "text": "Software",
+   "bbox": [
+    317,
+    270,
+    370,
+    280
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c6ec52f6ea51984164e8416f67b011cfe41e1a60abacc1313ed24a9618d9e8e8",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "D8": {
+   "name": "D8",
+   "kind": "text",
+   "value": "Nadia",
+   "text": "Nadia",
+   "bbox": [
+    413,
+    271,
+    447,
+    280
+   ],
+   "size_px": 13,
+   "visible": false,
+   "obscured": "blur",
+   "crop_sha256": "fce8db9be6bc2ccea99f69cc378c0445fcb582e01825b86586835d406f5765d3",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "E8": {
+   "name": "E8",
+   "kind": "money",
+   "value": "559.25",
+   "text": "$559.25",
+   "bbox": [
+    526,
+    270,
+    577,
+    281
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e84b5b7cd7a497eb491f893bf30d0c6795b82d929b682764a033b8f456dc83ac",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "A9": {
+   "name": "A9",
+   "kind": "date",
+   "value": "2027-04-19",
+   "text": "04/19/2027",
+   "bbox": [
+    58,
+    299,
+    130,
+    309
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "7e02c1fbae8921ff90dba5febff7921d12a58d67516ad5653ec3531ac3826911",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "B9": {
+   "name": "B9",
+   "kind": "text",
+   "value": "Yarrane Cafe",
+   "text": "Yarrane Cafe",
+   "bbox": [
+    170,
+    298,
+    245,
+    308
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "52ad85fbabd67254f9c3f83423f345edd22681136ba9ea4317fc6db28cb3e0e8",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "C9": {
+   "name": "C9",
+   "kind": "text",
+   "value": "Office",
+   "text": "Office",
+   "bbox": [
+    317,
+    298,
+    352,
+    308
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "decf90291de0acb029cf02a0787d30e49018f2a109f1245ea472b6a8e70bcc60",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "D9": {
+   "name": "D9",
+   "kind": "text",
+   "value": "Mateo",
+   "text": "Mateo",
+   "bbox": [
+    413,
+    299,
+    451,
+    308
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5a3d2a95f558427986f1eec6b8fdf62e3bb00786fae64ca8bebdb4311f199bb3",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "E9": {
+   "name": "E9",
+   "kind": "money",
+   "value": "894.29",
+   "text": "$894.29",
+   "bbox": [
+    526,
+    298,
+    577,
+    309
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "9c72ceb92e38d12fa76eb2f8e38a00d211f352e0dd86c065bf51ecafa847c516",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "A10": {
+   "name": "A10",
+   "kind": "date",
+   "value": "2027-01-26",
+   "text": "01/26/2027",
+   "bbox": [
+    58,
+    327,
+    130,
+    337
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c0da4e77431196214a06600beeab918ca4bfb18496e4224f02166ba57a37bf06",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "B10": {
+   "name": "B10",
+   "kind": "text",
+   "value": "Wexella Florist",
+   "text": "Wexella Florist",
+   "bbox": [
+    170,
+    327,
+    255,
+    336
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "7fd93f869f0afd1f0f99db0917620b22259e0b6200f46a96cc229631dcd206ac",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "C10": {
+   "name": "C10",
+   "kind": "text",
+   "value": "Software",
+   "text": "Software",
+   "bbox": [
+    317,
+    326,
+    370,
+    336
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c6ec52f6ea51984164e8416f67b011cfe41e1a60abacc1313ed24a9618d9e8e8",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "D10": {
+   "name": "D10",
+   "kind": "text",
+   "value": "Emeka",
+   "text": "Emeka",
+   "bbox": [
+    413,
+    327,
+    452,
+    336
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "3ecd8d6c9c5cabb23fb6983d7619d20afad308515a59ab7f50462e839dc35b7c",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "E10": {
+   "name": "E10",
+   "kind": "money",
+   "value": "709.02",
+   "text": "$709.02",
+   "bbox": [
+    526,
+    326,
+    577,
+    337
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "2c8db482871fd9c8d6a3a9dff6b7f6b4161ecef74b595344e19ca66e582dac25",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  }
+ },
+ "text_runs": [
+  {
+   "text": "A1",
+   "bbox": [
+    22,
+    17,
+    38,
+    26
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "fx",
+   "bbox": [
+    88,
+    16,
+    99,
+    26
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "A",
+   "bbox": [
+    96,
+    48,
+    104,
+    57
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "B",
+   "bbox": [
+    226,
+    48,
+    233,
+    57
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "C",
+   "bbox": [
+    346,
+    48,
+    355,
+    57
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "D",
+   "bbox": [
+    443,
+    48,
+    451,
+    57
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "E",
+   "bbox": [
+    540,
+    48,
+    547,
+    57
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "1",
+   "bbox": [
+    19,
+    75,
+    25,
+    83
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Date",
+   "bbox": [
+    58,
+    75,
+    85,
+    84
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Vendor",
+   "bbox": [
+    170,
+    75,
+    215,
+    84
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Category",
+   "bbox": [
+    317,
+    75,
+    372,
+    87
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Paid by",
+   "bbox": [
+    413,
+    75,
+    457,
+    87
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Amount",
+   "bbox": [
+    529,
+    75,
+    577,
+    84
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "2",
+   "bbox": [
+    19,
+    103,
+    25,
+    111
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "03/21/2027",
+   "bbox": [
+    58,
+    103,
+    130,
+    113
+   ],
+   "size_px": 13,
+   "field": "A2",
+   "reading": true
+  },
+  {
+   "text": "Brenura Cafe",
+   "bbox": [
+    170,
+    102,
+    246,
+    112
+   ],
+   "size_px": 13,
+   "field": "B2",
+   "reading": true
+  },
+  {
+   "text": "Meals",
+   "bbox": [
+    317,
+    103,
+    352,
+    112
+   ],
+   "size_px": 13,
+   "field": "C2",
+   "reading": true
+  },
+  {
+   "text": "Mateo",
+   "bbox": [
+    413,
+    103,
+    451,
+    112
+   ],
+   "size_px": 13,
+   "field": "D2",
+   "reading": true
+  },
+  {
+   "text": "$460.16",
+   "bbox": [
+    526,
+    102,
+    577,
+    113
+   ],
+   "size_px": 13,
+   "field": "E2",
+   "reading": true
+  },
+  {
+   "text": "3",
+   "bbox": [
+    19,
+    131,
+    25,
+    139
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "07/30/2027",
+   "bbox": [
+    58,
+    131,
+    130,
+    141
+   ],
+   "size_px": 13,
+   "field": "A3",
+   "reading": true
+  },
+  {
+   "text": "Pellella Hardware",
+   "bbox": [
+    170,
+    131,
+    270,
+    140
+   ],
+   "size_px": 13,
+   "field": "B3",
+   "reading": true
+  },
+  {
+   "text": "Software",
+   "bbox": [
+    317,
+    130,
+    370,
+    140
+   ],
+   "size_px": 13,
+   "field": "C3",
+   "reading": true
+  },
+  {
+   "text": "Bram",
+   "bbox": [
+    413,
+    131,
+    443,
+    140
+   ],
+   "size_px": 13,
+   "field": "D3",
+   "reading": true
+  },
+  {
+   "text": "$887.13",
+   "bbox": [
+    526,
+    130,
+    577,
+    141
+   ],
+   "size_px": 13,
+   "field": "E3",
+   "reading": true
+  },
+  {
+   "text": "4",
+   "bbox": [
+    18,
+    159,
+    25,
+    167
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "05/16/2027",
+   "bbox": [
+    58,
+    159,
+    130,
+    169
+   ],
+   "size_px": 13,
+   "field": "A4",
+   "reading": true
+  },
+  {
+   "text": "Tavisto Pharmacy",
+   "bbox": [
+    170,
+    159,
+    277,
+    171
+   ],
+   "size_px": 13,
+   "field": "B4",
+   "reading": true
+  },
+  {
+   "text": "Office",
+   "bbox": [
+    317,
+    158,
+    352,
+    168
+   ],
+   "size_px": 13,
+   "field": "C4",
+   "reading": true
+  },
+  {
+   "text": "Noor",
+   "bbox": [
+    413,
+    159,
+    445,
+    168
+   ],
+   "size_px": 13,
+   "field": "D4",
+   "reading": true
+  },
+  {
+   "text": "$652.44",
+   "bbox": [
+    526,
+    158,
+    577,
+    169
+   ],
+   "size_px": 13,
+   "field": "E4",
+   "reading": true
+  },
+  {
+   "text": "5",
+   "bbox": [
+    19,
+    187,
+    25,
+    195
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "04/29/2027",
+   "bbox": [
+    58,
+    187,
+    130,
+    197
+   ],
+   "size_px": 13,
+   "field": "A5",
+   "reading": true
+  },
+  {
+   "text": "Corvane Books",
+   "bbox": [
+    170,
+    187,
+    264,
+    196
+   ],
+   "size_px": 13,
+   "field": "B5",
+   "reading": true
+  },
+  {
+   "text": "Meals",
+   "bbox": [
+    317,
+    187,
+    352,
+    196
+   ],
+   "size_px": 13,
+   "field": "C5",
+   "reading": true
+  },
+  {
+   "text": "Ines",
+   "bbox": [
+    413,
+    187,
+    438,
+    196
+   ],
+   "size_px": 13,
+   "field": "D5",
+   "reading": true
+  },
+  {
+   "text": "$43.66",
+   "bbox": [
+    534,
+    186,
+    577,
+    197
+   ],
+   "size_px": 13,
+   "field": "E5",
+   "reading": true
+  },
+  {
+   "text": "6",
+   "bbox": [
+    19,
+    215,
+    25,
+    223
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "09/18/2027",
+   "bbox": [
+    58,
+    215,
+    130,
+    225
+   ],
+   "size_px": 13,
+   "field": "A6",
+   "reading": true
+  },
+  {
+   "text": "Wexent Cafe",
+   "bbox": [
+    170,
+    214,
+    244,
+    224
+   ],
+   "size_px": 13,
+   "field": "B6",
+   "reading": true
+  },
+  {
+   "text": "Meals",
+   "bbox": [
+    317,
+    215,
+    352,
+    224
+   ],
+   "size_px": 13,
+   "field": "C6",
+   "reading": true
+  },
+  {
+   "text": "Emeka",
+   "bbox": [
+    413,
+    215,
+    452,
+    224
+   ],
+   "size_px": 13,
+   "field": "D6",
+   "reading": true
+  },
+  {
+   "text": "$193.85",
+   "bbox": [
+    526,
+    214,
+    577,
+    225
+   ],
+   "size_px": 13,
+   "field": "E6",
+   "reading": true
+  },
+  {
+   "text": "7",
+   "bbox": [
+    19,
+    243,
+    25,
+    251
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "06/28/2027",
+   "bbox": [
+    58,
+    243,
+    130,
+    253
+   ],
+   "size_px": 13,
+   "field": "A7",
+   "reading": true
+  },
+  {
+   "text": "Ruvaella Kitchen",
+   "bbox": [
+    170,
+    243,
+    268,
+    252
+   ],
+   "size_px": 13,
+   "field": "B7",
+   "reading": true
+  },
+  {
+   "text": "Travel",
+   "bbox": [
+    317,
+    243,
+    353,
+    252
+   ],
+   "size_px": 13,
+   "field": "C7",
+   "reading": true
+  },
+  {
+   "text": "Dmitri",
+   "bbox": [
+    413,
+    243,
+    447,
+    252
+   ],
+   "size_px": 13,
+   "field": "D7",
+   "reading": true
+  },
+  {
+   "text": "$438.85",
+   "bbox": [
+    526,
+    242,
+    577,
+    253
+   ],
+   "size_px": 13,
+   "field": "E7",
+   "reading": true
+  },
+  {
+   "text": "8",
+   "bbox": [
+    19,
+    271,
+    25,
+    279
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "07/25/2027",
+   "bbox": [
+    58,
+    271,
+    130,
+    281
+   ],
+   "size_px": 13,
+   "field": "A8",
+   "reading": true
+  },
+  {
+   "text": "Zellent Books",
+   "bbox": [
+    170,
+    271,
+    253,
+    280
+   ],
+   "size_px": 13,
+   "field": "B8",
+   "reading": true
+  },
+  {
+   "text": "Software",
+   "bbox": [
+    317,
+    270,
+    370,
+    280
+   ],
+   "size_px": 13,
+   "field": "C8",
+   "reading": true
+  },
+  {
+   "text": "Nadia",
+   "bbox": [
+    413,
+    271,
+    447,
+    280
+   ],
+   "size_px": 13,
+   "field": "D8",
+   "reading": false
+  },
+  {
+   "text": "$559.25",
+   "bbox": [
+    526,
+    270,
+    577,
+    281
+   ],
+   "size_px": 13,
+   "field": "E8",
+   "reading": true
+  },
+  {
+   "text": "9",
+   "bbox": [
+    19,
+    299,
+    25,
+    307
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "04/19/2027",
+   "bbox": [
+    58,
+    299,
+    130,
+    309
+   ],
+   "size_px": 13,
+   "field": "A9",
+   "reading": true
+  },
+  {
+   "text": "Yarrane Cafe",
+   "bbox": [
+    170,
+    298,
+    245,
+    308
+   ],
+   "size_px": 13,
+   "field": "B9",
+   "reading": true
+  },
+  {
+   "text": "Office",
+   "bbox": [
+    317,
+    298,
+    352,
+    308
+   ],
+   "size_px": 13,
+   "field": "C9",
+   "reading": true
+  },
+  {
+   "text": "Mateo",
+   "bbox": [
+    413,
+    299,
+    451,
+    308
+   ],
+   "size_px": 13,
+   "field": "D9",
+   "reading": true
+  },
+  {
+   "text": "$894.29",
+   "bbox": [
+    526,
+    298,
+    577,
+    309
+   ],
+   "size_px": 13,
+   "field": "E9",
+   "reading": true
+  },
+  {
+   "text": "10",
+   "bbox": [
+    16,
+    327,
+    28,
+    335
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "01/26/2027",
+   "bbox": [
+    58,
+    327,
+    130,
+    337
+   ],
+   "size_px": 13,
+   "field": "A10",
+   "reading": true
+  },
+  {
+   "text": "Wexella Florist",
+   "bbox": [
+    170,
+    327,
+    255,
+    336
+   ],
+   "size_px": 13,
+   "field": "B10",
+   "reading": true
+  },
+  {
+   "text": "Software",
+   "bbox": [
+    317,
+    326,
+    370,
+    336
+   ],
+   "size_px": 13,
+   "field": "C10",
+   "reading": true
+  },
+  {
+   "text": "Emeka",
+   "bbox": [
+    413,
+    327,
+    452,
+    336
+   ],
+   "size_px": 13,
+   "field": "D10",
+   "reading": true
+  },
+  {
+   "text": "$709.02",
+   "bbox": [
+    526,
+    326,
+    577,
+    337
+   ],
+   "size_px": 13,
+   "field": "E10",
+   "reading": true
+  },
+  {
+   "text": "Sheet1",
+   "bbox": [
+    16,
+    695,
+    54,
+    704
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  }
+ ],
+ "reading_text": "A1\nfx\nA\nB\nC\nD\nE\n1\nDate\nVendor\nCategory\nPaid by\nAmount\n2\n03/21/2027\nBrenura Cafe\nMeals\nMateo\n$460.16\n3\n07/30/2027\nPellella Hardware\nSoftware\nBram\n$887.13\n4\n05/16/2027\nTavisto Pharmacy\nOffice\nNoor\n$652.44\n5\n04/29/2027\nCorvane Books\nMeals\nInes\n$43.66\n6\n09/18/2027\nWexent Cafe\nMeals\nEmeka\n$193.85\n7\n06/28/2027\nRuvaella Kitchen\nTravel\nDmitri\n$438.85\n8\n07/25/2027\nZellent Books\nSoftware\n$559.25\n9\n04/19/2027\nYarrane Cafe\nOffice\nMateo\n$894.29\n10\n01/26/2027\nWexella Florist\nSoftware\nEmeka\n$709.02\nSheet1",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_sum",
+   "qtype": "sum",
+   "question": "What is the total of column E?",
+   "answer": "4838.65",
+   "kind": "field",
+   "canon": "money",
+   "fields": [
+    "E2",
+    "E3",
+    "E4",
+    "E5",
+    "E6",
+    "E7",
+    "E8",
+    "E9",
+    "E10"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_extreme",
+   "qtype": "max",
+   "question": "Which Vendor has the highest Amount?",
+   "answer": "Yarrane Cafe",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "E2",
+    "E3",
+    "E4",
+    "E5",
+    "E6",
+    "E7",
+    "E8",
+    "E9",
+    "E10",
+    "B9"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_count",
+   "qtype": "count",
+   "question": "How many rows have Category equal to \"Office\"?",
+   "answer": "2",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "C2",
+    "C3",
+    "C4",
+    "C5",
+    "C6",
+    "C7",
+    "C8",
+    "C9",
+    "C10"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_cell",
+   "qtype": "absence",
+   "question": "What is in cell D8?",
+   "answer": "not shown",
+   "kind": "abstain",
+   "canon": "text",
+   "fields": [
+    "D8"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the screen.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

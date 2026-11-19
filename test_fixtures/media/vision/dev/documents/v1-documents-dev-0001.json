@@ -1,0 +1,737 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-documents-dev-0001",
+ "family": "documents",
+ "template": "invoice",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 1,
+ "variant": {
+  "theme": "light",
+  "dpr": 1,
+  "abstain": false,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-documents-dev-0001.png",
+  "sha256": "edea8d9fa2b4fa184356cd4f7df7c17414d84c6fdb7797897a31427ce14ed116",
+  "width": 612,
+  "height": 792,
+  "logical": [
+   612,
+   792
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "seller": "Yarrura Cafe",
+  "buyer": "Dalia Kelford",
+  "number": "INV-9275",
+  "issued": "2027-10-23",
+  "due": "2027-11-06",
+  "lines": [
+   {
+    "name": "Olive oil",
+    "qty": 3,
+    "unit": 14.58,
+    "amount": 43.74
+   },
+   {
+    "name": "Coffee beans",
+    "qty": 3,
+    "unit": 5.25,
+    "amount": 15.75
+   }
+  ],
+  "subtotal": 59.49,
+  "tax": 4.76,
+  "total": 64.25
+ },
+ "fields": {
+  "seller": {
+   "name": "seller",
+   "kind": "text",
+   "value": "Yarrura Cafe",
+   "text": "Yarrura Cafe",
+   "bbox": [
+    47,
+    52,
+    175,
+    71
+   ],
+   "size_px": 22,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5b1c5379b16dcd998a04125b0553288b47684fbfe6a64e99ffefe8bc8a9d22f9",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "invoice_number": {
+   "name": "invoice_number",
+   "kind": "text",
+   "value": "INV-9275",
+   "text": "INV-9275",
+   "bbox": [
+    508,
+    86,
+    564,
+    95
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "2701d33cc2f3590abf8d29d0628a7bf2bb4539303b33fb37aaeb93ca0047faf0",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "buyer": {
+   "name": "buyer",
+   "kind": "text",
+   "value": "Dalia Kelford",
+   "text": "Dalia Kelford",
+   "bbox": [
+    48,
+    145,
+    123,
+    155
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "430294390c5f81a51f1ab2e80bb648d6f2b51baba5260473b3be1f03a30079fb",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "issued": {
+   "name": "issued",
+   "kind": "date",
+   "value": "2027-10-23",
+   "text": "Oct 23, 2027",
+   "bbox": [
+    360,
+    146,
+    438,
+    157
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f358daa7265e9c913e74d92ed7840622e6cfa6cd8634abc5a143751ba782816f",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "due": {
+   "name": "due",
+   "kind": "date",
+   "value": "2027-11-06",
+   "text": "Nov 6, 2027",
+   "bbox": [
+    470,
+    146,
+    544,
+    157
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "09339dd05d1235621bcace415757fe7244caaa9e9f89b0ac431f77981810873b",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_0_name": {
+   "name": "item_0_name",
+   "kind": "text",
+   "value": "Olive oil",
+   "text": "Olive oil",
+   "bbox": [
+    56,
+    227,
+    100,
+    236
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5dae9d005ba4cfb4d6062895d2d0786c17911657f3e6b95e8137797b2be31563",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_0_amount": {
+   "name": "item_0_amount",
+   "kind": "money",
+   "value": "43.74",
+   "text": "$43.74",
+   "bbox": [
+    490,
+    226,
+    529,
+    237
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1b3c6d56cf91a0acc78aefed893e730b607ba8ec1b6b9609323954e9df997bd1",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_1_name": {
+   "name": "item_1_name",
+   "kind": "text",
+   "value": "Coffee beans",
+   "text": "Coffee beans",
+   "bbox": [
+    56,
+    248,
+    129,
+    258
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5636b1a47737150e13dd1534958a0dc9639ac1eea01f4b6f918c0788cc62cca1",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_1_amount": {
+   "name": "item_1_amount",
+   "kind": "money",
+   "value": "15.75",
+   "text": "$15.75",
+   "bbox": [
+    490,
+    248,
+    528,
+    259
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "87eee0a37eb0bd74e7f55d76f013706871d408c8eb922f25cdd064f2979be8a5",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "subtotal": {
+   "name": "subtotal",
+   "kind": "money",
+   "value": "59.49",
+   "text": "$59.49",
+   "bbox": [
+    490,
+    286,
+    528,
+    297
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ca6ce6309a7d00b2a8ffc0523e63b8caf7710db15a73fad9ea789cab44a68d9a",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "tax": {
+   "name": "tax",
+   "kind": "money",
+   "value": "4.76",
+   "text": "$4.76",
+   "bbox": [
+    490,
+    308,
+    521,
+    319
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "840527e344b4dd2c1bc1078c59950bcf15ef4ebb89f31c75939f3206bbb7789f",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "total": {
+   "name": "total",
+   "kind": "money",
+   "value": "64.25",
+   "text": "$64.25",
+   "bbox": [
+    489,
+    330,
+    534,
+    343
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "88c3857fa9151811098f1f466065fd0198dd6f98569a88bee2407699e800d691",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  }
+ },
+ "text_runs": [
+  {
+   "text": "Yarrura Cafe",
+   "bbox": [
+    47,
+    52,
+    175,
+    71
+   ],
+   "size_px": 22,
+   "field": "seller",
+   "reading": true
+  },
+  {
+   "text": "534 Braanu Court, Tavistead",
+   "bbox": [
+    48,
+    83,
+    194,
+    92
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "INVOICE",
+   "bbox": [
+    475,
+    54,
+    563,
+    71
+   ],
+   "size_px": 22,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "INV-9275",
+   "bbox": [
+    508,
+    86,
+    564,
+    95
+   ],
+   "size_px": 13,
+   "field": "invoice_number",
+   "reading": true
+  },
+  {
+   "text": "Bill to",
+   "bbox": [
+    48,
+    127,
+    75,
+    135
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Dalia Kelford",
+   "bbox": [
+    48,
+    145,
+    123,
+    155
+   ],
+   "size_px": 13,
+   "field": "buyer",
+   "reading": true
+  },
+  {
+   "text": "Issued",
+   "bbox": [
+    360,
+    127,
+    395,
+    135
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Oct 23, 2027",
+   "bbox": [
+    360,
+    146,
+    438,
+    157
+   ],
+   "size_px": 13,
+   "field": "issued",
+   "reading": true
+  },
+  {
+   "text": "Due",
+   "bbox": [
+    470,
+    127,
+    491,
+    135
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Nov 6, 2027",
+   "bbox": [
+    470,
+    146,
+    544,
+    157
+   ],
+   "size_px": 13,
+   "field": "due",
+   "reading": true
+  },
+  {
+   "text": "Description",
+   "bbox": [
+    55,
+    199,
+    116,
+    211
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Qty",
+   "bbox": [
+    329,
+    199,
+    348,
+    211
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Unit",
+   "bbox": [
+    399,
+    199,
+    422,
+    209
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Amount",
+   "bbox": [
+    489,
+    199,
+    531,
+    209
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Olive oil",
+   "bbox": [
+    56,
+    227,
+    100,
+    236
+   ],
+   "size_px": 12,
+   "field": "item_0_name",
+   "reading": true
+  },
+  {
+   "text": "3",
+   "bbox": [
+    330,
+    227,
+    337,
+    236
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "$14.58",
+   "bbox": [
+    400,
+    226,
+    438,
+    237
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "$43.74",
+   "bbox": [
+    490,
+    226,
+    529,
+    237
+   ],
+   "size_px": 12,
+   "field": "item_0_amount",
+   "reading": true
+  },
+  {
+   "text": "Coffee beans",
+   "bbox": [
+    56,
+    248,
+    129,
+    258
+   ],
+   "size_px": 12,
+   "field": "item_1_name",
+   "reading": true
+  },
+  {
+   "text": "3",
+   "bbox": [
+    330,
+    249,
+    337,
+    258
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "$5.25",
+   "bbox": [
+    400,
+    248,
+    431,
+    259
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "$15.75",
+   "bbox": [
+    490,
+    248,
+    528,
+    259
+   ],
+   "size_px": 12,
+   "field": "item_1_amount",
+   "reading": true
+  },
+  {
+   "text": "Subtotal",
+   "bbox": [
+    400,
+    287,
+    445,
+    296
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "$59.49",
+   "bbox": [
+    490,
+    286,
+    528,
+    297
+   ],
+   "size_px": 12,
+   "field": "subtotal",
+   "reading": true
+  },
+  {
+   "text": "Tax 8%",
+   "bbox": [
+    400,
+    309,
+    440,
+    318
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "$4.76",
+   "bbox": [
+    490,
+    308,
+    521,
+    319
+   ],
+   "size_px": 12,
+   "field": "tax",
+   "reading": true
+  },
+  {
+   "text": "Total due",
+   "bbox": [
+    399,
+    331,
+    458,
+    342
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "$64.25",
+   "bbox": [
+    489,
+    330,
+    534,
+    343
+   ],
+   "size_px": 13,
+   "field": "total",
+   "reading": true
+  }
+ ],
+ "reading_text": "Yarrura Cafe\n534 Braanu Court, Tavistead\nINVOICE\nINV-9275\nBill to\nDalia Kelford\nIssued\nOct 23, 2027\nDue\nNov 6, 2027\nDescription\nQty\nUnit\nAmount\nOlive oil\n3\n$14.58\n$43.74\nCoffee beans\n3\n$5.25\n$15.75\nSubtotal\n$59.49\nTax 8%\n$4.76\nTotal due\n$64.25",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_number",
+   "qtype": "lookup",
+   "question": "What is the invoice number?",
+   "answer": "INV-9275",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "invoice_number"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_due",
+   "qtype": "lookup",
+   "question": "When is payment due? Give the date.",
+   "answer": "2027-11-06",
+   "kind": "field",
+   "canon": "date",
+   "fields": [
+    "due"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_max",
+   "qtype": "max",
+   "question": "Which line item has the largest amount?",
+   "answer": "Olive oil",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "item_0_amount",
+    "item_1_amount"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_total",
+   "qtype": "lookup",
+   "question": "What is the total due?",
+   "answer": "64.25",
+   "kind": "field",
+   "canon": "money",
+   "fields": [
+    "total"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the invoice.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  },
+  {
+   "qid": "q_buyer",
+   "qtype": "lookup",
+   "question": "Who is the invoice billed to?",
+   "answer": "Dalia Kelford",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "buyer"
+   ],
+   "accept": []
+  }
+ ]
+}

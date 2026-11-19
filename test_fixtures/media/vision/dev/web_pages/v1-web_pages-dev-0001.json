@@ -1,0 +1,822 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-web_pages-dev-0001",
+ "family": "web_pages",
+ "template": "flight",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 1,
+ "variant": {
+  "theme": "light",
+  "dpr": 1,
+  "abstain": false,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-web_pages-dev-0001.png",
+  "sha256": "b1517cdca191d609110382160da26b9d1e292a942602e5ac10dcdc55e82c48f3",
+  "width": 1280,
+  "height": 800,
+  "logical": [
+   1280,
+   800
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "site": "Pellix",
+  "domain": "pellix.example",
+  "ref": "W4Y85S",
+  "flights": [
+   {
+    "label": "Outbound",
+    "number": "VM 4463",
+    "date": "2027-01-31",
+    "dep": "05:00",
+    "arr": "07:27",
+    "gate": "D9",
+    "seat": "12C"
+   },
+   {
+    "label": "Return",
+    "number": "KM 6125",
+    "date": "2027-02-07",
+    "dep": "11:45",
+    "arr": "13:10",
+    "gate": "B4",
+    "seat": "31B"
+   }
+  ]
+ },
+ "fields": {
+  "url": {
+   "name": "url",
+   "kind": "text",
+   "value": "pellix.example",
+   "text": "https://pellix.example/trips/confirmation",
+   "bbox": [
+    44,
+    51,
+    279,
+    64
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "93e3d9e74693e8c917eb7fc8008a6d0b57a99dbd4de05d847e30502b061bdff3",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "ref": {
+   "name": "ref",
+   "kind": "text",
+   "value": "W4Y85S",
+   "text": "W4Y85S",
+   "bbox": [
+    189,
+    196,
+    315,
+    221
+   ],
+   "size_px": 32,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "8ed67b939d4a28dd7afd39da6c0ee88846d656aaad379de2d2a92ba1b6b19969",
+   "fg": [
+    0,
+    92,
+    197
+   ],
+   "plot_value": false
+  },
+  "flight_0": {
+   "name": "flight_0",
+   "kind": "text",
+   "value": "VM 4463",
+   "text": "Flight VM 4463",
+   "bbox": [
+    470,
+    274,
+    592,
+    292
+   ],
+   "size_px": 18,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0904bf4acce8ae3ee18f1ff5b6709bc386fb0d2b85d8fc5d5fc9c63fc05720a5",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "date_0": {
+   "name": "date_0",
+   "kind": "date",
+   "value": "2027-01-31",
+   "text": "Sunday, January 31, 2027",
+   "bbox": [
+    68,
+    364,
+    251,
+    379
+   ],
+   "size_px": 16,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "8d6804dc10cc75024bdb8e1c875cc4c282482432a9cdebed58dc706116f07e64",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "dep_0": {
+   "name": "dep_0",
+   "kind": "time",
+   "value": "05:00",
+   "text": "5:00 AM",
+   "bbox": [
+    67,
+    444,
+    188,
+    469
+   ],
+   "size_px": 32,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "a4388b8445c4e3e1691bb8e2b0f2a1246e8fb3637a5804bea7880dcad0f74258",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "arr_0": {
+   "name": "arr_0",
+   "kind": "time",
+   "value": "07:27",
+   "text": "7:27 AM",
+   "bbox": [
+    340,
+    445,
+    459,
+    468
+   ],
+   "size_px": 32,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "21589dbde569065a2e57d5f7067b25fa85649be6f91484beb4d5e16e35e492a6",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "gate_0": {
+   "name": "gate_0",
+   "kind": "text",
+   "value": "D9",
+   "text": "Gate D9",
+   "bbox": [
+    68,
+    546,
+    141,
+    560
+   ],
+   "size_px": 20,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "a375a7cc5f4990936068e546da98281eefabe062b1bb47c6495b4f8759cc9149",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "seat_0": {
+   "name": "seat_0",
+   "kind": "text",
+   "value": "12C",
+   "text": "Seat 12C",
+   "bbox": [
+    340,
+    546,
+    423,
+    560
+   ],
+   "size_px": 20,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "dd3c0cd568c3a51ee0306913080c13ea6f190986503e1a5dfb04c3b54aeaa925",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "flight_1": {
+   "name": "flight_1",
+   "kind": "text",
+   "value": "KM 6125",
+   "text": "Flight KM 6125",
+   "bbox": [
+    1090,
+    274,
+    1212,
+    292
+   ],
+   "size_px": 18,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f7e504648e0117f334012d2cb43a83649b3863f6a29b808e3ede886154ca2926",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "date_1": {
+   "name": "date_1",
+   "kind": "date",
+   "value": "2027-02-07",
+   "text": "Sunday, February 7, 2027",
+   "bbox": [
+    688,
+    364,
+    869,
+    379
+   ],
+   "size_px": 16,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4f9da17e9ba485fa656a92aae6e322f10af372a426a03cf42da456d63ac90d52",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "dep_1": {
+   "name": "dep_1",
+   "kind": "time",
+   "value": "11:45",
+   "text": "11:45 AM",
+   "bbox": [
+    687,
+    444,
+    827,
+    469
+   ],
+   "size_px": 32,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "88c1cfa91fcb138a285c2af73c875713c83495263a3bfd344f89228768e31936",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "arr_1": {
+   "name": "arr_1",
+   "kind": "time",
+   "value": "13:10",
+   "text": "1:10 PM",
+   "bbox": [
+    960,
+    445,
+    1078,
+    468
+   ],
+   "size_px": 32,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0e92ea4fa9b54aad6e55b003c3aaea1ecf8aaaf864749e69ec08c6a639cc4017",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "gate_1": {
+   "name": "gate_1",
+   "kind": "text",
+   "value": "B4",
+   "text": "Gate B4",
+   "bbox": [
+    688,
+    546,
+    760,
+    560
+   ],
+   "size_px": 20,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "eebd55cdb8761e1c5ed68d4144c002e1138bed1798444e5c2ecf0bee3f68c081",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "seat_1": {
+   "name": "seat_1",
+   "kind": "text",
+   "value": "31B",
+   "text": "Seat 31B",
+   "bbox": [
+    960,
+    546,
+    1042,
+    560
+   ],
+   "size_px": 20,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "a3fa62d7ae07f95187e2cfea2b602a4ca4f2805d10b4f1bcd1504c66a3d4eb58",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  }
+ },
+ "text_runs": [
+  {
+   "text": "Pellix",
+   "bbox": [
+    116,
+    18,
+    145,
+    27
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "https://pellix.example/trips/confirmation",
+   "bbox": [
+    44,
+    51,
+    279,
+    64
+   ],
+   "size_px": 13,
+   "field": "url",
+   "reading": true
+  },
+  {
+   "text": "Pellix",
+   "bbox": [
+    39,
+    86,
+    105,
+    107
+   ],
+   "size_px": 26,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Shop",
+   "bbox": [
+    940,
+    91,
+    974,
+    105
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Deals",
+   "bbox": [
+    1024,
+    91,
+    1061,
+    102
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Support",
+   "bbox": [
+    1108,
+    92,
+    1160,
+    105
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Account",
+   "bbox": [
+    1192,
+    92,
+    1247,
+    102
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Booking confirmed",
+   "bbox": [
+    39,
+    151,
+    300,
+    181
+   ],
+   "size_px": 30,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Booking reference",
+   "bbox": [
+    40,
+    199,
+    158,
+    213
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "W4Y85S",
+   "bbox": [
+    189,
+    196,
+    315,
+    221
+   ],
+   "size_px": 32,
+   "field": "ref",
+   "reading": true
+  },
+  {
+   "text": "Outbound",
+   "bbox": [
+    68,
+    275,
+    135,
+    286
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Flight VM 4463",
+   "bbox": [
+    470,
+    274,
+    592,
+    292
+   ],
+   "size_px": 18,
+   "field": "flight_0",
+   "reading": true
+  },
+  {
+   "text": "Ostervale to Quillton",
+   "bbox": [
+    67,
+    321,
+    278,
+    340
+   ],
+   "size_px": 22,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Sunday, January 31, 2027",
+   "bbox": [
+    68,
+    364,
+    251,
+    379
+   ],
+   "size_px": 16,
+   "field": "date_0",
+   "reading": true
+  },
+  {
+   "text": "Departs",
+   "bbox": [
+    68,
+    414,
+    114,
+    426
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Arrives",
+   "bbox": [
+    340,
+    414,
+    380,
+    423
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "5:00 AM",
+   "bbox": [
+    67,
+    444,
+    188,
+    469
+   ],
+   "size_px": 32,
+   "field": "dep_0",
+   "reading": true
+  },
+  {
+   "text": "7:27 AM",
+   "bbox": [
+    340,
+    445,
+    459,
+    468
+   ],
+   "size_px": 32,
+   "field": "arr_0",
+   "reading": true
+  },
+  {
+   "text": "Gate D9",
+   "bbox": [
+    68,
+    546,
+    141,
+    560
+   ],
+   "size_px": 20,
+   "field": "gate_0",
+   "reading": true
+  },
+  {
+   "text": "Seat 12C",
+   "bbox": [
+    340,
+    546,
+    423,
+    560
+   ],
+   "size_px": 20,
+   "field": "seat_0",
+   "reading": true
+  },
+  {
+   "text": "Passenger Priya Calrow",
+   "bbox": [
+    68,
+    603,
+    218,
+    617
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Return",
+   "bbox": [
+    688,
+    276,
+    731,
+    286
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Flight KM 6125",
+   "bbox": [
+    1090,
+    274,
+    1212,
+    292
+   ],
+   "size_px": 18,
+   "field": "flight_1",
+   "reading": true
+  },
+  {
+   "text": "Quillton to Ostervale",
+   "bbox": [
+    687,
+    321,
+    898,
+    340
+   ],
+   "size_px": 22,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Sunday, February 7, 2027",
+   "bbox": [
+    688,
+    364,
+    869,
+    379
+   ],
+   "size_px": 16,
+   "field": "date_1",
+   "reading": true
+  },
+  {
+   "text": "Departs",
+   "bbox": [
+    688,
+    414,
+    734,
+    426
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Arrives",
+   "bbox": [
+    960,
+    414,
+    1000,
+    423
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "11:45 AM",
+   "bbox": [
+    687,
+    444,
+    827,
+    469
+   ],
+   "size_px": 32,
+   "field": "dep_1",
+   "reading": true
+  },
+  {
+   "text": "1:10 PM",
+   "bbox": [
+    960,
+    445,
+    1078,
+    468
+   ],
+   "size_px": 32,
+   "field": "arr_1",
+   "reading": true
+  },
+  {
+   "text": "Gate B4",
+   "bbox": [
+    688,
+    546,
+    760,
+    560
+   ],
+   "size_px": 20,
+   "field": "gate_1",
+   "reading": true
+  },
+  {
+   "text": "Seat 31B",
+   "bbox": [
+    960,
+    546,
+    1042,
+    560
+   ],
+   "size_px": 20,
+   "field": "seat_1",
+   "reading": true
+  },
+  {
+   "text": "Passenger Bram Kelova",
+   "bbox": [
+    688,
+    603,
+    839,
+    617
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  }
+ ],
+ "reading_text": "Pellix\nhttps://pellix.example/trips/confirmation\nPellix\nShop\nDeals\nSupport\nAccount\nBooking confirmed\nBooking reference\nW4Y85S\nOutbound\nFlight VM 4463\nOstervale to Quillton\nSunday, January 31, 2027\nDeparts\nArrives\n5:00 AM\n7:27 AM\nGate D9\nSeat 12C\nPassenger Priya Calrow\nReturn\nFlight KM 6125\nQuillton to Ostervale\nSunday, February 7, 2027\nDeparts\nArrives\n11:45 AM\n1:10 PM\nGate B4\nSeat 31B\nPassenger Bram Kelova",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_ref",
+   "qtype": "lookup",
+   "question": "What is the booking reference?",
+   "answer": "W4Y85S",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "ref"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_earlier",
+   "qtype": "compare",
+   "question": "Which flight departs earlier in the day, VM 4463 or KM 6125? Answer with the flight number.",
+   "answer": "VM 4463",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "flight_0",
+    "flight_1",
+    "dep_0",
+    "dep_1"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_date",
+   "qtype": "lookup",
+   "question": "On what date does flight VM 4463 depart?",
+   "answer": "2027-01-31",
+   "kind": "field",
+   "canon": "date",
+   "fields": [
+    "flight_0",
+    "date_0"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_gate",
+   "qtype": "lookup",
+   "question": "What is the gate for flight KM 6125?",
+   "answer": "B4",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "flight_1",
+    "gate_1"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the screen.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

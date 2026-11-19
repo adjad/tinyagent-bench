@@ -1,0 +1,428 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-photo_text-dev-0001",
+ "family": "photo_text",
+ "template": "poster",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 1,
+ "variant": {
+  "theme": "light",
+  "dpr": 1,
+  "abstain": false,
+  "long_side": null,
+  "scale": 1.0,
+  "damage": 0
+ },
+ "image": {
+  "file": "v1-photo_text-dev-0001.png",
+  "sha256": "efc8fea8fbddba641511b478effb8bd59866dd7b6ea5eb6b11423877f74d059f",
+  "width": 600,
+  "height": 800,
+  "logical": [
+   480,
+   640
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "title": "Midweek Dance Social",
+  "date": "2027-01-27",
+  "date_text": "01/27/2027",
+  "start": "16:30",
+  "end": "18:30",
+  "time_text": "Doors 4:30 PM",
+  "venue": "The Ruvaella Room",
+  "address": "5 Zanard Court, Fenwick Bay",
+  "price": 20,
+  "price_text": "Entry $20",
+  "phone": "(808) 555-0144",
+  "tagline": "Free for members",
+  "note": "All ages welcome",
+  "host": "Maroent Club",
+  "dishes": []
+ },
+ "fields": {
+  "title": {
+   "name": "title",
+   "kind": "text",
+   "value": "Midweek Dance Social",
+   "text": "Midweek Dance Social",
+   "bbox": [
+    75,
+    324,
+    403,
+    351
+   ],
+   "size_px": 32,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "892407fcbd5d78112f08c9931514dae84492c033790c0956f69c69c8874125f3",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "date": {
+   "name": "date",
+   "kind": "date",
+   "value": "2027-01-27",
+   "text": "01/27/2027",
+   "bbox": [
+    39,
+    433,
+    123,
+    448
+   ],
+   "size_px": 16,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "6f7b9ffe82a8d43a3cfd6f6b27e6a6e8a607221f5a7b09eafc55797e742b33ee",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "time": {
+   "name": "time",
+   "kind": "time",
+   "value": "16:30",
+   "text": "Doors 4:30 PM",
+   "bbox": [
+    40,
+    460,
+    134,
+    470
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e5fad8f4631cdde4bbf88a83926d884646cea356bd7113850689d97454fa2517",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "venue": {
+   "name": "venue",
+   "kind": "text",
+   "value": "The Ruvaella Room",
+   "text": "The Ruvaella Room",
+   "bbox": [
+    264,
+    434,
+    406,
+    446
+   ],
+   "size_px": 16,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "37ca6eb28c598ceaeea9eb9acb068df3633c0ec2295c42762af0495cba68f946",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "price": {
+   "name": "price",
+   "kind": "money",
+   "value": "20.00",
+   "text": "Entry $20",
+   "bbox": [
+    185,
+    514,
+    292,
+    540
+   ],
+   "size_px": 24,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "53ff462bab17ce52a3ca5f667c712947041a0ea78de9b5751698b654b80d82b9",
+   "fg": [
+    192,
+    28,
+    40
+   ],
+   "plot_value": false
+  }
+ },
+ "text_runs": [
+  {
+   "text": "Midweek Dance Social",
+   "bbox": [
+    75,
+    324,
+    403,
+    351
+   ],
+   "size_px": 32,
+   "field": "title",
+   "reading": true
+  },
+  {
+   "text": "Free for members",
+   "bbox": [
+    186,
+    367,
+    295,
+    378
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "WHEN",
+   "bbox": [
+    40,
+    415,
+    72,
+    423
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "01/27/2027",
+   "bbox": [
+    39,
+    433,
+    123,
+    448
+   ],
+   "size_px": 16,
+   "field": "date",
+   "reading": true
+  },
+  {
+   "text": "Doors 4:30 PM",
+   "bbox": [
+    40,
+    460,
+    134,
+    470
+   ],
+   "size_px": 14,
+   "field": "time",
+   "reading": true
+  },
+  {
+   "text": "WHERE",
+   "bbox": [
+    264,
+    415,
+    301,
+    423
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "The Ruvaella Room",
+   "bbox": [
+    264,
+    434,
+    406,
+    446
+   ],
+   "size_px": 16,
+   "field": "venue",
+   "reading": true
+  },
+  {
+   "text": "5 Zanard Court, Fenwick Bay",
+   "bbox": [
+    264,
+    459,
+    412,
+    469
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Entry $20",
+   "bbox": [
+    185,
+    514,
+    292,
+    540
+   ],
+   "size_px": 24,
+   "field": "price",
+   "reading": true
+  },
+  {
+   "text": "Presented by Maroent Club",
+   "bbox": [
+    168,
+    593,
+    311,
+    603
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  }
+ ],
+ "reading_text": "Midweek Dance Social\nFree for members\nWHEN\n01/27/2027\nDoors 4:30 PM\nWHERE\nThe Ruvaella Room\n5 Zanard Court, Fenwick Bay\nEntry $20\nPresented by Maroent Club",
+ "damage": {
+  "level": 0,
+  "ops": [
+   {
+    "op": "composite",
+    "size": [
+     600,
+     800
+    ],
+    "offset": [
+     50.44,
+     95.42
+    ]
+   },
+   {
+    "op": "perspective",
+    "corners": [
+     [
+      50.25,
+      81.22
+     ],
+     [
+      545.08,
+      99.41
+     ],
+     [
+      530.79,
+      744.8
+     ],
+     [
+      57.51,
+      727.44
+     ]
+    ]
+   }
+  ],
+  "field_boxes": {
+   "title": [
+    129,
+    418,
+    461,
+    458
+   ],
+   "date": [
+    94,
+    526,
+    179,
+    545
+   ],
+   "time": [
+    95,
+    552,
+    190,
+    567
+   ],
+   "venue": [
+    319,
+    535,
+    462,
+    553
+   ],
+   "price": [
+    240,
+    611,
+    347,
+    641
+   ]
+  }
+ },
+ "questions": [
+  {
+   "qid": "q_title",
+   "qtype": "event",
+   "question": "What is the name of the event?",
+   "answer": "Midweek Dance Social",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "title"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_date",
+   "qtype": "event",
+   "question": "On what date is the event? Give the date.",
+   "answer": "2027-01-27",
+   "kind": "field",
+   "canon": "date",
+   "fields": [
+    "date"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_time",
+   "qtype": "event",
+   "question": "What time does the event start?",
+   "answer": "16:30",
+   "kind": "field",
+   "canon": "time",
+   "fields": [
+    "time"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_venue",
+   "qtype": "event",
+   "question": "Where is the event held? Give the venue name.",
+   "answer": "The Ruvaella Room",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "venue"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read all the text on the poster.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  },
+  {
+   "qid": "q_price",
+   "qtype": "lookup",
+   "question": "How much is a ticket?",
+   "answer": "20.00",
+   "kind": "field",
+   "canon": "money",
+   "fields": [
+    "price"
+   ],
+   "accept": []
+  }
+ ]
+}

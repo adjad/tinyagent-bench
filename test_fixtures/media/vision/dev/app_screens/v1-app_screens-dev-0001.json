@@ -1,0 +1,886 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-app_screens-dev-0001",
+ "family": "app_screens",
+ "template": "inbox",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 1,
+ "variant": {
+  "theme": "light",
+  "dpr": 1,
+  "abstain": false,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-app_screens-dev-0001.png",
+  "sha256": "4b667a9adac1800ca5f7781a3cec3d639d764dbbfebf665fc2211f8a8dc92c6e",
+  "width": 390,
+  "height": 844,
+  "logical": [
+   390,
+   844
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "unread": 5,
+  "emails": [
+   {
+    "sender": "Mateo Verstead",
+    "subject": "Shipping confirmation",
+    "time": "17:13",
+    "unread": true
+   },
+   {
+    "sender": "Priya Verard",
+    "subject": "Updated agenda",
+    "time": "16:44",
+    "unread": true
+   },
+   {
+    "sender": "Priya Morham",
+    "subject": "Lunch on Friday?",
+    "time": "15:47",
+    "unread": true
+   },
+   {
+    "sender": "Kofi Fensen",
+    "subject": "Photos from the trip",
+    "time": "15:09",
+    "unread": true
+   },
+   {
+    "sender": "Noor Telstead",
+    "subject": "Question about the draft",
+    "time": "14:29",
+    "unread": false
+   },
+   {
+    "sender": "Emeka Wyndane",
+    "subject": "Welcome to the team",
+    "time": "13:51",
+    "unread": true
+   }
+  ]
+ },
+ "fields": {
+  "unread_count": {
+   "name": "unread_count",
+   "kind": "number",
+   "value": "5",
+   "text": "5",
+   "bbox": [
+    351,
+    37,
+    359,
+    47
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "099cb50a480d27aaa64d798c2328c68e084ee0e20213cb305ed18da77d038176",
+   "fg": [
+    255,
+    255,
+    255
+   ],
+   "plot_value": false
+  },
+  "sender_0": {
+   "name": "sender_0",
+   "kind": "text",
+   "value": "Mateo Verstead",
+   "text": "Mateo Verstead",
+   "bbox": [
+    34,
+    93,
+    137,
+    104
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "705ed02f660d08bfb7fac68462fa6269606cfdd952613022fb09f0df4ba7e85d",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "time_0": {
+   "name": "time_0",
+   "kind": "time",
+   "value": "17:13",
+   "text": "5:13 PM",
+   "bbox": [
+    330,
+    94,
+    374,
+    103
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "7459583421a78473e53c2a28f66e69313dd0c687a36a8f2c0a12b9b73a0e251d",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "subject_0": {
+   "name": "subject_0",
+   "kind": "text",
+   "value": "Shipping confirmation",
+   "text": "Shipping confirmation",
+   "bbox": [
+    34,
+    117,
+    168,
+    130
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "a6fed599a3b2c099ad0c47cf019b1a631f6b6a44b25703e0db5fa8759b5b8f50",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "sender_1": {
+   "name": "sender_1",
+   "kind": "text",
+   "value": "Priya Verard",
+   "text": "Priya Verard",
+   "bbox": [
+    34,
+    177,
+    110,
+    191
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1d4ae808faa796d4bbd6bf10d493d0e53d6d69ea7dc493fe6037f8af5df78654",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "time_1": {
+   "name": "time_1",
+   "kind": "time",
+   "value": "16:44",
+   "text": "4:44 PM",
+   "bbox": [
+    330,
+    178,
+    374,
+    187
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f6d2f1884f39ea5d438eb9fec8033d47355f8bd857aee5472dbe7531c0d14b51",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "subject_1": {
+   "name": "subject_1",
+   "kind": "text",
+   "value": "Updated agenda",
+   "text": "Updated agenda",
+   "bbox": [
+    34,
+    202,
+    133,
+    214
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5409e02e47ed97d54144388df68cfb7022275170d0260ec5ded9cf3696335ba3",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "sender_2": {
+   "name": "sender_2",
+   "kind": "text",
+   "value": "Priya Morham",
+   "text": "Priya Morham",
+   "bbox": [
+    34,
+    261,
+    120,
+    275
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b09c7799c6806ea8e2f8f44ec97e328148f84115d507acddf1cb452a1bdee7f3",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "time_2": {
+   "name": "time_2",
+   "kind": "time",
+   "value": "15:47",
+   "text": "3:47 PM",
+   "bbox": [
+    330,
+    262,
+    374,
+    271
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4ec9dad6fc883336759d2b42454d0f8aad34120e2a088c11cd53a7a4cba00c91",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "subject_2": {
+   "name": "subject_2",
+   "kind": "text",
+   "value": "Lunch on Friday?",
+   "text": "Lunch on Friday?",
+   "bbox": [
+    34,
+    286,
+    138,
+    298
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "a0db4695aa5e27e55778b77126e56440abed9c4dfc529c1475c35bb12d8f6f0a",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "sender_3": {
+   "name": "sender_3",
+   "kind": "text",
+   "value": "Kofi Fensen",
+   "text": "Kofi Fensen",
+   "bbox": [
+    34,
+    345,
+    109,
+    356
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5d6b0f4a58a2bc818fadd10e63dbdeb6307146d4909532aec2de24e0a41ad5d6",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "time_3": {
+   "name": "time_3",
+   "kind": "time",
+   "value": "15:09",
+   "text": "3:09 PM",
+   "bbox": [
+    330,
+    346,
+    374,
+    355
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "7ea4acc4afb757eb450725c8896b8a2de9c4ee8625b340f00717b4c23293868f",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "subject_3": {
+   "name": "subject_3",
+   "kind": "text",
+   "value": "Photos from the trip",
+   "text": "Photos from the trip",
+   "bbox": [
+    34,
+    369,
+    154,
+    382
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1f3c694ed03edb021b4a68a49d945fa10ef721b0b147b3fe53077df1af8371b5",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "sender_4": {
+   "name": "sender_4",
+   "kind": "text",
+   "value": "Noor Telstead",
+   "text": "Noor Telstead",
+   "bbox": [
+    34,
+    429,
+    126,
+    440
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "da9737e0b323a961662db23499b77226180c5d90913a70d78c4d3c88ab930eab",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "time_4": {
+   "name": "time_4",
+   "kind": "time",
+   "value": "14:29",
+   "text": "2:29 PM",
+   "bbox": [
+    330,
+    430,
+    374,
+    439
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "af81359040c782d2c818533e975354c791dfb10b100d3d21cb39deb536952641",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "subject_4": {
+   "name": "subject_4",
+   "kind": "text",
+   "value": "Question about the draft",
+   "text": "Question about the draft",
+   "bbox": [
+    34,
+    453,
+    181,
+    464
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4422574b2a0585b72f1d5cc418a60857cfb3814825292b5358953924a9b7f848",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "sender_5": {
+   "name": "sender_5",
+   "kind": "text",
+   "value": "Emeka Wyndane",
+   "text": "Emeka Wyndane",
+   "bbox": [
+    34,
+    513,
+    141,
+    527
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "fde74904a59521375bf4f4c44b008073d373d42b3c2f045c3265f390da92e1e3",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "time_5": {
+   "name": "time_5",
+   "kind": "time",
+   "value": "13:51",
+   "text": "1:51 PM",
+   "bbox": [
+    330,
+    514,
+    374,
+    523
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b5a901c258f223761cca99fdbf39b79c421ee3d8e0dc0d73a1af519954d4d1cd",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "subject_5": {
+   "name": "subject_5",
+   "kind": "text",
+   "value": "Welcome to the team",
+   "text": "Welcome to the team",
+   "bbox": [
+    34,
+    538,
+    160,
+    547
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "a1c341329a4f722929f981444cf01afa74b1100209b5a29651402922b0ecb9c0",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  }
+ },
+ "text_runs": [
+  {
+   "text": "Inbox",
+   "bbox": [
+    15,
+    28,
+    84,
+    49
+   ],
+   "size_px": 26,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Unread",
+   "bbox": [
+    286,
+    37,
+    327,
+    46
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "5",
+   "bbox": [
+    351,
+    37,
+    359,
+    47
+   ],
+   "size_px": 14,
+   "field": "unread_count",
+   "reading": true
+  },
+  {
+   "text": "Mateo Verstead",
+   "bbox": [
+    34,
+    93,
+    137,
+    104
+   ],
+   "size_px": 14,
+   "field": "sender_0",
+   "reading": true
+  },
+  {
+   "text": "5:13 PM",
+   "bbox": [
+    330,
+    94,
+    374,
+    103
+   ],
+   "size_px": 12,
+   "field": "time_0",
+   "reading": true
+  },
+  {
+   "text": "Shipping confirmation",
+   "bbox": [
+    34,
+    117,
+    168,
+    130
+   ],
+   "size_px": 13,
+   "field": "subject_0",
+   "reading": true
+  },
+  {
+   "text": "Hi there, following up on our last conversation about ...",
+   "bbox": [
+    34,
+    138,
+    316,
+    149
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Priya Verard",
+   "bbox": [
+    34,
+    177,
+    110,
+    191
+   ],
+   "size_px": 14,
+   "field": "sender_1",
+   "reading": true
+  },
+  {
+   "text": "4:44 PM",
+   "bbox": [
+    330,
+    178,
+    374,
+    187
+   ],
+   "size_px": 12,
+   "field": "time_1",
+   "reading": true
+  },
+  {
+   "text": "Updated agenda",
+   "bbox": [
+    34,
+    202,
+    133,
+    214
+   ],
+   "size_px": 13,
+   "field": "subject_1",
+   "reading": true
+  },
+  {
+   "text": "Just a quick note to say ...",
+   "bbox": [
+    34,
+    223,
+    166,
+    233
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Priya Morham",
+   "bbox": [
+    34,
+    261,
+    120,
+    275
+   ],
+   "size_px": 14,
+   "field": "sender_2",
+   "reading": true
+  },
+  {
+   "text": "3:47 PM",
+   "bbox": [
+    330,
+    262,
+    374,
+    271
+   ],
+   "size_px": 12,
+   "field": "time_2",
+   "reading": true
+  },
+  {
+   "text": "Lunch on Friday?",
+   "bbox": [
+    34,
+    286,
+    138,
+    298
+   ],
+   "size_px": 13,
+   "field": "subject_2",
+   "reading": true
+  },
+  {
+   "text": "Hi there, following up on our last conversation about ...",
+   "bbox": [
+    34,
+    306,
+    316,
+    317
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Kofi Fensen",
+   "bbox": [
+    34,
+    345,
+    109,
+    356
+   ],
+   "size_px": 14,
+   "field": "sender_3",
+   "reading": true
+  },
+  {
+   "text": "3:09 PM",
+   "bbox": [
+    330,
+    346,
+    374,
+    355
+   ],
+   "size_px": 12,
+   "field": "time_3",
+   "reading": true
+  },
+  {
+   "text": "Photos from the trip",
+   "bbox": [
+    34,
+    369,
+    154,
+    382
+   ],
+   "size_px": 13,
+   "field": "subject_3",
+   "reading": true
+  },
+  {
+   "text": "Hi there, following up on our last conversation about ...",
+   "bbox": [
+    34,
+    390,
+    316,
+    401
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Noor Telstead",
+   "bbox": [
+    34,
+    429,
+    126,
+    440
+   ],
+   "size_px": 14,
+   "field": "sender_4",
+   "reading": true
+  },
+  {
+   "text": "2:29 PM",
+   "bbox": [
+    330,
+    430,
+    374,
+    439
+   ],
+   "size_px": 12,
+   "field": "time_4",
+   "reading": true
+  },
+  {
+   "text": "Question about the draft",
+   "bbox": [
+    34,
+    453,
+    181,
+    464
+   ],
+   "size_px": 13,
+   "field": "subject_4",
+   "reading": true
+  },
+  {
+   "text": "Hi there, following up on our last conversation about ...",
+   "bbox": [
+    34,
+    474,
+    316,
+    485
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Emeka Wyndane",
+   "bbox": [
+    34,
+    513,
+    141,
+    527
+   ],
+   "size_px": 14,
+   "field": "sender_5",
+   "reading": true
+  },
+  {
+   "text": "1:51 PM",
+   "bbox": [
+    330,
+    514,
+    374,
+    523
+   ],
+   "size_px": 12,
+   "field": "time_5",
+   "reading": true
+  },
+  {
+   "text": "Welcome to the team",
+   "bbox": [
+    34,
+    538,
+    160,
+    547
+   ],
+   "size_px": 13,
+   "field": "subject_5",
+   "reading": true
+  },
+  {
+   "text": "Looking forward to hearing your thoughts about ...",
+   "bbox": [
+    34,
+    558,
+    298,
+    569
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  }
+ ],
+ "reading_text": "Inbox\nUnread\n5\nMateo Verstead\n5:13 PM\nShipping confirmation\nHi there, following up on our last conversation about ...\nPriya Verard\n4:44 PM\nUpdated agenda\nJust a quick note to say ...\nPriya Morham\n3:47 PM\nLunch on Friday?\nHi there, following up on our last conversation about ...\nKofi Fensen\n3:09 PM\nPhotos from the trip\nHi there, following up on our last conversation about ...\nNoor Telstead\n2:29 PM\nQuestion about the draft\nHi there, following up on our last conversation about ...\nEmeka Wyndane\n1:51 PM\nWelcome to the team\nLooking forward to hearing your thoughts about ...",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_unread",
+   "qtype": "count",
+   "question": "How many unread emails does the badge show?",
+   "answer": "5",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "unread_count"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_who",
+   "qtype": "who_said",
+   "question": "Who sent the email with the subject \"Lunch on Friday?\"?",
+   "answer": "Priya Morham",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "subject_2",
+    "sender_2"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_time",
+   "qtype": "lookup",
+   "question": "At what time was the email from Kofi Fensen received?",
+   "answer": "15:09",
+   "kind": "field",
+   "canon": "time",
+   "fields": [
+    "sender_3",
+    "time_3"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_subject",
+   "qtype": "lookup",
+   "question": "What is the subject of the email from Priya Verard?",
+   "answer": "Updated agenda",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "sender_1",
+    "subject_1"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the screen.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

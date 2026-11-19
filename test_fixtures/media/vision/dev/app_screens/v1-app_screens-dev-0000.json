@@ -1,0 +1,908 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-app_screens-dev-0000",
+ "family": "app_screens",
+ "template": "chat",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 0,
+ "variant": {
+  "theme": "light",
+  "dpr": 1,
+  "abstain": false,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-app_screens-dev-0000.png",
+  "sha256": "ab09609ee801714e854cd003f8b9a2d646dae59524cf854cf030245aef410455",
+  "width": 390,
+  "height": 844,
+  "logical": [
+   390,
+   844
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "title": "Quillton Crew",
+  "messages": [
+   {
+    "sender": "Noor",
+    "text": "Can we move it to Friday?",
+    "time": "17:34"
+   },
+   {
+    "sender": "Noor",
+    "text": "Thanks for the ride",
+    "time": "17:40"
+   },
+   {
+    "sender": "Noor",
+    "text": "I will bring extra chairs",
+    "time": "17:53"
+   },
+   {
+    "sender": "Noor",
+    "text": "Dinner is on me tonight",
+    "time": "17:56"
+   },
+   {
+    "sender": "Tomas",
+    "text": "Count me in for Saturday",
+    "time": "18:09"
+   },
+   {
+    "sender": "Gita",
+    "text": "Who has the spare key?",
+    "time": "18:20"
+   },
+   {
+    "sender": "Noor",
+    "text": "I left my umbrella there",
+    "time": "18:23"
+   }
+  ]
+ },
+ "fields": {
+  "chat_title": {
+   "name": "chat_title",
+   "kind": "text",
+   "value": "Quillton Crew",
+   "text": "Quillton Crew",
+   "bbox": [
+    15,
+    26,
+    124,
+    41
+   ],
+   "size_px": 17,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "9d7736508d9f3a3b1dca7fc769adf0e00b5b9ed75565cec9427649b2b3ed1049",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "sender_0": {
+   "name": "sender_0",
+   "kind": "text",
+   "value": "Noor",
+   "text": "Noor",
+   "bbox": [
+    16,
+    83,
+    42,
+    92
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1baa6c661f80168ab2ed9345d0f12c45224e86df4222f5803914198968955a11",
+   "fg": [
+    0,
+    92,
+    197
+   ],
+   "plot_value": false
+  },
+  "msg_0": {
+   "name": "msg_0",
+   "kind": "text",
+   "value": "Can we move it to Friday?",
+   "text": "Can we move it to Friday?",
+   "bbox": [
+    28,
+    108,
+    192,
+    122
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5c3a94615c959f3235ecb7408b9d3b25ab767649432f94c9592ec5eb0223219a",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "time_0": {
+   "name": "time_0",
+   "kind": "time",
+   "value": "17:34",
+   "text": "5:34 PM",
+   "bbox": [
+    20,
+    138,
+    59,
+    146
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0fd5ff1c55739f08cbdbc2ab86a518e5698ff75e2cfd5641a9d3e9314a5b4ffd",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "sender_1": {
+   "name": "sender_1",
+   "kind": "text",
+   "value": "Noor",
+   "text": "Noor",
+   "bbox": [
+    16,
+    166,
+    42,
+    175
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1baa6c661f80168ab2ed9345d0f12c45224e86df4222f5803914198968955a11",
+   "fg": [
+    0,
+    92,
+    197
+   ],
+   "plot_value": false
+  },
+  "msg_1": {
+   "name": "msg_1",
+   "kind": "text",
+   "value": "Thanks for the ride",
+   "text": "Thanks for the ride",
+   "bbox": [
+    28,
+    191,
+    146,
+    202
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "fc345af22b77e5d4b60022b4a26ce8d010e88bbeb81ccc25addfe0ea8e016f6f",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "time_1": {
+   "name": "time_1",
+   "kind": "time",
+   "value": "17:40",
+   "text": "5:40 PM",
+   "bbox": [
+    20,
+    221,
+    59,
+    229
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "63e9cb999e7257cf22f9844f1af1a8ef8ba961535be3a61e18c05c0548095716",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "sender_2": {
+   "name": "sender_2",
+   "kind": "text",
+   "value": "Noor",
+   "text": "Noor",
+   "bbox": [
+    16,
+    249,
+    42,
+    258
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1baa6c661f80168ab2ed9345d0f12c45224e86df4222f5803914198968955a11",
+   "fg": [
+    0,
+    92,
+    197
+   ],
+   "plot_value": false
+  },
+  "msg_2": {
+   "name": "msg_2",
+   "kind": "text",
+   "value": "I will bring extra chairs",
+   "text": "I will bring extra chairs",
+   "bbox": [
+    28,
+    274,
+    167,
+    288
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e22e1c72e3f72b18aede48a7722d604ef7c22792b1b3572e8bd8884e5cb40b7b",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "time_2": {
+   "name": "time_2",
+   "kind": "time",
+   "value": "17:53",
+   "text": "5:53 PM",
+   "bbox": [
+    20,
+    304,
+    59,
+    312
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "cb2a374024c0fa44d4ba05aa988a86b11b3869db3dcdfcdcf9396df49c36d2e0",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "sender_3": {
+   "name": "sender_3",
+   "kind": "text",
+   "value": "Noor",
+   "text": "Noor",
+   "bbox": [
+    16,
+    332,
+    42,
+    341
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1baa6c661f80168ab2ed9345d0f12c45224e86df4222f5803914198968955a11",
+   "fg": [
+    0,
+    92,
+    197
+   ],
+   "plot_value": false
+  },
+  "msg_3": {
+   "name": "msg_3",
+   "kind": "text",
+   "value": "Dinner is on me tonight",
+   "text": "Dinner is on me tonight",
+   "bbox": [
+    28,
+    357,
+    175,
+    371
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d61d48a7b50928d293ab2dac6df45472462670a104a5254d43e32367e11f9b9d",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "time_3": {
+   "name": "time_3",
+   "kind": "time",
+   "value": "17:56",
+   "text": "5:56 PM",
+   "bbox": [
+    20,
+    387,
+    59,
+    395
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ac118422c5c54da91481e381afb1b9da070e27fe270a726d49c88dc48be3ba7b",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "sender_4": {
+   "name": "sender_4",
+   "kind": "text",
+   "value": "Tomas",
+   "text": "Tomas",
+   "bbox": [
+    16,
+    415,
+    55,
+    424
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "718e263e84e9c2bba521c5f1575283d18e6727a290eed44d098b0c0d65de4390",
+   "fg": [
+    0,
+    92,
+    197
+   ],
+   "plot_value": false
+  },
+  "msg_4": {
+   "name": "msg_4",
+   "kind": "text",
+   "value": "Count me in for Saturday",
+   "text": "Count me in for Saturday",
+   "bbox": [
+    28,
+    440,
+    185,
+    454
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d7c597cb556e3e878519611f76f0fccbdf381396e7f50d72856f4fb668071064",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "time_4": {
+   "name": "time_4",
+   "kind": "time",
+   "value": "18:09",
+   "text": "6:09 PM",
+   "bbox": [
+    20,
+    470,
+    59,
+    478
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ab0e9ea0fbb4d60e5cad98bb64614235caa566aa088c7d73ea747f294c33cd9a",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "sender_5": {
+   "name": "sender_5",
+   "kind": "text",
+   "value": "Gita",
+   "text": "Gita",
+   "bbox": [
+    16,
+    498,
+    39,
+    507
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d2696c2d5d536f12743d4d21df2bb62e33089f7eaab06bc0bcfa9e533f875cbc",
+   "fg": [
+    0,
+    92,
+    197
+   ],
+   "plot_value": false
+  },
+  "msg_5": {
+   "name": "msg_5",
+   "kind": "text",
+   "value": "Who has the spare key?",
+   "text": "Who has the spare key?",
+   "bbox": [
+    28,
+    523,
+    180,
+    537
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "bdc48460fe5ffa377bb060bd1927f8eed437b7922d121203529e7fcfde4fe938",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "time_5": {
+   "name": "time_5",
+   "kind": "time",
+   "value": "18:20",
+   "text": "6:20 PM",
+   "bbox": [
+    20,
+    553,
+    59,
+    561
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "09c9b63a11752d410d6284dea9231f288ad5fe1fc09c42d174b0e564d03e33e7",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "sender_6": {
+   "name": "sender_6",
+   "kind": "text",
+   "value": "Noor",
+   "text": "Noor",
+   "bbox": [
+    16,
+    581,
+    42,
+    590
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1baa6c661f80168ab2ed9345d0f12c45224e86df4222f5803914198968955a11",
+   "fg": [
+    0,
+    92,
+    197
+   ],
+   "plot_value": false
+  },
+  "msg_6": {
+   "name": "msg_6",
+   "kind": "text",
+   "value": "I left my umbrella there",
+   "text": "I left my umbrella there",
+   "bbox": [
+    28,
+    606,
+    169,
+    620
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "73f976377c67012620ce9659563dede8dd6cf9af1036cd04369e5b9463b7c3cc",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "time_6": {
+   "name": "time_6",
+   "kind": "time",
+   "value": "18:23",
+   "text": "6:23 PM",
+   "bbox": [
+    20,
+    636,
+    59,
+    644
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "3620eecbe7944dd668556d1b1f38be260e9220451f830d6d1de0d36c09e9898b",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  }
+ },
+ "text_runs": [
+  {
+   "text": "Quillton Crew",
+   "bbox": [
+    15,
+    26,
+    124,
+    41
+   ],
+   "size_px": 17,
+   "field": "chat_title",
+   "reading": true
+  },
+  {
+   "text": "Noor",
+   "bbox": [
+    16,
+    83,
+    42,
+    92
+   ],
+   "size_px": 12,
+   "field": "sender_0",
+   "reading": true
+  },
+  {
+   "text": "Can we move it to Friday?",
+   "bbox": [
+    28,
+    108,
+    192,
+    122
+   ],
+   "size_px": 14,
+   "field": "msg_0",
+   "reading": true
+  },
+  {
+   "text": "5:34 PM",
+   "bbox": [
+    20,
+    138,
+    59,
+    146
+   ],
+   "size_px": 11,
+   "field": "time_0",
+   "reading": true
+  },
+  {
+   "text": "Noor",
+   "bbox": [
+    16,
+    166,
+    42,
+    175
+   ],
+   "size_px": 12,
+   "field": "sender_1",
+   "reading": true
+  },
+  {
+   "text": "Thanks for the ride",
+   "bbox": [
+    28,
+    191,
+    146,
+    202
+   ],
+   "size_px": 14,
+   "field": "msg_1",
+   "reading": true
+  },
+  {
+   "text": "5:40 PM",
+   "bbox": [
+    20,
+    221,
+    59,
+    229
+   ],
+   "size_px": 11,
+   "field": "time_1",
+   "reading": true
+  },
+  {
+   "text": "Noor",
+   "bbox": [
+    16,
+    249,
+    42,
+    258
+   ],
+   "size_px": 12,
+   "field": "sender_2",
+   "reading": true
+  },
+  {
+   "text": "I will bring extra chairs",
+   "bbox": [
+    28,
+    274,
+    167,
+    288
+   ],
+   "size_px": 14,
+   "field": "msg_2",
+   "reading": true
+  },
+  {
+   "text": "5:53 PM",
+   "bbox": [
+    20,
+    304,
+    59,
+    312
+   ],
+   "size_px": 11,
+   "field": "time_2",
+   "reading": true
+  },
+  {
+   "text": "Noor",
+   "bbox": [
+    16,
+    332,
+    42,
+    341
+   ],
+   "size_px": 12,
+   "field": "sender_3",
+   "reading": true
+  },
+  {
+   "text": "Dinner is on me tonight",
+   "bbox": [
+    28,
+    357,
+    175,
+    371
+   ],
+   "size_px": 14,
+   "field": "msg_3",
+   "reading": true
+  },
+  {
+   "text": "5:56 PM",
+   "bbox": [
+    20,
+    387,
+    59,
+    395
+   ],
+   "size_px": 11,
+   "field": "time_3",
+   "reading": true
+  },
+  {
+   "text": "Tomas",
+   "bbox": [
+    16,
+    415,
+    55,
+    424
+   ],
+   "size_px": 12,
+   "field": "sender_4",
+   "reading": true
+  },
+  {
+   "text": "Count me in for Saturday",
+   "bbox": [
+    28,
+    440,
+    185,
+    454
+   ],
+   "size_px": 14,
+   "field": "msg_4",
+   "reading": true
+  },
+  {
+   "text": "6:09 PM",
+   "bbox": [
+    20,
+    470,
+    59,
+    478
+   ],
+   "size_px": 11,
+   "field": "time_4",
+   "reading": true
+  },
+  {
+   "text": "Gita",
+   "bbox": [
+    16,
+    498,
+    39,
+    507
+   ],
+   "size_px": 12,
+   "field": "sender_5",
+   "reading": true
+  },
+  {
+   "text": "Who has the spare key?",
+   "bbox": [
+    28,
+    523,
+    180,
+    537
+   ],
+   "size_px": 14,
+   "field": "msg_5",
+   "reading": true
+  },
+  {
+   "text": "6:20 PM",
+   "bbox": [
+    20,
+    553,
+    59,
+    561
+   ],
+   "size_px": 11,
+   "field": "time_5",
+   "reading": true
+  },
+  {
+   "text": "Noor",
+   "bbox": [
+    16,
+    581,
+    42,
+    590
+   ],
+   "size_px": 12,
+   "field": "sender_6",
+   "reading": true
+  },
+  {
+   "text": "I left my umbrella there",
+   "bbox": [
+    28,
+    606,
+    169,
+    620
+   ],
+   "size_px": 14,
+   "field": "msg_6",
+   "reading": true
+  },
+  {
+   "text": "6:23 PM",
+   "bbox": [
+    20,
+    636,
+    59,
+    644
+   ],
+   "size_px": 11,
+   "field": "time_6",
+   "reading": true
+  },
+  {
+   "text": "Message",
+   "bbox": [
+    28,
+    799,
+    87,
+    812
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  }
+ ],
+ "reading_text": "Quillton Crew\nNoor\nCan we move it to Friday?\n5:34 PM\nNoor\nThanks for the ride\n5:40 PM\nNoor\nI will bring extra chairs\n5:53 PM\nNoor\nDinner is on me tonight\n5:56 PM\nTomas\nCount me in for Saturday\n6:09 PM\nGita\nWho has the spare key?\n6:20 PM\nNoor\nI left my umbrella there\n6:23 PM\nMessage",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_who",
+   "qtype": "who_said",
+   "question": "Who sent the message \"Who has the spare key?\"?",
+   "answer": "Gita",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "msg_5",
+    "sender_5"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_time",
+   "qtype": "lookup",
+   "question": "At what time was the message \"I will bring extra chairs\" sent?",
+   "answer": "17:53",
+   "kind": "field",
+   "canon": "time",
+   "fields": [
+    "msg_2",
+    "time_2"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_count",
+   "qtype": "count",
+   "question": "How many messages did Noor send in this chat?",
+   "answer": "5",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "sender_0",
+    "sender_1",
+    "sender_2",
+    "sender_3",
+    "sender_4",
+    "sender_5",
+    "sender_6"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_title",
+   "qtype": "lookup",
+   "question": "What is the name of this group chat?",
+   "answer": "Quillton Crew",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "chat_title"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the screen.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

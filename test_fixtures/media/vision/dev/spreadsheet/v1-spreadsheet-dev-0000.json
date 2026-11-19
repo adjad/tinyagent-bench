@@ -1,0 +1,1240 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-spreadsheet-dev-0000",
+ "family": "spreadsheet",
+ "template": "expenses",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 0,
+ "variant": {
+  "theme": "light",
+  "dpr": 1,
+  "abstain": false,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-spreadsheet-dev-0000.png",
+  "sha256": "f54c255535fae0c068616f7b2b15502eb96dd662809462be6498ba479777fa16",
+  "width": 1000,
+  "height": 720,
+  "logical": [
+   1000,
+   720
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "template": "expenses",
+  "headers": [
+   "Date",
+   "Vendor",
+   "Category",
+   "Paid by",
+   "Amount"
+  ],
+  "rows": [
+   [
+    "2027-05-07",
+    "Gildar Supply",
+    "Software",
+    "Sana",
+    "765.70"
+   ],
+   [
+    "2027-07-17",
+    "Vantaisto Kitchen",
+    "Travel",
+    "Lior",
+    "163.19"
+   ],
+   [
+    "2027-09-26",
+    "Quilock Florist",
+    "Travel",
+    "Hana",
+    "345.88"
+   ],
+   [
+    "2027-06-04",
+    "Vantaelle Supply",
+    "Office",
+    "Quinn",
+    "306.79"
+   ],
+   [
+    "2027-02-20",
+    "Pellar Deli",
+    "Travel",
+    "Yusuf",
+    "160.91"
+   ]
+  ],
+  "totals_row": false,
+  "highest_or_lowest": "min"
+ },
+ "fields": {
+  "A2": {
+   "name": "A2",
+   "kind": "date",
+   "value": "2027-05-07",
+   "text": "05/07/2027",
+   "bbox": [
+    58,
+    103,
+    130,
+    113
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c7e73cd82bca8d43a6e0883b5a89884da6ae4ac16e7af299083f7c8d10043df3",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "B2": {
+   "name": "B2",
+   "kind": "text",
+   "value": "Gildar Supply",
+   "text": "Gildar Supply",
+   "bbox": [
+    170,
+    103,
+    250,
+    115
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "a6168d37e51ce4d3bf645adb69c4a347cdfd3ecfc6618a05bebb774927889f07",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "C2": {
+   "name": "C2",
+   "kind": "text",
+   "value": "Software",
+   "text": "Software",
+   "bbox": [
+    315,
+    102,
+    368,
+    112
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b191d59dbdc04d719847e6be3b057d4d18fc8cbcd6efc6a85df38f4648a902e6",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "D2": {
+   "name": "D2",
+   "kind": "text",
+   "value": "Sana",
+   "text": "Sana",
+   "bbox": [
+    411,
+    103,
+    441,
+    112
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "35057bed4d311eaa0d9de020959aacc71d0463e82132a6f66c00918fdc557620",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "E2": {
+   "name": "E2",
+   "kind": "money",
+   "value": "765.70",
+   "text": "$765.70",
+   "bbox": [
+    524,
+    102,
+    575,
+    113
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c0102763283a4498a642d0a250e6612fa11d46519a5950fc34c90ec0de1a1923",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "A3": {
+   "name": "A3",
+   "kind": "date",
+   "value": "2027-07-17",
+   "text": "07/17/2027",
+   "bbox": [
+    58,
+    131,
+    130,
+    141
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "2dcb27dcf79b0a7bc459856bd17a2059f5b3ab422ceacb62049b7179d818eeb2",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "B3": {
+   "name": "B3",
+   "kind": "text",
+   "value": "Vantaisto Kitchen",
+   "text": "Vantaisto Kitchen",
+   "bbox": [
+    170,
+    131,
+    275,
+    140
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b45c2f371cc3d626c15fae1a32ebb338dcd222ae7c816923053820f9f9c681f1",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "C3": {
+   "name": "C3",
+   "kind": "text",
+   "value": "Travel",
+   "text": "Travel",
+   "bbox": [
+    315,
+    131,
+    351,
+    140
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "631d3318bdd290dffeabad0edef989dc4c0d4a70644771b9451139cb99320d28",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "D3": {
+   "name": "D3",
+   "kind": "text",
+   "value": "Lior",
+   "text": "Lior",
+   "bbox": [
+    411,
+    131,
+    435,
+    140
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e16db81fc14c5c753f57832fdd4ee971418e8f12358dbde6ad0e24e0bc0aece9",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "E3": {
+   "name": "E3",
+   "kind": "money",
+   "value": "163.19",
+   "text": "$163.19",
+   "bbox": [
+    524,
+    130,
+    575,
+    141
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "168bdaabd77a1caefc6bf15cd6234a44663f11204c9500cd69c3ee8ba29b5487",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "A4": {
+   "name": "A4",
+   "kind": "date",
+   "value": "2027-09-26",
+   "text": "09/26/2027",
+   "bbox": [
+    58,
+    159,
+    130,
+    169
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ebc6af9fbc3682b404d6f135f9db9f0df2f6666196119737fb804acbc070c623",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "B4": {
+   "name": "B4",
+   "kind": "text",
+   "value": "Quilock Florist",
+   "text": "Quilock Florist",
+   "bbox": [
+    170,
+    159,
+    257,
+    169
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "fb2908fee1210f64eb14c10a64db0a61402badcfc22d3d42d447679b4f305efe",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "C4": {
+   "name": "C4",
+   "kind": "text",
+   "value": "Travel",
+   "text": "Travel",
+   "bbox": [
+    315,
+    159,
+    351,
+    168
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b23a1dcf87d649ee15dde4e41e3866d735c251ea2d5bd60c1fd7bd09c8102c4f",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "D4": {
+   "name": "D4",
+   "kind": "text",
+   "value": "Hana",
+   "text": "Hana",
+   "bbox": [
+    411,
+    159,
+    442,
+    168
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "90d30ca61eb89c0746503e572ead182a249af6223143b2e2a976ec5f872b5396",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "E4": {
+   "name": "E4",
+   "kind": "money",
+   "value": "345.88",
+   "text": "$345.88",
+   "bbox": [
+    524,
+    158,
+    575,
+    169
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b61fa6fe689052eceea47bfe8c3de62a2a8c90d9663035ea537c897b2dafc233",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "A5": {
+   "name": "A5",
+   "kind": "date",
+   "value": "2027-06-04",
+   "text": "06/04/2027",
+   "bbox": [
+    58,
+    187,
+    130,
+    197
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e26428a2c61ae756d920630f330f334a41114846251dfbceac6abdd4856845ea",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "B5": {
+   "name": "B5",
+   "kind": "text",
+   "value": "Vantaelle Supply",
+   "text": "Vantaelle Supply",
+   "bbox": [
+    170,
+    187,
+    269,
+    199
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0d1ebe9e9bb16bb0646763addb7715fa6ac53f22de76a69ba6420bfd3381fddc",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "C5": {
+   "name": "C5",
+   "kind": "text",
+   "value": "Office",
+   "text": "Office",
+   "bbox": [
+    315,
+    186,
+    350,
+    196
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "6d4215df6d6041164cfc946566e3553c9b9bb554255cc5c7443351544900c328",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "D5": {
+   "name": "D5",
+   "kind": "text",
+   "value": "Quinn",
+   "text": "Quinn",
+   "bbox": [
+    411,
+    187,
+    448,
+    197
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "048a47b02b880d75755346e19609ca71470523c7192ee9537c12ac4f4ea22e7c",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "E5": {
+   "name": "E5",
+   "kind": "money",
+   "value": "306.79",
+   "text": "$306.79",
+   "bbox": [
+    524,
+    186,
+    575,
+    197
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "94e7ff1a056499390967c09e3171495e1044dbebd9deaed1d0e0f1223a12eb7a",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "A6": {
+   "name": "A6",
+   "kind": "date",
+   "value": "2027-02-20",
+   "text": "02/20/2027",
+   "bbox": [
+    58,
+    215,
+    130,
+    225
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "34c1d2835ca1a86d8e873909c6fdd8ea2be34e704a3a935d087bf3ddb04fff33",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "B6": {
+   "name": "B6",
+   "kind": "text",
+   "value": "Pellar Deli",
+   "text": "Pellar Deli",
+   "bbox": [
+    170,
+    215,
+    227,
+    224
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "143350036371058273bcbc1cefa4ab66e104c74b12212c7025478d31a2262198",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "C6": {
+   "name": "C6",
+   "kind": "text",
+   "value": "Travel",
+   "text": "Travel",
+   "bbox": [
+    315,
+    215,
+    351,
+    224
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b23a1dcf87d649ee15dde4e41e3866d735c251ea2d5bd60c1fd7bd09c8102c4f",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "D6": {
+   "name": "D6",
+   "kind": "text",
+   "value": "Yusuf",
+   "text": "Yusuf",
+   "bbox": [
+    411,
+    214,
+    446,
+    224
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "350c3d974cc15a8b839d0b2ebc24682aafc18e06756cd58d954d3b0021da9c61",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "E6": {
+   "name": "E6",
+   "kind": "money",
+   "value": "160.91",
+   "text": "$160.91",
+   "bbox": [
+    524,
+    214,
+    575,
+    225
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "55619be2916d60f7280bbbff6cfa17caacc925adbf3f129314fe0bae4f2841c8",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  }
+ },
+ "text_runs": [
+  {
+   "text": "A1",
+   "bbox": [
+    22,
+    17,
+    38,
+    26
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "fx",
+   "bbox": [
+    88,
+    16,
+    99,
+    26
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "A",
+   "bbox": [
+    96,
+    48,
+    104,
+    57
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "B",
+   "bbox": [
+    225,
+    48,
+    232,
+    57
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "C",
+   "bbox": [
+    344,
+    48,
+    353,
+    57
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "D",
+   "bbox": [
+    441,
+    48,
+    449,
+    57
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "E",
+   "bbox": [
+    538,
+    48,
+    545,
+    57
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "1",
+   "bbox": [
+    19,
+    75,
+    25,
+    83
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Date",
+   "bbox": [
+    58,
+    75,
+    85,
+    84
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Vendor",
+   "bbox": [
+    170,
+    75,
+    215,
+    84
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Category",
+   "bbox": [
+    315,
+    75,
+    370,
+    87
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Paid by",
+   "bbox": [
+    411,
+    75,
+    455,
+    87
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Amount",
+   "bbox": [
+    527,
+    75,
+    575,
+    84
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "2",
+   "bbox": [
+    19,
+    103,
+    25,
+    111
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "05/07/2027",
+   "bbox": [
+    58,
+    103,
+    130,
+    113
+   ],
+   "size_px": 13,
+   "field": "A2",
+   "reading": true
+  },
+  {
+   "text": "Gildar Supply",
+   "bbox": [
+    170,
+    103,
+    250,
+    115
+   ],
+   "size_px": 13,
+   "field": "B2",
+   "reading": true
+  },
+  {
+   "text": "Software",
+   "bbox": [
+    315,
+    102,
+    368,
+    112
+   ],
+   "size_px": 13,
+   "field": "C2",
+   "reading": true
+  },
+  {
+   "text": "Sana",
+   "bbox": [
+    411,
+    103,
+    441,
+    112
+   ],
+   "size_px": 13,
+   "field": "D2",
+   "reading": true
+  },
+  {
+   "text": "$765.70",
+   "bbox": [
+    524,
+    102,
+    575,
+    113
+   ],
+   "size_px": 13,
+   "field": "E2",
+   "reading": true
+  },
+  {
+   "text": "3",
+   "bbox": [
+    19,
+    131,
+    25,
+    139
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "07/17/2027",
+   "bbox": [
+    58,
+    131,
+    130,
+    141
+   ],
+   "size_px": 13,
+   "field": "A3",
+   "reading": true
+  },
+  {
+   "text": "Vantaisto Kitchen",
+   "bbox": [
+    170,
+    131,
+    275,
+    140
+   ],
+   "size_px": 13,
+   "field": "B3",
+   "reading": true
+  },
+  {
+   "text": "Travel",
+   "bbox": [
+    315,
+    131,
+    351,
+    140
+   ],
+   "size_px": 13,
+   "field": "C3",
+   "reading": true
+  },
+  {
+   "text": "Lior",
+   "bbox": [
+    411,
+    131,
+    435,
+    140
+   ],
+   "size_px": 13,
+   "field": "D3",
+   "reading": true
+  },
+  {
+   "text": "$163.19",
+   "bbox": [
+    524,
+    130,
+    575,
+    141
+   ],
+   "size_px": 13,
+   "field": "E3",
+   "reading": true
+  },
+  {
+   "text": "4",
+   "bbox": [
+    18,
+    159,
+    25,
+    167
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "09/26/2027",
+   "bbox": [
+    58,
+    159,
+    130,
+    169
+   ],
+   "size_px": 13,
+   "field": "A4",
+   "reading": true
+  },
+  {
+   "text": "Quilock Florist",
+   "bbox": [
+    170,
+    159,
+    257,
+    169
+   ],
+   "size_px": 13,
+   "field": "B4",
+   "reading": true
+  },
+  {
+   "text": "Travel",
+   "bbox": [
+    315,
+    159,
+    351,
+    168
+   ],
+   "size_px": 13,
+   "field": "C4",
+   "reading": true
+  },
+  {
+   "text": "Hana",
+   "bbox": [
+    411,
+    159,
+    442,
+    168
+   ],
+   "size_px": 13,
+   "field": "D4",
+   "reading": true
+  },
+  {
+   "text": "$345.88",
+   "bbox": [
+    524,
+    158,
+    575,
+    169
+   ],
+   "size_px": 13,
+   "field": "E4",
+   "reading": true
+  },
+  {
+   "text": "5",
+   "bbox": [
+    19,
+    187,
+    25,
+    195
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "06/04/2027",
+   "bbox": [
+    58,
+    187,
+    130,
+    197
+   ],
+   "size_px": 13,
+   "field": "A5",
+   "reading": true
+  },
+  {
+   "text": "Vantaelle Supply",
+   "bbox": [
+    170,
+    187,
+    269,
+    199
+   ],
+   "size_px": 13,
+   "field": "B5",
+   "reading": true
+  },
+  {
+   "text": "Office",
+   "bbox": [
+    315,
+    186,
+    350,
+    196
+   ],
+   "size_px": 13,
+   "field": "C5",
+   "reading": true
+  },
+  {
+   "text": "Quinn",
+   "bbox": [
+    411,
+    187,
+    448,
+    197
+   ],
+   "size_px": 13,
+   "field": "D5",
+   "reading": true
+  },
+  {
+   "text": "$306.79",
+   "bbox": [
+    524,
+    186,
+    575,
+    197
+   ],
+   "size_px": 13,
+   "field": "E5",
+   "reading": true
+  },
+  {
+   "text": "6",
+   "bbox": [
+    19,
+    215,
+    25,
+    223
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "02/20/2027",
+   "bbox": [
+    58,
+    215,
+    130,
+    225
+   ],
+   "size_px": 13,
+   "field": "A6",
+   "reading": true
+  },
+  {
+   "text": "Pellar Deli",
+   "bbox": [
+    170,
+    215,
+    227,
+    224
+   ],
+   "size_px": 13,
+   "field": "B6",
+   "reading": true
+  },
+  {
+   "text": "Travel",
+   "bbox": [
+    315,
+    215,
+    351,
+    224
+   ],
+   "size_px": 13,
+   "field": "C6",
+   "reading": true
+  },
+  {
+   "text": "Yusuf",
+   "bbox": [
+    411,
+    214,
+    446,
+    224
+   ],
+   "size_px": 13,
+   "field": "D6",
+   "reading": true
+  },
+  {
+   "text": "$160.91",
+   "bbox": [
+    524,
+    214,
+    575,
+    225
+   ],
+   "size_px": 13,
+   "field": "E6",
+   "reading": true
+  },
+  {
+   "text": "Sheet1",
+   "bbox": [
+    16,
+    695,
+    54,
+    704
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  }
+ ],
+ "reading_text": "A1\nfx\nA\nB\nC\nD\nE\n1\nDate\nVendor\nCategory\nPaid by\nAmount\n2\n05/07/2027\nGildar Supply\nSoftware\nSana\n$765.70\n3\n07/17/2027\nVantaisto Kitchen\nTravel\nLior\n$163.19\n4\n09/26/2027\nQuilock Florist\nTravel\nHana\n$345.88\n5\n06/04/2027\nVantaelle Supply\nOffice\nQuinn\n$306.79\n6\n02/20/2027\nPellar Deli\nTravel\nYusuf\n$160.91\nSheet1",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_sum",
+   "qtype": "sum",
+   "question": "What is the total of column E?",
+   "answer": "1742.47",
+   "kind": "field",
+   "canon": "money",
+   "fields": [
+    "E2",
+    "E3",
+    "E4",
+    "E5",
+    "E6"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_extreme",
+   "qtype": "min",
+   "question": "Which Vendor has the lowest Amount?",
+   "answer": "Pellar Deli",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "E2",
+    "E3",
+    "E4",
+    "E5",
+    "E6",
+    "B6"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_count",
+   "qtype": "count",
+   "question": "How many rows have Category equal to \"Travel\"?",
+   "answer": "3",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "C2",
+    "C3",
+    "C4",
+    "C5",
+    "C6"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_cell",
+   "qtype": "cell",
+   "question": "What is in cell A4?",
+   "answer": "2027-09-26",
+   "kind": "field",
+   "canon": "date",
+   "fields": [
+    "A4"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the screen.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

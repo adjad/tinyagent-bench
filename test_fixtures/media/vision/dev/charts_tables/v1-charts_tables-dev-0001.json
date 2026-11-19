@@ -1,0 +1,452 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-charts_tables-dev-0001",
+ "family": "charts_tables",
+ "template": "bar_chart",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 1,
+ "variant": {
+  "theme": "light",
+  "dpr": 1,
+  "abstain": false,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-charts_tables-dev-0001.png",
+  "sha256": "35cfabd070d6eb0cbac43265e6b38eabe9bbabc3364851971626c645d7eb88e3",
+  "width": 640,
+  "height": 480,
+  "logical": [
+   640,
+   480
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "subject": "Repairs",
+  "categories": [
+   "Q1",
+   "Q2",
+   "Q3",
+   "Q4"
+  ],
+  "values": [
+   30,
+   45,
+   15,
+   30
+  ],
+  "tick_step": 10,
+  "y_max": 50,
+  "data_labels": false
+ },
+ "fields": {
+  "cat_0": {
+   "name": "cat_0",
+   "kind": "text",
+   "value": "Q1",
+   "text": "Q1",
+   "bbox": [
+    132,
+    431,
+    148,
+    441
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1647e3a88208ad6ccd897888c66ca24b560cd337595f06c1fb8ceae6121ee6b2",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cat_1": {
+   "name": "cat_1",
+   "kind": "text",
+   "value": "Q2",
+   "text": "Q2",
+   "bbox": [
+    268,
+    431,
+    284,
+    441
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "7559fa9028cdd92a007248f21a9cb6fbd2e91715d34f76e03408f31d54a6ef2f",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cat_2": {
+   "name": "cat_2",
+   "kind": "text",
+   "value": "Q3",
+   "text": "Q3",
+   "bbox": [
+    404,
+    431,
+    420,
+    441
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "6b1fc84de794289dbb78258cfefcb92e3bd3c5b7d22d26cb9c019043e59fc711",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cat_3": {
+   "name": "cat_3",
+   "kind": "text",
+   "value": "Q4",
+   "text": "Q4",
+   "bbox": [
+    540,
+    431,
+    557,
+    441
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1ebf05704000d80f4980963aa3661b65f3313266507012a460292b455e099328",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "bar_0": {
+   "name": "bar_0",
+   "kind": "number",
+   "value": "30",
+   "text": "",
+   "bbox": [
+    102,
+    228,
+    178,
+    420
+   ],
+   "size_px": 192,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "eebe25d2a6f21536b8c75fd2d4fe26f17bac7c802dd48e7434d6b122b9f96499",
+   "fg": [
+    0,
+    92,
+    197
+   ],
+   "plot_value": true
+  },
+  "bar_1": {
+   "name": "bar_1",
+   "kind": "number",
+   "value": "45",
+   "text": "",
+   "bbox": [
+    238,
+    132,
+    314,
+    420
+   ],
+   "size_px": 288,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5f11b744612cb14f57e6eee2d9c496e5c1c7c2ebb6a07b60c7b7d05427bbed1e",
+   "fg": [
+    0,
+    92,
+    197
+   ],
+   "plot_value": true
+  },
+  "bar_2": {
+   "name": "bar_2",
+   "kind": "number",
+   "value": "15",
+   "text": "",
+   "bbox": [
+    374,
+    324,
+    450,
+    420
+   ],
+   "size_px": 96,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "953bee236e01db670e8483e0f1508adc049266277f952a402c7bcabbad7ed8a8",
+   "fg": [
+    0,
+    92,
+    197
+   ],
+   "plot_value": true
+  },
+  "bar_3": {
+   "name": "bar_3",
+   "kind": "number",
+   "value": "30",
+   "text": "",
+   "bbox": [
+    510,
+    228,
+    586,
+    420
+   ],
+   "size_px": 192,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "eebe25d2a6f21536b8c75fd2d4fe26f17bac7c802dd48e7434d6b122b9f96499",
+   "fg": [
+    0,
+    92,
+    197
+   ],
+   "plot_value": true
+  }
+ },
+ "text_runs": [
+  {
+   "text": "Repairs by quarter, 2027",
+   "bbox": [
+    23,
+    21,
+    222,
+    41
+   ],
+   "size_px": 18,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Repairs per quarter",
+   "bbox": [
+    24,
+    47,
+    125,
+    57
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "50",
+   "bbox": [
+    52,
+    96,
+    64,
+    104
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "40",
+   "bbox": [
+    52,
+    160,
+    64,
+    168
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "30",
+   "bbox": [
+    52,
+    224,
+    64,
+    232
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "20",
+   "bbox": [
+    52,
+    288,
+    64,
+    296
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "10",
+   "bbox": [
+    52,
+    352,
+    64,
+    360
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "0",
+   "bbox": [
+    58,
+    416,
+    64,
+    424
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Q1",
+   "bbox": [
+    132,
+    431,
+    148,
+    441
+   ],
+   "size_px": 12,
+   "field": "cat_0",
+   "reading": true
+  },
+  {
+   "text": "Q2",
+   "bbox": [
+    268,
+    431,
+    284,
+    441
+   ],
+   "size_px": 12,
+   "field": "cat_1",
+   "reading": true
+  },
+  {
+   "text": "Q3",
+   "bbox": [
+    404,
+    431,
+    420,
+    441
+   ],
+   "size_px": 12,
+   "field": "cat_2",
+   "reading": true
+  },
+  {
+   "text": "Q4",
+   "bbox": [
+    540,
+    431,
+    557,
+    441
+   ],
+   "size_px": 12,
+   "field": "cat_3",
+   "reading": true
+  }
+ ],
+ "reading_text": "Repairs by quarter, 2027\nRepairs per quarter\n50\n40\n30\n20\n10\n0\nQ1\nQ2\nQ3\nQ4",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_value",
+   "qtype": "lookup",
+   "question": "Reading the bar chart, what is the value for Q4?",
+   "answer": "30",
+   "kind": "relaxed",
+   "canon": "number",
+   "fields": [
+    "bar_3"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_max",
+   "qtype": "max",
+   "question": "Which quarter has the highest value in the bar chart?",
+   "answer": "Q2",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "cat_0",
+    "cat_1",
+    "cat_2",
+    "cat_3",
+    "bar_0",
+    "bar_1",
+    "bar_2",
+    "bar_3"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_min",
+   "qtype": "min",
+   "question": "Which quarter has the lowest value in the bar chart?",
+   "answer": "Q3",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "cat_0",
+    "cat_1",
+    "cat_2",
+    "cat_3",
+    "bar_0",
+    "bar_1",
+    "bar_2",
+    "bar_3"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the chart.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  },
+  {
+   "qid": "q_value2",
+   "qtype": "lookup",
+   "question": "Reading the bar chart, what is the value for Q2?",
+   "answer": "45",
+   "kind": "relaxed",
+   "canon": "number",
+   "fields": [
+    "bar_1"
+   ],
+   "accept": []
+  }
+ ]
+}

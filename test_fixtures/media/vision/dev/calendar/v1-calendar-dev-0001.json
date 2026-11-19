@@ -1,0 +1,1464 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-calendar-dev-0001",
+ "family": "calendar",
+ "template": "week",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 1,
+ "variant": {
+  "theme": "light",
+  "dpr": 1,
+  "abstain": false,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-calendar-dev-0001.png",
+  "sha256": "4f4b605364f69096ce2a8382c9479135b464a22a03b7cc42a2ace9a918352e45",
+  "width": 1120,
+  "height": 640,
+  "logical": [
+   1120,
+   640
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "week_start": "2027-04-26",
+  "empty_day": "Saturday",
+  "events": [
+   {
+    "day": "2027-04-26",
+    "start": "08:30",
+    "end": "09:30",
+    "title": "Standup with Farah"
+   },
+   {
+    "day": "2027-04-27",
+    "start": "08:00",
+    "end": "09:00",
+    "title": "Book club with Jonas"
+   },
+   {
+    "day": "2027-04-27",
+    "start": "10:00",
+    "end": "12:00",
+    "title": "Lunch"
+   },
+   {
+    "day": "2027-04-28",
+    "start": "08:30",
+    "end": "09:30",
+    "title": "Recital"
+   },
+   {
+    "day": "2027-04-29",
+    "start": "08:00",
+    "end": "09:30",
+    "title": "Planning with Gita"
+   },
+   {
+    "day": "2027-04-30",
+    "start": "09:00",
+    "end": "10:30",
+    "title": "Team dinner"
+   },
+   {
+    "day": "2027-05-02",
+    "start": "09:00",
+    "end": "10:00",
+    "title": "Book club with Gita"
+   }
+  ]
+ },
+ "fields": {
+  "wd_0": {
+   "name": "wd_0",
+   "kind": "text",
+   "value": "Monday",
+   "text": "Monday",
+   "bbox": [
+    80,
+    56,
+    130,
+    68
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "6f49c212b33737aec94bb684bf0183d36f1240ef0e648defe2687ff0d7b39259",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "dt_0": {
+   "name": "dt_0",
+   "kind": "date",
+   "value": "2027-04-26",
+   "text": "Apr 26",
+   "bbox": [
+    80,
+    75,
+    116,
+    87
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "92e66b9bbcfd007777503924c046947b5965de770523484410044a90d2c15317",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "wd_1": {
+   "name": "wd_1",
+   "kind": "text",
+   "value": "Tuesday",
+   "text": "Tuesday",
+   "bbox": [
+    226,
+    56,
+    278,
+    68
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "492bc515635a0f0ec21c90675accca8672107dd7cbd4d4d4e71279fae5c645f1",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "dt_1": {
+   "name": "dt_1",
+   "kind": "date",
+   "value": "2027-04-27",
+   "text": "Apr 27",
+   "bbox": [
+    226,
+    75,
+    262,
+    87
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c261e94313a3582cc4259979f9b67dc5bb2ab647feaf948dc245bd6023737a1c",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "wd_2": {
+   "name": "wd_2",
+   "kind": "text",
+   "value": "Wednesday",
+   "text": "Wednesday",
+   "bbox": [
+    372,
+    56,
+    443,
+    68
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "6e54f13a1b30705ec68ce0fff91ca0ff74ccd93683a6ea91747aba5b82f2fb07",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "dt_2": {
+   "name": "dt_2",
+   "kind": "date",
+   "value": "2027-04-28",
+   "text": "Apr 28",
+   "bbox": [
+    372,
+    75,
+    408,
+    87
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "9551712818c1d93db644abee54d1f24c7215afe827e6cc3326c67103183ea7e9",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "wd_3": {
+   "name": "wd_3",
+   "kind": "text",
+   "value": "Thursday",
+   "text": "Thursday",
+   "bbox": [
+    518,
+    56,
+    575,
+    68
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "7cf6dbfa52a413816deb7a4a531193a83bda223f328bc06d7a4a9bc9c15fa6a3",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "dt_3": {
+   "name": "dt_3",
+   "kind": "date",
+   "value": "2027-04-29",
+   "text": "Apr 29",
+   "bbox": [
+    518,
+    75,
+    554,
+    87
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "8b49c8367538336e5cec69e6d9baaf4fae1d6ba4387b210503ca32236c4cb749",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "wd_4": {
+   "name": "wd_4",
+   "kind": "text",
+   "value": "Friday",
+   "text": "Friday",
+   "bbox": [
+    664,
+    56,
+    700,
+    68
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "fb0ca1b14191645be3f2f940022d151b8e7f449b6a029dd1bf77019006d4e8f9",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "dt_4": {
+   "name": "dt_4",
+   "kind": "date",
+   "value": "2027-04-30",
+   "text": "Apr 30",
+   "bbox": [
+    664,
+    75,
+    700,
+    87
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "86b98a59d2382480f4406b7b6c0c60d4603cd594801d0f873527a74ee5543769",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "wd_5": {
+   "name": "wd_5",
+   "kind": "text",
+   "value": "Saturday",
+   "text": "Saturday",
+   "bbox": [
+    810,
+    56,
+    863,
+    68
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "30bf5130ac86262ab93d1755a0d89354f6b0ec4e9c00bc74bb17d58a2eefa034",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "dt_5": {
+   "name": "dt_5",
+   "kind": "date",
+   "value": "2027-05-01",
+   "text": "May 1",
+   "bbox": [
+    810,
+    75,
+    843,
+    87
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e05506c125f29d1f2ff96ab00825c8a666422fd1dbe60cc3ceec5586ee205885",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "wd_6": {
+   "name": "wd_6",
+   "kind": "text",
+   "value": "Sunday",
+   "text": "Sunday",
+   "bbox": [
+    956,
+    56,
+    1002,
+    68
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "32c598f505c381577ce98caa4b008d29df3e0ff224ac2ae9e0472b5f59f3cf2f",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "dt_6": {
+   "name": "dt_6",
+   "kind": "date",
+   "value": "2027-05-02",
+   "text": "May 2",
+   "bbox": [
+    956,
+    75,
+    989,
+    87
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "69d39ab773e140f65aaf9abc28d5a7431ab29f95c530cfc781a211dd5ca3a24c",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "hr_8": {
+   "name": "hr_8",
+   "kind": "time",
+   "value": "08:00",
+   "text": "8 AM",
+   "bbox": [
+    12,
+    117,
+    37,
+    125
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "68865e51a7244f11ffe2acb287eb930ef2368cc4ef843044766a63d0f4f7ee78",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "hr_9": {
+   "name": "hr_9",
+   "kind": "time",
+   "value": "09:00",
+   "text": "9 AM",
+   "bbox": [
+    12,
+    165,
+    37,
+    173
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "00e7fd331092fa3b5b3f9ec79f2c7dc723a5a897a5492b7ccc069082bb4a22c5",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "hr_10": {
+   "name": "hr_10",
+   "kind": "time",
+   "value": "10:00",
+   "text": "10 AM",
+   "bbox": [
+    12,
+    213,
+    43,
+    221
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "726393a0247cb2e65f7aed2395142ba2bcf3bfbf15a7c5df2562ec3a17f38736",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "hr_11": {
+   "name": "hr_11",
+   "kind": "time",
+   "value": "11:00",
+   "text": "11 AM",
+   "bbox": [
+    12,
+    261,
+    43,
+    269
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "6c7aa87347ab33e299226c5e43b5ca3273e085e5b2a991c7ecb9790210b074a5",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "hr_12": {
+   "name": "hr_12",
+   "kind": "time",
+   "value": "12:00",
+   "text": "12 PM",
+   "bbox": [
+    12,
+    309,
+    42,
+    317
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ded111397f12ae43a80fb9f00b9a2a872a47c006ac588a91e50f7693f9b731a6",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "hr_13": {
+   "name": "hr_13",
+   "kind": "time",
+   "value": "13:00",
+   "text": "1 PM",
+   "bbox": [
+    12,
+    357,
+    36,
+    365
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "530fd7205d522c488424f973232e90751bbd5e9510ad5d67f1daae73c401ba25",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "hr_14": {
+   "name": "hr_14",
+   "kind": "time",
+   "value": "14:00",
+   "text": "2 PM",
+   "bbox": [
+    12,
+    405,
+    36,
+    413
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "6fca11bd3c727ac7d55e406085f75868444216be4c6a1c9a716b18f0da38ab98",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "hr_15": {
+   "name": "hr_15",
+   "kind": "time",
+   "value": "15:00",
+   "text": "3 PM",
+   "bbox": [
+    12,
+    453,
+    36,
+    461
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "2fd6c21d4ce4aebfde0308c004b12a7ced33b4e3f1619608df1ecf089046efe2",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "hr_16": {
+   "name": "hr_16",
+   "kind": "time",
+   "value": "16:00",
+   "text": "4 PM",
+   "bbox": [
+    12,
+    501,
+    36,
+    509
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "820ef2679ee99bee2efc4d28c6b823890e9a7efd2264bda26852cd5fedc11de4",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "hr_17": {
+   "name": "hr_17",
+   "kind": "time",
+   "value": "17:00",
+   "text": "5 PM",
+   "bbox": [
+    12,
+    549,
+    36,
+    557
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f9819699551eeff899d72729430e471db790da5db9c546ec989a099290a16b19",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "title_0": {
+   "name": "title_0",
+   "kind": "text",
+   "value": "Standup with Farah",
+   "text": "Standup with Farah",
+   "bbox": [
+    82,
+    145,
+    189,
+    157
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d590b09ce37f9d13fc796fa830dba358303d8c3875d19c46b5df7deff95d19b7",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "start_0": {
+   "name": "start_0",
+   "kind": "time",
+   "value": "08:30",
+   "text": "8:30 AM",
+   "bbox": [
+    82,
+    165,
+    122,
+    173
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b3e7fa1687522b420fa8a33672247d565f3d1bc35529cf45f1a44eb0eb82aba0",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "title_1": {
+   "name": "title_1",
+   "kind": "text",
+   "value": "Book club with Jonas",
+   "text": "Book club with Jonas",
+   "bbox": [
+    228,
+    121,
+    345,
+    130
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4e7e92098f3d3e05e31a46676fcdb7dac97b585379cacfd7ec1dacf271dff199",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "start_1": {
+   "name": "start_1",
+   "kind": "time",
+   "value": "08:00",
+   "text": "8:00 AM",
+   "bbox": [
+    228,
+    141,
+    268,
+    149
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "3e4bd4fb1c83e16d20f12a9947758b1cf15ce2f8dee79ec523a01fc2cee7051d",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "title_2": {
+   "name": "title_2",
+   "kind": "text",
+   "value": "Lunch",
+   "text": "Lunch",
+   "bbox": [
+    228,
+    217,
+    263,
+    226
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e984347e6c9e3570787d01ff7f87c7f44460885a624ddb0fadc138dc5da68570",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "start_2": {
+   "name": "start_2",
+   "kind": "time",
+   "value": "10:00",
+   "text": "10:00 AM",
+   "bbox": [
+    228,
+    237,
+    274,
+    245
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "835095743e43dffaa96899a0a6b305c33d2f295c34f8437607af017426d9ceb7",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "title_3": {
+   "name": "title_3",
+   "kind": "text",
+   "value": "Recital",
+   "text": "Recital",
+   "bbox": [
+    374,
+    145,
+    412,
+    154
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0d46d8679435b46d11d8824e94de59d826f565e5543c1947e3e812931e347b78",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "start_3": {
+   "name": "start_3",
+   "kind": "time",
+   "value": "08:30",
+   "text": "8:30 AM",
+   "bbox": [
+    374,
+    165,
+    414,
+    173
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b3e7fa1687522b420fa8a33672247d565f3d1bc35529cf45f1a44eb0eb82aba0",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "title_4": {
+   "name": "title_4",
+   "kind": "text",
+   "value": "Planning with Gita",
+   "text": "Planning with Gita",
+   "bbox": [
+    520,
+    121,
+    621,
+    133
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "fac89cd389da0e69ed37e76ba77bbe1f7f250a469b06e4fc4e6b17c5e9cbc9d8",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "start_4": {
+   "name": "start_4",
+   "kind": "time",
+   "value": "08:00",
+   "text": "8:00 AM",
+   "bbox": [
+    520,
+    141,
+    560,
+    149
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "3e4bd4fb1c83e16d20f12a9947758b1cf15ce2f8dee79ec523a01fc2cee7051d",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "title_5": {
+   "name": "title_5",
+   "kind": "text",
+   "value": "Team dinner",
+   "text": "Team dinner",
+   "bbox": [
+    666,
+    169,
+    738,
+    178
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "6b16818d8d9ac34aead26ccd14ed45141e3ed377a2b1c1445f8091a25f45463f",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "start_5": {
+   "name": "start_5",
+   "kind": "time",
+   "value": "09:00",
+   "text": "9:00 AM",
+   "bbox": [
+    666,
+    189,
+    706,
+    197
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "7da04e54e08d78e38b3a4e0ee675c06c6ea5848ffe75297f14552a20fcde9c15",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "title_6": {
+   "name": "title_6",
+   "kind": "text",
+   "value": "Book club with Gita",
+   "text": "Book club with Gita",
+   "bbox": [
+    958,
+    169,
+    1064,
+    178
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "a24bff24fc1e7f3c40213c7f843daa7df696fc2502597bba8c6df1bdc149454c",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "start_6": {
+   "name": "start_6",
+   "kind": "time",
+   "value": "09:00",
+   "text": "9:00 AM",
+   "bbox": [
+    958,
+    189,
+    998,
+    197
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "7da04e54e08d78e38b3a4e0ee675c06c6ea5848ffe75297f14552a20fcde9c15",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  }
+ },
+ "text_runs": [
+  {
+   "text": "Apr 26 - May 2, 2027",
+   "bbox": [
+    71,
+    26,
+    279,
+    47
+   ],
+   "size_px": 22,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Monday",
+   "bbox": [
+    80,
+    56,
+    130,
+    68
+   ],
+   "size_px": 13,
+   "field": "wd_0",
+   "reading": true
+  },
+  {
+   "text": "Apr 26",
+   "bbox": [
+    80,
+    75,
+    116,
+    87
+   ],
+   "size_px": 12,
+   "field": "dt_0",
+   "reading": true
+  },
+  {
+   "text": "Tuesday",
+   "bbox": [
+    226,
+    56,
+    278,
+    68
+   ],
+   "size_px": 13,
+   "field": "wd_1",
+   "reading": true
+  },
+  {
+   "text": "Apr 27",
+   "bbox": [
+    226,
+    75,
+    262,
+    87
+   ],
+   "size_px": 12,
+   "field": "dt_1",
+   "reading": true
+  },
+  {
+   "text": "Wednesday",
+   "bbox": [
+    372,
+    56,
+    443,
+    68
+   ],
+   "size_px": 13,
+   "field": "wd_2",
+   "reading": true
+  },
+  {
+   "text": "Apr 28",
+   "bbox": [
+    372,
+    75,
+    408,
+    87
+   ],
+   "size_px": 12,
+   "field": "dt_2",
+   "reading": true
+  },
+  {
+   "text": "Thursday",
+   "bbox": [
+    518,
+    56,
+    575,
+    68
+   ],
+   "size_px": 13,
+   "field": "wd_3",
+   "reading": true
+  },
+  {
+   "text": "Apr 29",
+   "bbox": [
+    518,
+    75,
+    554,
+    87
+   ],
+   "size_px": 12,
+   "field": "dt_3",
+   "reading": true
+  },
+  {
+   "text": "Friday",
+   "bbox": [
+    664,
+    56,
+    700,
+    68
+   ],
+   "size_px": 13,
+   "field": "wd_4",
+   "reading": true
+  },
+  {
+   "text": "Apr 30",
+   "bbox": [
+    664,
+    75,
+    700,
+    87
+   ],
+   "size_px": 12,
+   "field": "dt_4",
+   "reading": true
+  },
+  {
+   "text": "Saturday",
+   "bbox": [
+    810,
+    56,
+    863,
+    68
+   ],
+   "size_px": 13,
+   "field": "wd_5",
+   "reading": true
+  },
+  {
+   "text": "May 1",
+   "bbox": [
+    810,
+    75,
+    843,
+    87
+   ],
+   "size_px": 12,
+   "field": "dt_5",
+   "reading": true
+  },
+  {
+   "text": "Sunday",
+   "bbox": [
+    956,
+    56,
+    1002,
+    68
+   ],
+   "size_px": 13,
+   "field": "wd_6",
+   "reading": true
+  },
+  {
+   "text": "May 2",
+   "bbox": [
+    956,
+    75,
+    989,
+    87
+   ],
+   "size_px": 12,
+   "field": "dt_6",
+   "reading": true
+  },
+  {
+   "text": "8 AM",
+   "bbox": [
+    12,
+    117,
+    37,
+    125
+   ],
+   "size_px": 11,
+   "field": "hr_8",
+   "reading": true
+  },
+  {
+   "text": "9 AM",
+   "bbox": [
+    12,
+    165,
+    37,
+    173
+   ],
+   "size_px": 11,
+   "field": "hr_9",
+   "reading": true
+  },
+  {
+   "text": "10 AM",
+   "bbox": [
+    12,
+    213,
+    43,
+    221
+   ],
+   "size_px": 11,
+   "field": "hr_10",
+   "reading": true
+  },
+  {
+   "text": "11 AM",
+   "bbox": [
+    12,
+    261,
+    43,
+    269
+   ],
+   "size_px": 11,
+   "field": "hr_11",
+   "reading": true
+  },
+  {
+   "text": "12 PM",
+   "bbox": [
+    12,
+    309,
+    42,
+    317
+   ],
+   "size_px": 11,
+   "field": "hr_12",
+   "reading": true
+  },
+  {
+   "text": "1 PM",
+   "bbox": [
+    12,
+    357,
+    36,
+    365
+   ],
+   "size_px": 11,
+   "field": "hr_13",
+   "reading": true
+  },
+  {
+   "text": "2 PM",
+   "bbox": [
+    12,
+    405,
+    36,
+    413
+   ],
+   "size_px": 11,
+   "field": "hr_14",
+   "reading": true
+  },
+  {
+   "text": "3 PM",
+   "bbox": [
+    12,
+    453,
+    36,
+    461
+   ],
+   "size_px": 11,
+   "field": "hr_15",
+   "reading": true
+  },
+  {
+   "text": "4 PM",
+   "bbox": [
+    12,
+    501,
+    36,
+    509
+   ],
+   "size_px": 11,
+   "field": "hr_16",
+   "reading": true
+  },
+  {
+   "text": "5 PM",
+   "bbox": [
+    12,
+    549,
+    36,
+    557
+   ],
+   "size_px": 11,
+   "field": "hr_17",
+   "reading": true
+  },
+  {
+   "text": "Standup with Farah",
+   "bbox": [
+    82,
+    145,
+    189,
+    157
+   ],
+   "size_px": 12,
+   "field": "title_0",
+   "reading": true
+  },
+  {
+   "text": "8:30 AM",
+   "bbox": [
+    82,
+    165,
+    122,
+    173
+   ],
+   "size_px": 11,
+   "field": "start_0",
+   "reading": true
+  },
+  {
+   "text": "Book club with Jonas",
+   "bbox": [
+    228,
+    121,
+    345,
+    130
+   ],
+   "size_px": 12,
+   "field": "title_1",
+   "reading": true
+  },
+  {
+   "text": "8:00 AM",
+   "bbox": [
+    228,
+    141,
+    268,
+    149
+   ],
+   "size_px": 11,
+   "field": "start_1",
+   "reading": true
+  },
+  {
+   "text": "Lunch",
+   "bbox": [
+    228,
+    217,
+    263,
+    226
+   ],
+   "size_px": 12,
+   "field": "title_2",
+   "reading": true
+  },
+  {
+   "text": "10:00 AM",
+   "bbox": [
+    228,
+    237,
+    274,
+    245
+   ],
+   "size_px": 11,
+   "field": "start_2",
+   "reading": true
+  },
+  {
+   "text": "Recital",
+   "bbox": [
+    374,
+    145,
+    412,
+    154
+   ],
+   "size_px": 12,
+   "field": "title_3",
+   "reading": true
+  },
+  {
+   "text": "8:30 AM",
+   "bbox": [
+    374,
+    165,
+    414,
+    173
+   ],
+   "size_px": 11,
+   "field": "start_3",
+   "reading": true
+  },
+  {
+   "text": "Planning with Gita",
+   "bbox": [
+    520,
+    121,
+    621,
+    133
+   ],
+   "size_px": 12,
+   "field": "title_4",
+   "reading": true
+  },
+  {
+   "text": "8:00 AM",
+   "bbox": [
+    520,
+    141,
+    560,
+    149
+   ],
+   "size_px": 11,
+   "field": "start_4",
+   "reading": true
+  },
+  {
+   "text": "Team dinner",
+   "bbox": [
+    666,
+    169,
+    738,
+    178
+   ],
+   "size_px": 12,
+   "field": "title_5",
+   "reading": true
+  },
+  {
+   "text": "9:00 AM",
+   "bbox": [
+    666,
+    189,
+    706,
+    197
+   ],
+   "size_px": 11,
+   "field": "start_5",
+   "reading": true
+  },
+  {
+   "text": "Book club with Gita",
+   "bbox": [
+    958,
+    169,
+    1064,
+    178
+   ],
+   "size_px": 12,
+   "field": "title_6",
+   "reading": true
+  },
+  {
+   "text": "9:00 AM",
+   "bbox": [
+    958,
+    189,
+    998,
+    197
+   ],
+   "size_px": 11,
+   "field": "start_6",
+   "reading": true
+  }
+ ],
+ "reading_text": "Apr 26 - May 2, 2027\nMonday\nApr 26\nTuesday\nApr 27\nWednesday\nApr 28\nThursday\nApr 29\nFriday\nApr 30\nSaturday\nMay 1\nSunday\nMay 2\n8 AM\n9 AM\n10 AM\n11 AM\n12 PM\n1 PM\n2 PM\n3 PM\n4 PM\n5 PM\nStandup with Farah\n8:30 AM\nBook club with Jonas\n8:00 AM\nLunch\n10:00 AM\nRecital\n8:30 AM\nPlanning with Gita\n8:00 AM\nTeam dinner\n9:00 AM\nBook club with Gita\n9:00 AM",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_at",
+   "qtype": "event",
+   "question": "What event is scheduled on Sunday at 9:00 AM?",
+   "answer": "Book club with Gita",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "title_6",
+    "wd_6",
+    "hr_9",
+    "start_6"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_free",
+   "qtype": "free_slot",
+   "question": "Which day of this week has no events at all?",
+   "answer": "Saturday",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "wd_5",
+    "title_0",
+    "title_1",
+    "title_2",
+    "title_3",
+    "title_4",
+    "title_5",
+    "title_6"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_count",
+   "qtype": "count",
+   "question": "How many events are scheduled on Wednesday?",
+   "answer": "1",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "wd_2",
+    "title_3"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_start",
+   "qtype": "lookup",
+   "question": "At what time does \"Planning with Gita\" start?",
+   "answer": "08:00",
+   "kind": "field",
+   "canon": "time",
+   "fields": [
+    "title_4",
+    "start_4"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the screen.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

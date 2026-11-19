@@ -1,0 +1,899 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-calendar-dev-0000",
+ "family": "calendar",
+ "template": "day",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 0,
+ "variant": {
+  "theme": "light",
+  "dpr": 1,
+  "abstain": false,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-calendar-dev-0000.png",
+  "sha256": "52e4dcadbd0e5a002e71a0c2856c7e7cd3a1ed05bb96bd8d9639feb2a8cd338f",
+  "width": 520,
+  "height": 740,
+  "logical": [
+   520,
+   740
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "date": "2027-10-01",
+  "free_hour_start": "14:30",
+  "events": [
+   {
+    "title": "Sync with Priya",
+    "start": "09:00",
+    "end": "11:00",
+    "location": "Studio 1"
+   },
+   {
+    "title": "Workshop",
+    "start": "11:00",
+    "end": "12:00",
+    "location": "Trelock Pharmacy"
+   },
+   {
+    "title": "Dentist with Oskar",
+    "start": "12:30",
+    "end": "14:30",
+    "location": "Online"
+   },
+   {
+    "title": "Sync",
+    "start": "15:30",
+    "end": "17:00",
+    "location": "Studio 1"
+   }
+  ]
+ },
+ "fields": {
+  "day_date": {
+   "name": "day_date",
+   "kind": "date",
+   "value": "2027-10-01",
+   "text": "Friday, October 1, 2027",
+   "bbox": [
+    23,
+    27,
+    262,
+    49
+   ],
+   "size_px": 22,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b1ba16aa4894855d1882000f0261848b1a5d24aa70afce184220a62a294dec64",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "title_0": {
+   "name": "title_0",
+   "kind": "text",
+   "value": "Sync with Priya",
+   "text": "Sync with Priya",
+   "bbox": [
+    92,
+    154,
+    182,
+    166
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "2d52f367d867db210b1a7e5f9f7df45c152a7d6b148b7fab561b27fe92482e86",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "start_0": {
+   "name": "start_0",
+   "kind": "time",
+   "value": "09:00",
+   "text": "9:00 AM",
+   "bbox": [
+    92,
+    172,
+    132,
+    180
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "18182151eb14a4753878f3089c93da10a669548252cb5be2e54d13d0f7b58864",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "end_0": {
+   "name": "end_0",
+   "kind": "time",
+   "value": "11:00",
+   "text": "11:00 AM",
+   "bbox": [
+    148,
+    172,
+    194,
+    180
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "29e45a3a8abc90dd1b647373004be7ad42168b4074575ae63224ee550f259d65",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "loc_0": {
+   "name": "loc_0",
+   "kind": "text",
+   "value": "Studio 1",
+   "text": "Studio 1",
+   "bbox": [
+    92,
+    190,
+    134,
+    198
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1c980ef27c9edd8fc665cb6aedd46095f4ff762d99eeb2efd6e1714a5b451691",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "title_1": {
+   "name": "title_1",
+   "kind": "text",
+   "value": "Workshop",
+   "text": "Workshop",
+   "bbox": [
+    92,
+    282,
+    156,
+    294
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "2323252d0df9bcfe4412c694529f5105632067f251f802754cca10e66aa698b8",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "start_1": {
+   "name": "start_1",
+   "kind": "time",
+   "value": "11:00",
+   "text": "11:00 AM",
+   "bbox": [
+    92,
+    300,
+    138,
+    308
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "29e45a3a8abc90dd1b647373004be7ad42168b4074575ae63224ee550f259d65",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "end_1": {
+   "name": "end_1",
+   "kind": "time",
+   "value": "12:00",
+   "text": "12:00 PM",
+   "bbox": [
+    154,
+    300,
+    199,
+    308
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "a45c0c2843c8725fc3167ecdd081a212db14b60514b603a2b81167e084702fc1",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "loc_1": {
+   "name": "loc_1",
+   "kind": "text",
+   "value": "Trelock Pharmacy",
+   "text": "Trelock Pharmacy",
+   "bbox": [
+    92,
+    318,
+    186,
+    328
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "8de878131748bcd9dbeb7b576cb86342eb7f66c28485fc8959fde2bf5631e760",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "title_2": {
+   "name": "title_2",
+   "kind": "text",
+   "value": "Dentist with Oskar",
+   "text": "Dentist with Oskar",
+   "bbox": [
+    92,
+    378,
+    201,
+    387
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "541d2da5599503fdbba84c0866d2c0cd0e672ce31f2d689efc67ee1ac872b578",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "start_2": {
+   "name": "start_2",
+   "kind": "time",
+   "value": "12:30",
+   "text": "12:30 PM",
+   "bbox": [
+    92,
+    396,
+    137,
+    404
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4a6c8c40ac951cac5c1ab9dc9a113c20a39e800c5d3500cf6c3887ab4480b5a6",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "end_2": {
+   "name": "end_2",
+   "kind": "time",
+   "value": "14:30",
+   "text": "2:30 PM",
+   "bbox": [
+    153,
+    396,
+    192,
+    404
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "6dd5eef50beb42fc34adb757d6c1233b53d0550d2079fe844c032648f0070830",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "loc_2": {
+   "name": "loc_2",
+   "kind": "text",
+   "value": "Online",
+   "text": "Online",
+   "bbox": [
+    92,
+    414,
+    127,
+    422
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4682f19fb3af4c4b65d5abba6f5e32233d1bce0b128b1266753f80cef110a659",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "title_3": {
+   "name": "title_3",
+   "kind": "text",
+   "value": "Sync",
+   "text": "Sync",
+   "bbox": [
+    92,
+    570,
+    122,
+    582
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "64c6ab1bab03b7c8db4dac942335dd63db864519bf21a21a9ca88099088f16c2",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "start_3": {
+   "name": "start_3",
+   "kind": "time",
+   "value": "15:30",
+   "text": "3:30 PM",
+   "bbox": [
+    92,
+    588,
+    131,
+    596
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5d8d88a0b2846fb76393e39e37fbbdd530ac79813cfa8ab66da2378eeb603e5e",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "end_3": {
+   "name": "end_3",
+   "kind": "time",
+   "value": "17:00",
+   "text": "5:00 PM",
+   "bbox": [
+    147,
+    588,
+    186,
+    596
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c90af9ff156e170785a5856ebf96fb0ea5dd743d246b386fe999172c252de267",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "loc_3": {
+   "name": "loc_3",
+   "kind": "text",
+   "value": "Studio 1",
+   "text": "Studio 1",
+   "bbox": [
+    92,
+    606,
+    134,
+    614
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1c980ef27c9edd8fc665cb6aedd46095f4ff762d99eeb2efd6e1714a5b451691",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  }
+ },
+ "text_runs": [
+  {
+   "text": "Friday, October 1, 2027",
+   "bbox": [
+    23,
+    27,
+    262,
+    49
+   ],
+   "size_px": 22,
+   "field": "day_date",
+   "reading": true
+  },
+  {
+   "text": "8 AM",
+   "bbox": [
+    16,
+    76,
+    41,
+    84
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "9 AM",
+   "bbox": [
+    16,
+    140,
+    41,
+    148
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "10 AM",
+   "bbox": [
+    16,
+    204,
+    47,
+    212
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "11 AM",
+   "bbox": [
+    16,
+    268,
+    47,
+    276
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "12 PM",
+   "bbox": [
+    16,
+    332,
+    46,
+    340
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "1 PM",
+   "bbox": [
+    16,
+    396,
+    40,
+    404
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "2 PM",
+   "bbox": [
+    16,
+    460,
+    40,
+    468
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "3 PM",
+   "bbox": [
+    16,
+    524,
+    40,
+    532
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "4 PM",
+   "bbox": [
+    16,
+    588,
+    40,
+    596
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "5 PM",
+   "bbox": [
+    16,
+    652,
+    40,
+    660
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "6 PM",
+   "bbox": [
+    16,
+    716,
+    40,
+    724
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Sync with Priya",
+   "bbox": [
+    92,
+    154,
+    182,
+    166
+   ],
+   "size_px": 13,
+   "field": "title_0",
+   "reading": true
+  },
+  {
+   "text": "9:00 AM",
+   "bbox": [
+    92,
+    172,
+    132,
+    180
+   ],
+   "size_px": 11,
+   "field": "start_0",
+   "reading": true
+  },
+  {
+   "text": "-",
+   "bbox": [
+    138,
+    176,
+    141,
+    180
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "11:00 AM",
+   "bbox": [
+    148,
+    172,
+    194,
+    180
+   ],
+   "size_px": 11,
+   "field": "end_0",
+   "reading": true
+  },
+  {
+   "text": "Studio 1",
+   "bbox": [
+    92,
+    190,
+    134,
+    198
+   ],
+   "size_px": 11,
+   "field": "loc_0",
+   "reading": true
+  },
+  {
+   "text": "Workshop",
+   "bbox": [
+    92,
+    282,
+    156,
+    294
+   ],
+   "size_px": 13,
+   "field": "title_1",
+   "reading": true
+  },
+  {
+   "text": "11:00 AM",
+   "bbox": [
+    92,
+    300,
+    138,
+    308
+   ],
+   "size_px": 11,
+   "field": "start_1",
+   "reading": true
+  },
+  {
+   "text": "-",
+   "bbox": [
+    144,
+    304,
+    147,
+    308
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "12:00 PM",
+   "bbox": [
+    154,
+    300,
+    199,
+    308
+   ],
+   "size_px": 11,
+   "field": "end_1",
+   "reading": true
+  },
+  {
+   "text": "Trelock Pharmacy",
+   "bbox": [
+    92,
+    318,
+    186,
+    328
+   ],
+   "size_px": 11,
+   "field": "loc_1",
+   "reading": true
+  },
+  {
+   "text": "Dentist with Oskar",
+   "bbox": [
+    92,
+    378,
+    201,
+    387
+   ],
+   "size_px": 13,
+   "field": "title_2",
+   "reading": true
+  },
+  {
+   "text": "12:30 PM",
+   "bbox": [
+    92,
+    396,
+    137,
+    404
+   ],
+   "size_px": 11,
+   "field": "start_2",
+   "reading": true
+  },
+  {
+   "text": "-",
+   "bbox": [
+    143,
+    400,
+    146,
+    404
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "2:30 PM",
+   "bbox": [
+    153,
+    396,
+    192,
+    404
+   ],
+   "size_px": 11,
+   "field": "end_2",
+   "reading": true
+  },
+  {
+   "text": "Online",
+   "bbox": [
+    92,
+    414,
+    127,
+    422
+   ],
+   "size_px": 11,
+   "field": "loc_2",
+   "reading": true
+  },
+  {
+   "text": "Sync",
+   "bbox": [
+    92,
+    570,
+    122,
+    582
+   ],
+   "size_px": 13,
+   "field": "title_3",
+   "reading": true
+  },
+  {
+   "text": "3:30 PM",
+   "bbox": [
+    92,
+    588,
+    131,
+    596
+   ],
+   "size_px": 11,
+   "field": "start_3",
+   "reading": true
+  },
+  {
+   "text": "-",
+   "bbox": [
+    137,
+    592,
+    140,
+    596
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "5:00 PM",
+   "bbox": [
+    147,
+    588,
+    186,
+    596
+   ],
+   "size_px": 11,
+   "field": "end_3",
+   "reading": true
+  },
+  {
+   "text": "Studio 1",
+   "bbox": [
+    92,
+    606,
+    134,
+    614
+   ],
+   "size_px": 11,
+   "field": "loc_3",
+   "reading": true
+  }
+ ],
+ "reading_text": "Friday, October 1, 2027\n8 AM\n9 AM\n10 AM\n11 AM\n12 PM\n1 PM\n2 PM\n3 PM\n4 PM\n5 PM\n6 PM\nSync with Priya\n9:00 AM\n-\n11:00 AM\nStudio 1\nWorkshop\n11:00 AM\n-\n12:00 PM\nTrelock Pharmacy\nDentist with Oskar\n12:30 PM\n-\n2:30 PM\nOnline\nSync\n3:30 PM\n-\n5:00 PM\nStudio 1",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_slot",
+   "qtype": "free_slot",
+   "question": "Between 9 AM and 5 PM on Friday, there is exactly one free hour with no events. At what time does it start?",
+   "answer": "14:30",
+   "kind": "field",
+   "canon": "time",
+   "fields": [
+    "start_0",
+    "start_1",
+    "start_2",
+    "start_3",
+    "end_0",
+    "end_1",
+    "end_2",
+    "end_3"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_at",
+   "qtype": "event",
+   "question": "What event is scheduled at 4:00 PM on Friday?",
+   "answer": "Sync",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "title_3",
+    "start_3",
+    "end_3"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_start",
+   "qtype": "lookup",
+   "question": "At what time does \"Dentist with Oskar\" start?",
+   "answer": "12:30",
+   "kind": "field",
+   "canon": "time",
+   "fields": [
+    "title_2",
+    "start_2"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_loc",
+   "qtype": "lookup",
+   "question": "Where is the event \"Workshop\" held?",
+   "answer": "Trelock Pharmacy",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "title_1",
+    "loc_1"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the screen.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

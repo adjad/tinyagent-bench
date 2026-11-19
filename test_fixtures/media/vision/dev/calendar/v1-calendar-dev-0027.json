@@ -1,0 +1,898 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-calendar-dev-0027",
+ "family": "calendar",
+ "template": "day",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 27,
+ "variant": {
+  "theme": "dark",
+  "dpr": 1,
+  "abstain": true,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-calendar-dev-0027.png",
+  "sha256": "71a502158ee6ce38dbc978a2f2445afdd2fcc5f5f465558cf870e7995334ccdb",
+  "width": 520,
+  "height": 740,
+  "logical": [
+   520,
+   740
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "date": "2027-03-03",
+  "free_hour_start": "16:00",
+  "events": [
+   {
+    "title": "Interview with Rafael",
+    "start": "09:30",
+    "end": "11:00",
+    "location": "Online"
+   },
+   {
+    "title": "Lunch",
+    "start": "11:00",
+    "end": "13:00",
+    "location": "Online"
+   },
+   {
+    "title": "Standup",
+    "start": "13:30",
+    "end": "15:00",
+    "location": "Online"
+   },
+   {
+    "title": "Standup with Nadia",
+    "start": "15:00",
+    "end": "16:00",
+    "location": "Room C6"
+   }
+  ]
+ },
+ "fields": {
+  "day_date": {
+   "name": "day_date",
+   "kind": "date",
+   "value": "2027-03-03",
+   "text": "Wednesday, March 3, 2027",
+   "bbox": [
+    23,
+    27,
+    300,
+    49
+   ],
+   "size_px": 22,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "3c888341a71ba730513e5794b6799933142cacdfaa654fc7b08f7860a1a05f33",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "title_0": {
+   "name": "title_0",
+   "kind": "text",
+   "value": "Interview with Rafael",
+   "text": "Interview with Rafael",
+   "bbox": [
+    92,
+    185,
+    212,
+    195
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "a3fb5060f9dedec279b404aeaff2a20d7847b29258e417feffa45e7afc1b1cf8",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "start_0": {
+   "name": "start_0",
+   "kind": "time",
+   "value": "09:30",
+   "text": "9:30 AM",
+   "bbox": [
+    92,
+    204,
+    132,
+    212
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "6b1b0c29589b834733179bd3b6b22389a09011a6d86878c37ea380bf48ce4d16",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "end_0": {
+   "name": "end_0",
+   "kind": "time",
+   "value": "11:00",
+   "text": "11:00 AM",
+   "bbox": [
+    148,
+    204,
+    194,
+    212
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f36f3a61ff5fb66be77dc275c01d5fd0dbd16a78e1e05193d9f5780b925d7210",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "loc_0": {
+   "name": "loc_0",
+   "kind": "text",
+   "value": "Online",
+   "text": "Online",
+   "bbox": [
+    92,
+    222,
+    127,
+    230
+   ],
+   "size_px": 11,
+   "visible": false,
+   "obscured": "blur",
+   "crop_sha256": "ec1ae513a613346a61426cd00b8d130a4f4b7e3474001259397f3471ead676ca",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "title_1": {
+   "name": "title_1",
+   "kind": "text",
+   "value": "Lunch",
+   "text": "Lunch",
+   "bbox": [
+    92,
+    282,
+    130,
+    291
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "6beb558f891de28cd3ba71de00d292a6218ab936e4c96200517f263bcb5dfe8d",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "start_1": {
+   "name": "start_1",
+   "kind": "time",
+   "value": "11:00",
+   "text": "11:00 AM",
+   "bbox": [
+    92,
+    300,
+    138,
+    308
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f36f3a61ff5fb66be77dc275c01d5fd0dbd16a78e1e05193d9f5780b925d7210",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "end_1": {
+   "name": "end_1",
+   "kind": "time",
+   "value": "13:00",
+   "text": "1:00 PM",
+   "bbox": [
+    154,
+    300,
+    193,
+    308
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c50407a930b7defbcfc000a5d2b38b8e9ab6d1af24078de11c182c617b7f7c3e",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "loc_1": {
+   "name": "loc_1",
+   "kind": "text",
+   "value": "Online",
+   "text": "Online",
+   "bbox": [
+    92,
+    318,
+    127,
+    326
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4f781e54f70653dcf73135c2eeea71041a186f46a7aff1c62e3076129fa6ebb6",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "title_2": {
+   "name": "title_2",
+   "kind": "text",
+   "value": "Standup",
+   "text": "Standup",
+   "bbox": [
+    92,
+    442,
+    143,
+    454
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4df30b913cb52d0b7345400c9745b8e816bc164cd57beb5a6c01922b4c8be1b5",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "start_2": {
+   "name": "start_2",
+   "kind": "time",
+   "value": "13:30",
+   "text": "1:30 PM",
+   "bbox": [
+    92,
+    460,
+    131,
+    468
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d1ce7957807c2e224b10da079acf41afb21d3b046bcf8c69d5bddacec9980388",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "end_2": {
+   "name": "end_2",
+   "kind": "time",
+   "value": "15:00",
+   "text": "3:00 PM",
+   "bbox": [
+    147,
+    460,
+    186,
+    468
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "2610f23cd4cf4684c6b2b55ce6ce2a1752e26a7bb9502d2ad3111bf9dbc25eaa",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "loc_2": {
+   "name": "loc_2",
+   "kind": "text",
+   "value": "Online",
+   "text": "Online",
+   "bbox": [
+    92,
+    478,
+    127,
+    486
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4f781e54f70653dcf73135c2eeea71041a186f46a7aff1c62e3076129fa6ebb6",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "title_3": {
+   "name": "title_3",
+   "kind": "text",
+   "value": "Standup with Nadia",
+   "text": "Standup with Nadia",
+   "bbox": [
+    92,
+    538,
+    208,
+    550
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "874a84b1ae6d983112e44c6265e9d8985fd22ba7ff37cb6dee878322e2cabce1",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "start_3": {
+   "name": "start_3",
+   "kind": "time",
+   "value": "15:00",
+   "text": "3:00 PM",
+   "bbox": [
+    92,
+    556,
+    131,
+    564
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "2610f23cd4cf4684c6b2b55ce6ce2a1752e26a7bb9502d2ad3111bf9dbc25eaa",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "end_3": {
+   "name": "end_3",
+   "kind": "time",
+   "value": "16:00",
+   "text": "4:00 PM",
+   "bbox": [
+    147,
+    556,
+    186,
+    564
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "8b08b11e0050f24916f56ad36fc1f168cf7807a225597a701bf46a96a0129155",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "loc_3": {
+   "name": "loc_3",
+   "kind": "text",
+   "value": "Room C6",
+   "text": "Room C6",
+   "bbox": [
+    92,
+    574,
+    137,
+    582
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d490bb9c4c8f25b64581c14d3c44c69bca04813466caa88a2d5ad94d968abc63",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  }
+ },
+ "text_runs": [
+  {
+   "text": "Wednesday, March 3, 2027",
+   "bbox": [
+    23,
+    27,
+    300,
+    49
+   ],
+   "size_px": 22,
+   "field": "day_date",
+   "reading": true
+  },
+  {
+   "text": "8 AM",
+   "bbox": [
+    16,
+    76,
+    41,
+    84
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "9 AM",
+   "bbox": [
+    16,
+    140,
+    41,
+    148
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "10 AM",
+   "bbox": [
+    16,
+    204,
+    47,
+    212
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "11 AM",
+   "bbox": [
+    16,
+    268,
+    47,
+    276
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "12 PM",
+   "bbox": [
+    16,
+    332,
+    46,
+    340
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "1 PM",
+   "bbox": [
+    16,
+    396,
+    40,
+    404
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "2 PM",
+   "bbox": [
+    16,
+    460,
+    40,
+    468
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "3 PM",
+   "bbox": [
+    16,
+    524,
+    40,
+    532
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "4 PM",
+   "bbox": [
+    16,
+    588,
+    40,
+    596
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "5 PM",
+   "bbox": [
+    16,
+    652,
+    40,
+    660
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "6 PM",
+   "bbox": [
+    16,
+    716,
+    40,
+    724
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Interview with Rafael",
+   "bbox": [
+    92,
+    185,
+    212,
+    195
+   ],
+   "size_px": 13,
+   "field": "title_0",
+   "reading": true
+  },
+  {
+   "text": "9:30 AM",
+   "bbox": [
+    92,
+    204,
+    132,
+    212
+   ],
+   "size_px": 11,
+   "field": "start_0",
+   "reading": true
+  },
+  {
+   "text": "-",
+   "bbox": [
+    138,
+    208,
+    141,
+    212
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "11:00 AM",
+   "bbox": [
+    148,
+    204,
+    194,
+    212
+   ],
+   "size_px": 11,
+   "field": "end_0",
+   "reading": true
+  },
+  {
+   "text": "Online",
+   "bbox": [
+    92,
+    222,
+    127,
+    230
+   ],
+   "size_px": 11,
+   "field": "loc_0",
+   "reading": false
+  },
+  {
+   "text": "Lunch",
+   "bbox": [
+    92,
+    282,
+    130,
+    291
+   ],
+   "size_px": 13,
+   "field": "title_1",
+   "reading": true
+  },
+  {
+   "text": "11:00 AM",
+   "bbox": [
+    92,
+    300,
+    138,
+    308
+   ],
+   "size_px": 11,
+   "field": "start_1",
+   "reading": true
+  },
+  {
+   "text": "-",
+   "bbox": [
+    144,
+    304,
+    147,
+    308
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "1:00 PM",
+   "bbox": [
+    154,
+    300,
+    193,
+    308
+   ],
+   "size_px": 11,
+   "field": "end_1",
+   "reading": true
+  },
+  {
+   "text": "Online",
+   "bbox": [
+    92,
+    318,
+    127,
+    326
+   ],
+   "size_px": 11,
+   "field": "loc_1",
+   "reading": true
+  },
+  {
+   "text": "Standup",
+   "bbox": [
+    92,
+    442,
+    143,
+    454
+   ],
+   "size_px": 13,
+   "field": "title_2",
+   "reading": true
+  },
+  {
+   "text": "1:30 PM",
+   "bbox": [
+    92,
+    460,
+    131,
+    468
+   ],
+   "size_px": 11,
+   "field": "start_2",
+   "reading": true
+  },
+  {
+   "text": "-",
+   "bbox": [
+    137,
+    464,
+    140,
+    468
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "3:00 PM",
+   "bbox": [
+    147,
+    460,
+    186,
+    468
+   ],
+   "size_px": 11,
+   "field": "end_2",
+   "reading": true
+  },
+  {
+   "text": "Online",
+   "bbox": [
+    92,
+    478,
+    127,
+    486
+   ],
+   "size_px": 11,
+   "field": "loc_2",
+   "reading": true
+  },
+  {
+   "text": "Standup with Nadia",
+   "bbox": [
+    92,
+    538,
+    208,
+    550
+   ],
+   "size_px": 13,
+   "field": "title_3",
+   "reading": true
+  },
+  {
+   "text": "3:00 PM",
+   "bbox": [
+    92,
+    556,
+    131,
+    564
+   ],
+   "size_px": 11,
+   "field": "start_3",
+   "reading": true
+  },
+  {
+   "text": "-",
+   "bbox": [
+    137,
+    560,
+    140,
+    564
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "4:00 PM",
+   "bbox": [
+    147,
+    556,
+    186,
+    564
+   ],
+   "size_px": 11,
+   "field": "end_3",
+   "reading": true
+  },
+  {
+   "text": "Room C6",
+   "bbox": [
+    92,
+    574,
+    137,
+    582
+   ],
+   "size_px": 11,
+   "field": "loc_3",
+   "reading": true
+  }
+ ],
+ "reading_text": "Wednesday, March 3, 2027\n8 AM\n9 AM\n10 AM\n11 AM\n12 PM\n1 PM\n2 PM\n3 PM\n4 PM\n5 PM\n6 PM\nInterview with Rafael\n9:30 AM\n-\n11:00 AM\nLunch\n11:00 AM\n-\n1:00 PM\nOnline\nStandup\n1:30 PM\n-\n3:00 PM\nOnline\nStandup with Nadia\n3:00 PM\n-\n4:00 PM\nRoom C6",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_slot",
+   "qtype": "free_slot",
+   "question": "Between 9 AM and 5 PM on Wednesday, there is exactly one free hour with no events. At what time does it start?",
+   "answer": "16:00",
+   "kind": "field",
+   "canon": "time",
+   "fields": [
+    "start_0",
+    "start_1",
+    "start_2",
+    "start_3",
+    "end_0",
+    "end_1",
+    "end_2",
+    "end_3"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_at",
+   "qtype": "event",
+   "question": "What event is scheduled at 12:00 PM on Wednesday?",
+   "answer": "Lunch",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "title_1",
+    "start_1",
+    "end_1"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_start",
+   "qtype": "lookup",
+   "question": "At what time does \"Standup with Nadia\" start?",
+   "answer": "15:00",
+   "kind": "field",
+   "canon": "time",
+   "fields": [
+    "title_3",
+    "start_3"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_loc",
+   "qtype": "absence",
+   "question": "Where is the event \"Interview with Rafael\" held?",
+   "answer": "not shown",
+   "kind": "abstain",
+   "canon": "text",
+   "fields": [
+    "loc_0"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the screen.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

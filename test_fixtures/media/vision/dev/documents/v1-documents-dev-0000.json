@@ -1,0 +1,997 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-documents-dev-0000",
+ "family": "documents",
+ "template": "receipt",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 0,
+ "variant": {
+  "theme": "light",
+  "dpr": 1,
+  "abstain": false,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-documents-dev-0000.png",
+  "sha256": "a8a791e71340030fdc9e0d506842fc135429ac962ec6a163e366079f76e3ad5c",
+  "width": 360,
+  "height": 640,
+  "logical": [
+   360,
+   640
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "merchant": "Ruvaane Market",
+  "address": "294 Jarquist St, Marrowdale",
+  "date": "2027-07-22",
+  "time": "15:37",
+  "receipt_number": "B779437",
+  "lines": [
+   {
+    "name": "Sponges",
+    "qty": 1,
+    "unit": 15.16,
+    "amount": 15.16
+   },
+   {
+    "name": "Tape",
+    "qty": 1,
+    "unit": 23.16,
+    "amount": 23.16
+   },
+   {
+    "name": "Olive oil",
+    "qty": 1,
+    "unit": 8.25,
+    "amount": 8.25
+   },
+   {
+    "name": "Oat milk",
+    "qty": 1,
+    "unit": 6.97,
+    "amount": 6.97
+   },
+   {
+    "name": "Green tea",
+    "qty": 3,
+    "unit": 2.86,
+    "amount": 8.58
+   },
+   {
+    "name": "Dish soap",
+    "qty": 3,
+    "unit": 10.34,
+    "amount": 31.02
+   },
+   {
+    "name": "Notebook",
+    "qty": 1,
+    "unit": 11.9,
+    "amount": 11.9
+   }
+  ],
+  "subtotal": 105.04,
+  "tax_rate": 0.0875,
+  "tax": 9.19,
+  "total": 114.23,
+  "layout": 7
+ },
+ "fields": {
+  "merchant": {
+   "name": "merchant",
+   "kind": "text",
+   "value": "Ruvaane Market",
+   "text": "RUVAANE MARKET",
+   "bbox": [
+    95,
+    29,
+    262,
+    44
+   ],
+   "size_px": 19,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "7ce56bb7eb1fe36d5d4ef1bc4ada905722e880e3688899eb3bed95ecd79a620c",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "receipt_number": {
+   "name": "receipt_number",
+   "kind": "text",
+   "value": "B779437",
+   "text": "RECEIPT B779437",
+   "bbox": [
+    130,
+    73,
+    230,
+    82
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "3bc678b71409fe757f8a238748c6c4c2bec19460ce9143cc7636478b4936e89c",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "date": {
+   "name": "date",
+   "kind": "date",
+   "value": "2027-07-22",
+   "text": "Jul 22, 2027",
+   "bbox": [
+    24,
+    93,
+    92,
+    104
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "eac6e8ea45838386ea552144ec5ccb4eb3724335c623f3b424327b931c81d234",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "time": {
+   "name": "time",
+   "kind": "time",
+   "value": "15:37",
+   "text": "3:37 PM",
+   "bbox": [
+    292,
+    93,
+    336,
+    102
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "92b514369c4ba6d61e75ec1ca6f6c7d490dcca46644dede3130ae9c8ee1a0eaf",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_0_name": {
+   "name": "item_0_name",
+   "kind": "text",
+   "value": "Sponges",
+   "text": "Sponges",
+   "bbox": [
+    24,
+    129,
+    72,
+    141
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "698c439198c1c83ef5618b243054a4d26666efdd902d9c6f21f6e3e4f5843e04",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_0_amount": {
+   "name": "item_0_amount",
+   "kind": "money",
+   "value": "15.16",
+   "text": "$15.16",
+   "bbox": [
+    298,
+    128,
+    336,
+    139
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ed8e40623da92dea67ea01fdbc357c949fb71d097c78f13c0ed10b54cdfd518a",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_1_name": {
+   "name": "item_1_name",
+   "kind": "text",
+   "value": "Tape",
+   "text": "Tape",
+   "bbox": [
+    24,
+    147,
+    53,
+    159
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b243b8dd8c6178dc8f87cc6a6dfe7207586882dfa495d1f40341da6066e5175d",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_1_amount": {
+   "name": "item_1_amount",
+   "kind": "money",
+   "value": "23.16",
+   "text": "$23.16",
+   "bbox": [
+    298,
+    146,
+    336,
+    157
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "a13d6e98425fbd9fcf076b7f5d43ec49fab74588ff6fcb13da1573a464a6b505",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_2_name": {
+   "name": "item_2_name",
+   "kind": "text",
+   "value": "Olive oil",
+   "text": "Olive oil",
+   "bbox": [
+    24,
+    165,
+    68,
+    174
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5dae9d005ba4cfb4d6062895d2d0786c17911657f3e6b95e8137797b2be31563",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_2_amount": {
+   "name": "item_2_amount",
+   "kind": "money",
+   "value": "8.25",
+   "text": "$8.25",
+   "bbox": [
+    305,
+    164,
+    336,
+    175
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "80b8a9539c640c1282253888728a97238ab2b189f8279d82dc978e95b8bb2547",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_3_name": {
+   "name": "item_3_name",
+   "kind": "text",
+   "value": "Oat milk",
+   "text": "Oat milk",
+   "bbox": [
+    24,
+    183,
+    71,
+    192
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e024499e986e0075742d9ce60ad1eb03d95b87348a75b17c4104fab3600903d0",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_3_amount": {
+   "name": "item_3_amount",
+   "kind": "money",
+   "value": "6.97",
+   "text": "$6.97",
+   "bbox": [
+    305,
+    182,
+    336,
+    193
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "7dcc5273d68523b7ee603bd94df2e2073f2e63fa083d527478bb619c4166f21c",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_4_name": {
+   "name": "item_4_name",
+   "kind": "text",
+   "value": "Green tea",
+   "text": "Green tea",
+   "bbox": [
+    24,
+    201,
+    79,
+    210
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d37722397b0a09156466429014f20893eade81da15c2054805618e523a6d0070",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_4_amount": {
+   "name": "item_4_amount",
+   "kind": "money",
+   "value": "8.58",
+   "text": "$8.58",
+   "bbox": [
+    305,
+    200,
+    336,
+    211
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1358aa7bdf1ee431a13617a3f2bcd424d05fc4936420e2c97220d0bb03c094ec",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_5_name": {
+   "name": "item_5_name",
+   "kind": "text",
+   "value": "Dish soap",
+   "text": "Dish soap",
+   "bbox": [
+    24,
+    234,
+    78,
+    246
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0e04cdfd479d3be8d19b9634b1376112c25fe3af9eff47f4441481d7f4f97faf",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_5_amount": {
+   "name": "item_5_amount",
+   "kind": "money",
+   "value": "31.02",
+   "text": "$31.02",
+   "bbox": [
+    298,
+    233,
+    336,
+    244
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "7276543170ed842136122151513a9e4f22924fefc5bfa64d063c22cc5397dd24",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_6_name": {
+   "name": "item_6_name",
+   "kind": "text",
+   "value": "Notebook",
+   "text": "Notebook",
+   "bbox": [
+    24,
+    267,
+    78,
+    276
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "894633c03635a1d3aa94e404b87e78b96e4771ea83871614a1709017fa98c0a4",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "item_6_amount": {
+   "name": "item_6_amount",
+   "kind": "money",
+   "value": "11.90",
+   "text": "$11.90",
+   "bbox": [
+    298,
+    266,
+    336,
+    277
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e6d51a9b9125139c2fa5585955931218178cc8a84263b46c9e66dba744304e1f",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "subtotal": {
+   "name": "subtotal",
+   "kind": "money",
+   "value": "105.04",
+   "text": "$105.04",
+   "bbox": [
+    290,
+    296,
+    336,
+    307
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "24baddb94d78bdb19e79b5d69ab9f9f92ed9452067b9e2636fad5198aefa2ca9",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "tax": {
+   "name": "tax",
+   "kind": "money",
+   "value": "9.19",
+   "text": "$9.19",
+   "bbox": [
+    305,
+    314,
+    336,
+    325
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c62c5fcd9aebe98dab00f9c9758153aa18fd510d98fa2e493cf86c89bb3e7b6c",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "total": {
+   "name": "total",
+   "kind": "money",
+   "value": "114.23",
+   "text": "$114.23",
+   "bbox": [
+    276,
+    334,
+    335,
+    349
+   ],
+   "size_px": 15,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "fbd4e8146d841c05808903f5116b8877f79d3aeb6ed4ceaff52d1ef4dac7a181",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  }
+ },
+ "text_runs": [
+  {
+   "text": "RUVAANE MARKET",
+   "bbox": [
+    95,
+    29,
+    262,
+    44
+   ],
+   "size_px": 19,
+   "field": "merchant",
+   "reading": true
+  },
+  {
+   "text": "294 JARQUIST ST, MARROWDALE",
+   "bbox": [
+    98,
+    54,
+    263,
+    63
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "RECEIPT B779437",
+   "bbox": [
+    130,
+    73,
+    230,
+    82
+   ],
+   "size_px": 12,
+   "field": "receipt_number",
+   "reading": true
+  },
+  {
+   "text": "Jul 22, 2027",
+   "bbox": [
+    24,
+    93,
+    92,
+    104
+   ],
+   "size_px": 12,
+   "field": "date",
+   "reading": true
+  },
+  {
+   "text": "3:37 PM",
+   "bbox": [
+    292,
+    93,
+    336,
+    102
+   ],
+   "size_px": 12,
+   "field": "time",
+   "reading": true
+  },
+  {
+   "text": "------------------------------------------------",
+   "bbox": [
+    24,
+    117,
+    168,
+    121
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": false
+  },
+  {
+   "text": "Sponges",
+   "bbox": [
+    24,
+    129,
+    72,
+    141
+   ],
+   "size_px": 12,
+   "field": "item_0_name",
+   "reading": true
+  },
+  {
+   "text": "$15.16",
+   "bbox": [
+    298,
+    128,
+    336,
+    139
+   ],
+   "size_px": 12,
+   "field": "item_0_amount",
+   "reading": true
+  },
+  {
+   "text": "Tape",
+   "bbox": [
+    24,
+    147,
+    53,
+    159
+   ],
+   "size_px": 12,
+   "field": "item_1_name",
+   "reading": true
+  },
+  {
+   "text": "$23.16",
+   "bbox": [
+    298,
+    146,
+    336,
+    157
+   ],
+   "size_px": 12,
+   "field": "item_1_amount",
+   "reading": true
+  },
+  {
+   "text": "Olive oil",
+   "bbox": [
+    24,
+    165,
+    68,
+    174
+   ],
+   "size_px": 12,
+   "field": "item_2_name",
+   "reading": true
+  },
+  {
+   "text": "$8.25",
+   "bbox": [
+    305,
+    164,
+    336,
+    175
+   ],
+   "size_px": 12,
+   "field": "item_2_amount",
+   "reading": true
+  },
+  {
+   "text": "Oat milk",
+   "bbox": [
+    24,
+    183,
+    71,
+    192
+   ],
+   "size_px": 12,
+   "field": "item_3_name",
+   "reading": true
+  },
+  {
+   "text": "$6.97",
+   "bbox": [
+    305,
+    182,
+    336,
+    193
+   ],
+   "size_px": 12,
+   "field": "item_3_amount",
+   "reading": true
+  },
+  {
+   "text": "Green tea",
+   "bbox": [
+    24,
+    201,
+    79,
+    210
+   ],
+   "size_px": 12,
+   "field": "item_4_name",
+   "reading": true
+  },
+  {
+   "text": "$8.58",
+   "bbox": [
+    305,
+    200,
+    336,
+    211
+   ],
+   "size_px": 12,
+   "field": "item_4_amount",
+   "reading": true
+  },
+  {
+   "text": "3 @ $2.86",
+   "bbox": [
+    36,
+    217,
+    83,
+    227
+   ],
+   "size_px": 10,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Dish soap",
+   "bbox": [
+    24,
+    234,
+    78,
+    246
+   ],
+   "size_px": 12,
+   "field": "item_5_name",
+   "reading": true
+  },
+  {
+   "text": "$31.02",
+   "bbox": [
+    298,
+    233,
+    336,
+    244
+   ],
+   "size_px": 12,
+   "field": "item_5_amount",
+   "reading": true
+  },
+  {
+   "text": "3 @ $10.34",
+   "bbox": [
+    36,
+    250,
+    89,
+    260
+   ],
+   "size_px": 10,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Notebook",
+   "bbox": [
+    24,
+    267,
+    78,
+    276
+   ],
+   "size_px": 12,
+   "field": "item_6_name",
+   "reading": true
+  },
+  {
+   "text": "$11.90",
+   "bbox": [
+    298,
+    266,
+    336,
+    277
+   ],
+   "size_px": 12,
+   "field": "item_6_amount",
+   "reading": true
+  },
+  {
+   "text": "------------------------------------------------",
+   "bbox": [
+    24,
+    285,
+    168,
+    289
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": false
+  },
+  {
+   "text": "Subtotal",
+   "bbox": [
+    24,
+    297,
+    69,
+    306
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "$105.04",
+   "bbox": [
+    290,
+    296,
+    336,
+    307
+   ],
+   "size_px": 12,
+   "field": "subtotal",
+   "reading": true
+  },
+  {
+   "text": "Tax 8.75%",
+   "bbox": [
+    24,
+    315,
+    81,
+    324
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "$9.19",
+   "bbox": [
+    305,
+    314,
+    336,
+    325
+   ],
+   "size_px": 12,
+   "field": "tax",
+   "reading": true
+  },
+  {
+   "text": "TOTAL",
+   "bbox": [
+    23,
+    336,
+    75,
+    348
+   ],
+   "size_px": 15,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "$114.23",
+   "bbox": [
+    276,
+    334,
+    335,
+    349
+   ],
+   "size_px": 15,
+   "field": "total",
+   "reading": true
+  },
+  {
+   "text": "Thank you for shopping with us",
+   "bbox": [
+    98,
+    362,
+    261,
+    373
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  }
+ ],
+ "reading_text": "RUVAANE MARKET\n294 JARQUIST ST, MARROWDALE\nRECEIPT B779437\nJul 22, 2027\n3:37 PM\nSponges\n$15.16\nTape\n$23.16\nOlive oil\n$8.25\nOat milk\n$6.97\nGreen tea\n$8.58\n3 @ $2.86\nDish soap\n$31.02\n3 @ $10.34\nNotebook\n$11.90\nSubtotal\n$105.04\nTax 8.75%\n$9.19\nTOTAL\n$114.23\nThank you for shopping with us",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_merchant",
+   "qtype": "lookup",
+   "question": "What is the name of the store on this receipt?",
+   "answer": "Ruvaane Market",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "merchant"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_date",
+   "qtype": "lookup",
+   "question": "On what date was this purchase made? Give the date.",
+   "answer": "2027-07-22",
+   "kind": "field",
+   "canon": "date",
+   "fields": [
+    "date"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_count",
+   "qtype": "count",
+   "question": "How many different products are listed on the receipt?",
+   "answer": "7",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "item_0_name",
+    "item_1_name",
+    "item_2_name",
+    "item_3_name",
+    "item_4_name",
+    "item_5_name",
+    "item_6_name"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_sum",
+   "qtype": "sum",
+   "question": "What is the subtotal plus the tax?",
+   "answer": "114.23",
+   "kind": "field",
+   "canon": "money",
+   "fields": [
+    "subtotal",
+    "tax"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the receipt.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  },
+  {
+   "qid": "q_total",
+   "qtype": "lookup",
+   "question": "What is the total amount on the receipt?",
+   "answer": "114.23",
+   "kind": "field",
+   "canon": "money",
+   "fields": [
+    "total"
+   ],
+   "accept": []
+  }
+ ]
+}

@@ -1,0 +1,1050 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-charts_tables-dev-0054",
+ "family": "charts_tables",
+ "template": "table",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 54,
+ "variant": {
+  "theme": "dark",
+  "dpr": 1,
+  "abstain": true,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-charts_tables-dev-0054.png",
+  "sha256": "fc6b43290beac62fa59f4f9aee591a58b6f6c582a51adb32d8c8ec3d8cd9653a",
+  "width": 600,
+  "height": 780,
+  "logical": [
+   600,
+   780
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "columns": [
+   "Team",
+   "Wins",
+   "Losses",
+   "Points"
+  ],
+  "rows": [
+   "Lumova",
+   "Gildix",
+   "Quilock",
+   "Maroisto",
+   "Sorrent",
+   "Pellar"
+  ],
+  "values": [
+   [
+    10,
+    10,
+    35
+   ],
+   [
+    20,
+    4,
+    27
+   ],
+   [
+    7,
+    21,
+    44
+   ],
+   [
+    13,
+    24,
+    41
+   ],
+   [
+    23,
+    18,
+    50
+   ],
+   [
+    18,
+    27,
+    20
+   ]
+  ],
+  "month": "January",
+  "year": 2027
+ },
+ "fields": {
+  "row_0": {
+   "name": "row_0",
+   "kind": "text",
+   "value": "Lumova",
+   "text": "Lumova",
+   "bbox": [
+    32,
+    111,
+    77,
+    120
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5740f55880d4e2e8b4ef7451dd9ee8c539aa6fe07403ef04eda66392940954ff",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_0_0": {
+   "name": "cell_0_0",
+   "kind": "number",
+   "value": "10",
+   "text": "10",
+   "bbox": [
+    316,
+    111,
+    330,
+    120
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "3972e5dc4354513eab2d138e13551d64b7a3f310c2edfe52f31c486f31bac140",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_0_1": {
+   "name": "cell_0_1",
+   "kind": "number",
+   "value": "10",
+   "text": "10",
+   "bbox": [
+    436,
+    111,
+    450,
+    120
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "3972e5dc4354513eab2d138e13551d64b7a3f310c2edfe52f31c486f31bac140",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_0_2": {
+   "name": "cell_0_2",
+   "kind": "number",
+   "value": "35",
+   "text": "35",
+   "bbox": [
+    554,
+    111,
+    568,
+    120
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5006fd6b3da8c634e2e5825a77b19ef8d59c93171b655c7de1e6aa984b8532e0",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "row_1": {
+   "name": "row_1",
+   "kind": "text",
+   "value": "Gildix",
+   "text": "Gildix",
+   "bbox": [
+    32,
+    137,
+    64,
+    146
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "84ed8afe32f1d904331b3adbd0a04524b44ec5484fe16fbcea980743d222a3c1",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_1_0": {
+   "name": "cell_1_0",
+   "kind": "number",
+   "value": "20",
+   "text": "20",
+   "bbox": [
+    316,
+    137,
+    330,
+    146
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "8f62605113c46493ee2b4666ca4880eaa1ae1abab2dd6d417d52e5af06872f50",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_1_1": {
+   "name": "cell_1_1",
+   "kind": "number",
+   "value": "4",
+   "text": "4",
+   "bbox": [
+    443,
+    137,
+    451,
+    146
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d7ed0bad4d2a6f55ce9c77263079789229812774379fe6a84b3b33a0fcd5be21",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_1_2": {
+   "name": "cell_1_2",
+   "kind": "number",
+   "value": "27",
+   "text": "27",
+   "bbox": [
+    554,
+    137,
+    568,
+    146
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "3e4fbd506ef0615a089b924425d9688e9c4b150ebe2b4e461a54400186481cff",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "row_2": {
+   "name": "row_2",
+   "kind": "text",
+   "value": "Quilock",
+   "text": "Quilock",
+   "bbox": [
+    32,
+    163,
+    75,
+    173
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "105bcca03e921f08728a81b0ea3726b0db8bd1016c2952049238203b6fd95cff",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_2_0": {
+   "name": "cell_2_0",
+   "kind": "number",
+   "value": "7",
+   "text": "7",
+   "bbox": [
+    323,
+    163,
+    330,
+    172
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "90aa318df99d32d84b7372e9f73def753db3088cd2c65794c506019bad77ff21",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_2_1": {
+   "name": "cell_2_1",
+   "kind": "number",
+   "value": "21",
+   "text": "21",
+   "bbox": [
+    436,
+    163,
+    450,
+    172
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b431ae1d7d35dadea920865a68e7e79607e57c3f00181c6c58856b3f58078828",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_2_2": {
+   "name": "cell_2_2",
+   "kind": "number",
+   "value": "44",
+   "text": "44",
+   "bbox": [
+    554,
+    163,
+    569,
+    172
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c6c98820e30b2680311a8a67b7fd1d17595156908dd1a07f544cea74083414a5",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "row_3": {
+   "name": "row_3",
+   "kind": "text",
+   "value": "Maroisto",
+   "text": "Maroisto",
+   "bbox": [
+    32,
+    189,
+    80,
+    198
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "8f476e93135a70a1d86dea41428911fc8d9586e77d4028d89f30f26c575918da",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_3_0": {
+   "name": "cell_3_0",
+   "kind": "number",
+   "value": "13",
+   "text": "13",
+   "bbox": [
+    316,
+    189,
+    330,
+    198
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "3dc42b6a859a1fd0ca5ed561d951483c42c5e3fd39baf3695d1344f06c2cd02d",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_3_1": {
+   "name": "cell_3_1",
+   "kind": "number",
+   "value": "24",
+   "text": "24",
+   "bbox": [
+    436,
+    189,
+    451,
+    198
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "eb1e4fa9825a76930b073997f00b7c0ace5f2a2408f530ab83a97fe48002410e",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_3_2": {
+   "name": "cell_3_2",
+   "kind": "number",
+   "value": "41",
+   "text": "41",
+   "bbox": [
+    554,
+    189,
+    568,
+    198
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "a02552b18085b06c473b450eda4620110b76a64d07cea74422b62a77e4cb5b29",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "row_4": {
+   "name": "row_4",
+   "kind": "text",
+   "value": "Sorrent",
+   "text": "Sorrent",
+   "bbox": [
+    32,
+    215,
+    71,
+    224
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "bdcb820484578c832858bd201b7b457afec0812a7712bca3cbf42eeb6f991914",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_4_0": {
+   "name": "cell_4_0",
+   "kind": "number",
+   "value": "23",
+   "text": "23",
+   "bbox": [
+    316,
+    215,
+    330,
+    224
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "72e964deabf5fe2f047215946650b13ce0adda87384e6346f5a055d4e026ef7c",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_4_1": {
+   "name": "cell_4_1",
+   "kind": "number",
+   "value": "18",
+   "text": "18",
+   "bbox": [
+    436,
+    215,
+    450,
+    224
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5f3a55580c9409998c6428e9fb75853039e331953a62719d8803683232a39d9d",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_4_2": {
+   "name": "cell_4_2",
+   "kind": "number",
+   "value": "50",
+   "text": "50",
+   "bbox": [
+    554,
+    215,
+    568,
+    224
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "599331b3a849bf66713fd56e17783d7dc4c8fc1ed1c2dea0424cc8507f5de527",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "row_5": {
+   "name": "row_5",
+   "kind": "text",
+   "value": "Pellar",
+   "text": "Pellar",
+   "bbox": [
+    32,
+    241,
+    63,
+    250
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "828ba1c85b178c50007dad0ca8a5a7b82d027dd15971ff0a7689bb09fcf56dc7",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_5_0": {
+   "name": "cell_5_0",
+   "kind": "number",
+   "value": "18",
+   "text": "18",
+   "bbox": [
+    316,
+    241,
+    330,
+    250
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "2dea23a431373acf1fe0e5ff42c06f5cf98d0f5a092dbb415e3cb1937c62890e",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_5_1": {
+   "name": "cell_5_1",
+   "kind": "number",
+   "value": "27",
+   "text": "27",
+   "bbox": [
+    436,
+    241,
+    450,
+    250
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "3e4fbd506ef0615a089b924425d9688e9c4b150ebe2b4e461a54400186481cff",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_5_2": {
+   "name": "cell_5_2",
+   "kind": "number",
+   "value": "20",
+   "text": "20",
+   "bbox": [
+    554,
+    241,
+    568,
+    250
+   ],
+   "size_px": 12,
+   "visible": false,
+   "obscured": "blur",
+   "crop_sha256": "cf55359ae47105ce0a64373e7fa8310d939933a6a36487497b0f17a05e69d4b8",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  }
+ },
+ "text_runs": [
+  {
+   "text": "Ruvaar team report",
+   "bbox": [
+    23,
+    24,
+    182,
+    43
+   ],
+   "size_px": 18,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Figures for January 2027",
+   "bbox": [
+    24,
+    50,
+    153,
+    61
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Team",
+   "bbox": [
+    32,
+    85,
+    65,
+    94
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Wins",
+   "bbox": [
+    303,
+    85,
+    330,
+    94
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Losses",
+   "bbox": [
+    411,
+    85,
+    450,
+    94
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Points",
+   "bbox": [
+    534,
+    85,
+    568,
+    94
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Lumova",
+   "bbox": [
+    32,
+    111,
+    77,
+    120
+   ],
+   "size_px": 12,
+   "field": "row_0",
+   "reading": true
+  },
+  {
+   "text": "10",
+   "bbox": [
+    316,
+    111,
+    330,
+    120
+   ],
+   "size_px": 12,
+   "field": "cell_0_0",
+   "reading": true
+  },
+  {
+   "text": "10",
+   "bbox": [
+    436,
+    111,
+    450,
+    120
+   ],
+   "size_px": 12,
+   "field": "cell_0_1",
+   "reading": true
+  },
+  {
+   "text": "35",
+   "bbox": [
+    554,
+    111,
+    568,
+    120
+   ],
+   "size_px": 12,
+   "field": "cell_0_2",
+   "reading": true
+  },
+  {
+   "text": "Gildix",
+   "bbox": [
+    32,
+    137,
+    64,
+    146
+   ],
+   "size_px": 12,
+   "field": "row_1",
+   "reading": true
+  },
+  {
+   "text": "20",
+   "bbox": [
+    316,
+    137,
+    330,
+    146
+   ],
+   "size_px": 12,
+   "field": "cell_1_0",
+   "reading": true
+  },
+  {
+   "text": "4",
+   "bbox": [
+    443,
+    137,
+    451,
+    146
+   ],
+   "size_px": 12,
+   "field": "cell_1_1",
+   "reading": true
+  },
+  {
+   "text": "27",
+   "bbox": [
+    554,
+    137,
+    568,
+    146
+   ],
+   "size_px": 12,
+   "field": "cell_1_2",
+   "reading": true
+  },
+  {
+   "text": "Quilock",
+   "bbox": [
+    32,
+    163,
+    75,
+    173
+   ],
+   "size_px": 12,
+   "field": "row_2",
+   "reading": true
+  },
+  {
+   "text": "7",
+   "bbox": [
+    323,
+    163,
+    330,
+    172
+   ],
+   "size_px": 12,
+   "field": "cell_2_0",
+   "reading": true
+  },
+  {
+   "text": "21",
+   "bbox": [
+    436,
+    163,
+    450,
+    172
+   ],
+   "size_px": 12,
+   "field": "cell_2_1",
+   "reading": true
+  },
+  {
+   "text": "44",
+   "bbox": [
+    554,
+    163,
+    569,
+    172
+   ],
+   "size_px": 12,
+   "field": "cell_2_2",
+   "reading": true
+  },
+  {
+   "text": "Maroisto",
+   "bbox": [
+    32,
+    189,
+    80,
+    198
+   ],
+   "size_px": 12,
+   "field": "row_3",
+   "reading": true
+  },
+  {
+   "text": "13",
+   "bbox": [
+    316,
+    189,
+    330,
+    198
+   ],
+   "size_px": 12,
+   "field": "cell_3_0",
+   "reading": true
+  },
+  {
+   "text": "24",
+   "bbox": [
+    436,
+    189,
+    451,
+    198
+   ],
+   "size_px": 12,
+   "field": "cell_3_1",
+   "reading": true
+  },
+  {
+   "text": "41",
+   "bbox": [
+    554,
+    189,
+    568,
+    198
+   ],
+   "size_px": 12,
+   "field": "cell_3_2",
+   "reading": true
+  },
+  {
+   "text": "Sorrent",
+   "bbox": [
+    32,
+    215,
+    71,
+    224
+   ],
+   "size_px": 12,
+   "field": "row_4",
+   "reading": true
+  },
+  {
+   "text": "23",
+   "bbox": [
+    316,
+    215,
+    330,
+    224
+   ],
+   "size_px": 12,
+   "field": "cell_4_0",
+   "reading": true
+  },
+  {
+   "text": "18",
+   "bbox": [
+    436,
+    215,
+    450,
+    224
+   ],
+   "size_px": 12,
+   "field": "cell_4_1",
+   "reading": true
+  },
+  {
+   "text": "50",
+   "bbox": [
+    554,
+    215,
+    568,
+    224
+   ],
+   "size_px": 12,
+   "field": "cell_4_2",
+   "reading": true
+  },
+  {
+   "text": "Pellar",
+   "bbox": [
+    32,
+    241,
+    63,
+    250
+   ],
+   "size_px": 12,
+   "field": "row_5",
+   "reading": true
+  },
+  {
+   "text": "18",
+   "bbox": [
+    316,
+    241,
+    330,
+    250
+   ],
+   "size_px": 12,
+   "field": "cell_5_0",
+   "reading": true
+  },
+  {
+   "text": "27",
+   "bbox": [
+    436,
+    241,
+    450,
+    250
+   ],
+   "size_px": 12,
+   "field": "cell_5_1",
+   "reading": true
+  },
+  {
+   "text": "20",
+   "bbox": [
+    554,
+    241,
+    568,
+    250
+   ],
+   "size_px": 12,
+   "field": "cell_5_2",
+   "reading": false
+  }
+ ],
+ "reading_text": "Ruvaar team report\nFigures for January 2027\nTeam\nWins\nLosses\nPoints\nLumova\n10\n10\n35\nGildix\n20\n4\n27\nQuilock\n7\n21\n44\nMaroisto\n13\n24\n41\nSorrent\n23\n18\n50\nPellar\n18\n27",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_cell",
+   "qtype": "cell",
+   "question": "In the table, what is the wins for Lumova?",
+   "answer": "10",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "cell_0_0"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_max",
+   "qtype": "max",
+   "question": "Which team has the highest losses?",
+   "answer": "Pellar",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "row_0",
+    "row_1",
+    "row_2",
+    "row_3",
+    "row_4",
+    "row_5",
+    "cell_0_1",
+    "cell_1_1",
+    "cell_2_1",
+    "cell_3_1",
+    "cell_4_1",
+    "cell_5_1"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_diff",
+   "qtype": "difference",
+   "question": "How much higher is the wins for Pellar than for Lumova?",
+   "answer": "8",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "cell_5_0",
+    "cell_0_0"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the table.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  },
+  {
+   "qid": "q_cell_abstain",
+   "qtype": "absence",
+   "question": "What is the points for Pellar?",
+   "answer": "not shown",
+   "kind": "abstain",
+   "canon": "text",
+   "fields": [
+    "cell_5_2"
+   ],
+   "accept": []
+  }
+ ]
+}

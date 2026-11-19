@@ -1,0 +1,813 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-app_screens-dev-0063",
+ "family": "app_screens",
+ "template": "chat",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 63,
+ "variant": {
+  "theme": "dark",
+  "dpr": 1,
+  "abstain": true,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-app_screens-dev-0063.png",
+  "sha256": "67110d5578a4df0ebecca44f0da7760066ce284f66665ccc8e2f8244eaf210f9",
+  "width": 390,
+  "height": 844,
+  "logical": [
+   390,
+   844
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "title": "Tavistead Crew",
+  "messages": [
+   {
+    "sender": "Gita",
+    "text": "Great work on the demo",
+    "time": "14:13"
+   },
+   {
+    "sender": "Dmitri",
+    "text": "Parking is full downtown",
+    "time": "14:16"
+   },
+   {
+    "sender": "Dmitri",
+    "text": "Can someone bring the projector?",
+    "time": "14:25"
+   },
+   {
+    "sender": "Gita",
+    "text": "The train was cancelled",
+    "time": "14:32"
+   },
+   {
+    "sender": "Gita",
+    "text": "Who has the spare key?",
+    "time": "14:43"
+   },
+   {
+    "sender": "Ilse",
+    "text": "I left my umbrella there",
+    "time": "14:49"
+   }
+  ]
+ },
+ "fields": {
+  "chat_title": {
+   "name": "chat_title",
+   "kind": "text",
+   "value": "Tavistead Crew",
+   "text": "Tavistead Crew",
+   "bbox": [
+    15,
+    26,
+    139,
+    40
+   ],
+   "size_px": 17,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d93853c5d5e1180766ecbe22b272eb7214b8e909d1ff19dcc5217a543fb6b7cf",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "sender_0": {
+   "name": "sender_0",
+   "kind": "text",
+   "value": "Gita",
+   "text": "Gita",
+   "bbox": [
+    16,
+    83,
+    39,
+    92
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1ed67e6deff774f90be9d25945c4af824fdc9a8ec7c6fb888b85df887aa91740",
+   "fg": [
+    100,
+    170,
+    255
+   ],
+   "plot_value": false
+  },
+  "msg_0": {
+   "name": "msg_0",
+   "kind": "text",
+   "value": "Great work on the demo",
+   "text": "Great work on the demo",
+   "bbox": [
+    28,
+    108,
+    181,
+    119
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "68835884e296197a4379732d316b3365fa46794f8965c40c75c90960ec500fb4",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "time_0": {
+   "name": "time_0",
+   "kind": "time",
+   "value": "14:13",
+   "text": "2:13 PM",
+   "bbox": [
+    20,
+    138,
+    59,
+    146
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "977339b9a7e8a8d13d3f3ed8b9c676edff1d6bc5fd8740a6c2b63148bd1837d3",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "sender_1": {
+   "name": "sender_1",
+   "kind": "text",
+   "value": "Dmitri",
+   "text": "Dmitri",
+   "bbox": [
+    16,
+    166,
+    49,
+    175
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0887b03207b413015804ec4497d55cd21c000eaa62c69125ae99f9d7480092e9",
+   "fg": [
+    100,
+    170,
+    255
+   ],
+   "plot_value": false
+  },
+  "msg_1": {
+   "name": "msg_1",
+   "kind": "text",
+   "value": "Parking is full downtown",
+   "text": "Parking is full downtown",
+   "bbox": [
+    28,
+    191,
+    183,
+    205
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "22ea45fda4bf20518b815398f8009ecee9bb4acf0eb3752582635a324c9377e6",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "time_1": {
+   "name": "time_1",
+   "kind": "time",
+   "value": "14:16",
+   "text": "2:16 PM",
+   "bbox": [
+    20,
+    221,
+    59,
+    229
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "a6c322bbabdf3c86d36f4aa32a4ecec4d840532c6715f3648949e6c75822a2d4",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "sender_2": {
+   "name": "sender_2",
+   "kind": "text",
+   "value": "Dmitri",
+   "text": "Dmitri",
+   "bbox": [
+    16,
+    249,
+    49,
+    258
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0887b03207b413015804ec4497d55cd21c000eaa62c69125ae99f9d7480092e9",
+   "fg": [
+    100,
+    170,
+    255
+   ],
+   "plot_value": false
+  },
+  "msg_2": {
+   "name": "msg_2",
+   "kind": "text",
+   "value": "Can someone bring the projector?",
+   "text": "Can someone bring the projector?",
+   "bbox": [
+    28,
+    274,
+    247,
+    288
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "7df135ea02d3e9e2a45b7d24cc2558e2d76dc393c030970bfa8375fb68db9487",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "time_2": {
+   "name": "time_2",
+   "kind": "time",
+   "value": "14:25",
+   "text": "2:25 PM",
+   "bbox": [
+    20,
+    304,
+    59,
+    312
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f5a92fedb8987d4553d714e2cefb529e77e9673b8a5c8f93408d333fe4658991",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "sender_3": {
+   "name": "sender_3",
+   "kind": "text",
+   "value": "Gita",
+   "text": "Gita",
+   "bbox": [
+    16,
+    332,
+    39,
+    341
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1ed67e6deff774f90be9d25945c4af824fdc9a8ec7c6fb888b85df887aa91740",
+   "fg": [
+    100,
+    170,
+    255
+   ],
+   "plot_value": false
+  },
+  "msg_3": {
+   "name": "msg_3",
+   "kind": "text",
+   "value": "The train was cancelled",
+   "text": "The train was cancelled",
+   "bbox": [
+    28,
+    357,
+    179,
+    368
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "9c710069164699e40f8d1d8c2c07e09c5e0033b515ce0f6fef86b74cab95fd9b",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "time_3": {
+   "name": "time_3",
+   "kind": "time",
+   "value": "14:32",
+   "text": "2:32 PM",
+   "bbox": [
+    20,
+    387,
+    59,
+    395
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "7240dca34415a7aa00eeac16da66a681c26fc02696bee2470175d8792f083546",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "sender_4": {
+   "name": "sender_4",
+   "kind": "text",
+   "value": "Gita",
+   "text": "Gita",
+   "bbox": [
+    16,
+    415,
+    39,
+    424
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1ed67e6deff774f90be9d25945c4af824fdc9a8ec7c6fb888b85df887aa91740",
+   "fg": [
+    100,
+    170,
+    255
+   ],
+   "plot_value": false
+  },
+  "msg_4": {
+   "name": "msg_4",
+   "kind": "text",
+   "value": "Who has the spare key?",
+   "text": "Who has the spare key?",
+   "bbox": [
+    28,
+    440,
+    180,
+    454
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "27c7da04d52e5e2872c60498d861da8b0fcaf84ccb5c26e72ff02e01f0145700",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "time_4": {
+   "name": "time_4",
+   "kind": "time",
+   "value": "14:43",
+   "text": "2:43 PM",
+   "bbox": [
+    20,
+    470,
+    59,
+    478
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c067baa0bf71831b5446dba157a6886c5c7bc0cbed80611359cb3ae5428d6b3d",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "sender_5": {
+   "name": "sender_5",
+   "kind": "text",
+   "value": "Ilse",
+   "text": "Ilse",
+   "bbox": [
+    16,
+    498,
+    35,
+    507
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "896bd8d0a9b1eb8b89a89373883f267734e9f4f494aa62a458cc35fed23d6ef1",
+   "fg": [
+    100,
+    170,
+    255
+   ],
+   "plot_value": false
+  },
+  "msg_5": {
+   "name": "msg_5",
+   "kind": "text",
+   "value": "I left my umbrella there",
+   "text": "I left my umbrella there",
+   "bbox": [
+    28,
+    523,
+    169,
+    537
+   ],
+   "size_px": 14,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "bbdc7f0694645176ef07026a8a01cc164e8a851ec199da4b1930d617b261beae",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "time_5": {
+   "name": "time_5",
+   "kind": "time",
+   "value": "14:49",
+   "text": "2:49 PM",
+   "bbox": [
+    20,
+    553,
+    59,
+    561
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "de07433a2aaca3d0cd1e6e54237497b47a37bee06d33d4a7adc984c2c2585043",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "invite_code": {
+   "name": "invite_code",
+   "kind": "text",
+   "value": "LAF690",
+   "text": "",
+   "bbox": null,
+   "size_px": 0,
+   "visible": false,
+   "obscured": "absent",
+   "crop_sha256": null,
+   "fg": null,
+   "plot_value": false
+  }
+ },
+ "text_runs": [
+  {
+   "text": "Tavistead Crew",
+   "bbox": [
+    15,
+    26,
+    139,
+    40
+   ],
+   "size_px": 17,
+   "field": "chat_title",
+   "reading": true
+  },
+  {
+   "text": "Gita",
+   "bbox": [
+    16,
+    83,
+    39,
+    92
+   ],
+   "size_px": 12,
+   "field": "sender_0",
+   "reading": true
+  },
+  {
+   "text": "Great work on the demo",
+   "bbox": [
+    28,
+    108,
+    181,
+    119
+   ],
+   "size_px": 14,
+   "field": "msg_0",
+   "reading": true
+  },
+  {
+   "text": "2:13 PM",
+   "bbox": [
+    20,
+    138,
+    59,
+    146
+   ],
+   "size_px": 11,
+   "field": "time_0",
+   "reading": true
+  },
+  {
+   "text": "Dmitri",
+   "bbox": [
+    16,
+    166,
+    49,
+    175
+   ],
+   "size_px": 12,
+   "field": "sender_1",
+   "reading": true
+  },
+  {
+   "text": "Parking is full downtown",
+   "bbox": [
+    28,
+    191,
+    183,
+    205
+   ],
+   "size_px": 14,
+   "field": "msg_1",
+   "reading": true
+  },
+  {
+   "text": "2:16 PM",
+   "bbox": [
+    20,
+    221,
+    59,
+    229
+   ],
+   "size_px": 11,
+   "field": "time_1",
+   "reading": true
+  },
+  {
+   "text": "Dmitri",
+   "bbox": [
+    16,
+    249,
+    49,
+    258
+   ],
+   "size_px": 12,
+   "field": "sender_2",
+   "reading": true
+  },
+  {
+   "text": "Can someone bring the projector?",
+   "bbox": [
+    28,
+    274,
+    247,
+    288
+   ],
+   "size_px": 14,
+   "field": "msg_2",
+   "reading": true
+  },
+  {
+   "text": "2:25 PM",
+   "bbox": [
+    20,
+    304,
+    59,
+    312
+   ],
+   "size_px": 11,
+   "field": "time_2",
+   "reading": true
+  },
+  {
+   "text": "Gita",
+   "bbox": [
+    16,
+    332,
+    39,
+    341
+   ],
+   "size_px": 12,
+   "field": "sender_3",
+   "reading": true
+  },
+  {
+   "text": "The train was cancelled",
+   "bbox": [
+    28,
+    357,
+    179,
+    368
+   ],
+   "size_px": 14,
+   "field": "msg_3",
+   "reading": true
+  },
+  {
+   "text": "2:32 PM",
+   "bbox": [
+    20,
+    387,
+    59,
+    395
+   ],
+   "size_px": 11,
+   "field": "time_3",
+   "reading": true
+  },
+  {
+   "text": "Gita",
+   "bbox": [
+    16,
+    415,
+    39,
+    424
+   ],
+   "size_px": 12,
+   "field": "sender_4",
+   "reading": true
+  },
+  {
+   "text": "Who has the spare key?",
+   "bbox": [
+    28,
+    440,
+    180,
+    454
+   ],
+   "size_px": 14,
+   "field": "msg_4",
+   "reading": true
+  },
+  {
+   "text": "2:43 PM",
+   "bbox": [
+    20,
+    470,
+    59,
+    478
+   ],
+   "size_px": 11,
+   "field": "time_4",
+   "reading": true
+  },
+  {
+   "text": "Ilse",
+   "bbox": [
+    16,
+    498,
+    35,
+    507
+   ],
+   "size_px": 12,
+   "field": "sender_5",
+   "reading": true
+  },
+  {
+   "text": "I left my umbrella there",
+   "bbox": [
+    28,
+    523,
+    169,
+    537
+   ],
+   "size_px": 14,
+   "field": "msg_5",
+   "reading": true
+  },
+  {
+   "text": "2:49 PM",
+   "bbox": [
+    20,
+    553,
+    59,
+    561
+   ],
+   "size_px": 11,
+   "field": "time_5",
+   "reading": true
+  },
+  {
+   "text": "Message",
+   "bbox": [
+    28,
+    799,
+    87,
+    812
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  }
+ ],
+ "reading_text": "Tavistead Crew\nGita\nGreat work on the demo\n2:13 PM\nDmitri\nParking is full downtown\n2:16 PM\nDmitri\nCan someone bring the projector?\n2:25 PM\nGita\nThe train was cancelled\n2:32 PM\nGita\nWho has the spare key?\n2:43 PM\nIlse\nI left my umbrella there\n2:49 PM\nMessage",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_who",
+   "qtype": "who_said",
+   "question": "Who sent the message \"Parking is full downtown\"?",
+   "answer": "Dmitri",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "msg_1",
+    "sender_1"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_time",
+   "qtype": "lookup",
+   "question": "At what time was the message \"Can someone bring the projector?\" sent?",
+   "answer": "14:25",
+   "kind": "field",
+   "canon": "time",
+   "fields": [
+    "msg_2",
+    "time_2"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_count",
+   "qtype": "count",
+   "question": "How many messages did Ilse send in this chat?",
+   "answer": "1",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "sender_0",
+    "sender_1",
+    "sender_2",
+    "sender_3",
+    "sender_4",
+    "sender_5"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_invite",
+   "qtype": "absence",
+   "question": "What is the group's invite code?",
+   "answer": "not shown",
+   "kind": "abstain",
+   "canon": "text",
+   "fields": [
+    "invite_code"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the screen.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

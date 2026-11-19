@@ -208,6 +208,13 @@ of any published or ranked score until they are rebuilt. A tripwire flags answer
 code touches the test machinery or the process (`tripwire` in the row's metrics, listed in the report)
 for a person to read; it never changes a grade, and an answer it does not flag is not thereby honest.
 
+Rungs 4 to 6 are now graded by host-driven probes (`edat/sidekick/ceiling/probes.py`): the model's files
+answer calls, op sequences and script runs in a sandboxed driver that never compares, the template's own
+solution answers the same probes in a fresh area of its own, and the harness decides (`grading:
+host_probes` in the row). They keep the label above until that change has merged and had its own
+adversarial review. Their `partial` is now the share of probes matched, not of pytest tests, so it is
+not comparable with earlier runs.
+
 `--weights` prints each model's `weights_sha256` for the records (cached in `$OUT/weights.json`;
 `run-all` computes any missing one itself); it reads about 75 GB in all. If a host check fails, the run
 does not start; a model the engine cannot serve only means that model is skipped.

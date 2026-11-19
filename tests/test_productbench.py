@@ -347,7 +347,8 @@ def test_shared_profile_is_adapted_and_rendered():
     assert msgs[0]["from"] == "Jess" and msgs[1]["from"] == "+1 (312) 555-0199"
     assert world["browser"]["safari"][0]["host"] == "stats.example"
     lab = prof.item("L-edat_mini-01")
-    assert lab["anchors"] == ["Thursday", "@15:30"] and lab["attention"]
+    # a weekday is a date anchor, a time without am/pm accepts both readings (scorer audit)
+    assert lab["anchors"] == ["#2026-10-15", "@03:30/15:30"] and lab["attention"]
     assert prof.item("L-edat_mini-03")["type"] == "noise"
     assert prof.item("L-edat_mini-04")["fixed"] and prof.item("L-edat_mini-04")["start"] == "2026-10-13T09:30"
 

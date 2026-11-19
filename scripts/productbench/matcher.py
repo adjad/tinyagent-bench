@@ -5,7 +5,9 @@ Pure functions, no model. Anchors (see profile.py):
   "@15:30"       a clock time; matches 3:30 pm, 3.30pm, 15:30, "half past three" is
                  not attempted. A time written without am/pm ("at 3:30") matches
                  both 3:30 and 15:30.
-  "#2026-03-12"  a date; matches "Thursday" (the next one on or after the anchor
+  "@07:00/19:00" either clock time: what an answer key that writes "7:00" with no
+                 am/pm means, so "7 pm" and "7:00 am" both count.
+  "#2026-03-12"  a date; matches "Thursday" or "Thu" (the next one on or after the anchor
                  day, within a week), "tomorrow", "March 12", "Mar 12th", "12 March", "3/12".
   anything else  a case-insensitive phrase match on word boundaries, after
                  folding curly quotes and whitespace.
@@ -21,10 +23,14 @@ _RANGE = re.compile(
     rf"(\d{{1,2}})(?:[:.](\d{{2}}))?\s*{_MER}?", re.I)
 _CLOCK = re.compile(rf"\b(\d{{1,2}})[:.](\d{{2}})\s*{_MER}?", re.I)
 _HOUR_MER = re.compile(rf"\b(\d{{1,2}})\s*{_MER}", re.I)
-_AT_HOUR = re.compile(r"\b(?:at|by|around|from)\s+(\d{1,2})\b(?![:.\d])", re.I)
+# "at 5", "by 10"; never "by 5 days" or "around 3 hours" (an amount, not a clock time)
+_UNITS = r"(?:days?|nights?|hours?|hrs?|h|minutes?|mins?|m|weeks?|wks?|months?|years?|yrs?|percent|times?)"
+_AT_HOUR = re.compile(rf"\b(?:at|by|around|from)\s+(\d{{1,2}})\b(?![:.\d])(?!\s*-?\s*(?:{_UNITS}\b|%))", re.I)
 _WORDS = {"noon": 720, "midday": 720, "midnight": 0}
 
 WEEKDAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+# Short weekday names ("Fri", "Thurs"); "sat" and "sun" are left out: they are ordinary words too.
+_SHORT_DAYS = ["mon", "tues?", "wed", "thu(?:rs?)?", "fri", None, None]
 MONTHS = ["january", "february", "march", "april", "may", "june", "july", "august",
           "september", "october", "november", "december"]
 _MONTH_RE = "|".join(m[:3] + r"[a-z]*\.?" for m in MONTHS)
@@ -120,7 +126,7 @@ def dates(text: str, today: date) -> set[date]:
     if re.search(r"\byesterday\b", low):
         out.add(today - timedelta(days=1))
     for i, name in enumerate(WEEKDAYS):
-        if re.search(rf"\b{name}s?\b", low):
+        if re.search(rf"\b{name}s?\b", low) or (_SHORT_DAYS[i] and re.search(rf"\b{_SHORT_DAYS[i]}\b\.?", low)):
             ahead = (i - today.weekday()) % 7
             out.add(today + timedelta(days=ahead))
     for mt in _MONTH_DAY.finditer(text):
@@ -150,10 +156,18 @@ def phrase_hit(phrase: str, text: str) -> bool:
     return re.search(rf"(?<![a-z0-9]){re.escape(p)}(?![a-z0-9])", fold(text)) is not None
 
 
+def anchor_minutes(anchor: str) -> list[int]:
+    """The minutes after midnight a time anchor accepts ("@07:00/19:00" gives two)."""
+    out = []
+    for part in anchor[1:].split("/"):
+        h, m = part.split(":")
+        out.append(int(h) * 60 + int(m))
+    return out
+
+
 def anchor_hit(anchor: str, text: str, today: date) -> bool:
     if anchor.startswith("@"):
-        h, m = anchor[1:].split(":")
-        return int(h) * 60 + int(m) in times(text)
+        return bool(set(anchor_minutes(anchor)) & times(text))
     if anchor.startswith("#"):
         return date.fromisoformat(anchor[1:]) in dates(text, today)
     return phrase_hit(anchor, text)
@@ -165,3 +179,21 @@ def any_hit(anchors: list[str], text: str, today: date) -> str | None:
         if anchor_hit(a, text, today):
             return a
     return None
+
+
+def groups_hit(groups: list[list[str]], text: str, today: date) -> list[int]:
+    """Indexes of the anchor groups that `text` hits (a group hits when any one of its anchors does)."""
+    return [i for i, g in enumerate(groups) if any_hit(g, text, today) is not None]
+
+
+def spec_hit(spec: dict | None, text: str, today: date) -> bool:
+    """Whether one piece of text carries a match spec {"all": [[anchor, ...], ...], "require":
+    [group indexes], "need": n}: every required group (default: all of them) hits, each by any
+    one of its anchors, and at least `need` groups hit in all (default: 0)."""
+    if not spec or not spec.get("all"):
+        return False
+    hits = set(groups_hit(spec["all"], text, today))
+    require = spec.get("require")
+    if not set(range(len(spec["all"])) if require is None else require) <= hits:
+        return False
+    return len(hits) >= spec.get("need", 0)

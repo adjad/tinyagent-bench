@@ -1,0 +1,102 @@
+# Captured-lane cases, development split (spec 15 §3.1). Public.
+#
+# Every query below is invented for tinyagent-bench and asks about stable,
+# public facts. These queries are what the one-time capture sends to
+# Firecrawl (`python -m edat.web.capture run ...`); nothing else is sent.
+# The pages that come back are other people's content: they are stored in
+# $EDAT_PRIVATE_DIR/web/snapshots/<snapshot id>/ and never committed. After a
+# capture, `capture.py check` drops any case whose accepted answer is on no
+# captured page (or whose wrong value is on one), and records the drop in the
+# snapshot's manifest.
+#
+# The held-out captured cases (22 more) live in the private folder.
+schema: edat-web-capture/v1
+cases:
+  - id: wcap_need_boiling_point_f_01
+    family: need_search
+    split: dev
+    level: 1
+    question: "At sea level, what is the boiling point of water in degrees Fahrenheit? Cite the page you used."
+    queries: ["boiling point of water at sea level fahrenheit", "water boiling temperature fahrenheit sea level"]
+    limit: 5
+    accept: ['(?<!\d)212(?!\d)']
+    reject: []
+    query_terms: [["boil"], ["water"], ["fahrenheit", "f"]]
+
+  - id: wcap_need_apollo11_landing_01
+    family: need_search
+    split: dev
+    level: 1
+    question: "On what date did Apollo 11 land on the Moon? Cite the page you used."
+    queries: ["apollo 11 moon landing date", "when did apollo 11 land on the moon"]
+    limit: 5
+    accept: ['\bjuly\s+20\b', '\b20\s+july\b', '1969-07-20']
+    reject: []
+    support: ['\bjuly\s+20\b', '\b20\s+july\b', '1969-07-20']
+    query_terms: [["apollo"], ["land", "landing", "moon"]]
+
+  - id: wcap_need_speed_of_light_01
+    family: need_search
+    split: dev
+    level: 1
+    question: "What is the exact speed of light in a vacuum, in metres per second? Cite the page you used."
+    queries: ["speed of light in vacuum metres per second exact value", "exact speed of light m/s"]
+    limit: 5
+    accept: ['299[ ,.]?792[ ,.]?458']
+    reject: []
+    query_terms: [["light"], ["speed"]]
+
+  - id: wcap_read_python_first_release_01
+    family: read
+    split: dev
+    level: 2
+    question: "In which year was the first version of the Python programming language released? Cite the page you used."
+    queries: ["python programming language first release year history", "history of python language first version"]
+    limit: 5
+    accept: ['\b1991\b']
+    reject: []
+    query_terms: [["python"], ["release", "released", "history", "first", "version"]]
+
+  - id: wcap_read_titan_planet_01
+    family: read
+    split: dev
+    level: 1
+    question: "Titan is the largest moon of which planet? Cite the page you used."
+    queries: ["titan largest moon of which planet", "titan moon facts"]
+    limit: 5
+    accept: ['\bsaturn\b']
+    reject: []
+    query_terms: [["titan"], ["moon", "planet"]]
+
+  - id: wcap_nf_invented_society_01
+    family: not_found
+    split: dev
+    level: 2
+    question: "How many members did the Brindlemoor Lantern Society have when it was founded? It is a small local club."
+    queries: ["Brindlemoor Lantern Society founding members"]
+    limit: 5
+    accept: []
+    reject: ['\b\d{1,4}\s+(founding\s+)?members\b']
+    query_terms: [["brindlemoor"], ["lantern"], ["society"]]
+
+  - id: wcap_multi_atacama_capital_01
+    family: multi_hop
+    split: dev
+    level: 2
+    question: "Most of the Atacama Desert lies in one country. What is that country's capital city? Cite the page you used."
+    queries: ["atacama desert which country", "capital city of chile"]
+    limit: 5
+    accept: ['\bsantiago\b']
+    reject: []
+    query_terms: [["atacama"], ["desert", "country"]]
+
+  - id: wcap_multi_mount_kosciuszko_state_01
+    family: multi_hop
+    split: dev
+    level: 2
+    question: "Australia's highest mountain is in which Australian state? Cite the page you used."
+    queries: ["highest mountain in australia", "mount kosciuszko location state"]
+    limit: 5
+    accept: ['\bnew\s+south\s+wales\b', '\bnsw\b']
+    reject: []
+    query_terms: [["australia", "australian"], ["highest", "mountain", "kosciuszko"]]

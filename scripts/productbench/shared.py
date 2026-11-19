@@ -129,7 +129,10 @@ def adapt(profile: dict, ledger: dict | None) -> tuple[dict, dict]:
         end_day = e.get("end_day", e["day"])
         row = {"id": e["id"], "title": e["title"], "kind": e.get("kind", "event"),
                "start": _iso(anchor_date, e["day"], None if e.get("all_day") else e.get("time")),
-               "end": None if e.get("all_day") else _iso(anchor_date, end_day, e.get("end")),
+               # A timed event may have no end (a deadline at a time, 09 §2): keep it end-less.
+               # _iso(day, None) would give 00:00 that day, before the start, which Harbor's
+               # calendar sync refuses (422) and which stopped a live run on two profiles.
+               "end": None if e.get("all_day") or not e.get("end") else _iso(anchor_date, end_day, e["end"]),
                "all_day": bool(e.get("all_day")), "location": e.get("location"),
                "organizer": e.get("organizer"), "context": e.get("context"),
                "account": (accounts.get(e.get("account")) or {}).get("name")}

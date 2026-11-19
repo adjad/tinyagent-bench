@@ -57,6 +57,8 @@ import httpx  # noqa: E402
 
 from scripts.productbench import cases as case_files  # noqa: E402
 from scripts.productbench import models as model_files  # noqa: E402
+from scripts.productbench import known_faults  # noqa: E402
+from scripts.productbench import loader as world_loader  # noqa: E402
 from scripts.productbench import autonomy, long_session, preferences, privacy, questions, simday  # noqa: E402
 from scripts.productbench import score_ask, score_brief, score_day, summary  # noqa: E402
 from scripts.productbench.capture import Bench, TeeTransport  # noqa: E402
@@ -70,6 +72,42 @@ RUN_PREFIX = "edat-iae"
 
 class SpendLimit(RuntimeError):
     pass
+
+
+PREFLIGHT_STUB = ROOT / "test_fixtures" / "productbench" / "edat_stub.json"
+
+
+def calendar_problems(profile) -> list[str]:
+    """Calendar rows Harbor's sync would refuse: an end before the start (no process started)."""
+    world = world_loader.build_world(profile)
+    rows = (world.get("state") or world).get("calendar") or {}
+    return [f"{profile.id}: {r['id']} ends before it starts"
+            for r in rows.values()
+            if r.get("end_ts_off") is not None and r["end_ts_off"] < r["ts_off"]]
+
+
+def sync_preflight(profiles: list, args) -> dict:
+    """Before any model is touched: each profile's isolated backend, with the stand-in engine,
+    must take every sandbox source. Returns {profile id: sync counts or an error}."""
+    out = {}
+    scratch = Path(tempfile.mkdtemp(prefix="preflight-", dir=os.environ.get("TMPDIR")))
+    for profile in profiles:
+        problems = calendar_problems(profile)
+        if problems:
+            out[profile.id] = {"ok": False, "error": "; ".join(problems)}
+            continue
+        bench = Bench(profile, "preflight-stand-in", scratch / profile.id, port=args.port,
+                      sandbox_port=args.sandbox_port, engine_port=args.engine_port,
+                      stub_script=str(PREFLIGHT_STUB))
+        (scratch / profile.id).mkdir(parents=True, exist_ok=True)
+        try:
+            bench.start()
+            out[profile.id] = {"ok": True, "sync": bench.startup.get("sync")}
+        except (RuntimeError, SystemExit) as exc:
+            out[profile.id] = {"ok": False, "error": str(exc)[:600]}
+        finally:
+            bench.stop()
+    return out
 
 
 class StopRun(RuntimeError):
@@ -155,6 +193,7 @@ def runtime_info(entry, *, stub: bool, engine_port: int) -> dict:
 
 
 def _record(out: Path, rec: dict) -> None:
+    known_faults.stamp(rec)          # inputs the harness or sandbox got wrong, from the record's own tool results
     with out.open("a", encoding="utf-8") as f:
         f.write(json.dumps(rec, ensure_ascii=False) + "\n")
 
@@ -245,6 +284,15 @@ async def run_trial(bench: Bench, cases: dict, surfaces: list[str], base: dict, 
         warm = await bench.ask(client, tee, "warmup", "What time is it?")     # not scored
         spend.add(entry, warm.get("usage") or {}, stub=rec_base["stub"])
         first_brief = None
+        if not (at is None and "brief" in surfaces) and {"ask", "day"} & set(surfaces):
+            # Harbor analyses mail and texts in its Brief cycle. A home that asks without a scored
+            # Brief first (each pinned clock) runs one unscored, so the model sees what the
+            # assistant would have read by then. Without it, every tool there says "Mail and
+            # texts have not been analyzed yet".
+            cap = await bench.brief(client)
+            spend.add(entry, cap.get("usage") or {}, stub=rec_base["stub"])
+            bench.startup["analysis_brief"] = {"elapsed_s": cap["elapsed_s"],
+                                               "calls": (cap.get("usage") or {}).get("calls")}
         if at is None and "brief" in surfaces:
             cap = await bench.brief(client)
             first_brief = cap["snapshot"]
@@ -349,7 +397,9 @@ async def run_trial(bench: Bench, cases: dict, surfaces: list[str], base: dict, 
                     write({**rec_base, "surface": "pref", "case": f"PF-{e['id']}-brief", "pref_case": True,
                            "ledger_entry": e["id"], "pref": e["expected"]["pref"], "dimension": "direct",
                            "credits": ["persistence"], "arrival": "stated", "on": "brief_after_statement",
-                           "captured": {"said": said, "brief_elapsed_s": cap["elapsed_s"], "usage": cap["usage"]},
+                           # the Brief it was checked against, so the check can be re-scored from the record
+                           "captured": {"said": said, "snapshot": cap["snapshot"],
+                                        "brief_elapsed_s": cap["elapsed_s"], "usage": cap["usage"]},
                            "score": {"score": None if res["ok"] is None else float(res["ok"]), **res}})
         if at is None and "long" in surfaces and ctx.long:
             write(await _long_session(ctx, ask, profile, rec_base))
@@ -602,6 +652,9 @@ def main() -> None:
     ap.add_argument("--profile", action="append", default=[], help="profile.json path or a name "
                     "under test_fixtures/productbench/; repeat for several")
     ap.add_argument("--cases", default=None, help="question file (default: the profile's own set)")
+    ap.add_argument("--supersedes", action="append", default=[], metavar="RUN_ID",
+                    help="this run re-asks cases of an earlier run (its id, edat-iae-…): the findings page "
+                         "uses these records instead of that run's records of the same cases")
     ap.add_argument("--first-trial", type=int, default=1,
                     help="number the trials from here (to resume: --first-trial 3 --trials 1 runs trial 3 only)")
     ap.add_argument("--surface", default=DEFAULT_SURFACES,
@@ -609,6 +662,11 @@ def main() -> None:
     ap.add_argument("--trials", type=int, default=3)
     ap.add_argument("--only", default="", help="comma list of case ids")
     ap.add_argument("--stub-script", default=None, help="run the scripted stub engine (dry run)")
+    ap.add_argument("--preflight-only", action="store_true",
+                    help="only check that every profile's sources sync into an isolated backend "
+                         "with the stand-in engine; no model is used")
+    ap.add_argument("--no-sync-preflight", action="store_true",
+                    help="skip that check before a live run (it runs by default)")
     ap.add_argument("--cloud-ok", action="store_true",
                     help="allow real requests to OpenRouter (they cost money); needs --max-spend-usd")
     ap.add_argument("--max-spend-usd", type=float, default=None, help="stop the run past this cloud spend")
@@ -659,6 +717,16 @@ def main() -> None:
     refusal = check_cloud(chosen, stub=stub, cloud_ok=args.cloud_ok, max_spend=args.max_spend_usd)
     if refusal:
         sys.exit(refusal)
+    preflight = None
+    if args.preflight_only or (not stub and not args.no_sync_preflight):
+        profiles_pf = [load_profile(_resolve(pp)) for pp in args.profile]
+        preflight = sync_preflight(profiles_pf, args)
+        for pid, res in preflight.items():
+            print(f"preflight {pid}: " + (f"ok {res['sync']}" if res["ok"] else f"FAILED {res['error']}"))
+        if not all(r["ok"] for r in preflight.values()):
+            sys.exit("preflight failed: a profile's sources do not sync; nothing was run")
+        if args.preflight_only:
+            return
     if not stub and any(not e.cloud for e in chosen):
         try:
             listed = httpx.get(f"http://127.0.0.1:{args.engine_port}/v1/models", timeout=3).json()
@@ -688,6 +756,9 @@ def main() -> None:
             "pinned_reference_runs": [str(p) for p in pinned], "profiles": [], "surfaces": surfaces,
             "trials": args.trials, "stub": stub, "device": device, "language": "en",
             "max_spend_usd": args.max_spend_usd, "started": time.time(), "trials_meta": [],
+            "sync_preflight": preflight,
+            "supersedes": args.supersedes,
+            "known_gaps": ({} if "act" in surfaces else {"act_not_run": known_faults.GAPS["act_not_run"]}),
             "sampling": "Harbor's own requests: model-only Ask sends no temperature, so a local model's "
                         "oMLX per-model profile applies; what each call actually sent is in usage.jsonl "
                         "and in every record's captured.usage.sampling_sent"}

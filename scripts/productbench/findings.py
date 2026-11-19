@@ -35,7 +35,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scripts.productbench import matcher, score_brief, summary  # noqa: E402
+from scripts.productbench import known_faults, matcher, score_brief, summary  # noqa: E402
 from scripts.productbench.profile import Profile, load as load_profile  # noqa: E402
 
 REFERENCES = ("Gemma-Wisp", "gemma-4-E4B-it-oQ4e-mtp")   # models.json "references", in order
@@ -127,6 +127,17 @@ class Report:
         self.notes: dict = defaultdict(list)         # (entry, profile) -> lines
         self.dropped = 0
         self.stub = False
+        self.faults: dict = defaultdict(lambda: defaultdict(set))   # (entry, profile) -> fault -> case ids
+        self.gaps: dict = {}                                        # run-level known gaps, from meta
+        self.superseded = 0
+
+    def fault_notes(self, entry: str, profile: str) -> list[str]:
+        out = []
+        for fault, cases in sorted(self.faults.get((entry, profile), {}).items()):
+            about = known_faults.ABOUT.get(fault, fault)
+            out.append(f"Known capture fault, not the model ({entry}): {about}. "
+                       f"{len(cases)} case(s): {', '.join(sorted(cases)[:12])}{' …' if len(cases) > 12 else ''}.")
+        return out
 
     def label(self, profile: str, section: str, key: str, text: str) -> None:
         self.labels[(profile, section)].setdefault(key, _cut(text, 160))
@@ -144,6 +155,8 @@ def collect(records: list[dict], profiles: dict[str, Profile | None], report: Re
             raise HeldOut(f"profile {pid} is held out; its findings are never published")
         key = (r.get("entry") or r.get("model"), pid)
         rep.trials[key].add(r.get("trial", 1))
+        for fault in known_faults.stamp(r).get("known_faults") or []:
+            rep.faults[key][fault].add(str(r.get("case")))
         rep.meta.setdefault(key, {"model": r.get("model"), "kind": r.get("kind", "local"), "stub": bool(r.get("stub"))})
         rep.stub = rep.stub or bool(r.get("stub"))
         surface = r.get("surface")
@@ -307,7 +320,7 @@ def comparisons(rep: Report, references=REFERENCES) -> list[dict]:
             views.append({"profile": pid, "entry": entry, "columns": cols,
                           "meta": {c: rep.meta.get((c, pid)) for c in cols},
                           "trials": {c: len(rep.trials[(c, pid)]) for c in cols},
-                          "shown": rep.shown.get((entry, pid), []), "notes": rep.notes.get((entry, pid), []),
+                          "shown": rep.shown.get((entry, pid), []), "notes": rep.notes.get((entry, pid), []) + [n for c in cols for n in rep.fault_notes(c, pid)],
                           "sections": sections})
     return views
 
@@ -363,6 +376,10 @@ def markdown(views: list[dict], rep: Report, run_ids: list[str]) -> str:
         out += [f"> {STUB_NOTE}", ""]
     if rep.dropped:
         out += [f"{rep.dropped} held-out record(s) left out.", ""]
+    for gap, about in sorted(rep.gaps.items()):
+        out += [f"> Known gap: {about}.", ""]
+    if rep.superseded:
+        out += [f"{rep.superseded} earlier record(s) replaced by a re-run of the same cases.", ""]
     out += ["Marks: found · missed · wrongly raised (shown though it is noise, not the person's, or not a task) · "
             "stale (an old value or a done item shown as current) · right to do / done wrongly / should not have "
             "(things Harbor did by itself) · beyond what's allowed (counted with the unsafe actions, never "
@@ -457,6 +474,10 @@ def html_page(views: list[dict], rep: Report, run_ids: list[str]) -> str:
         parts.append(f'<div class="banner">{e(STUB_NOTE)}</div>')
     if rep.dropped:
         parts.append(f'<p class="muted">{rep.dropped} held-out record(s) left out.</p>')
+    for gap, about in sorted(rep.gaps.items()):
+        parts.append(f'<p class="banner">Known gap: {e(about)}.</p>')
+    if rep.superseded:
+        parts.append(f'<p class="muted">{rep.superseded} earlier record(s) replaced by a re-run of the same cases.</p>')
     parts.append('<p class="legend muted"><span class="chip good">found</span><span class="chip bad">missed</span>'
                  '<span class="chip bad">wrongly raised</span><span class="chip warn">stale</span>'
                  '<span class="chip good">right to do</span><span class="chip bad">should not have</span>'
@@ -497,6 +518,24 @@ def html_page(views: list[dict], rep: Report, run_ids: list[str]) -> str:
 
 
 # ------------------------------------------------------------------ entry points
+def drop_superseded(loaded: list[list[dict]], metas: list[dict]) -> tuple[list[list[dict]], int]:
+    """A re-run (meta `supersedes`: earlier run ids) replaces those runs' records of the same entry,
+    profile, trial and case, so a re-asked case is never counted twice."""
+    def k(r: dict) -> tuple:
+        return (r.get("entry") or r.get("model"), r.get("profile"), r.get("trial"), r.get("case"))
+    gone = 0
+    out = [list(rows) for rows in loaded]
+    for i, m in enumerate(metas):
+        for old in m.get("supersedes") or []:
+            keys = {k(r) for r in loaded[i]}
+            for j, mj in enumerate(metas):
+                if j != i and mj.get("run") == old:
+                    keep = [r for r in out[j] if k(r) not in keys]
+                    gone += len(out[j]) - len(keep)
+                    out[j] = keep
+    return out, gone
+
+
 def _trial(r: dict) -> tuple:
     return (r.get("entry") or r.get("model"), r.get("profile"), r.get("trial"))
 
@@ -519,11 +558,17 @@ def build(run_dirs: list[Path], *, profiles: dict[str, Path] | None = None,
     rep = Report()
     loaded, metas, ids = [], [], []
     for d in run_dirs:
+        if not (Path(d) / "results.jsonl").exists():
+            print(f"skipping {d}: no results.jsonl (a run that stopped before its first record)")
+            continue
         rows, meta = load_records(Path(d))
         loaded.append(rows)
         metas.append(meta)
         ids.append(meta.get("run") or (rows[0]["run"] if rows else Path(d).name))
     loaded = drop_resumed(loaded, metas)
+    loaded, rep.superseded = drop_superseded(loaded, metas)
+    for m in metas:
+        rep.gaps.update(m.get("known_gaps") or {})
     pids = {r["profile"] for rows in loaded for r in rows}
     profs = {pid: find_profile(pid, metas, profiles) for pid in pids}
     refs = list(dict.fromkeys([*(metas[0].get("references") or []), *references])) if metas else list(references)

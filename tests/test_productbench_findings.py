@@ -461,3 +461,60 @@ def test_resumed_trial_replaces_the_stopped_copy():
     kept = findings.drop_resumed([a, b], [{"stopped": "memory pressure"}, {}])
     assert [r["x"] for r in kept[0]] == ["old"] and [r["x"] for r in kept[1]] == ["resumed", "new"]
     assert findings.drop_resumed([a, b], [{}, {}]) == [a, b]
+
+
+def _runner():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("rpb_sync", ROOT / "scripts" / "run_productbench.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def test_a_deadline_at_a_time_keeps_no_end_and_every_profile_syncs():
+    # A timed deadline with no end (allowed by 09 §2) once got an end of 00:00 that day,
+    # before its start; Harbor's calendar sync refused it with 422 on two profiles.
+    rpb = _runner()
+    for name in ("student", "tech", "mixed"):
+        prof = load_profile(ROOT / "test_fixtures" / "bench_profiles" / name / "profile.json")
+        assert rpb.calendar_problems(prof) == [], name
+    tech = load_profile(ROOT / "test_fixtures" / "bench_profiles" / "tech" / "profile.json")
+    ev = next(e for e in tech.data["calendar"] if e["id"] == "ev-signoff-due")
+    assert ev["start"] and ev["end"] is None
+
+
+def test_the_preflight_names_an_event_that_ends_before_it_starts():
+    rpb = _runner()
+    prof = load_profile(ROOT / "test_fixtures" / "bench_profiles" / "tech" / "profile.json")
+    ev = next(e for e in prof.data["calendar"] if e.get("start") and e.get("end"))
+    ev["end"] = ev["start"][:11] + "00:00"
+    if ev["end"] >= ev["start"]:
+        ev["start"] = ev["start"][:11] + "12:00"
+    assert rpb.calendar_problems(prof) == [f"tech: {ev['id']} ends before it starts"]
+
+
+def test_findings_skip_a_run_folder_with_no_records(tmp_path, keys):
+    d = _run(tmp_path, keys)
+    empty = tmp_path / "stopped-before-any-record"
+    empty.mkdir()
+    views, rep, ids = findings.build([empty, d])
+    assert ids and views
+
+
+def test_known_capture_faults_are_found_in_the_records_tool_results():
+    from scripts.productbench import known_faults
+    rec = {"captured": {"tool_calls": [
+        {"name": "get_my_day_plan", "args": {}, "result": "Mail and texts have not been analyzed yet; only calendar"},
+        {"name": "add_reminder", "args": {}, "result": "(error: Action did not return a verified completion receipt; do not retry.)"}]}}
+    assert known_faults.stamp(rec)["known_faults"] == ["mail_texts_unanalysed", "reminder_receipt_untrusted"]
+    pref = {"captured": {"turns": [{"tool_calls": [{"name": "find_free_time", "result":
+            "(error: Harbor could not check current Calendar and Reminders availability. No study slot)"}]}]}}
+    assert known_faults.of_record(pref) == ["availability_not_ready"]
+    assert "known_faults" not in known_faults.stamp({"captured": {"tool_calls": [{"name": "x", "result": "fine"}]}})
+
+
+def test_a_rerun_supersedes_the_same_cases_of_the_earlier_run():
+    old = [{"entry": "M", "profile": "p", "trial": t, "case": c} for t in (1, 2) for c in ("TQ-window-1130", "Q-1")]
+    new = [{"entry": "M", "profile": "p", "trial": t, "case": "TQ-window-1130"} for t in (1, 2)]
+    kept, gone = findings.drop_superseded([old, new], [{"run": "r1"}, {"run": "r2", "supersedes": ["r1"]}])
+    assert gone == 2 and [r["case"] for r in kept[0]] == ["Q-1", "Q-1"] and kept[1] == new

@@ -312,6 +312,7 @@ Each of these only reads. If any fails, the run does not start.
 6. **Private results folder** outside the repository, for example `~/tinyagent-bench-results/in-assistant`. Nothing from the run is written into the repository, and nothing is published.
 7. **Host quiet.** No Swift build, `harbor-build`, replay suite, Simulation QA, toolbench or other benchmark running. Ports 8775 and 8766 free. Mac on power.
 8. **Weights hashes**, for the results store (results-record.md §2.1): `python -m scripts.productbench.engine_prep weights <model folder>` for each folder. This reads about 5.5 GB per model and only reads.
+9. **Every profile syncs**, before any model is touched: `run_productbench.py --model Gemma-Wisp --profile student --profile tech --profile mixed --preflight-only`. For each profile it first checks that no calendar row ends before it starts, then starts the isolated backend once with the stand-in engine (no oMLX) and requires every sandbox source to sync. A live run does the same check by itself before it lists the engine's models, and refuses to start if any profile fails (`--no-sync-preflight` skips it; the result is stored in `meta.json` as `sync_preflight`). It takes about 5 s per profile. This check was added after the first live run stopped on the tech profile: a timed deadline with no end was sent with an end before its start, and Harbor's calendar sync refused it (422). The full stand-in runs before that run had covered only the student profile.
 
 ### 15.2 What the run stops or changes, and how it is put back
 
@@ -330,6 +331,8 @@ From the repository root, with `OUT=~/tinyagent-bench-results/in-assistant`. To 
 ```bash
 .venv/bin/python -m scripts.productbench.engine_prep status
 ```
+
+**0. Sync preflight** (15.1, item 9), about 15 s for the three profiles; nothing loads a model.
 
 **1. Smoke, about 10 minutes**: the tuned baseline, the student profile, the Brief only, one trial.
 
@@ -404,6 +407,18 @@ The person running it stops it with Ctrl-C (between trials if possible) when the
 ### 15.6 What the person gets
 
 `$OUT/findings/findings.html` (one self-contained page: no scripts, nothing fetched) and `findings.md`, with both references side by side. For every profile it shows: what the Brief spotted, missed or raised wrongly; what Harbor did by itself under act for me, judged both against what was right and against what Harbor's rules allow; the to-do list; and the answers to "what's in my email", "what's in my messages" and each time-window question. Each mark comes with the captured words that decided it. Also `summary.md` per run folder. All of it stays local and private. Exporting to the results store (`findings_export … --weights <id>=<sha256>`) and publishing are separate decisions.
+
+### 15.6a Known capture faults, and re-asking cases
+
+Some inputs can be wrong because of the harness or the sandbox world, not the assistant or the model. Each record carries `known_faults` when its own tool results show one (`scripts/productbench/known_faults.py`), and the findings page names the affected cases as "known capture fault, not the model". The page also finds the same faults in older records.
+
+- `mail_texts_unanalysed`: a home asked a question before any Brief cycle had analysed mail and texts. The first live run's pinned-clock homes did this, so their window questions could not see changes announced only in mail or texts. Fixed: every home that asks without a scored Brief first now runs one unscored Brief (`startup.analysis_brief` in `meta.json`).
+- `reminder_receipt_untrusted`: the sandbox's reminders writer returns no receipt Harbor trusts, so a reminder write is reported to the model as failed. Open.
+- `availability_not_ready`: `find_free_time` found Calendar and Reminders not ready in the sandbox. Open.
+
+A gap that covers a whole surface goes in `meta.json` `known_gaps`, for example act for me left out because the sandbox Messages feed carries no chat id or service, so saved contacts are not recognised in texts.
+
+`--supersedes <run id>` marks a run that re-asks cases of an earlier one. The findings page then uses the new records instead of the earlier run's records of the same entry, profile, trial and case, so nothing is counted twice.
 
 ### 15.7 After the references
 

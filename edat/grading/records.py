@@ -37,6 +37,16 @@ SAMPLING_SOURCE = {"author_recommended": "author_recommended", "fixed_sensitivit
                    "greedy_diagnostic": "engine_default"}
 
 
+# Agent loop -> the store's `suite`. Records of the two loops pair on everything
+# else (model, case, trial, world seed, settings), so the store can show the
+# Harbor-loop column beside the reference-loop headline.
+SUITES = {"edat-reference-v1": "reference-loop", "harbor-ask-v1": "harbor-loop"}
+
+
+def suite_for(loop: str) -> str:
+    return SUITES.get(loop, loop.replace("edat-", "")[:64])
+
+
 def _tier(family: str) -> str:
     return {"preferences": "preferences", "long_session": "long_session", "memory": "memory"}.get(family, "agentic")
 
@@ -69,7 +79,7 @@ def trial_record(result, *, run_id: str, board_version: str, harness_commit: str
     last_meta = {}
     sampling = s.sampling.to_record() if s.sampling else {}
     rec = {
-        "schema": RESULT_SCHEMA, "kind": kind, "tier": _tier(c["family"]), "suite": "reference-loop",
+        "schema": RESULT_SCHEMA, "kind": kind, "tier": _tier(c["family"]), "suite": suite_for(result.loop),
         "run_id": run_id, "board_version": board_version, "lang": "en",
         "model": model, "runtime": {"version": "unspecified", **runtime}, "device": device,
         "settings": {"thinking": _thinking(s, last_meta),
@@ -79,7 +89,7 @@ def trial_record(result, *, run_id: str, board_version: str, harness_commit: str
                      "seed": s.seed if seed_supported else "unsupported", "world_seed": result.world_seed},
         "harness_commit": harness_commit, "started_at": started_at or utc_now(),
         "case_id": c["id"], "split": c.get("split", "dev"), "trial": result.trial,
-        "status": "excluded" if v.excluded else "ok",
+        "status": "not_applicable" if v.not_applicable else "excluded" if v.excluded else "ok",
         "facets": {"lane": c["lane"], "family": c["family"], "tags": list(c.get("tags") or [])},
         "metrics": {
             "pass": bool(v.success) if not v.excluded else None, "score": v.progress,
@@ -94,6 +104,7 @@ def trial_record(result, *, run_id: str, board_version: str, harness_commit: str
             "over_refusal": v.over_refusal, "retry_ok": v.retry_ok,
             "malformed_calls": v.malformed_calls, "hallucinated_calls": v.hallucinated_calls,
             "loop": result.loop, "max_steps": s.max_steps,
+            "repairs": ",".join(sorted({r["kind"] for t in result.run.turns for r in t.trace.repairs}))[:64] or None,
         },
         "safety": {"unsafe_actions": v.unsafe_calls + sum(1 for x in v.violations if not x.startswith("forbidden")
                                                             and not x.startswith("privacy")),
@@ -113,9 +124,13 @@ def trial_record(result, *, run_id: str, board_version: str, harness_commit: str
         rec["metrics"]["arrival"] = c.get("arrival")
     if raw_ref is None:
         rec["raw_reason"] = "not_written"
-    if v.excluded:
-        rec["status_detail"] = "engine_error"
-        rec["metrics"] = {"pass": None}
+    if v.not_applicable:
+        rec["status_detail"] = v.not_applicable[:64]
+        rec["metrics"] = {"pass": None, "loop": result.loop}
+    elif v.excluded:
+        engine = next((t.trace.engine_error for t in result.run.turns if t.trace.engine_error), "") or ""
+        rec["status_detail"] = "harbor_error" if engine.startswith("harbor") else "engine_error"
+        rec["metrics"] = {"pass": None, "loop": result.loop}
     if sample:
         rec["sample"] = True
     return rec
@@ -129,11 +144,11 @@ class _LocalRun:
     mistake it for its own. Import the store package to write real runs.
     """
 
-    def __init__(self, root: Path, run_id: str, tier: str) -> None:
+    def __init__(self, root: Path, run_id: str, tier: str, suite: str = "reference-loop") -> None:
         self.run_id, self.tier = run_id, tier
         self.dir = Path(root) / "runs" / run_id
         self.manifest = {"schema": "edat-agentic-local-run/0", "run_id": run_id, "tier": tier,
-                         "suite": "reference-loop", "created_at": utc_now(), "records": 0}
+                         "suite": suite, "created_at": utc_now(), "records": 0}
 
     def put_raw(self, payload) -> dict:
         body = json.dumps(payload, sort_keys=True, ensure_ascii=False, default=str).encode()
@@ -161,10 +176,10 @@ class _LocalRun:
 class _StoreRun:
     """A run in the results store, through its own writer (edat.results.writer)."""
 
-    def __init__(self, root: Path, run_id: str, tier: str) -> None:
+    def __init__(self, root: Path, run_id: str, tier: str, suite: str = "reference-loop") -> None:
         from edat.results.writer import RunWriter as StoreWriter
         self.run_id, self.tier = run_id, tier
-        self._cm = StoreWriter.open(root, run_id, tier=tier, suite="reference-loop")
+        self._cm = StoreWriter.open(root, run_id, tier=tier, suite=suite)
         self._w = self._cm.__enter__()
         self.dir = self._w.dir
 
@@ -187,8 +202,9 @@ def store_available() -> bool:
 
 
 class RunWriter:
-    """Writes agentic trials, one run per tier (agentic, preferences, memory,
-    long_session), because the store keeps one tier per run.
+    """Writes agentic trials, one run per (tier, suite): tiers agentic,
+    preferences, memory, long_session; suites reference-loop and harbor-loop.
+    The store keeps one tier and one suite per run.
 
     Uses the results store's writer when `edat.results` is importable, else a
     local fallback with the same layout. Raw trajectories go through
@@ -210,12 +226,13 @@ class RunWriter:
     def dir(self) -> Path:
         return self.root / "runs" / self.base_id
 
-    def _run(self, tier: str):
-        if tier not in self.runs:
+    def _run(self, tier: str, suite: str):
+        key = (tier, suite)
+        if key not in self.runs:
             rid = self.base_id if not self.runs else new_run_id()
             cls = _StoreRun if self.prefer_store else _LocalRun
-            self.runs[tier] = cls(self.root, rid, tier)
-        return self.runs[tier]
+            self.runs[key] = cls(self.root, rid, tier, suite)
+        return self.runs[key]
 
     def _guard(self, split: str, path: Path) -> None:
         if split == "heldout":
@@ -228,7 +245,7 @@ class RunWriter:
 
     def append(self, result, **kw) -> dict:
         self._guard(result.case.get("split", "dev"), self.root)
-        run = self._run(_tier(result.case["family"]))
+        run = self._run(_tier(result.case["family"]), suite_for(result.loop))
         raw = run.put_raw(result.trajectory())
         rec = trial_record(result, run_id=run.run_id, raw_ref=raw, **kw)
         run.append(rec)

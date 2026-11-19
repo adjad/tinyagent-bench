@@ -22,7 +22,7 @@ from edat.cases.menu import select_menu
 from edat.faults.approver import Approver
 from edat.faults.layer import FaultyEnvironment
 from edat.grading.grader import TrialRun, TurnRun, Verdict, grade
-from edat.loop import CHARS_PER_TOKEN, AgentLoop, LoopSettings, get_loop
+from edat.loop import CHARS_PER_TOKEN, AgentLoop, LoopSettings, TurnTrace, get_loop
 from edat.models.base import ModelClient
 from edat.state.clock import Clock
 
@@ -143,6 +143,17 @@ def run_trial(case: dict, client: ModelClient, *, trial: int = 1, world_seed: in
     if s.seed is None:
         s = replace(s, seed=SAMPLING_SEED_BASE + trial)
     loop = loop or get_loop("reference")
+    # A loop may decline a case its host cannot express (Harbor's loop: the
+    # neutral lane, stored preferences without Harbor's fields, ...). The trial
+    # is recorded as not applicable, never as the model's failure.
+    why = loop.unsupported(bound) if hasattr(loop, "unsupported") else None
+    if why:
+        trace = TurnTrace(stop="not_applicable", excluded=True, not_applicable=why)
+        empty = TrialRun(case=bound, env=None, initial=None, turns=[TurnRun(spec={}, trace=trace, after=None,
+                                                                             user="", session=0)],
+                         clock=ck)
+        return TrialResult(case=bound, run=empty, verdict=grade(empty), trial=trial, world_seed=ws, settings=s,
+                           loop=getattr(loop, "name", type(loop).__name__))
     profile = (bound.get("world") or {}).get("profile")
     base_env = env_factory(bound["lane"], ck, ws, profile=profile) if profile else env_factory(bound["lane"], ck, ws)
     records = (bound.get("world") or {}).get("seed_records") or {}
@@ -158,6 +169,9 @@ def run_trial(case: dict, client: ModelClient, *, trial: int = 1, world_seed: in
     if not history_budget_tokens and bound["family"] == "long_session":
         history_budget_tokens = LONG_SESSION_HISTORY_BUDGET
     approver = Approver(bound.get("approver", "approve"))
+    if hasattr(loop, "begin_trial"):          # host loops read case-level settings (access, access_needed)
+        loop.begin_trial(bound, env)
+    own_history = getattr(loop, "own_history_policy", False)   # a host loop trims its own history
     system = build_system(env, bound, menu)
     initial = env.state().snapshot()
     turns: list[TurnRun] = []
@@ -171,7 +185,7 @@ def run_trial(case: dict, client: ModelClient, *, trial: int = 1, world_seed: in
             for h in turn.get("history") or []:
                 messages.append(dict(h))
             messages.append({"role": "user", "content": turn["user"]})
-            if history_budget_tokens:
+            if history_budget_tokens and not own_history:
                 messages[:] = _trim(messages, history_budget_tokens, ti, trims)
             trace = loop.run_turn(client, env, messages, menu=menu, settings=s, approver=approver)
             turns.append(TurnRun(spec=turn, trace=trace, after=env.state().snapshot(), user=turn["user"],
@@ -184,6 +198,6 @@ def run_trial(case: dict, client: ModelClient, *, trial: int = 1, world_seed: in
     run = TrialRun(case=bound, env=env, initial=initial, turns=turns, clock=ck,
                    approver_log=list(approver.asked),
                    faults_fired=list(getattr(env, "fired", [])), menu=menu, trim_events=trims)
-    verdict = grade(run)
+    verdict = grade(run, blocked_proposals_fail=getattr(loop, "blocked_proposals_fail", True))
     return TrialResult(case=bound, run=run, verdict=verdict, trial=trial, world_seed=ws, settings=s,
                        loop=getattr(loop, "name", type(loop).__name__))

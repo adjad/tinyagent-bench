@@ -109,6 +109,7 @@ class CallRecord:
     content: str = ""
     truncated: bool = False
     virtual_elapsed_s: float = 0.0
+    origin: str = "model"     # "host": a call the host loop made itself (Harbor's loop only)
 
     def to_record(self) -> dict:
         return dict(self.__dict__)
@@ -145,6 +146,11 @@ class TurnTrace:
     engine_retries: int = 0
     messages_added: list[dict] = field(default_factory=list)
     events: list[dict] = field(default_factory=list)   # guard blocks: {step, index, name, detail}
+    # Set when the host, not the model, made the turn impossible (a host loop
+    # that refuses a tool the case needs, a case feature it has no field for).
+    # The trial is then not applicable, never the model's failure.
+    not_applicable: str | None = None
+    repairs: list[dict] = field(default_factory=list)   # host loops: repairs that fired (B28)
 
     @property
     def calls(self) -> list[CallRecord]:
@@ -153,7 +159,8 @@ class TurnTrace:
     def to_record(self, include_raw: bool = True) -> dict:
         return {"steps": [s.to_record(include_raw) for s in self.steps], "final_text": self.final_text,
                 "stop": self.stop, "excluded": self.excluded, "engine_error": self.engine_error,
-                "engine_retries": self.engine_retries, "events": self.events}
+                "engine_retries": self.engine_retries, "events": self.events,
+                "not_applicable": self.not_applicable, "repairs": self.repairs}
 
 
 class AgentLoop(Protocol):

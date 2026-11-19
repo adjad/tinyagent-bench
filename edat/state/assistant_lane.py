@@ -334,6 +334,7 @@ class AssistantEnvironment:
         held = {"reminders": list(w.reminders), "timers": list(w.timers),
                 "memory": list(w.memory_facts)}
         status = "failed"
+        result = None
         try:
             with self._skill_context(name):
                 result = fn(**args)
@@ -355,8 +356,10 @@ class AssistantEnvironment:
             outcome = "unknown"
         changed = len(w.effects) > effects_before or self._fingerprint() != before
         self._after_call(name, args, effects_before, held)
+        # raw_result: the fake's own return value (a receipt object, a display-only
+        # result), for a host loop that dispatches through this environment.
         return ToolResult(text, outcome=outcome, effect=changed,
-                          meta={"category": tool.category, "harbor_status": status})
+                          meta={"category": tool.category, "harbor_status": status, "raw_result": result})
 
     @contextmanager
     def _skill_context(self, name: str):

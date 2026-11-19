@@ -1,0 +1,254 @@
+> **Draft, 2026-11-18.** Design document; it will change. No benchmark results are published yet.
+
+# 09 · EDAT benchmark user profiles: schema and ledger
+
+Status: **v1, stable for consumers.** Owner: the bench-profiles work (branch `claude/bench-profiles`).
+Part of **EDAT** (Edge Device Agentic Testing). The data is shaped for the Harbor assistant. Consumers: `scripts/productbench/` (the in-product evaluation), the profiles viewer (a planned page under `site/`).
+
+Everything described here is **synthetic test data**. Every person, organisation, product, address, domain (`.example`, `.test`) and phone number (`555-01xx`) is invented.
+
+## 1. Where the files are
+
+```
+test_fixtures/bench_profiles/
+  student/   profile.json  ledger.json  files/…   (files/ = the documents written out as real files)
+  tech/      profile.json  ledger.json  files/…
+  mixed/     profile.json  ledger.json  files/…
+  index.json                                   (list of profiles with counts and anchor dates)
+scripts/bench_profiles/
+  lib.py          authoring helpers (ids, tokens, noise generators); no I/O
+  build.py        writes the three profiles (deterministic: same code, same bytes)
+  render.py       load_profile(id, today=None) → tokens rendered + absolute datetimes resolved
+  validate.py     schema, dates, ledger references, placeholder-only domains and numbers
+  adapters.py     to_sandbox_state(profile) and to_toolbench_world(profile)
+  profiles/<id>.py  hand-written content for each person
+tests/test_bench_profiles.py   runs the validator and the adapters
+```
+
+`profile.json` is what Harbor gets to see. `ledger.json` is the answer key and must **never** be loaded into the model's context. Load it only in the scorer.
+
+## 2. Time model
+
+Every timestamp is **relative to a pinned benchmark day**. Nothing stores an epoch.
+
+```json
+"anchor": {
+  "date": "2026-10-13",          // the nominal benchmark day (an ordinary busy weekday)
+  "weekday": "Tuesday",
+  "now": "07:45",                // the moment of the benchmark; nothing observed is later than this
+  "tz": "America/Chicago",       // descriptive: where the person lives
+  "locale": "en-US",
+  "week_starts": "monday"
+}
+```
+
+* An item's time is `"day": <int offset from anchor date>` plus `"time": "HH:MM"` (24 h, local wall-clock). Events also have `"end": "HH:MM"` (or `"end_day"` for an event that ends on a later day). All-day items have `"all_day": true` and `"days": N` (default 1).
+* **Wall-clock semantics.** A loader turns `(anchor.date + day, time)` into an epoch in the **host's local zone**, not in `anchor.tz`. The person is assumed to live where the Mac is, so "9:00 lecture" shows as 9:00. If you run the backend with `TZ=<anchor.tz>`, use that zone instead; either way it is one conversion: `render.resolve(profile, day, time, tz=None)`.
+* **Observed things never come from the future.** Email, messages, notes, browser history, memory facts and document modification times are all at or before `anchor.now` on day 0. Calendar events and reminder due times may be in the future.
+* **Rebasing.** Text that names a date uses tokens, so a profile can be moved to another day:
+  * `{{dow:+2}}` → `Thursday` · `{{dow:-1:es}}` → `lunes`
+  * `{{date:+2}}` → `Thursday, October 15` · `{{date:+2:short}}` → `Oct 15` · `{{date:+2:num}}` → `10/15` · `{{date:+2:iso}}` → `2026-10-15` · `{{date:+2:long:es}}` → `jueves 15 de octubre`
+  * Offsets are always **relative to the anchor date**, even inside an old email. (An email sent on day −5 that says "this Thursday" writes `{{dow:+2}}` if that Thursday is anchor+2.)
+  * `render.load_profile(id, today=date)` re-anchors to `date` and renders every token. Recurring weekly events are stored as expanded occurrences with day offsets, so **rebase to the same weekday** (for example the next Tuesday) to keep weekday realism. Any other date stays internally consistent: no item contradicts another, but "Tuesday seminar" may then fall on a Friday.
+  * `profile.json` keeps the tokens. `render.load_profile` and the viewer render them. Never strip or pre-render them into `profile.json`.
+* Free text in **relative** words ("tomorrow", "tonight", "next week") is written relative to the item's own send time, the way people write. A message from day −1 saying "tomorrow" means day 0. That is part of the test.
+
+## 3. Ids
+
+Every item has an `id` unique within its profile, written `<kind>-<slug-or-number>`, for example `em-0142`, `em-lab-moved`, `ev-stats-lecture-d0`, `msg-roomies-0031`. Ids are stable across rebuilds. Planted items have readable slugs; noise is numbered. Kinds: `acct ct th msg em ev rem note doc web mem loc`. Ledger entries are `L-<profile>-NN`.
+
+## 4. `profile.json`
+
+Top-level keys (all required, may be empty lists):
+
+```jsonc
+{
+  "schema_version": 1,
+  "profile_id": "student",                 // student | tech | mixed
+  "synthetic": true,
+  "label": "Synthetic test profile: full-time university student",
+  "anchor": { … see §2 … },
+  "person": {
+    "name": "…", "preferred_name": "…", "pronouns": "she/her",
+    "age": 20, "summary": "one paragraph",
+    "home_location": "loc-home",
+    "languages": ["en"],
+    "about_you": { "goals": ["…"], "notes": "…" }   // Harbor's saved "About you" profile
+  },
+  "settings": {                                      // Harbor user_hours.json + Day planner window
+    "working_hours": { "days": [0,1,2,3,4], "start": "09:00", "end": "17:30" },
+    "quiet_hours": { "start": "23:30", "end": "07:00" },
+    "brief_times": ["07:45", "12:30", "17:30"]
+  },
+  "accounts": [ { "id": "acct-school", "name": "CVU Mail", "address": "…@….example", "kind": "school|work|personal", "is_identity": true } ],
+  "locations": [ { "id": "loc-home", "name": "…", "address": "…" } ],
+  "travel": [ { "from": "loc-home", "to": "loc-campus", "mode": "walk|bike|transit|drive", "minutes": 18 } ],
+  "contacts": [ … ], "threads": [ … ], "emails": [ … ], "events": [ … ],
+  "reminders": [ … ], "notes": [ … ], "documents": [ … ], "browser": [ … ], "memory": [ … ]
+}
+```
+
+### contacts
+```jsonc
+{ "id": "ct-mom", "name": "Mom",              // the display name as saved on the phone (Harbor keys on this)
+  "full_name": "Grace Brennan", "relation": "mother", "company": null,
+  "phones": ["+1 (312) 555-0141"], "emails": ["grace.brennan@mailbox.example"],
+  "birthday": "03-22" | null, "address": null, "note": null }
+```
+Handles a thread uses must be in exactly one contact, or be an unsaved handle (a raw phone number), which is intentional and listed in the ledger.
+
+### threads and messages (iMessage/SMS)
+```jsonc
+{ "id": "th-roomies", "kind": "dm|group", "title": "apt 4B 🏠" | null,   // group name; null for DMs and unnamed groups
+  "participants": ["ct-jess", "ct-omar"],                                // other members (not "me")
+  "service": "imessage|sms",
+  "messages": [ { "id": "msg-roomies-0001", "day": -3, "time": "21:14",
+                  "from": "me" | "ct-jess" | "+1 (312) 555-0199",
+                  "text": "…", "unread": false, "lang": "es"? } ] }
+```
+Messages are in time order. `unread` applies only to incoming messages after the user's last reply.
+
+### emails
+```jsonc
+{ "id": "em-0142", "thread_id": "emt-lab-schedule", "message_id": "<em-0142@student.bench.example>",
+  "in_reply_to": "em-0139" | null,
+  "account": "acct-school",
+  "mailbox": "inbox|archive|sent|spam|trash",
+  "category": "people|attention|accounts|news|social|promotions",   // Gmail-like tab, see §6
+  "bulk": false,                                                    // newsletter/list mail
+  "day": -2, "time": "16:05",
+  "from": { "name": "…", "addr": "…" }, "to": ["…"], "cc": [],
+  "subject": "…", "body": "…",                                      // plain text; quoted replies use "> "
+  "unread": true, "flagged": false,
+  "attachments": [ { "name": "Lab4_rubric.pdf", "doc_id": "doc-lab4-rubric" | null } ],
+  "lang": "en" }
+```
+The user's own sent replies are `mailbox: "sent"`. **Harbor's mail sync reads only the inbox**, so every commitment the user made by email is also visible in the inbox: either quoted ("> ") in the reply that follows, or restated in a message. The ledger never relies on a sent-only item.
+
+### events (calendar)
+```jsonc
+{ "id": "ev-stats-lec-d0", "series_id": "ser-stats-lec" | null,   // occurrences of one recurring series share series_id
+  "calendar": "CVU Classes", "account": "acct-school",
+  "kind": "meeting|exam|assignment|event",   // Harbor's commitment kinds; class sessions are "event"
+  "title": "STAT 2110 Lecture", "day": 0, "time": "09:30", "end": "10:45",
+  "all_day": false, "days": 1, "location": "Halvorsen Hall 214",
+  "organizer": "Prof. Ana Whitcombe" | null, "organizer_is_user": false, "invitee_count": 0 | null,
+  "calendar_writable": true, "context": "STAT 2110" | null,
+  "notes": "…" | null,                // event description: viewer only, not synced to Harbor
+  "status": "confirmed|tentative" }
+```
+A cancellation or move announced elsewhere is **not** applied to the calendar. The stale event stays as it is, and the ledger says what is really true.
+
+### reminders
+```jsonc
+{ "id": "rem-rent", "title": "Pay rent (Venmo Jess my half)", "list": "Reminders",
+  "day": -1 | null, "time": "09:00" | null,   // null day = undated reminder
+  "all_day": false, "completed": false, "completed_day": null, "completed_time": null,
+  "created_day": -9, "notes": null }
+```
+
+### notes (Apple Notes)
+`{ "id", "title", "folder", "body", "day", "time", "created_day" }`. `day`/`time` is the last modification. Bodies are plain text and may hold checklists (`- [ ]` / `- [x]`).
+
+### documents (files the assistant may summarise)
+```jsonc
+{ "id": "doc-budget", "path": "~/Documents/Money/fall_budget.csv", "title": "fall budget",
+  "kind": "text|markdown|csv|docx|pdf|xlsx",
+  "day": -6, "time": "22:10",
+  "content": "…",                         // full text (markdown/text/docx/pdf → text)
+  "rows": [["Item","Amount"], …] | null } // for csv/xlsx: the cell values, first row is the header
+```
+`build.py` also writes each document to `files/<path without ~/>` (csv as CSV, everything else as UTF-8 text with the original extension swapped for `.md`/`.txt` where a binary format would be needed). The `kind` keeps the nominal format.
+
+### browser
+`{ "id", "browser": "safari|chrome", "day", "time", "host", "path", "title" }`.
+
+### memory (Harbor's saved facts)
+`{ "id": "mem-03", "text": "…", "category": "fact|preference|person|routine|project", "origin": "explicit|mail", "day": -30, "superseded_by": "mem-09" | null }`. A memory fact may be **out of date**; the ledger records it.
+
+## 5. `ledger.json`
+
+```jsonc
+{ "schema_version": 1, "profile_id": "student", "entries": [
+  { "id": "L-student-07",
+    "type": "calendar_correction",          // see the type list below
+    "surfaces": ["ask", "brief", "day"],   // where a good assistant must get it right
+    "prompt": "What's on my calendar today?",  // a natural question (optional; the productbench writes its own)
+    "truth": "The 2:00 lab moved to Thursday 3:30; the calendar still shows today 2:00.",
+    "expected": {                          // machine-checkable parts, all optional
+      "status": "open|done|superseded|moved|cancelled|unknown|ignore",
+      "must_include": ["Thursday", "3:30"],
+      "must_not_include": ["2:00 lab today"],
+      "agenda": [ { "ref": "ev-…", "time": "09:30", "title": "…" } ],   // today_agenda only, in order
+      "answer": "…"                        // a reference answer
+    },
+    "evidence": ["ev-chem-lab-d0", "em-lab-moved"],   // every id that proves it (must exist)
+    "distractors": ["em-0099"],                        // items a weak model will wrongly use (must exist)
+    "why": "Why it matters, in one sentence.",
+    "difficulty": "easy|medium|hard" } ] }
+```
+
+Entry types (each profile has at least one of each):
+
+| type | what it plants | expected.status |
+| --- | --- | --- |
+| `today_agenda` | The real order of day 0, after every correction (one per profile) | — |
+| `calendar_correction` | A change announced only in mail or messages that makes the calendar wrong | `moved` / `cancelled` |
+| `commitment_user` | Something the user promised | `open` / `done` / `superseded` |
+| `request_to_user` | Something someone asked of the user | `open` / `done` / `superseded` |
+| `deadline` | A dated obligation (some only in prose, not on the calendar) | `open` / `done` |
+| `brief_attention` | Belongs in the morning brief | `open` |
+| `brief_noise` | Tempting but should be left out (urgent-looking promo, someone else's news, a resurfaced old thread) | `ignore` |
+| `day_constraint` | A fixed event, travel time, a work block a deadline needs, working hours, a personal obligation | — |
+| `two_source_fact` | A fact that needs two items together | — |
+| `unknowable` | A plausible question the data cannot answer: the right answer is "I don't know" | `unknown` |
+| `injection` | A message or email with instructions aimed at an assistant: must be ignored, never acted on | `ignore` |
+| `similar_names` | Two people (or things) easily confused | — |
+| `changed_detail` | A time, address or decision that changed; the newest one is right | — |
+
+## 6. Mapping onto Harbor's two worlds
+
+`scripts/bench_profiles/adapters.py` implements both mappings. The tests run them.
+
+**Sandbox (`sandbox/world.py` state, schema v1):** `booted_at` = the epoch of `anchor.now` (clock `frozen`, `frozen_at = booted_at`), every `ts_off = resolve(day,time) − booted_at`.
+* contacts → `contacts[cid] = {id, name, handles: phones+emails, email: emails[0]}`
+* threads → `threads[tid] = {id, kind, title, context_label (name for DMs), participants, draft: null, messages: [{id, ts_off, from: "me"|display name|handle, text, via: "seed"}]}`
+* emails (inbox only, as the sync reads only the inbox) → `emails[eid] = {id, message_id, account: account name, ts_off, from_name, from_addr, to, cc, subject, body, unread, mailbox: "inbox", deep: day < −30, in_reply_to}`; non-inbox mail is kept with its own `mailbox` and the sync skips it, as it does today.
+* events → `calendar["<series_id or id>@<ts_off>"] = {id, source_id: series_id or id, kind, title, context, organizer, account, ts_off, all_day, location}` plus `end_off`, `invitee_count`, `organizer_is_user`, `calendar_writable` (the backend's `/assistant/sync/calendar` accepts all of these; `sandbox/sync.py` would need one line to forward `end_ts` and the three flags).
+* reminders (incomplete only, as EventKit sync sends) → `reminders[rid]` with `kind: "reminder"`; undated ones → the `undated` list.
+* notes → `notes[nid] = {id, ts_off, title, folder, body}`; browser → `browser.safari|chrome = [{ts_off, host, path, title}]`.
+* `persona.identity_emails` = the identity accounts' addresses.
+
+**Toolbench (`scripts/toolbench/world.World`):** `today` = anchor date, `now` = anchor datetime.
+* events (day ≥ 0) → `events`, (day < 0) → `past_events`, via `_event(title, day, "9:30 AM", location, account, calendar, writable, invitees, organizer_is_user, organizer, recurring, duration, all_day, series, days)`.
+* emails → `_mail(id, "Name <addr>", account, subject, day_offset, "4:05 PM", unread, body, cat=category, bulk=bulk)`; spam and trash are left out.
+* threads → `_text(ctx, sender, text, day_offset, clock, unread, group=…)` per message.
+* reminders → `_reminder(title, date, clock, created=date)`; completed ones are left out, as the world has no done state.
+* contacts → `{name, full, email, phone, birthday}` (first phone, first email).
+* notes → `{title, body}`; documents → `documents[path] = content` and `files["~/Documents"] += [basename]`; memory → `memory_facts`; `profile = {name: preferred_name, goals}`.
+
+## 7. Entities Harbor holds that this format does **not** represent (or only partly)
+
+* **Identity emails survive only in direct-to-cache fixtures.** `email_tools._is_placeholder` drops any `.test`/`.example` identity address pushed through the real `POST /assistant/sync/emails`. We keep placeholder domains anyway (the rule is invented data only), so a run through the real endpoint has no identity: "is this email to me?" logic sees an empty identity set. The productbench should seed identity through the cache files, as `scripts/harbor_testdata.py` does, or accept the gap.
+* **Calendar end times and invitee flags** are in the schema, and `sandbox/sync.py` does not forward them yet (see §6). Without them Day assumes default durations.
+* **Completed reminders** are not synced by EventKit and the Toolbench world has no done state. They are in the profile for the viewer and the ledger (a "done" commitment), and the adapters drop them.
+* **Email folders other than the inbox, flags and attachments**: Harbor's header line carries account and read state only. `mailbox`, `flagged` and `attachments` are kept for the viewer and Toolbench; attachments point at a `documents` entry when the text matters.
+* **Message read state, reactions, tapbacks, images, voice memos**: the Messages wire format has no unread flag or media. `unread` is kept for Toolbench; reactions are written as text ("Liked “…”") the way iMessage exports them; no media.
+* **Event descriptions (`notes`)** are not synced by Harbor's calendar reader: viewer only.
+* **Not modelled at all:** scheduled sends, timers and alarms, learned behaviour patterns and predictions, past Harbor conversations, Google Drive files, running apps and Mac state, weather, stocks, web search results, knowledge notes/style examples (`save_knowledge`), Study tab data (excluded by request). Travel time is given as a fixed `travel` table rather than a routing service.
+* **Second-language content: none for now.** Version 1 is English only (project decision, 2026-11-18), so all three profiles are English; locale details (en-CA spelling, CAD, time zones) stay. The schema keeps an optional `lang` tag and the `:es` date tokens for later; nothing uses them.
+
+## 8. Volume per profile and why
+
+Targets were about 150–250 emails, 300–500 messages in 10–15 conversations, 40–70 events over five weeks, 20–40 notes, 15–30 reminders, 20–40 contacts and a handful of documents. Actual counts are in `test_fixtures/bench_profiles/index.json` and the work-in-progress notes. Two deliberate adjustments:
+* **The calendar window is days −28 … +12.** That covers the four weeks of history the inbox spans plus the week the Day planner looks ahead to. Recurring classes and standups are expanded within it.
+* **Old mail beyond 30 days is a small tail** (a few items flagged `deep` in the sandbox), because Harbor's sync treats it as history.
+
+## 9. Open questions (decided provisionally, not blocking)
+
+1. **Wall-clock vs. profile time zone.** Provisional: wall-clock in the host zone (§2). If the productbench sets `TZ` for the backend, it should pass the same zone to `render.resolve`.
+2. **Identity on the real sync endpoint.** Provisional: placeholder domains, gap documented (§7). Using real-looking domains would break the "invented domains only" rule.
+3. **One `now` per profile.** The ledger is written for the morning (`anchor.now`). Questions asked "at 2 pm" need the clock advanced, with no new mail; the ledger's `today_agenda` stays valid but "what's next" changes. Provisional: the productbench owns any clock advance.
+4. **Rebasing to a different weekday** keeps the data consistent but not realistic (§2). Provisional: rebase to the same weekday.
+5. **Sandbox `end_ts` forwarding** is a one-line change in `sandbox/sync.py`, outside the bench-profiles work's owned paths. Left for the productbench or the integrator.
+6. **Second language.** Dropped for version 1 on 2026-11-18 (English only). All content is English; re-adding a language later needs only `lang` tags and `:es` tokens, which the loader already supports.

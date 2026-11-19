@@ -110,7 +110,7 @@ On DuckDuckGo's anti-bot page it retries, then gives up, and an empty result is 
 - **Local only:** the API is published as `${PORT:-3002}:3002`, which listens on every interface, and SELF_HOST.md warns that "The default API is unauthenticated". The benchmark ships a Compose override, `edat/web/compose.localhost.yaml`, that rebinds it to `127.0.0.1:3002`. The capture client accepts only loopback addresses for a self-hosted stack.
 - **What it lacks** ([self-host docs](https://docs.firecrawl.dev/contributing/self-host)): fire-engine's anti-bot fetching, screenshots and page actions, the agent features. The capture uses **plain scraping only** (Playwright plus a basic fetch). A page that blocks it comes back with an error status or empty Markdown; it is dropped from the snapshot and counted (`meta.counts.pages_dropped`, with each URL and reason in `meta.dropped_pages`).
 
-**What it costs the reference Mac** (24 GB). These are my estimates, not measurements; the project publishes no minimum.
+**What it costs the reference Mac** (24 GB). These are estimates, not measurements; the project publishes no minimum.
 
 | Item | Estimate |
 |---|---|

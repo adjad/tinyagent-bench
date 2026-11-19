@@ -17,6 +17,10 @@ import sys
 
 
 def main(argv: list[str] | None = None) -> int:
+    argv = sys.argv[1:] if argv is None else list(argv)
+    if argv[:1] == ["run"]:              # argparse's REMAINDER drops a leading --option, so hand over directly
+        from edat.sidekick.runner import main as run_main
+        return run_main(argv[1:])
     ap = argparse.ArgumentParser(prog="python -m edat.sidekick")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("selftest")

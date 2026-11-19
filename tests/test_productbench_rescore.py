@@ -271,6 +271,19 @@ def test_the_matcher_rules_the_hand_check_needed():
     assert any(x.startswith("L-h-sync:") for x in old.stale)
 
 
+def test_one_distinguishing_word_never_stands_in_for_a_weak_anchor():
+    prof, led = _raw()
+    prof["emails"].append(_email("em-dent", "Dentist", "Your dentist visit is Tuesday at 3pm."))
+    led["entries"].append(_entry("L-h-dent", "deadline", "The dentist is Tuesday at 3pm.", ["Tuesday", "3pm"],
+                                 evidence=["em-dent"]))
+    q = _profile(prof, led)
+    assert "any" not in q.item("L-h-dent")["match"]       # one word ("dentist"): no two-word alternative
+    def found(text):
+        return "L-h-dent" in score_brief.score_brief(_snap(text), q, {}).recall["found"]
+    assert not found("Dentist on Tuesday")               # one word does not replace the 3pm
+    assert found("Dentist on Tuesday at 3pm")
+
+
 def test_the_models_recall_counts_only_what_the_model_wrote():
     p = _brief_world()
     code = {"state": "ready", "cards": [], "threads": [],

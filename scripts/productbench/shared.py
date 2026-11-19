@@ -161,6 +161,7 @@ MONTH_WORDS = {"jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "s
                "january", "february", "march", "april", "june", "july", "august", "september", "october",
                "november", "december"}
 _NUMBER = re.compile(r"[$€£]?\d[\d,.]*%?")    # "1,284", "41.20", "$642", "70%": a bare number
+_CLOCK = re.compile(r"\d{1,2}(?::\d{2})?(?:am|pm|a\.m|p\.m)", re.I)     # "3pm", "11:30am"
 COMMON_SHARE = 0.02      # a phrase in more than 2% of the person's items (at least COMMON_MIN) is common
 COMMON_MIN = 8
 RARE_MAX = 2             # a noise entry's own words: in at most this many items
@@ -277,9 +278,10 @@ def _match_spec(must: list[str], entry: dict, corpus: _Corpus) -> tuple[dict | N
     strong = [i for i, a in enumerate(must) if not corpus.weak(a)]
     if strong:
         return {"all": groups, "require": strong, "need": len(strong)}, None
-    said = [matcher.fold(a) for a in must]
-    words = [w for w in _distinct(entry, corpus)          # a word the key already gives is no extra evidence
-             if not any(matcher.phrase_hit(w, a) or matcher.phrase_hit(a, w) for a in said)]
+    said = [matcher.fold(a) for a in must + list((entry.get("expected") or {}).get("must_include") or [])]
+    words = [w for w in _distinct(entry, corpus)          # a word the key already gives is no extra evidence,
+             if not _CLOCK.fullmatch(w) and not _NUMBER.fullmatch(w)   # nor a time or a number
+             and not any(matcher.phrase_hit(w, a) or matcher.phrase_hit(a, w) for a in said)]
     if not words:
         return None, "no distinguishing anchor in the key or the entry's evidence"
     # The entry's own words, each a group: two of them beside its weak anchors (all of them, or
@@ -292,8 +294,9 @@ def _match_spec(must: list[str], entry: dict, corpus: _Corpus) -> tuple[dict | N
     weak_need = len(must) if len(must) <= 2 else len(must) - 1
     full = groups + per_word
     if len(must) >= 2:
-        specs = [{"all": full, "require": [], "least": [[weak_idx, len(must)], [word_idx, 1]]},
-                 {"all": full, "require": [], "least": [[weak_idx, len(must) - 1], [word_idx, two]]}]
+        specs = [{"all": full, "require": [], "least": [[weak_idx, len(must)], [word_idx, 1]]}]
+        if len(per_word) >= 2:      # two words stand in for one weak anchor; one word never does
+            specs.append({"all": full, "require": [], "least": [[weak_idx, len(must) - 1], [word_idx, 2]]})
     else:
         specs = [{"all": full, "require": [], "least": [[weak_idx, weak_need], [word_idx, two]]}]
     return (specs[0] if len(specs) == 1 else {"any": specs}), None

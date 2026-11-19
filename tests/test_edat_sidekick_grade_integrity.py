@@ -298,3 +298,16 @@ def test_a_flagged_probe_answer_keeps_its_grade(iso):
     with TrialArea() as a:
         g = run_probe(iso, a, check, {"calc.py": "import atexit\ndef add(a, b):\n    return a + b\n"})
     assert g.passed and g.metrics["tripwire"] and g.metrics["grade_hardened"] is False
+
+
+def test_a_folder_the_model_locked_is_still_removed(iso):
+    """Mode 000 folders and a user-immutable file, made by the model's own command: cleanup unlocks, then
+    removes, and leaves nothing behind."""
+    from edat.sidekick.sandbox.run import Limits, TrialArea
+    a = TrialArea()
+    res = iso.run(a, "mkdir -p d/e && print -r -- x > d/e/f && chflags uchg d/e/f && chmod 000 d/e d "
+                     "&& mkdir g && chflags uchg g", limits=Limits(wall_s=10))
+    assert res.exit_code == 0, res.stderr
+    root = a.root
+    a.cleanup()
+    assert not os.path.lexists(root)

@@ -226,7 +226,8 @@ Labelled `not hardened against adversarial model code`: the git tasks (every cas
 grader, on any rung or tier) and rungs 4 to 9 until their conversion lands. A labelled row carries the tag
 `grade-not-hardened` and `grade_hardened: false`, set from how its case is graded before grading starts,
 so an error in grading cannot strip it; the scoring also leaves out every row of a labelled type. Labelled
-rows stay out of the Sidekick Score, every ranked or published number and the ceiling on rungs 1 to 3;
+rows stay out of the Sidekick Score, every ranked or published number, and rungs 1 to 3 of the ceiling
+(their cells, the ceiling and "solid up to" are worked out without them);
 the summary reports them apart, under `not_hardened`. A sandboxed test program cannot read other
 processes or devices (see "What model code can reach").
 
@@ -302,7 +303,8 @@ pass by accident. Their rows carry the tag `grade-not-hardened`, the report mark
 of any published or ranked score until they are rebuilt. A tripwire flags answers on those rungs whose
 code touches the test machinery or the process (`tripwire` in the row's metrics, listed in the report)
 for a person to read; it never changes a grade, and an answer it does not flag is not thereby honest.
-The git tasks on rungs 1 to 3 carry the same label and are left out of the ceiling on rungs 1 to 3.
+The git tasks of levels 1 to 3 carry the same label: rungs 1 to 3, the ceiling and "solid up to" are
+worked out without them.
 
 **Hardening the git tasks** is a later change, designed first: the host would rebuild what it grades
 from the candidate's objects into a fresh host-owned repository through a narrow, validated import,

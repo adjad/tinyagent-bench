@@ -5,8 +5,9 @@
   "use strict";
   const EDAT = (window.EDAT = window.EDAT || {});
   EDAT.config = {
-    name: "EDAT",
-    longName: "Edge Device Agentic Testing",
+    name: "tinyagent-bench",
+    /* A plain description shown beside the name on wide screens. */
+    longName: "Small language models as on-device agents",
     tagline: "A benchmark for small language models used as agents on your own device.",
     /* Where the results store's export lives, relative to index.html. */
     dataRoot: "data/",

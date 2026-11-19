@@ -35,15 +35,15 @@
   const NAV = [["", "Leaderboard"], ["compare", "Compare"], ["tests", "Tests"], ["devices", "Devices"], ["profiles", "Profiles"], ["methodology", "Methodology"]];
   const ROUTES = {
     "": "home", model: "model", compare: "compare", tests: "tests", case: "tests", devices: "devices", device: "devices",
-    profiles: "profiles", vote: "vote", methodology: "methodology"
+    profiles: "profiles", vote: "vote", methodology: "methodology", found: "found"
   };
 
   /* ---------- shell ---------- */
   function renderShell(index) {
     $("#wordmark").innerHTML = `${I.logo}<span>${esc(CFG.name)}</span><span class="wordmark-sub">${esc(CFG.longName)}</span>`;
-    $("#wordmark").setAttribute("aria-label", `${CFG.name}, ${CFG.longName}: leaderboard`);
+    $("#wordmark").setAttribute("aria-label", `${CFG.name}, leaderboard`);
     const here = S.parts[0] || "";
-    const navKey = here === "model" ? "" : here === "case" ? "tests" : here === "device" ? "devices" : here;
+    const navKey = here === "model" ? "" : here === "case" || here === "found" ? "tests" : here === "device" ? "devices" : here;
     $("#nav-links").innerHTML = NAV.map(([p, l]) => `<li><a href="${link("/" + p)}"${navKey === p ? ' aria-current="page"' : ""}>${esc(l)}</a></li>`).join("");
     const repo = $("#foot-repo"); if (repo) repo.href = CFG.repository;
     if (!index) return;
@@ -58,7 +58,7 @@
       band.hidden = false;
       $("#sample-text").textContent = "Sample data. Every model name and number on this site is invented to exercise the pages; no model has been measured yet. The two devices are the planned first ones.";
     } else band.hidden = true;
-    $("#foot-text").textContent = `${CFG.name}, ${CFG.longName}. ${bi ? "Board " + bi.version + ", results dated " + U.date(bi.generatedAt) + ". " : ""}English cases only.${index.sample ? " Sample data only." : ""}`;
+    $("#foot-text").textContent = `${CFG.name}. ${CFG.longName}. ${bi ? "Board " + bi.version + ", results dated " + U.date(bi.generatedAt) + ". " : ""}English cases only.${index.sample ? " Sample data only." : ""}`;
   }
   function currentDeviceId(bi) {
     const d = S.q.get("d");

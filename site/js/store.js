@@ -281,5 +281,30 @@
     return (raw.trajectories || []).filter((t) => t.split !== "heldout" && t.split !== "held_out");
   }
 
-  EDAT.store = { curveFor, loadIndex, loadDevice, loadCloud, loadAllDevices, loadTrajectories, board, value, diff, rankRanges, storeRank, bestPerModel, deviceInfo, DataError, Board, _clear: () => { cache.clear(); index = null; } };
+  /* "What it found" (in-assistant findings). Read from the export when it exists. Until the store writes it, a sample
+   * board falls back to the site's own labelled sample in fixtures/ (see fixtures/make_findings_sample.py); a real
+   * board never does. Records marked held out are dropped. */
+  async function loadFindings(version, deviceId) {
+    const bi = board(version);
+    if (!bi) return null;
+    const k = "findings:" + version + "/" + deviceId;
+    if (!cache.has(k)) cache.set(k, (async () => {
+      const tryGet = async (url) => {
+        let res; try { res = await fetch(url, { cache: "no-cache" }); } catch (e) { return null; }
+        if (res.status === 404) return null;
+        if (!res.ok) throw new DataError("The findings file did not load.", url + " answered " + res.status);
+        try { return await res.json(); } catch (e) { throw new DataError("The findings file is not valid JSON.", url); }
+      };
+      let raw = await tryGet(CFG.dataRoot + version + "/" + deviceId + ".findings.json"), fromFixture = false;
+      if (!raw && bi.sample) { raw = await tryGet("fixtures/" + version + "/" + deviceId + ".findings.json"); fromFixture = !!raw; }
+      if (!raw) return null;
+      if (!/^edat\.site-findings\//.test(raw.schema || "")) throw new DataError("The findings file has an unknown format.", "schema " + raw.schema);
+      raw.runs = (raw.runs || []).filter((r) => r.split !== "heldout" && r.split !== "held_out");
+      raw.fromFixture = fromFixture;
+      return raw;
+    })());
+    return cache.get(k);
+  }
+
+  EDAT.store = { loadFindings, curveFor, loadIndex, loadDevice, loadCloud, loadAllDevices, loadTrajectories, board, value, diff, rankRanges, storeRank, bestPerModel, deviceInfo, DataError, Board, _clear: () => { cache.clear(); index = null; } };
 })();

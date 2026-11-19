@@ -132,7 +132,7 @@
     lane: { assistant: "Assistant lane", neutral: "Neutral lane" },
     family: { select: "Select", parallel: "Parallel", sequential: "Sequential", mixed: "Mixed", pev: "Plan, execute, verify", recovery: "Recovery", abstain: "Abstain", readability: "Readability", extraction: "Extraction", email_summary: "Email summaries" },
     surface: { ask: "Ask", brief: "Brief", day: "Day" },
-    profile: { student: "Student", "tech-worker": "Tech worker", mixed: "Student who works", "student-worker": "Student who works" },
+    profile: { student: "Student", tech: "Tech worker", "tech-worker": "Tech worker", mixed: "Student who works", "student-worker": "Student who works" },
     band: { early: "Early turns", late: "Late turns" }
   };
 

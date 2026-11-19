@@ -567,6 +567,8 @@ def main() -> None:
     ap.add_argument("--profile", action="append", default=[], help="profile.json path or a name "
                     "under test_fixtures/productbench/; repeat for several")
     ap.add_argument("--cases", default=None, help="question file (default: the profile's own set)")
+    ap.add_argument("--first-trial", type=int, default=1,
+                    help="number the trials from here (to resume: --first-trial 3 --trials 1 runs trial 3 only)")
     ap.add_argument("--surface", default=DEFAULT_SURFACES,
                     help="ask, brief, day, pref (standing preferences), long (the 60-turn session; heavy)")
     ap.add_argument("--trials", type=int, default=3)
@@ -624,9 +626,17 @@ def main() -> None:
         sys.exit(refusal)
     if not stub and any(not e.cloud for e in chosen):
         try:
-            httpx.get(f"http://127.0.0.1:{args.engine_port}/v1/models", timeout=3)
-        except httpx.HTTPError:
+            listed = httpx.get(f"http://127.0.0.1:{args.engine_port}/v1/models", timeout=3).json()
+        except (httpx.HTTPError, ValueError):
             sys.exit(f"no engine answers on :{args.engine_port}; this harness never starts one")
+        available = [m.get("id") for m in (listed.get("data") or []) if isinstance(m, dict)]
+        for e in chosen:
+            if e.cloud:
+                continue
+            served = model_files.pick_served(e, available)
+            if served is None:
+                sys.exit(f"{e.id}: the engine lists none of {[e.model_id, *e.served_as]}; nothing was run")
+            e.model_id = served
 
     run = f"{RUN_PREFIX}-{time.strftime('%Y%m%d-%H%M%S')}"
     root = Path(args.out) if args.out else Path(os.environ.get("TMPDIR", "/tmp")) / "productbench"
@@ -670,7 +680,7 @@ def main() -> None:
             for entry in chosen:
                 runtime = runtime_info(entry, stub=stub, engine_port=args.engine_port)
                 engine_port = None if (stub or entry.cloud) else args.engine_port
-                for trial in range(1, args.trials + 1):
+                for trial in range(args.first_trial, args.first_trial + args.trials):
                     passes = ([(None, False)] if set(surfaces) - {"act"} else []) + [(t, False) for t in times]
                     if act_plan is not None and act_plan["expectations"]:
                         passes.append((None, True))

@@ -402,3 +402,12 @@ def test_summary_reports_questions_and_act_apart(tmp_path, keys):
     assert s["act_for_me"]["score_gate"] == s["act_for_me"]["score"]
     assert s["overall"] is None                 # neither is in the weighted overall
     assert "| Qs | Act | Act rules |" in summary.markdown([s])
+
+
+def test_engine_prep_plans_one_resident_model():
+    from scripts.productbench import engine_prep as ep
+    now = ["Ling-3.0-tiny-oQ6e", "bge-m3-embed", "gemma-4-E4B-it-oQ4e-mtp"]
+    assert ep.plan_keep(now, "gemma-4-E4B-it-oQ4e-mtp") == ["Ling-3.0-tiny-oQ6e"]
+    after = ["gemma-4-E4B-it-oQ4e-mtp", "bge-m3-embed"]
+    assert ep.plan_restore(after, ["Ling-3.0-tiny-oQ6e", "bge-m3-embed"]) == (["gemma-4-E4B-it-oQ4e-mtp"], ["Ling-3.0-tiny-oQ6e"])
+    assert ep.plan_restore(["Ling-3.0-tiny-oQ6e"], ["Ling-3.0-tiny-oQ6e"]) == ([], [])

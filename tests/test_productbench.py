@@ -463,6 +463,9 @@ def test_models_file_references_and_ranking():
     assert len(clouds) == 6 and not any(e.ranked for e in clouds)
     assert all(e.provider == "openrouter" for e in clouds)
     assert entries["cloud/claude-haiku-5.5"].accepts == {"temperature": False, "top_p": False, "seed": False}
+    assert models.pick_served(wisp, ["gemma-4-E4B-it-r5-step-01800-oQ4e-mtp"]) == "gemma-4-E4B-it-r5-step-01800-oQ4e-mtp"
+    assert models.pick_served(wisp, ["Gemma-Wisp", "gemma-4-E4B-it-r5-step-01800-oQ4e-mtp"]) == "Gemma-Wisp"
+    assert models.pick_served(wisp, ["gemma-4-E4B-it-oQ4e-mtp"]) is None
     unknown = models.resolve("some-new-model-4bit", entries)
     assert not unknown.known and not unknown.ranked
     with pytest.raises(models.ModelFileError):

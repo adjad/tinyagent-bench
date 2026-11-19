@@ -35,6 +35,12 @@ class FakeEngine:
         self.pending: set[str] = set()
         self.fail = None               # (method, path-part) answered with 500
         self.on_call = None            # hook(method, path) before answering
+        self.loading: dict[str, int] = {}   # model -> status reads it still shows is_loading, then loaded
+
+    def start_loading(self, mid, reads=3):
+        """A load whose request was cut off: oMLX goes on loading (loaded False, is_loading True)."""
+        self.models[mid].update(loaded=False, is_loading=True)
+        self.loading[mid] = reads
 
     @property
     def transport(self):
@@ -52,6 +58,12 @@ class FakeEngine:
         if self.fail and self.fail[0] == method and self.fail[1] in path:
             return httpx.Response(500, json={"detail": "boom"})
         if path == "/v1/models/status":
+            for m, n in list(self.loading.items()):
+                if n <= 0:
+                    self.models[m].update(loaded=True, is_loading=False)
+                    del self.loading[m]
+                else:
+                    self.loading[m] = n - 1
             for m in list(self.pending):
                 self.models[m]["loaded"] = False
                 self.pending.discard(m)
@@ -62,7 +74,7 @@ class FakeEngine:
         if mid not in self.models:
             return httpx.Response(404, json={"detail": "not found"})
         if path.endswith("/unload"):
-            if not self.models[mid]["loaded"]:
+            if not self.models[mid]["loaded"]:          # oMLX: no engine yet, also while still loading
                 return httpx.Response(400, json={"detail": "not loaded"})
             if self.unload_202:
                 self.unload_202 -= 1
@@ -333,10 +345,12 @@ def test_harbor_detection_covers_app_swift_run_and_backend_and_fails_closed():
 
 def test_engine_url_is_loopback_before_any_header(monkeypatch):
     for bad in ("http://10.0.0.2:8000", "https://127.0.0.1:8000", "http://127.0.0.1", "http://example.com:8000",
-                "http://127.0.0.1:8000/v1", "http://user:pw@127.0.0.1:8000", ""):
+                "http://127.0.0.1:8000/v1", "http://user:pw@127.0.0.1:8000", "",
+                "http://localhost:8000", "http://127.0.0.1:0"):       # a name, or port 0: refused
         with pytest.raises(rg.GuardError):
             rg.Engine(bad, api_key="k-test")
-    assert rg.loopback_base_url("http://localhost:8001/") == "http://localhost:8001"
+    assert rg.loopback_base_url("http://127.0.0.1:8001/") == "http://127.0.0.1:8001"
+    assert rg.loopback_base_url("http://[::1]:8001") == "http://[::1]:8001"
 
 
 def test_proxies_ignored_and_key_only_in_headers(env, monkeypatch):
@@ -421,3 +435,227 @@ def test_restore_cli_refuses_another_runs_save(env, tmp_path):
         rg.restore(rg.Engine(URL, transport=fake.transport), save, harbor=lambda: None, token="other")
     with pytest.raises(rg.GuardError, match="saved from"):
         rg.restore(rg.Engine("http://127.0.0.1:9000", transport=fake.transport), save, harbor=lambda: None)
+
+
+# ------------------------------------------------------------------ the fix check's probes (second round)
+# Each test is one of the reviewer's probes, kept as a regression test.
+
+def test_probe_a_second_signal_during_exit_still_restores(env, monkeypatch):
+    """A second SIGHUP while the exit switches handlers (closing a terminal can send two) used to escape
+    __exit__: no restore, no report, lock and save left."""
+    fake, guard, tmp_path, _ = env
+    old = signal.signal(signal.SIGHUP, lambda *a: None)        # whatever runs after the guard is harmless here
+    real = signal.signal
+    fired = []
+
+    def wrapped(s, h):
+        r = real(s, h)
+        if s == signal.SIGTERM and not fired:
+            fired.append(1)
+            os.kill(os.getpid(), signal.SIGHUP)
+        return r
+    try:
+        with pytest.raises(rg.RunInterrupted) as ei:
+            with guard() as g:
+                g.prepare("gemma-a")
+                monkeypatch.setattr(rg.signal, "signal", wrapped)
+                os.kill(os.getpid(), signal.SIGTERM)
+                for _ in range(10**6):
+                    pass
+    finally:
+        monkeypatch.setattr(rg.signal, "signal", real)
+        real(signal.SIGHUP, old)
+    assert ei.value.signum == signal.SIGTERM and fired
+    back_as_before(fake, tmp_path)
+    assert report(tmp_path)["engine"].startswith("engine restored")
+
+
+def test_two_quick_sighups_and_signals_during_restore_are_recorded(env):
+    fake, guard, tmp_path, _ = env
+    sent = []
+
+    def during_restore(method, path):
+        if method == "POST" and path.endswith("/unload") and not sent:
+            sent.append(1)
+            for s in (signal.SIGHUP, signal.SIGTERM, signal.SIGINT):
+                os.kill(os.getpid(), s)
+    with pytest.raises(rg.RunInterrupted) as ei:
+        with guard() as g:
+            g.prepare("gemma-a")
+            fake.on_call = during_restore
+            try:
+                os.kill(os.getpid(), signal.SIGHUP)
+                for _ in range(10**6):
+                    pass
+            except rg.RunInterrupted as first:
+                os.kill(os.getpid(), signal.SIGHUP)            # a second within 10 s: recorded, not raised
+                for _ in range(10**5):
+                    pass
+                raise first
+    assert ei.value.signum == signal.SIGHUP
+    back_as_before(fake, tmp_path)
+    assert report(tmp_path)["signals_ignored"].count("SIGHUP") >= 2
+    assert {"SIGTERM", "SIGINT"} <= set(report(tmp_path)["signals_ignored"])
+    assert signal.getsignal(signal.SIGINT) is signal.default_int_handler
+
+
+def test_probe_c_a_load_cut_off_mid_request_is_unloaded_on_restore(env):
+    """The run is cut while oMLX is still loading gemma-b: the restore waits for it and unloads it."""
+    fake, guard, tmp_path, _ = env
+    with guard() as g:
+        g.prepare("gemma-a")
+        fake.models["gemma-a"]["loaded"] = False
+        fake.start_loading("gemma-b", reads=3)
+    assert not fake.models["gemma-b"]["loaded"] and not fake.models["gemma-b"].get("is_loading")
+    back_as_before(fake, tmp_path)
+
+
+def test_a_load_that_never_settles_fails_the_restore_and_keeps_the_save(env):
+    fake, guard, tmp_path, _ = env
+    e = rg.Engine(URL, api_key="k-test", transport=fake.transport, sleep=lambda s: None, settle_wait_s=0)
+    with pytest.raises(rg.GuardError, match="still loading"):
+        with guard(engine=e) as g:
+            g.prepare("gemma-a")
+            fake.start_loading("gemma-b", reads=10**6)
+    assert "restore FAILED" in report(tmp_path)["engine"] and report(tmp_path)["outcome"] == "failed"
+    assert (tmp_path / "heavy.lock.engine-save.json").exists()
+    assert not (tmp_path / "heavy.lock").exists()
+
+
+def test_a_model_still_loading_at_start_is_not_saved_as_the_users(env):
+    fake, guard, tmp_path, _ = env
+    fake.start_loading("gemma-b", reads=2)                    # e.g. a load the user started a moment ago
+    with guard() as g:
+        assert "gemma-b" in g.report["engine_before"]["loaded"]
+        g.prepare("gemma-a")
+    assert fake.models["gemma-b"]["loaded"]                   # theirs: loaded again on restore
+
+
+def test_probe_d_an_evicted_helper_is_loaded_again(env):
+    fake, guard, tmp_path, _ = env
+    with guard() as g:
+        g.prepare("gemma-a")
+        fake.models["bge-embed"]["loaded"] = False
+    assert fake.models["bge-embed"]["loaded"]
+    back_as_before(fake, tmp_path)
+    assert report(tmp_path)["engine_before"]["helpers_loaded"] == ["bge-embed"]
+
+
+def test_a_helper_that_cannot_be_loaded_keeps_the_save(env):
+    fake, guard, tmp_path, _ = env
+    with pytest.raises(Exception):
+        with guard() as g:
+            g.prepare("gemma-a")
+            fake.models["bge-embed"]["loaded"] = False
+            fake.fail = ("POST", "bge-embed/load")
+    assert "restore FAILED" in report(tmp_path)["engine"]
+    assert (tmp_path / "heavy.lock.engine-save.json").exists()
+
+
+def test_probe_e_a_changed_default_model_keeps_the_save_until_put_back(env):
+    fake, guard, tmp_path, _ = env
+    with pytest.raises(rg.GuardError, match="default model"):
+        with guard() as g:
+            g.prepare("gemma-a")
+            fake.default = "gemma-a"
+    rep = report(tmp_path)
+    assert rep["outcome"] == "failed" and "default model is 'gemma-a', was 'user-model'" in rep["engine"]
+    save = tmp_path / "heavy.lock.engine-save.json"
+    assert save.exists()
+    fake.default = "user-model"                               # the person sets it back in oMLX
+    e = rg.Engine(URL, transport=fake.transport, sleep=lambda s: None)
+    assert rg.restore_cli(save, URL, str(tmp_path / "heavy.lock"), engine=e, harbor=lambda: None) == 0
+    assert not save.exists() and not (tmp_path / "heavy.lock").exists()
+
+
+def test_pinned_set_is_compared_after_restore(env):
+    fake, guard, tmp_path, _ = env
+    with pytest.raises(rg.GuardError, match="pinned"):
+        with guard() as g:
+            g.prepare("gemma-a")
+            fake.models["gemma-b"]["pinned"] = True
+    assert (tmp_path / "heavy.lock.engine-save.json").exists()
+
+
+def test_probe_f_no_save_is_left_when_the_folder_cannot_be_made(tmp_path):
+    fake = FakeEngine()
+    (tmp_path / "blocker").write_text("a file, not a folder")
+    g = rg.RunGuard(tmp_path / "blocker" / "out", lock=str(tmp_path / "heavy.lock"),
+                    engine=rg.Engine(URL, transport=fake.transport), harbor=lambda: None, free_pct=lambda: 80)
+    with pytest.raises(OSError):
+        with g:
+            pass
+    assert not (tmp_path / "heavy.lock").exists()
+    assert not (tmp_path / "heavy.lock.engine-save.json").exists()
+    assert not any(c.startswith("POST") for c in fake.calls)
+
+
+def test_probe_g_unreadable_memory_fails_closed_after_one_retry(env):
+    fake, guard, tmp_path, state = env
+    reads = iter([None, 80])
+    with guard(free_pct=lambda: next(reads)) as g:
+        assert g.should_stop() is None                        # one bad read is retried
+    with guard(free_pct=lambda: None) as g:
+        assert g.should_stop() == "free memory could not be read"
+    assert report(tmp_path)["outcome"] == "failed"
+
+
+def test_raised_trials_count_toward_the_all_failed_outcome(env):
+    fake, guard, tmp_path, _ = env
+    with guard() as g:
+        g.prepare("gemma-a")
+        g.note("error")
+        g.note("error")
+        g.note("not_applicable")
+    rep = report(tmp_path)
+    assert rep["outcome"] == "failed" and rep["trials_raised"] == 2 and rep["trials_recorded"] == 1
+    with guard() as g:
+        g.note("ok")
+        g.note("error")
+    assert report(tmp_path)["outcome"] == "finished"
+
+
+def test_a_lock_that_cannot_be_removed_still_restores_handlers(env, monkeypatch):
+    fake, guard, tmp_path, _ = env
+    before = {s: signal.getsignal(s) for s in (*rg.GUARDED_SIGNALS, signal.SIGINT)}
+
+    def rmdir(path):
+        raise PermissionError("cannot remove")
+    with pytest.raises(PermissionError):
+        with guard() as g:
+            g.prepare("gemma-a")
+            monkeypatch.setattr(rg.os, "rmdir", rmdir)
+    monkeypatch.undo()
+    assert {s: signal.getsignal(s) for s in before} == before
+    assert report(tmp_path)["engine"].startswith("engine restored")
+
+
+def test_harbor_patterns_catch_suffixed_names():
+    import re
+    lines = ["/Applications/Harbor.app/Contents/MacOS/Harbor",
+             "/Applications/Harbor Preview.app/Contents/MacOS/Harbor-preview --flag",
+             "/Applications/Wisp.app/Contents/MacOS/Wisp",
+             "/opt/src/app/.build/arm64-apple-macosx/debug/Harbor-dev",
+             "python -m service.main", "uvicorn service.main:app"]
+    for line in lines:
+        assert any(re.search(p, line) for p in rg.HARBOR_PROCESS_PATTERNS), line
+    assert not any(re.search(p, "/usr/bin/harborview") for p in rg.HARBOR_PROCESS_PATTERNS)
+
+
+def test_restore_from_the_command_line_takes_the_lock(env):
+    fake, guard, tmp_path, _ = env
+    with pytest.raises(Exception):
+        with guard() as g:
+            g.prepare("gemma-a")
+            fake.fail = ("POST", "/load")                     # the restore cannot load the user's model
+    save, lock = tmp_path / "heavy.lock.engine-save.json", tmp_path / "heavy.lock"
+    assert save.exists()
+    fake.fail = None
+    e = rg.Engine(URL, transport=fake.transport, sleep=lambda s: None)
+    os.mkdir(lock)                                            # a heavy job holds the lock
+    calls = len(fake.calls)
+    assert rg.restore_cli(save, URL, str(lock), engine=e, harbor=lambda: None) == 1
+    assert len(fake.calls) == calls and save.exists() and lock.exists()
+    os.rmdir(lock)
+    assert rg.restore_cli(save, URL, str(lock), engine=e, harbor=lambda: None) == 0
+    back_as_before(fake, tmp_path)

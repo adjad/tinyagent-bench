@@ -632,8 +632,9 @@ def main(argv: list[str] | None = None) -> int:
         with guard as g:
             hm = open_session(a.model, home=a.home or tempfile.mkdtemp(prefix="edat-harbor-"),
                               omlx_port=port, profile_as=a.profile_as, api_key=key)
-            g.prepare(a.model)
-            _cli_trials(a, hm, g)
+            if not g.should_stop():                     # a STOP file already there: no unload, no load
+                g.prepare(a.model)
+                _cli_trials(a, hm, g)
     except (rg.GuardError, rg.RunInterrupted) as exc:
         print(f"stopped by the run guard: {exc}", file=sys.stderr)
         return 1

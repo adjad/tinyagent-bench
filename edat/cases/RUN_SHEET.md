@@ -79,7 +79,7 @@ PY=.venv/bin/python
    - the held-out cases are present;
    - the lock is free, and no earlier run left an unrestored engine save;
    - Harbor is closed (process names and ports 8765/8791);
-   - free memory is at least 30% and disk has at least 5 GB;
+   - free memory is at least 30% (unknown fails) and disk has at least 5 GB;
    - both model folders exist, with a context window of at least 16k.
 
    The second form also reads the engine's model status: what is loaded, pinned and the default (GET only). It also hashes both references' weights (read only, cached in `OUT/weights.json`).
@@ -105,10 +105,10 @@ PY=.venv/bin/python
    ```bash
    caffeinate -i $PY -m edat.cases.agentic_run run --out $OUT --plan routine --board-version $BOARD --max-minutes 600
    ```
-6. **Stop early:** `touch $OUT/routine/STOP` (or `$OUT/smoke/STOP`, `$OUT/smoke-long/STOP`). The run stops before its next trial, restores the engine and releases the lock. Remove the file before resuming. Ctrl-C, closing the terminal (SIGHUP), SIGTERM and SIGQUIT also stop the run and restore the engine.
-   Exit codes: `0` finished; `3` stopped by the STOP file or the time limit (resumable); `1` failed (an error, a memory, fault or Harbor stop, every model trial an engine fault, or a restore that failed); `128+n` interrupted by signal n.
+6. **Stop early:** `touch $OUT/routine/STOP` (or `$OUT/smoke/STOP`, `$OUT/smoke-long/STOP`). The run stops before its next trial, restores the engine and releases the lock. Remove the file before resuming. A STOP file already there when a model is due stops the run before anything is unloaded or loaded. Ctrl-C, closing the terminal (SIGHUP), SIGTERM and SIGQUIT also stop the run and restore the engine. A repeat of a signal within 10 s, or any signal once the restore has begun, is recorded in the report (`signals_ignored`) and does not cut the restore short.
+   Exit codes: `0` finished; `3` stopped by the STOP file or the time limit (resumable); `1` failed (an error, a memory, fault or Harbor stop, every model trial an engine fault or raised, or a restore that failed); `128+n` interrupted by signal n.
 7. **Progress at any time** (no engine): `plan --out $OUT --plan routine --measured $OUT` shows the hours left at each size, with finished trials subtracted.
-8. **If a restore failed** (the report says `restore FAILED`, for example because Harbor was opened), close Harbor, then:
+8. **If a restore failed** (the report says `restore FAILED`, for example because Harbor was opened, a load never finished, or the default model changed), close Harbor and put back what the report names, then run the restore below. It takes the heavy-job lock while it works, and refuses if the lock is held. If no heavy job is running (the run was killed), remove the lock folder first.
    ```bash
    $PY -m edat.runtime.run_guard restore --save /private/tmp/claude-501/wisp-heavy.lock.engine-save.json
    ```
@@ -141,18 +141,18 @@ The store never pools records of different selections or manifests.
 The run guard (`edat/runtime/run_guard.py`) does all of this. Two test files
 cover it:
 - `tests/test_edat_runtime_run_guard.py` checks every exit path against a fake engine. One of its tests sends SIGHUP to a real child process.
-- `tests/test_edat_runtime_run_guard_probes.py` keeps the safety review's probes. They run this CLI against a fake oMLX over real loopback HTTP with a fake key, and cover the signals, a stale state, a failed restore, all-fault smoke, the STOP file, the lock, the key, proxies, redirects, URL tricks and the single URL. They skip where a loopback port cannot be bound.
+- `tests/test_edat_runtime_run_guard_probes.py` keeps the safety review's probes. They run this CLI against a fake oMLX over real loopback HTTP with a fake key, and cover the signals, a stale state, a failed restore, all-fault smoke, the STOP file, the lock, the key, proxies, redirects, URL tricks and the single URL. They skip where a loopback port cannot be bound. The second review's probes (a second signal during the exit, a load cut off mid-request, an evicted helper, a changed default model, a folder that cannot be made, unreadable memory, trials that raise) are regression tests in `tests/test_edat_runtime_run_guard.py` and `tests/test_edat_agentic_run.py`.
 
 | Rule | How |
 |---|---|
 | Output folder | A folder inside the repository is refused before anything is written. A held-out run must be under `$EDAT_PRIVATE_DIR`. |
 | Shared heavy-job lock | `mkdir /private/tmp/claude-501/wisp-heavy.lock`. An empty lock path is refused. If the lock exists, nothing starts. It is removed only by the run that made it, on every exit. |
-| Engine state | Saved fresh at each start: loaded, pinned and default model, with a token and a timestamp. The save is removed after a restore that matches it, so one still present refuses the next start and prints the restore command. |
-| One model at a time | Before each model the run unloads every other chat model (helper models such as embedders stay), waiting out a queued unload. It stops if any stays loaded, then loads the model. |
-| Restore | Unloads what was not loaded before and loads what was, pinned models included, then checks that the state matches. It runs on every exit: normal end, stop, exception, Ctrl-C, SIGTERM, SIGHUP, SIGQUIT. Those signals and Ctrl-C are ignored while it runs. A restore error is recorded in the report and re-raised; the report is written either way. The pinned flags and the default model are oMLX settings that the run never changes. |
-| Harbor | Checked at start, before every unload, load and restore, and every 10 trials. The checks cover the app (`/MacOS/Harbor` or `/MacOS/Wisp`), a `swift run` build (`.build/.../Harbor`), a standalone backend (`-m service` or `uvicorn service`), and anything listening on 8765 or 8791. A check that errors counts as Harbor running. While Harbor runs, nothing is unloaded, loaded or restored. |
-| Engine URL and key | One `--url` (default `http://127.0.0.1:8000`) serves every engine call: unloads, loads, restore and both loops' chats. It is checked as loopback before any header is built, and proxy settings are ignored. The key is read from oMLX's settings and passed to each client directly, never put in the environment, printed or written. |
-| Stops between trials | The STOP file or `--max-minutes`: outcome `stopped`. Free memory under 15% (`memory_pressure -Q`), more than 2% engine faults after 50 model trials, Harbor appearing, or 5 trials raising errors: outcome `failed`. A run in which every model trial was an engine fault is `failed` at any trial count. |
+| Engine state | Saved fresh at each start, once no model is still loading: loaded chat models, loaded helpers, pinned and default model, with a token and a timestamp. The save is removed after a restore that matches it, so one still present refuses the next start and prints the restore command. |
+| One model at a time | Before each model the run waits for the engine to settle (a model still loading counts as loaded), then unloads every other chat model (helper models such as embedders stay), waiting out a queued unload. It stops if any stays loaded, then loads the model. |
+| Restore | Waits up to 2 min for any load to finish (oMLX goes on loading after a load request is cut off), unloads what was not loaded before and loads what was, chat models and helpers, pinned models included, waits again, then compares chat models, helpers, the pinned set and the default model. Any difference fails the restore and keeps the save. It runs on every exit: normal end, stop, exception, Ctrl-C, SIGTERM, SIGHUP, SIGQUIT. Signals that arrive while it runs are recorded and ignored. A restore error is recorded in the report and re-raised; the report is written either way, and the lock and signal handlers are released even if one of those steps fails. |
+| Harbor | Checked at start, before every unload, load and restore, and every 10 trials. The checks cover the app (`/MacOS/Harbor` or `/MacOS/Wisp`, suffixed names such as `Harbor-preview` included), a `swift run` build (`.build/.../Harbor`), a standalone backend (`-m service` or `uvicorn service`), and anything listening on 8765 or 8791. A check that errors counts as Harbor running. While Harbor runs, nothing is unloaded, loaded or restored. |
+| Engine URL and key | One `--url` (default `http://127.0.0.1:8000`) serves every engine call: unloads, loads, restore and both loops' chats. It must be `127.0.0.1` with a real port (toolbench pins the Harbor loop's endpoint there, so any other address would be a second one; the guard itself accepts only the literal addresses `127.0.0.1` and `::1`, never a name). It is checked before any header is built, and proxy settings are ignored. The key is read from oMLX's settings and passed to each client directly, never put in the environment, printed or written. |
+| Stops between trials | The STOP file or `--max-minutes`: outcome `stopped`. Free memory under 15% (`memory_pressure -Q`) or unreadable twice running, more than 2% engine faults or raised trials after 50 model trials, Harbor appearing, or 5 trials raising errors: outcome `failed`. A run in which every model trial was an engine fault or raised is `failed` at any trial count. |
 | Resume | Trials already in the store (model, suite, split, case, trial) are not run again. Engine-fault trials are recorded as `excluded` and count as done. A record line cut off mid-write is skipped and counted, and its trial runs again. |
 
 **Harbor's ports.** The Harbor-loop column needs none of them (not 8765 or

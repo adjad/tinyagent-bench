@@ -292,8 +292,8 @@ def test_no_redirect_is_followed(probe):
 
 
 def test_url_tricks_refused():
-    accepted = {"http://127.0.0.1:1", "http://[::1]:1", "http://LOCALHOST:1", "http://localhost:1/"}
-    tricks = ["http://127.0.0.1.evil:1", "http://localhost@evil:1", "http://evil@127.0.0.1:1",
+    accepted = {"http://127.0.0.1:1", "http://[::1]:1", "http://127.0.0.1:65535/"}
+    tricks = ["http://localhost:1", "http://LOCALHOST:1/", "http://127.0.0.1:0", "http://127.0.0.1.evil:1", "http://localhost@evil:1", "http://evil@127.0.0.1:1",
               "http://0.0.0.0:1", "http://[::ffff:127.0.0.1]:1", "http://127.0.0.1\\@evil:1",
               "https://127.0.0.1:1", "http://127.0.0.1", "http://2130706433:1", "http://127.1:1",
               "http://127.0.0.1:1#@evil:2", "http://evil.com:1/?x=127.0.0.1"]

@@ -348,7 +348,7 @@ def preflight(out: Path, *, engine: bool = False, weights: bool = False, lock: s
     h = (harbor or rg.harbor_running)()
     add("Harbor is closed (app, swift-run build, backend, ports 8765/8791)", not h, h or "")
     free = (free_pct or rg.memory_free_pct)()
-    add("free memory at least 30%", free is None or free >= 30, f"{free}%" if free is not None else "unknown")
+    add("free memory at least 30%", free is not None and free >= 30, f"{free}%" if free is not None else "unknown")
     import shutil
     probe = out
     while not probe.exists():
@@ -404,6 +404,9 @@ def run(out: Path, *, plan: str, board_version: str, trials=None, splits: tuple[
     from edat.runtime import run_guard as rg
     out = Path(out).expanduser().resolve()
     base_url = rg.loopback_base_url(base_url)
+    if not base_url.startswith("http://127.0.0.1:"):
+        # toolbench's isolate() pins the Harbor loop's endpoint to 127.0.0.1; any other address would be a second one
+        raise rg.GuardError(f"the run's engine URL must be on 127.0.0.1 (the Harbor loop is pinned there), got {base_url}")
     if plan == "routine" and not under_private(out):
         raise rg.GuardError("the routine run includes held-out cases: OUT must be under $EDAT_PRIVATE_DIR")
     smoke = plan.startswith("smoke")
@@ -476,6 +479,8 @@ def _run_models(g, folder: Path, cases, man, models, trials, *, board_version, c
             counts["skipped_done"] += len(every) - len(todo)
             if not todo:
                 continue
+            if g.should_stop():                         # a STOP file already there: no unload, no load
+                return counts
             sha = weights(m) if weights else _weights(folder, m)
             g.prepare(m.engine_id)
             model = {"id": m.engine_id, "role": m.role, "weights_sha256": sha, "headline_entry": True}
@@ -493,6 +498,7 @@ def _run_models(g, folder: Path, cases, man, models, trials, *, board_version, c
                                       settings=replace(settings))
                     except Exception as exc:  # noqa: BLE001  (logged, not recorded; a resume retries it)
                         counts["errors"] += 1
+                        g.note("error")                          # counts toward the all-failed outcome
                         _log(folder / "errors.jsonl", {**u.__dict__, "error": f"{type(exc).__name__}: {exc}"[:500]})
                         if counts["errors"] >= 5:
                             g.stop("5 trials raised errors (see errors.jsonl)")

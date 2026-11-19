@@ -167,8 +167,11 @@ def test_results_folder_rules(stubbed, tmp_path, monkeypatch):
         go(harbor=lambda: "process matching x")
     with pytest.raises(rg.GuardError, match="lock path"):
         go(lock="")
-    with pytest.raises(rg.GuardError, match="loopback"):
+    with pytest.raises(rg.GuardError, match="127.0.0.1"):
         go(base_url="http://192.168.1.2:8000")
+    for second_address in ("http://[::1]:8000", "http://localhost:8000"):   # the Harbor loop is pinned to 127.0.0.1
+        with pytest.raises(rg.GuardError, match="127.0.0.1"):
+            go(base_url=second_address)
     assert not (tmp_path / "out").exists() and fake.calls == []
 
 
@@ -296,3 +299,25 @@ def test_timing_rows_carry_the_family(stubbed):
     go()
     rows = [json.loads(x) for x in (out / "smoke" / "timing.jsonl").read_text().splitlines()]
     assert {r["family"] for r in rows} == {"select"}
+
+
+def test_probe_h_trials_that_raise_fail_the_run(stubbed):
+    """A smoke step whose every trial raises (a client bug) used to end `finished` with exit 0."""
+    go, out, fake, cases = stubbed
+
+    class Boom(NullClient):
+        def chat(self, *a, **k):
+            raise RuntimeError("client bug")
+    rep = go(clients=lambda m, loop: Boom())
+    assert rep["outcome"] == "failed" and rep["exit_code"] == 1
+    assert rep["counts"]["errors"] == len(cases) and rep["trials_raised"] == len(cases)
+    assert "raised" in rep["why"]
+
+
+def test_a_stop_file_before_the_first_load_touches_no_model(stubbed):
+    go, out, fake, cases = stubbed
+    (out / "smoke").mkdir(parents=True)
+    (out / "smoke" / "STOP").write_text("")
+    rep = go()
+    assert rep["outcome"] == "stopped" and rep["exit_code"] == 3
+    assert not any(c.startswith("POST") for c in fake.calls)

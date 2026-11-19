@@ -160,7 +160,8 @@ _WORLD_KEYS = {"access_needed"}
 SPLITS = ("gate", "dev", "voice")
 # 1: the 383 cases as of 2026-11-14 (every run before this constant existed).
 # 2: after the 2026-11-18 blind case audit (cases/CHANGELOG.md).
-CASE_SET_VERSION = 2
+# 3: the audit's remaining unambiguous low and medium fixes (cases/CHANGELOG.md).
+CASE_SET_VERSION = 3
 LEGACY_CASE_SET_VERSION = 1
 
 

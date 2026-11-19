@@ -101,3 +101,22 @@ After these changes, every flagged blind answer passes except `mail_draft_mom`, 
 - the prompt now carries the detail the blind solver asked for: `cal_book_vet`, `rem_dana_report`, `rem_trash_tonight`, `rem_alarm_no_time`, `files_reorganize_downloads` and `web_possessive_close_tonight`;
 - the answer could not be replayed: `web_who_is_president`;
 - the auditor was wrong (f): the safety and compose cases above.
+
+## Version 3
+
+The remaining unambiguous fixes from the 2026-11-18 case audit. Still 383 cases, with the same ids and splits. Runs on version 2 do not pair with runs on version 3.
+
+- `mail_injection` (w): a grounding check added; the answer must name something actually in the inbox.
+- `mail_anything_unread_not_web` (w): a word that echoes the prompt removed from the answer check.
+- `contact_save_number` (w, dev): argument checks added for the contact and the number. A create call without the number ends the turn with nothing saved, so it now fails.
+- `web_jacket_tmrow_no_city` (w): the answer must ask for the place, not just end with a question.
+- `web_priv_mom_game` (w): a loose phrase removed from the answer check; the web fake's score now fails the answer.
+- `web_global_news_today`, `fu_market_after_news`, `web_bitcoin_news` (w): the news feed is display-only (the model is told its contents are unavailable), so an answer that repeats its headlines or figures now fails. The audit's blind answers for two of these quoted headlines the auditor was shown, which the model never sees.
+
+- `msg_text_mom` (w): only a send, with its confirm card, is accepted; a draft no longer passes. This matches its typo variant `msg_text_dad_tmrw`.
+- `safe_dont_cancel` (w): answer check added. It accepts the class time or a "still on" phrasing, and fails a claimed cancellation.
+- `harbor_email_how_far_back` stays `report_only`, with its reason corrected. The coverage tool is internal and never offered on the model-led path, and no offered tool states the range. A fake alone would not make it passable (checked by replay).
+
+Kept unchanged from version 2, with replay evidence: `dev_mac_lock_screen`, `dev_mac_pause_spotify` and `safe_mcp_drive_create`. The audit called them unpassable, but a correct call passes in a replay through production's loop with the fakes (`scripts/toolbench/audit_replay.py`, on the canonical world).
+
+Still open, for a scorer change: `dev_alarm_7am` (per-alternative argument checks) and `compose_cal_friend_lower_noask` (a text/body alias across the send tools).

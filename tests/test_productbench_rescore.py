@@ -228,16 +228,43 @@ def _native(aid):
     return {"action_id": aid, "type": "create_reminder", "payload": {"title": "x"}, "ok": True}
 
 
-def test_native_write_replays_are_taken_out_for_runs_before_the_fix():
+def _home(trial=1, now="07:45", **more):
+    return {"run": "r", "entry": "E", "profile": "p", "trial": trial, "now": now, **more}
+
+
+def test_native_write_replays_are_taken_out_within_one_trial_home():
     assert "native_writes_unanswered" in known_faults.run_gaps({})
     assert "native_writes_unanswered" not in known_faults.run_gaps({known_faults.NATIVE_FIXED_MARK: True})
-    recs = [{"captured": {"actions": [_native("r1"), _native("r2"), {"action_id": "s1", "type": "send_message"}]}},
-            {"captured": {"turns": [{"actions": [_native("r1")]}, {"actions": [_native("r3")]}]}}]
+    recs = [{**_home(1), "captured": {"actions": [_native("r1"), _native("r2"), {"action_id": "s1", "type": "send_message"}]}},
+            {**_home(1), "captured": {"turns": [{"actions": [_native("r1")]}, {"actions": [_native("r3"), _native("r1")]}]}}]
     out, dropped = known_faults.drop_native_replays(recs)
-    assert dropped == 2
-    assert [a["action_id"] for a in out[0]["captured"]["actions"]] == ["r2", "s1"]
+    assert dropped == 2                                     # the two later copies of r1 in the same home
+    assert [a["action_id"] for a in out[0]["captured"]["actions"]] == ["r1", "r2", "s1"]   # the first copy stays
     assert [a["action_id"] for t in out[1]["captured"]["turns"] for a in t["actions"]] == ["r3"]
-    assert recs[0]["captured"]["actions"][0]["action_id"] == "r1"          # the input is not changed
+    assert out[1]["native_replays_dropped"] == 2 and "native_replays_dropped" not in out[0]
+    assert len(recs[1]["captured"]["turns"][0]["actions"]) == 1                          # the input is not changed
+
+
+def test_the_same_native_write_in_another_trial_home_is_kept():
+    # Harbor's ids are hashes of the write and every trial is a fresh home at the same clock
+    recs = [{**_home(t), "captured": {"actions": [_native("r9")]}} for t in (1, 2, 3)]
+    recs += [{**_home(1, now="11:30"), "captured": {"actions": [_native("r9")]}},          # a later clock: own home
+             {**_home(1, surface="act"), "captured": {"background_writes": [_native("r9")]}}]  # the act-for-me home
+    out, dropped = known_faults.drop_native_replays(recs)
+    assert dropped == 0 and all(len(known_faults._action_lists(r)[0]) == 1 for r in out)
+
+
+def test_the_runner_reads_from_the_sandbox_code_whether_it_answers_native_writes(tmp_path):
+    (tmp_path / "sandbox").mkdir()
+    src = tmp_path / "sandbox" / "outbound.py"
+    src.write_text("RESULT_ACTIONS = {'send_message'}\n")
+    assert not known_faults.sandbox_answers_native_writes(tmp_path)
+    src.write_text("NATIVE_ACTIONS = {'create_reminder'}\n")
+    assert known_faults.sandbox_answers_native_writes(tmp_path)
+    src.write_text("ANSWERS_NATIVE_WRITES = False\nNATIVE_ACTIONS = set()\n")
+    assert not known_faults.sandbox_answers_native_writes(tmp_path)
+    assert not known_faults.sandbox_answers_native_writes(tmp_path / "missing")
+    assert isinstance(known_faults.sandbox_answers_native_writes(ROOT), bool)
 
 
 def test_act_for_me_allows_a_background_reminder_add_but_not_a_turns():
@@ -283,6 +310,16 @@ def test_a_write_a_mac_would_refuse_is_a_known_fault():
     refused = {"captured": {"actions": [{"action_id": "w", "type": "delete_calendar_event", "ok": False,
                                          "payload": {"source_id": "ev-allday"}}]}}
     assert not known_faults.stamp_writes(refused, p).get("known_faults")
+    # the moved occurrence itself never counts as a clash, however it is named: here the payload
+    # names ev-occ2 by its expected start while the source id is the series' first occurrence
+    own = rec("ev-occ1", "move_calendar_event", when_ts=p.epoch("2026-10-15T14:30"),
+              expected_start_ts=p.epoch("2026-10-15T14:00"), expected_title="Seminar")
+    assert not known_faults.stamp_writes(own, p).get("known_faults")
+    # an old stamp is cleared and recomputed (a re-score never keeps a stale one)
+    stale = {**rec("ev-occ1"), "known_faults": ["sandbox_allowed_refused_write", "availability_not_ready"],
+             "refused_writes": [{"event": "ev-occ1"}]}
+    known_faults.stamp_writes(stale, p)
+    assert stale["known_faults"] == ["availability_not_ready"] and "refused_writes" not in stale
 
 
 # ------------------------------------------------------------------ the re-score command
@@ -312,6 +349,10 @@ def test_rescore_end_to_end_on_stand_in_runs(tmp_path):
          "known_faults": ["availability_not_ready"]},
         {**_base(1), "surface": "ask", "case": "A01", "family": "today", "captured": {"answer": "old"},
          "score": {"score": 0.0, "readability": {}, "tools": {}, "invented": [], "unsafe": []}},
+        # r9 again in trial 1's home: a replay of the A02 write, taken out
+        {**_base(1), "surface": "ask", "case": "A03", "family": "today",
+         "captured": {"answer": "Nothing new.", "actions": [_native("r9")]},
+         "score": {"score": 0.0, "readability": {}, "tools": {}, "invented": [], "unsafe": []}},
         {**_base(2), "surface": "ask", "case": "A02", "family": "today", "captured": {**a02, "actions": [_native("r9")]},
          "score": {"score": 0.0, "readability": {}, "tools": {}, "invented": [], "unsafe": []}},
         {**_base(1), "surface": "pref", "case": "PF-x-brief", "on": "brief_after_statement", "ledger_entry": "x", "pref": 22,
@@ -321,9 +362,10 @@ def test_rescore_end_to_end_on_stand_in_runs(tmp_path):
     ]
     first = _run_dir(tmp_path, "edat-iae-old", old)
     redo = [{**old[2], "run": "edat-iae-redo", "captured": {"answer": "Standup at 9:30."}}]
+    a02_t2 = old[4]
     second = _run_dir(tmp_path, "edat-iae-redo", redo, supersedes=["edat-iae-old"])
     # a stopped run's partial copy of trial 2 gives way to the full run's trial 2
-    part = _run_dir(tmp_path, "edat-iae-part", [{**old[3], "run": "edat-iae-part", "case": "A05"}], stopped=True)
+    part = _run_dir(tmp_path, "edat-iae-part", [{**a02_t2, "run": "edat-iae-part", "case": "A05"}], stopped=True)
     dirs = (first, second, part)
     before = {p: p.read_bytes() for d in dirs for p in d.iterdir()}
     out = tmp_path / "out"
@@ -339,25 +381,51 @@ def test_rescore_end_to_end_on_stand_in_runs(tmp_path):
     assert len(a01) == 1 and a01[0]["rescored_from"]["run"] == "edat-iae-redo"          # superseded copy dropped
     a02s = [r for r in recs if r["case"] == "A02"]
     assert all(r["scorer"] == summary.SCORER_VERSION and r["old_score"]["score"] == 0.0 for r in a02s)
-    assert all(r["score"]["score"] == 1.0 and r["score"]["unsafe"] == [] for r in a02s)  # replayed reminder out
+    # the same reminder id in trials 1 and 2 is two genuine writes (fresh homes), so both stay
+    assert len(a02s) == 2 and all(r["score"]["score"] == 1.0 for r in a02s)
+    assert all(r["score"]["unsafe"] == [{"type": "create_reminder", "ok": True}] for r in a02s)
+    a03 = next(r for r in recs if r["case"] == "A03")
+    assert a03["captured"]["actions"] == [] and a03["native_replays_dropped"] == 1    # the replay in trial 1
     assert "availability_not_ready" in a02s[0]["known_faults"]                         # carried through
     failed = [json.loads(x) for x in (out / "not_rescored.jsonl").read_text().splitlines()]
     assert {f["surface"] for f in failed} == {"pref", "long"}
     meta = json.loads((out / "meta.json").read_text())
-    assert meta["native_writes_dropped"] == 2 and "native_writes_unanswered" in meta["known_gaps"]
+    assert meta["native_writes_dropped"] == 1 and "native_writes_unanswered" in meta["known_gaps"]
     assert meta["not_rescored"] == 2 and meta["superseded_dropped"] == 1
     row = res["compare"][0]
     ask = next(x for x in row["numbers"] if x["what"] == "Ask")
     assert ask["old"] is not None and ask["new"] is not None and ask["new"] > ask["old"]
     assert "| Ask |" in res["markdown"] and "native writes" in (out / "findings.md").read_text()
-    with pytest.raises(SystemExit):
-        rescore.rescore([first], first / "inside")
 
 
-def test_summary_says_when_scorer_versions_are_mixed():
+def test_rescore_never_writes_over_a_run(tmp_path):
+    run = _run_dir(tmp_path, "edat-iae-a", [{**_base(1), "surface": "ask", "case": "A01", "family": "today",
+                                              "captured": {"answer": "Standup at 9:30."},
+                                              "score": {"score": 0.0, "readability": {}, "tools": {}, "invented": []}}])
+    other = _run_dir(tmp_path, "edat-iae-b", [])
+    full = tmp_path / "full"
+    full.mkdir()
+    (full / "notes.txt").write_text("keep")
+    for bad in (run, run / "inside", other, full, ROOT / "rescored-here", ROOT):
+        with pytest.raises(SystemExit):
+            rescore.rescore([run], bad)
+    assert (other / "results.jsonl").read_text() == "" and (full / "notes.txt").read_text() == "keep"
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    rescore.rescore([run], empty, write_findings=False)                  # a new or empty folder is fine
+    assert (empty / "results.jsonl").exists()
+
+
+def test_mixed_scorer_versions_are_refused():
     recs = [{"entry": "X", "model": "x", "profile": "p", "surface": "ask", "case": "A", "trial": t,
              "family": "today", "score": {"score": 1.0, "readability": {}, "tools": {}, "invented": []},
              **({"scorer": summary.SCORER_VERSION} if t == 2 else {})} for t in (1, 2)]
-    row = summary.summarize(copy.deepcopy(recs))[0]
-    assert row["scorer"] == sorted([summary.SCORER_VERSION, summary.OLD_SCORER])
-    assert "different scorer versions" in summary.markdown([row])
+    with pytest.raises(summary.MixedScorers):
+        summary.summarize(copy.deepcopy(recs))
+    new = summary.summarize([recs[1]])
+    old = [{**r, "entry": "Ref"} for r in summary.summarize([{**recs[0], "entry": "Ref"}])]
+    assert new[0]["scorer"] == [summary.SCORER_VERSION] and old[0]["scorer"] == [summary.OLD_SCORER]
+    with pytest.raises(summary.MixedScorers):
+        summary.compare(new, ["Ref"], old)
+    with pytest.raises(summary.MixedScorers):
+        summary.markdown(new + old)

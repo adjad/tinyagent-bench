@@ -36,9 +36,24 @@ from collections import defaultdict
 from scripts.productbench import autonomy, preferences
 
 # The scorer's version. Records stamp it (`scorer`); a record without one was scored by
-# edat-iae-0.2 or earlier. Rows list every version they mix, and markdown() says so.
+# edat-iae-0.2 or earlier. summarize() refuses records of different versions, and compare()
+# refuses a reference row of another version: re-score the older run first (rescore.py).
 SCORER_VERSION = "edat-iae-0.3"
 OLD_SCORER = "edat-iae-0.2 or earlier"
+
+
+class MixedScorers(ValueError):
+    pass
+
+
+def scorer_of(records: list[dict]) -> list[str]:
+    return sorted({r.get("scorer") or OLD_SCORER for r in records})
+
+
+def _refuse_mixed(versions: list[str], where: str) -> None:
+    if len(versions) > 1:
+        raise MixedScorers(f"{where} mixes scorer versions {', '.join(versions)}; re-score the older "
+                           "records first: python -m scripts.productbench.rescore <run dir> --out <new dir>")
 WEIGHTS = {"ask": 0.5, "brief": 0.25, "day": 0.25}
 SURFACES = ("ask", "brief", "day")
 TITLE = "tinyagent-bench in-assistant evaluation"
@@ -157,6 +172,7 @@ def _long(long_rs: list[dict]) -> dict:
 
 
 def summarize(records: list[dict]) -> list[dict]:
+    _refuse_mixed(scorer_of(records), "this record set")
     groups = defaultdict(list)
     for r in records:
         groups[(_key(r), r["profile"])].append(r)
@@ -168,7 +184,7 @@ def summarize(records: list[dict]) -> list[dict]:
                "stub": bool(first.get("stub")), "variant": first.get("variant"),
                "device": first.get("device"), "runtime": first.get("runtime"),
                "trials": len({r["trial"] for r in recs}),
-               "scorer": sorted({r.get("scorer") or OLD_SCORER for r in recs})}
+               "scorer": scorer_of(recs)}
         surfaces = {}
         for surface in SURFACES:
             rs = [r for r in recs if r["surface"] == surface]
@@ -264,6 +280,8 @@ def compare(rows: list[dict], references: list[str], reference_rows: list[dict] 
             base = pool.get((ref, row["profile"]))
             if base is None or ref == row["entry"]:
                 continue
+            _refuse_mixed(sorted(set(row.get("scorer") or [OLD_SCORER]) | set(base.get("scorer") or [OLD_SCORER])),
+                          f"comparing {row['entry']} with reference {ref}")
             delta = {}
             for s in SURFACES:
                 a = row["surfaces"].get(s, {}).get("score")
@@ -286,10 +304,7 @@ def _fmt(v, signed=False):
 def markdown(rows: list[dict], references: list[str] | None = None) -> str:
     refs = references or []
     out = [f"## {TITLE}", ""]
-    mixed = sorted({v for r in rows for v in r.get("scorer") or []})
-    if len(mixed) > 1:
-        out += [f"> Scores from different scorer versions are mixed here ({', '.join(mixed)}); "
-                "re-score the older runs (`python -m scripts.productbench.rescore`) before comparing.", ""]
+    _refuse_mixed(sorted({v for r in rows for v in r.get("scorer") or [OLD_SCORER]}), "this table")
     groups = [("Local models (ranked: fit a 16 GB Mac)", [r for r in rows if r["kind"] == "local" and r["ranked"]]),
               ("Local models (not ranked: fit unknown or over 16 GB)",
                [r for r in rows if r["kind"] == "local" and not r["ranked"]]),

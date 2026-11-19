@@ -17,6 +17,9 @@ read; everything goes to `--out`:
                     surface and the safety counts, plus per surface how many records changed
   findings.*        the findings page for the re-scored records
 
+`--out` must be a new or empty folder, outside the run folders and outside this repository:
+the command refuses anything else, so it can never overwrite a run.
+
 Runs given together are merged the way findings.py merges them: a stopped run's partial trial
 gives way to the run that repeated it (`drop_resumed`), and a re-run replaces the cases it
 re-asked of the runs its meta.json `supersedes` (`drop_superseded`). Known capture faults are
@@ -24,8 +27,10 @@ carried over (and re-found from the records' own tool results and logged actions
 `sandbox_allowed_refused_write`), and run-level known gaps are merged into the output's meta.json.
 
 Native writes (known_faults.py `native_writes_unanswered`): for a run from before the sandbox
-answered Calendar and Reminders writes, a native write counts only when its action id appears
-once in that run's record set; the replays are taken out before scoring.
+answered Calendar and Reminders writes, a native write's action id counts once per trial home
+(the first copy stays, later copies in that home are replays and are taken out before scoring).
+The same id in another trial is a genuine write: Harbor's ids are hashes of the write, and each
+trial is a fresh home at the same pinned clock.
 
 Profiles: the current answer key in this checkout (test_fixtures/bench_profiles/<id> or
 test_fixtures/productbench/<id>) is used before the path a run's meta.json recorded, since the
@@ -321,7 +326,7 @@ def compare_markdown(rows: list[dict], meta: dict) -> str:
     for gap, about in sorted(meta.get("known_gaps", {}).items()):
         out += [f"> Known gap ({gap}): {about}.", ""]
     if meta.get("native_writes_dropped"):
-        out += [f"Native writes taken out as replays (action id seen more than once in the run): "
+        out += [f"Native writes taken out as replays (a later copy of an action id in the same trial home): "
                 f"{meta['native_writes_dropped']}.", ""]
     if meta.get("not_rescored"):
         out += [f"Not re-scored (left out of the new numbers): {meta['not_rescored']} record(s); "
@@ -346,12 +351,29 @@ def _same(a, b) -> bool:
 
 
 # ------------------------------------------------------------------ entry point
+def refuse_out(out: Path, run_dirs: list[Path]) -> None:
+    """--out must be a new or empty folder outside the run folders and outside this repository,
+    so a re-score can never overwrite a run (its own or another one)."""
+    o = Path(out).resolve()
+    for d in run_dirs:
+        d = Path(d).resolve()
+        if o == d or o.is_relative_to(d):
+            raise SystemExit(f"--out {out} is inside the run folder {d}: run folders are never modified")
+    if o == ROOT or o.is_relative_to(ROOT):
+        raise SystemExit(f"--out {out} is inside the repository; write re-scored runs outside it")
+    if o.exists():
+        if not o.is_dir():
+            raise SystemExit(f"--out {out} is a file")
+        if (o / "results.jsonl").exists() or (o / "meta.json").exists():
+            raise SystemExit(f"--out {out} holds a run (results.jsonl or meta.json); choose a new folder")
+        if any(o.iterdir()):
+            raise SystemExit(f"--out {out} is not empty; choose a new or empty folder")
+
+
 def rescore(run_dirs: list[Path], out: Path, overrides: dict[str, Path] | None = None,
             write_findings: bool = True) -> dict:
     out = Path(out)
-    resolved = {Path(d).resolve() for d in run_dirs}
-    if out.resolve() in resolved or any(out.resolve().is_relative_to(d) for d in resolved):
-        raise SystemExit("--out must be outside the run folders: they are never modified")
+    refuse_out(out, run_dirs)
     loaded, metas, ids, skipped = load_runs(run_dirs)
     if not loaded:
         raise SystemExit("no run with records")
@@ -405,7 +427,7 @@ def rescore(run_dirs: list[Path], out: Path, overrides: dict[str, Path] | None =
             n["rescored_from"] = {"run": rid, "scorer": r.get("scorer") or summary.OLD_SCORER}
             n["scorer"] = summary.SCORER_VERSION
             known_faults.stamp(n)
-            known_faults.stamp_writes(n, ctx.profile)
+            known_faults.stamp_writes(n, ctx.profile)        # clears an old stamp and recomputes it
             if n.get("native_replays_dropped"):
                 changes[k][r.get("surface")]["native replays taken out"] += 1
             changes[k][r.get("surface")]["same" if _same(n["score"], r.get("score")) else

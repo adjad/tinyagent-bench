@@ -619,6 +619,7 @@ def play_sim_day(args, chosen, run: str, run_dir: Path, device: dict, stub: bool
                   context_window=entry.context_window, credential_ref=args.credential_ref,
                   at=script.get("day_start", "08:00"), narration_thinking=entry.thinking == "narration-on")
     meta = {"run": run, "title": summary.TITLE + ": simulated day", "harness": HARNESS_VERSION,
+            known_faults.NATIVE_FIXED_MARK: known_faults.sandbox_answers_native_writes(ROOT),
             "git_sha": _git_sha(), "date": time.strftime("%Y-%m-%d"), "entry": entry.id, "kind": entry.kind,
             "variant": entry.variant(), "device": device, "stub": stub, "profile": profile.id,
             "pace": args.pace, "gap_s": args.gap_s, "scale": args.scale, "events": len(script["events"]),
@@ -708,6 +709,11 @@ def main() -> None:
 
     if not args.model or not args.profile:
         sys.exit("--model and --profile are required")
+    for pr in pinned:          # refuse now, not after hours of trials, if a pinned run is of an older scorer
+        older = [v for v in summary.scorer_of(_load_records(pr)) if v != summary.SCORER_VERSION]
+        if older:
+            sys.exit(f"pinned reference run {pr} was scored by {', '.join(older)}; re-score it first "
+                     "(python -m scripts.productbench.rescore <run dir> --out <new dir>) and pin that")
     surfaces = [s.strip() for s in args.surface.split(",") if s.strip()]
     if set(surfaces) - set(SURFACES):
         sys.exit(f"unknown surface in {surfaces}; choose from {SURFACES} (Study is not benchmarked)")
@@ -759,6 +765,8 @@ def main() -> None:
             "trials": args.trials, "stub": stub, "device": device, "language": "en",
             "max_spend_usd": args.max_spend_usd, "started": time.time(), "trials_meta": [],
             "sync_preflight": preflight,
+            # whether the sandbox here answers Calendar/Reminders writes (else replays: known_faults.py)
+            known_faults.NATIVE_FIXED_MARK: known_faults.sandbox_answers_native_writes(ROOT),
             "supersedes": args.supersedes,
             "known_gaps": ({} if "act" in surfaces else {"act_not_run": known_faults.GAPS["act_not_run"]}),
             "sampling": "Harbor's own requests: model-only Ask sends no temperature, so a local model's "

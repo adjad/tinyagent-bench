@@ -353,7 +353,7 @@ def adapt(profile: dict, ledger: dict | None) -> tuple[dict, dict]:
                               "unread": bool(e.get("unread"))})
     for t in p.get("threads", []):
         out["threads"].append({"id": t["id"], "title": t.get("title"), "with": list(t.get("participants") or []),
-                               "group": t.get("kind") == "group",
+                               "group": t.get("kind") == "group", "service": t.get("service"),
                                "messages": [{"id": m.get("id"), "from": m["from"], "text": m["text"],
                                              "at": _iso(anchor_date, m["day"], m["time"])}
                                             for m in t.get("messages", [])]})

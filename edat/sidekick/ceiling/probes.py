@@ -8,8 +8,17 @@ A probe computes values and never compares. The kinds:
     {"kind": "script", "src": "<python>"}    host-authored; records with rec(value) / rec_call(fn, *a, **k)
 
 Host-only keys, stripped before the driver sees a probe: "raises" (an exception name the candidate may raise
-for the probe to match: any class in its MRO), "tol_abs" (absolute float tolerance), "allow" (constants the
-leak gate accepts in this probe's source, each one reviewed), "id".
+for the probe to match: any class in its MRO), "tol_abs" (absolute tolerance, as `pytest.approx(abs=...)`),
+"seq" ("loose" where the original test compared tuples and lists alike), "allow" (constants the leak gate
+accepts in this probe's source, each one reviewed), "id", and "test" and "covers" (which test of the
+original hidden file, and which of its assertions, the probe stands for: see `rungs.coverage`).
+
+The comparison rule, once: a value matches the solution's as the original test's `==` compared them, on the
+values as Python had them. So a bool equals the number it stands for (True == 1), an int equals the float
+of the same value, floats are compared exactly unless the probe has "tol_abs", NaN equals nothing, and a
+tuple never equals a list, except under "seq": "loose" (rung 5's old tests turned every tuple into a list,
+through lists and tuples only, before comparing). An exception matches by its class name, or with "raises"
+by any class in its MRO.
 
 The driver runs in the sandbox, once on the candidate's files in the trial's area and once on the template's
 own solution in a fresh area of its own (cached). It never holds an expected value, a reference or a
@@ -26,7 +35,7 @@ import math
 
 from edat.sidekick.sandbox.run import Isolation, Limits, TrialArea
 
-HOST_ONLY = ("raises", "tol_abs", "allow", "id", "checks", "test", "hand")
+HOST_ONLY = ("raises", "tol_abs", "seq", "allow", "id", "checks", "test", "covers", "hand")
 REPLY_BYTES = 16 << 20
 MAX_DEPTH = 40
 MAX_NODES = 400_000
@@ -49,7 +58,9 @@ def norm(v, d=0):
         return v[:100000]
     if isinstance(v, float):
         return v if math.isfinite(v) else {"__num__": repr(v)}
-    if isinstance(v, (list, tuple)):
+    if isinstance(v, tuple):
+        return {"__tuple__": [norm(x, d + 1) for x in list(v)[:5000]]}
+    if isinstance(v, list):
         return [norm(x, d + 1) for x in list(v)[:5000]]
     if isinstance(v, dict):
         items = [(norm(k, d + 1), norm(x, d + 1)) for k, x in list(v.items())[:5000]]
@@ -132,7 +143,7 @@ for p in spec["probes"]:
     try:
         results.append(run(p))
     except BaseException as e:
-        results.append({"raise": [type(e).__name__]})
+        results.append({"raise": [c.__name__ for c in type(e).__mro__][:20]})
 with open(out_path, "w") as fh:
     json.dump({"probes": results}, fh)
 '''
@@ -186,8 +197,38 @@ def _outcome_ok(o, budget: list[int]) -> bool:
         return False
     if "raise" in o:
         return isinstance(o["raise"], list) and 0 < len(o["raise"]) <= 20 and all(
-            isinstance(x, str) and len(x) <= 200 for x in o["raise"])
+            isinstance(x, str) and len(x) <= 200 for x in o["raise"]) and mro_plausible(o["raise"])
     return "ok" in o and _plain(o["ok"], 0, budget)
+
+
+def _builtin_exceptions() -> dict[str, type]:
+    import builtins
+    return {n: c for n, c in vars(builtins).items() if isinstance(c, type) and issubclass(c, BaseException)}
+
+
+_BUILTIN_EXC = _builtin_exceptions()
+MAX_BUILTIN_LEAVES = 3
+
+
+def mro_plausible(names: list[str]) -> bool:
+    """Could `names` be a real exception class's MRO (as the driver reports it)? Each built-in exception
+    class named must come before all its built-in ancestors, which must be there too (unless the list was
+    cut at 20), no name twice, and at most MAX_BUILTIN_LEAVES built-in classes that are not an ancestor of
+    another one named (a class may inherit from two or three; a reply naming every exception is refused)."""
+    if len(set(names)) != len(names):
+        return False
+    pos = {n: i for i, n in enumerate(names)}
+    named = [n for n in names if n in _BUILTIN_EXC]
+    for n in named:
+        for anc in _BUILTIN_EXC[n].__mro__[1:]:
+            a = anc.__name__
+            if a in pos:
+                if pos[a] < pos[n]:
+                    return False
+            elif len(names) < 20 and (a in _BUILTIN_EXC or a == "object"):
+                return False
+    ancestors = {a.__name__ for n in named for a in _BUILTIN_EXC[n].__mro__[1:]}
+    return sum(1 for n in named if n not in ancestors) <= MAX_BUILTIN_LEAVES
 
 
 def _plain(v, depth: int, budget: list[int]) -> bool:
@@ -209,24 +250,37 @@ def _plain(v, depth: int, budget: list[int]) -> bool:
     return False
 
 
-def same(a, b, tol_abs: float | None = None) -> bool:
-    """Plain values equal, floats within a relative 1e-9 (or `tol_abs`), bool never equal to a number."""
-    if isinstance(a, bool) or isinstance(b, bool):
-        return isinstance(a, bool) and isinstance(b, bool) and a is b
-    if isinstance(a, (int, float)) and isinstance(b, (int, float)):
-        if isinstance(a, float) or isinstance(b, float):
-            if math.isnan(a) and math.isnan(b):
-                return True
-            if math.isinf(a) or math.isinf(b):
-                return a == b
-            if tol_abs is not None:
-                return abs(a - b) <= tol_abs
-            return abs(a - b) <= 1e-9 * max(1.0, abs(a), abs(b))
+def _loose(v):
+    """Rung 5's old `_norm`: tuples become lists, through lists and tuples only."""
+    if isinstance(v, dict) and set(v) == {"__tuple__"}:
+        return [_loose(x) for x in v["__tuple__"]]
+    if isinstance(v, list):
+        return [_loose(x) for x in v]
+    return v
+
+
+def _num(v) -> bool:
+    return isinstance(v, (bool, int, float))
+
+
+def same(a, b, tol_abs: float | None = None, seq: str = "strict") -> bool:
+    """The comparison rule (top of this module): the original test's `==`, on the driver's normal form."""
+    if seq == "loose":
+        a, b = _loose(a), _loose(b)
+    return _eq(a, b, tol_abs)
+
+
+def _eq(a, b, tol_abs) -> bool:
+    if _num(a) and _num(b):
+        if tol_abs is not None:
+            return abs(a - b) <= tol_abs
         return a == b
     if isinstance(a, list) and isinstance(b, list):
-        return len(a) == len(b) and all(same(x, y, tol_abs) for x, y in zip(a, b))
+        return len(a) == len(b) and all(_eq(x, y, tol_abs) for x, y in zip(a, b))
     if isinstance(a, dict) and isinstance(b, dict):
-        return a.keys() == b.keys() and all(same(a[k], b[k], tol_abs) for k in a)
+        if set(a) == {"__num__"} or set(b) == {"__num__"}:          # inf, -inf, nan
+            return a == b and a.get("__num__") != "nan"
+        return a.keys() == b.keys() and all(_eq(a[k], b[k], tol_abs) for k in a)
     return type(a) is type(b) and a == b
 
 
@@ -238,6 +292,8 @@ def outcome_matches(got: dict | None, want: dict, probe: dict) -> bool:
     if "raise" in want or "raise" in got:
         if not ("raise" in want and "raise" in got):
             return False
+        if not mro_plausible(got["raise"]):
+            return False
         if probe.get("raises"):
             return probe["raises"] in got["raise"]
         return got["raise"][0] == want["raise"][0]
@@ -247,10 +303,10 @@ def outcome_matches(got: dict | None, want: dict, probe: dict) -> bool:
         g, w = got["ok"], want["ok"]
         if not (isinstance(g, list) and isinstance(w, list) and len(g) == len(w)):
             return False
-        sub = {k: v for k, v in probe.items() if k in ("raises", "tol_abs")}
+        sub = {k: v for k, v in probe.items() if k in ("raises", "tol_abs", "seq")}
         return all(isinstance(x, dict) and _outcome_ok(x, [MAX_NODES]) and outcome_matches(x, y, sub)
                    for x, y in zip(g, w))
-    return same(got["ok"], want["ok"], probe.get("tol_abs"))
+    return same(got["ok"], want["ok"], probe.get("tol_abs"), probe.get("seq", "strict"))
 
 
 def _script_matches(g, w, probe: dict) -> bool:
@@ -327,13 +383,16 @@ def _contains(container, item) -> bool:
 
 
 def host_norm(v):
-    """A host literal in the driver's normal form (tuples as lists, sets tagged and sorted)."""
+    """A host literal in the driver's normal form (tuples and sets tagged, sets sorted)."""
     if isinstance(v, tuple):
-        return [host_norm(x) for x in v]
+        return {"__tuple__": [host_norm(x) for x in v]}
     if isinstance(v, list):
         return [host_norm(x) for x in v]
     if isinstance(v, dict):
-        if set(v) == {"__set__"}:
+        if set(v) in ({"__set__"}, {"__tuple__"}) and isinstance(next(iter(v.values())), list):
+            (k,) = v
+            if k == "__tuple__":
+                return {k: [host_norm(x) for x in v[k]]}
             return {"__set__": sorted((host_norm(x) for x in v["__set__"]), key=lambda x: json.dumps(x, sort_keys=True, default=str))}
         if all(isinstance(k, str) for k in v):
             return {k: host_norm(x) for k, x in v.items()}

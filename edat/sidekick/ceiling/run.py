@@ -41,7 +41,7 @@ from edat.results.writer import RunWriter, utc_now
 from edat.sidekick import TIER
 from edat.sidekick.ceiling.models import Entry, LocalModel, find_entry, model_dir_from_settings, ordered_entries, scan
 from edat.sidekick.ceiling.rungs import (LADDER_SEED_PUBLIC, RUNG_BY_ID, RUNGS, LadderCase, ladder_cases,
-                                         materialize_probe)
+                                         materialize_probe, row_hardened)
 from edat.sidekick.extract import visible_answer
 from edat.sidekick.gen.core import PUBLIC_MASTER_SEED, materialize
 from edat.sidekick.graders import grade_answer
@@ -634,7 +634,7 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
                                   started_at=started, seed=seed, raw_ref=w.put_raw(json.loads(json.dumps(raw, default=str))),
                                   commit=commit, dirty=dirty)
                 rec["facets"]["tags"] += [f"rung-{u.case.rung.n}", f"sampling-{profile.name}"]
-                if not u.case.rung.hardened:
+                if not row_hardened(u.case.rung, metrics if status == "ok" else {}):
                     rec["facets"]["tags"].append("grade-not-hardened")
                 if status == "ok" and model.bits_per_weight is not None:
                     rec["metrics"]["bits_per_weight"] = model.bits_per_weight

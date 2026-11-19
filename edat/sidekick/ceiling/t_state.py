@@ -62,7 +62,10 @@ def test_random_sequences():
 '''
 
 
-def _build(v, *, module, solution, prompt, tests, wrongs):
+def _build(v, *, module, solution, prompt, tests, wrongs, extra=()):
+    """`extra`: the hand conversion of every test besides the two shared ones (each an op sequence with
+    "init", "steps", "test", "covers" and optionally "raises"); the completeness gate refuses a case where
+    one is missing."""
     sol = fill(solution, **v)
     ws = []
     for old, new in wrongs:
@@ -74,19 +77,22 @@ def _build(v, *, module, solution, prompt, tests, wrongs):
     assert len(set(ws)) == len(ws) >= 2
     f = module + ".py"
     return probe_instance(
-        prompt=fill(prompt, **v), targets=[f], hidden_tests=None,
+        prompt=fill(prompt, **v), targets=[f], hidden_tests=fill(_HEAD + tests + _HARNESS, **v),
         references=[answer_files({f: sol}), answer_files({f: sol}, style="label")],
         wrong=[answer_files({f: w}) for w in ws],
-        probes=state_probes(fill(_HEAD + tests, **v)), solution={f: sol})
+        probes=state_probes(fill(_HEAD + tests, **v), extra=extra), solution={f: sol})
 
 
 _SUT = re.compile(r"^from (\w+) import (\w+) as SUT\s*$", re.M)
 
 
-def state_probes(tests: str, *, seed: int = 1234, n_random: int = 250) -> list[dict]:
-    """The hidden tests as host-driven op sequences: the hand-written ones and `n_random` seeded random ones,
-    drawn here, on the host, by the template's own generator. The reference class stays on the host side
-    (unused: the expected results come from the template's solution, run apart)."""
+def state_probes(tests: str, *, seed: int = 1234, n_random: int = 250, extra=()) -> list[dict]:
+    """The hidden tests as host-driven op sequences: the hand-written ones (`test_hand_written_sequences`)
+    and `n_random` seeded random ones (`test_random_sequences`), drawn here, on the host, by the template's
+    own generator; then `extra`, the template's own other tests, converted by hand. Each generated sequence
+    repeats its test's one assertion (`_same`) on one sequence, so it covers "all" of that test. The old
+    `_norm` compared tuples and lists alike, so these probes do too ("seq": "loose"). The reference class
+    stays on the host side (unused: the expected results come from the template's solution, run apart)."""
     m = _SUT.search(tests)
     assert m, "no `from <module> import <Class> as SUT` line"
     mod, cls = m.group(1), m.group(2)
@@ -96,8 +102,13 @@ def state_probes(tests: str, *, seed: int = 1234, n_random: int = 250) -> list[d
     rng = random.Random(seed)
     seqs += [ns["gen"](rng) for _ in range(n_random)]
     init = list(ns["ARGS"])
-    return [{"kind": "ops", "mod": mod, "cls": cls, "init": init,
-             "steps": [[name, list(args)] for name, args in ops]} for ops in seqs]
+    n_hand = len(ns["HAND"])
+    out = [{"kind": "ops", "mod": mod, "cls": cls, "init": init, "seq": "loose", "covers": "all",
+            "test": "test_hand_written_sequences" if i < n_hand else "test_random_sequences",
+            "steps": [[name, list(args)] for name, args in ops]} for i, ops in enumerate(seqs)]
+    for e in extra:
+        out.append({"kind": "ops", "mod": mod, "cls": cls, "seq": "loose", **e})
+    return out
 
 
 # ------------------------------------------------------------------ parking meter
@@ -1022,7 +1033,12 @@ A call that raises must change nothing."""
 
 def _history(rng):
     v = dict(LIMIT=pick(rng, [3, 4]))
-    return _build(v, module="history", solution=_DOC_SOL, prompt=_DOC_PROMPT, tests=_DOC_TESTS, wrongs=[
+    # test_constructor, by hand: each bad limit must raise ValueError (assertion 0), and the defaults give
+    # the solution's state (assertion 1).
+    ctor = [{"init": ["x", bad], "steps": [], "raises": "ValueError", "test": "test_constructor", "covers": [0]}
+            for bad in (0, -1)]
+    ctor.append({"init": [], "steps": [["state", []]], "test": "test_constructor", "covers": [1]})
+    return _build(v, module="history", solution=_DOC_SOL, prompt=_DOC_PROMPT, tests=_DOC_TESTS, extra=ctor, wrongs=[
         ("        self._redo.clear()\n        return True", "        return True"),
         ("        if text == self._text:\n            return False\n", ""),
         ("        if len(self._undo) > self._limit:\n            self._undo.pop(0)\n", ""),
@@ -1668,7 +1684,10 @@ A call that raises must change nothing."""
 
 def _retry(rng):
     v = dict(MAXF=pick(rng, [4, 5]), BASE=pick(rng, [2, 3]), CAP=pick(rng, [5, 6, 7]))
-    return _build(v, module="retry", solution=_RETRY_SOL, prompt=_RETRY_PROMPT, tests=_RETRY_TESTS, wrongs=[
+    # test_constructor, by hand: each bad setting must raise ValueError.
+    ctor = [{"init": list(bad), "steps": [], "raises": "ValueError", "test": "test_constructor", "covers": [0]}
+            for bad in ((0, 1, 5), (3, 0, 5), (3, 5, 4))]
+    return _build(v, module="retry", solution=_RETRY_SOL, prompt=_RETRY_PROMPT, tests=_RETRY_TESTS, extra=ctor, wrongs=[
         ("        self._jobs.pop(job, None)\n\n    def revive", "        if rec is not None:\n            rec[\"retry_at\"] = 0\n\n    def revive"),
         ("t + min(self.cap, self.base * 2 ** (rec[\"failures\"] - 1))", "t + self.base * 2 ** (rec[\"failures\"] - 1)"),
         ("        if state == \"waiting\":\n            raise ValueError(\"job is not due yet\")\n", ""),

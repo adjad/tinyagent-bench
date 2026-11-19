@@ -18,6 +18,7 @@ the fall-off is visible.
 """
 from __future__ import annotations
 
+import ast
 import json
 import random
 from dataclasses import dataclass
@@ -41,6 +42,17 @@ class Rung:
         """Whether this rung's grading holds against code written to attack the grader. The probe rungs do
         not yet: see NOT_HARDENED."""
         return self.source == "sidekick"
+
+
+# How a row was graded decides its label, not its rung number. A grading method joins this set only after
+# its conversion has merged and passed its own adversarial review; "host_probes" is not in it yet.
+HARDENED_GRADING: frozenset[str] = frozenset()
+
+
+def row_hardened(rung: "Rung", metrics: dict) -> bool:
+    """Whether one row's grade holds against code written to attack the grader: a sidekick rung, or a row
+    graded by a method in HARDENED_GRADING (a row that failed before grading has no method, so it is not)."""
+    return rung.source == "sidekick" or (metrics or {}).get("grading") in HARDENED_GRADING
 
 
 NOT_HARDENED = "not hardened against adversarial model code"
@@ -120,18 +132,117 @@ def probe_instance(*, prompt: str, targets: list[str], hidden_tests: str, refere
         unused = set(hand) - {r.test for r in refused}
         if unused:
             raise ValueError("hand conversions for tests the rewrite converts itself: " + ", ".join(sorted(unused)))
-        probes = list(auto)
+        probes = [dict(p, covers=p.get("covers", "all")) for p in auto]    # the rewrite carries every assertion
         for r in refused:
             probes += [dict(p, test=p.get("test") or r.test, hand=True) for p in hand[r.test]]
     if probes is not None:
         if not solution or set(solution) != set(targets):
             raise ValueError("host-driven probes need the solution's version of every target")
         json.dumps(probes)                                   # plain values only
+        if not hidden_tests:
+            raise ValueError("host-driven probes need the original hidden tests, to check that none is dropped")
+        cov = coverage(hidden_tests, probes)
+        if cov["unmapped"]:
+            raise ValueError("the conversion drops part of the hidden tests: " + "; ".join(cov["unmapped"]))
         check.pop("hidden_tests")
-        check.update(probes=list(probes), solution=dict(solution))
+        check.update(probes=list(probes), solution=dict(solution), coverage=cov)
     return Instance(prompt=prompt.rstrip() + "\n\n" + format_line(list(targets)), answer_kind="files",
                     grader="probe", check=check, references=list(references), wrong=list(wrong),
                     tool=tool, notes=notes)
+
+
+# ------------------------------------------------------------------ the completeness gate
+
+def _is_assertion(node) -> str | None:
+    """The kind of check a statement or expression makes, or None."""
+    if isinstance(node, ast.Assert):
+        return "assert"
+    if isinstance(node, ast.Raise) and node.exc is not None:
+        exc = node.exc.func if isinstance(node.exc, ast.Call) else node.exc
+        if isinstance(exc, ast.Name) and exc.id == "AssertionError":
+            return "raise AssertionError"
+    if isinstance(node, ast.With):
+        for it in node.items:
+            if "raises" in ast.unparse(it.context_expr) or "warns" in ast.unparse(it.context_expr):
+                return "pytest.raises"
+    if isinstance(node, ast.Call):
+        f = ast.unparse(node.func)
+        if f in ("pytest.raises", "pytest.fail", "pytest.warns"):
+            return f
+    return None
+
+
+def _units(fn) -> list[str]:
+    out = []
+    for node in ast.walk(fn):
+        kind = _is_assertion(node)
+        if kind and not (isinstance(node, ast.Call) and _inside_with_raises(fn, node)):
+            out.append(f"{kind} at line {node.lineno}")
+    return sorted(set(out), key=lambda u: int(u.rsplit(" ", 1)[1]))
+
+
+def _inside_with_raises(fn, call) -> bool:
+    for node in ast.walk(fn):
+        if isinstance(node, ast.With) and any(it.context_expr is call for it in node.items):
+            return True
+    return False
+
+
+def coverage(original: str, probes: list[dict]) -> dict:
+    """Map the original hidden test file onto the probes. Each test function (and the module itself, for a
+    check it makes at import time) has its assertions: its own and those of the helper functions it calls,
+    directly or not (`_same`, `_run`). Each probe names the test it stands for ("test") and the
+    assertions it carries ("covers": a list of indexes into that test's assertions, or "all" for a probe
+    that repeats the whole test body on one input, as a generated or parametrised test does). A test with no
+    probe, an assertion no probe covers, a test with no assertion at all, a class of tests, or a probe naming
+    a test that is not there: each is "unmapped", and `probe_instance` refuses the case."""
+    tree = ast.parse(original)
+    funcs = {f.name: f for f in tree.body if isinstance(f, (ast.FunctionDef, ast.AsyncFunctionDef))}
+    unmapped = [f"class {c.name}: tests in classes are not mapped" for c in tree.body
+                if isinstance(c, ast.ClassDef) and c.name.startswith("Test")]
+    top = [n for n in tree.body if not isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))]
+    units: dict[str, list[str]] = {}
+    mod_units = sorted({f"{k} at line {n.lineno}" for st in top for n in ast.walk(st) if (k := _is_assertion(n))})
+    if mod_units:
+        units["<module>"] = mod_units
+
+    def helper_units(fn, seen) -> list[str]:
+        out = []
+        for node in ast.walk(fn):
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+                h = funcs.get(node.func.id)
+                if h is not None and not h.name.startswith("test_") and h.name not in seen:
+                    seen.add(h.name)
+                    out += [f"{h.name}: {u}" for u in _units(h)] + helper_units(h, seen)
+        return out
+
+    for name, fn in funcs.items():
+        if name.startswith("test_"):
+            units[name] = _units(fn) + helper_units(fn, {name})
+    per = {t: {"assertions": len(u), "probes": 0, "covered": set()} for t, u in units.items()}
+    for i, p in enumerate(probes):
+        t, cov = p.get("test"), p.get("covers")
+        if t not in per:
+            unmapped.append(f"probe {i} names {t!r}, which is not a test of the original file")
+            continue
+        per[t]["probes"] += 1
+        n = len(units[t])
+        if cov == "all":
+            per[t]["covered"] |= set(range(n))
+        elif isinstance(cov, list) and cov and all(isinstance(x, int) and 0 <= x < n for x in cov):
+            per[t]["covered"] |= set(cov)
+        else:
+            unmapped.append(f"probe {i} ({t}) does not say which assertions it covers")
+    for t, d in per.items():
+        if not units[t]:
+            unmapped.append(f"{t} has no assertion")
+        elif not d["probes"]:
+            unmapped.append(f"{t} has no probe")
+        else:
+            unmapped += [f"{t}: {units[t][k]} has no probe" for k in range(len(units[t])) if k not in d["covered"]]
+    return {"tests": sum(1 for t in units if t != "<module>"), "assertions": sum(len(u) for u in units.values()),
+            "probes": len(probes), "unmapped": unmapped,
+            "map": {t: {"assertions": units[t], "probes": d["probes"]} for t, d in per.items()}}
 
 
 def probe_template(rung: str, tid: str, build) -> Template:

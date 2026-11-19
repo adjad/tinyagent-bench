@@ -123,9 +123,9 @@ def run_probe(iso: Isolation, area: TrialArea, check: dict, candidate: dict[str,
     else:
         gr = _run_probe(iso, area, check, candidate)
         gr.metrics["grading"] = "in_process_pytest"
-    # The rung's label (rungs.Rung.hardened) comes off only once its conversion has merged and had its own
-    # adversarial review; until then every probe row still says it is not hardened.
-    gr.metrics["grade_hardened"] = False
+    # Keyed on how the row was graded (rungs.HARDENED_GRADING), never on the rung's number.
+    from edat.sidekick.ceiling.rungs import HARDENED_GRADING
+    gr.metrics["grade_hardened"] = gr.metrics["grading"] in HARDENED_GRADING
     gr.metrics["tripwire"] = ", ".join(flags) if flags else None
     return gr
 
@@ -199,8 +199,9 @@ def _run_host_probes(iso: Isolation, area: TrialArea, check: dict, candidate: di
         return gr.fail("the probes could not use the code: " + _describe(got[bad[0]]))
     gr.metrics["failure_mode"] = "logic"
     i = bad[0]
-    return gr.fail(f"{n - k} of {n} probes differ; first ({probes[i].get('kind')}): got {_describe(got[i])}, "
-                   f"expected {_describe(want[i])}")
+    # Never the expected value, not even a snippet: the reason goes into the raw record.
+    return gr.fail(f"{n - k} of {n} probes differ; first: probe {i} ({probes[i].get('kind')}), "
+                   f"from {probes[i].get('test') or 'a hidden test'}")
 
 
 def _describe(o) -> str:

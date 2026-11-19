@@ -85,10 +85,11 @@ def _finish(v: dict, *, task: str, sample_name: str, sample_text: str, ref: str,
     rng = random.Random(1234)
     made = {"gen_input_%d%s" % (i, ext): gns["_gen"](rng) for i in range(4)}
     names = [sample_name] + sorted(hidden) + sorted(made)
-    probes = [{"kind": "run", "argv": ["report.py", n]} for n in names]
-    del tests
+    # One run per input repeats its test's body (exit code and output) on that input: it covers "all".
+    probes = [{"kind": "run", "argv": ["report.py", n], "covers": "all",
+               "test": "test_random" if n in made else "test_fixed"} for n in names]
     return probe_instance(
-        prompt=prompt, targets=["report.py"], hidden_tests=None,
+        prompt=prompt, targets=["report.py"], hidden_tests=tests,
         files={sample_name: sample_text}, hidden_files={**hidden, **made},
         probes=probes, solution={"report.py": sol},
         references=[answer_files({"report.py": sol}), answer_files({"report.py": sol}, style="label")],

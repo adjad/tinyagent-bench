@@ -116,10 +116,12 @@ def _shipping(rng: random.Random):
     edges = t.split("CASES = ", 1)[1].split("\n]\n", 1)[0] + "\n]"
     gen = ("(round(r.uniform(0, @FREE_OVER@ * 2), 2), round(r.uniform(0.05, @HEAVY@ * 2), 2), "
            "r.random() < 0.3, r.random() < 0.5)")
-    probes = rules_probes("shipping", "shipping_fee", edges + " + [(1, 1)]", fill(gen, **v), "[(10, 0), (10, -2)]",
-                          seed=4711, tol_abs=0.006)
+    probes = rules_probes("shipping", "shipping_fee", edges, fill(gen, **v), "[(10, 0), (10, -2)]",
+                          seed=4711, tol_abs=0.006, raises_test="test_bad_weight")
+    probes.append({"kind": "call", "mod": "shipping", "fn": "shipping_fee", "args": [1, 1], "tol_abs": 0.006,
+                   "test": "test_keyword_defaults", "covers": "all"})
     return probe_instance(
-        prompt=prompt, targets=["shipping.py"], hidden_tests=None,
+        prompt=prompt, targets=["shipping.py"], hidden_tests=t,
         references=[answer_files({"shipping.py": sol}), answer_files({"shipping.py": sol}, style="label")],
         wrong=[answer_files({"shipping.py": w}) for w in (wrong_remote_free, wrong_no_ceil, wrong_heavy_free)],
         probes=probes, solution={"shipping.py": sol})
@@ -174,27 +176,30 @@ def _make(v, module, func, sol, prompt, edges, gen, wrongs, raises=None):
         bad.append(answer_files({module: w}))
     assert len(set(bad)) == len(bad)
     return probe_instance(
-        prompt=fill(prompt, **v), targets=[module], hidden_tests=None,
+        prompt=fill(prompt, **v), targets=[module], hidden_tests=tests,
         references=[answer_files({module: sol}), answer_files({module: sol}, style="label")], wrong=bad,
         probes=rules_probes(module[:-3], func, fill(edges, **v), fill(gen, **v), fill(raises, **v) if raises else None),
         solution={module: sol})
 
 
 def rules_probes(mod: str, func: str, edges: str, gen: str, raises: str | None, *, seed: int = 1234,
-                 n_random: int = 300, tol_abs: float | None = None) -> list[dict]:
-    """The hidden tests as host-driven calls: the edge cases, `n_random` seeded random inputs (drawn here, on
-    the host, exactly as the old test drew them) and the inputs that must raise ValueError."""
+                 n_random: int = 300, tol_abs: float | None = None, raises_test: str = "test_invalid") -> list[dict]:
+    """The hidden tests as host-driven calls: the edge cases (`test_edges`, one call per parameter),
+    `n_random` seeded random inputs (`test_random`, drawn here, on the host, exactly as the old test drew
+    them) and the inputs that must raise ValueError (`raises_test`). Each call repeats its test's one
+    assertion on one input, so it covers "all" of that test."""
     ns = {"math": math, "random": random}
-    calls = [list(a) for a in eval(edges, dict(ns))]                    # noqa: S307 - the template's own text
     r = random.Random(seed)
-    calls += [list(eval(gen, dict(ns, r=r))) for _ in range(n_random)]  # noqa: S307
-    out = [{"kind": "call", "mod": mod, "fn": func, "args": a} for a in calls]
+    out = [{"kind": "call", "mod": mod, "fn": func, "args": list(a), "test": "test_edges", "covers": "all"}
+           for a in eval(edges, dict(ns))]                                # noqa: S307 - the template's own text
+    out += [{"kind": "call", "mod": mod, "fn": func, "args": list(eval(gen, dict(ns, r=r))),  # noqa: S307
+             "test": "test_random", "covers": "all"} for _ in range(n_random)]
     if tol_abs is not None:
         for p in out:
             p["tol_abs"] = tol_abs
     if raises:
-        out += [{"kind": "call", "mod": mod, "fn": func, "args": list(a), "raises": "ValueError"}
-                for a in eval(raises, dict(ns))]                          # noqa: S307
+        out += [{"kind": "call", "mod": mod, "fn": func, "args": list(a), "raises": "ValueError",
+                 "test": raises_test, "covers": "all"} for a in eval(raises, dict(ns))]   # noqa: S307
     return out
 
 

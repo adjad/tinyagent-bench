@@ -115,7 +115,8 @@ def test_the_candidates_process_holds_no_expected_value(iso):
     with TrialArea(keep=False) as area:
         from edat.sidekick.ceiling.probe import run_probe
         g = run_probe(iso, area, check, {"report.py": spy})
-        found = set(json.loads(area.read_inside("found.json") or "[]"))
+        raw = area.read_bytes_inside("found.json", 1 << 27)             # the default read cap would cut it short
+        found = set(json.loads(raw.decode("utf-8")) if raw else [])
     assert not g.passed and found
     want = P.solution_outcomes(iso, check)
     secrets = set()

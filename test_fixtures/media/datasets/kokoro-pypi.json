@@ -1,0 +1,42 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "kokoro-pypi",
+ "group": "speech_engine",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "A3"
+ ],
+ "split": "kokoro 0.9.4 and misaki 0.9.4 wheels",
+ "homepage": "https://pypi.org/project/kokoro/0.9.4/",
+ "licence": "Apache-2.0",
+ "licence_note": "Apache-2.0 (PyPI classifier and licence text); Apache-2.0",
+ "licence_url": "https://pypi.org/project/kokoro/0.9.4/",
+ "licence_verified": true,
+ "verified": true,
+ "redistributable": "yes",
+ "access": "http",
+ "packages": [
+  "kokoro==0.9.4",
+  "misaki==0.9.4"
+ ],
+ "requires_python": ">=3.10,<3.13",
+ "status": "ready",
+ "needed_v1": "yes",
+ "bytes_total": 3650366,
+ "file_count": 2,
+ "unsized_dependencies": [
+  "transformers",
+  "numpy",
+  "huggingface-hub",
+  "loguru",
+  "num2words",
+  "phonemizer-fork (GPL-3.0)",
+  "spacy",
+  "spacy-curated-transformers"
+ ],
+ "notes": "Requires Python >=3.10,<3.13. Depends on huggingface-hub, loguru, misaki[en]>=0.9.4, numpy, torch, transformers (the last four unsized here). The [en] extra pulls espeakng-loader, num2words, phonemizer-fork (GPL-3.0), spacy, spacy-curated-transformers.",
+ "files": [
+  {"url": "https://files.pythonhosted.org/packages/ea/cc/75f41633c75224ba820a4533163bc8b070b6bf25416014074c63284c2d4e/kokoro-0.9.4-py3-none-any.whl", "bytes": 32592, "sha256": "a129dc6364a286bd6a92c396e9862459d3d3e45f2c15596ed5a94dcee5789efd"},
+  {"url": "https://files.pythonhosted.org/packages/82/ec/0ee4110ddb54278b8f21c40a140370ae8f687036c4edf578316602697c56/misaki-0.9.4-py3-none-any.whl", "bytes": 3617774, "sha256": "90e2eeb169786c014c429e5058d2ea6bcd02d651f2a24450ba6c9ffc0f8da15a"}
+ ]
+}

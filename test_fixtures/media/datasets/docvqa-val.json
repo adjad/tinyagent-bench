@@ -1,0 +1,38 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "docvqa-val",
+ "group": "vision_eval",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "V2"
+ ],
+ "split": "validation, 5,349 questions",
+ "homepage": "https://huggingface.co/datasets/lmms-lab/DocVQA",
+ "licence": "Apache-2.0 on the lmms-lab mirror (HF tag); upstream licence unverified",
+ "licence_note": "Apache-2.0 on the lmms-lab mirror (HF tag); upstream licence UNVERIFIED",
+ "licence_url": "https://huggingface.co/datasets/lmms-lab/DocVQA",
+ "licence_verified": false,
+ "verified": false,
+ "redistributable": "unverified",
+ "access": "http",
+ "hf": {
+  "repo": "lmms-lab/DocVQA"
+ },
+ "status": "fetch_at_run_time",
+ "status_reason": "project rule: upstream licence unverified, fetch at run time, never commit",
+ "needed_v1": "if_confirmed",
+ "never_commit": true,
+ "pinned_revision": "539088ef8a8ada01ac8e2e6d4e372586748a265e",
+ "checksum_kind": "sha256 equals the Git LFS oid (a content hash); files without a published hash say so per file",
+ "bytes_total": 1055835028,
+ "file_count": 6,
+ "notes": "HF repo sha 539088ef8a8ada01ac8e2e6d4e372586748a265e (repo now reports id lmms-lab-encoder/DocVQA). 1,055,835,028 B. Fetch at run time only.",
+ "files": [
+  {"url": "https://huggingface.co/datasets/lmms-lab/DocVQA/resolve/539088ef8a8ada01ac8e2e6d4e372586748a265e/DocVQA/validation-00000-of-00006.parquet", "bytes": 114817746, "sha256": "a31507f0b700ac64f3ead52057c5dc3ccfb0baadcc62bc0d19d17159f080a4d8"},
+  {"url": "https://huggingface.co/datasets/lmms-lab/DocVQA/resolve/539088ef8a8ada01ac8e2e6d4e372586748a265e/DocVQA/validation-00001-of-00006.parquet", "bytes": 160435747, "sha256": "ce63ba45f11bfb4e17362f9c073984b4c6c84a0e966ba3d33a86fa285a1fb3dc"},
+  {"url": "https://huggingface.co/datasets/lmms-lab/DocVQA/resolve/539088ef8a8ada01ac8e2e6d4e372586748a265e/DocVQA/validation-00002-of-00006.parquet", "bytes": 184452290, "sha256": "2d580a39996ad05226ad462f2d31bad0df02f0f47f46263d96ad8df584a5667b"},
+  {"url": "https://huggingface.co/datasets/lmms-lab/DocVQA/resolve/539088ef8a8ada01ac8e2e6d4e372586748a265e/DocVQA/validation-00003-of-00006.parquet", "bytes": 177861893, "sha256": "588a587567d1548a174b83b160132d97eb2b12a7d57374675d3c45b431403354"},
+  {"url": "https://huggingface.co/datasets/lmms-lab/DocVQA/resolve/539088ef8a8ada01ac8e2e6d4e372586748a265e/DocVQA/validation-00004-of-00006.parquet", "bytes": 206232388, "sha256": "b43b8aa3e28a1b0f8728243fdf776b798a684b5baafb27d6a734edbbe3983302"},
+  {"url": "https://huggingface.co/datasets/lmms-lab/DocVQA/resolve/539088ef8a8ada01ac8e2e6d4e372586748a265e/DocVQA/validation-00005-of-00006.parquet", "bytes": 212034964, "sha256": "5bba6d5f7b8e6ee0b64df2e4c2885f93cd759c732998e4d6f9b86ce4c690fcf2"}
+ ]
+}

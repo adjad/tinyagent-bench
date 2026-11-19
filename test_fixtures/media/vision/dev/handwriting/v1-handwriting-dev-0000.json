@@ -1,0 +1,507 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-handwriting-dev-0000",
+ "family": "handwriting",
+ "template": "note",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 0,
+ "variant": {
+  "theme": "light",
+  "dpr": 1,
+  "abstain": false,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-handwriting-dev-0000.png",
+  "sha256": "bc78a44a59a02d0cecb916ee8bf2d5bbf19ae9b3caef3a7c829d52343d9b0330",
+  "width": 600,
+  "height": 760,
+  "logical": [
+   600,
+   760
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "template": "note",
+  "hand": "proxy",
+  "title": "Don't forget",
+  "lines": [
+   "Give Oskar the spare key",
+   "Pay the internet bill $100.82",
+   "Bring 13 chairs to the hall",
+   "Pick up 3 batteries",
+   "Meet Bilal at Ulby Station",
+   "Train leaves at 12:05pm",
+   "Door code is 1025"
+  ]
+ },
+ "fields": {
+  "title": {
+   "name": "title",
+   "kind": "text",
+   "value": "Don't forget",
+   "text": "Don't forget",
+   "bbox": [
+    112,
+    87,
+    236,
+    110
+   ],
+   "size_px": 21,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "251adb8a01523dd4575a911217ad3c93937934b7d9a7c6254a0ad691a8e07492",
+   "fg": [
+    28,
+    52,
+    140
+   ],
+   "plot_value": false
+  },
+  "v_0": {
+   "name": "v_0",
+   "kind": "text",
+   "value": "spare key",
+   "text": "spare key",
+   "bbox": [
+    249,
+    125,
+    349,
+    149
+   ],
+   "size_px": 21,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "7c5c89445e9ac7dac885ac0fa04bcc1f672abd8a699986742846a87ad06ea7f6",
+   "fg": [
+    28,
+    52,
+    140
+   ],
+   "plot_value": false
+  },
+  "v_1": {
+   "name": "v_1",
+   "kind": "money",
+   "value": "100.82",
+   "text": "$100.82",
+   "bbox": [
+    289,
+    163,
+    371,
+    183
+   ],
+   "size_px": 21,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e2e3f4bbe449253beb1868323817f025c1d662ee93f34f5891e7b19b661e593a",
+   "fg": [
+    28,
+    52,
+    140
+   ],
+   "plot_value": false
+  },
+  "v_2": {
+   "name": "v_2",
+   "kind": "number",
+   "value": "13",
+   "text": "13",
+   "bbox": [
+    155,
+    202,
+    178,
+    220
+   ],
+   "size_px": 21,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "74264347eac07c36d2a512e4738ce19c651271ab86cb618467b1bf73ad3c8a0b",
+   "fg": [
+    28,
+    52,
+    140
+   ],
+   "plot_value": false
+  },
+  "v_3": {
+   "name": "v_3",
+   "kind": "number",
+   "value": "3",
+   "text": "3",
+   "bbox": [
+    166,
+    241,
+    180,
+    258
+   ],
+   "size_px": 21,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "08b0f4fa39beb13ac2c66d1062637a7e0e719b53e7d8537ce1c6c5ddfdba6381",
+   "fg": [
+    28,
+    52,
+    140
+   ],
+   "plot_value": false
+  },
+  "v_4": {
+   "name": "v_4",
+   "kind": "text",
+   "value": "Ulby Station",
+   "text": "Ulby Station",
+   "bbox": [
+    219,
+    277,
+    340,
+    299
+   ],
+   "size_px": 21,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1c14932a52f822dd147221d1e77663f9dafea80016f851a4f595630c655f5f0a",
+   "fg": [
+    28,
+    52,
+    140
+   ],
+   "plot_value": false
+  },
+  "v_5": {
+   "name": "v_5",
+   "kind": "time",
+   "value": "12:05",
+   "text": "12:05pm",
+   "bbox": [
+    250,
+    317,
+    339,
+    336
+   ],
+   "size_px": 21,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "56a7546afd09ef237a9e170e1ba8d55317475ef9f6532f8faa4aa33dbaf1bea0",
+   "fg": [
+    28,
+    52,
+    140
+   ],
+   "plot_value": false
+  },
+  "v_6": {
+   "name": "v_6",
+   "kind": "text",
+   "value": "1025",
+   "text": "1025",
+   "bbox": [
+    228,
+    352,
+    277,
+    373
+   ],
+   "size_px": 21,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "10a38631374fa6d3b79618db281d107904bdb9298bfe1da2074fb61c7b838425",
+   "fg": [
+    28,
+    52,
+    140
+   ],
+   "plot_value": false
+  }
+ },
+ "elements": [],
+ "text_runs": [
+  {
+   "text": "Don't forget",
+   "bbox": [
+    112,
+    87,
+    236,
+    110
+   ],
+   "size_px": 21,
+   "field": "title",
+   "reading": true
+  },
+  {
+   "text": "Give Oskar the",
+   "bbox": [
+    89,
+    125,
+    240,
+    145
+   ],
+   "size_px": 21,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "spare key",
+   "bbox": [
+    249,
+    125,
+    349,
+    149
+   ],
+   "size_px": 21,
+   "field": "v_0",
+   "reading": true
+  },
+  {
+   "text": "Pay the internet bill",
+   "bbox": [
+    86,
+    163,
+    280,
+    186
+   ],
+   "size_px": 21,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "$100.82",
+   "bbox": [
+    289,
+    163,
+    371,
+    183
+   ],
+   "size_px": 21,
+   "field": "v_1",
+   "reading": true
+  },
+  {
+   "text": "Bring",
+   "bbox": [
+    90,
+    202,
+    144,
+    225
+   ],
+   "size_px": 21,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "13",
+   "bbox": [
+    155,
+    202,
+    178,
+    220
+   ],
+   "size_px": 21,
+   "field": "v_2",
+   "reading": true
+  },
+  {
+   "text": "chairs to the hall",
+   "bbox": [
+    186,
+    200,
+    355,
+    221
+   ],
+   "size_px": 21,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Pick up",
+   "bbox": [
+    86,
+    238,
+    159,
+    260
+   ],
+   "size_px": 21,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "3",
+   "bbox": [
+    166,
+    241,
+    180,
+    258
+   ],
+   "size_px": 21,
+   "field": "v_3",
+   "reading": true
+  },
+  {
+   "text": "batteries",
+   "bbox": [
+    187,
+    239,
+    279,
+    258
+   ],
+   "size_px": 21,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Meet Bilal at",
+   "bbox": [
+    87,
+    277,
+    210,
+    296
+   ],
+   "size_px": 21,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Ulby Station",
+   "bbox": [
+    219,
+    277,
+    340,
+    299
+   ],
+   "size_px": 21,
+   "field": "v_4",
+   "reading": true
+  },
+  {
+   "text": "Train leaves at",
+   "bbox": [
+    89,
+    314,
+    238,
+    335
+   ],
+   "size_px": 21,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "12:05pm",
+   "bbox": [
+    250,
+    317,
+    339,
+    336
+   ],
+   "size_px": 21,
+   "field": "v_5",
+   "reading": true
+  },
+  {
+   "text": "Door code is",
+   "bbox": [
+    92,
+    353,
+    218,
+    372
+   ],
+   "size_px": 21,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "1025",
+   "bbox": [
+    228,
+    352,
+    277,
+    373
+   ],
+   "size_px": 21,
+   "field": "v_6",
+   "reading": true
+  },
+  {
+   "text": "- Aiko",
+   "bbox": [
+    400,
+    430,
+    457,
+    448
+   ],
+   "size_px": 21,
+   "field": null,
+   "reading": true
+  }
+ ],
+ "reading_text": "Don't forget\nGive Oskar the\nspare key\nPay the internet bill\n$100.82\nBring\n13\nchairs to the hall\nPick up\n3\nbatteries\nMeet Bilal at\nUlby Station\nTrain leaves at\n12:05pm\nDoor code is\n1025\n- Aiko",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_bill",
+   "qtype": "lookup",
+   "question": "How much is the internet bill?",
+   "answer": "100.82",
+   "kind": "field",
+   "canon": "money",
+   "fields": [
+    "v_1"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_train",
+   "qtype": "lookup",
+   "question": "What time does the train leave?",
+   "answer": "12:05",
+   "kind": "field",
+   "canon": "time",
+   "fields": [
+    "v_5"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_give",
+   "qtype": "lookup",
+   "question": "What should Oskar be given?",
+   "answer": "spare key",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "v_0"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_pickup",
+   "qtype": "lookup",
+   "question": "How many batteries should be picked up?",
+   "answer": "3",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "v_3"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the handwritten note.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

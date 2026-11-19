@@ -1,0 +1,27 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "rirs-noises",
+ "group": "noise_room",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "A4"
+ ],
+ "split": "simulated and real RIRs",
+ "homepage": "https://www.openslr.org/28/",
+ "licence": "Apache-2.0 (bundle)",
+ "licence_note": "Apache-2.0 for the bundle; sub-licences of RWCP, REVERB, AIR not checked",
+ "licence_url": "https://www.openslr.org/28/",
+ "licence_verified": false,
+ "verified": false,
+ "redistributable": "unverified",
+ "access": "http",
+ "status": "blocked_licence",
+ "status_reason": "sub-licences (RWCP, REVERB, AIR) unverified",
+ "needed_v1": "if_confirmed",
+ "bytes_total": 1311166223,
+ "file_count": 1,
+ "notes": "The bundle is Apache-2.0 but includes RWCP, REVERB and AIR responses whose own licences were not checked. Blocked until they are; version 1 uses simulated room responses. Size by HEAD. The spec asks for room sources (A4); sub-licences UNVERIFIED.",
+ "files": [
+  {"url": "https://openslr.trmal.net/resources/28/rirs_noises.zip", "bytes": 1311166223, "checksum": "none published", "checksum_source": null}
+ ]
+}

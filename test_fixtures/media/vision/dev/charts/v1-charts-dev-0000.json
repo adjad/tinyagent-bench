@@ -1,0 +1,596 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-charts-dev-0000",
+ "family": "charts",
+ "template": "bar",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 0,
+ "variant": {
+  "theme": "light",
+  "dpr": 1,
+  "abstain": false,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-charts-dev-0000.png",
+  "sha256": "576223dd83a2fa40e4cf5a119af4f336144ae33cf8ec37c31e13c3fc11281a74",
+  "width": 640,
+  "height": 480,
+  "logical": [
+   640,
+   480
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "kind": "bar",
+  "subject": "Orders",
+  "word": "store",
+  "x": [
+   "Fennisto",
+   "Zellent",
+   "Oakenent",
+   "Maroock"
+  ],
+  "series": {
+   "Orders": [
+    140,
+    58,
+    216,
+    97
+   ]
+  },
+  "tick_step": 50,
+  "y_max": 250,
+  "data_labels": true
+ },
+ "fields": {
+  "val_0": {
+   "name": "val_0",
+   "kind": "number",
+   "value": "140",
+   "text": "140",
+   "bbox": [
+    129,
+    227,
+    150,
+    236
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1f35a619b6fd58e841443ee57f9d47eec6dae378ce7240d6eec7605dbe87aaac",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "val_1": {
+   "name": "val_1",
+   "kind": "number",
+   "value": "58",
+   "text": "58",
+   "bbox": [
+    269,
+    332,
+    283,
+    341
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5e65e80f29c967e3e9451deb72add2f94b6916b645e7756bfd99cbbf1d4fde2a",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "val_2": {
+   "name": "val_2",
+   "kind": "number",
+   "value": "216",
+   "text": "216",
+   "bbox": [
+    401,
+    130,
+    422,
+    139
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5bbf08d34343b40bb043894912c2c88fb1021763ad1573fbe983272a19092f4c",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "val_3": {
+   "name": "val_3",
+   "kind": "number",
+   "value": "97",
+   "text": "97",
+   "bbox": [
+    541,
+    282,
+    555,
+    291
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "2d973bf7f852b3688f37daf421ae19e2284232c91a22148ac223a81fe65e6d33",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "x_0": {
+   "name": "x_0",
+   "kind": "text",
+   "value": "Fennisto",
+   "text": "Fennisto",
+   "bbox": [
+    116,
+    431,
+    164,
+    440
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "bade31bf5a039741370bae34975c6e6bfc2c3386e2a43c296161058b795f712f",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "x_1": {
+   "name": "x_1",
+   "kind": "text",
+   "value": "Zellent",
+   "text": "Zellent",
+   "bbox": [
+    256,
+    431,
+    295,
+    440
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "693c4f7c554f65eb4aa161f1f0af994ddb075f985d4fb6854f8a1d5813cb13bc",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "x_2": {
+   "name": "x_2",
+   "kind": "text",
+   "value": "Oakenent",
+   "text": "Oakenent",
+   "bbox": [
+    385,
+    431,
+    439,
+    440
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e43c844b4bb778fab245b6ed6e35ba5bbfe9865a780daaa4b6e10efdd1ffd8f8",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "x_3": {
+   "name": "x_3",
+   "kind": "text",
+   "value": "Maroock",
+   "text": "Maroock",
+   "bbox": [
+    524,
+    431,
+    573,
+    440
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ff1d3b82dc6895a445a4cd60cdfbb2fb66492da6398f2a8bc4597feb6fba722c",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "pt_0_0": {
+   "name": "pt_0_0",
+   "kind": "number",
+   "value": "140",
+   "text": "",
+   "bbox": [
+    102,
+    241,
+    178,
+    420
+   ],
+   "size_px": 179,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "aeb4cd8fd803bf09c793ce28e2d719afcd185818983ac4f4224ea9637ee60b4e",
+   "fg": [
+    0,
+    112,
+    122
+   ],
+   "plot_value": true
+  },
+  "pt_0_1": {
+   "name": "pt_0_1",
+   "kind": "number",
+   "value": "58",
+   "text": "",
+   "bbox": [
+    238,
+    346,
+    314,
+    420
+   ],
+   "size_px": 76,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "6962a1caec83bc1b325b4427ebddda0854093caa9cb19662c6b6629d372790ca",
+   "fg": [
+    0,
+    112,
+    122
+   ],
+   "plot_value": true
+  },
+  "pt_0_2": {
+   "name": "pt_0_2",
+   "kind": "number",
+   "value": "216",
+   "text": "",
+   "bbox": [
+    374,
+    144,
+    450,
+    420
+   ],
+   "size_px": 276,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "bbbe81aac8e1a48283edce37162c9b34f452f3e4785b3fb9373f0ddd9b1eba42",
+   "fg": [
+    0,
+    112,
+    122
+   ],
+   "plot_value": true
+  },
+  "pt_0_3": {
+   "name": "pt_0_3",
+   "kind": "number",
+   "value": "97",
+   "text": "",
+   "bbox": [
+    510,
+    296,
+    586,
+    420
+   ],
+   "size_px": 124,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "84163a7a3caaba18f0768f66ff34c9eb222628bee08f8c685d08b8ae89e7d05c",
+   "fg": [
+    0,
+    112,
+    122
+   ],
+   "plot_value": true
+  }
+ },
+ "elements": [],
+ "text_runs": [
+  {
+   "text": "Orders by store, 2027",
+   "bbox": [
+    23,
+    22,
+    199,
+    41
+   ],
+   "size_px": 18,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Orders per store",
+   "bbox": [
+    24,
+    47,
+    108,
+    57
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "250",
+   "bbox": [
+    46,
+    96,
+    64,
+    104
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "200",
+   "bbox": [
+    46,
+    160,
+    64,
+    168
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "150",
+   "bbox": [
+    46,
+    224,
+    64,
+    232
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "100",
+   "bbox": [
+    46,
+    288,
+    64,
+    296
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "50",
+   "bbox": [
+    52,
+    352,
+    64,
+    360
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "0",
+   "bbox": [
+    58,
+    416,
+    64,
+    424
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "140",
+   "bbox": [
+    129,
+    227,
+    150,
+    236
+   ],
+   "size_px": 12,
+   "field": "val_0",
+   "reading": true
+  },
+  {
+   "text": "58",
+   "bbox": [
+    269,
+    332,
+    283,
+    341
+   ],
+   "size_px": 12,
+   "field": "val_1",
+   "reading": true
+  },
+  {
+   "text": "216",
+   "bbox": [
+    401,
+    130,
+    422,
+    139
+   ],
+   "size_px": 12,
+   "field": "val_2",
+   "reading": true
+  },
+  {
+   "text": "97",
+   "bbox": [
+    541,
+    282,
+    555,
+    291
+   ],
+   "size_px": 12,
+   "field": "val_3",
+   "reading": true
+  },
+  {
+   "text": "Fennisto",
+   "bbox": [
+    116,
+    431,
+    164,
+    440
+   ],
+   "size_px": 12,
+   "field": "x_0",
+   "reading": true
+  },
+  {
+   "text": "Zellent",
+   "bbox": [
+    256,
+    431,
+    295,
+    440
+   ],
+   "size_px": 12,
+   "field": "x_1",
+   "reading": true
+  },
+  {
+   "text": "Oakenent",
+   "bbox": [
+    385,
+    431,
+    439,
+    440
+   ],
+   "size_px": 12,
+   "field": "x_2",
+   "reading": true
+  },
+  {
+   "text": "Maroock",
+   "bbox": [
+    524,
+    431,
+    573,
+    440
+   ],
+   "size_px": 12,
+   "field": "x_3",
+   "reading": true
+  }
+ ],
+ "reading_text": "Orders by store, 2027\nOrders per store\n250\n200\n150\n100\n50\n0\n140\n58\n216\n97\nFennisto\nZellent\nOakenent\nMaroock",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_value",
+   "qtype": "lookup",
+   "question": "What value is shown for Oakenent?",
+   "answer": "216",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "val_2"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_max",
+   "qtype": "max",
+   "question": "Which store has the highest value in the bar chart?",
+   "answer": "Oakenent",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "x_0",
+    "x_1",
+    "x_2",
+    "x_3",
+    "val_0",
+    "val_1",
+    "val_2",
+    "val_3"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_min",
+   "qtype": "min",
+   "question": "Which store has the lowest value in the bar chart?",
+   "answer": "Zellent",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "x_0",
+    "x_1",
+    "x_2",
+    "x_3",
+    "val_0",
+    "val_1",
+    "val_2",
+    "val_3"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_diff",
+   "qtype": "difference",
+   "question": "How much higher is the value for Oakenent than for Fennisto?",
+   "answer": "76",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "x_2",
+    "x_0",
+    "val_2",
+    "val_0"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the chart.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

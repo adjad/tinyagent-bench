@@ -1,0 +1,34 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "piper-en-gb-cori-medium",
+ "group": "speech_engine",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "A3"
+ ],
+ "split": "en_GB-cori-medium: .onnx, .onnx.json, MODEL_CARD (22,050 Hz, single speaker)",
+ "homepage": "https://huggingface.co/rhasspy/piper-voices",
+ "licence": "CC-BY-4.0 (Hi-Fi TTS dataset, OpenSLR 109)",
+ "licence_note": "CC BY 4.0 (dataset: Hi-Fi TTS, OpenSLR 109)",
+ "licence_url": "https://huggingface.co/rhasspy/piper-voices/raw/main/en/en_GB/cori/medium/MODEL_CARD",
+ "licence_verified": true,
+ "verified": true,
+ "redistributable": "yes",
+ "attribution": "Piper en_GB-cori-medium, trained on Hi-Fi TTS, CC BY 4.0",
+ "access": "http",
+ "hf": {
+  "repo": "rhasspy/piper-voices"
+ },
+ "status": "ready",
+ "needed_v1": "yes",
+ "pinned_revision": "04ca88f5685ca5253c701af3687e155b113bd512",
+ "checksum_kind": "sha256 equals the Git LFS oid (a content hash); files without a published hash say so per file",
+ "bytes_total": 63229509,
+ "file_count": 3,
+ "notes": "Recommended as THE Piper voice: fine-tuned from a hifi_tts_92 base on the same CC BY 4.0 recordings, single speaker, British English. 22,050 Hz. HF repo sha 04ca88f5685ca5253c701af3687e155b113bd512. The .onnx.json sha256 was computed from the body (small).",
+ "files": [
+  {"url": "https://huggingface.co/rhasspy/piper-voices/resolve/04ca88f5685ca5253c701af3687e155b113bd512/en/en_GB/cori/medium/en_GB-cori-medium.onnx", "bytes": 63221984, "sha256": "2e0a55e140de672aa19b182602b407607bd2e6c35fc6020c0b1516053c02e995"},
+  {"url": "https://huggingface.co/rhasspy/piper-voices/resolve/04ca88f5685ca5253c701af3687e155b113bd512/en/en_GB/cori/medium/en_GB-cori-medium.onnx.json", "bytes": 6354, "sha256": "7204f5ead17759278419129290e51ebb414f09f7ac6cd0e567532592956bbbac"},
+  {"url": "https://huggingface.co/rhasspy/piper-voices/resolve/04ca88f5685ca5253c701af3687e155b113bd512/en/en_GB/cori/medium/MODEL_CARD", "bytes": 1171, "checksum": "none published"}
+ ]
+}

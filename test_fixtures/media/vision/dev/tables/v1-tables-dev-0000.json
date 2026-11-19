@@ -1,0 +1,1356 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-tables-dev-0000",
+ "family": "tables",
+ "template": "plain",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 0,
+ "variant": {
+  "theme": "light",
+  "dpr": 1,
+  "abstain": false,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-tables-dev-0000.png",
+  "sha256": "b4f75e53b722b172077527dd76faae1231d3c3752fd1413cc688dc0bb703d139",
+  "width": 600,
+  "height": 440,
+  "logical": [
+   600,
+   440
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "columns": [
+   "Name",
+   "Team",
+   "Hours",
+   "Rate"
+  ],
+  "rows": [
+   "Lior Pelanu",
+   "Hugo Zanham",
+   "Lior Verby",
+   "Yusuf Telsen",
+   "Priya Fenrow",
+   "Chen Holvale",
+   "Emeka Belova",
+   "Jun Orton"
+  ],
+  "values": [
+   [
+    "Lior Pelanu",
+    "Delta",
+    "28",
+    "14.35"
+   ],
+   [
+    "Hugo Zanham",
+    "Alpha",
+    "20",
+    "51.78"
+   ],
+   [
+    "Lior Verby",
+    "Alpha",
+    "34",
+    "19.47"
+   ],
+   [
+    "Yusuf Telsen",
+    "Gamma",
+    "17",
+    "37.54"
+   ],
+   [
+    "Priya Fenrow",
+    "Delta",
+    "29",
+    "54.60"
+   ],
+   [
+    "Chen Holvale",
+    "Beta",
+    "33",
+    "38.09"
+   ],
+   [
+    "Emeka Belova",
+    "Beta",
+    "30",
+    "40.41"
+   ],
+   [
+    "Jun Orton",
+    "Gamma",
+    "17",
+    "57.58"
+   ]
+  ],
+  "groups": [],
+  "totals": null,
+  "zebra": false,
+  "month": "September",
+  "year": 2027
+ },
+ "fields": {
+  "row_0": {
+   "name": "row_0",
+   "kind": "text",
+   "value": "Lior Pelanu",
+   "text": "Lior Pelanu",
+   "bbox": [
+    34,
+    112,
+    96,
+    121
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d21959caa044c64ccf58171e22e82ad10258b2036aa21b5526614a465ee6ef6b",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_0_1": {
+   "name": "cell_0_1",
+   "kind": "text",
+   "value": "Delta",
+   "text": "Delta",
+   "bbox": [
+    204,
+    112,
+    233,
+    121
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "417232285ee39515f2cb8e17add31e2b4cc62c53ad3cd8559901b4fa8162e773",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_0_2": {
+   "name": "cell_0_2",
+   "kind": "number",
+   "value": "28",
+   "text": "28",
+   "bbox": [
+    424,
+    112,
+    438,
+    121
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b79af28ec4f4ce5a9b42e3c61b8ef8ebf7e9b05b7fbf4941d261f3da809bdd87",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_0_3": {
+   "name": "cell_0_3",
+   "kind": "money",
+   "value": "14.35",
+   "text": "$14.35",
+   "bbox": [
+    528,
+    111,
+    566,
+    122
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f9dd6e93966de2dd0d2997fd4d956affb11d809f829f512efc7776395e94ab2d",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "row_1": {
+   "name": "row_1",
+   "kind": "text",
+   "value": "Hugo Zanham",
+   "text": "Hugo Zanham",
+   "bbox": [
+    34,
+    140,
+    115,
+    152
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1aeab91de4327e1674b57060ed33f7b4a5cdef25db57612d483986fdf5f9e3b7",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_1_1": {
+   "name": "cell_1_1",
+   "kind": "text",
+   "value": "Alpha",
+   "text": "Alpha",
+   "bbox": [
+    204,
+    140,
+    236,
+    152
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "52b89051f06a1e7c45c2a888471e60ca23b0700657a02fe2dd0293fc8a3389dc",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_1_2": {
+   "name": "cell_1_2",
+   "kind": "number",
+   "value": "20",
+   "text": "20",
+   "bbox": [
+    424,
+    140,
+    438,
+    149
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "8752fb068bcea0bc06694e4872f4263e5545d91f8f4123ecb43b85c62f1182e7",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_1_3": {
+   "name": "cell_1_3",
+   "kind": "money",
+   "value": "51.78",
+   "text": "$51.78",
+   "bbox": [
+    528,
+    139,
+    566,
+    150
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1934587c18d1a94ddb55c0208cf943ed9e4d86a7b3ba32cb95963d183514ed89",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "row_2": {
+   "name": "row_2",
+   "kind": "text",
+   "value": "Lior Verby",
+   "text": "Lior Verby",
+   "bbox": [
+    34,
+    168,
+    90,
+    180
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e7960084653a9ed15e1fed60183d9b50470e8ba9840978c8d2d7287090d27fc3",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_2_1": {
+   "name": "cell_2_1",
+   "kind": "text",
+   "value": "Alpha",
+   "text": "Alpha",
+   "bbox": [
+    204,
+    168,
+    236,
+    180
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "52b89051f06a1e7c45c2a888471e60ca23b0700657a02fe2dd0293fc8a3389dc",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_2_2": {
+   "name": "cell_2_2",
+   "kind": "number",
+   "value": "34",
+   "text": "34",
+   "bbox": [
+    424,
+    168,
+    439,
+    177
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f5f8e8d0a0dfadeee5a3ecc612a16f62ba6f6ad8850d60c255f7867f2d2a9655",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_2_3": {
+   "name": "cell_2_3",
+   "kind": "money",
+   "value": "19.47",
+   "text": "$19.47",
+   "bbox": [
+    528,
+    167,
+    566,
+    178
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1eb4e76c10d1b824c742f8223ab06bd568e108ecff3982ca10eccd27c20522df",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "row_3": {
+   "name": "row_3",
+   "kind": "text",
+   "value": "Yusuf Telsen",
+   "text": "Yusuf Telsen",
+   "bbox": [
+    33,
+    195,
+    105,
+    205
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "02398db2c3525eb61c3f86465006de5f65757016070897791acdd71ca2eb75f5",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_3_1": {
+   "name": "cell_3_1",
+   "kind": "text",
+   "value": "Gamma",
+   "text": "Gamma",
+   "bbox": [
+    204,
+    196,
+    249,
+    205
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0cdfb03ed06407374aff8aab5c59abc6096fca11921f9965e4bfc386ba3624cd",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_3_2": {
+   "name": "cell_3_2",
+   "kind": "number",
+   "value": "17",
+   "text": "17",
+   "bbox": [
+    424,
+    196,
+    438,
+    205
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "69b94a0fc99f3d369a95e5e7ab1d3800341b90c7a2be2484365f1f1b57140c84",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_3_3": {
+   "name": "cell_3_3",
+   "kind": "money",
+   "value": "37.54",
+   "text": "$37.54",
+   "bbox": [
+    528,
+    195,
+    567,
+    206
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ca386a6e27e9f9e9279662f68d1405536d634026387275d670274753934d24ef",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "row_4": {
+   "name": "row_4",
+   "kind": "text",
+   "value": "Priya Fenrow",
+   "text": "Priya Fenrow",
+   "bbox": [
+    34,
+    224,
+    106,
+    236
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0436ba594ab8b1e5fcaf8da7111bbd70284a8ef912c9a1a9734939204a761790",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_4_1": {
+   "name": "cell_4_1",
+   "kind": "text",
+   "value": "Delta",
+   "text": "Delta",
+   "bbox": [
+    204,
+    224,
+    233,
+    233
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "417232285ee39515f2cb8e17add31e2b4cc62c53ad3cd8559901b4fa8162e773",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_4_2": {
+   "name": "cell_4_2",
+   "kind": "number",
+   "value": "29",
+   "text": "29",
+   "bbox": [
+    424,
+    224,
+    438,
+    233
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "13c83fa1ec07f9be00350bce7920b4044fa19ba6a43fc936d0e01f1e64dee8de",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_4_3": {
+   "name": "cell_4_3",
+   "kind": "money",
+   "value": "54.60",
+   "text": "$54.60",
+   "bbox": [
+    528,
+    223,
+    566,
+    234
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "54b5442e3ed9103471225493731212a0574ef7d56cf5a7ccc37d73827fe5ac9d",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "row_5": {
+   "name": "row_5",
+   "kind": "text",
+   "value": "Chen Holvale",
+   "text": "Chen Holvale",
+   "bbox": [
+    34,
+    252,
+    109,
+    261
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "07e2eb786fde45c8d693de6ccc0dd8d00b1074de75ae162b8e0530a5c7c044b1",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_5_1": {
+   "name": "cell_5_1",
+   "kind": "text",
+   "value": "Beta",
+   "text": "Beta",
+   "bbox": [
+    204,
+    252,
+    229,
+    261
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c5da3719b022af994bded465d129e730fe8694c0e56ec311bb2abfca6f6a4e6f",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_5_2": {
+   "name": "cell_5_2",
+   "kind": "number",
+   "value": "33",
+   "text": "33",
+   "bbox": [
+    424,
+    252,
+    438,
+    261
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "73967743515e7d420e6127f085ad13476a9f2c6f454ab6851369b3a9330baba4",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_5_3": {
+   "name": "cell_5_3",
+   "kind": "money",
+   "value": "38.09",
+   "text": "$38.09",
+   "bbox": [
+    528,
+    251,
+    566,
+    262
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0a09bed47ec52d1facadaa7685563956e944796404ff83dc784eeaa5840f58af",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "row_6": {
+   "name": "row_6",
+   "kind": "text",
+   "value": "Emeka Belova",
+   "text": "Emeka Belova",
+   "bbox": [
+    34,
+    280,
+    112,
+    289
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "7d601a9f068e56458b5be691a97a6f28697ea113d58bd5c619f29e381fd23653",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_6_1": {
+   "name": "cell_6_1",
+   "kind": "text",
+   "value": "Beta",
+   "text": "Beta",
+   "bbox": [
+    204,
+    280,
+    229,
+    289
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c5da3719b022af994bded465d129e730fe8694c0e56ec311bb2abfca6f6a4e6f",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_6_2": {
+   "name": "cell_6_2",
+   "kind": "number",
+   "value": "30",
+   "text": "30",
+   "bbox": [
+    424,
+    280,
+    438,
+    289
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0bab3c5614be2336230af07e54949373b538f27850c8dcf80b884a43b5ef2ae4",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_6_3": {
+   "name": "cell_6_3",
+   "kind": "money",
+   "value": "40.41",
+   "text": "$40.41",
+   "bbox": [
+    528,
+    279,
+    566,
+    290
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "7f0589b7f4b6c195a585fcabb499514c9dcc1345d3168878da7dc0496ea98233",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "row_7": {
+   "name": "row_7",
+   "kind": "text",
+   "value": "Jun Orton",
+   "text": "Jun Orton",
+   "bbox": [
+    34,
+    308,
+    89,
+    317
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c508302877187ba20e96fab1dfa8fd77e8f948d51cd33ac7d01c3d5653cf8c12",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_7_1": {
+   "name": "cell_7_1",
+   "kind": "text",
+   "value": "Gamma",
+   "text": "Gamma",
+   "bbox": [
+    204,
+    308,
+    249,
+    317
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0cdfb03ed06407374aff8aab5c59abc6096fca11921f9965e4bfc386ba3624cd",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_7_2": {
+   "name": "cell_7_2",
+   "kind": "number",
+   "value": "17",
+   "text": "17",
+   "bbox": [
+    424,
+    308,
+    438,
+    317
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "69b94a0fc99f3d369a95e5e7ab1d3800341b90c7a2be2484365f1f1b57140c84",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "cell_7_3": {
+   "name": "cell_7_3",
+   "kind": "money",
+   "value": "57.58",
+   "text": "$57.58",
+   "bbox": [
+    528,
+    307,
+    566,
+    318
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "7162519b263940b31a1fe7ba2481f86a5415035980de85821c852b9c5b5f7a19",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  }
+ },
+ "elements": [],
+ "text_runs": [
+  {
+   "text": "Fennock staff report",
+   "bbox": [
+    23,
+    21,
+    195,
+    41
+   ],
+   "size_px": 18,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Figures for September 2027",
+   "bbox": [
+    24,
+    46,
+    165,
+    57
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Name",
+   "bbox": [
+    34,
+    84,
+    67,
+    93
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Team",
+   "bbox": [
+    204,
+    84,
+    237,
+    93
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Hours",
+   "bbox": [
+    405,
+    84,
+    438,
+    93
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Rate",
+   "bbox": [
+    541,
+    84,
+    566,
+    93
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Lior Pelanu",
+   "bbox": [
+    34,
+    112,
+    96,
+    121
+   ],
+   "size_px": 12,
+   "field": "row_0",
+   "reading": true
+  },
+  {
+   "text": "Delta",
+   "bbox": [
+    204,
+    112,
+    233,
+    121
+   ],
+   "size_px": 12,
+   "field": "cell_0_1",
+   "reading": true
+  },
+  {
+   "text": "28",
+   "bbox": [
+    424,
+    112,
+    438,
+    121
+   ],
+   "size_px": 12,
+   "field": "cell_0_2",
+   "reading": true
+  },
+  {
+   "text": "$14.35",
+   "bbox": [
+    528,
+    111,
+    566,
+    122
+   ],
+   "size_px": 12,
+   "field": "cell_0_3",
+   "reading": true
+  },
+  {
+   "text": "Hugo Zanham",
+   "bbox": [
+    34,
+    140,
+    115,
+    152
+   ],
+   "size_px": 12,
+   "field": "row_1",
+   "reading": true
+  },
+  {
+   "text": "Alpha",
+   "bbox": [
+    204,
+    140,
+    236,
+    152
+   ],
+   "size_px": 12,
+   "field": "cell_1_1",
+   "reading": true
+  },
+  {
+   "text": "20",
+   "bbox": [
+    424,
+    140,
+    438,
+    149
+   ],
+   "size_px": 12,
+   "field": "cell_1_2",
+   "reading": true
+  },
+  {
+   "text": "$51.78",
+   "bbox": [
+    528,
+    139,
+    566,
+    150
+   ],
+   "size_px": 12,
+   "field": "cell_1_3",
+   "reading": true
+  },
+  {
+   "text": "Lior Verby",
+   "bbox": [
+    34,
+    168,
+    90,
+    180
+   ],
+   "size_px": 12,
+   "field": "row_2",
+   "reading": true
+  },
+  {
+   "text": "Alpha",
+   "bbox": [
+    204,
+    168,
+    236,
+    180
+   ],
+   "size_px": 12,
+   "field": "cell_2_1",
+   "reading": true
+  },
+  {
+   "text": "34",
+   "bbox": [
+    424,
+    168,
+    439,
+    177
+   ],
+   "size_px": 12,
+   "field": "cell_2_2",
+   "reading": true
+  },
+  {
+   "text": "$19.47",
+   "bbox": [
+    528,
+    167,
+    566,
+    178
+   ],
+   "size_px": 12,
+   "field": "cell_2_3",
+   "reading": true
+  },
+  {
+   "text": "Yusuf Telsen",
+   "bbox": [
+    33,
+    195,
+    105,
+    205
+   ],
+   "size_px": 12,
+   "field": "row_3",
+   "reading": true
+  },
+  {
+   "text": "Gamma",
+   "bbox": [
+    204,
+    196,
+    249,
+    205
+   ],
+   "size_px": 12,
+   "field": "cell_3_1",
+   "reading": true
+  },
+  {
+   "text": "17",
+   "bbox": [
+    424,
+    196,
+    438,
+    205
+   ],
+   "size_px": 12,
+   "field": "cell_3_2",
+   "reading": true
+  },
+  {
+   "text": "$37.54",
+   "bbox": [
+    528,
+    195,
+    567,
+    206
+   ],
+   "size_px": 12,
+   "field": "cell_3_3",
+   "reading": true
+  },
+  {
+   "text": "Priya Fenrow",
+   "bbox": [
+    34,
+    224,
+    106,
+    236
+   ],
+   "size_px": 12,
+   "field": "row_4",
+   "reading": true
+  },
+  {
+   "text": "Delta",
+   "bbox": [
+    204,
+    224,
+    233,
+    233
+   ],
+   "size_px": 12,
+   "field": "cell_4_1",
+   "reading": true
+  },
+  {
+   "text": "29",
+   "bbox": [
+    424,
+    224,
+    438,
+    233
+   ],
+   "size_px": 12,
+   "field": "cell_4_2",
+   "reading": true
+  },
+  {
+   "text": "$54.60",
+   "bbox": [
+    528,
+    223,
+    566,
+    234
+   ],
+   "size_px": 12,
+   "field": "cell_4_3",
+   "reading": true
+  },
+  {
+   "text": "Chen Holvale",
+   "bbox": [
+    34,
+    252,
+    109,
+    261
+   ],
+   "size_px": 12,
+   "field": "row_5",
+   "reading": true
+  },
+  {
+   "text": "Beta",
+   "bbox": [
+    204,
+    252,
+    229,
+    261
+   ],
+   "size_px": 12,
+   "field": "cell_5_1",
+   "reading": true
+  },
+  {
+   "text": "33",
+   "bbox": [
+    424,
+    252,
+    438,
+    261
+   ],
+   "size_px": 12,
+   "field": "cell_5_2",
+   "reading": true
+  },
+  {
+   "text": "$38.09",
+   "bbox": [
+    528,
+    251,
+    566,
+    262
+   ],
+   "size_px": 12,
+   "field": "cell_5_3",
+   "reading": true
+  },
+  {
+   "text": "Emeka Belova",
+   "bbox": [
+    34,
+    280,
+    112,
+    289
+   ],
+   "size_px": 12,
+   "field": "row_6",
+   "reading": true
+  },
+  {
+   "text": "Beta",
+   "bbox": [
+    204,
+    280,
+    229,
+    289
+   ],
+   "size_px": 12,
+   "field": "cell_6_1",
+   "reading": true
+  },
+  {
+   "text": "30",
+   "bbox": [
+    424,
+    280,
+    438,
+    289
+   ],
+   "size_px": 12,
+   "field": "cell_6_2",
+   "reading": true
+  },
+  {
+   "text": "$40.41",
+   "bbox": [
+    528,
+    279,
+    566,
+    290
+   ],
+   "size_px": 12,
+   "field": "cell_6_3",
+   "reading": true
+  },
+  {
+   "text": "Jun Orton",
+   "bbox": [
+    34,
+    308,
+    89,
+    317
+   ],
+   "size_px": 12,
+   "field": "row_7",
+   "reading": true
+  },
+  {
+   "text": "Gamma",
+   "bbox": [
+    204,
+    308,
+    249,
+    317
+   ],
+   "size_px": 12,
+   "field": "cell_7_1",
+   "reading": true
+  },
+  {
+   "text": "17",
+   "bbox": [
+    424,
+    308,
+    438,
+    317
+   ],
+   "size_px": 12,
+   "field": "cell_7_2",
+   "reading": true
+  },
+  {
+   "text": "$57.58",
+   "bbox": [
+    528,
+    307,
+    566,
+    318
+   ],
+   "size_px": 12,
+   "field": "cell_7_3",
+   "reading": true
+  }
+ ],
+ "reading_text": "Fennock staff report\nFigures for September 2027\nName\nTeam\nHours\nRate\nLior Pelanu\nDelta\n28\n$14.35\nHugo Zanham\nAlpha\n20\n$51.78\nLior Verby\nAlpha\n34\n$19.47\nYusuf Telsen\nGamma\n17\n$37.54\nPriya Fenrow\nDelta\n29\n$54.60\nChen Holvale\nBeta\n33\n$38.09\nEmeka Belova\nBeta\n30\n$40.41\nJun Orton\nGamma\n17\n$57.58",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_cell",
+   "qtype": "cell",
+   "question": "In the table, what is the Rate for Emeka Belova?",
+   "answer": "40.41",
+   "kind": "field",
+   "canon": "money",
+   "fields": [
+    "row_6",
+    "cell_6_3"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_count",
+   "qtype": "count",
+   "question": "How many data rows does the table have (not counting the header rows or the Total row)?",
+   "answer": "8",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "row_0",
+    "row_1",
+    "row_2",
+    "row_3",
+    "row_4",
+    "row_5",
+    "row_6",
+    "row_7"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_sum",
+   "qtype": "sum",
+   "question": "What is the sum of the Rate column (the data rows only)?",
+   "answer": "313.82",
+   "kind": "field",
+   "canon": "money",
+   "fields": [
+    "cell_0_3",
+    "cell_1_3",
+    "cell_2_3",
+    "cell_3_3",
+    "cell_4_3",
+    "cell_5_3",
+    "cell_6_3",
+    "cell_7_3"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_filter",
+   "qtype": "count",
+   "question": "How many rows have Team = Beta?",
+   "answer": "2",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "cell_0_1",
+    "cell_1_1",
+    "cell_2_1",
+    "cell_3_1",
+    "cell_4_1",
+    "cell_5_1",
+    "cell_6_1",
+    "cell_7_1"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the table.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

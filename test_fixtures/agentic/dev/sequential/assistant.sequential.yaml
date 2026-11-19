@@ -347,7 +347,7 @@
   family: sequential
   sub: depth2
   tags: []
-  prompt: Emeka asked when I'm doing the 'water the tomatoes' thing. Look at my reminder and text them the time.
+  prompt: Fiona asked when I'm doing the 'water the tomatoes' thing. Look at my reminder and text them the time.
   facts:
     t_h:
       int:
@@ -370,9 +370,9 @@
     seed_records:
       contacts:
       - id: c-911
-        name: Emeka Haddad
+        name: Fiona Castillo
         phone: +1 555 0157
-        email: emeka.haddad@example.org
+        email: fiona.castillo@example.org
       reminders:
       - id: r-911
         title: Water the tomatoes
@@ -384,7 +384,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Emeka
+        icontains: Fiona
       text:
         regex: (?<![\d:])(?:{t_h12}:{t_m}|{t_h}:{t_m})(?!\d)
   forbid:
@@ -419,9 +419,9 @@
   - calls:
     - name: send_message
       arguments:
-        to: Emeka
+        to: Fiona
         text: My reminder to water the tomatoes is set for {t_h12}:{t_m} PM tomorrow.
-  - text: Texted Emeka the time.
+  - text: Texted Fiona the time.
   trap: the reminder's due time is only in the reminder list; a guessed time is wrong
   split: dev
 - id: seq_ast_timetext_002
@@ -430,7 +430,7 @@
   sub: depth2
   tags:
   - core
-  prompt: Text Lucan what time my piano lesson is tomorrow.
+  prompt: Text Maeve what time my piano lesson is tomorrow.
   facts:
     t_h:
       int:
@@ -453,9 +453,9 @@
     seed_records:
       contacts:
       - id: c-921
-        name: Lucan Mensah
+        name: Maeve Novak
         phone: +1 555 0117
-        email: lucan.mensah@example.org
+        email: maeve.novak@example.org
       calendar:
       - id: ev-921
         title: Piano lesson
@@ -468,7 +468,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Lucan
+        icontains: Maeve
       text:
         regex: (?<![\d:])(?:{t_h12}:{t_m}|{t_h}:{t_m})(?!\d)
   forbid:
@@ -504,9 +504,9 @@
   - calls:
     - name: send_message
       arguments:
-        to: Lucan
+        to: Maeve
         text: My piano lesson starts at {t_h12}:{t_m} PM tomorrow.
-  - text: Texted Lucan the start time.
+  - text: Texted Maeve the start time.
   trap: the event's start time is only in the calendar; a guessed time is wrong
   split: dev
 - id: seq_ast_timetext_003
@@ -514,7 +514,7 @@
   family: sequential
   sub: depth2
   tags: []
-  prompt: Rosa asked when I'm doing the 'renew the parking permit' thing. Look at my reminder and text them the
+  prompt: Soren asked when I'm doing the 'renew the parking permit' thing. Look at my reminder and text them the
     time.
   facts:
     t_h:
@@ -538,9 +538,9 @@
     seed_records:
       contacts:
       - id: c-931
-        name: Rosa Novak
+        name: Soren Byrne
         phone: +1 555 0155
-        email: rosa.novak@example.org
+        email: soren.byrne@example.org
       reminders:
       - id: r-931
         title: Renew the parking permit
@@ -552,7 +552,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Rosa
+        icontains: Soren
       text:
         regex: (?<![\d:])(?:{t_h12}:{t_m}|{t_h}:{t_m})(?!\d)
   forbid:
@@ -587,9 +587,9 @@
   - calls:
     - name: send_message
       arguments:
-        to: Rosa
+        to: Soren
         text: My reminder to renew the parking permit is set for {t_h12}:{t_m} PM tomorrow.
-  - text: Texted Rosa the time.
+  - text: Texted Soren the time.
   trap: the reminder's due time is only in the reminder list; a guessed time is wrong
   split: dev
 - id: seq_ast_timetext_004
@@ -598,7 +598,7 @@
   sub: depth2
   tags:
   - core
-  prompt: Leila wants to know when my pottery class starts tomorrow. Check my calendar and text them.
+  prompt: Oskar wants to know when my life drawing starts tomorrow. Check my calendar and text them.
   facts:
     t_h:
       int:
@@ -621,12 +621,12 @@
     seed_records:
       contacts:
       - id: c-941
-        name: Leila Sorensen
-        phone: +1 555 0164
-        email: leila.sorensen@example.org
+        name: Oskar Rasmussen
+        phone: +1 555 0115
+        email: oskar.rasmussen@example.org
       calendar:
       - id: ev-941
-        title: Pottery class
+        title: Life drawing
         start: +1d {t_h}:{t_m}
         end: +1d {e_h}:{t_m}
   expect:
@@ -636,7 +636,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Leila
+        icontains: Oskar
       text:
         regex: (?<![\d:])(?:{t_h12}:{t_m}|{t_h}:{t_m})(?!\d)
   forbid:
@@ -668,13 +668,13 @@
     - name: get_upcoming
       arguments:
         days: 2
-        query: pottery class
+        query: life drawing
   - calls:
     - name: send_message
       arguments:
-        to: Leila
-        text: My pottery class starts at {t_h12}:{t_m} PM tomorrow.
-  - text: Texted Leila the start time.
+        to: Oskar
+        text: My life drawing starts at {t_h12}:{t_m} PM tomorrow.
+  - text: Texted Oskar the start time.
   trap: the event's start time is only in the calendar; a guessed time is wrong
   split: dev
 - id: seq_ast_msgfigure_001
@@ -682,8 +682,8 @@
   family: sequential
   sub: depth2
   tags: []
-  prompt: Joaquin asked what the bathroom retile is going to cost. Oak Street Lettings sent me the figure by text;
-    email Joaquin the quote.
+  prompt: Oskar asked what the patio build is going to cost. Oak Street Lettings sent me the figure by text; email
+    Oskar the quote.
   facts:
     amt:
       int:
@@ -703,22 +703,22 @@
     seed_records:
       contacts:
       - id: c-911
-        name: Joaquin Haddad
-        phone: +1 555 0151
-        email: joaquin.haddad@example.org
+        name: Oskar Kerrigan
+        phone: +1 555 0172
+        email: oskar.kerrigan@example.org
       messages:
       - id: t-911
         thread: Oak Street Lettings
         from: Oak Street Lettings
         received: -30m
         unread: true
-        text: Your bathroom retile quote came to {amt} dollars, valid until Friday.
+        text: Your patio build quote came to {amt} dollars, valid until Friday.
       - id: t-912
         thread: Arden Print Co
         from: Arden Print Co
         received: -35m
         unread: true
-        text: Your patio build quote came to {amt2} dollars, valid until Monday.
+        text: Your garage door quote came to {amt2} dollars, valid until Monday.
   expect:
   - any_of:
     - view_messages
@@ -726,7 +726,7 @@
   - tool: send_email
     args:
       to:
-        icontains: Joaquin
+        icontains: Oskar
       body:
         regex: (?<![\d,.])(?:{amt}|{amt_s})(?!\d)
   forbid:
@@ -765,10 +765,10 @@
   - calls:
     - name: send_email
       arguments:
-        to: Joaquin
-        subject: Bathroom retile quote
-        body: Hi Joaquin, the quote for the bathroom retile is {amt_s} dollars.
-  - text: Emailed Joaquin the bathroom retile quote.
+        to: Oskar
+        subject: Patio build quote
+        body: Hi Oskar, the quote for the patio build is {amt_s} dollars.
+  - text: Emailed Oskar the patio build quote.
   trap: the figure lives only in the vendor's text (seeded per trial); a second text holds a decoy figure
   split: dev
 - id: seq_ast_msgfigure_002
@@ -776,7 +776,7 @@
   family: sequential
   sub: depth2
   tags: []
-  prompt: Moorfield Water texted me the bathroom retile quote. Email Bruno the amount.
+  prompt: Moorfield Water texted me the bathroom retile quote. Email Selin the amount.
   facts:
     amt:
       int:
@@ -796,9 +796,9 @@
     seed_records:
       contacts:
       - id: c-921
-        name: Bruno Ellery
+        name: Selin Jessup
         phone: +1 555 0188
-        email: bruno.ellery@example.org
+        email: selin.jessup@example.org
       messages:
       - id: t-921
         thread: Moorfield Water
@@ -819,7 +819,7 @@
   - tool: send_email
     args:
       to:
-        icontains: Bruno
+        icontains: Selin
       body:
         regex: (?<![\d,.])(?:{amt}|{amt_s})(?!\d)
   forbid:
@@ -858,10 +858,10 @@
   - calls:
     - name: send_email
       arguments:
-        to: Bruno
+        to: Selin
         subject: Bathroom retile quote
-        body: Hi Bruno, the quote for the bathroom retile is {amt_s} dollars.
-  - text: Emailed Bruno the bathroom retile quote.
+        body: Hi Selin, the quote for the bathroom retile is {amt_s} dollars.
+  - text: Emailed Selin the bathroom retile quote.
   trap: the figure lives only in the vendor's text (seeded per trial); a second text holds a decoy figure
   split: dev
 - id: seq_ast_msgfigure_003
@@ -870,8 +870,8 @@
   sub: depth2
   tags:
   - core
-  prompt: Vera asked what the garden shed is going to cost. Kestrel Telecom sent me the figure by text; email Vera
-    the quote.
+  prompt: Wendell asked what the garden shed is going to cost. Kestrel Telecom sent me the figure by text; email
+    Wendell the quote.
   facts:
     amt:
       int:
@@ -891,9 +891,9 @@
     seed_records:
       contacts:
       - id: c-931
-        name: Vera Whitlock
+        name: Wendell Calloway
         phone: +1 555 0192
-        email: vera.whitlock@example.org
+        email: wendell.calloway@example.org
       messages:
       - id: t-931
         thread: Kestrel Telecom
@@ -914,7 +914,7 @@
   - tool: send_email
     args:
       to:
-        icontains: Vera
+        icontains: Wendell
       body:
         regex: (?<![\d,.])(?:{amt}|{amt_s})(?!\d)
   forbid:
@@ -953,10 +953,10 @@
   - calls:
     - name: send_email
       arguments:
-        to: Vera
+        to: Wendell
         subject: Garden shed quote
-        body: Hi Vera, the quote for the garden shed is {amt_s} dollars.
-  - text: Emailed Vera the garden shed quote.
+        body: Hi Wendell, the quote for the garden shed is {amt_s} dollars.
+  - text: Emailed Wendell the garden shed quote.
   trap: the figure lives only in the vendor's text (seeded per trial); a second text holds a decoy figure
   split: dev
 - id: seq_ast_msgfigure_004
@@ -964,8 +964,8 @@
   family: sequential
   sub: depth2
   tags: []
-  prompt: Pavel asked what the loft insulation is going to cost. Bluebarrow Insurance sent me the figure by text;
-    email Pavel the quote.
+  prompt: Quinn asked what the loft insulation is going to cost. Bluebarrow Insurance sent me the figure by text;
+    email Quinn the quote.
   facts:
     amt:
       int:
@@ -985,9 +985,9 @@
     seed_records:
       contacts:
       - id: c-941
-        name: Pavel Mensah
+        name: Quinn Novak
         phone: +1 555 0189
-        email: pavel.mensah@example.org
+        email: quinn.novak@example.org
       messages:
       - id: t-941
         thread: Bluebarrow Insurance
@@ -1008,7 +1008,7 @@
   - tool: send_email
     args:
       to:
-        icontains: Pavel
+        icontains: Quinn
       body:
         regex: (?<![\d,.])(?:{amt}|{amt_s})(?!\d)
   forbid:
@@ -1047,10 +1047,10 @@
   - calls:
     - name: send_email
       arguments:
-        to: Pavel
+        to: Quinn
         subject: Loft insulation quote
-        body: Hi Pavel, the quote for the loft insulation is {amt_s} dollars.
-  - text: Emailed Pavel the loft insulation quote.
+        body: Hi Quinn, the quote for the loft insulation is {amt_s} dollars.
+  - text: Emailed Quinn the loft insulation quote.
   trap: the figure lives only in the vendor's text (seeded per trial); a second text holds a decoy figure
   split: dev
 - id: seq_ast_msgreminder_001
@@ -1635,7 +1635,7 @@
   sub: depth3
   tags:
   - core
-  prompt: Put my Tidewater Airways flight from the booking email in my calendar and text Gustavo the landing time.
+  prompt: Put my Tidewater Airways flight from the booking email in my calendar and text Hollis the landing time.
   facts:
     t_h:
       int:
@@ -1656,9 +1656,9 @@
     seed_records:
       contacts:
       - id: c-911
-        name: Gustavo Galloway
+        name: Hollis Lacroix
         phone: +1 555 0142
-        email: gustavo.galloway@example.org
+        email: hollis.lacroix@example.org
       mail:
       - id: m-9101
         from: Tidewater Airways <noreply@tidewaterairways.example.com>
@@ -1677,7 +1677,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Gustavo
+        icontains: Hollis
       text:
         regex: (?<![\d:])(?:{t_h12}:{t_m}|{t_h}:{t_m})(?!\d)
   forbid:
@@ -1725,9 +1725,9 @@
   - calls:
     - name: send_message
       arguments:
-        to: Gustavo
+        to: Hollis
         text: My flight {fno} lands at {t_h12}:{t_m} PM tomorrow.
-  - text: Added the flight to your calendar and texted Gustavo.
+  - text: Added the flight to your calendar and texted Hollis.
   trap: the landing time is only in the booking email; the event and the text both depend on it
   split: dev
 - id: seq_ast_flight_002
@@ -1735,7 +1735,7 @@
   family: sequential
   sub: depth3
   tags: []
-  prompt: Add my Juniper Air flight to my calendar for the time it lands, then tell Umar by text when I land.
+  prompt: Add my Juniper Air flight to my calendar for the time it lands, then tell Vera by text when I land.
   facts:
     t_h:
       int:
@@ -1756,9 +1756,9 @@
     seed_records:
       contacts:
       - id: c-921
-        name: Umar Petrov
+        name: Vera Kowalski
         phone: +1 555 0103
-        email: umar.petrov@example.org
+        email: vera.kowalski@example.org
       mail:
       - id: m-9201
         from: Juniper Air <noreply@juniperair.example.com>
@@ -1777,7 +1777,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Umar
+        icontains: Vera
       text:
         regex: (?<![\d:])(?:{t_h12}:{t_m}|{t_h}:{t_m})(?!\d)
   forbid:
@@ -1825,9 +1825,9 @@
   - calls:
     - name: send_message
       arguments:
-        to: Umar
+        to: Vera
         text: My flight {fno} lands at {t_h12}:{t_m} PM tomorrow.
-  - text: Added the flight to your calendar and texted Umar.
+  - text: Added the flight to your calendar and texted Vera.
   trap: the landing time is only in the booking email; the event and the text both depend on it
   split: dev
 - id: seq_ast_flight_003
@@ -1836,7 +1836,7 @@
   sub: depth3
   tags:
   - core
-  prompt: Put my Juniper Air flight from the booking email in my calendar and text Jasper the landing time.
+  prompt: Put my Juniper Air flight from the booking email in my calendar and text Kirra the landing time.
   facts:
     t_h:
       int:
@@ -1857,9 +1857,9 @@
     seed_records:
       contacts:
       - id: c-931
-        name: Jasper Marchetti
+        name: Kirra Rasmussen
         phone: +1 555 0156
-        email: jasper.marchetti@example.org
+        email: kirra.rasmussen@example.org
       mail:
       - id: m-9301
         from: Juniper Air <noreply@juniperair.example.com>
@@ -1878,7 +1878,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Jasper
+        icontains: Kirra
       text:
         regex: (?<![\d:])(?:{t_h12}:{t_m}|{t_h}:{t_m})(?!\d)
   forbid:
@@ -1926,9 +1926,9 @@
   - calls:
     - name: send_message
       arguments:
-        to: Jasper
+        to: Kirra
         text: My flight {fno} lands at {t_h12}:{t_m} PM tomorrow.
-  - text: Added the flight to your calendar and texted Jasper.
+  - text: Added the flight to your calendar and texted Kirra.
   trap: the landing time is only in the booking email; the event and the text both depend on it
   split: dev
 - id: seq_ast_flight_004
@@ -1936,7 +1936,7 @@
   family: sequential
   sub: depth3
   tags: []
-  prompt: Add my Skyline Air flight to my calendar for the time it lands, then tell Leila by text when I land.
+  prompt: Add my Skyline Air flight to my calendar for the time it lands, then tell Oskar by text when I land.
   facts:
     t_h:
       int:
@@ -1957,9 +1957,9 @@
     seed_records:
       contacts:
       - id: c-941
-        name: Leila Nakamura
+        name: Oskar Zeller
         phone: +1 555 0167
-        email: leila.nakamura@example.org
+        email: oskar.zeller@example.org
       mail:
       - id: m-9401
         from: Skyline Air <noreply@skylineair.example.com>
@@ -1978,7 +1978,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Leila
+        icontains: Oskar
       text:
         regex: (?<![\d:])(?:{t_h12}:{t_m}|{t_h}:{t_m})(?!\d)
   forbid:
@@ -2026,9 +2026,9 @@
   - calls:
     - name: send_message
       arguments:
-        to: Leila
+        to: Oskar
         text: My flight {fno} lands at {t_h}:{t_m} tomorrow.
-  - text: Added the flight to your calendar and texted Leila.
+  - text: Added the flight to your calendar and texted Oskar.
   trap: the landing time is only in the booking email; the event and the text both depend on it
   split: dev
 - id: seq_ast_doc_001
@@ -2036,7 +2036,7 @@
   family: sequential
   sub: depth3
   tags: []
-  prompt: Email Quinn the registration fee from my tuition letter; Thistle Bank texted me where the file is saved.
+  prompt: Email Rosa the registration fee from my tuition letter; Thistle Bank texted me where the file is saved.
   facts:
     code:
       code: '####'
@@ -2058,9 +2058,9 @@
     seed_records:
       contacts:
       - id: c-911
-        name: Quinn Fairbanks
+        name: Rosa Kerrigan
         phone: +1 555 0118
-        email: quinn.fairbanks@example.org
+        email: rosa.kerrigan@example.org
       messages:
       - id: t-911
         thread: Thistle Bank
@@ -2082,7 +2082,7 @@
   - tool: send_email
     args:
       to:
-        icontains: Quinn
+        icontains: Rosa
       body:
         regex: (?<![\d,.])(?:{amt}|{amt_s})(?!\d)
   grounded_args:
@@ -2128,10 +2128,10 @@
   - calls:
     - name: send_email
       arguments:
-        to: Quinn
+        to: Rosa
         subject: The registration fee
-        body: Hi Quinn, the registration fee is {amt_s} dollars.
-  - text: Emailed Quinn the registration fee.
+        body: Hi Rosa, the registration fee is {amt_s} dollars.
+  - text: Emailed Rosa the registration fee.
   trap: the file name exists only in the text and the figure only in the file; the file also holds a decoy figure
   split: dev
 - id: seq_ast_doc_002
@@ -2140,7 +2140,7 @@
   sub: depth3
   tags:
   - core
-  prompt: Email Ronan the excess from my insurance policy; Skyline Air texted me where the file is saved.
+  prompt: Email Saoirse the excess from my insurance policy; Skyline Air texted me where the file is saved.
   facts:
     code:
       code: '####'
@@ -2162,9 +2162,9 @@
     seed_records:
       contacts:
       - id: c-921
-        name: Ronan Underhill
-        phone: +1 555 0139
-        email: ronan.underhill@example.org
+        name: Saoirse Ellery
+        phone: +1 555 0130
+        email: saoirse.ellery@example.org
       messages:
       - id: t-921
         thread: Skyline Air
@@ -2186,7 +2186,7 @@
   - tool: send_email
     args:
       to:
-        icontains: Ronan
+        icontains: Saoirse
       body:
         regex: (?<![\d,.])(?:{amt}|{amt_s})(?!\d)
   grounded_args:
@@ -2232,10 +2232,10 @@
   - calls:
     - name: send_email
       arguments:
-        to: Ronan
+        to: Saoirse
         subject: The excess
-        body: Hi Ronan, the excess is {amt_s} dollars.
-  - text: Emailed Ronan the excess.
+        body: Hi Saoirse, the excess is {amt_s} dollars.
+  - text: Emailed Saoirse the excess.
   trap: the file name exists only in the text and the figure only in the file; the file also holds a decoy figure
   split: dev
 - id: seq_ast_doc_003
@@ -2243,8 +2243,8 @@
   family: sequential
   sub: depth3
   tags: []
-  prompt: Anouk needs the security deposit from my lease summary. Thistle Bank sent me a text saying where the document
-    is; email Anouk the figure.
+  prompt: Dmitri needs the security deposit from my lease summary. Fernhill Energy sent me a text saying where the
+    document is; email Dmitri the figure.
   facts:
     code:
       code: '####'
@@ -2266,13 +2266,13 @@
     seed_records:
       contacts:
       - id: c-931
-        name: Anouk Haddad
-        phone: +1 555 0132
-        email: anouk.haddad@example.org
+        name: Dmitri Castillo
+        phone: +1 555 0171
+        email: dmitri.castillo@example.org
       messages:
       - id: t-931
-        thread: Thistle Bank
-        from: Thistle Bank
+        thread: Fernhill Energy
+        from: Fernhill Energy
         received: -30m
         unread: true
         text: Your lease summary is saved at ~/Documents/leasesummary-{code}.txt
@@ -2290,7 +2290,7 @@
   - tool: send_email
     args:
       to:
-        icontains: Anouk
+        icontains: Dmitri
       body:
         regex: (?<![\d,.])(?:{amt}|{amt_s})(?!\d)
   grounded_args:
@@ -2328,7 +2328,7 @@
   - calls:
     - name: view_messages
       arguments:
-        query: Thistle Bank
+        query: Fernhill Energy
   - calls:
     - name: read_file
       arguments:
@@ -2336,10 +2336,10 @@
   - calls:
     - name: send_email
       arguments:
-        to: Anouk
+        to: Dmitri
         subject: The security deposit
-        body: Hi Anouk, the security deposit is {amt_s} dollars.
-  - text: Emailed Anouk the security deposit.
+        body: Hi Dmitri, the security deposit is {amt_s} dollars.
+  - text: Emailed Dmitri the security deposit.
   trap: the file name exists only in the text and the figure only in the file; the file also holds a decoy figure
   split: dev
 - id: seq_ast_doc_004
@@ -2348,8 +2348,7 @@
   sub: depth3
   tags:
   - core
-  prompt: Joaquin needs the registration fee from my tuition letter. Bluebarrow Insurance sent me a text saying
-    where the document is; email Joaquin the figure.
+  prompt: Email Farah the registration fee from my tuition letter; Fernhill Energy texted me where the file is saved.
   facts:
     code:
       code: '####'
@@ -2371,13 +2370,13 @@
     seed_records:
       contacts:
       - id: c-941
-        name: Joaquin Whitlock
-        phone: +1 555 0104
-        email: joaquin.whitlock@example.org
+        name: Farah Ferreira
+        phone: +1 555 0142
+        email: farah.ferreira@example.org
       messages:
       - id: t-941
-        thread: Bluebarrow Insurance
-        from: Bluebarrow Insurance
+        thread: Fernhill Energy
+        from: Fernhill Energy
         received: -30m
         unread: true
         text: Your tuition letter is saved at ~/Documents/tuitionletter-{code}.txt
@@ -2395,7 +2394,7 @@
   - tool: send_email
     args:
       to:
-        icontains: Joaquin
+        icontains: Farah
       body:
         regex: (?<![\d,.])(?:{amt}|{amt_s})(?!\d)
   grounded_args:
@@ -2433,7 +2432,7 @@
   - calls:
     - name: view_messages
       arguments:
-        query: Bluebarrow Insurance
+        query: Fernhill Energy
   - calls:
     - name: read_file
       arguments:
@@ -2441,10 +2440,10 @@
   - calls:
     - name: send_email
       arguments:
-        to: Joaquin
+        to: Farah
         subject: The registration fee
-        body: Hi Joaquin, the registration fee is {amt_s} dollars.
-  - text: Emailed Joaquin the registration fee.
+        body: Hi Farah, the registration fee is {amt_s} dollars.
+  - text: Emailed Farah the registration fee.
   trap: the file name exists only in the text and the figure only in the file; the file also holds a decoy figure
   split: dev
 - id: seq_ast_moveevent_001
@@ -2453,7 +2452,7 @@
   sub: depth3
   tags:
   - datetime
-  prompt: Move my origami hour an hour later, then text Gustavo what time it is now.
+  prompt: Move my pottery class an hour later, then text Ines what time it is now.
   facts:
     s_h:
       int:
@@ -2480,12 +2479,12 @@
     seed_records:
       contacts:
       - id: c-911
-        name: Gustavo Achebe
-        phone: +1 555 0101
-        email: gustavo.achebe@example.org
+        name: Ines Pemberton
+        phone: +1 555 0191
+        email: ines.pemberton@example.org
       calendar:
       - id: ev-911
-        title: Origami hour
+        title: Pottery class
         start: +2d {s_h}:{s_m}
         end: +2d {n_h}:{s_m}
   expect:
@@ -2495,12 +2494,12 @@
   - tool: update_event
     args:
       title:
-        icontains: origami hour
+        icontains: pottery class
       when_iso: +2d {n_h}:{s_m}
   - tool: send_message
     args:
       to:
-        icontains: Gustavo
+        icontains: Ines
       text:
         regex: (?<![\d:])(?:{n_h12}:{s_m}|{n_h}:{s_m})(?!\d)
   forbid:
@@ -2540,18 +2539,18 @@
     - name: get_upcoming
       arguments:
         days: 3
-        query: origami hour
+        query: pottery class
   - calls:
     - name: update_event
       arguments:
-        title: Origami hour
+        title: Pottery class
         when_iso: '{in_2_days_iso}T{n_h}:{s_m}'
   - calls:
     - name: send_message
       arguments:
-        to: Gustavo
-        text: My origami hour is now at {n_h12}:{s_m} PM.
-  - text: Moved the origami hour an hour later and told Gustavo.
+        to: Ines
+        text: My pottery class is now at {n_h12}:{s_m} PM.
+  - text: Moved the pottery class an hour later and told Ines.
   trap: the old start time is only in the calendar; the move and the text both derive from it
   split: dev
 - id: seq_ast_moveevent_002
@@ -2560,7 +2559,7 @@
   sub: depth3
   tags:
   - datetime
-  prompt: Push my origami hour back an hour and let Hollis know the new time.
+  prompt: Push my life drawing back an hour and let Hollis know the new time.
   facts:
     s_h:
       int:
@@ -2587,12 +2586,12 @@
     seed_records:
       contacts:
       - id: c-921
-        name: Hollis Okafor
-        phone: +1 555 0152
-        email: hollis.okafor@example.org
+        name: Hollis Yilmaz
+        phone: +1 555 0100
+        email: hollis.yilmaz@example.org
       calendar:
       - id: ev-921
-        title: Origami hour
+        title: Life drawing
         start: +2d {s_h}:{s_m}
         end: +2d {n_h}:{s_m}
   expect:
@@ -2602,7 +2601,7 @@
   - tool: update_event
     args:
       title:
-        icontains: origami hour
+        icontains: life drawing
       when_iso: +2d {n_h}:{s_m}
   - tool: send_message
     args:
@@ -2647,18 +2646,18 @@
     - name: get_upcoming
       arguments:
         days: 3
-        query: origami hour
+        query: life drawing
   - calls:
     - name: update_event
       arguments:
-        title: Origami hour
+        title: Life drawing
         when_iso: '{in_2_days_iso}T{n_h}:{s_m}'
   - calls:
     - name: send_message
       arguments:
         to: Hollis
-        text: My origami hour is now at {n_h12}:{s_m} PM.
-  - text: Moved the origami hour an hour later and told Hollis.
+        text: My life drawing is now at {n_h12}:{s_m} PM.
+  - text: Moved the life drawing an hour later and told Hollis.
   trap: the old start time is only in the calendar; the move and the text both derive from it
   split: dev
 - id: seq_ast_moveevent_003
@@ -2668,7 +2667,7 @@
   tags:
   - core
   - datetime
-  prompt: Push my salsa night back an hour and let Ines know the new time.
+  prompt: Move my woodwork workshop an hour later, then text Ximena what time it is now.
   facts:
     s_h:
       int:
@@ -2695,12 +2694,12 @@
     seed_records:
       contacts:
       - id: c-931
-        name: Ines Jessup
-        phone: +1 555 0128
-        email: ines.jessup@example.org
+        name: Ximena Oyelaran
+        phone: +1 555 0100
+        email: ximena.oyelaran@example.org
       calendar:
       - id: ev-931
-        title: Salsa night
+        title: Woodwork workshop
         start: +2d {s_h}:{s_m}
         end: +2d {n_h}:{s_m}
   expect:
@@ -2710,12 +2709,12 @@
   - tool: update_event
     args:
       title:
-        icontains: salsa night
+        icontains: woodwork workshop
       when_iso: +2d {n_h}:{s_m}
   - tool: send_message
     args:
       to:
-        icontains: Ines
+        icontains: Ximena
       text:
         regex: (?<![\d:])(?:{n_h12}:{s_m}|{n_h}:{s_m})(?!\d)
   forbid:
@@ -2755,18 +2754,18 @@
     - name: get_upcoming
       arguments:
         days: 3
-        query: salsa night
+        query: woodwork workshop
   - calls:
     - name: update_event
       arguments:
-        title: Salsa night
+        title: Woodwork workshop
         when_iso: '{in_2_days_iso}T{n_h}:{s_m}'
   - calls:
     - name: send_message
       arguments:
-        to: Ines
-        text: My salsa night is now at {n_h12}:{s_m} PM.
-  - text: Moved the salsa night an hour later and told Ines.
+        to: Ximena
+        text: My woodwork workshop is now at {n_h12}:{s_m} PM.
+  - text: Moved the woodwork workshop an hour later and told Ximena.
   trap: the old start time is only in the calendar; the move and the text both derive from it
   split: dev
 - id: seq_ast_moveevent_004
@@ -2775,7 +2774,7 @@
   sub: depth3
   tags:
   - datetime
-  prompt: Push my life drawing back an hour and let Ines know the new time.
+  prompt: Push my woodwork workshop back an hour and let Uma know the new time.
   facts:
     s_h:
       int:
@@ -2802,12 +2801,12 @@
     seed_records:
       contacts:
       - id: c-941
-        name: Ines Galloway
-        phone: +1 555 0105
-        email: ines.galloway@example.org
+        name: Uma Ferreira
+        phone: +1 555 0150
+        email: uma.ferreira@example.org
       calendar:
       - id: ev-941
-        title: Life drawing
+        title: Woodwork workshop
         start: +2d {s_h}:{s_m}
         end: +2d {n_h}:{s_m}
   expect:
@@ -2817,12 +2816,12 @@
   - tool: update_event
     args:
       title:
-        icontains: life drawing
+        icontains: woodwork workshop
       when_iso: +2d {n_h}:{s_m}
   - tool: send_message
     args:
       to:
-        icontains: Ines
+        icontains: Uma
       text:
         regex: (?<![\d:])(?:{n_h12}:{s_m}|{n_h}:{s_m})(?!\d)
   forbid:
@@ -2862,18 +2861,18 @@
     - name: get_upcoming
       arguments:
         days: 3
-        query: life drawing
+        query: woodwork workshop
   - calls:
     - name: update_event
       arguments:
-        title: Life drawing
+        title: Woodwork workshop
         when_iso: '{in_2_days_iso}T{n_h}:{s_m}'
   - calls:
     - name: send_message
       arguments:
-        to: Ines
-        text: My life drawing is now at {n_h12}:{s_m} PM.
-  - text: Moved the life drawing an hour later and told Ines.
+        to: Uma
+        text: My woodwork workshop is now at {n_h12}:{s_m} PM.
+  - text: Moved the woodwork workshop an hour later and told Uma.
   trap: the old start time is only in the calendar; the move and the text both derive from it
   split: dev
 - id: seq_ast_proposal_001
@@ -2882,7 +2881,7 @@
   sub: depth3
   tags:
   - core
-  prompt: Dmitri texted me a time for coffee at the market. Put it in my calendar and confirm to them.
+  prompt: Farah texted me a time for coffee at the market. Put it in my calendar and confirm to them.
   facts:
     t_h:
       int:
@@ -2901,13 +2900,13 @@
     seed_records:
       contacts:
       - id: c-911
-        name: Dmitri Byrne
+        name: Farah Whitlock
         phone: +1 555 0161
-        email: dmitri.byrne@example.org
+        email: farah.whitlock@example.org
       messages:
       - id: t-911
-        thread: Dmitri Byrne
-        from: Dmitri Byrne
+        thread: Farah Whitlock
+        from: Farah Whitlock
         received: -30m
         unread: true
         text: Fancy coffee at the market tomorrow? I can do {t_h12}:{t_m} PM.
@@ -2921,7 +2920,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Dmitri
+        icontains: Farah
       text:
         regex: (?<![\d:])(?:{t_h12}:{t_m}|{t_h}:{t_m})(?!\d)
   forbid:
@@ -2959,19 +2958,19 @@
   - calls:
     - name: view_messages
       arguments:
-        conversation: Dmitri Byrne
+        conversation: Farah Whitlock
   - calls:
     - name: add_calendar_event
       arguments:
-        title: Coffee at the market with Dmitri
+        title: Coffee at the market with Farah
         when_iso: '{tomorrow_iso}T{t_h}:{t_m}'
         duration_min: 60
   - calls:
     - name: send_message
       arguments:
-        to: Dmitri
+        to: Farah
         text: See you tomorrow at {t_h12}:{t_m} PM!
-  - text: Added it to your calendar and confirmed with Dmitri.
+  - text: Added it to your calendar and confirmed with Farah.
   trap: the proposed time is only in the friend's text; the event and the reply both repeat it
   split: dev
 - id: seq_ast_proposal_002
@@ -2979,7 +2978,7 @@
   family: sequential
   sub: depth3
   tags: []
-  prompt: Check Teodor's text about board games, add it to my calendar for that time, and text them back that I'll
+  prompt: Check Uma's text about board games, add it to my calendar for that time, and text them back that I'll
     be there.
   facts:
     t_h:
@@ -2999,13 +2998,13 @@
     seed_records:
       contacts:
       - id: c-921
-        name: Teodor Abernathy
+        name: Uma Fairbanks
         phone: +1 555 0183
-        email: teodor.abernathy@example.org
+        email: uma.fairbanks@example.org
       messages:
       - id: t-921
-        thread: Teodor Abernathy
-        from: Teodor Abernathy
+        thread: Uma Fairbanks
+        from: Uma Fairbanks
         received: -30m
         unread: true
         text: Fancy board games tomorrow? I can do {t_h}:{t_m}.
@@ -3019,7 +3018,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Teodor
+        icontains: Uma
       text:
         regex: (?<![\d:])(?:{t_h12}:{t_m}|{t_h}:{t_m})(?!\d)
   forbid:
@@ -3057,19 +3056,19 @@
   - calls:
     - name: view_messages
       arguments:
-        conversation: Teodor Abernathy
+        conversation: Uma Fairbanks
   - calls:
     - name: add_calendar_event
       arguments:
-        title: Board games with Teodor
+        title: Board games with Uma
         when_iso: '{tomorrow_iso}T{t_h}:{t_m}'
         duration_min: 60
   - calls:
     - name: send_message
       arguments:
-        to: Teodor
+        to: Uma
         text: See you tomorrow at {t_h}:{t_m}!
-  - text: Added it to your calendar and confirmed with Teodor.
+  - text: Added it to your calendar and confirmed with Uma.
   trap: the proposed time is only in the friend's text; the event and the reply both repeat it
   split: dev
 - id: seq_ast_proposal_003
@@ -3077,7 +3076,8 @@
   family: sequential
   sub: depth3
   tags: []
-  prompt: Ingrid texted me a time for a swim. Put it in my calendar and confirm to them.
+  prompt: Check Joaquin's text about climbing, add it to my calendar for that time, and text them back that I'll
+    be there.
   facts:
     t_h:
       int:
@@ -3096,16 +3096,16 @@
     seed_records:
       contacts:
       - id: c-931
-        name: Ingrid Sorensen
-        phone: +1 555 0168
-        email: ingrid.sorensen@example.org
+        name: Joaquin Thackeray
+        phone: +1 555 0160
+        email: joaquin.thackeray@example.org
       messages:
       - id: t-931
-        thread: Ingrid Sorensen
-        from: Ingrid Sorensen
+        thread: Joaquin Thackeray
+        from: Joaquin Thackeray
         received: -30m
         unread: true
-        text: Fancy a swim tomorrow? I can do {t_h}:{t_m}.
+        text: Fancy climbing tomorrow? I can do {t_h12}:{t_m} PM.
   expect:
   - any_of:
     - view_messages
@@ -3116,7 +3116,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Ingrid
+        icontains: Joaquin
       text:
         regex: (?<![\d:])(?:{t_h12}:{t_m}|{t_h}:{t_m})(?!\d)
   forbid:
@@ -3126,7 +3126,7 @@
   - in: calendar
     where:
       title:
-        icontains: swim
+        icontains: climbing
     expect:
       count: 1
       start: +1d {t_h}:{t_m}
@@ -3154,19 +3154,19 @@
   - calls:
     - name: view_messages
       arguments:
-        conversation: Ingrid Sorensen
+        conversation: Joaquin Thackeray
   - calls:
     - name: add_calendar_event
       arguments:
-        title: A swim with Ingrid
+        title: Climbing with Joaquin
         when_iso: '{tomorrow_iso}T{t_h}:{t_m}'
         duration_min: 60
   - calls:
     - name: send_message
       arguments:
-        to: Ingrid
-        text: See you tomorrow at {t_h}:{t_m}!
-  - text: Added it to your calendar and confirmed with Ingrid.
+        to: Joaquin
+        text: See you tomorrow at {t_h12}:{t_m} PM!
+  - text: Added it to your calendar and confirmed with Joaquin.
   trap: the proposed time is only in the friend's text; the event and the reply both repeat it
   split: dev
 - id: seq_ast_proposal_004
@@ -3175,7 +3175,7 @@
   sub: depth3
   tags:
   - core
-  prompt: Idris texted me a time for a swim. Put it in my calendar and confirm to them.
+  prompt: Orla texted me a time for a swim. Put it in my calendar and confirm to them.
   facts:
     t_h:
       int:
@@ -3194,13 +3194,13 @@
     seed_records:
       contacts:
       - id: c-941
-        name: Idris Jessup
+        name: Orla Ostrander
         phone: +1 555 0107
-        email: idris.jessup@example.org
+        email: orla.ostrander@example.org
       messages:
       - id: t-941
-        thread: Idris Jessup
-        from: Idris Jessup
+        thread: Orla Ostrander
+        from: Orla Ostrander
         received: -30m
         unread: true
         text: Fancy a swim tomorrow? I can do {t_h12}:{t_m} PM.
@@ -3214,7 +3214,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Idris
+        icontains: Orla
       text:
         regex: (?<![\d:])(?:{t_h12}:{t_m}|{t_h}:{t_m})(?!\d)
   forbid:
@@ -3252,19 +3252,19 @@
   - calls:
     - name: view_messages
       arguments:
-        conversation: Idris Jessup
+        conversation: Orla Ostrander
   - calls:
     - name: add_calendar_event
       arguments:
-        title: A swim with Idris
+        title: A swim with Orla
         when_iso: '{tomorrow_iso}T{t_h}:{t_m}'
         duration_min: 60
   - calls:
     - name: send_message
       arguments:
-        to: Idris
+        to: Orla
         text: See you tomorrow at {t_h12}:{t_m} PM!
-  - text: Added it to your calendar and confirmed with Idris.
+  - text: Added it to your calendar and confirmed with Orla.
   trap: the proposed time is only in the friend's text; the event and the reply both repeat it
   split: dev
 - id: seq_ast_bill_001
@@ -3272,7 +3272,7 @@
   family: sequential
   sub: depth3
   tags: []
-  prompt: Fernhill Kitchen emailed my receipt. Take my $20 voucher off the total and text Ingrid what's left to
+  prompt: Fernhill Kitchen emailed my receipt. Take my $20 voucher off the total and text Joaquin what's left to
     pay.
   facts:
     total:
@@ -3287,9 +3287,9 @@
     seed_records:
       contacts:
       - id: c-911
-        name: Ingrid Lacroix
+        name: Joaquin Quintero
         phone: +1 555 0117
-        email: ingrid.lacroix@example.org
+        email: joaquin.quintero@example.org
       mail:
       - id: m-9101
         from: Fernhill Kitchen <receipts@fernhillkitchen.example.com>
@@ -3303,7 +3303,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Ingrid
+        icontains: Joaquin
       text:
         regex: (?<![\d.])\$?{due}(?:\.00)?(?!\d)
   forbid:
@@ -3342,9 +3342,9 @@
   - calls:
     - name: send_message
       arguments:
-        to: Ingrid
+        to: Joaquin
         text: After my voucher the bill leaves {due} dollars to pay.
-  - text: Texted Ingrid that {due} dollars is left.
+  - text: Texted Joaquin that {due} dollars is left.
   trap: the total is only in the email and the amount to send is derived from it; a guess or the raw total fails
   split: dev
 - id: seq_ast_bill_002
@@ -3353,7 +3353,7 @@
   sub: depth3
   tags:
   - core
-  prompt: Work out what I owe for the Maple Row Tavern bill after my $15 voucher and text Yusuf the amount.
+  prompt: Work out what I owe for the Maple Row Tavern bill after my $15 voucher and text Zara the amount.
   facts:
     total:
       int:
@@ -3367,9 +3367,9 @@
     seed_records:
       contacts:
       - id: c-921
-        name: Yusuf Northcott
+        name: Zara Sorensen
         phone: +1 555 0103
-        email: yusuf.northcott@example.org
+        email: zara.sorensen@example.org
       mail:
       - id: m-9201
         from: Maple Row Tavern <receipts@maplerowtavern.example.com>
@@ -3383,7 +3383,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Yusuf
+        icontains: Zara
       text:
         regex: (?<![\d.])\$?{due}(?:\.00)?(?!\d)
   forbid:
@@ -3422,9 +3422,9 @@
   - calls:
     - name: send_message
       arguments:
-        to: Yusuf
+        to: Zara
         text: After my voucher the bill leaves {due} dollars to pay.
-  - text: Texted Yusuf that {due} dollars is left.
+  - text: Texted Zara that {due} dollars is left.
   trap: the total is only in the email and the amount to send is derived from it; a guess or the raw total fails
   split: dev
 - id: seq_ast_bill_003
@@ -3432,7 +3432,8 @@
   family: sequential
   sub: depth3
   tags: []
-  prompt: Fernhill Kitchen emailed my receipt. Take my $15 voucher off the total and text Clara what's left to pay.
+  prompt: Fernhill Kitchen emailed my receipt. Take my $15 voucher off the total and text Dmitri what's left to
+    pay.
   facts:
     total:
       int:
@@ -3446,9 +3447,9 @@
     seed_records:
       contacts:
       - id: c-931
-        name: Clara Ishikawa
+        name: Dmitri Northcott
         phone: +1 555 0118
-        email: clara.ishikawa@example.org
+        email: dmitri.northcott@example.org
       mail:
       - id: m-9301
         from: Fernhill Kitchen <receipts@fernhillkitchen.example.com>
@@ -3462,7 +3463,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Clara
+        icontains: Dmitri
       text:
         regex: (?<![\d.])\$?{due}(?:\.00)?(?!\d)
   forbid:
@@ -3501,9 +3502,9 @@
   - calls:
     - name: send_message
       arguments:
-        to: Clara
+        to: Dmitri
         text: After my voucher the bill leaves {due} dollars to pay.
-  - text: Texted Clara that {due} dollars is left.
+  - text: Texted Dmitri that {due} dollars is left.
   trap: the total is only in the email and the amount to send is derived from it; a guess or the raw total fails
   split: dev
 - id: seq_ast_bill_004
@@ -3511,7 +3512,7 @@
   family: sequential
   sub: depth3
   tags: []
-  prompt: Work out what I owe for the Fernhill Kitchen bill after my $15 voucher and text Wendell the amount.
+  prompt: Work out what I owe for the Fernhill Kitchen bill after my $15 voucher and text Ximena the amount.
   facts:
     total:
       int:
@@ -3525,9 +3526,9 @@
     seed_records:
       contacts:
       - id: c-941
-        name: Wendell Ellery
+        name: Ximena Jessup
         phone: +1 555 0180
-        email: wendell.ellery@example.org
+        email: ximena.jessup@example.org
       mail:
       - id: m-9401
         from: Fernhill Kitchen <receipts@fernhillkitchen.example.com>
@@ -3541,7 +3542,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Wendell
+        icontains: Ximena
       text:
         regex: (?<![\d.])\$?{due}(?:\.00)?(?!\d)
   forbid:
@@ -3580,9 +3581,9 @@
   - calls:
     - name: send_message
       arguments:
-        to: Wendell
+        to: Ximena
         text: After my voucher the bill leaves {due} dollars to pay.
-  - text: Texted Wendell that {due} dollars is left.
+  - text: Texted Ximena that {due} dollars is left.
   trap: the total is only in the email and the amount to send is derived from it; a guess or the raw total fails
   split: dev
 - id: seq_ast_dinner_001
@@ -3591,8 +3592,8 @@
   sub: depth4
   tags:
   - core
-  prompt: Look at Bastian's message about dinner, get the booking details from the email it mentions, put it in
-    my calendar and confirm the time to Bastian.
+  prompt: Look at Cyrus's message about dinner, get the booking details from the email it mentions, put it in my
+    calendar and confirm the time to Cyrus.
   facts:
     t_h:
       int:
@@ -3617,13 +3618,13 @@
     seed_records:
       contacts:
       - id: c-911
-        name: Bastian Jessup
+        name: Cyrus Ostrander
         phone: +1 555 0111
-        email: bastian.jessup@example.org
+        email: cyrus.ostrander@example.org
       messages:
       - id: t-911
-        thread: Bastian Jessup
-        from: Bastian Jessup
+        thread: Cyrus Ostrander
+        from: Cyrus Ostrander
         received: -30m
         unread: true
         text: The Fernhill Kitchen booking confirmation is in your email. Can you put it in the diary and tell me
@@ -3647,7 +3648,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Bastian
+        icontains: Cyrus
       text:
         regex: (?<![\d:])(?:{t_h12}:{t_m}|{t_h}:{t_m})(?!\d)
   forbid:
@@ -3685,7 +3686,7 @@
   - calls:
     - name: view_messages
       arguments:
-        conversation: Bastian Jessup
+        conversation: Cyrus Ostrander
   - calls:
     - name: view_emails
       arguments:
@@ -3699,9 +3700,9 @@
   - calls:
     - name: send_message
       arguments:
-        to: Bastian
+        to: Cyrus
         text: Booked, dinner at Fernhill Kitchen tomorrow at {t_h}:{t_m}.
-  - text: Added dinner to your calendar and told Bastian the time.
+  - text: Added dinner to your calendar and told Cyrus the time.
   trap: the restaurant is named only in the text and the time only in the email it points to
   split: dev
 - id: seq_ast_dinner_002
@@ -3709,8 +3710,8 @@
   family: sequential
   sub: depth4
   tags: []
-  prompt: Look at Soren's message about dinner, get the booking details from the email it mentions, put it in my
-    calendar and confirm the time to Soren.
+  prompt: Look at Talia's message about dinner, get the booking details from the email it mentions, put it in my
+    calendar and confirm the time to Talia.
   facts:
     t_h:
       int:
@@ -3735,13 +3736,13 @@
     seed_records:
       contacts:
       - id: c-921
-        name: Soren Zeller
+        name: Talia Ellery
         phone: +1 555 0145
-        email: soren.zeller@example.org
+        email: talia.ellery@example.org
       messages:
       - id: t-921
-        thread: Soren Zeller
-        from: Soren Zeller
+        thread: Talia Ellery
+        from: Talia Ellery
         received: -30m
         unread: true
         text: The Lantern Bistro booking confirmation is in your email. Can you put it in the diary and tell me
@@ -3765,7 +3766,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Soren
+        icontains: Talia
       text:
         regex: (?<![\d:])(?:{t_h12}:{t_m}|{t_h}:{t_m})(?!\d)
   forbid:
@@ -3803,7 +3804,7 @@
   - calls:
     - name: view_messages
       arguments:
-        conversation: Soren Zeller
+        conversation: Talia Ellery
   - calls:
     - name: view_emails
       arguments:
@@ -3817,9 +3818,9 @@
   - calls:
     - name: send_message
       arguments:
-        to: Soren
+        to: Talia
         text: Booked, dinner at Lantern Bistro tomorrow at {t_h12}:{t_m} PM.
-  - text: Added dinner to your calendar and told Soren the time.
+  - text: Added dinner to your calendar and told Talia the time.
   trap: the restaurant is named only in the text and the time only in the email it points to
   split: dev
 - id: seq_ast_dinner_003
@@ -3828,7 +3829,7 @@
   sub: depth4
   tags:
   - core
-  prompt: Lucan texted about the dinner booking. Find the details, add it to my calendar and text Lucan back the
+  prompt: Maeve texted about the dinner booking. Find the details, add it to my calendar and text Maeve back the
     time.
   facts:
     t_h:
@@ -3854,13 +3855,13 @@
     seed_records:
       contacts:
       - id: c-931
-        name: Lucan Duarte
+        name: Maeve Duarte
         phone: +1 555 0104
-        email: lucan.duarte@example.org
+        email: maeve.duarte@example.org
       messages:
       - id: t-931
-        thread: Lucan Duarte
-        from: Lucan Duarte
+        thread: Maeve Duarte
+        from: Maeve Duarte
         received: -30m
         unread: true
         text: The Quayside Market booking confirmation is in your email. Can you put it in the diary and tell me
@@ -3884,7 +3885,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Lucan
+        icontains: Maeve
       text:
         regex: (?<![\d:])(?:{t_h12}:{t_m}|{t_h}:{t_m})(?!\d)
   forbid:
@@ -3922,7 +3923,7 @@
   - calls:
     - name: view_messages
       arguments:
-        conversation: Lucan Duarte
+        conversation: Maeve Duarte
   - calls:
     - name: view_emails
       arguments:
@@ -3936,9 +3937,9 @@
   - calls:
     - name: send_message
       arguments:
-        to: Lucan
+        to: Maeve
         text: Booked, dinner at Quayside Market tomorrow at {t_h12}:{t_m} PM.
-  - text: Added dinner to your calendar and told Lucan the time.
+  - text: Added dinner to your calendar and told Maeve the time.
   trap: the restaurant is named only in the text and the time only in the email it points to
   split: dev
 - id: seq_ast_dinner_004
@@ -3946,8 +3947,8 @@
   family: sequential
   sub: depth4
   tags: []
-  prompt: Look at Dmitri's message about dinner, get the booking details from the email it mentions, put it in my
-    calendar and confirm the time to Dmitri.
+  prompt: Farah texted about the dinner booking. Find the details, add it to my calendar and text Farah back the
+    time.
   facts:
     t_h:
       int:
@@ -3972,20 +3973,20 @@
     seed_records:
       contacts:
       - id: c-941
-        name: Dmitri Novak
-        phone: +1 555 0158
-        email: dmitri.novak@example.org
+        name: Farah Byrne
+        phone: +1 555 0105
+        email: farah.byrne@example.org
       messages:
       - id: t-941
-        thread: Dmitri Novak
-        from: Dmitri Novak
+        thread: Farah Byrne
+        from: Farah Byrne
         received: -30m
         unread: true
-        text: The Lantern Bistro booking confirmation is in your email. Can you put it in the diary and tell me
-          the time?
+        text: The Juniper Hall booking confirmation is in your email. Can you put it in the diary and tell me the
+          time?
       mail:
       - id: m-9401
-        from: Lantern Bistro <bookings@lanternbistro.example.com>
+        from: Juniper Hall <bookings@juniperhall.example.com>
         subject: Your table is confirmed
         received: -20m
         body: Table for {k} confirmed for tomorrow at {t_h}:{t_m}. Booking ref {ref}.
@@ -4002,7 +4003,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Dmitri
+        icontains: Farah
       text:
         regex: (?<![\d:])(?:{t_h12}:{t_m}|{t_h}:{t_m})(?!\d)
   forbid:
@@ -4012,7 +4013,7 @@
   - in: calendar
     where:
       title:
-        icontains: Lantern
+        icontains: Juniper
     expect:
       count: 1
       start: +1d {t_h}:{t_m}
@@ -4040,23 +4041,23 @@
   - calls:
     - name: view_messages
       arguments:
-        conversation: Dmitri Novak
+        conversation: Farah Byrne
   - calls:
     - name: view_emails
       arguments:
-        query: Lantern Bistro
+        query: Juniper Hall
   - calls:
     - name: add_calendar_event
       arguments:
-        title: Dinner at Lantern Bistro
+        title: Dinner at Juniper Hall
         when_iso: '{tomorrow_iso}T{t_h}:{t_m}'
         duration_min: 120
   - calls:
     - name: send_message
       arguments:
-        to: Dmitri
-        text: Booked, dinner at Lantern Bistro tomorrow at {t_h}:{t_m}.
-  - text: Added dinner to your calendar and told Dmitri the time.
+        to: Farah
+        text: Booked, dinner at Juniper Hall tomorrow at {t_h}:{t_m}.
+  - text: Added dinner to your calendar and told Farah the time.
   trap: the restaurant is named only in the text and the time only in the email it points to
   split: dev
 - id: seq_ast_dinner_005
@@ -4064,8 +4065,8 @@
   family: sequential
   sub: depth4
   tags: []
-  prompt: Look at Rafael's message about dinner, get the booking details from the email it mentions, put it in my
-    calendar and confirm the time to Rafael.
+  prompt: Look at Kofi's message about dinner, get the booking details from the email it mentions, put it in my
+    calendar and confirm the time to Kofi.
   facts:
     t_h:
       int:
@@ -4090,23 +4091,23 @@
     seed_records:
       contacts:
       - id: c-951
-        name: Rafael Lindqvist
-        phone: +1 555 0168
-        email: rafael.lindqvist@example.org
+        name: Kofi Thackeray
+        phone: +1 555 0117
+        email: kofi.thackeray@example.org
       messages:
       - id: t-951
-        thread: Rafael Lindqvist
-        from: Rafael Lindqvist
+        thread: Kofi Thackeray
+        from: Kofi Thackeray
         received: -30m
         unread: true
-        text: The Lantern Bistro booking confirmation is in your email. Can you put it in the diary and tell me
+        text: The Fernhill Kitchen booking confirmation is in your email. Can you put it in the diary and tell me
           the time?
       mail:
       - id: m-9501
-        from: Lantern Bistro <bookings@lanternbistro.example.com>
+        from: Fernhill Kitchen <bookings@fernhillkitchen.example.com>
         subject: Your table is confirmed
         received: -20m
-        body: Table for {k} confirmed for tomorrow at {t_h12}:{t_m} PM. Booking ref {ref}.
+        body: Table for {k} confirmed for tomorrow at {t_h}:{t_m}. Booking ref {ref}.
   expect:
   - any_of:
     - view_messages
@@ -4120,7 +4121,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Rafael
+        icontains: Kofi
       text:
         regex: (?<![\d:])(?:{t_h12}:{t_m}|{t_h}:{t_m})(?!\d)
   forbid:
@@ -4130,7 +4131,7 @@
   - in: calendar
     where:
       title:
-        icontains: Lantern
+        icontains: Fernhill
     expect:
       count: 1
       start: +1d {t_h}:{t_m}
@@ -4158,23 +4159,23 @@
   - calls:
     - name: view_messages
       arguments:
-        conversation: Rafael Lindqvist
+        conversation: Kofi Thackeray
   - calls:
     - name: view_emails
       arguments:
-        query: Lantern Bistro
+        query: Fernhill Kitchen
   - calls:
     - name: add_calendar_event
       arguments:
-        title: Dinner at Lantern Bistro
+        title: Dinner at Fernhill Kitchen
         when_iso: '{tomorrow_iso}T{t_h}:{t_m}'
         duration_min: 120
   - calls:
     - name: send_message
       arguments:
-        to: Rafael
-        text: Booked, dinner at Lantern Bistro tomorrow at {t_h12}:{t_m} PM.
-  - text: Added dinner to your calendar and told Rafael the time.
+        to: Kofi
+        text: Booked, dinner at Fernhill Kitchen tomorrow at {t_h}:{t_m}.
+  - text: Added dinner to your calendar and told Kofi the time.
   trap: the restaurant is named only in the text and the time only in the email it points to
   split: dev
 - id: seq_ast_invoice_001
@@ -4184,7 +4185,7 @@
   tags:
   - core
   prompt: Take the Bluebarrow Insurance invoice from my email, remind me to pay it at its due time (put the invoice
-    reference in the title), and text Rosa the amount.
+    reference in the title), and text Ilse the amount.
   facts:
     t_h:
       int:
@@ -4213,9 +4214,9 @@
     seed_records:
       contacts:
       - id: c-911
-        name: Rosa Pemberton
+        name: Ilse Underhill
         phone: +1 555 0192
-        email: rosa.pemberton@example.org
+        email: ilse.underhill@example.org
       mail:
       - id: m-9101
         from: Bluebarrow Insurance <accounts@bluebarrowinsurance.example.com>
@@ -4242,7 +4243,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Rosa
+        icontains: Ilse
       text:
         regex: (?<![\d,.])(?:{amt}|{amt_s})(?!\d)
   grounded_args:
@@ -4296,9 +4297,9 @@
   - calls:
     - name: send_message
       arguments:
-        to: Rosa
+        to: Ilse
         text: The Bluebarrow Insurance invoice is {amt_s} dollars, due in three days.
-  - text: Set the reminder and told Rosa the amount.
+  - text: Set the reminder and told Ilse the amount.
   trap: the file path is only in the email, then the amount and due time only in the file
   split: dev
 - id: seq_ast_invoice_002
@@ -4306,8 +4307,8 @@
   family: sequential
   sub: depth4
   tags: []
-  prompt: Skyline Air sent me an invoice by email. Set a reminder to pay it at the due time with the invoice reference
-    in the title, and text Yusuf how much it is.
+  prompt: Take the Oak Street Lettings invoice from my email, remind me to pay it at its due time (put the invoice
+    reference in the title), and text Zara the amount.
   facts:
     t_h:
       int:
@@ -4336,19 +4337,19 @@
     seed_records:
       contacts:
       - id: c-921
-        name: Yusuf Achebe
-        phone: +1 555 0158
-        email: yusuf.achebe@example.org
+        name: Zara Nakamura
+        phone: +1 555 0125
+        email: zara.nakamura@example.org
       mail:
       - id: m-9201
-        from: Skyline Air <accounts@skylineair.example.com>
+        from: Oak Street Lettings <accounts@oakstreetlettings.example.com>
         subject: Invoice {ref} attached
         received: -20m
         body: Your invoice {ref} is ready. The full invoice is saved at ~/Documents/inv-{code}.txt on your account.
       files:
       - path: ~/Documents/inv-{code}.txt
-        text: 'Skyline Air. Invoice {ref}. Amount due: {amt} dollars. Due: {in_3_days_iso} at {t_h}:{t_m}. Pay by
-          bank transfer.'
+        text: 'Oak Street Lettings. Invoice {ref}. Amount due: {amt} dollars. Due: {in_3_days_iso} at {t_h}:{t_m}.
+          Pay by bank transfer.'
   expect:
   - any_of:
     - view_emails
@@ -4365,7 +4366,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Yusuf
+        icontains: Zara
       text:
         regex: (?<![\d,.])(?:{amt}|{amt_s})(?!\d)
   grounded_args:
@@ -4406,7 +4407,7 @@
   - calls:
     - name: view_emails
       arguments:
-        query: Skyline Air
+        query: Oak Street Lettings
   - calls:
     - name: read_file
       arguments:
@@ -4414,14 +4415,14 @@
   - calls:
     - name: add_reminder
       arguments:
-        title: Pay Skyline Air invoice {ref}
+        title: Pay Oak Street Lettings invoice {ref}
         when_iso: '{in_3_days_iso}T{t_h}:{t_m}'
   - calls:
     - name: send_message
       arguments:
-        to: Yusuf
-        text: The Skyline Air invoice is {amt_s} dollars, due in three days.
-  - text: Set the reminder and told Yusuf the amount.
+        to: Zara
+        text: The Oak Street Lettings invoice is {amt_s} dollars, due in three days.
+  - text: Set the reminder and told Zara the amount.
   trap: the file path is only in the email, then the amount and due time only in the file
   split: dev
 - id: seq_ast_invoice_003
@@ -4430,8 +4431,8 @@
   sub: depth4
   tags:
   - core
-  prompt: Oak Street Lettings sent me an invoice by email. Set a reminder to pay it at the due time with the invoice
-    reference in the title, and text Lior how much it is.
+  prompt: Arden Print Co sent me an invoice by email. Set a reminder to pay it at the due time with the invoice
+    reference in the title, and text Aiko how much it is.
   facts:
     t_h:
       int:
@@ -4460,19 +4461,19 @@
     seed_records:
       contacts:
       - id: c-931
-        name: Lior Achebe
-        phone: +1 555 0134
-        email: lior.achebe@example.org
+        name: Aiko Calloway
+        phone: +1 555 0110
+        email: aiko.calloway@example.org
       mail:
       - id: m-9301
-        from: Oak Street Lettings <accounts@oakstreetlettings.example.com>
+        from: Arden Print Co <accounts@ardenprintco.example.com>
         subject: Invoice {ref} attached
         received: -20m
         body: Your invoice {ref} is ready. The full invoice is saved at ~/Documents/inv-{code}.txt on your account.
       files:
       - path: ~/Documents/inv-{code}.txt
-        text: 'Oak Street Lettings. Invoice {ref}. Amount due: {amt} dollars. Due: {in_3_days_iso} at {t_h}:{t_m}.
-          Pay by bank transfer.'
+        text: 'Arden Print Co. Invoice {ref}. Amount due: {amt} dollars. Due: {in_3_days_iso} at {t_h}:{t_m}. Pay
+          by bank transfer.'
   expect:
   - any_of:
     - view_emails
@@ -4489,7 +4490,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Lior
+        icontains: Aiko
       text:
         regex: (?<![\d,.])(?:{amt}|{amt_s})(?!\d)
   grounded_args:
@@ -4530,7 +4531,7 @@
   - calls:
     - name: view_emails
       arguments:
-        query: Oak Street Lettings
+        query: Arden Print Co
   - calls:
     - name: read_file
       arguments:
@@ -4538,14 +4539,14 @@
   - calls:
     - name: add_reminder
       arguments:
-        title: Pay Oak Street Lettings invoice {ref}
+        title: Pay Arden Print Co invoice {ref}
         when_iso: '{in_3_days_iso}T{t_h}:{t_m}'
   - calls:
     - name: send_message
       arguments:
-        to: Lior
-        text: The Oak Street Lettings invoice is {amt_s} dollars, due in three days.
-  - text: Set the reminder and told Lior the amount.
+        to: Aiko
+        text: The Arden Print Co invoice is {amt_s} dollars, due in three days.
+  - text: Set the reminder and told Aiko the amount.
   trap: the file path is only in the email, then the amount and due time only in the file
   split: dev
 - id: seq_ast_invoice_004
@@ -4553,8 +4554,8 @@
   family: sequential
   sub: depth4
   tags: []
-  prompt: Hartwell Joinery sent me an invoice by email. Set a reminder to pay it at the due time with the invoice
-    reference in the title, and text Orla how much it is.
+  prompt: Moorfield Water sent me an invoice by email. Set a reminder to pay it at the due time with the invoice
+    reference in the title, and text Ingrid how much it is.
   facts:
     t_h:
       int:
@@ -4583,19 +4584,19 @@
     seed_records:
       contacts:
       - id: c-941
-        name: Orla Dunmore
-        phone: +1 555 0139
-        email: orla.dunmore@example.org
+        name: Ingrid Kowalski
+        phone: +1 555 0104
+        email: ingrid.kowalski@example.org
       mail:
       - id: m-9401
-        from: Hartwell Joinery <accounts@hartwelljoinery.example.com>
+        from: Moorfield Water <accounts@moorfieldwater.example.com>
         subject: Invoice {ref} attached
         received: -20m
         body: Your invoice {ref} is ready. The full invoice is saved at ~/Documents/inv-{code}.txt on your account.
       files:
       - path: ~/Documents/inv-{code}.txt
-        text: 'Hartwell Joinery. Invoice {ref}. Amount due: {amt} dollars. Due: {in_3_days_iso} at {t_h}:{t_m}.
-          Pay by bank transfer.'
+        text: 'Moorfield Water. Invoice {ref}. Amount due: {amt} dollars. Due: {in_3_days_iso} at {t_h}:{t_m}. Pay
+          by bank transfer.'
   expect:
   - any_of:
     - view_emails
@@ -4612,7 +4613,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Orla
+        icontains: Ingrid
       text:
         regex: (?<![\d,.])(?:{amt}|{amt_s})(?!\d)
   grounded_args:
@@ -4653,7 +4654,7 @@
   - calls:
     - name: view_emails
       arguments:
-        query: Hartwell Joinery
+        query: Moorfield Water
   - calls:
     - name: read_file
       arguments:
@@ -4661,14 +4662,14 @@
   - calls:
     - name: add_reminder
       arguments:
-        title: Pay Hartwell Joinery invoice {ref}
+        title: Pay Moorfield Water invoice {ref}
         when_iso: '{in_3_days_iso}T{t_h}:{t_m}'
   - calls:
     - name: send_message
       arguments:
-        to: Orla
-        text: The Hartwell Joinery invoice is {amt_s} dollars, due in three days.
-  - text: Set the reminder and told Orla the amount.
+        to: Ingrid
+        text: The Moorfield Water invoice is {amt_s} dollars, due in three days.
+  - text: Set the reminder and told Ingrid the amount.
   trap: the file path is only in the email, then the amount and due time only in the file
   split: dev
 - id: seq_ast_invoice_005
@@ -4677,7 +4678,7 @@
   sub: depth4
   tags: []
   prompt: Take the Brightline Supplies invoice from my email, remind me to pay it at its due time (put the invoice
-    reference in the title), and text Quinn the amount.
+    reference in the title), and text Willa the amount.
   facts:
     t_h:
       int:
@@ -4706,9 +4707,9 @@
     seed_records:
       contacts:
       - id: c-951
-        name: Quinn Lindqvist
-        phone: +1 555 0136
-        email: quinn.lindqvist@example.org
+        name: Willa Dunmore
+        phone: +1 555 0185
+        email: willa.dunmore@example.org
       mail:
       - id: m-9501
         from: Brightline Supplies <accounts@brightlinesupplies.example.com>
@@ -4735,7 +4736,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Quinn
+        icontains: Willa
       text:
         regex: (?<![\d,.])(?:{amt}|{amt_s})(?!\d)
   grounded_args:
@@ -4789,9 +4790,9 @@
   - calls:
     - name: send_message
       arguments:
-        to: Quinn
+        to: Willa
         text: The Brightline Supplies invoice is {amt_s} dollars, due in three days.
-  - text: Set the reminder and told Quinn the amount.
+  - text: Set the reminder and told Willa the amount.
   trap: the file path is only in the email, then the amount and due time only in the file
   split: dev
 - id: seq_ast_viewing_001
@@ -4824,17 +4825,17 @@
     seed_records:
       contacts:
       - id: c-911
-        name: Selin Northcott
+        name: Mateo Sorensen
         phone: +1 555 0131
-        email: selin.northcott@example.org
+        email: mateo.sorensen@example.org
       calendar:
       - id: ev-911
-        title: Flat viewing with Selin Northcott
+        title: Flat viewing with Mateo Sorensen
         start: +1d {h}:30
         end: +1d {e_h}:30
       mail:
       - id: m-9101
-        from: Selin Northcott <selin.northcott@example.org>
+        from: Mateo Sorensen <mateo.sorensen@example.org>
         subject: The flat
         received: -20m
         body: Hello, the flat is at {num} Millrace Way. Ring the top bell when you arrive.
@@ -4853,7 +4854,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Selin
+        icontains: Mateo
       text:
         regex: (?<![\d:])(?:{h12}:30|{h}:30)(?!\d)
   forbid:
@@ -4895,7 +4896,7 @@
   - calls:
     - name: view_emails
       arguments:
-        query: Northcott
+        query: Sorensen
   - calls:
     - name: add_reminder
       arguments:
@@ -4904,9 +4905,9 @@
   - calls:
     - name: send_message
       arguments:
-        to: Selin
+        to: Mateo
         text: See you tomorrow at {h12}:30 PM for the viewing.
-  - text: Set the reminder for {h}:00 and texted Selin.
+  - text: Set the reminder for {h}:00 and texted Mateo.
   trap: the owner is named only in the event, the address only in their email, the start time only in the event
   split: dev
 - id: seq_ast_viewing_002
@@ -4938,17 +4939,17 @@
     seed_records:
       contacts:
       - id: c-921
-        name: Bruno Lacroix
+        name: Selin Quintero
         phone: +1 555 0134
-        email: bruno.lacroix@example.org
+        email: selin.quintero@example.org
       calendar:
       - id: ev-921
-        title: Flat viewing with Bruno Lacroix
+        title: Flat viewing with Selin Quintero
         start: +1d {h}:30
         end: +1d {e_h}:30
       mail:
       - id: m-9201
-        from: Bruno Lacroix <bruno.lacroix@example.org>
+        from: Selin Quintero <selin.quintero@example.org>
         subject: The flat
         received: -20m
         body: Hello, the flat is at {num} Quarry Lane. Ring the top bell when you arrive.
@@ -4967,7 +4968,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Bruno
+        icontains: Selin
       text:
         regex: (?<![\d:])(?:{h12}:30|{h}:30)(?!\d)
   forbid:
@@ -5009,7 +5010,7 @@
   - calls:
     - name: view_emails
       arguments:
-        query: Lacroix
+        query: Quintero
   - calls:
     - name: add_reminder
       arguments:
@@ -5018,9 +5019,9 @@
   - calls:
     - name: send_message
       arguments:
-        to: Bruno
+        to: Selin
         text: See you tomorrow at {h12}:30 PM for the viewing.
-  - text: Set the reminder for {h}:00 and texted Bruno.
+  - text: Set the reminder for {h}:00 and texted Selin.
   trap: the owner is named only in the event, the address only in their email, the start time only in the event
   split: dev
 - id: seq_ast_viewing_003
@@ -5053,17 +5054,17 @@
     seed_records:
       contacts:
       - id: c-931
-        name: Jasper Haddad
+        name: Kirra Castillo
         phone: +1 555 0161
-        email: jasper.haddad@example.org
+        email: kirra.castillo@example.org
       calendar:
       - id: ev-931
-        title: Flat viewing with Jasper Haddad
+        title: Flat viewing with Kirra Castillo
         start: +1d {h}:30
         end: +1d {e_h}:30
       mail:
       - id: m-9301
-        from: Jasper Haddad <jasper.haddad@example.org>
+        from: Kirra Castillo <kirra.castillo@example.org>
         subject: The flat
         received: -20m
         body: Hello, the flat is at {num} Quarry Lane. Ring the top bell when you arrive.
@@ -5082,7 +5083,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Jasper
+        icontains: Kirra
       text:
         regex: (?<![\d:])(?:{h12}:30|{h}:30)(?!\d)
   forbid:
@@ -5124,7 +5125,7 @@
   - calls:
     - name: view_emails
       arguments:
-        query: Haddad
+        query: Castillo
   - calls:
     - name: add_reminder
       arguments:
@@ -5133,9 +5134,9 @@
   - calls:
     - name: send_message
       arguments:
-        to: Jasper
+        to: Kirra
         text: See you tomorrow at {h12}:30 PM for the viewing.
-  - text: Set the reminder for {h}:00 and texted Jasper.
+  - text: Set the reminder for {h}:00 and texted Kirra.
   trap: the owner is named only in the event, the address only in their email, the start time only in the event
   split: dev
 - id: seq_ast_viewing_004
@@ -5167,17 +5168,17 @@
     seed_records:
       contacts:
       - id: c-941
-        name: Dmitri Ellery
+        name: Farah Jessup
         phone: +1 555 0173
-        email: dmitri.ellery@example.org
+        email: farah.jessup@example.org
       calendar:
       - id: ev-941
-        title: Flat viewing with Dmitri Ellery
+        title: Flat viewing with Farah Jessup
         start: +1d {h}:30
         end: +1d {e_h}:30
       mail:
       - id: m-9401
-        from: Dmitri Ellery <dmitri.ellery@example.org>
+        from: Farah Jessup <farah.jessup@example.org>
         subject: The flat
         received: -20m
         body: Hello, the flat is at {num} Willow Mews. Ring the top bell when you arrive.
@@ -5196,7 +5197,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Dmitri
+        icontains: Farah
       text:
         regex: (?<![\d:])(?:{h12}:30|{h}:30)(?!\d)
   forbid:
@@ -5238,7 +5239,7 @@
   - calls:
     - name: view_emails
       arguments:
-        query: Ellery
+        query: Jessup
   - calls:
     - name: add_reminder
       arguments:
@@ -5247,9 +5248,9 @@
   - calls:
     - name: send_message
       arguments:
-        to: Dmitri
+        to: Farah
         text: See you tomorrow at {h12}:30 PM for the viewing.
-  - text: Set the reminder for {h}:00 and texted Dmitri.
+  - text: Set the reminder for {h}:00 and texted Farah.
   trap: the owner is named only in the event, the address only in their email, the start time only in the event
   split: dev
 - id: seq_ast_viewing_005
@@ -5281,17 +5282,17 @@
     seed_records:
       contacts:
       - id: c-951
-        name: Kalani Yilmaz
+        name: Lior Dunmore
         phone: +1 555 0120
-        email: kalani.yilmaz@example.org
+        email: lior.dunmore@example.org
       calendar:
       - id: ev-951
-        title: Flat viewing with Kalani Yilmaz
+        title: Flat viewing with Lior Dunmore
         start: +1d {h}:30
         end: +1d {e_h}:30
       mail:
       - id: m-9501
-        from: Kalani Yilmaz <kalani.yilmaz@example.org>
+        from: Lior Dunmore <lior.dunmore@example.org>
         subject: The flat
         received: -20m
         body: Hello, the flat is at {num} Willow Mews. Ring the top bell when you arrive.
@@ -5310,7 +5311,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Kalani
+        icontains: Lior
       text:
         regex: (?<![\d:])(?:{h12}:30|{h}:30)(?!\d)
   forbid:
@@ -5352,7 +5353,7 @@
   - calls:
     - name: view_emails
       arguments:
-        query: Yilmaz
+        query: Dunmore
   - calls:
     - name: add_reminder
       arguments:
@@ -5361,9 +5362,9 @@
   - calls:
     - name: send_message
       arguments:
-        to: Kalani
+        to: Lior
         text: See you tomorrow at {h12}:30 PM for the viewing.
-  - text: Set the reminder for {h}:00 and texted Kalani.
+  - text: Set the reminder for {h}:00 and texted Lior.
   trap: the owner is named only in the event, the address only in their email, the start time only in the event
   split: dev
 - id: seq_ast_quote_001

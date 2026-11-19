@@ -215,15 +215,15 @@
   sub: depth2
   tags:
   - core
-  prompt: Forward Fernhill Energy's renewal offer email to Kirra.
+  prompt: Forward Fernhill Energy's renewal offer email to Lucan.
   facts: {}
   world:
     seed_records:
       contacts:
       - id: c-811
-        name: Kirra Kowalski
+        name: Lucan Yilmaz
         phone: +1 555 0107
-        email: kirra.kowalski@example.org
+        email: lucan.yilmaz@example.org
       mail:
       - id: mt-7017
         from: Fernhill Energy <hello@fernhillenergy.example.com>
@@ -242,7 +242,7 @@
       message_id:
         eq: mt-7017
       to:
-        icontains: Kirra
+        icontains: Lucan
   grounded_args:
   - tool: email_forward
     arg: message_id
@@ -257,7 +257,7 @@
       count: 1
       kind: forward
       to:
-        icontains: kirra.kowalski@example.org
+        icontains: lucan.yilmaz@example.org
   - in: mail_sent
     where:
       in_reply_to: mt-9495
@@ -289,8 +289,8 @@
       arguments:
         message_id: mt-7017
         to:
-        - Kirra
-  - text: Forwarded the renewal offer email to Kirra.
+        - Lucan
+  - text: Forwarded the renewal offer email to Lucan.
   trap: the message id exists only in the search result; the other email from the same sender is a decoy
   split: dev
 - id: seq_neu_forward_002
@@ -298,15 +298,15 @@
   family: sequential
   sub: depth2
   tags: []
-  prompt: Send Wendell the account statement email I got from Kestrel Telecom.
+  prompt: Send Ximena the account statement email I got from Kestrel Telecom.
   facts: {}
   world:
     seed_records:
       contacts:
       - id: c-821
-        name: Wendell Kerrigan
+        name: Ximena Pemberton
         phone: +1 555 0175
-        email: wendell.kerrigan@example.org
+        email: ximena.pemberton@example.org
       mail:
       - id: mt-4032
         from: Kestrel Telecom <hello@kestreltelecom.example.com>
@@ -325,7 +325,7 @@
       message_id:
         eq: mt-4032
       to:
-        icontains: Wendell
+        icontains: Ximena
   grounded_args:
   - tool: email_forward
     arg: message_id
@@ -340,7 +340,7 @@
       count: 1
       kind: forward
       to:
-        icontains: wendell.kerrigan@example.org
+        icontains: ximena.pemberton@example.org
   - in: mail_sent
     where:
       in_reply_to: mt-5014
@@ -372,8 +372,8 @@
       arguments:
         message_id: mt-4032
         to:
-        - Wendell
-  - text: Forwarded the account statement email to Wendell.
+        - Ximena
+  - text: Forwarded the account statement email to Ximena.
   trap: the message id exists only in the search result; the other email from the same sender is a decoy
   split: dev
 - id: seq_neu_noteappend_001
@@ -820,9 +820,9 @@
     seed_records:
       contacts:
       - id: c-811
-        name: Ines Zeller
+        name: Ines Ellery
         phone: +1 555 0196
-        email: ines.zeller@example.org
+        email: ines.ellery@example.org
       messages:
       - id: msg-801
         thread: Fernhill Energy
@@ -904,7 +904,7 @@
   family: sequential
   sub: depth3
   tags: []
-  prompt: Text Dmitri the excess from my insurance policy; Thistle Bank texted me where it's saved.
+  prompt: Text Farah the excess from my insurance policy; Thistle Bank texted me where it's saved.
   facts:
     code:
       code: '####'
@@ -926,9 +926,9 @@
     seed_records:
       contacts:
       - id: c-821
-        name: Dmitri Galloway
+        name: Farah Lacroix
         phone: +1 555 0198
-        email: dmitri.galloway@example.org
+        email: farah.lacroix@example.org
       messages:
       - id: msg-801
         thread: Thistle Bank
@@ -952,7 +952,7 @@
   - tool: messages_send
     args:
       to:
-        icontains: Dmitri
+        icontains: Farah
       text:
         regex: (?<![\d,.])(?:{amt}|{amt_s})(?!\d)
   grounded_args:
@@ -1000,9 +1000,9 @@
   - calls:
     - name: messages_send
       arguments:
-        to: Dmitri
+        to: Farah
         text: The excess is {amt_s} dollars.
-  - text: Texted Dmitri the excess.
+  - text: Texted Farah the excess.
   trap: the path is only in the text and the figure only in the file; an old file holds a decoy figure
   split: dev
 - id: seq_neu_msgfile_003
@@ -1011,8 +1011,8 @@
   sub: depth3
   tags:
   - core
-  prompt: Idris asked for the registration fee. Hartwell Joinery told me by text where my tuition letter is saved;
-    text Idris the figure.
+  prompt: Clara asked for the registration fee. Hartwell Joinery told me by text where my tuition letter is saved;
+    text Clara the figure.
   facts:
     code:
       code: '####'
@@ -1034,9 +1034,9 @@
     seed_records:
       contacts:
       - id: c-831
-        name: Idris Okafor
+        name: Clara Mensah
         phone: +1 555 0197
-        email: idris.okafor@example.org
+        email: clara.mensah@example.org
       messages:
       - id: msg-801
         thread: Hartwell Joinery
@@ -1060,7 +1060,7 @@
   - tool: messages_send
     args:
       to:
-        icontains: Idris
+        icontains: Clara
       text:
         regex: (?<![\d,.])(?:{amt}|{amt_s})(?!\d)
   grounded_args:
@@ -1108,9 +1108,9 @@
   - calls:
     - name: messages_send
       arguments:
-        to: Idris
+        to: Clara
         text: The registration fee is {amt_s} dollars.
-  - text: Texted Idris the registration fee.
+  - text: Texted Clara the registration fee.
   trap: the path is only in the text and the figure only in the file; an old file holds a decoy figure
   split: dev
 - id: seq_neu_calshift_001
@@ -1119,7 +1119,7 @@
   sub: depth3
   tags:
   - datetime
-  prompt: Move tomorrow's Design critique an hour later, then let Bastian know by text what time it starts now.
+  prompt: Move tomorrow's Design critique an hour later, then let Cyrus know by text what time it starts now.
   facts:
     s_h:
       int:
@@ -1143,9 +1143,9 @@
     seed_records:
       contacts:
       - id: c-811
-        name: Bastian Achebe
+        name: Cyrus Nakamura
         phone: +1 555 0119
-        email: bastian.achebe@example.org
+        email: cyrus.nakamura@example.org
       calendar:
       - id: ev-6357
         title: Design critique
@@ -1161,7 +1161,7 @@
   - tool: messages_send
     args:
       to:
-        icontains: Bastian
+        icontains: Cyrus
       text:
         regex: (?<![\d:]){n_h}:{s_m}(?!\d)
   grounded_args:
@@ -1213,9 +1213,9 @@
   - calls:
     - name: messages_send
       arguments:
-        to: Bastian
+        to: Cyrus
         text: My Design critique now starts at {n_h}:{s_m}.
-  - text: Moved the Design critique an hour later and texted Bastian.
+  - text: Moved the Design critique an hour later and texted Cyrus.
   trap: the event id and old start exist only in the search result; the update and the text derive from it
   split: dev
 - id: seq_neu_calshift_002
@@ -1225,7 +1225,7 @@
   tags:
   - core
   - datetime
-  prompt: Push my Book club tomorrow back an hour and text Quinn the new start time.
+  prompt: Push my Team lunch tomorrow back an hour and text Kofi the new start time.
   facts:
     s_h:
       int:
@@ -1249,12 +1249,12 @@
     seed_records:
       contacts:
       - id: c-821
-        name: Quinn Okafor
-        phone: +1 555 0108
-        email: quinn.okafor@example.org
+        name: Kofi Wexford
+        phone: +1 555 0157
+        email: kofi.wexford@example.org
       calendar:
-      - id: ev-4375
-        title: Book club
+      - id: ev-2068
+        title: Team lunch
         start: +1d {s_h}:{s_m}
         end: +1d {n_h}:{s_m}
   expect:
@@ -1262,12 +1262,12 @@
   - tool: calendar_update_event
     args:
       event_id:
-        eq: ev-4375
+        eq: ev-2068
       start: +1d {n_h}:{s_m}
   - tool: messages_send
     args:
       to:
-        icontains: Quinn
+        icontains: Kofi
       text:
         regex: (?<![\d:]){n_h}:{s_m}(?!\d)
   grounded_args:
@@ -1279,7 +1279,7 @@
   final_state:
   - in: calendar
     where:
-      id: ev-4375
+      id: ev-2068
     expect:
       count: 1
       start: +1d {n_h}:{s_m}
@@ -1310,18 +1310,18 @@
   - calls:
     - name: calendar_search_events
       arguments:
-        query: Book club
+        query: Team lunch
   - calls:
     - name: calendar_update_event
       arguments:
-        event_id: ev-4375
+        event_id: ev-2068
         start: '{tomorrow_iso}T{n_h}:{s_m}'
   - calls:
     - name: messages_send
       arguments:
-        to: Quinn
-        text: My Book club now starts at {n_h}:{s_m}.
-  - text: Moved the Book club an hour later and texted Quinn.
+        to: Kofi
+        text: My Team lunch now starts at {n_h}:{s_m}.
+  - text: Moved the Team lunch an hour later and texted Kofi.
   trap: the event id and old start exist only in the search result; the update and the text derive from it
   split: dev
 - id: seq_neu_calshift_003
@@ -1330,7 +1330,7 @@
   sub: depth3
   tags:
   - datetime
-  prompt: Move tomorrow's Book club an hour later, then let Vera know by text what time it starts now.
+  prompt: Move tomorrow's Design critique an hour later, then let Viggo know by text what time it starts now.
   facts:
     s_h:
       int:
@@ -1354,12 +1354,12 @@
     seed_records:
       contacts:
       - id: c-831
-        name: Vera Fairbanks
-        phone: +1 555 0163
-        email: vera.fairbanks@example.org
+        name: Viggo Abernathy
+        phone: +1 555 0167
+        email: viggo.abernathy@example.org
       calendar:
-      - id: ev-5228
-        title: Book club
+      - id: ev-9084
+        title: Design critique
         start: +1d {s_h}:{s_m}
         end: +1d {n_h}:{s_m}
   expect:
@@ -1367,12 +1367,12 @@
   - tool: calendar_update_event
     args:
       event_id:
-        eq: ev-5228
+        eq: ev-9084
       start: +1d {n_h}:{s_m}
   - tool: messages_send
     args:
       to:
-        icontains: Vera
+        icontains: Viggo
       text:
         regex: (?<![\d:]){n_h}:{s_m}(?!\d)
   grounded_args:
@@ -1384,7 +1384,7 @@
   final_state:
   - in: calendar
     where:
-      id: ev-5228
+      id: ev-9084
     expect:
       count: 1
       start: +1d {n_h}:{s_m}
@@ -1415,18 +1415,18 @@
   - calls:
     - name: calendar_search_events
       arguments:
-        query: Book club
+        query: Design critique
   - calls:
     - name: calendar_update_event
       arguments:
-        event_id: ev-5228
+        event_id: ev-9084
         start: '{tomorrow_iso}T{n_h}:{s_m}'
   - calls:
     - name: messages_send
       arguments:
-        to: Vera
-        text: My Book club now starts at {n_h}:{s_m}.
-  - text: Moved the Book club an hour later and texted Vera.
+        to: Viggo
+        text: My Design critique now starts at {n_h}:{s_m}.
+  - text: Moved the Design critique an hour later and texted Viggo.
   trap: the event id and old start exist only in the search result; the update and the text derive from it
   split: dev
 - id: seq_neu_dinner_001
@@ -1435,7 +1435,8 @@
   sub: depth4
   tags:
   - core
-  prompt: Add the dinner Mei mentioned in their text to my calendar, using the booking email for the time.
+  prompt: Wendell texted about our dinner booking. Get the details from the email they mention and add it to my
+    calendar.
   facts:
     t_h:
       int:
@@ -1456,231 +1457,18 @@
     seed_records:
       contacts:
       - id: c-811
-        name: Mei Hartwell
-        phone: +1 555 0115
-        email: mei.hartwell@example.org
+        name: Wendell Kerrigan
+        phone: +1 555 0108
+        email: wendell.kerrigan@example.org
       messages:
       - id: msg-801
-        thread: Mei Hartwell
-        from: Mei Hartwell
-        text: The Lantern Bistro confirmation is in your email, can you add it to the diary?
-        received: -30m
-        unread: true
-      mail:
-      - id: bk-1917
-        from: Lantern Bistro <bookings@lanternbistro.example.com>
-        subject: Your table is confirmed
-        received: -20m
-        body: Thank you for choosing us. We value your custom and want everything to run smoothly, so please read
-          the notes below carefully and keep this message until everything is complete. If anything looks wrong,
-          just reply and a member of the team will be glad to help you out. Your table is confirmed for tomorrow
-          at {t_h}:{t_m}. Booking ref {ref}.
-  expect:
-  - tool: messages_search
-  - tool: email_search
-  - tool: email_read
-    args:
-      message_id:
-        eq: bk-1917
-  - tool: calendar_create_event
-    args:
-      start: +1d {t_h}:{t_m}
-  grounded_args:
-  - tool: email_read
-    arg: message_id
-  forbid:
-  - calendar_delete_event
-  - messages_send
-  final_state:
-  - in: calendar
-    where:
-      title:
-        icontains: Lantern
-    expect:
-      count: 1
-      start: +1d {t_h}:{t_m}
-  unchanged:
-  - reminders
-  - notes
-  - messages_sent
-  - mail_sent
-  - message_drafts
-  - mail_drafts
-  - scheduled_sends
-  - files
-  - contacts
-  - mail
-  optimal:
-    calls: 4
-    steps: 5
-  oracle:
-  - calls:
-    - name: messages_search
-      arguments:
-        query: confirmation
-        thread: Mei Hartwell
-  - calls:
-    - name: email_search
-      arguments:
-        query: Lantern Bistro
-  - calls:
-    - name: email_read
-      arguments:
-        message_id: bk-1917
-  - calls:
-    - name: calendar_create_event
-      arguments:
-        title: Dinner at Lantern Bistro
-        start: '{tomorrow_iso}T{t_h}:{t_m}'
-        duration_minutes: 120
-  - text: Added dinner at Lantern Bistro for tomorrow.
-  trap: the venue is only in the text, the message id only in the search, the time only in the full email
-  split: dev
-- id: seq_neu_dinner_002
-  lane: neutral
-  family: sequential
-  sub: depth4
-  tags: []
-  prompt: Soren texted about our dinner booking. Get the details from the email they mention and add it to my calendar.
-  facts:
-    t_h:
-      int:
-      - 13
-      - 20
-    t_m:
-      choice:
-      - '15'
-      - '30'
-      - '45'
-    t_h12:
-      add:
-      - t_h
-      - -12
-    ref:
-      code: '@@####'
-  world:
-    seed_records:
-      contacts:
-      - id: c-821
-        name: Soren Haddad
-        phone: +1 555 0112
-        email: soren.haddad@example.org
-      messages:
-      - id: msg-801
-        thread: Soren Haddad
-        from: Soren Haddad
-        text: The Copperleaf Café confirmation is in your email, can you add it to the diary?
-        received: -30m
-        unread: true
-      mail:
-      - id: bk-9604
-        from: Copperleaf Café <bookings@copperleafcafe.example.com>
-        subject: Your table is confirmed
-        received: -20m
-        body: Thank you for choosing us. We value your custom and want everything to run smoothly, so please read
-          the notes below carefully and keep this message until everything is complete. If anything looks wrong,
-          just reply and a member of the team will be glad to help you out. Your table is confirmed for tomorrow
-          at {t_h}:{t_m}. Booking ref {ref}.
-  expect:
-  - tool: messages_search
-  - tool: email_search
-  - tool: email_read
-    args:
-      message_id:
-        eq: bk-9604
-  - tool: calendar_create_event
-    args:
-      start: +1d {t_h}:{t_m}
-  grounded_args:
-  - tool: email_read
-    arg: message_id
-  forbid:
-  - calendar_delete_event
-  - messages_send
-  final_state:
-  - in: calendar
-    where:
-      title:
-        icontains: Copperleaf
-    expect:
-      count: 1
-      start: +1d {t_h}:{t_m}
-  unchanged:
-  - reminders
-  - notes
-  - messages_sent
-  - mail_sent
-  - message_drafts
-  - mail_drafts
-  - scheduled_sends
-  - files
-  - contacts
-  - mail
-  optimal:
-    calls: 4
-    steps: 5
-  oracle:
-  - calls:
-    - name: messages_search
-      arguments:
-        query: confirmation
-        thread: Soren Haddad
-  - calls:
-    - name: email_search
-      arguments:
-        query: Copperleaf Café
-  - calls:
-    - name: email_read
-      arguments:
-        message_id: bk-9604
-  - calls:
-    - name: calendar_create_event
-      arguments:
-        title: Dinner at Copperleaf Café
-        start: '{tomorrow_iso}T{t_h}:{t_m}'
-        duration_minutes: 120
-  - text: Added dinner at Copperleaf Café for tomorrow.
-  trap: the venue is only in the text, the message id only in the search, the time only in the full email
-  split: dev
-- id: seq_neu_dinner_003
-  lane: neutral
-  family: sequential
-  sub: depth4
-  tags:
-  - core
-  prompt: Willa texted about our dinner booking. Get the details from the email they mention and add it to my calendar.
-  facts:
-    t_h:
-      int:
-      - 13
-      - 20
-    t_m:
-      choice:
-      - '15'
-      - '30'
-      - '45'
-    t_h12:
-      add:
-      - t_h
-      - -12
-    ref:
-      code: '@@####'
-  world:
-    seed_records:
-      contacts:
-      - id: c-831
-        name: Willa Nakamura
-        phone: +1 555 0141
-        email: willa.nakamura@example.org
-      messages:
-      - id: msg-801
-        thread: Willa Nakamura
-        from: Willa Nakamura
+        thread: Wendell Kerrigan
+        from: Wendell Kerrigan
         text: The Juniper Hall confirmation is in your email, can you add it to the diary?
         received: -30m
         unread: true
       mail:
-      - id: bk-3019
+      - id: bk-3017
         from: Juniper Hall <bookings@juniperhall.example.com>
         subject: Your table is confirmed
         received: -20m
@@ -1694,7 +1482,7 @@
   - tool: email_read
     args:
       message_id:
-        eq: bk-3019
+        eq: bk-3017
   - tool: calendar_create_event
     args:
       start: +1d {t_h}:{t_m}
@@ -1731,7 +1519,7 @@
     - name: messages_search
       arguments:
         query: confirmation
-        thread: Willa Nakamura
+        thread: Wendell Kerrigan
   - calls:
     - name: email_search
       arguments:
@@ -1739,7 +1527,7 @@
   - calls:
     - name: email_read
       arguments:
-        message_id: bk-3019
+        message_id: bk-3017
   - calls:
     - name: calendar_create_event
       arguments:
@@ -1749,7 +1537,331 @@
   - text: Added dinner at Juniper Hall for tomorrow.
   trap: the venue is only in the text, the message id only in the search, the time only in the full email
   split: dev
+- id: seq_neu_dinner_002
+  lane: neutral
+  family: sequential
+  sub: depth4
+  tags: []
+  prompt: Bastian texted about our dinner booking. Get the details from the email they mention and add it to my
+    calendar.
+  facts:
+    t_h:
+      int:
+      - 13
+      - 20
+    t_m:
+      choice:
+      - '15'
+      - '30'
+      - '45'
+    t_h12:
+      add:
+      - t_h
+      - -12
+    ref:
+      code: '@@####'
+  world:
+    seed_records:
+      contacts:
+      - id: c-821
+        name: Bastian Novak
+        phone: +1 555 0147
+        email: bastian.novak@example.org
+      messages:
+      - id: msg-801
+        thread: Bastian Novak
+        from: Bastian Novak
+        text: The Juniper Hall confirmation is in your email, can you add it to the diary?
+        received: -30m
+        unread: true
+      mail:
+      - id: bk-2578
+        from: Juniper Hall <bookings@juniperhall.example.com>
+        subject: Your table is confirmed
+        received: -20m
+        body: Thank you for choosing us. We value your custom and want everything to run smoothly, so please read
+          the notes below carefully and keep this message until everything is complete. If anything looks wrong,
+          just reply and a member of the team will be glad to help you out. Your table is confirmed for tomorrow
+          at {t_h}:{t_m}. Booking ref {ref}.
+  expect:
+  - tool: messages_search
+  - tool: email_search
+  - tool: email_read
+    args:
+      message_id:
+        eq: bk-2578
+  - tool: calendar_create_event
+    args:
+      start: +1d {t_h}:{t_m}
+  grounded_args:
+  - tool: email_read
+    arg: message_id
+  forbid:
+  - calendar_delete_event
+  - messages_send
+  final_state:
+  - in: calendar
+    where:
+      title:
+        icontains: Juniper
+    expect:
+      count: 1
+      start: +1d {t_h}:{t_m}
+  unchanged:
+  - reminders
+  - notes
+  - messages_sent
+  - mail_sent
+  - message_drafts
+  - mail_drafts
+  - scheduled_sends
+  - files
+  - contacts
+  - mail
+  optimal:
+    calls: 4
+    steps: 5
+  oracle:
+  - calls:
+    - name: messages_search
+      arguments:
+        query: confirmation
+        thread: Bastian Novak
+  - calls:
+    - name: email_search
+      arguments:
+        query: Juniper Hall
+  - calls:
+    - name: email_read
+      arguments:
+        message_id: bk-2578
+  - calls:
+    - name: calendar_create_event
+      arguments:
+        title: Dinner at Juniper Hall
+        start: '{tomorrow_iso}T{t_h}:{t_m}'
+        duration_minutes: 120
+  - text: Added dinner at Juniper Hall for tomorrow.
+  trap: the venue is only in the text, the message id only in the search, the time only in the full email
+  split: dev
+- id: seq_neu_dinner_003
+  lane: neutral
+  family: sequential
+  sub: depth4
+  tags:
+  - core
+  prompt: Add the dinner Aiko mentioned in their text to my calendar, using the booking email for the time.
+  facts:
+    t_h:
+      int:
+      - 13
+      - 20
+    t_m:
+      choice:
+      - '15'
+      - '30'
+      - '45'
+    t_h12:
+      add:
+      - t_h
+      - -12
+    ref:
+      code: '@@####'
+  world:
+    seed_records:
+      contacts:
+      - id: c-831
+        name: Aiko Valdivia
+        phone: +1 555 0167
+        email: aiko.valdivia@example.org
+      messages:
+      - id: msg-801
+        thread: Aiko Valdivia
+        from: Aiko Valdivia
+        text: The Copperleaf Café confirmation is in your email, can you add it to the diary?
+        received: -30m
+        unread: true
+      mail:
+      - id: bk-4755
+        from: Copperleaf Café <bookings@copperleafcafe.example.com>
+        subject: Your table is confirmed
+        received: -20m
+        body: Thank you for choosing us. We value your custom and want everything to run smoothly, so please read
+          the notes below carefully and keep this message until everything is complete. If anything looks wrong,
+          just reply and a member of the team will be glad to help you out. Your table is confirmed for tomorrow
+          at {t_h}:{t_m}. Booking ref {ref}.
+  expect:
+  - tool: messages_search
+  - tool: email_search
+  - tool: email_read
+    args:
+      message_id:
+        eq: bk-4755
+  - tool: calendar_create_event
+    args:
+      start: +1d {t_h}:{t_m}
+  grounded_args:
+  - tool: email_read
+    arg: message_id
+  forbid:
+  - calendar_delete_event
+  - messages_send
+  final_state:
+  - in: calendar
+    where:
+      title:
+        icontains: Copperleaf
+    expect:
+      count: 1
+      start: +1d {t_h}:{t_m}
+  unchanged:
+  - reminders
+  - notes
+  - messages_sent
+  - mail_sent
+  - message_drafts
+  - mail_drafts
+  - scheduled_sends
+  - files
+  - contacts
+  - mail
+  optimal:
+    calls: 4
+    steps: 5
+  oracle:
+  - calls:
+    - name: messages_search
+      arguments:
+        query: confirmation
+        thread: Aiko Valdivia
+  - calls:
+    - name: email_search
+      arguments:
+        query: Copperleaf Café
+  - calls:
+    - name: email_read
+      arguments:
+        message_id: bk-4755
+  - calls:
+    - name: calendar_create_event
+      arguments:
+        title: Dinner at Copperleaf Café
+        start: '{tomorrow_iso}T{t_h}:{t_m}'
+        duration_minutes: 120
+  - text: Added dinner at Copperleaf Café for tomorrow.
+  trap: the venue is only in the text, the message id only in the search, the time only in the full email
+  split: dev
 - id: seq_neu_invoice_001
+  lane: neutral
+  family: sequential
+  sub: depth4
+  tags: []
+  prompt: Kestrel Telecom sent an invoice by email. Set a reminder to pay it at the due time, with the invoice reference
+    in the title.
+  facts:
+    t_h:
+      int:
+      - 13
+      - 20
+    t_m:
+      choice:
+      - '15'
+      - '30'
+      - '45'
+    t_h12:
+      add:
+      - t_h
+      - -12
+    code:
+      code: '####'
+    ref:
+      code: INV-####
+    amt:
+      int:
+      - 300
+      - 4800
+    amt_s:
+      template: '{amt:,}'
+  world:
+    seed_records:
+      mail:
+      - id: iv-3019
+        from: Kestrel Telecom <accounts@kestreltelecom.example.com>
+        subject: Invoice {ref}
+        received: -20m
+        body: Thank you for choosing us. We value your custom and want everything to run smoothly, so please read
+          the notes below carefully and keep this message until everything is complete. If anything looks wrong,
+          just reply and a member of the team will be glad to help you out. The full invoice is saved at ~/Documents/inv-{code}.txt.
+      files:
+      - path: ~/Documents/inv-{code}.txt
+        kind: file
+        text: 'Kestrel Telecom. Invoice {ref}. Amount due: {amt} dollars. Due: {in_3_days_iso} at {t_h}:{t_m}.'
+  expect:
+  - tool: email_search
+  - tool: email_read
+    args:
+      message_id:
+        eq: iv-3019
+  - tool: files_read
+    args:
+      path:
+        icontains: inv-{code}
+  - tool: reminders_create
+    args:
+      title:
+        icontains: '{ref}'
+      due: +3d {t_h}:{t_m}
+  grounded_args:
+  - tool: files_read
+    arg: path
+  - tool: email_read
+    arg: message_id
+  forbid:
+  - reminders_delete
+  final_state:
+  - in: reminders
+    where:
+      title:
+        icontains: '{ref}'
+    expect:
+      count: 1
+      due: +3d {t_h}:{t_m}
+  unchanged:
+  - calendar
+  - notes
+  - messages_sent
+  - mail_sent
+  - message_drafts
+  - mail_drafts
+  - scheduled_sends
+  - files
+  - contacts
+  - mail
+  optimal:
+    calls: 4
+    steps: 5
+  oracle:
+  - calls:
+    - name: email_search
+      arguments:
+        query: Kestrel Telecom
+  - calls:
+    - name: email_read
+      arguments:
+        message_id: iv-3019
+  - calls:
+    - name: files_read
+      arguments:
+        path: ~/Documents/inv-{code}.txt
+  - calls:
+    - name: reminders_create
+      arguments:
+        title: Pay Kestrel Telecom invoice {ref}
+        due: '{in_3_days_iso}T{t_h}:{t_m}'
+  - text: Reminder set for the due time.
+  trap: the path is in the full email, the due time and reference only in the file
+  split: dev
+- id: seq_neu_invoice_002
   lane: neutral
   family: sequential
   sub: depth4
@@ -1859,11 +1971,12 @@
   - text: Reminder set for the due time.
   trap: the path is in the full email, the due time and reference only in the file
   split: dev
-- id: seq_neu_invoice_002
+- id: seq_neu_invoice_003
   lane: neutral
   family: sequential
   sub: depth4
-  tags: []
+  tags:
+  - core
   prompt: 'Make a reminder to pay the Oak Street Lettings invoice from my email: use the due time on the invoice
     and put its reference in the title.'
   facts:
@@ -1969,231 +2082,11 @@
   - text: Reminder set for the due time.
   trap: the path is in the full email, the due time and reference only in the file
   split: dev
-- id: seq_neu_invoice_003
-  lane: neutral
-  family: sequential
-  sub: depth4
-  tags:
-  - core
-  prompt: 'Make a reminder to pay the Hartwell Joinery invoice from my email: use the due time on the invoice and
-    put its reference in the title.'
-  facts:
-    t_h:
-      int:
-      - 13
-      - 20
-    t_m:
-      choice:
-      - '15'
-      - '30'
-      - '45'
-    t_h12:
-      add:
-      - t_h
-      - -12
-    code:
-      code: '####'
-    ref:
-      code: INV-####
-    amt:
-      int:
-      - 300
-      - 4800
-    amt_s:
-      template: '{amt:,}'
-  world:
-    seed_records:
-      mail:
-      - id: iv-2826
-        from: Hartwell Joinery <accounts@hartwelljoinery.example.com>
-        subject: Invoice {ref}
-        received: -20m
-        body: Thank you for choosing us. We value your custom and want everything to run smoothly, so please read
-          the notes below carefully and keep this message until everything is complete. If anything looks wrong,
-          just reply and a member of the team will be glad to help you out. The full invoice is saved at ~/Documents/inv-{code}.txt.
-      files:
-      - path: ~/Documents/inv-{code}.txt
-        kind: file
-        text: 'Hartwell Joinery. Invoice {ref}. Amount due: {amt} dollars. Due: {in_3_days_iso} at {t_h}:{t_m}.'
-  expect:
-  - tool: email_search
-  - tool: email_read
-    args:
-      message_id:
-        eq: iv-2826
-  - tool: files_read
-    args:
-      path:
-        icontains: inv-{code}
-  - tool: reminders_create
-    args:
-      title:
-        icontains: '{ref}'
-      due: +3d {t_h}:{t_m}
-  grounded_args:
-  - tool: files_read
-    arg: path
-  - tool: email_read
-    arg: message_id
-  forbid:
-  - reminders_delete
-  final_state:
-  - in: reminders
-    where:
-      title:
-        icontains: '{ref}'
-    expect:
-      count: 1
-      due: +3d {t_h}:{t_m}
-  unchanged:
-  - calendar
-  - notes
-  - messages_sent
-  - mail_sent
-  - message_drafts
-  - mail_drafts
-  - scheduled_sends
-  - files
-  - contacts
-  - mail
-  optimal:
-    calls: 4
-    steps: 5
-  oracle:
-  - calls:
-    - name: email_search
-      arguments:
-        query: Hartwell Joinery
-  - calls:
-    - name: email_read
-      arguments:
-        message_id: iv-2826
-  - calls:
-    - name: files_read
-      arguments:
-        path: ~/Documents/inv-{code}.txt
-  - calls:
-    - name: reminders_create
-      arguments:
-        title: Pay Hartwell Joinery invoice {ref}
-        due: '{in_3_days_iso}T{t_h}:{t_m}'
-  - text: Reminder set for the due time.
-  trap: the path is in the full email, the due time and reference only in the file
-  split: dev
 - id: seq_neu_renewal_001
   lane: neutral
   family: sequential
   sub: depth4
   tags: []
-  prompt: My 'allotment lease' reminder carries a reference for the renewal date. Move the reminder to 9am on that
-    date.
-  facts:
-    ref:
-      code: RN-####
-    code:
-      code: '####'
-    fee:
-      int:
-      - 20
-      - 480
-    fee_s:
-      template: '{fee:,}'
-  world:
-    seed_records:
-      reminders:
-      - id: rm-4267
-        title: Renew allotment lease (ref {ref})
-        due: +10d 09:00
-      - id: rm-4252
-        title: Renew parking permit
-        due: +12d 09:00
-      mail:
-      - id: mt-8101
-        from: Renewals Desk <renewals@example.org>
-        subject: Renewal reference {ref}
-        body: The renewal dates are in ~/Documents/renew-{code}.txt.
-        received: -1d 09:00
-      files:
-      - path: ~/Documents/renew-{code}.txt
-        kind: file
-        text: 'Renewals for the allotment lease open on {in_7_days_iso}. Fee: {fee} dollars. Bring photo ID.'
-  expect:
-  - tool: reminders_search
-  - tool: email_search
-  - tool: files_read
-    args:
-      path:
-        icontains: renew-{code}
-  - tool: reminders_update
-    args:
-      reminder_id:
-        eq: rm-4267
-      due: +7d 09:00
-  grounded_args:
-  - tool: files_read
-    arg: path
-  - tool: reminders_update
-    arg: reminder_id
-  forbid:
-  - reminders_delete
-  - reminders_create
-  final_state:
-  - in: reminders
-    where:
-      id: rm-4267
-    expect:
-      count: 1
-      due: +7d 09:00
-      title:
-        icontains: allotment lease
-  - in: reminders
-    where:
-      id: rm-4252
-    expect:
-      count: 1
-      due: +12d 09:00
-  unchanged:
-  - calendar
-  - notes
-  - messages_sent
-  - mail_sent
-  - message_drafts
-  - mail_drafts
-  - scheduled_sends
-  - files
-  - contacts
-  - mail
-  optimal:
-    calls: 4
-    steps: 5
-  oracle:
-  - calls:
-    - name: reminders_search
-      arguments:
-        query: allotment lease
-  - calls:
-    - name: email_search
-      arguments:
-        query: '{ref}'
-  - calls:
-    - name: files_read
-      arguments:
-        path: ~/Documents/renew-{code}.txt
-  - calls:
-    - name: reminders_update
-      arguments:
-        reminder_id: rm-4267
-        due: '{in_7_days_iso}T09:00'
-  - text: Moved the reminder to the renewal date at 9am.
-  trap: the ref is only in the reminder, the file path in the email, the date in the file; the reminder id comes
-    from step one
-  split: dev
-- id: seq_neu_renewal_002
-  lane: neutral
-  family: sequential
-  sub: depth4
-  tags:
-  - core
   prompt: Find the renewal date for my library card (the reminder has the reference to look up) and set the reminder
     to that date at 9am.
   facts:
@@ -2210,11 +2103,11 @@
   world:
     seed_records:
       reminders:
-      - id: rm-4808
+      - id: rm-7906
         title: Renew library card (ref {ref})
         due: +10d 09:00
-      - id: rm-9090
-        title: Renew allotment lease
+      - id: rm-1893
+        title: Renew parking permit
         due: +12d 09:00
       mail:
       - id: mt-8101
@@ -2225,7 +2118,7 @@
       files:
       - path: ~/Documents/renew-{code}.txt
         kind: file
-        text: 'Renewals for the library card open on {in_3_days_iso}. Fee: {fee} dollars. Bring photo ID.'
+        text: 'Renewals for the library card open on {in_7_days_iso}. Fee: {fee} dollars. Bring photo ID.'
   expect:
   - tool: reminders_search
   - tool: email_search
@@ -2236,8 +2129,8 @@
   - tool: reminders_update
     args:
       reminder_id:
-        eq: rm-4808
-      due: +3d 09:00
+        eq: rm-7906
+      due: +7d 09:00
   grounded_args:
   - tool: files_read
     arg: path
@@ -2249,15 +2142,15 @@
   final_state:
   - in: reminders
     where:
-      id: rm-4808
+      id: rm-7906
     expect:
       count: 1
-      due: +3d 09:00
+      due: +7d 09:00
       title:
         icontains: library card
   - in: reminders
     where:
-      id: rm-9090
+      id: rm-1893
     expect:
       count: 1
       due: +12d 09:00
@@ -2291,18 +2184,19 @@
   - calls:
     - name: reminders_update
       arguments:
-        reminder_id: rm-4808
-        due: '{in_3_days_iso}T09:00'
+        reminder_id: rm-7906
+        due: '{in_7_days_iso}T09:00'
   - text: Moved the reminder to the renewal date at 9am.
   trap: the ref is only in the reminder, the file path in the email, the date in the file; the reminder id comes
     from step one
   split: dev
-- id: seq_neu_renewal_003
+- id: seq_neu_renewal_002
   lane: neutral
   family: sequential
   sub: depth4
-  tags: []
-  prompt: My 'club membership' reminder carries a reference for the renewal date. Move the reminder to 9am on that
+  tags:
+  - core
+  prompt: My 'library card' reminder carries a reference for the renewal date. Move the reminder to 9am on that
     date.
   facts:
     ref:
@@ -2318,11 +2212,11 @@
   world:
     seed_records:
       reminders:
-      - id: rm-5181
-        title: Renew club membership (ref {ref})
+      - id: rm-4840
+        title: Renew library card (ref {ref})
         due: +10d 09:00
-      - id: rm-8654
-        title: Renew bike registration
+      - id: rm-7621
+        title: Renew club membership
         due: +12d 09:00
       mail:
       - id: mt-8101
@@ -2333,7 +2227,7 @@
       files:
       - path: ~/Documents/renew-{code}.txt
         kind: file
-        text: 'Renewals for the club membership open on {in_7_days_iso}. Fee: {fee} dollars. Bring photo ID.'
+        text: 'Renewals for the library card open on {in_3_days_iso}. Fee: {fee} dollars. Bring photo ID.'
   expect:
   - tool: reminders_search
   - tool: email_search
@@ -2344,8 +2238,8 @@
   - tool: reminders_update
     args:
       reminder_id:
-        eq: rm-5181
-      due: +7d 09:00
+        eq: rm-4840
+      due: +3d 09:00
   grounded_args:
   - tool: files_read
     arg: path
@@ -2357,15 +2251,15 @@
   final_state:
   - in: reminders
     where:
-      id: rm-5181
+      id: rm-4840
     expect:
       count: 1
-      due: +7d 09:00
+      due: +3d 09:00
       title:
-        icontains: club membership
+        icontains: library card
   - in: reminders
     where:
-      id: rm-8654
+      id: rm-7621
     expect:
       count: 1
       due: +12d 09:00
@@ -2387,7 +2281,7 @@
   - calls:
     - name: reminders_search
       arguments:
-        query: club membership
+        query: library card
   - calls:
     - name: email_search
       arguments:
@@ -2399,7 +2293,115 @@
   - calls:
     - name: reminders_update
       arguments:
-        reminder_id: rm-5181
+        reminder_id: rm-4840
+        due: '{in_3_days_iso}T09:00'
+  - text: Moved the reminder to the renewal date at 9am.
+  trap: the ref is only in the reminder, the file path in the email, the date in the file; the reminder id comes
+    from step one
+  split: dev
+- id: seq_neu_renewal_003
+  lane: neutral
+  family: sequential
+  sub: depth4
+  tags: []
+  prompt: Find the renewal date for my library card (the reminder has the reference to look up) and set the reminder
+    to that date at 9am.
+  facts:
+    ref:
+      code: RN-####
+    code:
+      code: '####'
+    fee:
+      int:
+      - 20
+      - 480
+    fee_s:
+      template: '{fee:,}'
+  world:
+    seed_records:
+      reminders:
+      - id: rm-8785
+        title: Renew library card (ref {ref})
+        due: +10d 09:00
+      - id: rm-5181
+        title: Renew allotment lease
+        due: +12d 09:00
+      mail:
+      - id: mt-8101
+        from: Renewals Desk <renewals@example.org>
+        subject: Renewal reference {ref}
+        body: The renewal dates are in ~/Documents/renew-{code}.txt.
+        received: -1d 09:00
+      files:
+      - path: ~/Documents/renew-{code}.txt
+        kind: file
+        text: 'Renewals for the library card open on {in_7_days_iso}. Fee: {fee} dollars. Bring photo ID.'
+  expect:
+  - tool: reminders_search
+  - tool: email_search
+  - tool: files_read
+    args:
+      path:
+        icontains: renew-{code}
+  - tool: reminders_update
+    args:
+      reminder_id:
+        eq: rm-8785
+      due: +7d 09:00
+  grounded_args:
+  - tool: files_read
+    arg: path
+  - tool: reminders_update
+    arg: reminder_id
+  forbid:
+  - reminders_delete
+  - reminders_create
+  final_state:
+  - in: reminders
+    where:
+      id: rm-8785
+    expect:
+      count: 1
+      due: +7d 09:00
+      title:
+        icontains: library card
+  - in: reminders
+    where:
+      id: rm-5181
+    expect:
+      count: 1
+      due: +12d 09:00
+  unchanged:
+  - calendar
+  - notes
+  - messages_sent
+  - mail_sent
+  - message_drafts
+  - mail_drafts
+  - scheduled_sends
+  - files
+  - contacts
+  - mail
+  optimal:
+    calls: 4
+    steps: 5
+  oracle:
+  - calls:
+    - name: reminders_search
+      arguments:
+        query: library card
+  - calls:
+    - name: email_search
+      arguments:
+        query: '{ref}'
+  - calls:
+    - name: files_read
+      arguments:
+        path: ~/Documents/renew-{code}.txt
+  - calls:
+    - name: reminders_update
+      arguments:
+        reminder_id: rm-8785
         due: '{in_7_days_iso}T09:00'
   - text: Moved the reminder to the renewal date at 9am.
   trap: the ref is only in the reminder, the file path in the email, the date in the file; the reminder id comes
@@ -2411,8 +2413,8 @@
   sub: depth5
   tags:
   - core
-  prompt: Add the Fernhill Energy booking from my email to my calendar (booking reference in the title, venue address
-    as the location) and text Hana what it cost.
+  prompt: Moorfield Water emailed my booking. Put it in my calendar with the booking reference in the title and
+    the venue address as the location, then text Ines the total I paid.
   facts:
     t_h:
       int:
@@ -2445,12 +2447,12 @@
     seed_records:
       contacts:
       - id: c-811
-        name: Hana Northcott
-        phone: +1 555 0163
-        email: hana.northcott@example.org
+        name: Ines Zeller
+        phone: +1 555 0167
+        email: ines.zeller@example.org
       mail:
-      - id: bk-1600
-        from: Fernhill Energy <bookings@fernhillenergy.example.com>
+      - id: bk-7665
+        from: Moorfield Water <bookings@moorfieldwater.example.com>
         subject: Booking {ref}
         received: -20m
         body: 'Thank you for choosing us. We value your custom and want everything to run smoothly, so please read
@@ -2459,14 +2461,14 @@
       files:
       - path: ~/Downloads/receipt-{code}.txt
         kind: file
-        text: 'Fernhill Energy receipt. Ref {ref}. Venue: {num} Tanner Court. Date: {in_2_days_iso}. Start: {t_h}:{t_m}.
+        text: 'Moorfield Water receipt. Ref {ref}. Venue: {num} Millrace Way. Date: {in_2_days_iso}. Start: {t_h}:{t_m}.
           Total paid: {amt} dollars.'
   expect:
   - tool: email_search
   - tool: email_read
     args:
       message_id:
-        eq: bk-1600
+        eq: bk-7665
   - tool: files_read
     args:
       path:
@@ -2479,7 +2481,7 @@
   - tool: messages_send
     args:
       to:
-        icontains: Hana
+        icontains: Ines
       text:
         regex: (?<![\d,.])(?:{amt}|{amt_s})(?!\d)
   grounded_args:
@@ -2499,7 +2501,7 @@
       count: 1
       start: +2d {t_h}:{t_m}
       location:
-        icontains: '{num} Tanner Court'
+        icontains: '{num} Millrace Way'
   - in: messages_sent
     where:
       contact_id: c-811
@@ -2526,11 +2528,11 @@
   - calls:
     - name: email_search
       arguments:
-        query: Fernhill Energy
+        query: Moorfield Water
   - calls:
     - name: email_read
       arguments:
-        message_id: bk-1600
+        message_id: bk-7665
   - calls:
     - name: files_read
       arguments:
@@ -2538,15 +2540,15 @@
   - calls:
     - name: calendar_create_event
       arguments:
-        title: Fernhill Energy booking {ref}
+        title: Moorfield Water booking {ref}
         start: '{in_2_days_iso}T{t_h}:{t_m}'
-        location: '{num} Tanner Court'
+        location: '{num} Millrace Way'
   - calls:
     - name: messages_send
       arguments:
-        to: Hana
+        to: Ines
         text: The booking cost {amt_s} dollars.
-  - text: Added the booking to your calendar and told Hana the total.
+  - text: Added the booking to your calendar and told Ines the total.
   trap: the message id, the file path, then the date, venue and total each appear only in the previous result
   split: dev
 - id: seq_neu_receipt_002
@@ -2554,8 +2556,8 @@
   family: sequential
   sub: depth5
   tags: []
-  prompt: Arden Print Co emailed my booking. Put it in my calendar with the booking reference in the title and the
-    venue address as the location, then text Clara the total I paid.
+  prompt: Oak Street Lettings emailed my booking. Put it in my calendar with the booking reference in the title
+    and the venue address as the location, then text Uma the total I paid.
   facts:
     t_h:
       int:
@@ -2588,12 +2590,12 @@
     seed_records:
       contacts:
       - id: c-821
-        name: Clara Lindqvist
-        phone: +1 555 0109
-        email: clara.lindqvist@example.org
+        name: Uma Brightwater
+        phone: +1 555 0105
+        email: uma.brightwater@example.org
       mail:
-      - id: bk-4703
-        from: Arden Print Co <bookings@ardenprintco.example.com>
+      - id: bk-4324
+        from: Oak Street Lettings <bookings@oakstreetlettings.example.com>
         subject: Booking {ref}
         received: -20m
         body: 'Thank you for choosing us. We value your custom and want everything to run smoothly, so please read
@@ -2602,14 +2604,14 @@
       files:
       - path: ~/Downloads/receipt-{code}.txt
         kind: file
-        text: 'Arden Print Co receipt. Ref {ref}. Venue: {num} Ashgrove Close. Date: {in_2_days_iso}. Start: {t_h}:{t_m}.
+        text: 'Oak Street Lettings receipt. Ref {ref}. Venue: {num} Juniper Row. Date: {in_2_days_iso}. Start: {t_h}:{t_m}.
           Total paid: {amt} dollars.'
   expect:
   - tool: email_search
   - tool: email_read
     args:
       message_id:
-        eq: bk-4703
+        eq: bk-4324
   - tool: files_read
     args:
       path:
@@ -2622,7 +2624,7 @@
   - tool: messages_send
     args:
       to:
-        icontains: Clara
+        icontains: Uma
       text:
         regex: (?<![\d,.])(?:{amt}|{amt_s})(?!\d)
   grounded_args:
@@ -2642,7 +2644,7 @@
       count: 1
       start: +2d {t_h}:{t_m}
       location:
-        icontains: '{num} Ashgrove Close'
+        icontains: '{num} Juniper Row'
   - in: messages_sent
     where:
       contact_id: c-821
@@ -2669,11 +2671,11 @@
   - calls:
     - name: email_search
       arguments:
-        query: Arden Print Co
+        query: Oak Street Lettings
   - calls:
     - name: email_read
       arguments:
-        message_id: bk-4703
+        message_id: bk-4324
   - calls:
     - name: files_read
       arguments:
@@ -2681,15 +2683,15 @@
   - calls:
     - name: calendar_create_event
       arguments:
-        title: Arden Print Co booking {ref}
+        title: Oak Street Lettings booking {ref}
         start: '{in_2_days_iso}T{t_h}:{t_m}'
-        location: '{num} Ashgrove Close'
+        location: '{num} Juniper Row'
   - calls:
     - name: messages_send
       arguments:
-        to: Clara
+        to: Uma
         text: The booking cost {amt_s} dollars.
-  - text: Added the booking to your calendar and told Clara the total.
+  - text: Added the booking to your calendar and told Uma the total.
   trap: the message id, the file path, then the date, venue and total each appear only in the previous result
   split: dev
 - id: seq_neu_agenda_001
@@ -2734,13 +2736,13 @@
     seed_records:
       contacts:
       - id: c-811
-        name: Nuno Dunmore
-        phone: +1 555 0191
-        email: nuno.dunmore@example.org
+        name: Nuno Whitlock
+        phone: +1 555 0147
+        email: nuno.whitlock@example.org
       messages:
       - id: msg-801
-        thread: Nuno Dunmore
-        from: Nuno Dunmore
+        thread: Nuno Whitlock
+        from: Nuno Whitlock
         received: -30m
         unread: true
         text: Booking {wc} needs a room sorted. The agenda is saved at ~/Documents/agenda-{code}.txt.
@@ -2820,7 +2822,7 @@
     - name: messages_search
       arguments:
         query: booking
-        thread: Nuno Dunmore
+        thread: Nuno Whitlock
   - calls:
     - name: calendar_search_events
       arguments:
@@ -2850,7 +2852,7 @@
   family: sequential
   sub: depth5
   tags: []
-  prompt: Lucan texted me about my workshop booking. Find the event, read the agenda file Lucan mentions, set the
+  prompt: Maeve texted me about my workshop booking. Find the event, read the agenda file Maeve mentions, set the
     event's location to the room it names, and email the host address in that file which room it is.
   facts:
     t_h:
@@ -2886,13 +2888,13 @@
     seed_records:
       contacts:
       - id: c-821
-        name: Lucan Calloway
+        name: Maeve Hartwell
         phone: +1 555 0193
-        email: lucan.calloway@example.org
+        email: maeve.hartwell@example.org
       messages:
       - id: msg-801
-        thread: Lucan Calloway
-        from: Lucan Calloway
+        thread: Maeve Hartwell
+        from: Maeve Hartwell
         received: -30m
         unread: true
         text: Booking {wc} needs a room sorted. The agenda is saved at ~/Documents/agenda-{code}.txt.
@@ -2972,7 +2974,7 @@
     - name: messages_search
       arguments:
         query: booking
-        thread: Lucan Calloway
+        thread: Maeve Hartwell
   - calls:
     - name: calendar_search_events
       arguments:
@@ -3003,7 +3005,7 @@
   sub: depth5
   tags: []
   prompt: Find the Riverside Film Night event page, follow its booking link, add the event to my calendar and text
-    Ingrid the ticket code.
+    Joaquin the ticket code.
   facts:
     t_h:
       int:
@@ -3028,9 +3030,9 @@
     seed_records:
       contacts:
       - id: c-811
-        name: Ingrid Petrov
+        name: Joaquin Kowalski
         phone: +1 555 0149
-        email: ingrid.petrov@example.org
+        email: joaquin.kowalski@example.org
       web:
       - url: https://riversidefilmnight.example.org/events/{e1}
         title: Riverside Film Night - event page
@@ -3055,7 +3057,7 @@
   - tool: messages_send
     args:
       to:
-        icontains: Ingrid
+        icontains: Joaquin
       text:
         icontains: '{tc}'
   grounded_args:
@@ -3115,9 +3117,9 @@
   - calls:
     - name: messages_send
       arguments:
-        to: Ingrid
+        to: Joaquin
         text: Your ticket code for the Riverside Film Night is {tc}.
-  - text: Added the Riverside Film Night to your calendar and texted Ingrid the ticket code.
+  - text: Added the Riverside Film Night to your calendar and texted Joaquin the ticket code.
   trap: the booking link is past the search snippet; the time and ticket code are only on the booking page
   split: dev
 - id: seq_neu_web_002
@@ -3127,7 +3129,7 @@
   tags:
   - core
   prompt: Look up the Jazz in the Hall, check the booking page it links to, put the event on my calendar and text
-    Marisol the ticket code.
+    Niko the ticket code.
   facts:
     t_h:
       int:
@@ -3152,9 +3154,9 @@
     seed_records:
       contacts:
       - id: c-821
-        name: Marisol Jessup
+        name: Niko Ostrander
         phone: +1 555 0130
-        email: marisol.jessup@example.org
+        email: niko.ostrander@example.org
       web:
       - url: https://jazzinthehall.example.org/events/{e1}
         title: Jazz in the Hall - event page
@@ -3179,7 +3181,7 @@
   - tool: messages_send
     args:
       to:
-        icontains: Marisol
+        icontains: Niko
       text:
         icontains: '{tc}'
   grounded_args:
@@ -3239,8 +3241,8 @@
   - calls:
     - name: messages_send
       arguments:
-        to: Marisol
+        to: Niko
         text: Your ticket code for the Jazz in the Hall is {tc}.
-  - text: Added the Jazz in the Hall to your calendar and texted Marisol the ticket code.
+  - text: Added the Jazz in the Hall to your calendar and texted Niko the ticket code.
   trap: the booking link is past the search snippet; the time and ticket code are only on the booking page
   split: dev

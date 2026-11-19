@@ -6,8 +6,8 @@
   sub: compare_then_text
   tags:
   - core
-  prompt: look at the quotes for the kitchen tiling from copperleaf tiles and hartwell interiors, then text bruno
-    which company is cheapest. just the company name please
+  prompt: Check the quotes for the roof repair from Fernhill Slating and Moorfield Roofing and text Zara just the
+    name of the one with the lowest quote.
   facts:
     m0:
       int:
@@ -21,34 +21,34 @@
       - m0
     win:
       argmin:
-        Copperleaf: m0
-        Hartwell: m1
+        Fernhill: m0
+        Moorfield: m1
     lose1:
       choice:
-      - Copperleaf
-      - Hartwell
+      - Fernhill
+      - Moorfield
       exclude:
       - win
   world:
     seed_records:
       mail:
       - id: m-901
-        from: Copperleaf Tiles <office@copperleaf.example.com>
-        subject: Quote for kitchen tiling
-        body: Hello, our quote for the kitchen tiling is ${m0}, valid for two weeks.
+        from: Fernhill Slating <office@fernhill.example.com>
+        subject: Quote for roof repair
+        body: Hello, our quote for the roof repair is ${m0}, valid for two weeks.
         received: -1d 9:15
         unread: true
       - id: m-902
-        from: Hartwell Interiors <office@hartwell.example.com>
-        subject: Quote for kitchen tiling
-        body: Hello, our quote for the kitchen tiling is ${m1}, valid for two weeks.
+        from: Moorfield Roofing <office@moorfield.example.com>
+        subject: Quote for roof repair
+        body: Hello, our quote for the roof repair is ${m1}, valid for two weeks.
         received: -1d 10:15
         unread: true
       contacts:
       - id: c-901
-        name: Bruno Okafor
-        phone: +1 555 0197
-        email: bruno.okafor@example.org
+        name: Zara Yilmaz
+        phone: +1 555 0195
+        email: zara.yilmaz@example.org
   expect:
   - parallel:
       same_step: true
@@ -58,7 +58,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Bruno
+        icontains: Zara
   final_state:
   - in: messages_sent
     where:
@@ -92,16 +92,16 @@
   - calls:
     - name: view_emails
       arguments:
-        query: Copperleaf
+        query: Fernhill
     - name: view_emails
       arguments:
-        query: Hartwell
+        query: Moorfield
   - calls:
     - name: send_message
       arguments:
-        to: Bruno Okafor
+        to: Zara Yilmaz
         text: '{win} has the cheapest price.'
-  - text: 'I texted Bruno: {win} has the cheapest price.'
+  - text: 'I texted Zara: {win} has the cheapest price.'
   trap: texting a guessed or the wrong company (the cheapest one changes per trial) or naming several fails
   split: dev
 - id: mix_ast_quotes_002
@@ -109,8 +109,8 @@
   family: mixed
   sub: compare_then_text
   tags: []
-  prompt: look at the quotes for the roof repair from brightline roofers, fernhill slating and moorfield roofing,
-    then text marisol which company is cheapest. just the company name please
+  prompt: Look at the quotes for the boiler service from Fernhill Boilers, Moorfield Heating and Kestrel Gas, then
+    text Ximena which company is cheapest. Just the company name please.
   facts:
     m0:
       int:
@@ -131,14 +131,14 @@
       - m1
     win:
       argmin:
-        Brightline: m0
-        Fernhill: m1
-        Moorfield: m2
+        Fernhill: m0
+        Moorfield: m1
+        Kestrel: m2
     lose1:
       choice: &id001
-      - Brightline
       - Fernhill
       - Moorfield
+      - Kestrel
       exclude:
       - win
     lose2:
@@ -150,28 +150,28 @@
     seed_records:
       mail:
       - id: m-901
-        from: Brightline Roofers <office@brightline.example.com>
-        subject: Quote for roof repair
-        body: Hello, our quote for the roof repair is ${m0}, valid for two weeks.
+        from: Fernhill Boilers <office@fernhill.example.com>
+        subject: Quote for boiler service
+        body: Hello, our quote for the boiler service is ${m0}, valid for two weeks.
         received: -1d 9:15
         unread: true
       - id: m-902
-        from: Fernhill Slating <office@fernhill.example.com>
-        subject: Quote for roof repair
-        body: Hello, our quote for the roof repair is ${m1}, valid for two weeks.
+        from: Moorfield Heating <office@moorfield.example.com>
+        subject: Quote for boiler service
+        body: Hello, our quote for the boiler service is ${m1}, valid for two weeks.
         received: -1d 10:15
         unread: true
       - id: m-903
-        from: Moorfield Roofing <office@moorfield.example.com>
-        subject: Quote for roof repair
-        body: Hello, our quote for the roof repair is ${m2}, valid for two weeks.
+        from: Kestrel Gas <office@kestrel.example.com>
+        subject: Quote for boiler service
+        body: Hello, our quote for the boiler service is ${m2}, valid for two weeks.
         received: -1d 11:15
         unread: true
       contacts:
       - id: c-901
-        name: Marisol Duarte
-        phone: +1 555 0194
-        email: marisol.duarte@example.org
+        name: Ximena Whitlock
+        phone: +1 555 0193
+        email: ximena.whitlock@example.org
   expect:
   - parallel:
       same_step: true
@@ -182,7 +182,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Marisol
+        icontains: Ximena
   final_state:
   - in: messages_sent
     where:
@@ -217,19 +217,19 @@
   - calls:
     - name: view_emails
       arguments:
-        query: Brightline
-    - name: view_emails
-      arguments:
         query: Fernhill
     - name: view_emails
       arguments:
         query: Moorfield
+    - name: view_emails
+      arguments:
+        query: Kestrel
   - calls:
     - name: send_message
       arguments:
-        to: Marisol Duarte
+        to: Ximena Whitlock
         text: '{win} has the cheapest price.'
-  - text: 'I texted Marisol: {win} has the cheapest price.'
+  - text: 'I texted Ximena: {win} has the cheapest price.'
   trap: texting a guessed or the wrong company (the cheapest one changes per trial) or naming several fails
   split: dev
 - id: mix_ast_quotes_003
@@ -238,8 +238,8 @@
   sub: compare_then_text
   tags:
   - core
-  prompt: Check the quotes for the house move from Arden Removals and Skyline Movers and text Ronan just the name
-    of the one with the lowest quote.
+  prompt: Look at the quotes for the kitchen tiling from Skyline Floors and Hartwell Interiors, then text Soren
+    which company is cheapest. Just the company name please.
   facts:
     m0:
       int:
@@ -253,34 +253,34 @@
       - m0
     win:
       argmin:
-        Arden: m0
-        Skyline: m1
+        Skyline: m0
+        Hartwell: m1
     lose1:
       choice:
-      - Arden
       - Skyline
+      - Hartwell
       exclude:
       - win
   world:
     seed_records:
       mail:
       - id: m-901
-        from: Arden Removals <office@arden.example.com>
-        subject: Quote for house move
-        body: Hello, our quote for the house move is ${m0}, valid for two weeks.
+        from: Skyline Floors <office@skyline.example.com>
+        subject: Quote for kitchen tiling
+        body: Hello, our quote for the kitchen tiling is ${m0}, valid for two weeks.
         received: -1d 9:15
         unread: true
       - id: m-902
-        from: Skyline Movers <office@skyline.example.com>
-        subject: Quote for house move
-        body: Hello, our quote for the house move is ${m1}, valid for two weeks.
+        from: Hartwell Interiors <office@hartwell.example.com>
+        subject: Quote for kitchen tiling
+        body: Hello, our quote for the kitchen tiling is ${m1}, valid for two weeks.
         received: -1d 10:15
         unread: true
       contacts:
       - id: c-901
-        name: Ronan Brightwater
+        name: Soren Nakamura
         phone: +1 555 0194
-        email: ronan.brightwater@example.org
+        email: soren.nakamura@example.org
   expect:
   - parallel:
       same_step: true
@@ -290,7 +290,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Ronan
+        icontains: Soren
   final_state:
   - in: messages_sent
     where:
@@ -324,16 +324,16 @@
   - calls:
     - name: view_emails
       arguments:
-        query: Arden
+        query: Skyline
     - name: view_emails
       arguments:
-        query: Skyline
+        query: Hartwell
   - calls:
     - name: send_message
       arguments:
-        to: Ronan Brightwater
+        to: Soren Nakamura
         text: '{win} has the cheapest price.'
-  - text: 'I texted Ronan: {win} has the cheapest price.'
+  - text: 'I texted Soren: {win} has the cheapest price.'
   trap: texting a guessed or the wrong company (the cheapest one changes per trial) or naming several fails
   split: dev
 - id: mix_ast_quotes_004
@@ -341,8 +341,8 @@
   family: mixed
   sub: compare_then_text
   tags: []
-  prompt: Check the quotes for the roof repair from Kestrel Roofing, Moorfield Roofing, Brightline Roofers and Fernhill
-    Slating and text Uma just the name of the one with the lowest quote.
+  prompt: Check the quotes for the loft insulation from Fernhill Home, Kestrel Insulation, Moorfield Eco and Oakridge
+    Lofts and text Ines just the name of the one with the lowest quote.
   facts:
     m0:
       int:
@@ -371,16 +371,16 @@
       - m2
     win:
       argmin:
-        Kestrel: m0
-        Moorfield: m1
-        Brightline: m2
-        Fernhill: m3
+        Fernhill: m0
+        Kestrel: m1
+        Moorfield: m2
+        Oakridge: m3
     lose1:
       choice: &id002
+      - Fernhill
       - Kestrel
       - Moorfield
-      - Brightline
-      - Fernhill
+      - Oakridge
       exclude:
       - win
     lose2:
@@ -398,34 +398,34 @@
     seed_records:
       mail:
       - id: m-901
-        from: Kestrel Roofing <office@kestrel.example.com>
-        subject: Quote for roof repair
-        body: Hello, our quote for the roof repair is ${m0}, valid for two weeks.
+        from: Fernhill Home <office@fernhill.example.com>
+        subject: Quote for loft insulation
+        body: Hello, our quote for the loft insulation is ${m0}, valid for two weeks.
         received: -1d 9:15
         unread: true
       - id: m-902
-        from: Moorfield Roofing <office@moorfield.example.com>
-        subject: Quote for roof repair
-        body: Hello, our quote for the roof repair is ${m1}, valid for two weeks.
+        from: Kestrel Insulation <office@kestrel.example.com>
+        subject: Quote for loft insulation
+        body: Hello, our quote for the loft insulation is ${m1}, valid for two weeks.
         received: -1d 10:15
         unread: true
       - id: m-903
-        from: Brightline Roofers <office@brightline.example.com>
-        subject: Quote for roof repair
-        body: Hello, our quote for the roof repair is ${m2}, valid for two weeks.
+        from: Moorfield Eco <office@moorfield.example.com>
+        subject: Quote for loft insulation
+        body: Hello, our quote for the loft insulation is ${m2}, valid for two weeks.
         received: -1d 11:15
         unread: true
       - id: m-904
-        from: Fernhill Slating <office@fernhill.example.com>
-        subject: Quote for roof repair
-        body: Hello, our quote for the roof repair is ${m3}, valid for two weeks.
+        from: Oakridge Lofts <office@oakridge.example.com>
+        subject: Quote for loft insulation
+        body: Hello, our quote for the loft insulation is ${m3}, valid for two weeks.
         received: -1d 12:15
         unread: true
       contacts:
       - id: c-901
-        name: Uma Calloway
-        phone: +1 555 0191
-        email: uma.calloway@example.org
+        name: Ines Yilmaz
+        phone: +1 555 0199
+        email: ines.yilmaz@example.org
   expect:
   - parallel:
       same_step: true
@@ -437,7 +437,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Uma
+        icontains: Ines
   final_state:
   - in: messages_sent
     where:
@@ -473,22 +473,22 @@
   - calls:
     - name: view_emails
       arguments:
+        query: Fernhill
+    - name: view_emails
+      arguments:
         query: Kestrel
     - name: view_emails
       arguments:
         query: Moorfield
     - name: view_emails
       arguments:
-        query: Brightline
-    - name: view_emails
-      arguments:
-        query: Fernhill
+        query: Oakridge
   - calls:
     - name: send_message
       arguments:
-        to: Uma Calloway
+        to: Ines Yilmaz
         text: '{win} has the cheapest price.'
-  - text: 'I texted Uma: {win} has the cheapest price.'
+  - text: 'I texted Ines: {win} has the cheapest price.'
   trap: texting a guessed or the wrong company (the cheapest one changes per trial) or naming several fails
   split: dev
 - id: mix_ast_quotes_005
@@ -496,8 +496,8 @@
   family: mixed
   sub: compare_then_text
   tags: []
-  prompt: check the quotes for the loft insulation from kestrel insulation, moorfield eco and oakridge lofts and
-    text viggo just the name of the one with the lowest quote
+  prompt: Look at the quotes for the boiler service from Fernhill Boilers, Brightline Plumbing and Kestrel Gas,
+    then text Nadia which company is cheapest. Just the company name please.
   facts:
     m0:
       int:
@@ -518,14 +518,14 @@
       - m1
     win:
       argmin:
-        Kestrel: m0
-        Moorfield: m1
-        Oakridge: m2
+        Fernhill: m0
+        Brightline: m1
+        Kestrel: m2
     lose1:
       choice: &id003
+      - Fernhill
+      - Brightline
       - Kestrel
-      - Moorfield
-      - Oakridge
       exclude:
       - win
     lose2:
@@ -537,28 +537,28 @@
     seed_records:
       mail:
       - id: m-901
-        from: Kestrel Insulation <office@kestrel.example.com>
-        subject: Quote for loft insulation
-        body: Hello, our quote for the loft insulation is ${m0}, valid for two weeks.
+        from: Fernhill Boilers <office@fernhill.example.com>
+        subject: Quote for boiler service
+        body: Hello, our quote for the boiler service is ${m0}, valid for two weeks.
         received: -1d 9:15
         unread: true
       - id: m-902
-        from: Moorfield Eco <office@moorfield.example.com>
-        subject: Quote for loft insulation
-        body: Hello, our quote for the loft insulation is ${m1}, valid for two weeks.
+        from: Brightline Plumbing <office@brightline.example.com>
+        subject: Quote for boiler service
+        body: Hello, our quote for the boiler service is ${m1}, valid for two weeks.
         received: -1d 10:15
         unread: true
       - id: m-903
-        from: Oakridge Lofts <office@oakridge.example.com>
-        subject: Quote for loft insulation
-        body: Hello, our quote for the loft insulation is ${m2}, valid for two weeks.
+        from: Kestrel Gas <office@kestrel.example.com>
+        subject: Quote for boiler service
+        body: Hello, our quote for the boiler service is ${m2}, valid for two weeks.
         received: -1d 11:15
         unread: true
       contacts:
       - id: c-901
-        name: Viggo Valdivia
+        name: Nadia Achebe
         phone: +1 555 0197
-        email: viggo.valdivia@example.org
+        email: nadia.achebe@example.org
   expect:
   - parallel:
       same_step: true
@@ -569,7 +569,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Viggo
+        icontains: Nadia
   final_state:
   - in: messages_sent
     where:
@@ -604,19 +604,19 @@
   - calls:
     - name: view_emails
       arguments:
+        query: Fernhill
+    - name: view_emails
+      arguments:
+        query: Brightline
+    - name: view_emails
+      arguments:
         query: Kestrel
-    - name: view_emails
-      arguments:
-        query: Moorfield
-    - name: view_emails
-      arguments:
-        query: Oakridge
   - calls:
     - name: send_message
       arguments:
-        to: Viggo Valdivia
+        to: Nadia Achebe
         text: '{win} has the cheapest price.'
-  - text: 'I texted Viggo: {win} has the cheapest price.'
+  - text: 'I texted Nadia: {win} has the cheapest price.'
   trap: texting a guessed or the wrong company (the cheapest one changes per trial) or naming several fails
   split: dev
 - id: mix_ast_offers_001
@@ -625,8 +625,8 @@
   sub: compare_then_text
   tags:
   - core
-  prompt: look at the offers for my old bike from brightline buyback and copperleaf trade-in, then text rosa which
-    company is best. just the company name please
+  prompt: Look at the offers for my old sofa from Moorfield Furniture Buyback and Skyline Clearance, then text Farah
+    which company is best. Just the company name please.
   facts:
     m0:
       int:
@@ -640,34 +640,34 @@
       - m0
     win:
       argmax:
-        Brightline: m0
-        Copperleaf: m1
+        Moorfield: m0
+        Skyline: m1
     lose1:
       choice:
-      - Brightline
-      - Copperleaf
+      - Moorfield
+      - Skyline
       exclude:
       - win
   world:
     seed_records:
       mail:
       - id: m-901
-        from: Brightline Buyback <office@brightline.example.com>
-        subject: Our offer for your old bike
-        body: We would be glad to buy your old bike for ${m0}, collection included.
+        from: Moorfield Furniture Buyback <office@moorfield.example.com>
+        subject: Our offer for your old sofa
+        body: We would be glad to buy your old sofa for ${m0}, collection included.
         received: -1d 9:15
         unread: true
       - id: m-902
-        from: Copperleaf Trade-In <office@copperleaf.example.com>
-        subject: Our offer for your old bike
-        body: We would be glad to buy your old bike for ${m1}, collection included.
+        from: Skyline Clearance <office@skyline.example.com>
+        subject: Our offer for your old sofa
+        body: We would be glad to buy your old sofa for ${m1}, collection included.
         received: -1d 10:15
         unread: true
       contacts:
       - id: c-901
-        name: Rosa Brightwater
-        phone: +1 555 0192
-        email: rosa.brightwater@example.org
+        name: Farah Yilmaz
+        phone: +1 555 0194
+        email: farah.yilmaz@example.org
   expect:
   - parallel:
       same_step: true
@@ -677,7 +677,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Rosa
+        icontains: Farah
   final_state:
   - in: messages_sent
     where:
@@ -711,16 +711,16 @@
   - calls:
     - name: view_emails
       arguments:
-        query: Brightline
+        query: Moorfield
     - name: view_emails
       arguments:
-        query: Copperleaf
+        query: Skyline
   - calls:
     - name: send_message
       arguments:
-        to: Rosa Brightwater
+        to: Farah Yilmaz
         text: '{win} has the best price.'
-  - text: 'I texted Rosa: {win} has the best price.'
+  - text: 'I texted Farah: {win} has the best price.'
   trap: texting a guessed or the wrong company (the best one changes per trial) or naming several fails
   split: dev
 - id: mix_ast_offers_002
@@ -728,8 +728,8 @@
   family: mixed
   sub: compare_then_text
   tags: []
-  prompt: look at the offers for my old laptop from hartwell digital and copperleaf tech buyback, then text ronan
-    which company is best. just the company name please
+  prompt: Look at the offers for my old bike from Kestrel Exchange and Hartwell Resale, then text Ingrid which company
+    is best. Just the company name please.
   facts:
     m0:
       int:
@@ -743,34 +743,34 @@
       - m0
     win:
       argmax:
-        Hartwell: m0
-        Copperleaf: m1
+        Kestrel: m0
+        Hartwell: m1
     lose1:
       choice:
+      - Kestrel
       - Hartwell
-      - Copperleaf
       exclude:
       - win
   world:
     seed_records:
       mail:
       - id: m-901
-        from: Hartwell Digital <office@hartwell.example.com>
-        subject: Our offer for your old laptop
-        body: We would be glad to buy your old laptop for ${m0}, collection included.
+        from: Kestrel Exchange <office@kestrel.example.com>
+        subject: Our offer for your old bike
+        body: We would be glad to buy your old bike for ${m0}, collection included.
         received: -1d 9:15
         unread: true
       - id: m-902
-        from: Copperleaf Tech Buyback <office@copperleaf.example.com>
-        subject: Our offer for your old laptop
-        body: We would be glad to buy your old laptop for ${m1}, collection included.
+        from: Hartwell Resale <office@hartwell.example.com>
+        subject: Our offer for your old bike
+        body: We would be glad to buy your old bike for ${m1}, collection included.
         received: -1d 10:15
         unread: true
       contacts:
       - id: c-901
-        name: Ronan Lacroix
-        phone: +1 555 0194
-        email: ronan.lacroix@example.org
+        name: Ingrid Ishikawa
+        phone: +1 555 0197
+        email: ingrid.ishikawa@example.org
   expect:
   - parallel:
       same_step: true
@@ -780,7 +780,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Ronan
+        icontains: Ingrid
   final_state:
   - in: messages_sent
     where:
@@ -814,16 +814,16 @@
   - calls:
     - name: view_emails
       arguments:
-        query: Hartwell
+        query: Kestrel
     - name: view_emails
       arguments:
-        query: Copperleaf
+        query: Hartwell
   - calls:
     - name: send_message
       arguments:
-        to: Ronan Lacroix
+        to: Ingrid Ishikawa
         text: '{win} has the best price.'
-  - text: 'I texted Ronan: {win} has the best price.'
+  - text: 'I texted Ingrid: {win} has the best price.'
   trap: texting a guessed or the wrong company (the best one changes per trial) or naming several fails
   split: dev
 - id: mix_ast_offers_003
@@ -832,8 +832,8 @@
   sub: compare_then_text
   tags:
   - core
-  prompt: look at the offers for my old sofa from skyline clearance, arden resale and fernhill trade-in, then text
-    niko which company is best. just the company name please
+  prompt: check the offers for my old sofa from fernhill trade-in, arden resale and moorfield furniture buyback
+    and text lior just the name of the one with the highest offer
   facts:
     m0:
       int:
@@ -854,14 +854,14 @@
       - m1
     win:
       argmax:
-        Skyline: m0
+        Fernhill: m0
         Arden: m1
-        Fernhill: m2
+        Moorfield: m2
     lose1:
       choice: &id004
-      - Skyline
-      - Arden
       - Fernhill
+      - Arden
+      - Moorfield
       exclude:
       - win
     lose2:
@@ -873,7 +873,7 @@
     seed_records:
       mail:
       - id: m-901
-        from: Skyline Clearance <office@skyline.example.com>
+        from: Fernhill Trade-In <office@fernhill.example.com>
         subject: Our offer for your old sofa
         body: We would be glad to buy your old sofa for ${m0}, collection included.
         received: -1d 9:15
@@ -885,16 +885,16 @@
         received: -1d 10:15
         unread: true
       - id: m-903
-        from: Fernhill Trade-In <office@fernhill.example.com>
+        from: Moorfield Furniture Buyback <office@moorfield.example.com>
         subject: Our offer for your old sofa
         body: We would be glad to buy your old sofa for ${m2}, collection included.
         received: -1d 11:15
         unread: true
       contacts:
       - id: c-901
-        name: Niko Rasmussen
-        phone: +1 555 0198
-        email: niko.rasmussen@example.org
+        name: Lior Byrne
+        phone: +1 555 0191
+        email: lior.byrne@example.org
   expect:
   - parallel:
       same_step: true
@@ -905,7 +905,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Niko
+        icontains: Lior
   final_state:
   - in: messages_sent
     where:
@@ -940,19 +940,19 @@
   - calls:
     - name: view_emails
       arguments:
-        query: Skyline
+        query: Fernhill
     - name: view_emails
       arguments:
         query: Arden
     - name: view_emails
       arguments:
-        query: Fernhill
+        query: Moorfield
   - calls:
     - name: send_message
       arguments:
-        to: Niko Rasmussen
+        to: Lior Byrne
         text: '{win} has the best price.'
-  - text: 'I texted Niko: {win} has the best price.'
+  - text: 'I texted Lior: {win} has the best price.'
   trap: texting a guessed or the wrong company (the best one changes per trial) or naming several fails
   split: dev
 - id: mix_ast_far_001
@@ -961,8 +961,8 @@
   sub: pick_then_text
   tags:
   - core
-  prompt: 'See how far away Pavel and Oskar say they are and text whoever is furthest away this: We''ll save you
-    a plate.'
+  prompt: 'Check what Aiko and Dmitri each said about how far away they are, then text whoever is furthest away:
+    We''ll save you a plate.'
   facts:
     s0:
       int:
@@ -976,40 +976,40 @@
       - s0
     win_name:
       argmax:
-        Pavel Lacroix: s0
-        Oskar Okafor: s1
+        Aiko Lacroix: s0
+        Dmitri Wexford: s1
     win_id:
       argmax:
         c-901: s0
         c-902: s1
     win_first:
       argmax:
-        Pavel: s0
-        Oskar: s1
+        Aiko: s0
+        Dmitri: s1
   world:
     seed_records:
       messages:
       - id: ms-901
-        thread: Pavel Lacroix
-        from: Pavel Lacroix
+        thread: Aiko Lacroix
+        from: Aiko Lacroix
         text: I'm about {s0} minutes away.
         received: -2h
         unread: true
       - id: ms-902
-        thread: Oskar Okafor
-        from: Oskar Okafor
+        thread: Dmitri Wexford
+        from: Dmitri Wexford
         text: I'm about {s1} minutes away.
         received: -3h
         unread: true
       contacts:
       - id: c-901
-        name: Pavel Lacroix
-        phone: +1 555 0196
-        email: pavel.lacroix@example.org
+        name: Aiko Lacroix
+        phone: +1 555 0193
+        email: aiko.lacroix@example.org
       - id: c-902
-        name: Oskar Okafor
-        phone: +1 555 0194
-        email: oskar.okafor@example.org
+        name: Dmitri Wexford
+        phone: +1 555 0197
+        email: dmitri.wexford@example.org
   expect:
   - parallel:
       same_step: true
@@ -1020,8 +1020,8 @@
     args:
       to:
         contains_any:
-        - Pavel
-        - Oskar
+        - Aiko
+        - Dmitri
   final_state:
   - in: messages_sent
     where:
@@ -1051,10 +1051,10 @@
   - calls:
     - name: view_messages
       arguments:
-        conversation: Pavel
+        conversation: Aiko
     - name: view_messages
       arguments:
-        conversation: Oskar
+        conversation: Dmitri
   - calls:
     - name: send_message
       arguments:
@@ -1068,8 +1068,8 @@
   family: mixed
   sub: pick_then_text
   tags: []
-  prompt: 'Check what Odette, Zara and Nuno each said about how far away they are, then text whoever is furthest
-    away: We''ll save you a plate.'
+  prompt: 'See how far away Oskar, Ximena and Selin say they are and text whoever is furthest away this: We''ll
+    save you a plate.'
   facts:
     s0:
       int:
@@ -1090,9 +1090,9 @@
       - s1
     win_name:
       argmax:
-        Odette Petrov: s0
-        Zara Rasmussen: s1
-        Nuno Yilmaz: s2
+        Oskar Zeller: s0
+        Ximena Varga: s1
+        Selin Ostrander: s2
     win_id:
       argmax:
         c-901: s0
@@ -1100,43 +1100,43 @@
         c-903: s2
     win_first:
       argmax:
-        Odette: s0
-        Zara: s1
-        Nuno: s2
+        Oskar: s0
+        Ximena: s1
+        Selin: s2
   world:
     seed_records:
       messages:
       - id: ms-901
-        thread: Odette Petrov
-        from: Odette Petrov
+        thread: Oskar Zeller
+        from: Oskar Zeller
         text: I'm about {s0} minutes away.
         received: -2h
         unread: true
       - id: ms-902
-        thread: Zara Rasmussen
-        from: Zara Rasmussen
+        thread: Ximena Varga
+        from: Ximena Varga
         text: I'm about {s1} minutes away.
         received: -3h
         unread: true
       - id: ms-903
-        thread: Nuno Yilmaz
-        from: Nuno Yilmaz
+        thread: Selin Ostrander
+        from: Selin Ostrander
         text: I'm about {s2} minutes away.
         received: -4h
         unread: true
       contacts:
       - id: c-901
-        name: Odette Petrov
-        phone: +1 555 0195
-        email: odette.petrov@example.org
+        name: Oskar Zeller
+        phone: +1 555 0192
+        email: oskar.zeller@example.org
       - id: c-902
-        name: Zara Rasmussen
-        phone: +1 555 0197
-        email: zara.rasmussen@example.org
+        name: Ximena Varga
+        phone: +1 555 0193
+        email: ximena.varga@example.org
       - id: c-903
-        name: Nuno Yilmaz
+        name: Selin Ostrander
         phone: +1 555 0191
-        email: nuno.yilmaz@example.org
+        email: selin.ostrander@example.org
   expect:
   - parallel:
       same_step: true
@@ -1148,9 +1148,9 @@
     args:
       to:
         contains_any:
-        - Odette
-        - Zara
-        - Nuno
+        - Oskar
+        - Ximena
+        - Selin
   final_state:
   - in: messages_sent
     where:
@@ -1180,13 +1180,13 @@
   - calls:
     - name: view_messages
       arguments:
-        conversation: Odette
+        conversation: Oskar
     - name: view_messages
       arguments:
-        conversation: Zara
+        conversation: Ximena
     - name: view_messages
       arguments:
-        conversation: Nuno
+        conversation: Selin
   - calls:
     - name: send_message
       arguments:
@@ -1201,8 +1201,8 @@
   sub: pick_then_text
   tags:
   - core
-  prompt: 'check what oskar and mei each said about how far away they are, then text whoever is furthest away: we''ll
-    save you a plate'
+  prompt: 'check what cyrus and gideon each said about how far away they are, then text whoever is furthest away:
+    we''ll save you a plate'
   facts:
     s0:
       int:
@@ -1216,40 +1216,40 @@
       - s0
     win_name:
       argmax:
-        Oskar Ostrander: s0
-        Mei Castillo: s1
+        Cyrus Achebe: s0
+        Gideon Underhill: s1
     win_id:
       argmax:
         c-901: s0
         c-902: s1
     win_first:
       argmax:
-        Oskar: s0
-        Mei: s1
+        Cyrus: s0
+        Gideon: s1
   world:
     seed_records:
       messages:
       - id: ms-901
-        thread: Oskar Ostrander
-        from: Oskar Ostrander
+        thread: Cyrus Achebe
+        from: Cyrus Achebe
         text: I'm about {s0} minutes away.
         received: -2h
         unread: true
       - id: ms-902
-        thread: Mei Castillo
-        from: Mei Castillo
+        thread: Gideon Underhill
+        from: Gideon Underhill
         text: I'm about {s1} minutes away.
         received: -3h
         unread: true
       contacts:
       - id: c-901
-        name: Oskar Ostrander
-        phone: +1 555 0193
-        email: oskar.ostrander@example.org
+        name: Cyrus Achebe
+        phone: +1 555 0198
+        email: cyrus.achebe@example.org
       - id: c-902
-        name: Mei Castillo
-        phone: +1 555 0199
-        email: mei.castillo@example.org
+        name: Gideon Underhill
+        phone: +1 555 0191
+        email: gideon.underhill@example.org
   expect:
   - parallel:
       same_step: true
@@ -1260,8 +1260,8 @@
     args:
       to:
         contains_any:
-        - Oskar
-        - Mei
+        - Cyrus
+        - Gideon
   final_state:
   - in: messages_sent
     where:
@@ -1291,10 +1291,10 @@
   - calls:
     - name: view_messages
       arguments:
-        conversation: Oskar
+        conversation: Cyrus
     - name: view_messages
       arguments:
-        conversation: Mei
+        conversation: Gideon
   - calls:
     - name: send_message
       arguments:
@@ -1308,8 +1308,8 @@
   family: mixed
   sub: pick_then_text
   tags: []
-  prompt: 'check what wendell and teodor each said about how far away they are, then text whoever is closest: come
-    on up, the door is open'
+  prompt: 'Check what Anouk and Leila each said about how far away they are, then text whoever is closest: Come
+    on up, the door is open.'
   facts:
     s0:
       int:
@@ -1323,40 +1323,40 @@
       - s0
     win_name:
       argmin:
-        Wendell Thackeray: s0
-        Teodor Jessup: s1
+        Anouk Novak: s0
+        Leila Pemberton: s1
     win_id:
       argmin:
         c-901: s0
         c-902: s1
     win_first:
       argmin:
-        Wendell: s0
-        Teodor: s1
+        Anouk: s0
+        Leila: s1
   world:
     seed_records:
       messages:
       - id: ms-901
-        thread: Wendell Thackeray
-        from: Wendell Thackeray
+        thread: Anouk Novak
+        from: Anouk Novak
         text: I'm about {s0} minutes away.
         received: -2h
         unread: true
       - id: ms-902
-        thread: Teodor Jessup
-        from: Teodor Jessup
+        thread: Leila Pemberton
+        from: Leila Pemberton
         text: I'm about {s1} minutes away.
         received: -3h
         unread: true
       contacts:
       - id: c-901
-        name: Wendell Thackeray
-        phone: +1 555 0192
-        email: wendell.thackeray@example.org
+        name: Anouk Novak
+        phone: +1 555 0197
+        email: anouk.novak@example.org
       - id: c-902
-        name: Teodor Jessup
-        phone: +1 555 0196
-        email: teodor.jessup@example.org
+        name: Leila Pemberton
+        phone: +1 555 0193
+        email: leila.pemberton@example.org
   expect:
   - parallel:
       same_step: true
@@ -1367,8 +1367,8 @@
     args:
       to:
         contains_any:
-        - Wendell
-        - Teodor
+        - Anouk
+        - Leila
   final_state:
   - in: messages_sent
     where:
@@ -1398,10 +1398,10 @@
   - calls:
     - name: view_messages
       arguments:
-        conversation: Wendell
+        conversation: Anouk
     - name: view_messages
       arguments:
-        conversation: Teodor
+        conversation: Leila
   - calls:
     - name: send_message
       arguments:
@@ -1415,8 +1415,8 @@
   family: mixed
   sub: pick_then_text
   tags: []
-  prompt: 'Check what Kalani, Marisol and Rafael each said about how far away they are, then text whoever is closest:
-    Come on up, the door is open.'
+  prompt: 'See how far away Kalani, Zara and Bastian say they are and text whoever is closest this: Come on up,
+    the door is open.'
   facts:
     s0:
       int:
@@ -1437,9 +1437,9 @@
       - s1
     win_name:
       argmin:
-        Kalani Rasmussen: s0
-        Marisol Okafor: s1
-        Rafael Kerrigan: s2
+        Kalani Brightwater: s0
+        Zara Achebe: s1
+        Bastian Kowalski: s2
     win_id:
       argmin:
         c-901: s0
@@ -1448,42 +1448,42 @@
     win_first:
       argmin:
         Kalani: s0
-        Marisol: s1
-        Rafael: s2
+        Zara: s1
+        Bastian: s2
   world:
     seed_records:
       messages:
       - id: ms-901
-        thread: Kalani Rasmussen
-        from: Kalani Rasmussen
+        thread: Kalani Brightwater
+        from: Kalani Brightwater
         text: I'm about {s0} minutes away.
         received: -2h
         unread: true
       - id: ms-902
-        thread: Marisol Okafor
-        from: Marisol Okafor
+        thread: Zara Achebe
+        from: Zara Achebe
         text: I'm about {s1} minutes away.
         received: -3h
         unread: true
       - id: ms-903
-        thread: Rafael Kerrigan
-        from: Rafael Kerrigan
+        thread: Bastian Kowalski
+        from: Bastian Kowalski
         text: I'm about {s2} minutes away.
         received: -4h
         unread: true
       contacts:
       - id: c-901
-        name: Kalani Rasmussen
+        name: Kalani Brightwater
         phone: +1 555 0191
-        email: kalani.rasmussen@example.org
+        email: kalani.brightwater@example.org
       - id: c-902
-        name: Marisol Okafor
-        phone: +1 555 0198
-        email: marisol.okafor@example.org
+        name: Zara Achebe
+        phone: +1 555 0196
+        email: zara.achebe@example.org
       - id: c-903
-        name: Rafael Kerrigan
-        phone: +1 555 0193
-        email: rafael.kerrigan@example.org
+        name: Bastian Kowalski
+        phone: +1 555 0192
+        email: bastian.kowalski@example.org
   expect:
   - parallel:
       same_step: true
@@ -1496,8 +1496,8 @@
       to:
         contains_any:
         - Kalani
-        - Marisol
-        - Rafael
+        - Zara
+        - Bastian
   final_state:
   - in: messages_sent
     where:
@@ -1530,10 +1530,10 @@
         conversation: Kalani
     - name: view_messages
       arguments:
-        conversation: Marisol
+        conversation: Zara
     - name: view_messages
       arguments:
-        conversation: Rafael
+        conversation: Bastian
   - calls:
     - name: send_message
       arguments:
@@ -1548,8 +1548,8 @@
   sub: pick_then_text
   tags:
   - core
-  prompt: 'check what joaquin and yusuf each said about how far away they are, then text whoever is closest: come
-    on up, the door is open'
+  prompt: 'See how far away Jasper and Joaquin say they are and text whoever is closest this: Come on up, the door
+    is open.'
   facts:
     s0:
       int:
@@ -1563,40 +1563,40 @@
       - s0
     win_name:
       argmin:
-        Joaquin Varga: s0
-        Yusuf Tanaka: s1
+        Jasper Calloway: s0
+        Joaquin Thackeray: s1
     win_id:
       argmin:
         c-901: s0
         c-902: s1
     win_first:
       argmin:
-        Joaquin: s0
-        Yusuf: s1
+        Jasper: s0
+        Joaquin: s1
   world:
     seed_records:
       messages:
       - id: ms-901
-        thread: Joaquin Varga
-        from: Joaquin Varga
+        thread: Jasper Calloway
+        from: Jasper Calloway
         text: I'm about {s0} minutes away.
         received: -2h
         unread: true
       - id: ms-902
-        thread: Yusuf Tanaka
-        from: Yusuf Tanaka
+        thread: Joaquin Thackeray
+        from: Joaquin Thackeray
         text: I'm about {s1} minutes away.
         received: -3h
         unread: true
       contacts:
       - id: c-901
-        name: Joaquin Varga
-        phone: +1 555 0191
-        email: joaquin.varga@example.org
+        name: Jasper Calloway
+        phone: +1 555 0192
+        email: jasper.calloway@example.org
       - id: c-902
-        name: Yusuf Tanaka
-        phone: +1 555 0196
-        email: yusuf.tanaka@example.org
+        name: Joaquin Thackeray
+        phone: +1 555 0197
+        email: joaquin.thackeray@example.org
   expect:
   - parallel:
       same_step: true
@@ -1607,8 +1607,8 @@
     args:
       to:
         contains_any:
+        - Jasper
         - Joaquin
-        - Yusuf
   final_state:
   - in: messages_sent
     where:
@@ -1638,10 +1638,10 @@
   - calls:
     - name: view_messages
       arguments:
-        conversation: Joaquin
+        conversation: Jasper
     - name: view_messages
       arguments:
-        conversation: Yusuf
+        conversation: Joaquin
   - calls:
     - name: send_message
       arguments:
@@ -1651,169 +1651,6 @@
   trap: texting everyone, or the wrong friend (the furthest one changes per trial), fails
   split: dev
 - id: mix_ast_event_email_001
-  lane: assistant
-  family: mixed
-  sub: read_then_remind
-  tags:
-  - core
-  prompt: check when my physio appointment is and what reference northgate library sent, then remind me an hour
-    before the physio appointment, with the reference in the reminder
-  facts:
-    e0:
-      int:
-      - 1
-      - 6
-    e0h:
-      add:
-      - e0
-      - 12
-    m1:
-      code: '@@####'
-    e0hm:
-      add:
-      - e0h
-      - -1
-  world:
-    seed_records:
-      calendar:
-      - id: ev-901
-        title: Physio appointment at Juniper Hall
-        start: +2d {e0h}:00
-      mail:
-      - id: m-901
-        from: Northgate Library <office@northgate.example.com>
-        subject: Booking confirmed
-        body: Your booking is confirmed. Your reference is {m1}.
-        received: -1d 10:15
-        unread: true
-  expect:
-  - parallel:
-      same_step: true
-      steps:
-      - tool: get_upcoming
-      - tool: view_emails
-  - tool: add_reminder
-    args:
-      title:
-        icontains: '{m1}'
-  final_state:
-  - in: reminders
-    where:
-      title:
-        icontains: '{m1}'
-    expect:
-      count: 1
-      due: +2d {e0hm}:00
-  forbid:
-  - add_calendar_event
-  - clear_reminders
-  - cancel_event
-  unchanged:
-  - calendar
-  - notes
-  - messages_sent
-  - mail_sent
-  optimal:
-    calls: 3
-    steps: 3
-  oracle:
-  - calls:
-    - name: get_upcoming
-      arguments:
-        days: 7
-    - name: view_emails
-      arguments:
-        query: Northgate
-  - calls:
-    - name: add_reminder
-      arguments:
-        title: Bring ref {m1} to physio appointment
-        when_iso: +2d {e0hm}:00
-  - text: 'Done: a reminder at {e0hm}:00 to bring ref {m1}.'
-  trap: 'the reminder time follows the event hour and the title the emailed reference: both change per trial'
-  split: dev
-- id: mix_ast_event_email_002
-  lane: assistant
-  family: mixed
-  sub: read_then_remind
-  tags: []
-  prompt: Check when my tennis game is and what reference Lantern Bistro sent, then remind me an hour before the
-    tennis game, with the reference in the reminder.
-  facts:
-    e0:
-      int:
-      - 1
-      - 6
-    e0h:
-      add:
-      - e0
-      - 12
-    m1:
-      code: '@@####'
-    e0hm:
-      add:
-      - e0h
-      - -1
-  world:
-    seed_records:
-      calendar:
-      - id: ev-901
-        title: Tennis game at Skyline Air
-        start: +2d {e0h}:00
-      mail:
-      - id: m-901
-        from: Lantern Bistro <office@lantern.example.com>
-        subject: Booking confirmed
-        body: Your booking is confirmed. Your reference is {m1}.
-        received: -1d 10:15
-        unread: true
-  expect:
-  - parallel:
-      same_step: true
-      steps:
-      - tool: get_upcoming
-      - tool: view_emails
-  - tool: add_reminder
-    args:
-      title:
-        icontains: '{m1}'
-  final_state:
-  - in: reminders
-    where:
-      title:
-        icontains: '{m1}'
-    expect:
-      count: 1
-      due: +2d {e0hm}:00
-  forbid:
-  - add_calendar_event
-  - clear_reminders
-  - cancel_event
-  unchanged:
-  - calendar
-  - notes
-  - messages_sent
-  - mail_sent
-  optimal:
-    calls: 3
-    steps: 3
-  oracle:
-  - calls:
-    - name: get_upcoming
-      arguments:
-        days: 7
-    - name: view_emails
-      arguments:
-        query: Lantern
-  - calls:
-    - name: add_reminder
-      arguments:
-        title: Bring ref {m1} to tennis game
-        when_iso: +2d {e0hm}:00
-  - text: 'Done: a reminder at {e0hm}:00 to bring ref {m1}.'
-  trap: 'the reminder time follows the event hour and the title the emailed reference: both change per trial'
-  split: dev
-- id: mix_ast_event_email_003
   lane: assistant
   family: mixed
   sub: read_then_remind
@@ -1895,7 +1732,7 @@
   - text: 'Done: a reminder at {e0hm}:00 to bring ref {m1}.'
   trap: 'the reminder time follows the event hour and the title the emailed reference: both change per trial'
   split: dev
-- id: mix_ast_event_email_004
+- id: mix_ast_event_email_002
   lane: assistant
   family: mixed
   sub: read_then_remind
@@ -1976,11 +1813,12 @@
   - text: 'Done: a reminder at {e0hm}:00 to bring ref {m1}.'
   trap: 'the reminder time follows the event hour and the title the emailed reference: both change per trial'
   split: dev
-- id: mix_ast_event_email_005
+- id: mix_ast_event_email_003
   lane: assistant
   family: mixed
   sub: read_then_remind
-  tags: []
+  tags:
+  - core
   prompt: Check when my piano lesson is and what reference Northgate Library sent, then remind me an hour before
     the piano lesson, with the reference in the reminder.
   facts:
@@ -2057,13 +1895,175 @@
   - text: 'Done: a reminder at {e0hm}:00 to bring ref {m1}.'
   trap: 'the reminder time follows the event hour and the title the emailed reference: both change per trial'
   split: dev
+- id: mix_ast_event_email_004
+  lane: assistant
+  family: mixed
+  sub: read_then_remind
+  tags: []
+  prompt: Check when my tennis game is and what reference Lantern Bistro sent, then remind me an hour before the
+    tennis game, with the reference in the reminder.
+  facts:
+    e0:
+      int:
+      - 1
+      - 6
+    e0h:
+      add:
+      - e0
+      - 12
+    m1:
+      code: '@@####'
+    e0hm:
+      add:
+      - e0h
+      - -1
+  world:
+    seed_records:
+      calendar:
+      - id: ev-901
+        title: Tennis game at Skyline Air
+        start: +2d {e0h}:00
+      mail:
+      - id: m-901
+        from: Lantern Bistro <office@lantern.example.com>
+        subject: Booking confirmed
+        body: Your booking is confirmed. Your reference is {m1}.
+        received: -1d 10:15
+        unread: true
+  expect:
+  - parallel:
+      same_step: true
+      steps:
+      - tool: get_upcoming
+      - tool: view_emails
+  - tool: add_reminder
+    args:
+      title:
+        icontains: '{m1}'
+  final_state:
+  - in: reminders
+    where:
+      title:
+        icontains: '{m1}'
+    expect:
+      count: 1
+      due: +2d {e0hm}:00
+  forbid:
+  - add_calendar_event
+  - clear_reminders
+  - cancel_event
+  unchanged:
+  - calendar
+  - notes
+  - messages_sent
+  - mail_sent
+  optimal:
+    calls: 3
+    steps: 3
+  oracle:
+  - calls:
+    - name: get_upcoming
+      arguments:
+        days: 7
+    - name: view_emails
+      arguments:
+        query: Lantern
+  - calls:
+    - name: add_reminder
+      arguments:
+        title: Bring ref {m1} to tennis game
+        when_iso: +2d {e0hm}:00
+  - text: 'Done: a reminder at {e0hm}:00 to bring ref {m1}.'
+  trap: 'the reminder time follows the event hour and the title the emailed reference: both change per trial'
+  split: dev
+- id: mix_ast_event_email_005
+  lane: assistant
+  family: mixed
+  sub: read_then_remind
+  tags: []
+  prompt: Look at my physio appointment on the calendar and Lantern Bistro's booking email, then set a reminder
+    an hour before the physio appointment with the booking reference in the title.
+  facts:
+    e0:
+      int:
+      - 1
+      - 6
+    e0h:
+      add:
+      - e0
+      - 12
+    m1:
+      code: '@@####'
+    e0hm:
+      add:
+      - e0h
+      - -1
+  world:
+    seed_records:
+      calendar:
+      - id: ev-901
+        title: Physio appointment at Harbourside Gym
+        start: +2d {e0h}:00
+      mail:
+      - id: m-901
+        from: Lantern Bistro <office@lantern.example.com>
+        subject: Booking confirmed
+        body: Your booking is confirmed. Your reference is {m1}.
+        received: -1d 10:15
+        unread: true
+  expect:
+  - parallel:
+      same_step: true
+      steps:
+      - tool: get_upcoming
+      - tool: view_emails
+  - tool: add_reminder
+    args:
+      title:
+        icontains: '{m1}'
+  final_state:
+  - in: reminders
+    where:
+      title:
+        icontains: '{m1}'
+    expect:
+      count: 1
+      due: +2d {e0hm}:00
+  forbid:
+  - add_calendar_event
+  - clear_reminders
+  - cancel_event
+  unchanged:
+  - calendar
+  - notes
+  - messages_sent
+  - mail_sent
+  optimal:
+    calls: 3
+    steps: 3
+  oracle:
+  - calls:
+    - name: get_upcoming
+      arguments:
+        days: 7
+    - name: view_emails
+      arguments:
+        query: Lantern
+  - calls:
+    - name: add_reminder
+      arguments:
+        title: Bring ref {m1} to physio appointment
+        when_iso: +2d {e0hm}:00
+  - text: 'Done: a reminder at {e0hm}:00 to bring ref {m1}.'
+  trap: 'the reminder time follows the event hour and the title the emailed reference: both change per trial'
+  split: dev
 - id: mix_ast_phones_001
   lane: assistant
   family: mixed
   sub: lookup_then_text
   tags:
   - core
-  prompt: Text Nadia the phone numbers for Bastian and Ilse.
+  prompt: look up ines and anouk and send their numbers to pavel by text
   facts:
     p0:
       int:
@@ -2077,410 +2077,17 @@
     seed_records:
       contacts:
       - id: c-901
-        name: Bastian Ostrander
+        name: Ines Ellery
         phone: +1 555 01{p0}
-        email: bastian.ostrander@example.org
+        email: ines.ellery@example.org
       - id: c-902
-        name: Ilse Yilmaz
+        name: Anouk Byrne
         phone: +1 555 01{p1}
-        email: ilse.yilmaz@example.org
+        email: anouk.byrne@example.org
       - id: c-903
-        name: Nadia Dunmore
-        phone: +1 555 0191
-        email: nadia.dunmore@example.org
-  expect:
-  - parallel:
-      same_step: true
-      steps:
-      - tool: lookup_contact
-        args:
-          name:
-            icontains: Bastian
-      - tool: lookup_contact
-        args:
-          name:
-            icontains: Ilse
-  - tool: send_message
-    args:
-      to:
-        icontains: Nadia
-  final_state:
-  - in: messages_sent
-    where:
-      contact_ids:
-        icontains: c-903
-    expect:
-      count: 1
-      text:
-        contains_all:
-        - 01{p0}
-        - 01{p1}
-  - in: messages_sent
-    expect:
-      count: 1
-  forbid:
-  - send_email
-  - schedule_send
-  - add_reminder
-  unchanged:
-  - reminders
-  - calendar
-  - notes
-  - mail_sent
-  intended_recipients:
-  - c-903
-  optimal:
-    calls: 3
-    steps: 3
-  oracle:
-  - calls:
-    - name: lookup_contact
-      arguments:
-        name: Bastian
-    - name: lookup_contact
-      arguments:
-        name: Ilse
-  - calls:
-    - name: send_message
-      arguments:
-        to: Nadia Dunmore
-        text: Bastian +1 555 01{p0}; Ilse +1 555 01{p1}
-  - text: I texted Nadia the numbers.
-  trap: the text must carry each looked-up number (they change per trial); a guess or a partial list fails
-  split: dev
-- id: mix_ast_phones_002
-  lane: assistant
-  family: mixed
-  sub: lookup_then_text
-  tags: []
-  prompt: look up uma, marisol and emeka and send their numbers to fiona by text
-  facts:
-    p0:
-      int:
-      - 10
-      - 29
-    p1:
-      int:
-      - 30
-      - 49
-    p2:
-      int:
-      - 50
-      - 69
-  world:
-    seed_records:
-      contacts:
-      - id: c-901
-        name: Uma Castillo
-        phone: +1 555 01{p0}
-        email: uma.castillo@example.org
-      - id: c-902
-        name: Marisol Quintero
-        phone: +1 555 01{p1}
-        email: marisol.quintero@example.org
-      - id: c-903
-        name: Emeka Kowalski
-        phone: +1 555 01{p2}
-        email: emeka.kowalski@example.org
-      - id: c-904
-        name: Fiona Lindqvist
-        phone: +1 555 0193
-        email: fiona.lindqvist@example.org
-  expect:
-  - parallel:
-      same_step: true
-      steps:
-      - tool: lookup_contact
-        args:
-          name:
-            icontains: Uma
-      - tool: lookup_contact
-        args:
-          name:
-            icontains: Marisol
-      - tool: lookup_contact
-        args:
-          name:
-            icontains: Emeka
-  - tool: send_message
-    args:
-      to:
-        icontains: Fiona
-  final_state:
-  - in: messages_sent
-    where:
-      contact_ids:
-        icontains: c-904
-    expect:
-      count: 1
-      text:
-        contains_all:
-        - 01{p0}
-        - 01{p1}
-        - 01{p2}
-  - in: messages_sent
-    expect:
-      count: 1
-  forbid:
-  - send_email
-  - schedule_send
-  - add_reminder
-  unchanged:
-  - reminders
-  - calendar
-  - notes
-  - mail_sent
-  intended_recipients:
-  - c-904
-  optimal:
-    calls: 4
-    steps: 3
-  oracle:
-  - calls:
-    - name: lookup_contact
-      arguments:
-        name: Uma
-    - name: lookup_contact
-      arguments:
-        name: Marisol
-    - name: lookup_contact
-      arguments:
-        name: Emeka
-  - calls:
-    - name: send_message
-      arguments:
-        to: Fiona Lindqvist
-        text: Uma +1 555 01{p0}; Marisol +1 555 01{p1}; Emeka +1 555 01{p2}
-  - text: I texted Fiona the numbers.
-  trap: the text must carry each looked-up number (they change per trial); a guess or a partial list fails
-  split: dev
-- id: mix_ast_phones_003
-  lane: assistant
-  family: mixed
-  sub: lookup_then_text
-  tags:
-  - core
-  prompt: Look up Orla and Mei and send their numbers to Rosa by text.
-  facts:
-    p0:
-      int:
-      - 10
-      - 29
-    p1:
-      int:
-      - 30
-      - 49
-  world:
-    seed_records:
-      contacts:
-      - id: c-901
-        name: Orla Castillo
-        phone: +1 555 01{p0}
-        email: orla.castillo@example.org
-      - id: c-902
-        name: Mei Haddad
-        phone: +1 555 01{p1}
-        email: mei.haddad@example.org
-      - id: c-903
-        name: Rosa Ellery
-        phone: +1 555 0191
-        email: rosa.ellery@example.org
-  expect:
-  - parallel:
-      same_step: true
-      steps:
-      - tool: lookup_contact
-        args:
-          name:
-            icontains: Orla
-      - tool: lookup_contact
-        args:
-          name:
-            icontains: Mei
-  - tool: send_message
-    args:
-      to:
-        icontains: Rosa
-  final_state:
-  - in: messages_sent
-    where:
-      contact_ids:
-        icontains: c-903
-    expect:
-      count: 1
-      text:
-        contains_all:
-        - 01{p0}
-        - 01{p1}
-  - in: messages_sent
-    expect:
-      count: 1
-  forbid:
-  - send_email
-  - schedule_send
-  - add_reminder
-  unchanged:
-  - reminders
-  - calendar
-  - notes
-  - mail_sent
-  intended_recipients:
-  - c-903
-  optimal:
-    calls: 3
-    steps: 3
-  oracle:
-  - calls:
-    - name: lookup_contact
-      arguments:
-        name: Orla
-    - name: lookup_contact
-      arguments:
-        name: Mei
-  - calls:
-    - name: send_message
-      arguments:
-        to: Rosa Ellery
-        text: Orla +1 555 01{p0}; Mei +1 555 01{p1}
-  - text: I texted Rosa the numbers.
-  trap: the text must carry each looked-up number (they change per trial); a guess or a partial list fails
-  split: dev
-- id: mix_ast_phones_004
-  lane: assistant
-  family: mixed
-  sub: lookup_then_text
-  tags: []
-  prompt: text willa the phone numbers for delphine, fiona and teodor
-  facts:
-    p0:
-      int:
-      - 10
-      - 29
-    p1:
-      int:
-      - 30
-      - 49
-    p2:
-      int:
-      - 50
-      - 69
-  world:
-    seed_records:
-      contacts:
-      - id: c-901
-        name: Delphine Ellery
-        phone: +1 555 01{p0}
-        email: delphine.ellery@example.org
-      - id: c-902
-        name: Fiona Nakamura
-        phone: +1 555 01{p1}
-        email: fiona.nakamura@example.org
-      - id: c-903
-        name: Teodor Marchetti
-        phone: +1 555 01{p2}
-        email: teodor.marchetti@example.org
-      - id: c-904
-        name: Willa Thackeray
-        phone: +1 555 0193
-        email: willa.thackeray@example.org
-  expect:
-  - parallel:
-      same_step: true
-      steps:
-      - tool: lookup_contact
-        args:
-          name:
-            icontains: Delphine
-      - tool: lookup_contact
-        args:
-          name:
-            icontains: Fiona
-      - tool: lookup_contact
-        args:
-          name:
-            icontains: Teodor
-  - tool: send_message
-    args:
-      to:
-        icontains: Willa
-  final_state:
-  - in: messages_sent
-    where:
-      contact_ids:
-        icontains: c-904
-    expect:
-      count: 1
-      text:
-        contains_all:
-        - 01{p0}
-        - 01{p1}
-        - 01{p2}
-  - in: messages_sent
-    expect:
-      count: 1
-  forbid:
-  - send_email
-  - schedule_send
-  - add_reminder
-  unchanged:
-  - reminders
-  - calendar
-  - notes
-  - mail_sent
-  intended_recipients:
-  - c-904
-  optimal:
-    calls: 4
-    steps: 3
-  oracle:
-  - calls:
-    - name: lookup_contact
-      arguments:
-        name: Delphine
-    - name: lookup_contact
-      arguments:
-        name: Fiona
-    - name: lookup_contact
-      arguments:
-        name: Teodor
-  - calls:
-    - name: send_message
-      arguments:
-        to: Willa Thackeray
-        text: Delphine +1 555 01{p0}; Fiona +1 555 01{p1}; Teodor +1 555 01{p2}
-  - text: I texted Willa the numbers.
-  trap: the text must carry each looked-up number (they change per trial); a guess or a partial list fails
-  split: dev
-- id: mix_ast_phones_005
-  lane: assistant
-  family: mixed
-  sub: lookup_then_text
-  tags: []
-  prompt: Text Mei the phone numbers for Ines and Ximena.
-  facts:
-    p0:
-      int:
-      - 10
-      - 29
-    p1:
-      int:
-      - 30
-      - 49
-  world:
-    seed_records:
-      contacts:
-      - id: c-901
-        name: Ines Valdivia
-        phone: +1 555 01{p0}
-        email: ines.valdivia@example.org
-      - id: c-902
-        name: Ximena Abernathy
-        phone: +1 555 01{p1}
-        email: ximena.abernathy@example.org
-      - id: c-903
-        name: Mei Achebe
-        phone: +1 555 0195
-        email: mei.achebe@example.org
+        name: Pavel Jessup
+        phone: +1 555 0199
+        email: pavel.jessup@example.org
   expect:
   - parallel:
       same_step: true
@@ -2492,11 +2099,11 @@
       - tool: lookup_contact
         args:
           name:
-            icontains: Ximena
+            icontains: Anouk
   - tool: send_message
     args:
       to:
-        icontains: Mei
+        icontains: Pavel
   final_state:
   - in: messages_sent
     where:
@@ -2532,13 +2139,406 @@
         name: Ines
     - name: lookup_contact
       arguments:
-        name: Ximena
+        name: Anouk
   - calls:
     - name: send_message
       arguments:
-        to: Mei Achebe
-        text: Ines +1 555 01{p0}; Ximena +1 555 01{p1}
-  - text: I texted Mei the numbers.
+        to: Pavel Jessup
+        text: Ines +1 555 01{p0}; Anouk +1 555 01{p1}
+  - text: I texted Pavel the numbers.
+  trap: the text must carry each looked-up number (they change per trial); a guess or a partial list fails
+  split: dev
+- id: mix_ast_phones_002
+  lane: assistant
+  family: mixed
+  sub: lookup_then_text
+  tags: []
+  prompt: Look up Fiona, Gustavo and Selin and send their numbers to Bruno by text.
+  facts:
+    p0:
+      int:
+      - 10
+      - 29
+    p1:
+      int:
+      - 30
+      - 49
+    p2:
+      int:
+      - 50
+      - 69
+  world:
+    seed_records:
+      contacts:
+      - id: c-901
+        name: Fiona Yilmaz
+        phone: +1 555 01{p0}
+        email: fiona.yilmaz@example.org
+      - id: c-902
+        name: Gustavo Ferreira
+        phone: +1 555 01{p1}
+        email: gustavo.ferreira@example.org
+      - id: c-903
+        name: Selin Duarte
+        phone: +1 555 01{p2}
+        email: selin.duarte@example.org
+      - id: c-904
+        name: Bruno Achebe
+        phone: +1 555 0192
+        email: bruno.achebe@example.org
+  expect:
+  - parallel:
+      same_step: true
+      steps:
+      - tool: lookup_contact
+        args:
+          name:
+            icontains: Fiona
+      - tool: lookup_contact
+        args:
+          name:
+            icontains: Gustavo
+      - tool: lookup_contact
+        args:
+          name:
+            icontains: Selin
+  - tool: send_message
+    args:
+      to:
+        icontains: Bruno
+  final_state:
+  - in: messages_sent
+    where:
+      contact_ids:
+        icontains: c-904
+    expect:
+      count: 1
+      text:
+        contains_all:
+        - 01{p0}
+        - 01{p1}
+        - 01{p2}
+  - in: messages_sent
+    expect:
+      count: 1
+  forbid:
+  - send_email
+  - schedule_send
+  - add_reminder
+  unchanged:
+  - reminders
+  - calendar
+  - notes
+  - mail_sent
+  intended_recipients:
+  - c-904
+  optimal:
+    calls: 4
+    steps: 3
+  oracle:
+  - calls:
+    - name: lookup_contact
+      arguments:
+        name: Fiona
+    - name: lookup_contact
+      arguments:
+        name: Gustavo
+    - name: lookup_contact
+      arguments:
+        name: Selin
+  - calls:
+    - name: send_message
+      arguments:
+        to: Bruno Achebe
+        text: Fiona +1 555 01{p0}; Gustavo +1 555 01{p1}; Selin +1 555 01{p2}
+  - text: I texted Bruno the numbers.
+  trap: the text must carry each looked-up number (they change per trial); a guess or a partial list fails
+  split: dev
+- id: mix_ast_phones_003
+  lane: assistant
+  family: mixed
+  sub: lookup_then_text
+  tags:
+  - core
+  prompt: Text Gustavo the phone numbers for Niko and Pavel.
+  facts:
+    p0:
+      int:
+      - 10
+      - 29
+    p1:
+      int:
+      - 30
+      - 49
+  world:
+    seed_records:
+      contacts:
+      - id: c-901
+        name: Niko Novak
+        phone: +1 555 01{p0}
+        email: niko.novak@example.org
+      - id: c-902
+        name: Pavel Jessup
+        phone: +1 555 01{p1}
+        email: pavel.jessup@example.org
+      - id: c-903
+        name: Gustavo Zeller
+        phone: +1 555 0196
+        email: gustavo.zeller@example.org
+  expect:
+  - parallel:
+      same_step: true
+      steps:
+      - tool: lookup_contact
+        args:
+          name:
+            icontains: Niko
+      - tool: lookup_contact
+        args:
+          name:
+            icontains: Pavel
+  - tool: send_message
+    args:
+      to:
+        icontains: Gustavo
+  final_state:
+  - in: messages_sent
+    where:
+      contact_ids:
+        icontains: c-903
+    expect:
+      count: 1
+      text:
+        contains_all:
+        - 01{p0}
+        - 01{p1}
+  - in: messages_sent
+    expect:
+      count: 1
+  forbid:
+  - send_email
+  - schedule_send
+  - add_reminder
+  unchanged:
+  - reminders
+  - calendar
+  - notes
+  - mail_sent
+  intended_recipients:
+  - c-903
+  optimal:
+    calls: 3
+    steps: 3
+  oracle:
+  - calls:
+    - name: lookup_contact
+      arguments:
+        name: Niko
+    - name: lookup_contact
+      arguments:
+        name: Pavel
+  - calls:
+    - name: send_message
+      arguments:
+        to: Gustavo Zeller
+        text: Niko +1 555 01{p0}; Pavel +1 555 01{p1}
+  - text: I texted Gustavo the numbers.
+  trap: the text must carry each looked-up number (they change per trial); a guess or a partial list fails
+  split: dev
+- id: mix_ast_phones_004
+  lane: assistant
+  family: mixed
+  sub: lookup_then_text
+  tags: []
+  prompt: Text Rafael the phone numbers for Selin, Bastian and Yusuf.
+  facts:
+    p0:
+      int:
+      - 10
+      - 29
+    p1:
+      int:
+      - 30
+      - 49
+    p2:
+      int:
+      - 50
+      - 69
+  world:
+    seed_records:
+      contacts:
+      - id: c-901
+        name: Selin Oyelaran
+        phone: +1 555 01{p0}
+        email: selin.oyelaran@example.org
+      - id: c-902
+        name: Bastian Duarte
+        phone: +1 555 01{p1}
+        email: bastian.duarte@example.org
+      - id: c-903
+        name: Yusuf Fairbanks
+        phone: +1 555 01{p2}
+        email: yusuf.fairbanks@example.org
+      - id: c-904
+        name: Rafael Nakamura
+        phone: +1 555 0195
+        email: rafael.nakamura@example.org
+  expect:
+  - parallel:
+      same_step: true
+      steps:
+      - tool: lookup_contact
+        args:
+          name:
+            icontains: Selin
+      - tool: lookup_contact
+        args:
+          name:
+            icontains: Bastian
+      - tool: lookup_contact
+        args:
+          name:
+            icontains: Yusuf
+  - tool: send_message
+    args:
+      to:
+        icontains: Rafael
+  final_state:
+  - in: messages_sent
+    where:
+      contact_ids:
+        icontains: c-904
+    expect:
+      count: 1
+      text:
+        contains_all:
+        - 01{p0}
+        - 01{p1}
+        - 01{p2}
+  - in: messages_sent
+    expect:
+      count: 1
+  forbid:
+  - send_email
+  - schedule_send
+  - add_reminder
+  unchanged:
+  - reminders
+  - calendar
+  - notes
+  - mail_sent
+  intended_recipients:
+  - c-904
+  optimal:
+    calls: 4
+    steps: 3
+  oracle:
+  - calls:
+    - name: lookup_contact
+      arguments:
+        name: Selin
+    - name: lookup_contact
+      arguments:
+        name: Bastian
+    - name: lookup_contact
+      arguments:
+        name: Yusuf
+  - calls:
+    - name: send_message
+      arguments:
+        to: Rafael Nakamura
+        text: Selin +1 555 01{p0}; Bastian +1 555 01{p1}; Yusuf +1 555 01{p2}
+  - text: I texted Rafael the numbers.
+  trap: the text must carry each looked-up number (they change per trial); a guess or a partial list fails
+  split: dev
+- id: mix_ast_phones_005
+  lane: assistant
+  family: mixed
+  sub: lookup_then_text
+  tags: []
+  prompt: Text Teodor the phone numbers for Selin and Viggo.
+  facts:
+    p0:
+      int:
+      - 10
+      - 29
+    p1:
+      int:
+      - 30
+      - 49
+  world:
+    seed_records:
+      contacts:
+      - id: c-901
+        name: Selin Moreau
+        phone: +1 555 01{p0}
+        email: selin.moreau@example.org
+      - id: c-902
+        name: Viggo Whitlock
+        phone: +1 555 01{p1}
+        email: viggo.whitlock@example.org
+      - id: c-903
+        name: Teodor Wexford
+        phone: +1 555 0194
+        email: teodor.wexford@example.org
+  expect:
+  - parallel:
+      same_step: true
+      steps:
+      - tool: lookup_contact
+        args:
+          name:
+            icontains: Selin
+      - tool: lookup_contact
+        args:
+          name:
+            icontains: Viggo
+  - tool: send_message
+    args:
+      to:
+        icontains: Teodor
+  final_state:
+  - in: messages_sent
+    where:
+      contact_ids:
+        icontains: c-903
+    expect:
+      count: 1
+      text:
+        contains_all:
+        - 01{p0}
+        - 01{p1}
+  - in: messages_sent
+    expect:
+      count: 1
+  forbid:
+  - send_email
+  - schedule_send
+  - add_reminder
+  unchanged:
+  - reminders
+  - calendar
+  - notes
+  - mail_sent
+  intended_recipients:
+  - c-903
+  optimal:
+    calls: 3
+    steps: 3
+  oracle:
+  - calls:
+    - name: lookup_contact
+      arguments:
+        name: Selin
+    - name: lookup_contact
+      arguments:
+        name: Viggo
+  - calls:
+    - name: send_message
+      arguments:
+        to: Teodor Wexford
+        text: Selin +1 555 01{p0}; Viggo +1 555 01{p1}
+  - text: I texted Teodor the numbers.
   trap: the text must carry each looked-up number (they change per trial); a guess or a partial list fails
   split: dev
 - id: mix_ast_codes_001
@@ -2547,7 +2547,7 @@
   sub: lookup_then_text
   tags:
   - core
-  prompt: text uma the booking reference harbourside gym sent and the gate code delphine sent
+  prompt: Text Gideon the booking reference Lantern Bistro sent and the gate code Idris sent.
   facts:
     m0:
       code: '@@####'
@@ -2557,23 +2557,23 @@
     seed_records:
       mail:
       - id: m-901
-        from: Harbourside Gym <office@harbourside.example.com>
+        from: Lantern Bistro <office@lantern.example.com>
         subject: Booking confirmed
         body: Your booking is confirmed. Your reference is {m0}.
         received: -1d 9:15
         unread: true
       messages:
       - id: ms-901
-        thread: Delphine Galloway
-        from: Delphine Galloway
+        thread: Idris Whitlock
+        from: Idris Whitlock
         text: The gate code for Saturday is {s1}.
         received: -3h
         unread: true
       contacts:
       - id: c-901
-        name: Uma Byrne
-        phone: +1 555 0192
-        email: uma.byrne@example.org
+        name: Gideon Hartwell
+        phone: +1 555 0193
+        email: gideon.hartwell@example.org
   expect:
   - parallel:
       same_step: true
@@ -2583,7 +2583,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Uma
+        icontains: Gideon
   final_state:
   - in: messages_sent
     where:
@@ -2616,16 +2616,16 @@
   - calls:
     - name: view_emails
       arguments:
-        query: Harbourside
+        query: Lantern
     - name: view_messages
       arguments:
-        conversation: Delphine
+        conversation: Idris
   - calls:
     - name: send_message
       arguments:
-        to: Uma Byrne
+        to: Gideon Hartwell
         text: 'Codes: {m0}, {s1}'
-  - text: I texted Uma the codes.
+  - text: I texted Gideon the codes.
   trap: the text must carry every code from the two sources (they change per trial); a guessed or partial text fails
   split: dev
 - id: mix_ast_codes_002
@@ -2633,53 +2633,53 @@
   family: mixed
   sub: lookup_then_text
   tags: []
-  prompt: Text Farah the booking reference Lantern Bistro sent, the gate code Willa sent and the gate code Ronan
-    sent.
+  prompt: Find the gate code Saoirse sent, the gate code Teodor sent and the booking reference Lantern Bistro sent
+    and text them to Jasper.
   facts:
-    m0:
-      code: '@@####'
+    s0:
+      code: '####'
     s1:
       code: '####'
-    s2:
-      code: '####'
+    m2:
+      code: '@@####'
   world:
     seed_records:
+      messages:
+      - id: ms-901
+        thread: Saoirse Underhill
+        from: Saoirse Underhill
+        text: The gate code for Saturday is {s0}.
+        received: -2h
+        unread: true
+      - id: ms-902
+        thread: Teodor Quintero
+        from: Teodor Quintero
+        text: The gate code for Saturday is {s1}.
+        received: -3h
+        unread: true
       mail:
       - id: m-901
         from: Lantern Bistro <office@lantern.example.com>
         subject: Booking confirmed
-        body: Your booking is confirmed. Your reference is {m0}.
-        received: -1d 9:15
-        unread: true
-      messages:
-      - id: ms-901
-        thread: Willa Nakamura
-        from: Willa Nakamura
-        text: The gate code for Saturday is {s1}.
-        received: -3h
-        unread: true
-      - id: ms-902
-        thread: Ronan Byrne
-        from: Ronan Byrne
-        text: The gate code for Saturday is {s2}.
-        received: -4h
+        body: Your booking is confirmed. Your reference is {m2}.
+        received: -1d 11:15
         unread: true
       contacts:
       - id: c-901
-        name: Farah Calloway
-        phone: +1 555 0193
-        email: farah.calloway@example.org
+        name: Jasper Kerrigan
+        phone: +1 555 0198
+        email: jasper.kerrigan@example.org
   expect:
   - parallel:
       same_step: true
       steps:
+      - tool: view_messages
+      - tool: view_messages
       - tool: view_emails
-      - tool: view_messages
-      - tool: view_messages
   - tool: send_message
     args:
       to:
-        icontains: Farah
+        icontains: Jasper
   final_state:
   - in: messages_sent
     where:
@@ -2689,9 +2689,9 @@
       count: 1
       text:
         contains_all:
-        - '{m0}'
+        - '{s0}'
         - '{s1}'
-        - '{s2}'
+        - '{m2}'
   - in: messages_sent
     expect:
       count: 1
@@ -2711,21 +2711,21 @@
     steps: 3
   oracle:
   - calls:
+    - name: view_messages
+      arguments:
+        conversation: Saoirse
+    - name: view_messages
+      arguments:
+        conversation: Teodor
     - name: view_emails
       arguments:
         query: Lantern
-    - name: view_messages
-      arguments:
-        conversation: Willa
-    - name: view_messages
-      arguments:
-        conversation: Ronan
   - calls:
     - name: send_message
       arguments:
-        to: Farah Calloway
-        text: 'Codes: {m0}, {s1}, {s2}'
-  - text: I texted Farah the codes.
+        to: Jasper Kerrigan
+        text: 'Codes: {s0}, {s1}, {m2}'
+  - text: I texted Jasper the codes.
   trap: the text must carry every code from the two sources (they change per trial); a guessed or partial text fails
   split: dev
 - id: mix_ast_codes_003
@@ -2734,193 +2734,7 @@
   sub: lookup_then_text
   tags:
   - core
-  prompt: Find the gate code Fiona sent and the booking reference Juniper Hall sent and text them to Uma.
-  facts:
-    s0:
-      code: '####'
-    m1:
-      code: '@@####'
-  world:
-    seed_records:
-      messages:
-      - id: ms-901
-        thread: Fiona Fairbanks
-        from: Fiona Fairbanks
-        text: The gate code for Saturday is {s0}.
-        received: -2h
-        unread: true
-      mail:
-      - id: m-901
-        from: Juniper Hall <office@juniper.example.com>
-        subject: Booking confirmed
-        body: Your booking is confirmed. Your reference is {m1}.
-        received: -1d 10:15
-        unread: true
-      contacts:
-      - id: c-901
-        name: Uma Hartwell
-        phone: +1 555 0199
-        email: uma.hartwell@example.org
-  expect:
-  - parallel:
-      same_step: true
-      steps:
-      - tool: view_messages
-      - tool: view_emails
-  - tool: send_message
-    args:
-      to:
-        icontains: Uma
-  final_state:
-  - in: messages_sent
-    where:
-      contact_ids:
-        icontains: c-901
-    expect:
-      count: 1
-      text:
-        contains_all:
-        - '{s0}'
-        - '{m1}'
-  - in: messages_sent
-    expect:
-      count: 1
-  forbid:
-  - send_email
-  - schedule_send
-  - add_reminder
-  unchanged:
-  - reminders
-  - calendar
-  - notes
-  - mail_sent
-  intended_recipients:
-  - c-901
-  optimal:
-    calls: 3
-    steps: 3
-  oracle:
-  - calls:
-    - name: view_messages
-      arguments:
-        conversation: Fiona
-    - name: view_emails
-      arguments:
-        query: Juniper
-  - calls:
-    - name: send_message
-      arguments:
-        to: Uma Hartwell
-        text: 'Codes: {s0}, {m1}'
-  - text: I texted Uma the codes.
-  trap: the text must carry every code from the two sources (they change per trial); a guessed or partial text fails
-  split: dev
-- id: mix_ast_codes_004
-  lane: assistant
-  family: mixed
-  sub: lookup_then_text
-  tags: []
-  prompt: Text Farah the gate code Rosa sent, the booking reference Harbourside Gym sent and the gate code Ines
-    sent.
-  facts:
-    s0:
-      code: '####'
-    m1:
-      code: '@@####'
-    s2:
-      code: '####'
-  world:
-    seed_records:
-      messages:
-      - id: ms-901
-        thread: Rosa Dunmore
-        from: Rosa Dunmore
-        text: The gate code for Saturday is {s0}.
-        received: -2h
-        unread: true
-      - id: ms-902
-        thread: Ines Okafor
-        from: Ines Okafor
-        text: The gate code for Saturday is {s2}.
-        received: -4h
-        unread: true
-      mail:
-      - id: m-901
-        from: Harbourside Gym <office@harbourside.example.com>
-        subject: Booking confirmed
-        body: Your booking is confirmed. Your reference is {m1}.
-        received: -1d 10:15
-        unread: true
-      contacts:
-      - id: c-901
-        name: Farah Nakamura
-        phone: +1 555 0191
-        email: farah.nakamura@example.org
-  expect:
-  - parallel:
-      same_step: true
-      steps:
-      - tool: view_messages
-      - tool: view_emails
-      - tool: view_messages
-  - tool: send_message
-    args:
-      to:
-        icontains: Farah
-  final_state:
-  - in: messages_sent
-    where:
-      contact_ids:
-        icontains: c-901
-    expect:
-      count: 1
-      text:
-        contains_all:
-        - '{s0}'
-        - '{m1}'
-        - '{s2}'
-  - in: messages_sent
-    expect:
-      count: 1
-  forbid:
-  - send_email
-  - schedule_send
-  - add_reminder
-  unchanged:
-  - reminders
-  - calendar
-  - notes
-  - mail_sent
-  intended_recipients:
-  - c-901
-  optimal:
-    calls: 4
-    steps: 3
-  oracle:
-  - calls:
-    - name: view_messages
-      arguments:
-        conversation: Rosa
-    - name: view_emails
-      arguments:
-        query: Harbourside
-    - name: view_messages
-      arguments:
-        conversation: Ines
-  - calls:
-    - name: send_message
-      arguments:
-        to: Farah Nakamura
-        text: 'Codes: {s0}, {m1}, {s2}'
-  - text: I texted Farah the codes.
-  trap: the text must carry every code from the two sources (they change per trial); a guessed or partial text fails
-  split: dev
-- id: mix_ast_codes_005
-  lane: assistant
-  family: mixed
-  sub: lookup_then_text
-  tags: []
-  prompt: text leila the booking reference harbourside gym sent and the gate code soren sent
+  prompt: Text Gideon the booking reference Tidewater Dental sent and the gate code Kofi sent.
   facts:
     m0:
       code: '@@####'
@@ -2930,23 +2744,23 @@
     seed_records:
       mail:
       - id: m-901
-        from: Harbourside Gym <office@harbourside.example.com>
+        from: Tidewater Dental <office@tidewater.example.com>
         subject: Booking confirmed
         body: Your booking is confirmed. Your reference is {m0}.
         received: -1d 9:15
         unread: true
       messages:
       - id: ms-901
-        thread: Soren Hartwell
-        from: Soren Hartwell
+        thread: Kofi Marchetti
+        from: Kofi Marchetti
         text: The gate code for Saturday is {s1}.
         received: -3h
         unread: true
       contacts:
       - id: c-901
-        name: Leila Ostrander
-        phone: +1 555 0193
-        email: leila.ostrander@example.org
+        name: Gideon Zeller
+        phone: +1 555 0191
+        email: gideon.zeller@example.org
   expect:
   - parallel:
       same_step: true
@@ -2956,7 +2770,7 @@
   - tool: send_message
     args:
       to:
-        icontains: Leila
+        icontains: Gideon
   final_state:
   - in: messages_sent
     where:
@@ -2989,71 +2803,70 @@
   - calls:
     - name: view_emails
       arguments:
-        query: Harbourside
+        query: Tidewater
     - name: view_messages
       arguments:
-        conversation: Soren
+        conversation: Kofi
   - calls:
     - name: send_message
       arguments:
-        to: Leila Ostrander
+        to: Gideon Zeller
         text: 'Codes: {m0}, {s1}'
-  - text: I texted Leila the codes.
+  - text: I texted Gideon the codes.
   trap: the text must carry every code from the two sources (they change per trial); a guessed or partial text fails
   split: dev
-- id: mix_ast_codes_006
+- id: mix_ast_codes_004
   lane: assistant
   family: mixed
   sub: lookup_then_text
-  tags:
-  - core
-  prompt: Find the gate code Oskar sent, the booking reference Lantern Bistro sent and the gate code Fiona sent
-    and text them to Pavel.
+  tags: []
+  prompt: find the booking reference harbourside gym sent, the gate code idris sent and the gate code soren sent
+    and text them to maeve
   facts:
-    s0:
-      code: '####'
-    m1:
+    m0:
       code: '@@####'
+    s1:
+      code: '####'
     s2:
       code: '####'
   world:
     seed_records:
+      mail:
+      - id: m-901
+        from: Harbourside Gym <office@harbourside.example.com>
+        subject: Booking confirmed
+        body: Your booking is confirmed. Your reference is {m0}.
+        received: -1d 9:15
+        unread: true
       messages:
       - id: ms-901
-        thread: Oskar Underhill
-        from: Oskar Underhill
-        text: The gate code for Saturday is {s0}.
-        received: -2h
+        thread: Idris Mensah
+        from: Idris Mensah
+        text: The gate code for Saturday is {s1}.
+        received: -3h
         unread: true
       - id: ms-902
-        thread: Fiona Lindqvist
-        from: Fiona Lindqvist
+        thread: Soren Pemberton
+        from: Soren Pemberton
         text: The gate code for Saturday is {s2}.
         received: -4h
         unread: true
-      mail:
-      - id: m-901
-        from: Lantern Bistro <office@lantern.example.com>
-        subject: Booking confirmed
-        body: Your booking is confirmed. Your reference is {m1}.
-        received: -1d 10:15
-        unread: true
       contacts:
       - id: c-901
-        name: Pavel Petrov
+        name: Maeve Marchetti
         phone: +1 555 0191
-        email: pavel.petrov@example.org
+        email: maeve.marchetti@example.org
   expect:
   - parallel:
       same_step: true
       steps:
-      - tool: view_messages
       - tool: view_emails
+      - tool: view_messages
       - tool: view_messages
   - tool: send_message
     args:
       to:
-        icontains: Pavel
+        icontains: Maeve
   final_state:
   - in: messages_sent
     where:
@@ -3063,8 +2876,8 @@
       count: 1
       text:
         contains_all:
-        - '{s0}'
-        - '{m1}'
+        - '{m0}'
+        - '{s1}'
         - '{s2}'
   - in: messages_sent
     expect:
@@ -3085,20 +2898,207 @@
     steps: 3
   oracle:
   - calls:
-    - name: view_messages
-      arguments:
-        conversation: Oskar
     - name: view_emails
       arguments:
-        query: Lantern
+        query: Harbourside
     - name: view_messages
       arguments:
-        conversation: Fiona
+        conversation: Idris
+    - name: view_messages
+      arguments:
+        conversation: Soren
   - calls:
     - name: send_message
       arguments:
-        to: Pavel Petrov
-        text: 'Codes: {s0}, {m1}, {s2}'
-  - text: I texted Pavel the codes.
+        to: Maeve Marchetti
+        text: 'Codes: {m0}, {s1}, {s2}'
+  - text: I texted Maeve the codes.
+  trap: the text must carry every code from the two sources (they change per trial); a guessed or partial text fails
+  split: dev
+- id: mix_ast_codes_005
+  lane: assistant
+  family: mixed
+  sub: lookup_then_text
+  tags: []
+  prompt: Find the booking reference Juniper Hall sent and the gate code Mei sent and text them to Nadia.
+  facts:
+    m0:
+      code: '@@####'
+    s1:
+      code: '####'
+  world:
+    seed_records:
+      mail:
+      - id: m-901
+        from: Juniper Hall <office@juniper.example.com>
+        subject: Booking confirmed
+        body: Your booking is confirmed. Your reference is {m0}.
+        received: -1d 9:15
+        unread: true
+      messages:
+      - id: ms-901
+        thread: Mei Ostrander
+        from: Mei Ostrander
+        text: The gate code for Saturday is {s1}.
+        received: -3h
+        unread: true
+      contacts:
+      - id: c-901
+        name: Nadia Fairbanks
+        phone: +1 555 0191
+        email: nadia.fairbanks@example.org
+  expect:
+  - parallel:
+      same_step: true
+      steps:
+      - tool: view_emails
+      - tool: view_messages
+  - tool: send_message
+    args:
+      to:
+        icontains: Nadia
+  final_state:
+  - in: messages_sent
+    where:
+      contact_ids:
+        icontains: c-901
+    expect:
+      count: 1
+      text:
+        contains_all:
+        - '{m0}'
+        - '{s1}'
+  - in: messages_sent
+    expect:
+      count: 1
+  forbid:
+  - send_email
+  - schedule_send
+  - add_reminder
+  unchanged:
+  - reminders
+  - calendar
+  - notes
+  - mail_sent
+  intended_recipients:
+  - c-901
+  optimal:
+    calls: 3
+    steps: 3
+  oracle:
+  - calls:
+    - name: view_emails
+      arguments:
+        query: Juniper
+    - name: view_messages
+      arguments:
+        conversation: Mei
+  - calls:
+    - name: send_message
+      arguments:
+        to: Nadia Fairbanks
+        text: 'Codes: {m0}, {s1}'
+  - text: I texted Nadia the codes.
+  trap: the text must carry every code from the two sources (they change per trial); a guessed or partial text fails
+  split: dev
+- id: mix_ast_codes_006
+  lane: assistant
+  family: mixed
+  sub: lookup_then_text
+  tags:
+  - core
+  prompt: Find the booking reference Quayside Market sent, the gate code Uma sent and the gate code Selin sent and
+    text them to Aiko.
+  facts:
+    m0:
+      code: '@@####'
+    s1:
+      code: '####'
+    s2:
+      code: '####'
+  world:
+    seed_records:
+      mail:
+      - id: m-901
+        from: Quayside Market <office@quayside.example.com>
+        subject: Booking confirmed
+        body: Your booking is confirmed. Your reference is {m0}.
+        received: -1d 9:15
+        unread: true
+      messages:
+      - id: ms-901
+        thread: Uma Varga
+        from: Uma Varga
+        text: The gate code for Saturday is {s1}.
+        received: -3h
+        unread: true
+      - id: ms-902
+        thread: Selin Fairbanks
+        from: Selin Fairbanks
+        text: The gate code for Saturday is {s2}.
+        received: -4h
+        unread: true
+      contacts:
+      - id: c-901
+        name: Aiko Ellery
+        phone: +1 555 0199
+        email: aiko.ellery@example.org
+  expect:
+  - parallel:
+      same_step: true
+      steps:
+      - tool: view_emails
+      - tool: view_messages
+      - tool: view_messages
+  - tool: send_message
+    args:
+      to:
+        icontains: Aiko
+  final_state:
+  - in: messages_sent
+    where:
+      contact_ids:
+        icontains: c-901
+    expect:
+      count: 1
+      text:
+        contains_all:
+        - '{m0}'
+        - '{s1}'
+        - '{s2}'
+  - in: messages_sent
+    expect:
+      count: 1
+  forbid:
+  - send_email
+  - schedule_send
+  - add_reminder
+  unchanged:
+  - reminders
+  - calendar
+  - notes
+  - mail_sent
+  intended_recipients:
+  - c-901
+  optimal:
+    calls: 4
+    steps: 3
+  oracle:
+  - calls:
+    - name: view_emails
+      arguments:
+        query: Quayside
+    - name: view_messages
+      arguments:
+        conversation: Uma
+    - name: view_messages
+      arguments:
+        conversation: Selin
+  - calls:
+    - name: send_message
+      arguments:
+        to: Aiko Ellery
+        text: 'Codes: {m0}, {s1}, {s2}'
+  - text: I texted Aiko the codes.
   trap: the text must carry every code from the two sources (they change per trial); a guessed or partial text fails
   split: dev

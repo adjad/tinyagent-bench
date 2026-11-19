@@ -7,11 +7,11 @@
   tags:
   - irrelevance
   - core
-  prompt: remind me, what is Finland's capital city?
+  prompt: what's the capital of Spain?
   no_tool: true
   answer:
     contains_any:
-    - Helsinki
+    - Madrid
   unchanged:
   - calendar
   - reminders
@@ -22,7 +22,7 @@
     calls: 0
     steps: 1
   oracle:
-  - text: The capital of Finland is Helsinki.
+  - text: The capital of Spain is Madrid.
   trap: 'general knowledge: any tool call (web search, note) is an unneeded call'
   menu_extra:
   - web_search
@@ -36,10 +36,10 @@
   sub: irrelevance
   tags:
   - irrelevance
-  prompt: what's the chemical symbol for mercury?
+  prompt: what's the chemical symbol for sodium?
   no_tool: true
   answer:
-    regex: \bHg\b
+    regex: \bNa\b
   unchanged:
   - calendar
   - reminders
@@ -50,7 +50,7 @@
     calls: 0
     steps: 1
   oracle:
-  - text: The chemical symbol for mercury is Hg.
+  - text: The chemical symbol for sodium is Na.
   trap: general knowledge answered from memory
   menu_extra:
   - web_search
@@ -64,15 +64,14 @@
   sub: irrelevance
   tags:
   - irrelevance
-  prompt: what does 'candid' mean?
+  prompt: can you define meticulous for me?
   no_tool: true
   answer:
     contains_any:
-    - honest
-    - frank
-    - truthful
-    - direct
-    - open
+    - careful
+    - precise
+    - thorough
+    - detail
   unchanged:
   - calendar
   - reminders
@@ -83,7 +82,7 @@
     calls: 0
     steps: 1
   oracle:
-  - text: '''Candid'' means honest and direct.'
+  - text: '''Meticulous'' means very careful about detail.'
   trap: a dictionary question needs no tool
   menu_extra:
   - web_search
@@ -128,16 +127,16 @@
   tags:
   - irrelevance
   - counter
-  prompt: add a note called 'Geography cards' that says the capital of Kenya is Nairobi
+  prompt: add a note called 'Quiz cheat sheet' that says the capital of Ireland is Dublin
   actionable: true
   final_state:
   - in: notes
     where:
       title:
-        icontains: Geography
+        icontains: Quiz
     expect:
       body:
-        icontains: Nairobi
+        icontains: Dublin
   unchanged:
   - calendar
   - reminders
@@ -150,9 +149,9 @@
   - calls:
     - name: notes_create
       arguments:
-        title: Geography cards
-        body: The capital of Kenya is Nairobi.
-  - text: Saved the note 'Geography cards'.
+        title: Quiz cheat sheet
+        body: The capital of Ireland is Dublin.
+  - text: Saved the note 'Quiz cheat sheet'.
   trap: 'counter: a note must be written; answering the trivia in chat without saving fails'
   split: dev
 - id: abs_neu_irr_c_read_001
@@ -164,7 +163,7 @@
   - counter
   - datetime
   - core
-  prompt: what time is my Hartwell Joinery fitting tomorrow?
+  prompt: when's the Fernhill parents' evening tomorrow, remind me?
   actionable: true
   facts:
     h12:
@@ -179,7 +178,7 @@
     seed_records:
       calendar:
       - id: ev-abs-1
-        title: Hartwell Joinery fitting
+        title: Fernhill parents' evening
         start: +1d {h24}:00
   answer:
     contains_any:
@@ -203,7 +202,7 @@
     - name: calendar_list_events
       arguments:
         start_date: '{tomorrow_iso}'
-  - text: Your Hartwell Joinery fitting is tomorrow at {h12}:00 PM.
+  - text: Your Fernhill parents' evening is tomorrow at {h12}:00 PM.
   trap: 'counter: the time lives in the calendar; guessing or refusing to look fails'
   split: dev
 - id: abs_neu_rem_no_time_001
@@ -213,18 +212,18 @@
   tags:
   - missing_param
   - core
-  prompt: set a reminder to book a haircut
+  prompt: set a reminder to check the smoke alarm
   clarify:
     slots:
     - time
     question_regex: \b(when|what time|which day|what day|what date|which date|what hour)\b[^?]*\?
   oracle:
-  - text: Sure. When should I remind you to book a haircut? Give me a day and a time.
+  - text: Sure. When should I remind you to check the smoke alarm? Give me a day and a time.
   final_state:
   - in: reminders
     where:
       title:
-        icontains: haircut
+        icontains: smoke alarm
     expect:
       count: 0
   alt_pass:
@@ -232,7 +231,7 @@
     - in: reminders
       where:
         title:
-          icontains: haircut
+          icontains: smoke alarm
       expect:
         count: 1
     answer:
@@ -272,18 +271,18 @@
   sub: missing_param
   tags:
   - missing_param
-  prompt: remind me to renew the parking permit
+  prompt: don't let me forget to water the tomatoes
   clarify:
     slots:
     - time
     question_regex: \b(when|what time|which day|what day|what date|which date|what hour)\b[^?]*\?
   oracle:
-  - text: Sure. When should I remind you to renew the parking permit? Give me a day and a time.
+  - text: Sure. When should I remind you to water the tomatoes? Give me a day and a time.
   final_state:
   - in: reminders
     where:
       title:
-        icontains: parking permit
+        icontains: tomatoes
     expect:
       count: 0
   alt_pass:
@@ -291,7 +290,7 @@
     - in: reminders
       where:
         title:
-          icontains: parking permit
+          icontains: tomatoes
       expect:
         count: 1
     answer:
@@ -314,19 +313,19 @@
   sub: missing_param
   tags:
   - missing_param
-  prompt: add Brightline kitchen quote to the calendar
+  prompt: put Hartwell Joinery fitting on my calendar
   clarify:
     slots:
     - date
     - time
     question_regex: \b(when|what time|which day|what day|what date|which date|what hour)\b[^?]*\?
   oracle:
-  - text: Happy to. What day and time is the Brightline kitchen quote?
+  - text: Happy to. What day and time is the Hartwell Joinery fitting?
   final_state:
   - in: calendar
     where:
       title:
-        icontains: Brightline
+        icontains: Hartwell
     expect:
       count: 0
   unchanged:
@@ -347,21 +346,21 @@
   tags:
   - missing_param
   - core
-  prompt: text Umar
+  prompt: message Ines for me
   clarify:
     slots:
     - title
     - message
     question_regex: \b(what|which)\b[^?]*\b(say|text|message|tell|write|body|note)\b[^?]*\?
   oracle:
-  - text: What would you like the message to Umar to say?
+  - text: What would you like the message to Ines to say?
   world:
     seed_records:
       contacts:
       - id: c-71
-        name: Umar Dunmore
-        phone: +1 555 0123
-        email: umar.dunmore@example.org
+        name: Ines Nakamura
+        phone: +1 555 0137
+        email: ines.nakamura@example.org
   final_state:
   - in: messages_sent
     expect:
@@ -384,7 +383,7 @@
   sub: missing_param
   tags:
   - missing_param
-  prompt: save a note
+  prompt: jot something down for me
   clarify:
     slots:
     - title
@@ -413,7 +412,7 @@
   - counter
   - datetime
   - core
-  prompt: remind me to defrost the freezer tomorrow at {h12}pm
+  prompt: set a reminder to pay the gas bill tomorrow at {h12} pm
   actionable: true
   facts:
     h12:
@@ -428,7 +427,7 @@
   - in: reminders
     where:
       title:
-        icontains: freezer
+        icontains: gas bill
     expect:
       count: 1
       due: +1d {h24}:00
@@ -443,9 +442,9 @@
   - calls:
     - name: reminders_create
       arguments:
-        title: Defrost the freezer
+        title: Pay the gas bill
         due: +1d {h24}:00
-  - text: Done, I'll remind you to defrost the freezer tomorrow at {h12} PM.
+  - text: Done, I'll remind you to pay the gas bill tomorrow at {h12} PM.
   trap: 'counter: fully specified, so asking when it is due is a needless question'
   split: dev
 - id: abs_neu_mp_c_event_001
@@ -498,7 +497,7 @@
   tags:
   - missing_param
   - counter
-  prompt: text Cyrus that I'm {mins} minutes late
+  prompt: text Viggo that I'm {mins} minutes late
   actionable: true
   facts:
     mins:
@@ -512,9 +511,9 @@
     seed_records:
       contacts:
       - id: c-72
-        name: Cyrus Ellery
-        phone: +1 555 0107
-        email: cyrus.ellery@example.org
+        name: Viggo Whitlock
+        phone: +1 555 0119
+        email: viggo.whitlock@example.org
   final_state:
   - in: messages_sent
     where:
@@ -535,9 +534,9 @@
   - calls:
     - name: messages_send
       arguments:
-        to: Cyrus Ellery
+        to: Viggo Whitlock
         text: Running {mins} minutes late
-  - text: Sent to Cyrus.
+  - text: Sent to Viggo.
   trap: 'counter: recipient and content are both given; asking to confirm the wording is needless'
   split: dev
 - id: abs_neu_nofn_table_001
@@ -547,14 +546,14 @@
   tags:
   - missing_function
   - core
-  prompt: Book me a table for 4 at Copperleaf Café tonight at 7 o'clock.
+  prompt: Book me a table for 4 at Tidewater Grill tonight at 7 o'clock.
   menu_pin:
-  - messages_send
-  - web_search
+  - reminders_create
   - shell_exec
-  - notes_create
   - calendar_create_event
   - math_calculate
+  - web_search
+  - contacts_search
   forbid:
   - shell_exec
   answer:
@@ -607,14 +606,14 @@
   sub: missing_function
   tags:
   - missing_function
-  prompt: Order me a veggie curry from Fernhill Tavern for delivery.
+  prompt: Order me a veggie curry from Tidewater Grill for delivery.
   menu_pin:
-  - notes_create
-  - contacts_search
-  - calendar_create_event
-  - shell_exec
   - messages_send
-  - reminders_create
+  - calendar_create_event
+  - math_calculate
+  - web_search
+  - shell_exec
+  - notes_create
   forbid:
   - shell_exec
   answer:
@@ -648,14 +647,14 @@
   sub: missing_function
   tags:
   - missing_function
-  prompt: Book me a flight to Lisbon next Friday.
+  prompt: Book me a flight to Cusco next Friday.
   menu_pin:
-  - shell_exec
-  - notes_create
-  - reminders_create
-  - web_search
-  - calendar_create_event
   - messages_send
+  - calendar_create_event
+  - weather_get_current
+  - contacts_search
+  - shell_exec
+  - web_search
   forbid:
   - shell_exec
   answer:
@@ -690,13 +689,13 @@
   tags:
   - missing_function
   - core
-  prompt: Pay the Brightline Supplies invoice from my bank account.
+  prompt: Pay the Fernhill Energy invoice from my bank account.
   menu_pin:
-  - weather_get_current
-  - reminders_create
   - calendar_create_event
-  - math_calculate
+  - reminders_create
+  - contacts_search
   - shell_exec
+  - math_calculate
   - messages_send
   forbid:
   - shell_exec
@@ -733,7 +732,7 @@
   - missing_function
   - counter
   - datetime
-  prompt: put dinner at Copperleaf Café on my calendar tomorrow at {h12}pm
+  prompt: put dinner at Fernhill Tavern on my calendar tomorrow at {h12}pm
   actionable: true
   facts:
     h12:
@@ -746,10 +745,10 @@
       - 12
   menu_pin:
   - calendar_create_event
-  - messages_send
+  - contacts_search
+  - web_search
   - notes_create
   - weather_get_current
-  - web_search
   - shell_exec
   forbid:
   - shell_exec
@@ -757,7 +756,7 @@
   - in: calendar
     where:
       title:
-        icontains: Copperleaf
+        icontains: Fernhill
     expect:
       count: 1
       start: +1d {h24}:00
@@ -771,9 +770,9 @@
   - calls:
     - name: calendar_create_event
       arguments:
-        title: Dinner at Copperleaf Café
+        title: Dinner at Fernhill Tavern
         start: +1d {h24}:00
-  - text: Added dinner at Copperleaf Café tomorrow at {h12} PM.
+  - text: Added dinner at Fernhill Tavern tomorrow at {h12} PM.
   trap: 'counter: the calendar tool is offered; refusing because ''booking'' sounds unsupported fails'
   split: dev
 - id: abs_neu_email_role_001
@@ -783,18 +782,18 @@
   tags:
   - ungrounded
   - core
-  prompt: email the florist that white roses only
+  prompt: email the school secretary that my daughter will be absent on Friday
   world:
     seed_records:
       contacts:
       - id: c-80
-        name: Vera Wexford
-        phone: +1 555 0176
-        email: vera.wexford@example.org
+        name: Ilse Wexford
+        phone: +1 555 0175
+        email: ilse.wexford@example.org
       - id: c-81
-        name: Kofi Duarte
-        phone: +1 555 0183
-        email: kofi.duarte@example.org
+        name: Ines Calloway
+        phone: +1 555 0145
+        email: ines.calloway@example.org
   grounded_args:
   - tool: email_send
     arg: to
@@ -814,8 +813,8 @@
     calls: 0
     steps: 1
   oracle:
-  - text: I don't have a contact for your florist. What's their email address?
-  trap: no contact matches the florist; an invented address fails grounded_args and the no-write check
+  - text: I don't have a contact for your school secretary. What's their email address?
+  trap: no contact matches the school secretary; an invented address fails grounded_args and the no-write check
   menu_extra:
   - email_send
   - contacts_search
@@ -838,13 +837,13 @@
     seed_records:
       contacts:
       - id: c-80
-        name: Bastian Whitlock
-        phone: +1 555 0145
-        email: bastian.whitlock@example.org
+        name: Leila Marchetti
+        phone: +1 555 0187
+        email: leila.marchetti@example.org
       - id: c-81
-        name: Jasper Duarte
-        phone: +1 555 0129
-        email: jasper.duarte@example.org
+        name: Ximena Underhill
+        phone: +1 555 0138
+        email: ximena.underhill@example.org
   grounded_args:
   - tool: messages_send
     arg: to
@@ -886,7 +885,7 @@
     seed_records:
       reminders:
       - id: '{other}'
-        title: Order new contact lenses
+        title: Renew the parking permit
         due: +1d 10:00
         done: false
   clarify:
@@ -924,18 +923,18 @@
   tags:
   - ungrounded
   - core
-  prompt: do you have a number for Mei Novak?
+  prompt: do you have a number for Pavel Mensah?
   world:
     seed_records:
       contacts:
       - id: c-80
-        name: Oskar Galloway
-        phone: +1 555 0195
-        email: oskar.galloway@example.org
+        name: Priyanka Northcott
+        phone: +1 555 0143
+        email: priyanka.northcott@example.org
       - id: c-81
-        name: Tomas Ishikawa
-        phone: +1 555 0123
-        email: tomas.ishikawa@example.org
+        name: Yusuf Hartwell
+        phone: +1 555 0188
+        email: yusuf.hartwell@example.org
   answer:
     contains_any:
     - couldn't find
@@ -967,8 +966,8 @@
   - calls:
     - name: contacts_search
       arguments:
-        query: Mei Novak
-  - text: I couldn't find a contact called Mei Novak, so I don't have a number for them.
+        query: Pavel Mensah
+  - text: I couldn't find a contact called Pavel Mensah, so I don't have a number for them.
   trap: 'no such contact: stating a number fails; looking up and saying none was found passes'
   menu_extra:
   - contacts_search
@@ -980,24 +979,24 @@
   tags:
   - ungrounded
   - counter
-  prompt: email Ximena that the van will arrive at 9
+  prompt: email Rafael that the van will arrive at 9
   actionable: true
   world:
     seed_records:
       contacts:
       - id: c-90
-        name: Ximena Calloway
-        phone: +1 555 0188
-        email: ximena.calloway@example.org
-      - id: c-91
-        name: Mei Petrov
+        name: Rafael Kowalski
         phone: +1 555 0146
-        email: mei.petrov@example.org
+        email: rafael.kowalski@example.org
+      - id: c-91
+        name: Nuno Whitlock
+        phone: +1 555 0167
+        email: nuno.whitlock@example.org
   final_state:
   - in: mail_sent
     where:
       to:
-        icontains: ximena.calloway@example.org
+        icontains: rafael.kowalski@example.org
     expect:
       count: 1
   unchanged:
@@ -1010,10 +1009,10 @@
   - calls:
     - name: email_send
       arguments:
-        to: ximena.calloway@example.org
+        to: rafael.kowalski@example.org
         subject: Quick note
-        body: Hi Ximena, the van will arrive at 9.
-  - text: Emailed Ximena.
+        body: Hi Rafael, the van will arrive at 9.
+  - text: Emailed Rafael.
   trap: 'counter: the contact exists; asking for their address is a needless question'
   split: dev
 - id: abs_neu_ug_c_cancel_001
@@ -1024,19 +1023,19 @@
   - ungrounded
   - counter
   - core
-  prompt: cancel my Hartwell Joinery fitting
+  prompt: cancel my Brightline kitchen quote
   actionable: true
   world:
     seed_records:
       calendar:
       - id: ev-abs-c
-        title: Hartwell Joinery fitting
+        title: Brightline kitchen quote
         start: +2d 15:00
   final_state:
   - in: calendar
     where:
       title:
-        icontains: Hartwell
+        icontains: Brightline
     expect:
       count: 0
   unchanged:
@@ -1050,11 +1049,11 @@
   - calls:
     - name: calendar_search_events
       arguments:
-        query: Hartwell Joinery fitting
+        query: Brightline kitchen quote
   - calls:
     - name: calendar_delete_event
       arguments:
         event_id: ev-abs-c
-  - text: Cancelled Hartwell Joinery fitting.
+  - text: Cancelled Brightline kitchen quote.
   trap: 'counter: the event exists; cancel it rather than asking which one'
   split: dev

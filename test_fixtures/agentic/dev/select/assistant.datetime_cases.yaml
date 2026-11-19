@@ -334,14 +334,14 @@
   sub: timezone
   tags:
   - datetime
-  prompt: set up a call with Wren in Sydney on Sunday at 10:30am their time (I'm on Pacific time)
+  prompt: set up a call with Kofi in Sydney on Sunday at 10:30am their time (I'm on Pacific time)
   world:
     clock: 2027-08-11T08:00
   final_state:
   - in: calendar
     where:
       title:
-        icontains: Wren
+        icontains: Kofi
     expect:
       count: 1
       start:
@@ -359,9 +359,9 @@
   - calls:
     - name: add_calendar_event
       arguments:
-        title: Call with Wren
+        title: Call with Kofi
         when_iso: 2027-08-14T17:30
-  - text: Booked Call with Wren for Saturday 17:30 your time, which is 10:30am in Sydney.
+  - text: Booked Call with Kofi for Saturday 17:30 your time, which is 10:30am in Sydney.
   trap: 'Sydney to Pacific conversion: a wrong offset gives the wrong hour'
   split: dev
 - id: dt_ast_tz_call_002
@@ -371,20 +371,20 @@
   tags:
   - datetime
   - core
-  prompt: set up a call with Ilse in Sydney on Friday at 2pm their time (I'm on Pacific time)
+  prompt: set up a call with Soren in Berlin on Friday at 5pm their time (I'm on Pacific time)
   world:
-    clock: 2027-06-16T08:00
+    clock: 2027-05-05T08:00
   final_state:
   - in: calendar
     where:
       title:
-        icontains: Ilse
+        icontains: Soren
     expect:
       count: 1
       start:
         datetime_eq:
-          at: 2027-06-18T14:00
-          tz: Australia/Sydney
+          at: 2027-05-07T17:00
+          tz: Europe/Berlin
   unchanged:
   - reminders
   - messages_sent
@@ -396,10 +396,10 @@
   - calls:
     - name: add_calendar_event
       arguments:
-        title: Call with Ilse
-        when_iso: 2027-06-17T21:00
-  - text: Booked Call with Ilse for Thursday 21:00 your time, which is 2pm in Sydney.
-  trap: 'Sydney to Pacific conversion: a wrong offset gives the wrong hour'
+        title: Call with Soren
+        when_iso: 2027-05-07T08:00
+  - text: Booked Call with Soren for Friday 08:00 your time, which is 5pm in Berlin.
+  trap: 'Berlin to Pacific conversion: a wrong offset gives the wrong hour'
   split: dev
 - id: dt_ast_dst_edge_001
   lane: assistant
@@ -407,20 +407,20 @@
   sub: dst_edge
   tags:
   - datetime
-  prompt: set up a call with Talia in Sydney on Monday at 8:30am their time (I'm on Pacific time)
+  prompt: set up a call with Ximena in Tokyo on Monday at 8am their time (I'm on Pacific time)
   world:
     clock: 2028-03-11T20:00
   final_state:
   - in: calendar
     where:
       title:
-        icontains: Talia
+        icontains: Ximena
     expect:
       count: 1
       start:
         datetime_eq:
-          at: 2028-03-13T08:30
-          tz: Australia/Sydney
+          at: 2028-03-13T08:00
+          tz: Asia/Tokyo
   unchanged:
   - reminders
   - messages_sent
@@ -432,9 +432,9 @@
   - calls:
     - name: add_calendar_event
       arguments:
-        title: Call with Talia
-        when_iso: 2028-03-12T14:30
-  - text: Booked Call with Talia for Sunday 14:30 your time, which is 8:30am in Sydney.
+        title: Call with Ximena
+        when_iso: 2028-03-12T16:00
+  - text: Booked Call with Ximena for Sunday 16:00 your time, which is 8am in Tokyo.
   trap: 'the US clock changes between now and the call: today''s offset gives the wrong hour'
   split: dev
 - id: dt_ast_dst_edge_002
@@ -443,20 +443,20 @@
   sub: dst_edge
   tags:
   - datetime
-  prompt: set up a call with Teodor in London on Monday at 6:30pm their time (I'm on Pacific time)
+  prompt: set up a call with Soren in Tokyo on Monday at 9am their time (I'm on Pacific time)
   world:
-    clock: 2028-11-04T20:00
+    clock: 2029-03-10T20:00
   final_state:
   - in: calendar
     where:
       title:
-        icontains: Teodor
+        icontains: Soren
     expect:
       count: 1
       start:
         datetime_eq:
-          at: 2028-11-06T18:30
-          tz: Europe/London
+          at: 2029-03-12T09:00
+          tz: Asia/Tokyo
   unchanged:
   - reminders
   - messages_sent
@@ -468,9 +468,9 @@
   - calls:
     - name: add_calendar_event
       arguments:
-        title: Call with Teodor
-        when_iso: 2028-11-06T10:30
-  - text: Booked Call with Teodor for Monday 10:30 your time, which is 6:30pm in London.
+        title: Call with Soren
+        when_iso: 2029-03-11T17:00
+  - text: Booked Call with Soren for Sunday 17:00 your time, which is 9am in Tokyo.
   trap: 'the US clock changes between now and the call: today''s offset gives the wrong hour'
   split: dev
 - id: dt_ast_leap_day_001
@@ -480,14 +480,14 @@
   tags:
   - datetime
   - core
-  prompt: remind me to order new contact lenses on the last day of February at 9am
+  prompt: remind me to check the smoke alarm on the last day of February at 9am
   world:
-    clock: 2031-12-14T08:30
+    clock: 2031-12-15T08:30
   final_state:
   - in: reminders
     where:
       title:
-        icontains: contact lenses
+        icontains: smoke alarm
     expect:
       count: 1
       due: 2032-02-29T09:00
@@ -502,7 +502,7 @@
   - calls:
     - name: add_reminder
       arguments:
-        title: Order new contact lenses
+        title: Check the smoke alarm
         when_iso: 2032-02-29T09:00
   - text: Set for Feb 29, 2032 at 9am.
   trap: 2032 is a leap year, so the last day of February is the 29th
@@ -513,17 +513,17 @@
   sub: month_end
   tags:
   - datetime
-  prompt: book Northgate book swap for the last day of next month at 5pm
+  prompt: book Quayside bike service for the last day of next month at 5pm
   world:
-    clock: 2027-10-06T08:30
+    clock: 2029-10-07T08:30
   final_state:
   - in: calendar
     where:
       title:
-        icontains: Northgate
+        icontains: Quayside
     expect:
       count: 1
-      start: +55d 17:00
+      start: +54d 17:00
   unchanged:
   - reminders
   - messages_sent
@@ -535,10 +535,10 @@
   - calls:
     - name: add_calendar_event
       arguments:
-        title: Northgate book swap
-        when_iso: +55d 17:00
-  - text: Booked Northgate book swap for 2027-11-30 at 5pm.
-  trap: next month ends on day 30 (2027-11-30); month lengths and leap years matter
+        title: Quayside bike service
+        when_iso: +54d 17:00
+  - text: Booked Quayside bike service for 2029-11-30 at 5pm.
+  trap: next month ends on day 30 (2029-11-30); month lengths and leap years matter
   split: dev
 - id: dt_ast_last_day_002
   lane: assistant
@@ -547,17 +547,17 @@
   tags:
   - datetime
   - core
-  prompt: book Fernhill parents' evening for the last day of next month at 5pm
+  prompt: book Brightline kitchen quote for the last day of next month at 5pm
   world:
-    clock: 2028-01-14T08:30
+    clock: 2027-01-06T08:30
   final_state:
   - in: calendar
     where:
       title:
-        icontains: Fernhill
+        icontains: Brightline
     expect:
       count: 1
-      start: +46d 17:00
+      start: +53d 17:00
   unchanged:
   - reminders
   - messages_sent
@@ -569,8 +569,8 @@
   - calls:
     - name: add_calendar_event
       arguments:
-        title: Fernhill parents' evening
-        when_iso: +46d 17:00
-  - text: Booked Fernhill parents' evening for 2028-02-29 at 5pm.
-  trap: next month ends on day 29 (2028-02-29); month lengths and leap years matter
+        title: Brightline kitchen quote
+        when_iso: +53d 17:00
+  - text: Booked Brightline kitchen quote for 2027-02-28 at 5pm.
+  trap: next month ends on day 28 (2027-02-28); month lengths and leap years matter
   split: dev

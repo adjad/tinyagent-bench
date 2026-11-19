@@ -6,7 +6,7 @@
   sub: same_tool
   tags:
   - core
-  prompt: What's the weather right now in Utrecht and Lyon?
+  prompt: how warm is it right now in ljubljana and oslo?
   facts:
     t0:
       int:
@@ -38,13 +38,13 @@
     seed_records:
       weather:
       - id: w-1
-        location: Utrecht
+        location: Ljubljana
         temp_c: '{t0}'
         high_c: '{t0hi}'
         low_c: '{t0lo}'
-        condition: cloudy
+        condition: sunny
       - id: w-2
-        location: Lyon
+        location: Oslo
         temp_c: '{t1}'
         high_c: '{t1hi}'
         low_c: '{t1lo}'
@@ -56,16 +56,16 @@
       - tool: weather_get_current
         args:
           location:
-            icontains: Utrecht
+            icontains: Ljubljana
       - tool: weather_get_current
         args:
           location:
-            icontains: Lyon
+            icontains: Oslo
   answer:
     contains_all:
-    - Utrecht
+    - Ljubljana
     - '{t0}'
-    - Lyon
+    - Oslo
     - '{t1}'
   forbid:
   - web_search
@@ -84,11 +84,11 @@
   - calls:
     - name: weather_get_current
       arguments:
-        location: Utrecht
+        location: Ljubljana
     - name: weather_get_current
       arguments:
-        location: Lyon
-  - text: Utrecht is {t0} degrees. Lyon is {t1} degrees.
+        location: Oslo
+  - text: Ljubljana is {t0} degrees. Oslo is {t1} degrees.
   trap: 'weather for 2 places: one lookup, or a guessed temperature, fails'
   split: dev
 - id: par_neu_weather_002
@@ -96,7 +96,7 @@
   family: parallel
   sub: same_tool
   tags: []
-  prompt: Current temperature in Accra, Kyoto and Nairobi?
+  prompt: Current temperature in Tbilisi, Bergen and Halifax?
   facts:
     t0:
       int:
@@ -143,23 +143,23 @@
     seed_records:
       weather:
       - id: w-1
-        location: Accra
+        location: Tbilisi
         temp_c: '{t0}'
         high_c: '{t0hi}'
         low_c: '{t0lo}'
-        condition: windy
+        condition: cloudy
       - id: w-2
-        location: Kyoto
+        location: Bergen
         temp_c: '{t1}'
         high_c: '{t1hi}'
         low_c: '{t1lo}'
-        condition: clear
+        condition: sunny
       - id: w-3
-        location: Nairobi
+        location: Halifax
         temp_c: '{t2}'
         high_c: '{t2hi}'
         low_c: '{t2lo}'
-        condition: sunny
+        condition: windy
   expect:
   - parallel:
       same_step: true
@@ -167,22 +167,22 @@
       - tool: weather_get_current
         args:
           location:
-            icontains: Accra
+            icontains: Tbilisi
       - tool: weather_get_current
         args:
           location:
-            icontains: Kyoto
+            icontains: Bergen
       - tool: weather_get_current
         args:
           location:
-            icontains: Nairobi
+            icontains: Halifax
   answer:
     contains_all:
-    - Accra
+    - Tbilisi
     - '{t0}'
-    - Kyoto
+    - Bergen
     - '{t1}'
-    - Nairobi
+    - Halifax
     - '{t2}'
   forbid:
   - web_search
@@ -201,14 +201,14 @@
   - calls:
     - name: weather_get_current
       arguments:
-        location: Accra
+        location: Tbilisi
     - name: weather_get_current
       arguments:
-        location: Kyoto
+        location: Bergen
     - name: weather_get_current
       arguments:
-        location: Nairobi
-  - text: Accra is {t0} degrees. Kyoto is {t1} degrees. Nairobi is {t2} degrees.
+        location: Halifax
+  - text: Tbilisi is {t0} degrees. Bergen is {t1} degrees. Halifax is {t2} degrees.
   trap: 'weather for 3 places: one lookup, or a guessed temperature, fails'
   split: dev
 - id: par_neu_weather_003
@@ -217,7 +217,7 @@
   sub: same_tool
   tags:
   - core
-  prompt: Current temperature in Galway, Antwerp, Bergen and Ljubljana?
+  prompt: How warm is it right now in Graz, Bologna, Accra and Lyon?
   facts:
     t0:
       int:
@@ -280,29 +280,29 @@
     seed_records:
       weather:
       - id: w-1
-        location: Galway
+        location: Graz
         temp_c: '{t0}'
         high_c: '{t0hi}'
         low_c: '{t0lo}'
-        condition: clear
+        condition: windy
       - id: w-2
-        location: Antwerp
+        location: Bologna
         temp_c: '{t1}'
         high_c: '{t1hi}'
         low_c: '{t1lo}'
-        condition: cloudy
+        condition: light rain
       - id: w-3
-        location: Bergen
+        location: Accra
         temp_c: '{t2}'
         high_c: '{t2hi}'
         low_c: '{t2lo}'
         condition: sunny
       - id: w-4
-        location: Ljubljana
+        location: Lyon
         temp_c: '{t3}'
         high_c: '{t3hi}'
         low_c: '{t3lo}'
-        condition: windy
+        condition: clear
   expect:
   - parallel:
       same_step: true
@@ -310,28 +310,28 @@
       - tool: weather_get_current
         args:
           location:
-            icontains: Galway
+            icontains: Graz
       - tool: weather_get_current
         args:
           location:
-            icontains: Antwerp
+            icontains: Bologna
       - tool: weather_get_current
         args:
           location:
-            icontains: Bergen
+            icontains: Accra
       - tool: weather_get_current
         args:
           location:
-            icontains: Ljubljana
+            icontains: Lyon
   answer:
     contains_all:
-    - Galway
+    - Graz
     - '{t0}'
-    - Antwerp
+    - Bologna
     - '{t1}'
-    - Bergen
+    - Accra
     - '{t2}'
-    - Ljubljana
+    - Lyon
     - '{t3}'
   forbid:
   - web_search
@@ -350,17 +350,17 @@
   - calls:
     - name: weather_get_current
       arguments:
-        location: Galway
+        location: Graz
     - name: weather_get_current
       arguments:
-        location: Antwerp
+        location: Bologna
     - name: weather_get_current
       arguments:
-        location: Bergen
+        location: Accra
     - name: weather_get_current
       arguments:
-        location: Ljubljana
-  - text: Galway is {t0} degrees. Antwerp is {t1} degrees. Bergen is {t2} degrees. Ljubljana is {t3} degrees.
+        location: Lyon
+  - text: Graz is {t0} degrees. Bologna is {t1} degrees. Accra is {t2} degrees. Lyon is {t3} degrees.
   trap: 'weather for 4 places: one lookup, or a guessed temperature, fails'
   split: dev
 - id: par_neu_weather_004
@@ -368,7 +368,7 @@
   family: parallel
   sub: same_tool
   tags: []
-  prompt: What's the weather right now in Graz, Bologna and Accra?
+  prompt: How warm is it right now in Ljubljana, Bologna and Graz?
   facts:
     t0:
       int:
@@ -415,11 +415,11 @@
     seed_records:
       weather:
       - id: w-1
-        location: Graz
+        location: Ljubljana
         temp_c: '{t0}'
         high_c: '{t0hi}'
         low_c: '{t0lo}'
-        condition: windy
+        condition: clear
       - id: w-2
         location: Bologna
         temp_c: '{t1}'
@@ -427,11 +427,11 @@
         low_c: '{t1lo}'
         condition: light rain
       - id: w-3
-        location: Accra
+        location: Graz
         temp_c: '{t2}'
         high_c: '{t2hi}'
         low_c: '{t2lo}'
-        condition: sunny
+        condition: clear
   expect:
   - parallel:
       same_step: true
@@ -439,7 +439,7 @@
       - tool: weather_get_current
         args:
           location:
-            icontains: Graz
+            icontains: Ljubljana
       - tool: weather_get_current
         args:
           location:
@@ -447,14 +447,14 @@
       - tool: weather_get_current
         args:
           location:
-            icontains: Accra
+            icontains: Graz
   answer:
     contains_all:
-    - Graz
+    - Ljubljana
     - '{t0}'
     - Bologna
     - '{t1}'
-    - Accra
+    - Graz
     - '{t2}'
   forbid:
   - web_search
@@ -473,14 +473,14 @@
   - calls:
     - name: weather_get_current
       arguments:
-        location: Graz
+        location: Ljubljana
     - name: weather_get_current
       arguments:
         location: Bologna
     - name: weather_get_current
       arguments:
-        location: Accra
-  - text: Graz is {t0} degrees. Bologna is {t1} degrees. Accra is {t2} degrees.
+        location: Graz
+  - text: Ljubljana is {t0} degrees. Bologna is {t1} degrees. Graz is {t2} degrees.
   trap: 'weather for 3 places: one lookup, or a guessed temperature, fails'
   split: dev
 - id: par_neu_stocks_001
@@ -488,7 +488,7 @@
   family: parallel
   sub: same_tool
   tags: []
-  prompt: Give me the latest prices for DRFT and FJRD.
+  prompt: Give me the latest prices for OMNI and FJRD.
   facts:
     pr0:
       int:
@@ -511,7 +511,7 @@
   world:
     seed_records:
       stocks:
-      - id: DRFT
+      - id: OMNI
         price: '{pr0}'
         change_pct: '{ch0}'
       - id: FJRD
@@ -524,7 +524,7 @@
       - tool: stocks_get_quote
         args:
           symbol:
-            icontains: DRFT
+            icontains: OMNI
       - tool: stocks_get_quote
         args:
           symbol:
@@ -550,11 +550,11 @@
   - calls:
     - name: stocks_get_quote
       arguments:
-        symbol: DRFT
+        symbol: OMNI
     - name: stocks_get_quote
       arguments:
         symbol: FJRD
-  - text: DRFT is at {pr0}. FJRD is at {pr1}.
+  - text: OMNI is at {pr0}. FJRD is at {pr1}.
   trap: 2 quotes, one per ticker; a remembered price fails
   split: dev
 - id: par_neu_stocks_002
@@ -563,7 +563,7 @@
   sub: same_tool
   tags:
   - core
-  prompt: what are omni, fjrd, twlv and krnl trading at?
+  prompt: give me the latest prices for twlv, krnl, drft and plum
   facts:
     pr0:
       int:
@@ -609,16 +609,16 @@
   world:
     seed_records:
       stocks:
-      - id: OMNI
+      - id: TWLV
         price: '{pr0}'
         change_pct: '{ch0}'
-      - id: FJRD
+      - id: KRNL
         price: '{pr1}'
         change_pct: '{ch1}'
-      - id: TWLV
+      - id: DRFT
         price: '{pr2}'
         change_pct: '{ch2}'
-      - id: KRNL
+      - id: PLUM
         price: '{pr3}'
         change_pct: '{ch3}'
   expect:
@@ -628,19 +628,19 @@
       - tool: stocks_get_quote
         args:
           symbol:
-            icontains: OMNI
-      - tool: stocks_get_quote
-        args:
-          symbol:
-            icontains: FJRD
-      - tool: stocks_get_quote
-        args:
-          symbol:
             icontains: TWLV
       - tool: stocks_get_quote
         args:
           symbol:
             icontains: KRNL
+      - tool: stocks_get_quote
+        args:
+          symbol:
+            icontains: DRFT
+      - tool: stocks_get_quote
+        args:
+          symbol:
+            icontains: PLUM
   answer:
     contains_all:
     - '{pr0}'
@@ -664,17 +664,17 @@
   - calls:
     - name: stocks_get_quote
       arguments:
-        symbol: OMNI
-    - name: stocks_get_quote
-      arguments:
-        symbol: FJRD
-    - name: stocks_get_quote
-      arguments:
         symbol: TWLV
     - name: stocks_get_quote
       arguments:
         symbol: KRNL
-  - text: OMNI is at {pr0}. FJRD is at {pr1}. TWLV is at {pr2}. KRNL is at {pr3}.
+    - name: stocks_get_quote
+      arguments:
+        symbol: DRFT
+    - name: stocks_get_quote
+      arguments:
+        symbol: PLUM
+  - text: TWLV is at {pr0}. KRNL is at {pr1}. DRFT is at {pr2}. PLUM is at {pr3}.
   trap: 4 quotes, one per ticker; a remembered price fails
   split: dev
 - id: par_neu_pages_001
@@ -682,8 +682,8 @@
   family: parallel
   sub: same_tool
   tags: []
-  prompt: check the lunch prices on https://juniper-kitchen.example.com/lunch, https://quayside-deli.example.com/lunch
-    and https://copperleaf-cafe.example.com/lunch
+  prompt: check the lunch prices on https://juniper-kitchen.example.com/lunch, https://willow-tea-rooms.example.com/lunch
+    and https://quayside-deli.example.com/lunch
   facts:
     pg0:
       int:
@@ -704,14 +704,14 @@
         url: https://juniper-kitchen.example.com/lunch
         title: Juniper Kitchen lunch menu
         text: 'Juniper Kitchen set lunch: two courses for ${pg0}. Open 12 to 3 on weekdays.'
+      - id: https://willow-tea-rooms.example.com/lunch
+        url: https://willow-tea-rooms.example.com/lunch
+        title: Willow Tea Rooms lunch menu
+        text: 'Willow Tea Rooms set lunch: two courses for ${pg1}. Open 12 to 3 on weekdays.'
       - id: https://quayside-deli.example.com/lunch
         url: https://quayside-deli.example.com/lunch
         title: Quayside Deli lunch menu
-        text: 'Quayside Deli set lunch: two courses for ${pg1}. Open 12 to 3 on weekdays.'
-      - id: https://copperleaf-cafe.example.com/lunch
-        url: https://copperleaf-cafe.example.com/lunch
-        title: Copperleaf Cafe lunch menu
-        text: 'Copperleaf Cafe set lunch: two courses for ${pg2}. Open 12 to 3 on weekdays.'
+        text: 'Quayside Deli set lunch: two courses for ${pg2}. Open 12 to 3 on weekdays.'
   expect:
   - parallel:
       same_step: true
@@ -723,11 +723,11 @@
       - tool: web_fetch
         args:
           url:
-            icontains: quayside-deli
+            icontains: willow-tea-rooms
       - tool: web_fetch
         args:
           url:
-            icontains: copperleaf-cafe
+            icontains: quayside-deli
   answer:
     contains_all:
     - '{pg0}'
@@ -753,12 +753,12 @@
         url: https://juniper-kitchen.example.com/lunch
     - name: web_fetch
       arguments:
-        url: https://quayside-deli.example.com/lunch
+        url: https://willow-tea-rooms.example.com/lunch
     - name: web_fetch
       arguments:
-        url: https://copperleaf-cafe.example.com/lunch
-  - text: Juniper Kitchen charges ${pg0} for the set lunch. Quayside Deli charges ${pg1} for the set lunch. Copperleaf
-      Cafe charges ${pg2} for the set lunch.
+        url: https://quayside-deli.example.com/lunch
+  - text: Juniper Kitchen charges ${pg0} for the set lunch. Willow Tea Rooms charges ${pg1} for the set lunch. Quayside
+      Deli charges ${pg2} for the set lunch.
   trap: a price seen on one page is not the price on another
   split: dev
 - id: par_neu_pages_002
@@ -767,8 +767,7 @@
   sub: same_tool
   tags:
   - core
-  prompt: 'What does each of these places charge for the set lunch: https://northgate-noodles.example.com/lunch
-    and https://juniper-kitchen.example.com/lunch?'
+  prompt: check the lunch prices on https://juniper-kitchen.example.com/lunch and https://northgate-noodles.example.com/lunch
   facts:
     pg0:
       int:
@@ -781,14 +780,14 @@
   world:
     seed_records:
       web:
-      - id: https://northgate-noodles.example.com/lunch
-        url: https://northgate-noodles.example.com/lunch
-        title: Northgate Noodles lunch menu
-        text: 'Northgate Noodles set lunch: two courses for ${pg0}. Open 12 to 3 on weekdays.'
       - id: https://juniper-kitchen.example.com/lunch
         url: https://juniper-kitchen.example.com/lunch
         title: Juniper Kitchen lunch menu
-        text: 'Juniper Kitchen set lunch: two courses for ${pg1}. Open 12 to 3 on weekdays.'
+        text: 'Juniper Kitchen set lunch: two courses for ${pg0}. Open 12 to 3 on weekdays.'
+      - id: https://northgate-noodles.example.com/lunch
+        url: https://northgate-noodles.example.com/lunch
+        title: Northgate Noodles lunch menu
+        text: 'Northgate Noodles set lunch: two courses for ${pg1}. Open 12 to 3 on weekdays.'
   expect:
   - parallel:
       same_step: true
@@ -796,11 +795,11 @@
       - tool: web_fetch
         args:
           url:
-            icontains: northgate-noodles
+            icontains: juniper-kitchen
       - tool: web_fetch
         args:
           url:
-            icontains: juniper-kitchen
+            icontains: northgate-noodles
   answer:
     contains_all:
     - '{pg0}'
@@ -822,11 +821,11 @@
   - calls:
     - name: web_fetch
       arguments:
-        url: https://northgate-noodles.example.com/lunch
+        url: https://juniper-kitchen.example.com/lunch
     - name: web_fetch
       arguments:
-        url: https://juniper-kitchen.example.com/lunch
-  - text: Northgate Noodles charges ${pg0} for the set lunch. Juniper Kitchen charges ${pg1} for the set lunch.
+        url: https://northgate-noodles.example.com/lunch
+  - text: Juniper Kitchen charges ${pg0} for the set lunch. Northgate Noodles charges ${pg1} for the set lunch.
   trap: a price seen on one page is not the price on another
   split: dev
 - id: par_neu_files_001
@@ -834,8 +833,8 @@
   family: parallel
   sub: same_tool
   tags: []
-  prompt: what are the totals on gym-invoice.txt, printer-invoice.txt, dentist-invoice.txt and fence-invoice.txt
-    in my documents folder?
+  prompt: Open fence-invoice.txt, printer-invoice.txt, boiler-invoice.txt and gym-invoice.txt in Documents and tell
+    me each total due.
   facts:
     inv0:
       int:
@@ -856,20 +855,20 @@
   world:
     seed_records:
       files:
-      - id: ~/Documents/gym-invoice.txt
-        path: ~/Documents/gym-invoice.txt
+      - id: ~/Documents/fence-invoice.txt
+        path: ~/Documents/fence-invoice.txt
         kind: file
         text: 'Invoice total due: ${inv0}. Pay within 30 days.'
       - id: ~/Documents/printer-invoice.txt
         path: ~/Documents/printer-invoice.txt
         kind: file
         text: 'Invoice total due: ${inv1}. Pay within 30 days.'
-      - id: ~/Documents/dentist-invoice.txt
-        path: ~/Documents/dentist-invoice.txt
+      - id: ~/Documents/boiler-invoice.txt
+        path: ~/Documents/boiler-invoice.txt
         kind: file
         text: 'Invoice total due: ${inv2}. Pay within 30 days.'
-      - id: ~/Documents/fence-invoice.txt
-        path: ~/Documents/fence-invoice.txt
+      - id: ~/Documents/gym-invoice.txt
+        path: ~/Documents/gym-invoice.txt
         kind: file
         text: 'Invoice total due: ${inv3}. Pay within 30 days.'
   expect:
@@ -879,7 +878,7 @@
       - tool: files_read
         args:
           path:
-            icontains: gym
+            icontains: fence
       - tool: files_read
         args:
           path:
@@ -887,11 +886,11 @@
       - tool: files_read
         args:
           path:
-            icontains: dentist
+            icontains: boiler
       - tool: files_read
         args:
           path:
-            icontains: fence
+            icontains: gym
   answer:
     contains_all:
     - '{inv0}'
@@ -915,18 +914,18 @@
   - calls:
     - name: files_read
       arguments:
-        path: ~/Documents/gym-invoice.txt
+        path: ~/Documents/fence-invoice.txt
     - name: files_read
       arguments:
         path: ~/Documents/printer-invoice.txt
     - name: files_read
       arguments:
-        path: ~/Documents/dentist-invoice.txt
+        path: ~/Documents/boiler-invoice.txt
     - name: files_read
       arguments:
-        path: ~/Documents/fence-invoice.txt
-  - text: The gym invoice is ${inv0}. The printer invoice is ${inv1}. The dentist invoice is ${inv2}. The fence
-      invoice is ${inv3}.
+        path: ~/Documents/gym-invoice.txt
+  - text: The fence invoice is ${inv0}. The printer invoice is ${inv1}. The boiler invoice is ${inv2}. The gym invoice
+      is ${inv3}.
   trap: each total is in its own file; a guess or one read fails
   split: dev
 - id: par_neu_sources_001
@@ -935,7 +934,358 @@
   sub: multi_source
   tags:
   - core
-  prompt: Can you tell me when my reminder to buy printer ink is due and which table Selin booked.
+  prompt: Can you tell me when my reminder to renew the parking permit is due and Arden Print Co's quote for the
+    wedding invitations.
+  facts:
+    v0:
+      int:
+      - 1
+      - 6
+    v0h:
+      add:
+      - v0
+      - 12
+    m1:
+      int:
+      - 150
+      - 950
+  world:
+    seed_records:
+      reminders:
+      - id: r-901
+        title: Renew the parking permit
+        due: +2d {v0h}:00
+      mail:
+      - id: m-901
+        from: Arden Print Co <office@arden.example.com>
+        subject: Quote for wedding invitations
+        body: Hello, thanks for asking. Our quote for the wedding invitations is ${m1}, valid for two weeks.
+        received: -1d 10:15
+        unread: true
+  expect:
+  - parallel:
+      same_step: true
+      steps:
+      - any_of:
+        - reminders_search
+        - reminders_list
+      - any_of:
+        - email_search
+        - email_list
+  answer:
+    contains_all:
+    - permit
+    - '{m1}'
+    regex: (?:(?<!\d){v0h}:00|(?<!\d){v0}(?::00)?\s*(?:pm|p\.m\.))
+  forbid:
+  - messages_send
+  - email_send
+  - reminders_create
+  unchanged:
+  - reminders
+  - calendar
+  - notes
+  - messages_sent
+  - mail_sent
+  - message_drafts
+  optimal:
+    calls: 2
+    steps: 2
+  oracle:
+  - calls:
+    - name: reminders_search
+      arguments:
+        query: permit
+    - name: email_search
+      arguments:
+        query: Arden
+  - text: Your reminder to renew the parking permit is due at {v0} PM. Arden Print Co quoted ${m1} for the wedding
+      invitations.
+  trap: answering from one source implies the others were empty; each fact sits in a different app
+  split: dev
+- id: par_neu_sources_002
+  lane: neutral
+  family: parallel
+  sub: multi_source
+  tags: []
+  prompt: I need to know Delphine's phone number, what time my choir practice is and when my reminder to water the
+    tomatoes is due.
+  facts:
+    p0:
+      int:
+      - 10
+      - 29
+    e1:
+      int:
+      - 1
+      - 6
+    e1h:
+      add:
+      - e1
+      - 12
+    v2:
+      int:
+      - 1
+      - 6
+    v2h:
+      add:
+      - v2
+      - 12
+  world:
+    seed_records:
+      contacts:
+      - id: c-901
+        name: Delphine Thackeray
+        phone: +1 555 01{p0}
+        email: delphine.thackeray@example.org
+      calendar:
+      - id: ev-901
+        title: Choir practice at Riverside Climbing Wall
+        start: +3d {e1h}:00
+      reminders:
+      - id: r-901
+        title: Water the tomatoes
+        due: +4d {v2h}:00
+  expect:
+  - parallel:
+      same_step: true
+      steps:
+      - tool: contacts_search
+        args:
+          query:
+            icontains: Delphine
+      - any_of:
+        - calendar_list_events
+        - calendar_search_events
+      - any_of:
+        - reminders_search
+        - reminders_list
+  answer:
+    contains_all:
+    - 01{p0}
+    - Riverside Climbing Wall
+    - tomato
+    regex: ^(?=.*(?:(?<!\d){e1h}:00|(?<!\d){e1}(?::00)?\s*(?:pm|p\.m\.)))(?=.*(?:(?<!\d){v2h}:00|(?<!\d){v2}(?::00)?\s*(?:pm|p\.m\.)))
+  forbid:
+  - messages_send
+  - email_send
+  - reminders_create
+  unchanged:
+  - reminders
+  - calendar
+  - notes
+  - messages_sent
+  - mail_sent
+  - message_drafts
+  optimal:
+    calls: 3
+    steps: 2
+  oracle:
+  - calls:
+    - name: contacts_search
+      arguments:
+        query: Delphine
+    - name: calendar_list_events
+      arguments:
+        start_date: +0d
+        end_date: +7d
+    - name: reminders_search
+      arguments:
+        query: tomato
+  - text: Delphine's number is +1 555 01{p0}. Your choir practice at Riverside Climbing Wall is at {e1} PM. Your
+      reminder to water the tomatoes is due at {v2} PM.
+  trap: answering from one source implies the others were empty; each fact sits in a different app
+  split: dev
+- id: par_neu_sources_003
+  lane: neutral
+  family: parallel
+  sub: multi_source
+  tags:
+  - core
+  prompt: Tell me what time my piano lesson is, Bruno's number, which table Aiko booked and when my reminder to
+    check the smoke alarm is due.
+  facts:
+    e0:
+      int:
+      - 1
+      - 6
+    e0h:
+      add:
+      - e0
+      - 12
+    p1:
+      int:
+      - 30
+      - 49
+    s2:
+      int:
+      - 3
+      - 48
+    v3:
+      int:
+      - 1
+      - 6
+    v3h:
+      add:
+      - v3
+      - 12
+  world:
+    seed_records:
+      calendar:
+      - id: ev-901
+        title: Piano lesson at Tidewater Dental
+        start: +2d {e0h}:00
+      contacts:
+      - id: c-901
+        name: Bruno Sorensen
+        phone: +1 555 01{p1}
+        email: bruno.sorensen@example.org
+      messages:
+      - id: ms-901
+        thread: Aiko Moreau
+        from: Aiko Moreau
+        text: I booked table {s2} for us tonight.
+        received: -4h
+        unread: true
+      reminders:
+      - id: r-901
+        title: Check the smoke alarm
+        due: +5d {v3h}:00
+  expect:
+  - parallel:
+      same_step: true
+      steps:
+      - any_of:
+        - calendar_list_events
+        - calendar_search_events
+      - tool: contacts_search
+        args:
+          query:
+            icontains: Bruno
+      - any_of:
+        - messages_search
+        - messages_read_thread
+        - messages_list_threads
+      - any_of:
+        - reminders_search
+        - reminders_list
+  answer:
+    contains_all:
+    - Tidewater Dental
+    - 01{p1}
+    - '{s2}'
+    - smoke
+    regex: ^(?=.*(?:(?<!\d){e0h}:00|(?<!\d){e0}(?::00)?\s*(?:pm|p\.m\.)))(?=.*(?:(?<!\d){v3h}:00|(?<!\d){v3}(?::00)?\s*(?:pm|p\.m\.)))
+  forbid:
+  - messages_send
+  - email_send
+  - reminders_create
+  unchanged:
+  - reminders
+  - calendar
+  - notes
+  - messages_sent
+  - mail_sent
+  - message_drafts
+  optimal:
+    calls: 4
+    steps: 2
+  oracle:
+  - calls:
+    - name: calendar_list_events
+      arguments:
+        start_date: +0d
+        end_date: +7d
+    - name: contacts_search
+      arguments:
+        query: Bruno
+    - name: messages_search
+      arguments:
+        query: Aiko
+    - name: reminders_search
+      arguments:
+        query: smoke
+  - text: Your piano lesson at Tidewater Dental is at {e0} PM. Bruno's number is +1 555 01{p1}. Aiko booked table
+      {s2}. Your reminder to check the smoke alarm is due at {v3} PM.
+  trap: answering from one source implies the others were empty; each fact sits in a different app
+  split: dev
+- id: par_neu_sources_004
+  lane: neutral
+  family: parallel
+  sub: multi_source
+  tags: []
+  prompt: Tell me Orla's number and which table Idris booked.
+  facts:
+    p0:
+      int:
+      - 10
+      - 29
+    s1:
+      int:
+      - 3
+      - 48
+  world:
+    seed_records:
+      contacts:
+      - id: c-901
+        name: Orla Hartwell
+        phone: +1 555 01{p0}
+        email: orla.hartwell@example.org
+      messages:
+      - id: ms-901
+        thread: Idris Valdivia
+        from: Idris Valdivia
+        text: I booked table {s1} for us tonight.
+        received: -3h
+        unread: true
+  expect:
+  - parallel:
+      same_step: true
+      steps:
+      - tool: contacts_search
+        args:
+          query:
+            icontains: Orla
+      - any_of:
+        - messages_search
+        - messages_read_thread
+        - messages_list_threads
+  answer:
+    contains_all:
+    - 01{p0}
+    - '{s1}'
+  forbid:
+  - messages_send
+  - email_send
+  - reminders_create
+  unchanged:
+  - reminders
+  - calendar
+  - notes
+  - messages_sent
+  - mail_sent
+  - message_drafts
+  optimal:
+    calls: 2
+    steps: 2
+  oracle:
+  - calls:
+    - name: contacts_search
+      arguments:
+        query: Orla
+    - name: messages_search
+      arguments:
+        query: Idris
+  - text: Orla's number is +1 555 01{p0}. Idris booked table {s1}.
+  trap: answering from one source implies the others were empty; each fact sits in a different app
+  split: dev
+- id: par_neu_sources_005
+  lane: neutral
+  family: parallel
+  sub: multi_source
+  tags: []
+  prompt: I need to know when my reminder to call the garage is due, the gate code Bruno sent and what time my pottery
+    class is.
   facts:
     v0:
       int:
@@ -946,126 +1296,52 @@
       - v0
       - 12
     s1:
-      int:
-      - 3
-      - 48
-  world:
-    seed_records:
-      reminders:
-      - id: r-901
-        title: Buy printer ink
-        due: +2d {v0h}:00
-      messages:
-      - id: ms-901
-        thread: Selin Nakamura
-        from: Selin Nakamura
-        text: I booked table {s1} for us tonight.
-        received: -3h
-        unread: true
-  expect:
-  - parallel:
-      same_step: true
-      steps:
-      - any_of:
-        - reminders_search
-        - reminders_list
-      - any_of:
-        - messages_search
-        - messages_read_thread
-        - messages_list_threads
-  answer:
-    contains_all:
-    - printer
-    - '{s1}'
-    regex: (?:(?<!\d){v0h}:00|(?<!\d){v0}(?::00)?\s*(?:pm|p\.m\.))
-  forbid:
-  - messages_send
-  - email_send
-  - reminders_create
-  unchanged:
-  - reminders
-  - calendar
-  - notes
-  - messages_sent
-  - mail_sent
-  - message_drafts
-  optimal:
-    calls: 2
-    steps: 2
-  oracle:
-  - calls:
-    - name: reminders_search
-      arguments:
-        query: printer
-    - name: messages_search
-      arguments:
-        query: Selin
-  - text: Your reminder to buy printer ink is due at {v0} PM. Selin booked table {s1}.
-  trap: answering from one source implies the others were empty; each fact sits in a different app
-  split: dev
-- id: par_neu_sources_002
-  lane: neutral
-  family: parallel
-  sub: multi_source
-  tags: []
-  prompt: Can you tell me how late Yusuf said they are running, when my reminder to renew the parking permit is
-    due and Ilse's phone number.
-  facts:
-    s0:
-      int:
-      - 10
-      - 55
-    v1:
+      code: '####'
+    e2:
       int:
       - 1
       - 6
-    v1h:
+    e2h:
       add:
-      - v1
+      - e2
       - 12
-    p2:
-      int:
-      - 50
-      - 69
   world:
     seed_records:
-      messages:
-      - id: ms-901
-        thread: Yusuf Oyelaran
-        from: Yusuf Oyelaran
-        text: Running about {s0} minutes behind, start without me.
-        received: -2h
-        unread: true
       reminders:
       - id: r-901
-        title: Renew the parking permit
-        due: +3d {v1h}:00
-      contacts:
-      - id: c-901
-        name: Ilse Wexford
-        phone: +1 555 01{p2}
-        email: ilse.wexford@example.org
+        title: Call the garage
+        due: +2d {v0h}:00
+      messages:
+      - id: ms-901
+        thread: Bruno Nakamura
+        from: Bruno Nakamura
+        text: The gate code for Saturday is {s1}.
+        received: -3h
+        unread: true
+      calendar:
+      - id: ev-901
+        title: Pottery class at Northgate Library
+        start: +4d {e2h}:00
   expect:
   - parallel:
       same_step: true
       steps:
       - any_of:
+        - reminders_search
+        - reminders_list
+      - any_of:
         - messages_search
         - messages_read_thread
         - messages_list_threads
       - any_of:
-        - reminders_search
-        - reminders_list
-      - tool: contacts_search
-        args:
-          query:
-            icontains: Ilse
+        - calendar_list_events
+        - calendar_search_events
   answer:
     contains_all:
-    - '{s0}'
-    - permit
-    - 01{p2}
-    regex: (?:(?<!\d){v1h}:00|(?<!\d){v1}(?::00)?\s*(?:pm|p\.m\.))
+    - garage
+    - '{s1}'
+    - Northgate Library
+    regex: ^(?=.*(?:(?<!\d){v0h}:00|(?<!\d){v0}(?::00)?\s*(?:pm|p\.m\.)))(?=.*(?:(?<!\d){e2h}:00|(?<!\d){e2}(?::00)?\s*(?:pm|p\.m\.)))
   forbid:
   - messages_send
   - email_send
@@ -1082,283 +1358,18 @@
     steps: 2
   oracle:
   - calls:
-    - name: messages_search
-      arguments:
-        query: Yusuf
     - name: reminders_search
       arguments:
-        query: permit
-    - name: contacts_search
+        query: garage
+    - name: messages_search
       arguments:
-        query: Ilse
-  - text: Yusuf is about {s0} minutes behind. Your reminder to renew the parking permit is due at {v1} PM. Ilse's
-      number is +1 555 01{p2}.
-  trap: answering from one source implies the others were empty; each fact sits in a different app
-  split: dev
-- id: par_neu_sources_003
-  lane: neutral
-  family: parallel
-  sub: multi_source
-  tags:
-  - core
-  prompt: Can you tell me Emeka's number, what time my tennis game is, when my reminder to pay the gas bill is due
-    and the booking reference Juniper Hall sent.
-  facts:
-    p0:
-      int:
-      - 10
-      - 29
-    e1:
-      int:
-      - 1
-      - 6
-    e1h:
-      add:
-      - e1
-      - 12
-    v2:
-      int:
-      - 1
-      - 6
-    v2h:
-      add:
-      - v2
-      - 12
-    m3:
-      code: '@@####'
-  world:
-    seed_records:
-      contacts:
-      - id: c-901
-        name: Emeka Calloway
-        phone: +1 555 01{p0}
-        email: emeka.calloway@example.org
-      calendar:
-      - id: ev-901
-        title: Tennis game at Lantern Bistro
-        start: +3d {e1h}:00
-      reminders:
-      - id: r-901
-        title: Pay the gas bill
-        due: +4d {v2h}:00
-      mail:
-      - id: m-901
-        from: Juniper Hall <office@juniper.example.com>
-        subject: Booking confirmed
-        body: Your booking is confirmed. Your reference is {m3}.
-        received: -1d 12:15
-        unread: true
-  expect:
-  - parallel:
-      same_step: true
-      steps:
-      - tool: contacts_search
-        args:
-          query:
-            icontains: Emeka
-      - any_of:
-        - calendar_list_events
-        - calendar_search_events
-      - any_of:
-        - reminders_search
-        - reminders_list
-      - any_of:
-        - email_search
-        - email_list
-  answer:
-    contains_all:
-    - 01{p0}
-    - Lantern Bistro
-    - gas
-    - '{m3}'
-    regex: ^(?=.*(?:(?<!\d){e1h}:00|(?<!\d){e1}(?::00)?\s*(?:pm|p\.m\.)))(?=.*(?:(?<!\d){v2h}:00|(?<!\d){v2}(?::00)?\s*(?:pm|p\.m\.)))
-  forbid:
-  - messages_send
-  - email_send
-  - reminders_create
-  unchanged:
-  - reminders
-  - calendar
-  - notes
-  - messages_sent
-  - mail_sent
-  - message_drafts
-  optimal:
-    calls: 4
-    steps: 2
-  oracle:
-  - calls:
-    - name: contacts_search
-      arguments:
-        query: Emeka
+        query: Bruno
     - name: calendar_list_events
       arguments:
         start_date: +0d
         end_date: +7d
-    - name: reminders_search
-      arguments:
-        query: gas
-    - name: email_search
-      arguments:
-        query: Juniper
-  - text: Emeka's number is +1 555 01{p0}. Your tennis game at Lantern Bistro is at {e1} PM. Your reminder to pay
-      the gas bill is due at {v2} PM. Juniper Hall's booking reference is {m3}.
-  trap: answering from one source implies the others were empty; each fact sits in a different app
-  split: dev
-- id: par_neu_sources_004
-  lane: neutral
-  family: parallel
-  sub: multi_source
-  tags: []
-  prompt: quick check, tell me jonah's phone number and the booking reference willow street clinic sent
-  facts:
-    p0:
-      int:
-      - 10
-      - 29
-    m1:
-      code: '@@####'
-  world:
-    seed_records:
-      contacts:
-      - id: c-901
-        name: Jonah Ferreira
-        phone: +1 555 01{p0}
-        email: jonah.ferreira@example.org
-      mail:
-      - id: m-901
-        from: Willow Street Clinic <office@willow.example.com>
-        subject: Booking confirmed
-        body: Your booking is confirmed. Your reference is {m1}.
-        received: -1d 10:15
-        unread: true
-  expect:
-  - parallel:
-      same_step: true
-      steps:
-      - tool: contacts_search
-        args:
-          query:
-            icontains: Jonah
-      - any_of:
-        - email_search
-        - email_list
-  answer:
-    contains_all:
-    - 01{p0}
-    - '{m1}'
-  forbid:
-  - messages_send
-  - email_send
-  - reminders_create
-  unchanged:
-  - reminders
-  - calendar
-  - notes
-  - messages_sent
-  - mail_sent
-  - message_drafts
-  optimal:
-    calls: 2
-    steps: 2
-  oracle:
-  - calls:
-    - name: contacts_search
-      arguments:
-        query: Jonah
-    - name: email_search
-      arguments:
-        query: Willow
-  - text: Jonah's number is +1 555 01{p0}. Willow Street Clinic's booking reference is {m1}.
-  trap: answering from one source implies the others were empty; each fact sits in a different app
-  split: dev
-- id: par_neu_sources_005
-  lane: neutral
-  family: parallel
-  sub: multi_source
-  tags: []
-  prompt: Tell me the gate code Mei sent, Odette's number and when my reminder to post the parcel is due.
-  facts:
-    s0:
-      code: '####'
-    p1:
-      int:
-      - 30
-      - 49
-    v2:
-      int:
-      - 1
-      - 6
-    v2h:
-      add:
-      - v2
-      - 12
-  world:
-    seed_records:
-      messages:
-      - id: ms-901
-        thread: Mei Nakamura
-        from: Mei Nakamura
-        text: The gate code for Saturday is {s0}.
-        received: -2h
-        unread: true
-      contacts:
-      - id: c-901
-        name: Odette Calloway
-        phone: +1 555 01{p1}
-        email: odette.calloway@example.org
-      reminders:
-      - id: r-901
-        title: Post the parcel
-        due: +4d {v2h}:00
-  expect:
-  - parallel:
-      same_step: true
-      steps:
-      - any_of:
-        - messages_search
-        - messages_read_thread
-        - messages_list_threads
-      - tool: contacts_search
-        args:
-          query:
-            icontains: Odette
-      - any_of:
-        - reminders_search
-        - reminders_list
-  answer:
-    contains_all:
-    - '{s0}'
-    - 01{p1}
-    - parcel
-    regex: (?:(?<!\d){v2h}:00|(?<!\d){v2}(?::00)?\s*(?:pm|p\.m\.))
-  forbid:
-  - messages_send
-  - email_send
-  - reminders_create
-  unchanged:
-  - reminders
-  - calendar
-  - notes
-  - messages_sent
-  - mail_sent
-  - message_drafts
-  optimal:
-    calls: 3
-    steps: 2
-  oracle:
-  - calls:
-    - name: messages_search
-      arguments:
-        query: Mei
-    - name: contacts_search
-      arguments:
-        query: Odette
-    - name: reminders_search
-      arguments:
-        query: parcel
-  - text: Mei's gate code is {s0}. Odette's number is +1 555 01{p1}. Your reminder to post the parcel is due at
-      {v2} PM.
+  - text: Your reminder to call the garage is due at {v0} PM. Bruno's gate code is {s1}. Your pottery class at Northgate
+      Library is at {e2} PM.
   trap: answering from one source implies the others were empty; each fact sits in a different app
   split: dev
 - id: par_neu_sources_006
@@ -1367,79 +1378,80 @@
   sub: multi_source
   tags:
   - core
-  prompt: tell me the booking reference juniper hall sent, what time my pottery class is, when my reminder to renew
-    the parking permit is due and how late emeka said they are running
+  prompt: tell me what time my physio appointment is, how late idris said they are running, saoirse's number and
+    when my reminder to buy printer ink is due
   facts:
-    m0:
-      code: '@@####'
-    e1:
+    e0:
       int:
       - 1
       - 6
-    e1h:
+    e0h:
       add:
-      - e1
+      - e0
       - 12
-    v2:
-      int:
-      - 1
-      - 6
-    v2h:
-      add:
-      - v2
-      - 12
-    s3:
+    s1:
       int:
       - 10
       - 55
+    p2:
+      int:
+      - 50
+      - 69
+    v3:
+      int:
+      - 1
+      - 6
+    v3h:
+      add:
+      - v3
+      - 12
   world:
     seed_records:
-      mail:
-      - id: m-901
-        from: Juniper Hall <office@juniper.example.com>
-        subject: Booking confirmed
-        body: Your booking is confirmed. Your reference is {m0}.
-        received: -1d 9:15
-        unread: true
       calendar:
       - id: ev-901
-        title: Pottery class at Maple Row Garage
-        start: +3d {e1h}:00
-      reminders:
-      - id: r-901
-        title: Renew the parking permit
-        due: +4d {v2h}:00
+        title: Physio appointment at Hartwell Joinery
+        start: +2d {e0h}:00
       messages:
       - id: ms-901
-        thread: Emeka Oyelaran
-        from: Emeka Oyelaran
-        text: Running about {s3} minutes behind, start without me.
-        received: -5h
+        thread: Idris Sorensen
+        from: Idris Sorensen
+        text: Running about {s1} minutes behind, start without me.
+        received: -3h
         unread: true
+      contacts:
+      - id: c-901
+        name: Saoirse Yilmaz
+        phone: +1 555 01{p2}
+        email: saoirse.yilmaz@example.org
+      reminders:
+      - id: r-901
+        title: Buy printer ink
+        due: +5d {v3h}:00
   expect:
   - parallel:
       same_step: true
       steps:
       - any_of:
-        - email_search
-        - email_list
-      - any_of:
         - calendar_list_events
         - calendar_search_events
-      - any_of:
-        - reminders_search
-        - reminders_list
       - any_of:
         - messages_search
         - messages_read_thread
         - messages_list_threads
+      - tool: contacts_search
+        args:
+          query:
+            icontains: Saoirse
+      - any_of:
+        - reminders_search
+        - reminders_list
   answer:
     contains_all:
-    - '{m0}'
-    - Maple Row Garage
-    - permit
-    - '{s3}'
-    regex: ^(?=.*(?:(?<!\d){e1h}:00|(?<!\d){e1}(?::00)?\s*(?:pm|p\.m\.)))(?=.*(?:(?<!\d){v2h}:00|(?<!\d){v2}(?::00)?\s*(?:pm|p\.m\.)))
+    - Hartwell Joinery
+    - '{s1}'
+    - 01{p2}
+    - printer
+    regex: ^(?=.*(?:(?<!\d){e0h}:00|(?<!\d){e0}(?::00)?\s*(?:pm|p\.m\.)))(?=.*(?:(?<!\d){v3h}:00|(?<!\d){v3}(?::00)?\s*(?:pm|p\.m\.)))
   forbid:
   - messages_send
   - email_send
@@ -1456,21 +1468,21 @@
     steps: 2
   oracle:
   - calls:
-    - name: email_search
-      arguments:
-        query: Juniper
     - name: calendar_list_events
       arguments:
         start_date: +0d
         end_date: +7d
-    - name: reminders_search
-      arguments:
-        query: permit
     - name: messages_search
       arguments:
-        query: Emeka
-  - text: Juniper Hall's booking reference is {m0}. Your pottery class at Maple Row Garage is at {e1} PM. Your reminder
-      to renew the parking permit is due at {v2} PM. Emeka is about {s3} minutes behind.
+        query: Idris
+    - name: contacts_search
+      arguments:
+        query: Saoirse
+    - name: reminders_search
+      arguments:
+        query: printer
+  - text: Your physio appointment at Hartwell Joinery is at {e0} PM. Idris is about {s1} minutes behind. Saoirse's
+      number is +1 555 01{p2}. Your reminder to buy printer ink is due at {v3} PM.
   trap: answering from one source implies the others were empty; each fact sits in a different app
   split: dev
 - id: par_neu_sources_007
@@ -1478,7 +1490,81 @@
   family: parallel
   sub: multi_source
   tags: []
-  prompt: Tell me when my reminder to return the library books is due and Ronan's number.
+  prompt: I need to know Lucan's number and what time my choir practice is.
+  facts:
+    p0:
+      int:
+      - 10
+      - 29
+    e1:
+      int:
+      - 1
+      - 6
+    e1h:
+      add:
+      - e1
+      - 12
+  world:
+    seed_records:
+      contacts:
+      - id: c-901
+        name: Lucan Moreau
+        phone: +1 555 01{p0}
+        email: lucan.moreau@example.org
+      calendar:
+      - id: ev-901
+        title: Choir practice at Copperleaf Café
+        start: +3d {e1h}:00
+  expect:
+  - parallel:
+      same_step: true
+      steps:
+      - tool: contacts_search
+        args:
+          query:
+            icontains: Lucan
+      - any_of:
+        - calendar_list_events
+        - calendar_search_events
+  answer:
+    contains_all:
+    - 01{p0}
+    - Copperleaf Café
+    regex: (?:(?<!\d){e1h}:00|(?<!\d){e1}(?::00)?\s*(?:pm|p\.m\.))
+  forbid:
+  - messages_send
+  - email_send
+  - reminders_create
+  unchanged:
+  - reminders
+  - calendar
+  - notes
+  - messages_sent
+  - mail_sent
+  - message_drafts
+  optimal:
+    calls: 2
+    steps: 2
+  oracle:
+  - calls:
+    - name: contacts_search
+      arguments:
+        query: Lucan
+    - name: calendar_list_events
+      arguments:
+        start_date: +0d
+        end_date: +7d
+  - text: Lucan's number is +1 555 01{p0}. Your choir practice at Copperleaf Café is at {e1} PM.
+  trap: answering from one source implies the others were empty; each fact sits in a different app
+  split: dev
+- id: par_neu_sources_008
+  lane: neutral
+  family: parallel
+  sub: multi_source
+  tags:
+  - core
+  prompt: i need to know when my reminder to defrost the freezer is due, arden print co's quote for the wedding
+    invitations and oskar's number
   facts:
     v0:
       int:
@@ -1488,123 +1574,52 @@
       add:
       - v0
       - 12
-    p1:
+    m1:
       int:
-      - 30
-      - 49
+      - 150
+      - 950
+    p2:
+      int:
+      - 50
+      - 69
   world:
     seed_records:
       reminders:
       - id: r-901
-        title: Return the library books
+        title: Defrost the freezer
         due: +2d {v0h}:00
-      contacts:
-      - id: c-901
-        name: Ronan Kowalski
-        phone: +1 555 01{p1}
-        email: ronan.kowalski@example.org
-  expect:
-  - parallel:
-      same_step: true
-      steps:
-      - any_of:
-        - reminders_search
-        - reminders_list
-      - tool: contacts_search
-        args:
-          query:
-            icontains: Ronan
-  answer:
-    contains_all:
-    - library
-    - 01{p1}
-    regex: (?:(?<!\d){v0h}:00|(?<!\d){v0}(?::00)?\s*(?:pm|p\.m\.))
-  forbid:
-  - messages_send
-  - email_send
-  - reminders_create
-  unchanged:
-  - reminders
-  - calendar
-  - notes
-  - messages_sent
-  - mail_sent
-  - message_drafts
-  optimal:
-    calls: 2
-    steps: 2
-  oracle:
-  - calls:
-    - name: reminders_search
-      arguments:
-        query: library
-    - name: contacts_search
-      arguments:
-        query: Ronan
-  - text: Your reminder to return the library books is due at {v0} PM. Ronan's number is +1 555 01{p1}.
-  trap: answering from one source implies the others were empty; each fact sits in a different app
-  split: dev
-- id: par_neu_sources_008
-  lane: neutral
-  family: parallel
-  sub: multi_source
-  tags:
-  - core
-  prompt: I need to know the gate code Delphine sent, Rosa's number and when my reminder to repot the fern is due.
-  facts:
-    s0:
-      code: '####'
-    p1:
-      int:
-      - 30
-      - 49
-    v2:
-      int:
-      - 1
-      - 6
-    v2h:
-      add:
-      - v2
-      - 12
-  world:
-    seed_records:
-      messages:
-      - id: ms-901
-        thread: Delphine Thackeray
-        from: Delphine Thackeray
-        text: The gate code for Saturday is {s0}.
-        received: -2h
+      mail:
+      - id: m-901
+        from: Arden Print Co <office@arden.example.com>
+        subject: Quote for wedding invitations
+        body: Hello, thanks for asking. Our quote for the wedding invitations is ${m1}, valid for two weeks.
+        received: -1d 10:15
         unread: true
       contacts:
       - id: c-901
-        name: Rosa Sorensen
-        phone: +1 555 01{p1}
-        email: rosa.sorensen@example.org
-      reminders:
-      - id: r-901
-        title: Repot the fern
-        due: +4d {v2h}:00
+        name: Oskar Calloway
+        phone: +1 555 01{p2}
+        email: oskar.calloway@example.org
   expect:
   - parallel:
       same_step: true
       steps:
       - any_of:
-        - messages_search
-        - messages_read_thread
-        - messages_list_threads
+        - reminders_search
+        - reminders_list
+      - any_of:
+        - email_search
+        - email_list
       - tool: contacts_search
         args:
           query:
-            icontains: Rosa
-      - any_of:
-        - reminders_search
-        - reminders_list
+            icontains: Oskar
   answer:
     contains_all:
-    - '{s0}'
-    - 01{p1}
-    - fern
-    regex: (?:(?<!\d){v2h}:00|(?<!\d){v2}(?::00)?\s*(?:pm|p\.m\.))
+    - freezer
+    - '{m1}'
+    - 01{p2}
+    regex: (?:(?<!\d){v0h}:00|(?<!\d){v0}(?::00)?\s*(?:pm|p\.m\.))
   forbid:
   - messages_send
   - email_send
@@ -1621,17 +1636,17 @@
     steps: 2
   oracle:
   - calls:
-    - name: messages_search
-      arguments:
-        query: Delphine
-    - name: contacts_search
-      arguments:
-        query: Rosa
     - name: reminders_search
       arguments:
-        query: fern
-  - text: Delphine's gate code is {s0}. Rosa's number is +1 555 01{p1}. Your reminder to repot the fern is due at
-      {v2} PM.
+        query: freezer
+    - name: email_search
+      arguments:
+        query: Arden
+    - name: contacts_search
+      arguments:
+        query: Oskar
+  - text: Your reminder to defrost the freezer is due at {v0} PM. Arden Print Co quoted ${m1} for the wedding invitations.
+      Oskar's number is +1 555 01{p2}.
   trap: answering from one source implies the others were empty; each fact sits in a different app
   split: dev
 - id: par_neu_w_times_001
@@ -1640,7 +1655,7 @@
   sub: independent_writes
   tags:
   - core
-  prompt: set reminders for tomorrow, at {h0}am to check the smoke alarm and at {h1}pm to pay the gas bill
+  prompt: Remind me tomorrow at {h0}am to buy printer ink and at {h1}pm to return the library books.
   facts:
     h0:
       int:
@@ -1661,23 +1676,23 @@
       - tool: reminders_create
         args:
           title:
-            icontains: smoke
+            icontains: printer
       - tool: reminders_create
         args:
           title:
-            icontains: gas
+            icontains: library
   final_state:
   - in: reminders
     where:
       title:
-        icontains: smoke
+        icontains: printer
     expect:
       count: 1
       due: +1d {h0}:00
   - in: reminders
     where:
       title:
-        icontains: gas
+        icontains: library
     expect:
       count: 1
       due: +1d {h1x}:00
@@ -1697,13 +1712,13 @@
   - calls:
     - name: reminders_create
       arguments:
-        title: Check the smoke alarm
+        title: Buy printer ink
         due: +1d {h0}:00
     - name: reminders_create
       arguments:
-        title: Pay the gas bill
+        title: Return the library books
         due: +1d {h1x}:00
-  - text: Done. Check the smoke alarm at {h0}am; Pay the gas bill at {h1}pm.
+  - text: Done. Buy printer ink at {h0}am; Return the library books at {h1}pm.
   trap: one combined reminder, a wrong time, or a missing errand fails
   split: dev
 - id: par_neu_w_times_002
@@ -1711,8 +1726,8 @@
   family: parallel
   sub: independent_writes
   tags: []
-  prompt: remind me tomorrow at {h0}am to post the parcel, at {h1}pm to defrost the freezer and at {h2}pm to return
-    the library books
+  prompt: Set reminders for the day after tomorrow, at {h0}am to renew the parking permit, at {h1}pm to water the
+    tomatoes and at {h2}pm to call the garage.
   facts:
     h0:
       int:
@@ -1741,37 +1756,37 @@
       - tool: reminders_create
         args:
           title:
-            icontains: parcel
+            icontains: permit
       - tool: reminders_create
         args:
           title:
-            icontains: freezer
+            icontains: tomato
       - tool: reminders_create
         args:
           title:
-            icontains: library
+            icontains: garage
   final_state:
   - in: reminders
     where:
       title:
-        icontains: parcel
+        icontains: permit
     expect:
       count: 1
-      due: +1d {h0}:00
+      due: +2d {h0}:00
   - in: reminders
     where:
       title:
-        icontains: freezer
+        icontains: tomato
     expect:
       count: 1
-      due: +1d {h1x}:00
+      due: +2d {h1x}:00
   - in: reminders
     where:
       title:
-        icontains: library
+        icontains: garage
     expect:
       count: 1
-      due: +1d {h2x}:00
+      due: +2d {h2x}:00
   forbid:
   - reminders_delete
   - reminders_complete
@@ -1788,17 +1803,17 @@
   - calls:
     - name: reminders_create
       arguments:
-        title: Post the parcel
-        due: +1d {h0}:00
+        title: Renew the parking permit
+        due: +2d {h0}:00
     - name: reminders_create
       arguments:
-        title: Defrost the freezer
-        due: +1d {h1x}:00
+        title: Water the tomatoes
+        due: +2d {h1x}:00
     - name: reminders_create
       arguments:
-        title: Return the library books
-        due: +1d {h2x}:00
-  - text: Done. Post the parcel at {h0}am; Defrost the freezer at {h1}pm; Return the library books at {h2}pm.
+        title: Call the garage
+        due: +2d {h2x}:00
+  - text: Done. Renew the parking permit at {h0}am; Water the tomatoes at {h1}pm; Call the garage at {h2}pm.
   trap: one combined reminder, a wrong time, or a missing errand fails
   split: dev
 - id: par_neu_w_times_003
@@ -1807,8 +1822,8 @@
   sub: independent_writes
   tags:
   - core
-  prompt: set reminders for tomorrow, at {h0}am to buy printer ink, at {h1}pm to book a haircut, at {h2}pm to call
-    the garage and at {h3}pm to water the tomatoes
+  prompt: Remind me tomorrow at {h0}am to return the library books, at {h1}pm to order new contact lenses, at {h2}pm
+    to defrost the freezer and at {h3}pm to call the garage.
   facts:
     h0:
       int:
@@ -1845,45 +1860,45 @@
       - tool: reminders_create
         args:
           title:
-            icontains: printer
+            icontains: library
       - tool: reminders_create
         args:
           title:
-            icontains: haircut
+            icontains: lens
+      - tool: reminders_create
+        args:
+          title:
+            icontains: freezer
       - tool: reminders_create
         args:
           title:
             icontains: garage
-      - tool: reminders_create
-        args:
-          title:
-            icontains: tomato
   final_state:
   - in: reminders
     where:
       title:
-        icontains: printer
+        icontains: library
     expect:
       count: 1
       due: +1d {h0}:00
   - in: reminders
     where:
       title:
-        icontains: haircut
+        icontains: lens
     expect:
       count: 1
       due: +1d {h1x}:00
   - in: reminders
     where:
       title:
-        icontains: garage
+        icontains: freezer
     expect:
       count: 1
       due: +1d {h2x}:00
   - in: reminders
     where:
       title:
-        icontains: tomato
+        icontains: garage
     expect:
       count: 1
       due: +1d {h3x}:00
@@ -1903,22 +1918,22 @@
   - calls:
     - name: reminders_create
       arguments:
-        title: Buy printer ink
+        title: Return the library books
         due: +1d {h0}:00
     - name: reminders_create
       arguments:
-        title: Book a haircut
+        title: Order new contact lenses
         due: +1d {h1x}:00
     - name: reminders_create
       arguments:
-        title: Call the garage
+        title: Defrost the freezer
         due: +1d {h2x}:00
     - name: reminders_create
       arguments:
-        title: Water the tomatoes
+        title: Call the garage
         due: +1d {h3x}:00
-  - text: Done. Buy printer ink at {h0}am; Book a haircut at {h1}pm; Call the garage at {h2}pm; Water the tomatoes
-      at {h3}pm.
+  - text: Done. Return the library books at {h0}am; Order new contact lenses at {h1}pm; Defrost the freezer at {h2}pm;
+      Call the garage at {h3}pm.
   trap: one combined reminder, a wrong time, or a missing errand fails
   split: dev
 - id: par_neu_w_mixed_001
@@ -1926,8 +1941,8 @@
   family: parallel
   sub: independent_writes
   tags: []
-  prompt: Put a piano lesson on my calendar for the day after tomorrow at {h2}pm and jot down a note called Trip
-    ideas saying book {n1} nights in the mountains.
+  prompt: put a driving lesson on my calendar for the day after tomorrow at {h2}pm and jot down a note called trip
+    ideas saying book {n1} nights in the mountains
   facts:
     h2:
       int:
@@ -1948,7 +1963,7 @@
       - tool: calendar_create_event
         args:
           title:
-            icontains: piano
+            icontains: driving
       - tool: notes_create
         args:
           title:
@@ -1957,7 +1972,7 @@
   - in: calendar
     where:
       title:
-        icontains: piano
+        icontains: driving
     expect:
       count: 1
       start: +2d {h2x}:00
@@ -1985,13 +2000,13 @@
   - calls:
     - name: calendar_create_event
       arguments:
-        title: Piano lesson
+        title: Driving lesson
         start: +2d {h2x}:00
     - name: notes_create
       arguments:
         title: Trip ideas
         body: Book {n1} nights in the mountains
-  - text: Done. Piano lesson at {h2}pm; Trip ideas.
+  - text: Done. Driving lesson at {h2}pm; Trip ideas.
   trap: doing only the first request, or turning the group into one note, fails
   split: dev
 - id: par_neu_w_mixed_002
@@ -1999,13 +2014,116 @@
   family: parallel
   sub: independent_writes
   tags: []
-  prompt: Remind me tomorrow at {h0}am to repot the fern, jot down a note called Garden plan saying plant {n1} tomato
-    seedlings and put a pottery class on my calendar for the day after tomorrow at {h2}pm.
+  prompt: Text Wendell that the table is booked for {m0}, remind me tomorrow at {h0}am to renew the parking permit
+    and put a pottery class on my calendar for the day after tomorrow at {h2}pm.
   facts:
+    m0:
+      int:
+      - 5
+      - 45
     h0:
       int:
       - 7
       - 9
+    h2:
+      int:
+      - 4
+      - 6
+    h2x:
+      add:
+      - h2
+      - 12
+  world:
+    seed_records:
+      contacts:
+      - id: c-901
+        name: Wendell Duarte
+        phone: +1 555 0196
+        email: wendell.duarte@example.org
+  expect:
+  - parallel:
+      same_step: true
+      steps:
+      - tool: messages_send
+        args:
+          to:
+            contains_any:
+            - Wendell
+            - 0196
+      - tool: reminders_create
+        args:
+          title:
+            icontains: permit
+      - tool: calendar_create_event
+        args:
+          title:
+            icontains: pottery
+  final_state:
+  - in: messages_sent
+    where:
+      contact_id: c-901
+    expect:
+      count: 1
+      text:
+        icontains: '{m0}'
+  - in: reminders
+    where:
+      title:
+        icontains: permit
+    expect:
+      count: 1
+      due: +1d {h0}:00
+  - in: calendar
+    where:
+      title:
+        icontains: pottery
+    expect:
+      count: 1
+      start: +2d {h2x}:00
+  forbid:
+  - email_send
+  - messages_schedule
+  - reminders_delete
+  unchanged:
+  - notes
+  - mail_sent
+  - message_drafts
+  intended_recipients:
+  - c-901
+  optimal:
+    calls: 3
+    steps: 2
+  oracle:
+  - calls:
+    - name: messages_send
+      arguments:
+        to: Wendell Duarte
+        text: The table is booked for {m0}
+    - name: reminders_create
+      arguments:
+        title: Renew the parking permit
+        due: +1d {h0}:00
+    - name: calendar_create_event
+      arguments:
+        title: Pottery class
+        start: +2d {h2x}:00
+  - text: Done. Texted Wendell.; Renew the parking permit at {h0}am; Pottery class at {h2}pm.
+  trap: doing only the first request, or turning the group into one note, fails
+  split: dev
+- id: par_neu_w_mixed_003
+  lane: neutral
+  family: parallel
+  sub: independent_writes
+  tags:
+  - core
+  prompt: Text Gustavo that dinner is in {m0} minutes, jot down a note called Reading list saying finish {n1} chapters
+    this week, put a choir practice on my calendar for the day after tomorrow at {h2}pm and remind me tomorrow at
+    {h0}am to buy printer ink.
+  facts:
+    m0:
+      int:
+      - 5
+      - 45
     n1:
       int:
       - 3
@@ -2018,34 +2136,51 @@
       add:
       - h2
       - 12
+    h0:
+      int:
+      - 7
+      - 9
+  world:
+    seed_records:
+      contacts:
+      - id: c-901
+        name: Gustavo Byrne
+        phone: +1 555 0195
+        email: gustavo.byrne@example.org
   expect:
   - parallel:
       same_step: true
       steps:
-      - tool: reminders_create
+      - tool: messages_send
         args:
-          title:
-            icontains: fern
+          to:
+            contains_any:
+            - Gustavo
+            - 0195
       - tool: notes_create
         args:
           title:
-            icontains: garden
+            icontains: reading
       - tool: calendar_create_event
         args:
           title:
-            icontains: pottery
+            icontains: choir
+      - tool: reminders_create
+        args:
+          title:
+            icontains: printer
   final_state:
-  - in: reminders
+  - in: messages_sent
     where:
-      title:
-        icontains: fern
+      contact_id: c-901
     expect:
       count: 1
-      due: +1d {h0}:00
+      text:
+        icontains: '{m0}'
   - in: notes
     where:
       title:
-        icontains: garden
+        icontains: reading
     expect:
       count: 1
       body:
@@ -2053,131 +2188,21 @@
   - in: calendar
     where:
       title:
-        icontains: pottery
+        icontains: choir
     expect:
       count: 1
       start: +2d {h2x}:00
-  forbid:
-  - reminders_delete
-  - reminders_complete
-  - notes_delete
-  unchanged:
-  - messages_sent
-  - mail_sent
-  - message_drafts
-  optimal:
-    calls: 3
-    steps: 2
-  oracle:
-  - calls:
-    - name: reminders_create
-      arguments:
-        title: Repot the fern
-        due: +1d {h0}:00
-    - name: notes_create
-      arguments:
-        title: Garden plan
-        body: Plant {n1} tomato seedlings
-    - name: calendar_create_event
-      arguments:
-        title: Pottery class
-        start: +2d {h2x}:00
-  - text: Done. Repot the fern at {h0}am; Garden plan; Pottery class at {h2}pm.
-  trap: doing only the first request, or turning the group into one note, fails
-  split: dev
-- id: par_neu_w_mixed_003
-  lane: neutral
-  family: parallel
-  sub: independent_writes
-  tags:
-  - core
-  prompt: Remind me tomorrow at {h0}am to return the library books, put a tennis game on my calendar for the day
-    after tomorrow at {h2}pm, text Gideon that I'll be about {m2} minutes late and jot down a note called Trip ideas
-    saying book {n3} nights in the mountains.
-  facts:
-    h0:
-      int:
-      - 7
-      - 9
-    h2:
-      int:
-      - 4
-      - 6
-    h2x:
-      add:
-      - h2
-      - 12
-    m2:
-      int:
-      - 5
-      - 45
-    n3:
-      int:
-      - 3
-      - 12
-  world:
-    seed_records:
-      contacts:
-      - id: c-901
-        name: Gideon Wexford
-        phone: +1 555 0194
-        email: gideon.wexford@example.org
-  expect:
-  - parallel:
-      same_step: true
-      steps:
-      - tool: reminders_create
-        args:
-          title:
-            icontains: library
-      - tool: calendar_create_event
-        args:
-          title:
-            icontains: tennis
-      - tool: messages_send
-        args:
-          to:
-            contains_any:
-            - Gideon
-            - 0194
-      - tool: notes_create
-        args:
-          title:
-            icontains: trip
-  final_state:
   - in: reminders
     where:
       title:
-        icontains: library
+        icontains: printer
     expect:
       count: 1
       due: +1d {h0}:00
-  - in: calendar
-    where:
-      title:
-        icontains: tennis
-    expect:
-      count: 1
-      start: +2d {h2x}:00
-  - in: messages_sent
-    where:
-      contact_id: c-901
-    expect:
-      count: 1
-      text:
-        icontains: '{m2}'
-  - in: notes
-    where:
-      title:
-        icontains: trip
-    expect:
-      count: 1
-      body:
-        icontains: '{n3}'
   forbid:
-  - reminders_delete
-  - reminders_complete
-  - calendar_delete_event
+  - email_send
+  - messages_schedule
+  - notes_delete
   unchanged:
   - mail_sent
   - message_drafts
@@ -2188,23 +2213,23 @@
     steps: 2
   oracle:
   - calls:
-    - name: reminders_create
-      arguments:
-        title: Return the library books
-        due: +1d {h0}:00
-    - name: calendar_create_event
-      arguments:
-        title: Tennis game
-        start: +2d {h2x}:00
     - name: messages_send
       arguments:
-        to: Gideon Wexford
-        text: I'll be about {m2} minutes late
+        to: Gustavo Byrne
+        text: Dinner is in {m0} minutes
     - name: notes_create
       arguments:
-        title: Trip ideas
-        body: Book {n3} nights in the mountains
-  - text: Done. Return the library books at {h0}am; Tennis game at {h2}pm; Texted Gideon.; Trip ideas.
+        title: Reading list
+        body: Finish {n1} chapters this week
+    - name: calendar_create_event
+      arguments:
+        title: Choir practice
+        start: +2d {h2x}:00
+    - name: reminders_create
+      arguments:
+        title: Buy printer ink
+        due: +1d {h0}:00
+  - text: Done. Texted Gustavo.; Reading list; Choir practice at {h2}pm; Buy printer ink at {h0}am.
   trap: doing only the first request, or turning the group into one note, fails
   split: dev
 - id: par_neu_w_texts_001
@@ -2212,7 +2237,7 @@
   family: parallel
   sub: independent_writes
   tags: []
-  prompt: Text Mei that I'll be about {m0} minutes late and text Teodor that I'm bringing {m1} bottles.
+  prompt: text jonah that i'm bringing {m0} bottles and text wendell that the table is booked for {m1}
   facts:
     m0:
       int:
@@ -2226,13 +2251,13 @@
     seed_records:
       contacts:
       - id: c-901
-        name: Mei Ishikawa
-        phone: +1 555 0199
-        email: mei.ishikawa@example.org
+        name: Jonah Ellery
+        phone: +1 555 0194
+        email: jonah.ellery@example.org
       - id: c-902
-        name: Teodor Abernathy
-        phone: +1 555 0196
-        email: teodor.abernathy@example.org
+        name: Wendell Marchetti
+        phone: +1 555 0199
+        email: wendell.marchetti@example.org
   expect:
   - parallel:
       same_step: true
@@ -2241,14 +2266,14 @@
         args:
           to:
             contains_any:
-            - Mei
-            - 0199
+            - Jonah
+            - 0194
       - tool: messages_send
         args:
           to:
             contains_any:
-            - Teodor
-            - 0196
+            - Wendell
+            - 0199
   final_state:
   - in: messages_sent
     where:
@@ -2283,13 +2308,13 @@
   - calls:
     - name: messages_send
       arguments:
-        to: Mei Ishikawa
-        text: I'll be about {m0} minutes late
+        to: Jonah Ellery
+        text: I'm bringing {m0} bottles
     - name: messages_send
       arguments:
-        to: Teodor Abernathy
-        text: I'm bringing {m1} bottles
-  - text: Done. Texted Mei.; Texted Teodor..
+        to: Wendell Marchetti
+        text: The table is booked for {m1}
+  - text: Done. Texted Jonah.; Texted Wendell..
   trap: 'each person gets their own text: one shared message or a missing recipient fails'
   split: dev
 - id: par_neu_w_texts_002
@@ -2298,8 +2323,8 @@
   sub: independent_writes
   tags:
   - core
-  prompt: Text Bastian that the table is booked for {m0}, text Quinn that dinner is in {m1} minutes and text Hollis
-    that the table is booked for {m2}.
+  prompt: text nadia that i'm bringing {m0} bottles, text orla that dinner is in {m1} minutes and text lior that
+    the table is booked for {m2}
   facts:
     m0:
       int:
@@ -2317,17 +2342,17 @@
     seed_records:
       contacts:
       - id: c-901
-        name: Bastian Wexford
-        phone: +1 555 0197
-        email: bastian.wexford@example.org
+        name: Nadia Pemberton
+        phone: +1 555 0192
+        email: nadia.pemberton@example.org
       - id: c-902
-        name: Quinn Novak
-        phone: +1 555 0195
-        email: quinn.novak@example.org
+        name: Orla Hartwell
+        phone: +1 555 0191
+        email: orla.hartwell@example.org
       - id: c-903
-        name: Hollis Kerrigan
+        name: Lior Ferreira
         phone: +1 555 0198
-        email: hollis.kerrigan@example.org
+        email: lior.ferreira@example.org
   expect:
   - parallel:
       same_step: true
@@ -2336,19 +2361,19 @@
         args:
           to:
             contains_any:
-            - Bastian
-            - 0197
+            - Nadia
+            - 0192
       - tool: messages_send
         args:
           to:
             contains_any:
-            - Quinn
-            - 0195
+            - Orla
+            - 0191
       - tool: messages_send
         args:
           to:
             contains_any:
-            - Hollis
+            - Lior
             - 0198
   final_state:
   - in: messages_sent
@@ -2392,16 +2417,16 @@
   - calls:
     - name: messages_send
       arguments:
-        to: Bastian Wexford
-        text: The table is booked for {m0}
+        to: Nadia Pemberton
+        text: I'm bringing {m0} bottles
     - name: messages_send
       arguments:
-        to: Quinn Novak
+        to: Orla Hartwell
         text: Dinner is in {m1} minutes
     - name: messages_send
       arguments:
-        to: Hollis Kerrigan
+        to: Lior Ferreira
         text: The table is booked for {m2}
-  - text: Done. Texted Bastian.; Texted Quinn.; Texted Hollis..
+  - text: Done. Texted Nadia.; Texted Orla.; Texted Lior..
   trap: 'each person gets their own text: one shared message or a missing recipient fails'
   split: dev

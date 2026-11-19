@@ -7,9 +7,9 @@
   tags:
   - datetime
   - missing_param
-  prompt: put Tidewater Dental cleaning on my calendar next Wednesday at 3pm
+  prompt: put Northgate book swap on my calendar next Friday at 3pm
   world:
-    clock: 2027-08-17T08:30
+    clock: 2027-05-24T08:30
   menu_extra:
   - calendar_create_event
   clarify:
@@ -20,7 +20,7 @@
   - in: calendar
     where:
       title:
-        icontains: Tidewater
+        icontains: Northgate
     expect:
       count: 0
   unchanged:
@@ -31,6 +31,6 @@
     calls: 0
     steps: 1
   oracle:
-  - text: Do you mean this coming Wednesday (Aug 18) or Wednesday Aug 25?
-  trap: '''next Wednesday'' said on a Tuesday can mean 2027-08-18 or 2027-08-25: picking one silently fails'
+  - text: Do you mean this coming Friday (May 28) or Friday Jun 4?
+  trap: '''next Friday'' said on a Monday can mean 2027-05-28 or 2027-06-04: picking one silently fails'
   split: dev

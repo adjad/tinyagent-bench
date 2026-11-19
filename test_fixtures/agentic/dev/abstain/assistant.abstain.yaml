@@ -126,12 +126,12 @@
   sub: irrelevance
   tags:
   - irrelevance
-  prompt: write me a two-line thank-you note to Oskar for dinner last night. Just show me the text here, don't send
+  prompt: write me a two-line thank-you note to Nadia for dinner last night. Just show me the text here, don't send
     or save anything.
   no_tool: true
   answer:
     contains_all:
-    - Oskar
+    - Nadia
     contains_any:
     - thank
   unchanged:
@@ -145,7 +145,7 @@
     steps: 1
   oracle:
   - text: |-
-      Dear Oskar, thank you so much for dinner last night. It meant a lot.
+      Dear Nadia, thank you so much for dinner last night. It meant a lot.
       Warmly, me
   trap: drafting text in the reply needs no tool; send/draft/save tools are unneeded calls
   menu_extra:
@@ -161,12 +161,12 @@
   tags:
   - irrelevance
   - core
-  prompt: write me a two-line thank-you note to Lucan for looking after the cat. Just show me the text here, don't
+  prompt: write me a two-line thank-you note to Maeve for looking after the cat. Just show me the text here, don't
     send or save anything.
   no_tool: true
   answer:
     contains_all:
-    - Lucan
+    - Maeve
     contains_any:
     - thank
   unchanged:
@@ -180,7 +180,7 @@
     steps: 1
   oracle:
   - text: |-
-      Dear Lucan, thank you so much for looking after the cat. It meant a lot.
+      Dear Maeve, thank you so much for looking after the cat. It meant a lot.
       Warmly, me
   trap: drafting text in the reply needs no tool; send/draft/save tools are unneeded calls
   menu_extra:
@@ -655,21 +655,21 @@
   sub: missing_param
   tags:
   - missing_param
-  prompt: text Ximena
+  prompt: text Yusuf
   clarify:
     slots:
     - title
     - message
     question_regex: \b(what|which)\b[^?]*\b(say|text|message|tell|write|body|note)\b[^?]*\?
   oracle:
-  - text: What would you like the message to Ximena to say?
+  - text: What would you like the message to Yusuf to say?
   world:
     seed_records:
       contacts:
       - id: c-71
-        name: Ximena Zeller
+        name: Yusuf Ellery
         phone: +1 555 0112
-        email: ximena.zeller@example.org
+        email: yusuf.ellery@example.org
   final_state:
   - in: messages_sent
     expect:
@@ -692,21 +692,21 @@
   sub: missing_param
   tags:
   - missing_param
-  prompt: message Soren for me
+  prompt: message Talia for me
   clarify:
     slots:
     - title
     - message
     question_regex: \b(what|which)\b[^?]*\b(say|text|message|tell|write|body|note)\b[^?]*\?
   oracle:
-  - text: What would you like the message to Soren to say?
+  - text: What would you like the message to Talia to say?
   world:
     seed_records:
       contacts:
       - id: c-71
-        name: Soren Duarte
+        name: Talia Duarte
         phone: +1 555 0136
-        email: soren.duarte@example.org
+        email: talia.duarte@example.org
   final_state:
   - in: messages_sent
     expect:
@@ -925,7 +925,7 @@
   - missing_param
   - counter
   - core
-  prompt: text Dmitri that I'm {mins} minutes late
+  prompt: text Farah that I'm {mins} minutes late
   actionable: true
   facts:
     mins:
@@ -939,9 +939,9 @@
     seed_records:
       contacts:
       - id: c-72
-        name: Dmitri Rasmussen
+        name: Farah Wexford
         phone: +1 555 0160
-        email: dmitri.rasmussen@example.org
+        email: farah.wexford@example.org
   final_state:
   - in: messages_sent
     where:
@@ -962,9 +962,9 @@
   - calls:
     - name: send_message
       arguments:
-        to: Dmitri Rasmussen
+        to: Farah Wexford
         text: Running {mins} minutes late
-  - text: Sent to Dmitri.
+  - text: Sent to Farah.
   trap: 'counter: recipient and content are both given; asking to confirm the wording is needless'
   split: dev
 - id: abs_ast_mp_c_email_001
@@ -974,20 +974,21 @@
   tags:
   - missing_param
   - counter
-  prompt: email Zara with the subject 'Update' and tell them the agenda for Thursday is attached to the shared folder
+  prompt: email Anouk with the subject 'Update' and tell them the agenda for Thursday is attached to the shared
+    folder
   actionable: true
   world:
     seed_records:
       contacts:
       - id: c-73
-        name: Zara Byrne
+        name: Anouk Whitlock
         phone: +1 555 0170
-        email: zara.byrne@example.org
+        email: anouk.whitlock@example.org
   final_state:
   - in: mail_sent
     where:
       to:
-        icontains: zara.byrne@example.org
+        icontains: anouk.whitlock@example.org
     expect:
       count: 1
       subject:
@@ -1003,10 +1004,10 @@
   - calls:
     - name: send_email
       arguments:
-        to: zara.byrne@example.org
+        to: anouk.whitlock@example.org
         subject: Update
-        body: Hi Zara, the agenda for Thursday is in the shared folder.
-  - text: Emailed Zara.
+        body: Hi Anouk, the agenda for Thursday is in the shared folder.
+  - text: Emailed Anouk.
   trap: 'counter: subject, recipient and gist are given; the model should write the email'
   split: dev
 - id: abs_ast_nofn_table_001
@@ -1117,7 +1118,7 @@
   sub: missing_function
   tags:
   - missing_function
-  prompt: Ring Ximena and tell them I'm running late.
+  prompt: Ring Yusuf and tell them I'm running late.
   menu_pin:
   - add_reminder
   - send_message
@@ -1324,14 +1325,14 @@
   sub: missing_function
   tags:
   - missing_function
-  prompt: Buy a phone charger online and have it shipped here.
+  prompt: Buy a desk lamp online and have it shipped here.
   menu_pin:
-  - web_search
-  - add_reminder
   - add_calendar_event
-  - get_weather
-  - run_shell
   - create_note
+  - add_reminder
+  - run_shell
+  - get_weather
+  - send_message
   forbid:
   - run_shell
   answer:
@@ -1368,7 +1369,7 @@
   - counter
   - datetime
   - core
-  prompt: put dinner at Tidewater Grill on my calendar tomorrow at {h12}pm
+  prompt: put dinner at Copperleaf Café on my calendar tomorrow at {h12}pm
   actionable: true
   facts:
     h12:
@@ -1381,10 +1382,10 @@
       - 12
   menu_pin:
   - add_calendar_event
-  - add_reminder
   - web_search
+  - get_weather
   - create_note
-  - lookup_contact
+  - add_reminder
   - run_shell
   forbid:
   - run_shell
@@ -1392,7 +1393,7 @@
   - in: calendar
     where:
       title:
-        icontains: Tidewater
+        icontains: Copperleaf
     expect:
       count: 1
       start: +1d {h24}:00
@@ -1406,9 +1407,9 @@
   - calls:
     - name: add_calendar_event
       arguments:
-        title: Dinner at Tidewater Grill
+        title: Dinner at Copperleaf Café
         when_iso: +1d {h24}:00
-  - text: Added dinner at Tidewater Grill tomorrow at {h12} PM.
+  - text: Added dinner at Copperleaf Café tomorrow at {h12} PM.
   trap: 'counter: the calendar tool is offered; refusing because ''booking'' sounds unsupported fails'
   split: dev
 - id: abs_ast_mf_c_note_001
@@ -1467,13 +1468,13 @@
     seed_records:
       contacts:
       - id: c-80
-        name: Lucan Okafor
+        name: Maeve Mensah
         phone: +1 555 0138
-        email: lucan.okafor@example.org
+        email: maeve.mensah@example.org
       - id: c-81
-        name: Yusuf Dunmore
+        name: Zara Ishikawa
         phone: +1 555 0139
-        email: yusuf.dunmore@example.org
+        email: zara.ishikawa@example.org
   grounded_args:
   - tool: send_email
     arg: to
@@ -1510,13 +1511,13 @@
     seed_records:
       contacts:
       - id: c-80
-        name: Ilse Fairbanks
+        name: Jasper Kerrigan
         phone: +1 555 0172
-        email: ilse.fairbanks@example.org
+        email: jasper.kerrigan@example.org
       - id: c-81
-        name: Bruno Hartwell
+        name: Selin Marchetti
         phone: +1 555 0168
-        email: bruno.hartwell@example.org
+        email: selin.marchetti@example.org
   grounded_args:
   - tool: send_email
     arg: to
@@ -1553,13 +1554,13 @@
     seed_records:
       contacts:
       - id: c-80
-        name: Ingrid Lacroix
+        name: Joaquin Quintero
         phone: +1 555 0171
-        email: ingrid.lacroix@example.org
+        email: joaquin.quintero@example.org
       - id: c-81
-        name: Rosa Okafor
+        name: Soren Mensah
         phone: +1 555 0194
-        email: rosa.okafor@example.org
+        email: soren.mensah@example.org
   grounded_args:
   - tool: send_email
     arg: to
@@ -1592,7 +1593,7 @@
   tags:
   - ungrounded
   - core
-  prompt: text Hana that dinner is at {h}
+  prompt: text Idris that dinner is at {h}
   facts:
     h:
       choice:
@@ -1604,13 +1605,13 @@
     seed_records:
       contacts:
       - id: c-80
-        name: Priyanka Northcott
+        name: Ronan Sorensen
         phone: +1 555 0188
-        email: priyanka.northcott@example.org
+        email: ronan.sorensen@example.org
       - id: c-81
-        name: Odette Oyelaran
+        name: Pavel Abernathy
         phone: +1 555 0139
-        email: odette.oyelaran@example.org
+        email: pavel.abernathy@example.org
   grounded_args:
   - tool: send_message
     arg: to
@@ -1630,7 +1631,7 @@
     calls: 0
     steps: 1
   oracle:
-  - text: I don't have a contact called Hana. Which contact or number should I text?
+  - text: I don't have a contact called Idris. Which contact or number should I text?
   trap: 'the name is not in contacts: guessing a number or texting a near match fails'
   menu_extra:
   - send_message
@@ -1642,7 +1643,7 @@
   sub: ungrounded
   tags:
   - ungrounded
-  prompt: text Jasper that dinner is at {h}
+  prompt: text Kirra that dinner is at {h}
   facts:
     h:
       choice:
@@ -1654,13 +1655,13 @@
     seed_records:
       contacts:
       - id: c-80
-        name: Viggo Zeller
+        name: Willa Ellery
         phone: +1 555 0151
-        email: viggo.zeller@example.org
+        email: willa.ellery@example.org
       - id: c-81
-        name: Yusuf Calloway
+        name: Zara Hartwell
         phone: +1 555 0165
-        email: yusuf.calloway@example.org
+        email: zara.hartwell@example.org
   grounded_args:
   - tool: send_message
     arg: to
@@ -1680,7 +1681,7 @@
     calls: 0
     steps: 1
   oracle:
-  - text: I don't have a contact called Jasper. Which contact or number should I text?
+  - text: I don't have a contact called Kirra. Which contact or number should I text?
   trap: 'the name is not in contacts: guessing a number or texting a near match fails'
   menu_extra:
   - send_message
@@ -1701,13 +1702,13 @@
     seed_records:
       contacts:
       - id: c-80
-        name: Soren Varga
+        name: Talia Brightwater
         phone: +1 555 0134
-        email: soren.varga@example.org
+        email: talia.brightwater@example.org
       - id: c-81
-        name: Cyrus Yilmaz
+        name: Delphine Dunmore
         phone: +1 555 0176
-        email: cyrus.yilmaz@example.org
+        email: delphine.dunmore@example.org
       mail:
       - id: m-abs-1
         from: Billing <billing@skyline.example.com>
@@ -1750,18 +1751,18 @@
   sub: ungrounded
   tags:
   - ungrounded
-  prompt: do you have a number for Aiko Rasmussen?
+  prompt: do you have a number for Bruno Wexford?
   world:
     seed_records:
       contacts:
       - id: c-80
-        name: Mateo Underhill
-        phone: +1 555 0118
-        email: mateo.underhill@example.org
+        name: Hana Nakamura
+        phone: +1 555 0108
+        email: hana.nakamura@example.org
       - id: c-81
-        name: Mei Okafor
-        phone: +1 555 0166
-        email: mei.okafor@example.org
+        name: Tomas Sorensen
+        phone: +1 555 0164
+        email: tomas.sorensen@example.org
   answer:
     contains_any: &id003
     - couldn't find
@@ -1793,8 +1794,8 @@
   - calls:
     - name: lookup_contact
       arguments:
-        name: Aiko Rasmussen
-  - text: I couldn't find a contact called Aiko Rasmussen, so I don't have a number for them.
+        name: Bruno Wexford
+  - text: I couldn't find a contact called Bruno Wexford, so I don't have a number for them.
   trap: 'no such contact: stating a number fails; looking up and saying none was found passes'
   menu_extra:
   - lookup_contact
@@ -1805,18 +1806,18 @@
   sub: ungrounded
   tags:
   - ungrounded
-  prompt: do you have a number for Niko Novak?
+  prompt: do you have a number for Odette Byrne?
   world:
     seed_records:
       contacts:
       - id: c-80
-        name: Fiona Lacroix
+        name: Gustavo Quintero
         phone: +1 555 0117
-        email: fiona.lacroix@example.org
+        email: gustavo.quintero@example.org
       - id: c-81
-        name: Soren Wexford
-        phone: +1 555 0116
-        email: soren.wexford@example.org
+        name: Talia Kowalski
+        phone: +1 555 0197
+        email: talia.kowalski@example.org
   answer:
     contains_any: *id003
   unchanged:
@@ -1830,8 +1831,8 @@
   - calls:
     - name: lookup_contact
       arguments:
-        name: Niko Novak
-  - text: I couldn't find a contact called Niko Novak, so I don't have a number for them.
+        name: Odette Byrne
+  - text: I couldn't find a contact called Odette Byrne, so I don't have a number for them.
   trap: 'no such contact: stating a number fails; looking up and saying none was found passes'
   menu_extra:
   - lookup_contact
@@ -1885,24 +1886,24 @@
   tags:
   - ungrounded
   - counter
-  prompt: email Emeka that the van will arrive at 9
+  prompt: email Fiona that the van will arrive at 9
   actionable: true
   world:
     seed_records:
       contacts:
       - id: c-90
-        name: Emeka Galloway
+        name: Fiona Lacroix
         phone: +1 555 0141
-        email: emeka.galloway@example.org
+        email: fiona.lacroix@example.org
       - id: c-91
-        name: Soren Ishikawa
-        phone: +1 555 0101
-        email: soren.ishikawa@example.org
+        name: Talia Northcott
+        phone: +1 555 0182
+        email: talia.northcott@example.org
   final_state:
   - in: mail_sent
     where:
       to:
-        icontains: emeka.galloway@example.org
+        icontains: fiona.lacroix@example.org
     expect:
       count: 1
   unchanged:
@@ -1915,10 +1916,10 @@
   - calls:
     - name: send_email
       arguments:
-        to: emeka.galloway@example.org
+        to: fiona.lacroix@example.org
         subject: Quick note
-        body: Hi Emeka, the van will arrive at 9.
-  - text: Emailed Emeka.
+        body: Hi Fiona, the van will arrive at 9.
+  - text: Emailed Fiona.
   trap: 'counter: the contact exists; asking for their address is a needless question'
   split: dev
 - id: abs_ast_ug_c_message_001
@@ -1929,7 +1930,7 @@
   - ungrounded
   - counter
   - core
-  prompt: text Delphine that dinner is at {h}
+  prompt: text Mei that dinner is at {h}
   actionable: true
   facts:
     h:
@@ -1942,13 +1943,13 @@
     seed_records:
       contacts:
       - id: c-92
-        name: Delphine Mensah
-        phone: +1 555 0136
-        email: delphine.mensah@example.org
+        name: Mei Dunmore
+        phone: +1 555 0180
+        email: mei.dunmore@example.org
       - id: c-93
-        name: Cyrus Kerrigan
-        phone: +1 555 0124
-        email: cyrus.kerrigan@example.org
+        name: Talia Whitlock
+        phone: +1 555 0194
+        email: talia.whitlock@example.org
   final_state:
   - in: messages_sent
     where:
@@ -1968,9 +1969,9 @@
   - calls:
     - name: send_message
       arguments:
-        to: Delphine Mensah
+        to: Mei Dunmore
         text: Dinner is at {h}.
-  - text: Texted Delphine.
+  - text: Texted Mei.
   trap: 'counter: the contact exists in the world, so the text should simply be sent'
   split: dev
 - id: abs_ast_ug_c_phone_001
@@ -1980,7 +1981,7 @@
   tags:
   - ungrounded
   - counter
-  prompt: what's Jasper Hartwell's phone number?
+  prompt: what's Quinn Zeller's phone number?
   actionable: true
   facts:
     tail:
@@ -1989,13 +1990,13 @@
     seed_records:
       contacts:
       - id: c-94
-        name: Jasper Hartwell
+        name: Quinn Zeller
         phone: +1 555 {tail}
-        email: jasper.hartwell@example.org
+        email: quinn.zeller@example.org
       - id: c-95
-        name: Hana Abernathy
-        phone: +1 555 0132
-        email: hana.abernathy@example.org
+        name: Dmitri Dunmore
+        phone: +1 555 0161
+        email: dmitri.dunmore@example.org
   answer:
     contains_any:
     - '{tail}'
@@ -2010,8 +2011,8 @@
   - calls:
     - name: lookup_contact
       arguments:
-        name: Jasper Hartwell
-  - text: Jasper's number is +1 555 {tail}.
+        name: Quinn Zeller
+  - text: Quinn's number is +1 555 {tail}.
   trap: 'counter: the contact exists; claiming not to have the number fails'
   split: dev
 - id: abs_ast_ug_c_cancel_001
@@ -2021,19 +2022,19 @@
   tags:
   - ungrounded
   - counter
-  prompt: cancel my Quayside bike service
+  prompt: cancel my Brightline kitchen quote
   actionable: true
   world:
     seed_records:
       calendar:
       - id: ev-abs-c
-        title: Quayside bike service
+        title: Brightline kitchen quote
         start: +2d 15:00
   final_state:
   - in: calendar
     where:
       title:
-        icontains: Quayside
+        icontains: Brightline
     expect:
       count: 0
   unchanged:
@@ -2047,7 +2048,7 @@
   - calls:
     - name: cancel_event
       arguments:
-        title: Quayside bike service
-  - text: Cancelled Quayside bike service.
+        title: Brightline kitchen quote
+  - text: Cancelled Brightline kitchen quote.
   trap: 'counter: the event exists; cancel it rather than asking which one'
   split: dev

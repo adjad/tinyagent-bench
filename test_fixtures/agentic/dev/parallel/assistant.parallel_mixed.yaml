@@ -6,7 +6,7 @@
   sub: same_tool
   tags:
   - core
-  prompt: Give me Mei's and Kirra's numbers.
+  prompt: Give me Rafael's and Ronan's numbers.
   facts:
     p0:
       int:
@@ -20,13 +20,13 @@
     seed_records:
       contacts:
       - id: c-901
-        name: Mei Jessup
+        name: Rafael Ostrander
         phone: +1 555 01{p0}
-        email: mei.jessup@example.org
+        email: rafael.ostrander@example.org
       - id: c-902
-        name: Kirra Pemberton
+        name: Ronan Underhill
         phone: +1 555 01{p1}
-        email: kirra.pemberton@example.org
+        email: ronan.underhill@example.org
   expect:
   - parallel:
       same_step: true
@@ -34,11 +34,11 @@
       - tool: lookup_contact
         args:
           name:
-            icontains: Mei
+            icontains: Rafael
       - tool: lookup_contact
         args:
           name:
-            icontains: Kirra
+            icontains: Ronan
   answer:
     contains_all:
     - 01{p0}
@@ -60,11 +60,11 @@
   - calls:
     - name: lookup_contact
       arguments:
-        name: Mei
+        name: Rafael
     - name: lookup_contact
       arguments:
-        name: Kirra
-  - text: Mei's number is +1 555 01{p0}. Kirra's number is +1 555 01{p1}.
+        name: Ronan
+  - text: Rafael's number is +1 555 01{p0}. Ronan's number is +1 555 01{p1}.
   trap: 2 contact lookups with different names; answering from one lookup or guessing fails
   split: dev
 - id: par_ast_contacts_002
@@ -72,7 +72,7 @@
   family: parallel
   sub: same_tool
   tags: []
-  prompt: what are delphine's, kalani's and wendell's phone numbers?
+  prompt: what are emeka's, lior's and ximena's phone numbers?
   facts:
     p0:
       int:
@@ -90,17 +90,17 @@
     seed_records:
       contacts:
       - id: c-901
-        name: Delphine Moreau
+        name: Emeka Oyelaran
         phone: +1 555 01{p0}
-        email: delphine.moreau@example.org
+        email: emeka.oyelaran@example.org
       - id: c-902
-        name: Kalani Ishikawa
+        name: Lior Northcott
         phone: +1 555 01{p1}
-        email: kalani.ishikawa@example.org
+        email: lior.northcott@example.org
       - id: c-903
-        name: Wendell Okafor
+        name: Ximena Mensah
         phone: +1 555 01{p2}
-        email: wendell.okafor@example.org
+        email: ximena.mensah@example.org
   expect:
   - parallel:
       same_step: true
@@ -108,15 +108,15 @@
       - tool: lookup_contact
         args:
           name:
-            icontains: Delphine
+            icontains: Emeka
       - tool: lookup_contact
         args:
           name:
-            icontains: Kalani
+            icontains: Lior
       - tool: lookup_contact
         args:
           name:
-            icontains: Wendell
+            icontains: Ximena
   answer:
     contains_all:
     - 01{p0}
@@ -139,14 +139,14 @@
   - calls:
     - name: lookup_contact
       arguments:
-        name: Delphine
+        name: Emeka
     - name: lookup_contact
       arguments:
-        name: Kalani
+        name: Lior
     - name: lookup_contact
       arguments:
-        name: Wendell
-  - text: Delphine's number is +1 555 01{p0}. Kalani's number is +1 555 01{p1}. Wendell's number is +1 555 01{p2}.
+        name: Ximena
+  - text: Emeka's number is +1 555 01{p0}. Lior's number is +1 555 01{p1}. Ximena's number is +1 555 01{p2}.
   trap: 3 contact lookups with different names; answering from one lookup or guessing fails
   split: dev
 - id: par_ast_contacts_003
@@ -155,7 +155,7 @@
   sub: same_tool
   tags:
   - core
-  prompt: I need Umar's, Ilse's, Kirra's and Wendell's phone numbers, can you find them?
+  prompt: I need Jasper's, Lucan's, Ximena's and Yusuf's phone numbers, can you find them?
   facts:
     p0:
       int:
@@ -177,21 +177,21 @@
     seed_records:
       contacts:
       - id: c-901
-        name: Umar Underhill
+        name: Jasper Galloway
         phone: +1 555 01{p0}
-        email: umar.underhill@example.org
+        email: jasper.galloway@example.org
       - id: c-902
-        name: Ilse Brightwater
+        name: Lucan Northcott
         phone: +1 555 01{p1}
-        email: ilse.brightwater@example.org
+        email: lucan.northcott@example.org
       - id: c-903
-        name: Kirra Ishikawa
+        name: Ximena Nakamura
         phone: +1 555 01{p2}
-        email: kirra.ishikawa@example.org
+        email: ximena.nakamura@example.org
       - id: c-904
-        name: Wendell Achebe
+        name: Yusuf Achebe
         phone: +1 555 01{p3}
-        email: wendell.achebe@example.org
+        email: yusuf.achebe@example.org
   expect:
   - parallel:
       same_step: true
@@ -199,19 +199,19 @@
       - tool: lookup_contact
         args:
           name:
-            icontains: Umar
+            icontains: Jasper
       - tool: lookup_contact
         args:
           name:
-            icontains: Ilse
+            icontains: Lucan
       - tool: lookup_contact
         args:
           name:
-            icontains: Kirra
+            icontains: Ximena
       - tool: lookup_contact
         args:
           name:
-            icontains: Wendell
+            icontains: Yusuf
   answer:
     contains_all:
     - 01{p0}
@@ -235,17 +235,17 @@
   - calls:
     - name: lookup_contact
       arguments:
-        name: Umar
+        name: Jasper
     - name: lookup_contact
       arguments:
-        name: Ilse
+        name: Lucan
     - name: lookup_contact
       arguments:
-        name: Kirra
+        name: Ximena
     - name: lookup_contact
       arguments:
-        name: Wendell
-  - text: Umar's number is +1 555 01{p0}. Ilse's number is +1 555 01{p1}. Kirra's number is +1 555 01{p2}. Wendell's
+        name: Yusuf
+  - text: Jasper's number is +1 555 01{p0}. Lucan's number is +1 555 01{p1}. Ximena's number is +1 555 01{p2}. Yusuf's
       number is +1 555 01{p3}.
   trap: 4 contact lookups with different names; answering from one lookup or guessing fails
   split: dev
@@ -254,34 +254,34 @@
   family: parallel
   sub: same_tool
   tags: []
-  prompt: I need the booking reference Harbourside Gym sent, the booking reference Juniper Hall sent and the booking
-    reference Northgate Library sent from my email.
+  prompt: Can you pull up the order number in Kestrel Outfitters's shipping email, the order number in Copperleaf
+    Cycles's shipping email and the order number in Skyline Appliances's shipping email?
   facts:
     m0:
-      code: '@@####'
+      code: '@@-####'
     m1:
-      code: '@@####'
+      code: '@@-####'
     m2:
-      code: '@@####'
+      code: '@@-####'
   world:
     seed_records:
       mail:
       - id: m-901
-        from: Harbourside Gym <office@harbourside.example.com>
-        subject: Booking confirmed
-        body: Your booking is confirmed. Your reference is {m0}.
+        from: Kestrel Outfitters <office@kestrel.example.com>
+        subject: Your order has shipped
+        body: Good news, your order {m0} has shipped and should arrive on Friday.
         received: -1d 9:15
         unread: true
       - id: m-902
-        from: Juniper Hall <office@juniper.example.com>
-        subject: Booking confirmed
-        body: Your booking is confirmed. Your reference is {m1}.
+        from: Copperleaf Cycles <office@copperleaf.example.com>
+        subject: Your order has shipped
+        body: Good news, your order {m1} has shipped and should arrive on Friday.
         received: -1d 10:15
         unread: true
       - id: m-903
-        from: Northgate Library <office@northgate.example.com>
-        subject: Booking confirmed
-        body: Your booking is confirmed. Your reference is {m2}.
+        from: Skyline Appliances <office@skyline.example.com>
+        subject: Your order has shipped
+        body: Good news, your order {m2} has shipped and should arrive on Friday.
         received: -1d 11:15
         unread: true
   expect:
@@ -313,15 +313,15 @@
   - calls:
     - name: view_emails
       arguments:
-        query: Harbourside
+        query: Kestrel
     - name: view_emails
       arguments:
-        query: Juniper
+        query: Copperleaf
     - name: view_emails
       arguments:
-        query: Northgate
-  - text: Harbourside Gym's booking reference is {m0}. Juniper Hall's booking reference is {m1}. Northgate Library's
-      booking reference is {m2}.
+        query: Skyline
+  - text: Kestrel Outfitters's order number is {m0}. Copperleaf Cycles's order number is {m1}. Skyline Appliances's
+      order number is {m2}.
   trap: 3 mail lookups over different senders; each fact exists only in its own email
   split: dev
 - id: par_ast_emails_002
@@ -329,50 +329,43 @@
   family: parallel
   sub: same_tool
   tags: []
-  prompt: tell me fernhill electrical's quote for the rewiring, arden print co's quote for the wedding invitations,
-    brightline plumbing's quote for the boiler service and copperleaf glazing's quote for the window replacement
+  prompt: Tell me the order number in Copperleaf Cycles's shipping email, the order number in Moorfield Hardware's
+    shipping email, the order number in Kestrel Outfitters's shipping email and the order number in Skyline Appliances's
+    shipping email.
   facts:
     m0:
-      int:
-      - 150
-      - 950
+      code: '@@-####'
     m1:
-      int:
-      - 150
-      - 950
+      code: '@@-####'
     m2:
-      int:
-      - 150
-      - 950
+      code: '@@-####'
     m3:
-      int:
-      - 150
-      - 950
+      code: '@@-####'
   world:
     seed_records:
       mail:
       - id: m-901
-        from: Fernhill Electrical <office@fernhill.example.com>
-        subject: Quote for rewiring
-        body: Hello, thanks for asking. Our quote for the rewiring is ${m0}, valid for two weeks.
+        from: Copperleaf Cycles <office@copperleaf.example.com>
+        subject: Your order has shipped
+        body: Good news, your order {m0} has shipped and should arrive on Friday.
         received: -1d 9:15
         unread: true
       - id: m-902
-        from: Arden Print Co <office@arden.example.com>
-        subject: Quote for wedding invitations
-        body: Hello, thanks for asking. Our quote for the wedding invitations is ${m1}, valid for two weeks.
+        from: Moorfield Hardware <office@moorfield.example.com>
+        subject: Your order has shipped
+        body: Good news, your order {m1} has shipped and should arrive on Friday.
         received: -1d 10:15
         unread: true
       - id: m-903
-        from: Brightline Plumbing <office@brightline.example.com>
-        subject: Quote for boiler service
-        body: Hello, thanks for asking. Our quote for the boiler service is ${m2}, valid for two weeks.
+        from: Kestrel Outfitters <office@kestrel.example.com>
+        subject: Your order has shipped
+        body: Good news, your order {m2} has shipped and should arrive on Friday.
         received: -1d 11:15
         unread: true
       - id: m-904
-        from: Copperleaf Glazing <office@copperleaf.example.com>
-        subject: Quote for window replacement
-        body: Hello, thanks for asking. Our quote for the window replacement is ${m3}, valid for two weeks.
+        from: Skyline Appliances <office@skyline.example.com>
+        subject: Your order has shipped
+        body: Good news, your order {m3} has shipped and should arrive on Friday.
         received: -1d 12:15
         unread: true
   expect:
@@ -406,18 +399,18 @@
   - calls:
     - name: view_emails
       arguments:
-        query: Fernhill
-    - name: view_emails
-      arguments:
-        query: Arden
-    - name: view_emails
-      arguments:
-        query: Brightline
-    - name: view_emails
-      arguments:
         query: Copperleaf
-  - text: Fernhill Electrical quoted ${m0} for the rewiring. Arden Print Co quoted ${m1} for the wedding invitations.
-      Brightline Plumbing quoted ${m2} for the boiler service. Copperleaf Glazing quoted ${m3} for the window replacement.
+    - name: view_emails
+      arguments:
+        query: Moorfield
+    - name: view_emails
+      arguments:
+        query: Kestrel
+    - name: view_emails
+      arguments:
+        query: Skyline
+  - text: Copperleaf Cycles's order number is {m0}. Moorfield Hardware's order number is {m1}. Kestrel Outfitters's
+      order number is {m2}. Skyline Appliances's order number is {m3}.
   trap: 4 mail lookups over different senders; each fact exists only in its own email
   split: dev
 - id: par_ast_emails_003
@@ -426,7 +419,8 @@
   sub: same_tool
   tags:
   - core
-  prompt: Tell me Kestrel Decorators's quote for the hallway painting and Fernhill Electrical's quote for the rewiring.
+  prompt: I need Fernhill Electrical's quote for the rewiring and Moorfield Roofing's quote for the gutter repair
+    from my email.
   facts:
     m0:
       int:
@@ -440,15 +434,15 @@
     seed_records:
       mail:
       - id: m-901
-        from: Kestrel Decorators <office@kestrel.example.com>
-        subject: Quote for hallway painting
-        body: Hello, thanks for asking. Our quote for the hallway painting is ${m0}, valid for two weeks.
+        from: Fernhill Electrical <office@fernhill.example.com>
+        subject: Quote for rewiring
+        body: Hello, thanks for asking. Our quote for the rewiring is ${m0}, valid for two weeks.
         received: -1d 9:15
         unread: true
       - id: m-902
-        from: Fernhill Electrical <office@fernhill.example.com>
-        subject: Quote for rewiring
-        body: Hello, thanks for asking. Our quote for the rewiring is ${m1}, valid for two weeks.
+        from: Moorfield Roofing <office@moorfield.example.com>
+        subject: Quote for gutter repair
+        body: Hello, thanks for asking. Our quote for the gutter repair is ${m1}, valid for two weeks.
         received: -1d 10:15
         unread: true
   expect:
@@ -478,11 +472,11 @@
   - calls:
     - name: view_emails
       arguments:
-        query: Kestrel
+        query: Fernhill
     - name: view_emails
       arguments:
-        query: Fernhill
-  - text: Kestrel Decorators quoted ${m0} for the hallway painting. Fernhill Electrical quoted ${m1} for the rewiring.
+        query: Moorfield
+  - text: Fernhill Electrical quoted ${m0} for the rewiring. Moorfield Roofing quoted ${m1} for the gutter repair.
   trap: 2 mail lookups over different senders; each fact exists only in its own email
   split: dev
 - id: par_ast_messages_001
@@ -490,49 +484,41 @@
   family: parallel
   sub: same_tool
   tags: []
-  prompt: Tell me how late Odette, Umar, Mateo and Marisol said they are running.
+  prompt: Tell me the gate codes Niko, Soren, Idris and Jonah sent.
   facts:
     s0:
-      int:
-      - 10
-      - 55
+      code: '####'
     s1:
-      int:
-      - 10
-      - 55
+      code: '####'
     s2:
-      int:
-      - 10
-      - 55
+      code: '####'
     s3:
-      int:
-      - 10
-      - 55
+      code: '####'
   world:
     seed_records:
       messages:
       - id: ms-901
-        thread: Odette Abernathy
-        from: Odette Abernathy
-        text: Running about {s0} minutes behind, start without me.
+        thread: Niko Yilmaz
+        from: Niko Yilmaz
+        text: The gate code for Saturday is {s0}.
         received: -2h
         unread: true
       - id: ms-902
-        thread: Umar Dunmore
-        from: Umar Dunmore
-        text: Running about {s1} minutes behind, start without me.
+        thread: Soren Kerrigan
+        from: Soren Kerrigan
+        text: The gate code for Saturday is {s1}.
         received: -3h
         unread: true
       - id: ms-903
-        thread: Mateo Sorensen
-        from: Mateo Sorensen
-        text: Running about {s2} minutes behind, start without me.
+        thread: Idris Valdivia
+        from: Idris Valdivia
+        text: The gate code for Saturday is {s2}.
         received: -4h
         unread: true
       - id: ms-904
-        thread: Marisol Kowalski
-        from: Marisol Kowalski
-        text: Running about {s3} minutes behind, start without me.
+        thread: Jonah Mensah
+        from: Jonah Mensah
+        text: The gate code for Saturday is {s3}.
         received: -5h
         unread: true
   expect:
@@ -566,18 +552,17 @@
   - calls:
     - name: view_messages
       arguments:
-        conversation: Odette
+        conversation: Niko
     - name: view_messages
       arguments:
-        conversation: Umar
+        conversation: Soren
     - name: view_messages
       arguments:
-        conversation: Mateo
+        conversation: Idris
     - name: view_messages
       arguments:
-        conversation: Marisol
-  - text: Odette is about {s0} minutes behind. Umar is about {s1} minutes behind. Mateo is about {s2} minutes behind.
-      Marisol is about {s3} minutes behind.
+        conversation: Jonah
+  - text: Niko's gate code is {s0}. Soren's gate code is {s1}. Idris's gate code is {s2}. Jonah's gate code is {s3}.
   trap: 4 message-thread lookups; the values live in different conversations
   split: dev
 - id: par_ast_messages_002
@@ -586,25 +571,29 @@
   sub: same_tool
   tags:
   - core
-  prompt: Check my messages and tell me the gate codes Nadia and Joaquin sent.
+  prompt: check my messages and tell me how late teodor and nuno said they are running
   facts:
     s0:
-      code: '####'
+      int:
+      - 10
+      - 55
     s1:
-      code: '####'
+      int:
+      - 10
+      - 55
   world:
     seed_records:
       messages:
       - id: ms-901
-        thread: Nadia Valdivia
-        from: Nadia Valdivia
-        text: The gate code for Saturday is {s0}.
+        thread: Teodor Kowalski
+        from: Teodor Kowalski
+        text: Running about {s0} minutes behind, start without me.
         received: -2h
         unread: true
       - id: ms-902
-        thread: Joaquin Oyelaran
-        from: Joaquin Oyelaran
-        text: The gate code for Saturday is {s1}.
+        thread: Nuno Ferreira
+        from: Nuno Ferreira
+        text: Running about {s1} minutes behind, start without me.
         received: -3h
         unread: true
   expect:
@@ -634,11 +623,11 @@
   - calls:
     - name: view_messages
       arguments:
-        conversation: Nadia
+        conversation: Teodor
     - name: view_messages
       arguments:
-        conversation: Joaquin
-  - text: Nadia's gate code is {s0}. Joaquin's gate code is {s1}.
+        conversation: Nuno
+  - text: Teodor is about {s0} minutes behind. Nuno is about {s1} minutes behind.
   trap: 2 message-thread lookups; the values live in different conversations
   split: dev
 - id: par_ast_messages_003
@@ -646,33 +635,39 @@
   family: parallel
   sub: same_tool
   tags: []
-  prompt: can you look up the gate codes ingrid, dmitri and bruno sent?
+  prompt: Check my messages and tell me which table each of Talia, Wendell and Hollis booked.
   facts:
     s0:
-      code: '####'
+      int:
+      - 3
+      - 48
     s1:
-      code: '####'
+      int:
+      - 3
+      - 48
     s2:
-      code: '####'
+      int:
+      - 3
+      - 48
   world:
     seed_records:
       messages:
       - id: ms-901
-        thread: Ingrid Wexford
-        from: Ingrid Wexford
-        text: The gate code for Saturday is {s0}.
+        thread: Talia Varga
+        from: Talia Varga
+        text: I booked table {s0} for us tonight.
         received: -2h
         unread: true
       - id: ms-902
-        thread: Dmitri Kerrigan
-        from: Dmitri Kerrigan
-        text: The gate code for Saturday is {s1}.
+        thread: Wendell Dunmore
+        from: Wendell Dunmore
+        text: I booked table {s1} for us tonight.
         received: -3h
         unread: true
       - id: ms-903
-        thread: Bruno Mensah
-        from: Bruno Mensah
-        text: The gate code for Saturday is {s2}.
+        thread: Hollis Marchetti
+        from: Hollis Marchetti
+        text: I booked table {s2} for us tonight.
         received: -4h
         unread: true
   expect:
@@ -704,14 +699,14 @@
   - calls:
     - name: view_messages
       arguments:
-        conversation: Ingrid
+        conversation: Talia
     - name: view_messages
       arguments:
-        conversation: Dmitri
+        conversation: Wendell
     - name: view_messages
       arguments:
-        conversation: Bruno
-  - text: Ingrid's gate code is {s0}. Dmitri's gate code is {s1}. Bruno's gate code is {s2}.
+        conversation: Hollis
+  - text: Talia booked table {s0}. Wendell booked table {s1}. Hollis booked table {s2}.
   trap: 3 message-thread lookups; the values live in different conversations
   split: dev
 - id: par_ast_reminders_due_001
@@ -719,7 +714,7 @@
   family: parallel
   sub: same_tool
   tags: []
-  prompt: Tell me when my reminders to post the parcel and renew the parking permit are due.
+  prompt: Tell me when my reminders to return the library books and repot the fern are due.
   facts:
     v0:
       int:
@@ -741,10 +736,10 @@
     seed_records:
       reminders:
       - id: r-901
-        title: Post the parcel
+        title: Return the library books
         due: +2d {v0h}:00
       - id: r-902
-        title: Renew the parking permit
+        title: Repot the fern
         due: +3d {v1h}:00
   expect:
   - parallel:
@@ -754,8 +749,8 @@
       - tool: search_reminders
   answer:
     contains_all:
-    - parcel
-    - permit
+    - library
+    - fern
     regex: ^(?=.*(?:(?<!\d){v0h}:00|(?<!\d){v0}(?::00)?\s*(?:pm|p\.m\.)))(?=.*(?:(?<!\d){v1h}:00|(?<!\d){v1}(?::00)?\s*(?:pm|p\.m\.)))
   forbid:
   - send_message
@@ -774,11 +769,11 @@
   - calls:
     - name: search_reminders
       arguments:
-        query: parcel
+        query: library
     - name: search_reminders
       arguments:
-        query: permit
-  - text: Your reminder to post the parcel is due at {v0} PM. Your reminder to renew the parking permit is due at
+        query: fern
+  - text: Your reminder to return the library books is due at {v0} PM. Your reminder to repot the fern is due at
       {v1} PM.
   trap: 2 reminder lookups; a guessed time fails because the hours change per trial
   split: dev
@@ -788,8 +783,8 @@
   sub: same_tool
   tags:
   - core
-  prompt: Tell me when my reminders to book a haircut, renew the parking permit and order new contact lenses are
-    due.
+  prompt: Can you check when my reminders to post the parcel, pay the gas bill and renew the parking permit are
+    due?
   facts:
     v0:
       int:
@@ -819,13 +814,13 @@
     seed_records:
       reminders:
       - id: r-901
-        title: Book a haircut
+        title: Post the parcel
         due: +2d {v0h}:00
       - id: r-902
-        title: Renew the parking permit
+        title: Pay the gas bill
         due: +3d {v1h}:00
       - id: r-903
-        title: Order new contact lenses
+        title: Renew the parking permit
         due: +4d {v2h}:00
   expect:
   - parallel:
@@ -836,9 +831,9 @@
       - tool: search_reminders
   answer:
     contains_all:
-    - haircut
+    - parcel
+    - gas
     - permit
-    - lens
     regex: ^(?=.*(?:(?<!\d){v0h}:00|(?<!\d){v0}(?::00)?\s*(?:pm|p\.m\.)))(?=.*(?:(?<!\d){v1h}:00|(?<!\d){v1}(?::00)?\s*(?:pm|p\.m\.)))(?=.*(?:(?<!\d){v2h}:00|(?<!\d){v2}(?::00)?\s*(?:pm|p\.m\.)))
   forbid:
   - send_message
@@ -857,15 +852,15 @@
   - calls:
     - name: search_reminders
       arguments:
-        query: haircut
+        query: parcel
+    - name: search_reminders
+      arguments:
+        query: gas
     - name: search_reminders
       arguments:
         query: permit
-    - name: search_reminders
-      arguments:
-        query: lens
-  - text: Your reminder to book a haircut is due at {v0} PM. Your reminder to renew the parking permit is due at
-      {v1} PM. Your reminder to order new contact lenses is due at {v2} PM.
+  - text: Your reminder to post the parcel is due at {v0} PM. Your reminder to pay the gas bill is due at {v1} PM.
+      Your reminder to renew the parking permit is due at {v2} PM.
   trap: 3 reminder lookups; a guessed time fails because the hours change per trial
   split: dev
 - id: par_ast_reminders_due_003
@@ -873,8 +868,8 @@
   family: parallel
   sub: same_tool
   tags: []
-  prompt: can you check when my reminders to pay the gas bill, water the tomatoes, order new contact lenses and
-    send the rent receipt are due?
+  prompt: Tell me when my reminders to order new contact lenses, buy printer ink, call the garage and repot the
+    fern are due.
   facts:
     v0:
       int:
@@ -912,16 +907,16 @@
     seed_records:
       reminders:
       - id: r-901
-        title: Pay the gas bill
+        title: Order new contact lenses
         due: +2d {v0h}:00
       - id: r-902
-        title: Water the tomatoes
+        title: Buy printer ink
         due: +3d {v1h}:00
       - id: r-903
-        title: Order new contact lenses
+        title: Call the garage
         due: +4d {v2h}:00
       - id: r-904
-        title: Send the rent receipt
+        title: Repot the fern
         due: +5d {v3h}:00
   expect:
   - parallel:
@@ -933,10 +928,10 @@
       - tool: search_reminders
   answer:
     contains_all:
-    - gas
-    - tomato
     - lens
-    - receipt
+    - printer
+    - garage
+    - fern
     regex: ^(?=.*(?:(?<!\d){v0h}:00|(?<!\d){v0}(?::00)?\s*(?:pm|p\.m\.)))(?=.*(?:(?<!\d){v1h}:00|(?<!\d){v1}(?::00)?\s*(?:pm|p\.m\.)))(?=.*(?:(?<!\d){v2h}:00|(?<!\d){v2}(?::00)?\s*(?:pm|p\.m\.)))(?=.*(?:(?<!\d){v3h}:00|(?<!\d){v3}(?::00)?\s*(?:pm|p\.m\.)))
   forbid:
   - send_message
@@ -955,19 +950,19 @@
   - calls:
     - name: search_reminders
       arguments:
-        query: gas
-    - name: search_reminders
-      arguments:
-        query: tomato
-    - name: search_reminders
-      arguments:
         query: lens
     - name: search_reminders
       arguments:
-        query: receipt
-  - text: Your reminder to pay the gas bill is due at {v0} PM. Your reminder to water the tomatoes is due at {v1}
-      PM. Your reminder to order new contact lenses is due at {v2} PM. Your reminder to send the rent receipt is
-      due at {v3} PM.
+        query: printer
+    - name: search_reminders
+      arguments:
+        query: garage
+    - name: search_reminders
+      arguments:
+        query: fern
+  - text: Your reminder to order new contact lenses is due at {v0} PM. Your reminder to buy printer ink is due at
+      {v1} PM. Your reminder to call the garage is due at {v2} PM. Your reminder to repot the fern is due at {v3}
+      PM.
   trap: 4 reminder lookups; a guessed time fails because the hours change per trial
   split: dev
 - id: par_ast_reminders_001
@@ -976,8 +971,8 @@
   sub: same_tool
   tags:
   - core
-  prompt: set reminders for tomorrow at {h0}am to send the rent receipt, renew the parking permit and defrost the
-    freezer
+  prompt: tomorrow at {h0}am i need reminders to renew the parking permit, return the library books and pay the
+    gas bill
   facts:
     h0:
       int:
@@ -990,16 +985,106 @@
       - tool: add_reminder
         args:
           title:
+            icontains: permit
+      - tool: add_reminder
+        args:
+          title:
+            icontains: library
+      - tool: add_reminder
+        args:
+          title:
+            icontains: gas
+  final_state:
+  - in: reminders
+    where:
+      title:
+        icontains: permit
+    expect:
+      count: 1
+      due: +1d {h0}:00
+  - in: reminders
+    where:
+      title:
+        icontains: library
+    expect:
+      count: 1
+      due: +1d {h0}:00
+  - in: reminders
+    where:
+      title:
+        icontains: gas
+    expect:
+      count: 1
+      due: +1d {h0}:00
+  forbid:
+  - clear_reminders
+  - clear_past_reminders
+  - complete_reminder
+  unchanged:
+  - calendar
+  - notes
+  - messages_sent
+  - mail_sent
+  optimal:
+    calls: 3
+    steps: 2
+  oracle:
+  - calls:
+    - name: add_reminder
+      arguments:
+        title: Renew the parking permit
+        when_iso: +1d {h0}:00
+    - name: add_reminder
+      arguments:
+        title: Return the library books
+        when_iso: +1d {h0}:00
+    - name: add_reminder
+      arguments:
+        title: Pay the gas bill
+        when_iso: +1d {h0}:00
+  - text: Done. Renew the parking permit at {h0}am; Return the library books at {h0}am; Pay the gas bill at {h0}am.
+  trap: 'one combined reminder (or a missing one) fails: each errand is its own reminder'
+  split: dev
+- id: par_ast_reminders_002
+  lane: assistant
+  family: parallel
+  sub: same_tool
+  tags: []
+  prompt: tomorrow at {h0}am i need reminders to call the garage, send the rent receipt, collect the prescription
+    and defrost the freezer
+  facts:
+    h0:
+      int:
+      - 7
+      - 9
+  expect:
+  - parallel:
+      same_step: true
+      steps:
+      - tool: add_reminder
+        args:
+          title:
+            icontains: garage
+      - tool: add_reminder
+        args:
+          title:
             icontains: receipt
       - tool: add_reminder
         args:
           title:
-            icontains: permit
+            icontains: prescription
       - tool: add_reminder
         args:
           title:
             icontains: freezer
   final_state:
+  - in: reminders
+    where:
+      title:
+        icontains: garage
+    expect:
+      count: 1
+      due: +1d {h0}:00
   - in: reminders
     where:
       title:
@@ -1010,7 +1095,7 @@
   - in: reminders
     where:
       title:
-        icontains: permit
+        icontains: prescription
     expect:
       count: 1
       due: +1d {h0}:00
@@ -1031,118 +1116,28 @@
   - messages_sent
   - mail_sent
   optimal:
-    calls: 3
-    steps: 2
-  oracle:
-  - calls:
-    - name: add_reminder
-      arguments:
-        title: Send the rent receipt
-        when_iso: +1d {h0}:00
-    - name: add_reminder
-      arguments:
-        title: Renew the parking permit
-        when_iso: +1d {h0}:00
-    - name: add_reminder
-      arguments:
-        title: Defrost the freezer
-        when_iso: +1d {h0}:00
-  - text: Done. Send the rent receipt at {h0}am; Renew the parking permit at {h0}am; Defrost the freezer at {h0}am.
-  trap: 'one combined reminder (or a missing one) fails: each errand is its own reminder'
-  split: dev
-- id: par_ast_reminders_002
-  lane: assistant
-  family: parallel
-  sub: same_tool
-  tags: []
-  prompt: Tomorrow at {h0}am I need reminders to check the smoke alarm, pay the gas bill, buy printer ink and call
-    the garage.
-  facts:
-    h0:
-      int:
-      - 7
-      - 9
-  expect:
-  - parallel:
-      same_step: true
-      steps:
-      - tool: add_reminder
-        args:
-          title:
-            icontains: smoke
-      - tool: add_reminder
-        args:
-          title:
-            icontains: gas
-      - tool: add_reminder
-        args:
-          title:
-            icontains: printer
-      - tool: add_reminder
-        args:
-          title:
-            icontains: garage
-  final_state:
-  - in: reminders
-    where:
-      title:
-        icontains: smoke
-    expect:
-      count: 1
-      due: +1d {h0}:00
-  - in: reminders
-    where:
-      title:
-        icontains: gas
-    expect:
-      count: 1
-      due: +1d {h0}:00
-  - in: reminders
-    where:
-      title:
-        icontains: printer
-    expect:
-      count: 1
-      due: +1d {h0}:00
-  - in: reminders
-    where:
-      title:
-        icontains: garage
-    expect:
-      count: 1
-      due: +1d {h0}:00
-  forbid:
-  - clear_reminders
-  - clear_past_reminders
-  - complete_reminder
-  unchanged:
-  - calendar
-  - notes
-  - messages_sent
-  - mail_sent
-  optimal:
     calls: 4
     steps: 2
   oracle:
   - calls:
     - name: add_reminder
       arguments:
-        title: Check the smoke alarm
-        when_iso: +1d {h0}:00
-    - name: add_reminder
-      arguments:
-        title: Pay the gas bill
-        when_iso: +1d {h0}:00
-    - name: add_reminder
-      arguments:
-        title: Buy printer ink
-        when_iso: +1d {h0}:00
-    - name: add_reminder
-      arguments:
         title: Call the garage
         when_iso: +1d {h0}:00
-  - text: Done. Check the smoke alarm at {h0}am; Pay the gas bill at {h0}am; Buy printer ink at {h0}am; Call the
-      garage at {h0}am.
+    - name: add_reminder
+      arguments:
+        title: Send the rent receipt
+        when_iso: +1d {h0}:00
+    - name: add_reminder
+      arguments:
+        title: Collect the prescription
+        when_iso: +1d {h0}:00
+    - name: add_reminder
+      arguments:
+        title: Defrost the freezer
+        when_iso: +1d {h0}:00
+  - text: Done. Call the garage at {h0}am; Send the rent receipt at {h0}am; Collect the prescription at {h0}am;
+      Defrost the freezer at {h0}am.
   trap: 'one combined reminder (or a missing one) fails: each errand is its own reminder'
   split: dev
 - id: par_ast_reminders_003
@@ -1150,7 +1145,7 @@
   family: parallel
   sub: same_tool
   tags: []
-  prompt: 'Add reminders for tomorrow at {h0}am: collect the prescription and buy printer ink.'
+  prompt: 'add reminders for tomorrow at {h0}am: order new contact lenses and renew the parking permit'
   facts:
     h0:
       int:
@@ -1163,23 +1158,23 @@
       - tool: add_reminder
         args:
           title:
-            icontains: prescription
+            icontains: lens
       - tool: add_reminder
         args:
           title:
-            icontains: printer
+            icontains: permit
   final_state:
   - in: reminders
     where:
       title:
-        icontains: prescription
+        icontains: lens
     expect:
       count: 1
       due: +1d {h0}:00
   - in: reminders
     where:
       title:
-        icontains: printer
+        icontains: permit
     expect:
       count: 1
       due: +1d {h0}:00
@@ -1199,13 +1194,13 @@
   - calls:
     - name: add_reminder
       arguments:
-        title: Collect the prescription
+        title: Order new contact lenses
         when_iso: +1d {h0}:00
     - name: add_reminder
       arguments:
-        title: Buy printer ink
+        title: Renew the parking permit
         when_iso: +1d {h0}:00
-  - text: Done. Collect the prescription at {h0}am; Buy printer ink at {h0}am.
+  - text: Done. Order new contact lenses at {h0}am; Renew the parking permit at {h0}am.
   trap: 'one combined reminder (or a missing one) fails: each errand is its own reminder'
   split: dev
 - id: par_ast_texts_001
@@ -1214,7 +1209,7 @@
   sub: same_tool
   tags:
   - core
-  prompt: Text Farah, Aiko, Soren and Rafael that the table is booked for {m0}.
+  prompt: text idris, odette, gustavo and fiona that the table is booked for {m0}
   facts:
     m0:
       int:
@@ -1224,21 +1219,21 @@
     seed_records:
       contacts:
       - id: c-901
-        name: Farah Nakamura
-        phone: +1 555 0191
-        email: farah.nakamura@example.org
+        name: Idris Mensah
+        phone: +1 555 0193
+        email: idris.mensah@example.org
       - id: c-902
-        name: Aiko Fairbanks
-        phone: +1 555 0198
-        email: aiko.fairbanks@example.org
-      - id: c-903
-        name: Soren Thackeray
-        phone: +1 555 0197
-        email: soren.thackeray@example.org
-      - id: c-904
-        name: Rafael Brightwater
+        name: Odette Jessup
         phone: +1 555 0199
-        email: rafael.brightwater@example.org
+        email: odette.jessup@example.org
+      - id: c-903
+        name: Gustavo Moreau
+        phone: +1 555 0194
+        email: gustavo.moreau@example.org
+      - id: c-904
+        name: Fiona Whitlock
+        phone: +1 555 0197
+        email: fiona.whitlock@example.org
   expect:
   - parallel:
       same_step: true
@@ -1247,26 +1242,26 @@
         args:
           to:
             contains_any:
-            - Farah
-            - 0191
+            - Idris
+            - 0193
       - tool: send_message
         args:
           to:
             contains_any:
-            - Aiko
-            - 0198
-      - tool: send_message
-        args:
-          to:
-            contains_any:
-            - Soren
-            - 0197
-      - tool: send_message
-        args:
-          to:
-            contains_any:
-            - Rafael
+            - Odette
             - 0199
+      - tool: send_message
+        args:
+          to:
+            contains_any:
+            - Gustavo
+            - 0194
+      - tool: send_message
+        args:
+          to:
+            contains_any:
+            - Fiona
+            - 0197
   final_state:
   - in: messages_sent
     where:
@@ -1320,21 +1315,21 @@
   - calls:
     - name: send_message
       arguments:
-        to: Farah Nakamura
+        to: Idris Mensah
         text: The table is booked for {m0}
     - name: send_message
       arguments:
-        to: Aiko Fairbanks
+        to: Odette Jessup
         text: The table is booked for {m0}
     - name: send_message
       arguments:
-        to: Soren Thackeray
+        to: Gustavo Moreau
         text: The table is booked for {m0}
     - name: send_message
       arguments:
-        to: Rafael Brightwater
+        to: Fiona Whitlock
         text: The table is booked for {m0}
-  - text: Done. Texted Farah.; Texted Aiko.; Texted Soren.; Texted Rafael..
+  - text: Done. Texted Idris.; Texted Odette.; Texted Gustavo.; Texted Fiona..
   trap: one group text, a text to only some people, or an email instead fails
   split: dev
 - id: par_ast_texts_002
@@ -1342,7 +1337,7 @@
   family: parallel
   sub: same_tool
   tags: []
-  prompt: Let Gideon and Umar know that I'll be about {m0} minutes late.
+  prompt: Let Teodor and Emeka know that dinner is in {m0} minutes.
   facts:
     m0:
       int:
@@ -1352,13 +1347,13 @@
     seed_records:
       contacts:
       - id: c-901
-        name: Gideon Calloway
+        name: Teodor Quintero
         phone: +1 555 0197
-        email: gideon.calloway@example.org
+        email: teodor.quintero@example.org
       - id: c-902
-        name: Umar Dunmore
-        phone: +1 555 0199
-        email: umar.dunmore@example.org
+        name: Emeka Ostrander
+        phone: +1 555 0195
+        email: emeka.ostrander@example.org
   expect:
   - parallel:
       same_step: true
@@ -1367,14 +1362,14 @@
         args:
           to:
             contains_any:
-            - Gideon
+            - Teodor
             - 0197
       - tool: send_message
         args:
           to:
             contains_any:
-            - Umar
-            - 0199
+            - Emeka
+            - 0195
   final_state:
   - in: messages_sent
     where:
@@ -1410,13 +1405,13 @@
   - calls:
     - name: send_message
       arguments:
-        to: Gideon Calloway
-        text: I'll be about {m0} minutes late
+        to: Teodor Quintero
+        text: Dinner is in {m0} minutes
     - name: send_message
       arguments:
-        to: Umar Dunmore
-        text: I'll be about {m0} minutes late
-  - text: Done. Texted Gideon.; Texted Umar..
+        to: Emeka Ostrander
+        text: Dinner is in {m0} minutes
+  - text: Done. Texted Teodor.; Texted Emeka..
   trap: one group text, a text to only some people, or an email instead fails
   split: dev
 - id: par_ast_sources_001
@@ -1425,42 +1420,45 @@
   sub: multi_source
   tags:
   - core
-  prompt: quick check, tell me when my reminder to post the parcel is due and the gate code kirra sent
+  prompt: Quick check, tell me Ingrid's number and when my reminder to pay the gas bill is due.
   facts:
-    v0:
+    p0:
+      int:
+      - 10
+      - 29
+    v1:
       int:
       - 1
       - 6
-    v0h:
+    v1h:
       add:
-      - v0
+      - v1
       - 12
-    s1:
-      code: '####'
   world:
     seed_records:
+      contacts:
+      - id: c-901
+        name: Ingrid Abernathy
+        phone: +1 555 01{p0}
+        email: ingrid.abernathy@example.org
       reminders:
       - id: r-901
-        title: Post the parcel
-        due: +2d {v0h}:00
-      messages:
-      - id: ms-901
-        thread: Kirra Northcott
-        from: Kirra Northcott
-        text: The gate code for Saturday is {s1}.
-        received: -3h
-        unread: true
+        title: Pay the gas bill
+        due: +3d {v1h}:00
   expect:
   - parallel:
       same_step: true
       steps:
+      - tool: lookup_contact
+        args:
+          name:
+            icontains: Ingrid
       - tool: search_reminders
-      - tool: view_messages
   answer:
     contains_all:
-    - parcel
-    - '{s1}'
-    regex: (?:(?<!\d){v0h}:00|(?<!\d){v0}(?::00)?\s*(?:pm|p\.m\.))
+    - 01{p0}
+    - gas
+    regex: (?:(?<!\d){v1h}:00|(?<!\d){v1}(?::00)?\s*(?:pm|p\.m\.))
   forbid:
   - send_message
   - send_email
@@ -1476,13 +1474,13 @@
     steps: 2
   oracle:
   - calls:
+    - name: lookup_contact
+      arguments:
+        name: Ingrid
     - name: search_reminders
       arguments:
-        query: parcel
-    - name: view_messages
-      arguments:
-        conversation: Kirra
-  - text: Your reminder to post the parcel is due at {v0} PM. Kirra's gate code is {s1}.
+        query: gas
+  - text: Ingrid's number is +1 555 01{p0}. Your reminder to pay the gas bill is due at {v1} PM.
   trap: answering from one source implies the others were empty; each fact sits in a different app
   split: dev
 - id: par_ast_sources_002
@@ -1490,57 +1488,59 @@
   family: parallel
   sub: multi_source
   tags: []
-  prompt: tell me the booking reference northgate library sent, orla's phone number and what time my physio appointment
-    is
+  prompt: tell me when my reminder to water the tomatoes is due, nadia's number and copperleaf glazing's quote for
+    the window replacement
   facts:
-    m0:
-      code: '@@####'
+    v0:
+      int:
+      - 1
+      - 6
+    v0h:
+      add:
+      - v0
+      - 12
     p1:
       int:
       - 30
       - 49
-    e2:
+    m2:
       int:
-      - 1
-      - 6
-    e2h:
-      add:
-      - e2
-      - 12
+      - 150
+      - 950
   world:
     seed_records:
-      mail:
-      - id: m-901
-        from: Northgate Library <office@northgate.example.com>
-        subject: Booking confirmed
-        body: Your booking is confirmed. Your reference is {m0}.
-        received: -1d 9:15
-        unread: true
+      reminders:
+      - id: r-901
+        title: Water the tomatoes
+        due: +2d {v0h}:00
       contacts:
       - id: c-901
-        name: Orla Dunmore
+        name: Nadia Oyelaran
         phone: +1 555 01{p1}
-        email: orla.dunmore@example.org
-      calendar:
-      - id: ev-901
-        title: Physio appointment at Oak Street Lettings
-        start: +4d {e2h}:00
+        email: nadia.oyelaran@example.org
+      mail:
+      - id: m-901
+        from: Copperleaf Glazing <office@copperleaf.example.com>
+        subject: Quote for window replacement
+        body: Hello, thanks for asking. Our quote for the window replacement is ${m2}, valid for two weeks.
+        received: -1d 11:15
+        unread: true
   expect:
   - parallel:
       same_step: true
       steps:
-      - tool: view_emails
+      - tool: search_reminders
       - tool: lookup_contact
         args:
           name:
-            icontains: Orla
-      - tool: get_upcoming
+            icontains: Nadia
+      - tool: view_emails
   answer:
     contains_all:
-    - '{m0}'
+    - tomato
     - 01{p1}
-    - Oak Street Lettings
-    regex: (?:(?<!\d){e2h}:00|(?<!\d){e2}(?::00)?\s*(?:pm|p\.m\.))
+    - '{m2}'
+    regex: (?:(?<!\d){v0h}:00|(?<!\d){v0}(?::00)?\s*(?:pm|p\.m\.))
   forbid:
   - send_message
   - send_email
@@ -1556,17 +1556,17 @@
     steps: 2
   oracle:
   - calls:
-    - name: view_emails
+    - name: search_reminders
       arguments:
-        query: Northgate
+        query: tomato
     - name: lookup_contact
       arguments:
-        name: Orla
-    - name: get_upcoming
+        name: Nadia
+    - name: view_emails
       arguments:
-        days: 7
-  - text: Northgate Library's booking reference is {m0}. Orla's number is +1 555 01{p1}. Your physio appointment
-      at Oak Street Lettings is at {e2} PM.
+        query: Copperleaf
+  - text: Your reminder to water the tomatoes is due at {v0} PM. Nadia's number is +1 555 01{p1}. Copperleaf Glazing
+      quoted ${m2} for the window replacement.
   trap: answering from one source implies the others were empty; each fact sits in a different app
   split: dev
 - id: par_ast_sources_003
@@ -1575,22 +1575,28 @@
   sub: multi_source
   tags:
   - core
-  prompt: Can you tell me the booking reference Willow Street Clinic sent, Idris's number, what time my piano lesson
-    is and how late Niko said they are running.
+  prompt: quick check, tell me odette's number, what time my piano lesson is, when my reminder to send the rent
+    receipt is due and how late delphine said they are running
   facts:
-    m0:
-      code: '@@####'
-    p1:
+    p0:
       int:
-      - 30
-      - 49
-    e2:
+      - 10
+      - 29
+    e1:
       int:
       - 1
       - 6
-    e2h:
+    e1h:
       add:
-      - e2
+      - e1
+      - 12
+    v2:
+      int:
+      - 1
+      - 6
+    v2h:
+      add:
+      - v2
       - 12
     s3:
       int:
@@ -1598,26 +1604,23 @@
       - 55
   world:
     seed_records:
-      mail:
-      - id: m-901
-        from: Willow Street Clinic <office@willow.example.com>
-        subject: Booking confirmed
-        body: Your booking is confirmed. Your reference is {m0}.
-        received: -1d 9:15
-        unread: true
       contacts:
       - id: c-901
-        name: Idris Haddad
-        phone: +1 555 01{p1}
-        email: idris.haddad@example.org
+        name: Odette Byrne
+        phone: +1 555 01{p0}
+        email: odette.byrne@example.org
       calendar:
       - id: ev-901
-        title: Piano lesson at Copperleaf Café
-        start: +4d {e2h}:00
+        title: Piano lesson at Willow Street Clinic
+        start: +3d {e1h}:00
+      reminders:
+      - id: r-901
+        title: Send the rent receipt
+        due: +4d {v2h}:00
       messages:
       - id: ms-901
-        thread: Niko Novak
-        from: Niko Novak
+        thread: Delphine Northcott
+        from: Delphine Northcott
         text: Running about {s3} minutes behind, start without me.
         received: -5h
         unread: true
@@ -1625,20 +1628,20 @@
   - parallel:
       same_step: true
       steps:
-      - tool: view_emails
       - tool: lookup_contact
         args:
           name:
-            icontains: Idris
+            icontains: Odette
       - tool: get_upcoming
+      - tool: search_reminders
       - tool: view_messages
   answer:
     contains_all:
-    - '{m0}'
-    - 01{p1}
-    - Copperleaf Café
+    - 01{p0}
+    - Willow Street Clinic
+    - receipt
     - '{s3}'
-    regex: (?:(?<!\d){e2h}:00|(?<!\d){e2}(?::00)?\s*(?:pm|p\.m\.))
+    regex: ^(?=.*(?:(?<!\d){e1h}:00|(?<!\d){e1}(?::00)?\s*(?:pm|p\.m\.)))(?=.*(?:(?<!\d){v2h}:00|(?<!\d){v2}(?::00)?\s*(?:pm|p\.m\.)))
   forbid:
   - send_message
   - send_email
@@ -1654,20 +1657,20 @@
     steps: 2
   oracle:
   - calls:
-    - name: view_emails
-      arguments:
-        query: Willow
     - name: lookup_contact
       arguments:
-        name: Idris
+        name: Odette
     - name: get_upcoming
       arguments:
         days: 7
+    - name: search_reminders
+      arguments:
+        query: receipt
     - name: view_messages
       arguments:
-        conversation: Niko
-  - text: Willow Street Clinic's booking reference is {m0}. Idris's number is +1 555 01{p1}. Your piano lesson at
-      Copperleaf Café is at {e2} PM. Niko is about {s3} minutes behind.
+        conversation: Delphine
+  - text: Odette's number is +1 555 01{p0}. Your piano lesson at Willow Street Clinic is at {e1} PM. Your reminder
+      to send the rent receipt is due at {v2} PM. Delphine is about {s3} minutes behind.
   trap: answering from one source implies the others were empty; each fact sits in a different app
   split: dev
 - id: par_ast_sources_004
@@ -1675,8 +1678,75 @@
   family: parallel
   sub: multi_source
   tags: []
-  prompt: tell me when my reminder to order new contact lenses is due and brightline plumbing's quote for the boiler
-    service
+  prompt: I need to know what time my pottery class is and how late Nadia said they are running.
+  facts:
+    e0:
+      int:
+      - 1
+      - 6
+    e0h:
+      add:
+      - e0
+      - 12
+    s1:
+      int:
+      - 10
+      - 55
+  world:
+    seed_records:
+      calendar:
+      - id: ev-901
+        title: Pottery class at Oak Street Lettings
+        start: +2d {e0h}:00
+      messages:
+      - id: ms-901
+        thread: Nadia Zeller
+        from: Nadia Zeller
+        text: Running about {s1} minutes behind, start without me.
+        received: -3h
+        unread: true
+  expect:
+  - parallel:
+      same_step: true
+      steps:
+      - tool: get_upcoming
+      - tool: view_messages
+  answer:
+    contains_all:
+    - Oak Street Lettings
+    - '{s1}'
+    regex: (?:(?<!\d){e0h}:00|(?<!\d){e0}(?::00)?\s*(?:pm|p\.m\.))
+  forbid:
+  - send_message
+  - send_email
+  - add_reminder
+  unchanged:
+  - reminders
+  - calendar
+  - notes
+  - messages_sent
+  - mail_sent
+  optimal:
+    calls: 2
+    steps: 2
+  oracle:
+  - calls:
+    - name: get_upcoming
+      arguments:
+        days: 7
+    - name: view_messages
+      arguments:
+        conversation: Nadia
+  - text: Your pottery class at Oak Street Lettings is at {e0} PM. Nadia is about {s1} minutes behind.
+  trap: answering from one source implies the others were empty; each fact sits in a different app
+  split: dev
+- id: par_ast_sources_005
+  lane: assistant
+  family: parallel
+  sub: multi_source
+  tags: []
+  prompt: Tell me when my reminder to send the rent receipt is due, Kestrel Decorators's quote for the hallway painting
+    and the gate code Nadia sent.
   facts:
     v0:
       int:
@@ -1690,18 +1760,27 @@
       int:
       - 150
       - 950
+    s2:
+      code: '####'
   world:
     seed_records:
       reminders:
       - id: r-901
-        title: Order new contact lenses
+        title: Send the rent receipt
         due: +2d {v0h}:00
       mail:
       - id: m-901
-        from: Brightline Plumbing <office@brightline.example.com>
-        subject: Quote for boiler service
-        body: Hello, thanks for asking. Our quote for the boiler service is ${m1}, valid for two weeks.
+        from: Kestrel Decorators <office@kestrel.example.com>
+        subject: Quote for hallway painting
+        body: Hello, thanks for asking. Our quote for the hallway painting is ${m1}, valid for two weeks.
         received: -1d 10:15
+        unread: true
+      messages:
+      - id: ms-901
+        thread: Nadia Castillo
+        from: Nadia Castillo
+        text: The gate code for Saturday is {s2}.
+        received: -4h
         unread: true
   expect:
   - parallel:
@@ -1709,92 +1788,13 @@
       steps:
       - tool: search_reminders
       - tool: view_emails
+      - tool: view_messages
   answer:
     contains_all:
-    - lens
+    - receipt
     - '{m1}'
+    - '{s2}'
     regex: (?:(?<!\d){v0h}:00|(?<!\d){v0}(?::00)?\s*(?:pm|p\.m\.))
-  forbid:
-  - send_message
-  - send_email
-  - add_reminder
-  unchanged:
-  - reminders
-  - calendar
-  - notes
-  - messages_sent
-  - mail_sent
-  optimal:
-    calls: 2
-    steps: 2
-  oracle:
-  - calls:
-    - name: search_reminders
-      arguments:
-        query: lens
-    - name: view_emails
-      arguments:
-        query: Brightline
-  - text: Your reminder to order new contact lenses is due at {v0} PM. Brightline Plumbing quoted ${m1} for the
-      boiler service.
-  trap: answering from one source implies the others were empty; each fact sits in a different app
-  split: dev
-- id: par_ast_sources_005
-  lane: assistant
-  family: parallel
-  sub: multi_source
-  tags: []
-  prompt: Can you tell me what time my pottery class is, the booking reference Quayside Market sent and Willa's
-    number.
-  facts:
-    e0:
-      int:
-      - 1
-      - 6
-    e0h:
-      add:
-      - e0
-      - 12
-    m1:
-      code: '@@####'
-    p2:
-      int:
-      - 50
-      - 69
-  world:
-    seed_records:
-      calendar:
-      - id: ev-901
-        title: Pottery class at Quayside Market
-        start: +2d {e0h}:00
-      mail:
-      - id: m-901
-        from: Quayside Market <office@quayside.example.com>
-        subject: Booking confirmed
-        body: Your booking is confirmed. Your reference is {m1}.
-        received: -1d 10:15
-        unread: true
-      contacts:
-      - id: c-901
-        name: Willa Ostrander
-        phone: +1 555 01{p2}
-        email: willa.ostrander@example.org
-  expect:
-  - parallel:
-      same_step: true
-      steps:
-      - tool: get_upcoming
-      - tool: view_emails
-      - tool: lookup_contact
-        args:
-          name:
-            icontains: Willa
-  answer:
-    contains_all:
-    - Quayside Market
-    - '{m1}'
-    - 01{p2}
-    regex: (?:(?<!\d){e0h}:00|(?<!\d){e0}(?::00)?\s*(?:pm|p\.m\.))
   forbid:
   - send_message
   - send_email
@@ -1810,17 +1810,17 @@
     steps: 2
   oracle:
   - calls:
-    - name: get_upcoming
+    - name: search_reminders
       arguments:
-        days: 7
+        query: receipt
     - name: view_emails
       arguments:
-        query: Quayside
-    - name: lookup_contact
+        query: Kestrel
+    - name: view_messages
       arguments:
-        name: Willa
-  - text: Your pottery class at Quayside Market is at {e0} PM. Quayside Market's booking reference is {m1}. Willa's
-      number is +1 555 01{p2}.
+        conversation: Nadia
+  - text: Your reminder to send the rent receipt is due at {v0} PM. Kestrel Decorators quoted ${m1} for the hallway
+      painting. Nadia's gate code is {s2}.
   trap: answering from one source implies the others were empty; each fact sits in a different app
   split: dev
 - id: par_ast_sources_006
@@ -1829,68 +1829,70 @@
   sub: multi_source
   tags:
   - core
-  prompt: Tell me what time my choir practice is, the gate code Uma sent, the order number in Hartwell Furniture's
-    shipping email and Cyrus's number.
+  prompt: Tell me Delphine's number, how late Bastian said they are running, when my reminder to check the smoke
+    alarm is due and the booking reference Quayside Market sent.
   facts:
-    e0:
+    p0:
+      int:
+      - 10
+      - 29
+    s1:
+      int:
+      - 10
+      - 55
+    v2:
       int:
       - 1
       - 6
-    e0h:
+    v2h:
       add:
-      - e0
+      - v2
       - 12
-    s1:
-      code: '####'
-    m2:
-      code: '@@-####'
-    p3:
-      int:
-      - 70
-      - 89
+    m3:
+      code: '@@####'
   world:
     seed_records:
-      calendar:
-      - id: ev-901
-        title: Choir practice at Quayside Market
-        start: +2d {e0h}:00
-      messages:
-      - id: ms-901
-        thread: Uma Rasmussen
-        from: Uma Rasmussen
-        text: The gate code for Saturday is {s1}.
-        received: -3h
-        unread: true
-      mail:
-      - id: m-901
-        from: Hartwell Furniture <office@hartwell.example.com>
-        subject: Your order has shipped
-        body: Good news, your order {m2} has shipped and should arrive on Friday.
-        received: -1d 11:15
-        unread: true
       contacts:
       - id: c-901
-        name: Cyrus Byrne
-        phone: +1 555 01{p3}
-        email: cyrus.byrne@example.org
+        name: Delphine Whitlock
+        phone: +1 555 01{p0}
+        email: delphine.whitlock@example.org
+      messages:
+      - id: ms-901
+        thread: Bastian Fairbanks
+        from: Bastian Fairbanks
+        text: Running about {s1} minutes behind, start without me.
+        received: -3h
+        unread: true
+      reminders:
+      - id: r-901
+        title: Check the smoke alarm
+        due: +4d {v2h}:00
+      mail:
+      - id: m-901
+        from: Quayside Market <office@quayside.example.com>
+        subject: Booking confirmed
+        body: Your booking is confirmed. Your reference is {m3}.
+        received: -1d 12:15
+        unread: true
   expect:
   - parallel:
       same_step: true
       steps:
-      - tool: get_upcoming
-      - tool: view_messages
-      - tool: view_emails
       - tool: lookup_contact
         args:
           name:
-            icontains: Cyrus
+            icontains: Delphine
+      - tool: view_messages
+      - tool: search_reminders
+      - tool: view_emails
   answer:
     contains_all:
-    - Quayside Market
+    - 01{p0}
     - '{s1}'
-    - '{m2}'
-    - 01{p3}
-    regex: (?:(?<!\d){e0h}:00|(?<!\d){e0}(?::00)?\s*(?:pm|p\.m\.))
+    - smoke
+    - '{m3}'
+    regex: (?:(?<!\d){v2h}:00|(?<!\d){v2}(?::00)?\s*(?:pm|p\.m\.))
   forbid:
   - send_message
   - send_email
@@ -1906,20 +1908,20 @@
     steps: 2
   oracle:
   - calls:
-    - name: get_upcoming
-      arguments:
-        days: 7
-    - name: view_messages
-      arguments:
-        conversation: Uma
-    - name: view_emails
-      arguments:
-        query: Hartwell
     - name: lookup_contact
       arguments:
-        name: Cyrus
-  - text: Your choir practice at Quayside Market is at {e0} PM. Uma's gate code is {s1}. Hartwell Furniture's order
-      number is {m2}. Cyrus's number is +1 555 01{p3}.
+        name: Delphine
+    - name: view_messages
+      arguments:
+        conversation: Bastian
+    - name: search_reminders
+      arguments:
+        query: smoke
+    - name: view_emails
+      arguments:
+        query: Quayside
+  - text: Delphine's number is +1 555 01{p0}. Bastian is about {s1} minutes behind. Your reminder to check the smoke
+      alarm is due at {v2} PM. Quayside Market's booking reference is {m3}.
   trap: answering from one source implies the others were empty; each fact sits in a different app
   split: dev
 - id: par_ast_sources_007
@@ -1927,44 +1929,44 @@
   family: parallel
   sub: multi_source
   tags: []
-  prompt: Tell me when my reminder to post the parcel is due and which table Willa booked.
+  prompt: quick check, tell me which table farah booked and when my reminder to pay the gas bill is due
   facts:
-    v0:
-      int:
-      - 1
-      - 6
-    v0h:
-      add:
-      - v0
-      - 12
-    s1:
+    s0:
       int:
       - 3
       - 48
+    v1:
+      int:
+      - 1
+      - 6
+    v1h:
+      add:
+      - v1
+      - 12
   world:
     seed_records:
-      reminders:
-      - id: r-901
-        title: Post the parcel
-        due: +2d {v0h}:00
       messages:
       - id: ms-901
-        thread: Willa Brightwater
-        from: Willa Brightwater
-        text: I booked table {s1} for us tonight.
-        received: -3h
+        thread: Farah Ishikawa
+        from: Farah Ishikawa
+        text: I booked table {s0} for us tonight.
+        received: -2h
         unread: true
+      reminders:
+      - id: r-901
+        title: Pay the gas bill
+        due: +3d {v1h}:00
   expect:
   - parallel:
       same_step: true
       steps:
-      - tool: search_reminders
       - tool: view_messages
+      - tool: search_reminders
   answer:
     contains_all:
-    - parcel
-    - '{s1}'
-    regex: (?:(?<!\d){v0h}:00|(?<!\d){v0}(?::00)?\s*(?:pm|p\.m\.))
+    - '{s0}'
+    - gas
+    regex: (?:(?<!\d){v1h}:00|(?<!\d){v1}(?::00)?\s*(?:pm|p\.m\.))
   forbid:
   - send_message
   - send_email
@@ -1980,13 +1982,13 @@
     steps: 2
   oracle:
   - calls:
-    - name: search_reminders
-      arguments:
-        query: parcel
     - name: view_messages
       arguments:
-        conversation: Willa
-  - text: Your reminder to post the parcel is due at {v0} PM. Willa booked table {s1}.
+        conversation: Farah
+    - name: search_reminders
+      arguments:
+        query: gas
+  - text: Farah booked table {s0}. Your reminder to pay the gas bill is due at {v1} PM.
   trap: answering from one source implies the others were empty; each fact sits in a different app
   split: dev
 - id: par_ast_sources_008
@@ -1995,56 +1997,56 @@
   sub: multi_source
   tags:
   - core
-  prompt: Quick check, tell me how late Mateo said they are running, what time my physio appointment is and the
-    booking reference Harbourside Gym sent.
+  prompt: i need to know the order number in brightline supplies's shipping email, which table hollis booked and
+    what time my choir practice is
   facts:
-    s0:
+    m0:
+      code: '@@-####'
+    s1:
       int:
-      - 10
-      - 55
-    e1:
+      - 3
+      - 48
+    e2:
       int:
       - 1
       - 6
-    e1h:
+    e2h:
       add:
-      - e1
+      - e2
       - 12
-    m2:
-      code: '@@####'
   world:
     seed_records:
+      mail:
+      - id: m-901
+        from: Brightline Supplies <office@brightline.example.com>
+        subject: Your order has shipped
+        body: Good news, your order {m0} has shipped and should arrive on Friday.
+        received: -1d 9:15
+        unread: true
       messages:
       - id: ms-901
-        thread: Mateo Varga
-        from: Mateo Varga
-        text: Running about {s0} minutes behind, start without me.
-        received: -2h
+        thread: Hollis Castillo
+        from: Hollis Castillo
+        text: I booked table {s1} for us tonight.
+        received: -3h
         unread: true
       calendar:
       - id: ev-901
-        title: Physio appointment at Lantern Bistro
-        start: +3d {e1h}:00
-      mail:
-      - id: m-901
-        from: Harbourside Gym <office@harbourside.example.com>
-        subject: Booking confirmed
-        body: Your booking is confirmed. Your reference is {m2}.
-        received: -1d 11:15
-        unread: true
+        title: Choir practice at Fernhill School
+        start: +4d {e2h}:00
   expect:
   - parallel:
       same_step: true
       steps:
+      - tool: view_emails
       - tool: view_messages
       - tool: get_upcoming
-      - tool: view_emails
   answer:
     contains_all:
-    - '{s0}'
-    - Lantern Bistro
-    - '{m2}'
-    regex: (?:(?<!\d){e1h}:00|(?<!\d){e1}(?::00)?\s*(?:pm|p\.m\.))
+    - '{m0}'
+    - '{s1}'
+    - Fernhill School
+    regex: (?:(?<!\d){e2h}:00|(?<!\d){e2}(?::00)?\s*(?:pm|p\.m\.))
   forbid:
   - send_message
   - send_email
@@ -2060,17 +2062,17 @@
     steps: 2
   oracle:
   - calls:
+    - name: view_emails
+      arguments:
+        query: Brightline
     - name: view_messages
       arguments:
-        conversation: Mateo
+        conversation: Hollis
     - name: get_upcoming
       arguments:
         days: 7
-    - name: view_emails
-      arguments:
-        query: Harbourside
-  - text: Mateo is about {s0} minutes behind. Your physio appointment at Lantern Bistro is at {e1} PM. Harbourside
-      Gym's booking reference is {m2}.
+  - text: Brightline Supplies's order number is {m0}. Hollis booked table {s1}. Your choir practice at Fernhill
+      School is at {e2} PM.
   trap: answering from one source implies the others were empty; each fact sits in a different app
   split: dev
 - id: par_ast_sources_009
@@ -2078,15 +2080,15 @@
   family: parallel
   sub: multi_source
   tags: []
-  prompt: Can you tell me the order number in Brightline Supplies's shipping email, how late Emeka said they are
-    running, when my reminder to buy printer ink is due and what time my driving lesson is.
+  prompt: Can you tell me Fiona's number, the order number in Arden Books's shipping email, when my reminder to
+    buy printer ink is due and what time my tennis game is.
   facts:
-    m0:
-      code: '@@-####'
-    s1:
+    p0:
       int:
       - 10
-      - 55
+      - 29
+    m1:
+      code: '@@-####'
     v2:
       int:
       - 1
@@ -2105,19 +2107,17 @@
       - 12
   world:
     seed_records:
+      contacts:
+      - id: c-901
+        name: Fiona Varga
+        phone: +1 555 01{p0}
+        email: fiona.varga@example.org
       mail:
       - id: m-901
-        from: Brightline Supplies <office@brightline.example.com>
+        from: Arden Books <office@arden.example.com>
         subject: Your order has shipped
-        body: Good news, your order {m0} has shipped and should arrive on Friday.
-        received: -1d 9:15
-        unread: true
-      messages:
-      - id: ms-901
-        thread: Emeka Castillo
-        from: Emeka Castillo
-        text: Running about {s1} minutes behind, start without me.
-        received: -3h
+        body: Good news, your order {m1} has shipped and should arrive on Friday.
+        received: -1d 10:15
         unread: true
       reminders:
       - id: r-901
@@ -2125,22 +2125,25 @@
         due: +4d {v2h}:00
       calendar:
       - id: ev-901
-        title: Driving lesson at Willow Street Clinic
+        title: Tennis game at Skyline Air
         start: +5d {e3h}:00
   expect:
   - parallel:
       same_step: true
       steps:
+      - tool: lookup_contact
+        args:
+          name:
+            icontains: Fiona
       - tool: view_emails
-      - tool: view_messages
       - tool: search_reminders
       - tool: get_upcoming
   answer:
     contains_all:
-    - '{m0}'
-    - '{s1}'
+    - 01{p0}
+    - '{m1}'
     - printer
-    - Willow Street Clinic
+    - Skyline Air
     regex: ^(?=.*(?:(?<!\d){v2h}:00|(?<!\d){v2}(?::00)?\s*(?:pm|p\.m\.)))(?=.*(?:(?<!\d){e3h}:00|(?<!\d){e3}(?::00)?\s*(?:pm|p\.m\.)))
   forbid:
   - send_message
@@ -2157,20 +2160,20 @@
     steps: 2
   oracle:
   - calls:
+    - name: lookup_contact
+      arguments:
+        name: Fiona
     - name: view_emails
       arguments:
-        query: Brightline
-    - name: view_messages
-      arguments:
-        conversation: Emeka
+        query: Arden
     - name: search_reminders
       arguments:
         query: printer
     - name: get_upcoming
       arguments:
         days: 7
-  - text: Brightline Supplies's order number is {m0}. Emeka is about {s1} minutes behind. Your reminder to buy printer
-      ink is due at {v2} PM. Your driving lesson at Willow Street Clinic is at {e3} PM.
+  - text: Fiona's number is +1 555 01{p0}. Arden Books's order number is {m1}. Your reminder to buy printer ink
+      is due at {v2} PM. Your tennis game at Skyline Air is at {e3} PM.
   trap: answering from one source implies the others were empty; each fact sits in a different app
   split: dev
 - id: par_ast_sources_010
@@ -2248,7 +2251,7 @@
   sub: multi_source
   tags:
   - core
-  prompt: can you tell me the gate code soren sent, what time my pottery class is and hollis's number
+  prompt: can you tell me the gate code talia sent, what time my pottery class is and ilse's number
   facts:
     s0:
       code: '####'
@@ -2268,8 +2271,8 @@
     seed_records:
       messages:
       - id: ms-901
-        thread: Soren Petrov
-        from: Soren Petrov
+        thread: Talia Kowalski
+        from: Talia Kowalski
         text: The gate code for Saturday is {s0}.
         received: -2h
         unread: true
@@ -2279,9 +2282,9 @@
         start: +3d {e1h}:00
       contacts:
       - id: c-901
-        name: Hollis Quintero
+        name: Ilse Valdivia
         phone: +1 555 01{p2}
-        email: hollis.quintero@example.org
+        email: ilse.valdivia@example.org
   expect:
   - parallel:
       same_step: true
@@ -2291,7 +2294,7 @@
       - tool: lookup_contact
         args:
           name:
-            icontains: Hollis
+            icontains: Ilse
   answer:
     contains_all:
     - '{s0}'
@@ -2315,15 +2318,15 @@
   - calls:
     - name: view_messages
       arguments:
-        conversation: Soren
+        conversation: Talia
     - name: get_upcoming
       arguments:
         days: 7
     - name: lookup_contact
       arguments:
-        name: Hollis
-  - text: Soren's gate code is {s0}. Your pottery class at Fernhill School is at {e1} PM. Hollis's number is +1
-      555 01{p2}.
+        name: Ilse
+  - text: Talia's gate code is {s0}. Your pottery class at Fernhill School is at {e1} PM. Ilse's number is +1 555
+      01{p2}.
   trap: answering from one source implies the others were empty; each fact sits in a different app
   split: dev
 - id: par_ast_sources_012
@@ -2332,7 +2335,7 @@
   sub: multi_source
   tags: []
   prompt: quick check, tell me arden print co's quote for the wedding invitations, what time my tennis game is,
-    leila's number and how late gustavo said they are running
+    wendell's number and how late hollis said they are running
   facts:
     m0:
       int:
@@ -2369,13 +2372,13 @@
         start: +3d {e1h}:00
       contacts:
       - id: c-901
-        name: Leila Marchetti
+        name: Wendell Zeller
         phone: +1 555 01{p2}
-        email: leila.marchetti@example.org
+        email: wendell.zeller@example.org
       messages:
       - id: ms-901
-        thread: Gustavo Mensah
-        from: Gustavo Mensah
+        thread: Hollis Novak
+        from: Hollis Novak
         text: Running about {s3} minutes behind, start without me.
         received: -5h
         unread: true
@@ -2388,7 +2391,7 @@
       - tool: lookup_contact
         args:
           name:
-            icontains: Leila
+            icontains: Wendell
       - tool: view_messages
   answer:
     contains_all:
@@ -2420,12 +2423,12 @@
         days: 7
     - name: lookup_contact
       arguments:
-        name: Leila
+        name: Wendell
     - name: view_messages
       arguments:
-        conversation: Gustavo
+        conversation: Hollis
   - text: Arden Print Co quoted ${m0} for the wedding invitations. Your tennis game at Tidewater Dental is at {e1}
-      PM. Leila's number is +1 555 01{p2}. Gustavo is about {s3} minutes behind.
+      PM. Wendell's number is +1 555 01{p2}. Hollis is about {s3} minutes behind.
   trap: answering from one source implies the others were empty; each fact sits in a different app
   split: dev
 - id: par_ast_sources_013
@@ -2434,7 +2437,7 @@
   sub: multi_source
   tags:
   - core
-  prompt: Can you tell me how late Viggo said they are running and Leila's phone number.
+  prompt: Can you tell me how late Willa said they are running and Oskar's phone number.
   facts:
     s0:
       int:
@@ -2448,16 +2451,16 @@
     seed_records:
       messages:
       - id: ms-901
-        thread: Viggo Tanaka
-        from: Viggo Tanaka
+        thread: Willa Achebe
+        from: Willa Achebe
         text: Running about {s0} minutes behind, start without me.
         received: -2h
         unread: true
       contacts:
       - id: c-901
-        name: Leila Ostrander
+        name: Oskar Thackeray
         phone: +1 555 01{p1}
-        email: leila.ostrander@example.org
+        email: oskar.thackeray@example.org
   expect:
   - parallel:
       same_step: true
@@ -2466,7 +2469,7 @@
       - tool: lookup_contact
         args:
           name:
-            icontains: Leila
+            icontains: Oskar
   answer:
     contains_all:
     - '{s0}'
@@ -2488,11 +2491,11 @@
   - calls:
     - name: view_messages
       arguments:
-        conversation: Viggo
+        conversation: Willa
     - name: lookup_contact
       arguments:
-        name: Leila
-  - text: Viggo is about {s0} minutes behind. Leila's number is +1 555 01{p1}.
+        name: Oskar
+  - text: Willa is about {s0} minutes behind. Oskar's number is +1 555 01{p1}.
   trap: answering from one source implies the others were empty; each fact sits in a different app
   split: dev
 - id: par_ast_sources_014
@@ -2500,15 +2503,17 @@
   family: parallel
   sub: multi_source
   tags: []
-  prompt: Tell me which table Umar booked, the booking reference Riverside Climbing Wall sent and what time my physio
-    appointment is.
+  prompt: tell me which table talia booked, arden print co's quote for the wedding invitations and what time my
+    tennis game is
   facts:
     s0:
       int:
       - 3
       - 48
     m1:
-      code: '@@####'
+      int:
+      - 150
+      - 950
     e2:
       int:
       - 1
@@ -2521,21 +2526,21 @@
     seed_records:
       messages:
       - id: ms-901
-        thread: Umar Zeller
-        from: Umar Zeller
+        thread: Talia Oyelaran
+        from: Talia Oyelaran
         text: I booked table {s0} for us tonight.
         received: -2h
         unread: true
       mail:
       - id: m-901
-        from: Riverside Climbing Wall <office@riverside.example.com>
-        subject: Booking confirmed
-        body: Your booking is confirmed. Your reference is {m1}.
+        from: Arden Print Co <office@arden.example.com>
+        subject: Quote for wedding invitations
+        body: Hello, thanks for asking. Our quote for the wedding invitations is ${m1}, valid for two weeks.
         received: -1d 10:15
         unread: true
       calendar:
       - id: ev-901
-        title: Physio appointment at Copperleaf Café
+        title: Tennis game at Juniper Hall
         start: +4d {e2h}:00
   expect:
   - parallel:
@@ -2548,7 +2553,7 @@
     contains_all:
     - '{s0}'
     - '{m1}'
-    - Copperleaf Café
+    - Juniper Hall
     regex: (?:(?<!\d){e2h}:00|(?<!\d){e2}(?::00)?\s*(?:pm|p\.m\.))
   forbid:
   - send_message
@@ -2567,15 +2572,15 @@
   - calls:
     - name: view_messages
       arguments:
-        conversation: Umar
+        conversation: Talia
     - name: view_emails
       arguments:
-        query: Riverside
+        query: Arden
     - name: get_upcoming
       arguments:
         days: 7
-  - text: Umar booked table {s0}. Riverside Climbing Wall's booking reference is {m1}. Your physio appointment at
-      Copperleaf Café is at {e2} PM.
+  - text: Talia booked table {s0}. Arden Print Co quoted ${m1} for the wedding invitations. Your tennis game at
+      Juniper Hall is at {e2} PM.
   trap: answering from one source implies the others were empty; each fact sits in a different app
   split: dev
 - id: par_ast_sources_015
@@ -2583,11 +2588,17 @@
   family: parallel
   sub: multi_source
   tags: []
-  prompt: quick check, tell me the gate code oskar sent, what time my choir practice is, when my reminder to defrost
-    the freezer is due and moorfield roofing's quote for the gutter repair
+  prompt: tell me when my reminder to defrost the freezer is due, what time my piano lesson is, selin's phone number
+    and which table gideon booked
   facts:
-    s0:
-      code: '####'
+    v0:
+      int:
+      - 1
+      - 6
+    v0h:
+      add:
+      - v0
+      - 12
     e1:
       int:
       - 1
@@ -2596,57 +2607,54 @@
       add:
       - e1
       - 12
-    v2:
+    p2:
       int:
-      - 1
-      - 6
-    v2h:
-      add:
-      - v2
-      - 12
-    m3:
+      - 50
+      - 69
+    s3:
       int:
-      - 150
-      - 950
+      - 3
+      - 48
   world:
     seed_records:
-      messages:
-      - id: ms-901
-        thread: Oskar Tanaka
-        from: Oskar Tanaka
-        text: The gate code for Saturday is {s0}.
-        received: -2h
-        unread: true
-      calendar:
-      - id: ev-901
-        title: Choir practice at Lantern Bistro
-        start: +3d {e1h}:00
       reminders:
       - id: r-901
         title: Defrost the freezer
-        due: +4d {v2h}:00
-      mail:
-      - id: m-901
-        from: Moorfield Roofing <office@moorfield.example.com>
-        subject: Quote for gutter repair
-        body: Hello, thanks for asking. Our quote for the gutter repair is ${m3}, valid for two weeks.
-        received: -1d 12:15
+        due: +2d {v0h}:00
+      calendar:
+      - id: ev-901
+        title: Piano lesson at Riverside Climbing Wall
+        start: +3d {e1h}:00
+      contacts:
+      - id: c-901
+        name: Selin Ostrander
+        phone: +1 555 01{p2}
+        email: selin.ostrander@example.org
+      messages:
+      - id: ms-901
+        thread: Gideon Kerrigan
+        from: Gideon Kerrigan
+        text: I booked table {s3} for us tonight.
+        received: -5h
         unread: true
   expect:
   - parallel:
       same_step: true
       steps:
-      - tool: view_messages
-      - tool: get_upcoming
       - tool: search_reminders
-      - tool: view_emails
+      - tool: get_upcoming
+      - tool: lookup_contact
+        args:
+          name:
+            icontains: Selin
+      - tool: view_messages
   answer:
     contains_all:
-    - '{s0}'
-    - Lantern Bistro
     - freezer
-    - '{m3}'
-    regex: ^(?=.*(?:(?<!\d){e1h}:00|(?<!\d){e1}(?::00)?\s*(?:pm|p\.m\.)))(?=.*(?:(?<!\d){v2h}:00|(?<!\d){v2}(?::00)?\s*(?:pm|p\.m\.)))
+    - Riverside Climbing Wall
+    - 01{p2}
+    - '{s3}'
+    regex: ^(?=.*(?:(?<!\d){v0h}:00|(?<!\d){v0}(?::00)?\s*(?:pm|p\.m\.)))(?=.*(?:(?<!\d){e1h}:00|(?<!\d){e1}(?::00)?\s*(?:pm|p\.m\.)))
   forbid:
   - send_message
   - send_email
@@ -2662,20 +2670,20 @@
     steps: 2
   oracle:
   - calls:
-    - name: view_messages
-      arguments:
-        conversation: Oskar
-    - name: get_upcoming
-      arguments:
-        days: 7
     - name: search_reminders
       arguments:
         query: freezer
-    - name: view_emails
+    - name: get_upcoming
       arguments:
-        query: Moorfield
-  - text: Oskar's gate code is {s0}. Your choir practice at Lantern Bistro is at {e1} PM. Your reminder to defrost
-      the freezer is due at {v2} PM. Moorfield Roofing quoted ${m3} for the gutter repair.
+        days: 7
+    - name: lookup_contact
+      arguments:
+        name: Selin
+    - name: view_messages
+      arguments:
+        conversation: Gideon
+  - text: Your reminder to defrost the freezer is due at {v0} PM. Your piano lesson at Riverside Climbing Wall is
+      at {e1} PM. Selin's number is +1 555 01{p2}. Gideon booked table {s3}.
   trap: answering from one source implies the others were empty; each fact sits in a different app
   split: dev
 - id: par_ast_sources_016
@@ -2684,45 +2692,44 @@
   sub: multi_source
   tags:
   - core
-  prompt: can you tell me how late clara said they are running and when my reminder to order new contact lenses
-    is due
+  prompt: quick check, tell me what time my pottery class is and which table mateo booked
   facts:
-    s0:
-      int:
-      - 10
-      - 55
-    v1:
+    e0:
       int:
       - 1
       - 6
-    v1h:
+    e0h:
       add:
-      - v1
+      - e0
       - 12
+    s1:
+      int:
+      - 3
+      - 48
   world:
     seed_records:
+      calendar:
+      - id: ev-901
+        title: Pottery class at Tidewater Dental
+        start: +2d {e0h}:00
       messages:
       - id: ms-901
-        thread: Clara Whitlock
-        from: Clara Whitlock
-        text: Running about {s0} minutes behind, start without me.
-        received: -2h
+        thread: Mateo Lacroix
+        from: Mateo Lacroix
+        text: I booked table {s1} for us tonight.
+        received: -3h
         unread: true
-      reminders:
-      - id: r-901
-        title: Order new contact lenses
-        due: +3d {v1h}:00
   expect:
   - parallel:
       same_step: true
       steps:
+      - tool: get_upcoming
       - tool: view_messages
-      - tool: search_reminders
   answer:
     contains_all:
-    - '{s0}'
-    - lens
-    regex: (?:(?<!\d){v1h}:00|(?<!\d){v1}(?::00)?\s*(?:pm|p\.m\.))
+    - Tidewater Dental
+    - '{s1}'
+    regex: (?:(?<!\d){e0h}:00|(?<!\d){e0}(?::00)?\s*(?:pm|p\.m\.))
   forbid:
   - send_message
   - send_email
@@ -2738,13 +2745,13 @@
     steps: 2
   oracle:
   - calls:
+    - name: get_upcoming
+      arguments:
+        days: 7
     - name: view_messages
       arguments:
-        conversation: Clara
-    - name: search_reminders
-      arguments:
-        query: lens
-  - text: Clara is about {s0} minutes behind. Your reminder to order new contact lenses is due at {v1} PM.
+        conversation: Mateo
+  - text: Your pottery class at Tidewater Dental is at {e0} PM. Mateo booked table {s1}.
   trap: answering from one source implies the others were empty; each fact sits in a different app
   split: dev
 - id: par_ast_sources_017
@@ -2752,57 +2759,56 @@
   family: parallel
   sub: multi_source
   tags: []
-  prompt: I need to know Ingrid's phone number, the order number in Skyline Appliances's shipping email and when
-    my reminder to return the library books is due.
+  prompt: can you tell me when my reminder to collect the prescription is due, skyline movers's quote for the house
+    move and the gate code idris sent
   facts:
-    p0:
-      int:
-      - 10
-      - 29
-    m1:
-      code: '@@-####'
-    v2:
+    v0:
       int:
       - 1
       - 6
-    v2h:
+    v0h:
       add:
-      - v2
+      - v0
       - 12
+    m1:
+      int:
+      - 150
+      - 950
+    s2:
+      code: '####'
   world:
     seed_records:
-      contacts:
-      - id: c-901
-        name: Ingrid Galloway
-        phone: +1 555 01{p0}
-        email: ingrid.galloway@example.org
-      mail:
-      - id: m-901
-        from: Skyline Appliances <office@skyline.example.com>
-        subject: Your order has shipped
-        body: Good news, your order {m1} has shipped and should arrive on Friday.
-        received: -1d 10:15
-        unread: true
       reminders:
       - id: r-901
-        title: Return the library books
-        due: +4d {v2h}:00
+        title: Collect the prescription
+        due: +2d {v0h}:00
+      mail:
+      - id: m-901
+        from: Skyline Movers <office@skyline.example.com>
+        subject: Quote for house move
+        body: Hello, thanks for asking. Our quote for the house move is ${m1}, valid for two weeks.
+        received: -1d 10:15
+        unread: true
+      messages:
+      - id: ms-901
+        thread: Idris Moreau
+        from: Idris Moreau
+        text: The gate code for Saturday is {s2}.
+        received: -4h
+        unread: true
   expect:
   - parallel:
       same_step: true
       steps:
-      - tool: lookup_contact
-        args:
-          name:
-            icontains: Ingrid
-      - tool: view_emails
       - tool: search_reminders
+      - tool: view_emails
+      - tool: view_messages
   answer:
     contains_all:
-    - 01{p0}
+    - prescription
     - '{m1}'
-    - library
-    regex: (?:(?<!\d){v2h}:00|(?<!\d){v2}(?::00)?\s*(?:pm|p\.m\.))
+    - '{s2}'
+    regex: (?:(?<!\d){v0h}:00|(?<!\d){v0}(?::00)?\s*(?:pm|p\.m\.))
   forbid:
   - send_message
   - send_email
@@ -2818,17 +2824,17 @@
     steps: 2
   oracle:
   - calls:
-    - name: lookup_contact
+    - name: search_reminders
       arguments:
-        name: Ingrid
+        query: prescription
     - name: view_emails
       arguments:
         query: Skyline
-    - name: search_reminders
+    - name: view_messages
       arguments:
-        query: library
-  - text: Ingrid's number is +1 555 01{p0}. Skyline Appliances's order number is {m1}. Your reminder to return the
-      library books is due at {v2} PM.
+        conversation: Idris
+  - text: Your reminder to collect the prescription is due at {v0} PM. Skyline Movers quoted ${m1} for the house
+      move. Idris's gate code is {s2}.
   trap: answering from one source implies the others were empty; each fact sits in a different app
   split: dev
 - id: par_ast_w_times_001
@@ -2837,7 +2843,7 @@
   sub: independent_writes
   tags:
   - core
-  prompt: remind me tomorrow at {h0}am to water the tomatoes and at {h1}pm to return the library books
+  prompt: remind me tomorrow at {h0}am to defrost the freezer and at {h1}pm to buy printer ink
   facts:
     h0:
       int:
@@ -2858,23 +2864,23 @@
       - tool: add_reminder
         args:
           title:
-            icontains: tomato
+            icontains: freezer
       - tool: add_reminder
         args:
           title:
-            icontains: library
+            icontains: printer
   final_state:
   - in: reminders
     where:
       title:
-        icontains: tomato
+        icontains: freezer
     expect:
       count: 1
       due: +1d {h0}:00
   - in: reminders
     where:
       title:
-        icontains: library
+        icontains: printer
     expect:
       count: 1
       due: +1d {h1x}:00
@@ -2894,13 +2900,13 @@
   - calls:
     - name: add_reminder
       arguments:
-        title: Water the tomatoes
+        title: Defrost the freezer
         when_iso: +1d {h0}:00
     - name: add_reminder
       arguments:
-        title: Return the library books
+        title: Buy printer ink
         when_iso: +1d {h1x}:00
-  - text: Done. Water the tomatoes at {h0}am; Return the library books at {h1}pm.
+  - text: Done. Defrost the freezer at {h0}am; Buy printer ink at {h1}pm.
   trap: one combined reminder, a wrong time, or a missing errand fails
   split: dev
 - id: par_ast_w_times_002
@@ -2908,8 +2914,8 @@
   family: parallel
   sub: independent_writes
   tags: []
-  prompt: remind me the day after tomorrow at {h0}am to defrost the freezer, at {h1}pm to buy printer ink and at
-    {h2}pm to pay the gas bill
+  prompt: Remind me tomorrow at {h0}am to defrost the freezer, at {h1}pm to pay the gas bill and at {h2}pm to renew
+    the parking permit.
   facts:
     h0:
       int:
@@ -2942,11 +2948,11 @@
       - tool: add_reminder
         args:
           title:
-            icontains: printer
+            icontains: gas
       - tool: add_reminder
         args:
           title:
-            icontains: gas
+            icontains: permit
   final_state:
   - in: reminders
     where:
@@ -2954,21 +2960,21 @@
         icontains: freezer
     expect:
       count: 1
-      due: +2d {h0}:00
-  - in: reminders
-    where:
-      title:
-        icontains: printer
-    expect:
-      count: 1
-      due: +2d {h1x}:00
+      due: +1d {h0}:00
   - in: reminders
     where:
       title:
         icontains: gas
     expect:
       count: 1
-      due: +2d {h2x}:00
+      due: +1d {h1x}:00
+  - in: reminders
+    where:
+      title:
+        icontains: permit
+    expect:
+      count: 1
+      due: +1d {h2x}:00
   forbid:
   - clear_reminders
   - clear_past_reminders
@@ -2986,16 +2992,16 @@
     - name: add_reminder
       arguments:
         title: Defrost the freezer
-        when_iso: +2d {h0}:00
-    - name: add_reminder
-      arguments:
-        title: Buy printer ink
-        when_iso: +2d {h1x}:00
+        when_iso: +1d {h0}:00
     - name: add_reminder
       arguments:
         title: Pay the gas bill
-        when_iso: +2d {h2x}:00
-  - text: Done. Defrost the freezer at {h0}am; Buy printer ink at {h1}pm; Pay the gas bill at {h2}pm.
+        when_iso: +1d {h1x}:00
+    - name: add_reminder
+      arguments:
+        title: Renew the parking permit
+        when_iso: +1d {h2x}:00
+  - text: Done. Defrost the freezer at {h0}am; Pay the gas bill at {h1}pm; Renew the parking permit at {h2}pm.
   trap: one combined reminder, a wrong time, or a missing errand fails
   split: dev
 - id: par_ast_w_times_003
@@ -3004,8 +3010,8 @@
   sub: independent_writes
   tags:
   - core
-  prompt: Remind me the day after tomorrow at {h0}am to defrost the freezer, at {h1}pm to pay the gas bill, at {h2}pm
-    to renew the parking permit and at {h3}pm to post the parcel.
+  prompt: set reminders for tomorrow, at {h0}am to buy printer ink, at {h1}pm to post the parcel, at {h2}pm to check
+    the smoke alarm and at {h3}pm to send the rent receipt
   facts:
     h0:
       int:
@@ -3042,48 +3048,48 @@
       - tool: add_reminder
         args:
           title:
-            icontains: freezer
-      - tool: add_reminder
-        args:
-          title:
-            icontains: gas
-      - tool: add_reminder
-        args:
-          title:
-            icontains: permit
+            icontains: printer
       - tool: add_reminder
         args:
           title:
             icontains: parcel
+      - tool: add_reminder
+        args:
+          title:
+            icontains: smoke
+      - tool: add_reminder
+        args:
+          title:
+            icontains: receipt
   final_state:
   - in: reminders
     where:
       title:
-        icontains: freezer
+        icontains: printer
     expect:
       count: 1
-      due: +2d {h0}:00
-  - in: reminders
-    where:
-      title:
-        icontains: gas
-    expect:
-      count: 1
-      due: +2d {h1x}:00
-  - in: reminders
-    where:
-      title:
-        icontains: permit
-    expect:
-      count: 1
-      due: +2d {h2x}:00
+      due: +1d {h0}:00
   - in: reminders
     where:
       title:
         icontains: parcel
     expect:
       count: 1
-      due: +2d {h3x}:00
+      due: +1d {h1x}:00
+  - in: reminders
+    where:
+      title:
+        icontains: smoke
+    expect:
+      count: 1
+      due: +1d {h2x}:00
+  - in: reminders
+    where:
+      title:
+        icontains: receipt
+    expect:
+      count: 1
+      due: +1d {h3x}:00
   forbid:
   - clear_reminders
   - clear_past_reminders
@@ -3100,22 +3106,22 @@
   - calls:
     - name: add_reminder
       arguments:
-        title: Defrost the freezer
-        when_iso: +2d {h0}:00
-    - name: add_reminder
-      arguments:
-        title: Pay the gas bill
-        when_iso: +2d {h1x}:00
-    - name: add_reminder
-      arguments:
-        title: Renew the parking permit
-        when_iso: +2d {h2x}:00
+        title: Buy printer ink
+        when_iso: +1d {h0}:00
     - name: add_reminder
       arguments:
         title: Post the parcel
-        when_iso: +2d {h3x}:00
-  - text: Done. Defrost the freezer at {h0}am; Pay the gas bill at {h1}pm; Renew the parking permit at {h2}pm; Post
-      the parcel at {h3}pm.
+        when_iso: +1d {h1x}:00
+    - name: add_reminder
+      arguments:
+        title: Check the smoke alarm
+        when_iso: +1d {h2x}:00
+    - name: add_reminder
+      arguments:
+        title: Send the rent receipt
+        when_iso: +1d {h3x}:00
+  - text: Done. Buy printer ink at {h0}am; Post the parcel at {h1}pm; Check the smoke alarm at {h2}pm; Send the
+      rent receipt at {h3}pm.
   trap: one combined reminder, a wrong time, or a missing errand fails
   split: dev
 - id: par_ast_w_times_004
@@ -3123,7 +3129,7 @@
   family: parallel
   sub: independent_writes
   tags: []
-  prompt: Remind me the day after tomorrow at {h0}am to buy printer ink and at {h1}pm to post the parcel.
+  prompt: remind me tomorrow at {h0}am to renew the parking permit and at {h1}pm to pay the gas bill
   facts:
     h0:
       int:
@@ -3144,26 +3150,26 @@
       - tool: add_reminder
         args:
           title:
-            icontains: printer
+            icontains: permit
       - tool: add_reminder
         args:
           title:
-            icontains: parcel
+            icontains: gas
   final_state:
   - in: reminders
     where:
       title:
-        icontains: printer
+        icontains: permit
     expect:
       count: 1
-      due: +2d {h0}:00
+      due: +1d {h0}:00
   - in: reminders
     where:
       title:
-        icontains: parcel
+        icontains: gas
     expect:
       count: 1
-      due: +2d {h1x}:00
+      due: +1d {h1x}:00
   forbid:
   - clear_reminders
   - clear_past_reminders
@@ -3180,13 +3186,13 @@
   - calls:
     - name: add_reminder
       arguments:
-        title: Buy printer ink
-        when_iso: +2d {h0}:00
+        title: Renew the parking permit
+        when_iso: +1d {h0}:00
     - name: add_reminder
       arguments:
-        title: Post the parcel
-        when_iso: +2d {h1x}:00
-  - text: Done. Buy printer ink at {h0}am; Post the parcel at {h1}pm.
+        title: Pay the gas bill
+        when_iso: +1d {h1x}:00
+  - text: Done. Renew the parking permit at {h0}am; Pay the gas bill at {h1}pm.
   trap: one combined reminder, a wrong time, or a missing errand fails
   split: dev
 - id: par_ast_w_events_001
@@ -3194,8 +3200,8 @@
   family: parallel
   sub: independent_writes
   tags: []
-  prompt: Put a driving lesson tomorrow at {h1}pm, a pottery class the day after tomorrow at {h2}pm and a physio
-    appointment in three days at {h3}pm on my calendar.
+  prompt: Put a driving lesson tomorrow at {h1}pm, a pottery class the day after tomorrow at {h2}pm and a piano
+    lesson in three days at {h3}pm on my calendar.
   facts:
     h1:
       int:
@@ -3236,7 +3242,7 @@
       - tool: add_calendar_event
         args:
           title:
-            icontains: physio
+            icontains: piano
   final_state:
   - in: calendar
     where:
@@ -3255,7 +3261,7 @@
   - in: calendar
     where:
       title:
-        icontains: physio
+        icontains: piano
     expect:
       count: 1
       start: +3d {h3x}:00
@@ -3282,9 +3288,9 @@
         when_iso: +2d {h2x}:00
     - name: add_calendar_event
       arguments:
-        title: Physio appointment
+        title: Piano lesson
         when_iso: +3d {h3x}:00
-  - text: Done. Driving lesson at {h1}pm; Pottery class at {h2}pm; Physio appointment at {h3}pm.
+  - text: Done. Driving lesson at {h1}pm; Pottery class at {h2}pm; Piano lesson at {h3}pm.
   trap: a missing event, a wrong day or one merged event fails
   split: dev
 - id: par_ast_w_events_002
@@ -3293,8 +3299,8 @@
   sub: independent_writes
   tags:
   - core
-  prompt: Put a piano lesson tomorrow at {h1}pm, a physio appointment the day after tomorrow at {h2}pm, a choir
-    practice in three days at {h3}pm and a driving lesson in four days at {h0}am on my calendar.
+  prompt: Add a driving lesson tomorrow at {h1}pm, a pottery class the day after tomorrow at {h2}pm, a piano lesson
+    in three days at {h3}pm and a choir practice in four days at {h0}am to my calendar.
   facts:
     h1:
       int:
@@ -3331,45 +3337,45 @@
       - tool: add_calendar_event
         args:
           title:
+            icontains: driving
+      - tool: add_calendar_event
+        args:
+          title:
+            icontains: pottery
+      - tool: add_calendar_event
+        args:
+          title:
             icontains: piano
       - tool: add_calendar_event
         args:
           title:
-            icontains: physio
-      - tool: add_calendar_event
-        args:
-          title:
             icontains: choir
-      - tool: add_calendar_event
-        args:
-          title:
-            icontains: driving
   final_state:
   - in: calendar
     where:
       title:
-        icontains: piano
+        icontains: driving
     expect:
       count: 1
       start: +1d {h1x}:00
   - in: calendar
     where:
       title:
-        icontains: physio
+        icontains: pottery
     expect:
       count: 1
       start: +2d {h2x}:00
   - in: calendar
     where:
       title:
-        icontains: choir
+        icontains: piano
     expect:
       count: 1
       start: +3d {h3x}:00
   - in: calendar
     where:
       title:
-        icontains: driving
+        icontains: choir
     expect:
       count: 1
       start: +4d {h0}:00
@@ -3388,22 +3394,21 @@
   - calls:
     - name: add_calendar_event
       arguments:
-        title: Piano lesson
+        title: Driving lesson
         when_iso: +1d {h1x}:00
     - name: add_calendar_event
       arguments:
-        title: Physio appointment
+        title: Pottery class
         when_iso: +2d {h2x}:00
     - name: add_calendar_event
       arguments:
-        title: Choir practice
+        title: Piano lesson
         when_iso: +3d {h3x}:00
     - name: add_calendar_event
       arguments:
-        title: Driving lesson
+        title: Choir practice
         when_iso: +4d {h0}:00
-  - text: Done. Piano lesson at {h1}pm; Physio appointment at {h2}pm; Choir practice at {h3}pm; Driving lesson at
-      {h0}am.
+  - text: Done. Driving lesson at {h1}pm; Pottery class at {h2}pm; Piano lesson at {h3}pm; Choir practice at {h0}am.
   trap: a missing event, a wrong day or one merged event fails
   split: dev
 - id: par_ast_w_events_003
@@ -3411,7 +3416,7 @@
   family: parallel
   sub: independent_writes
   tags: []
-  prompt: Put a tennis game tomorrow at {h1}pm and a choir practice the day after tomorrow at {h2}pm on my calendar.
+  prompt: Add a pottery class tomorrow at {h1}pm and a choir practice the day after tomorrow at {h2}pm to my calendar.
   facts:
     h1:
       int:
@@ -3436,7 +3441,7 @@
       - tool: add_calendar_event
         args:
           title:
-            icontains: tennis
+            icontains: pottery
       - tool: add_calendar_event
         args:
           title:
@@ -3445,7 +3450,7 @@
   - in: calendar
     where:
       title:
-        icontains: tennis
+        icontains: pottery
     expect:
       count: 1
       start: +1d {h1x}:00
@@ -3471,13 +3476,13 @@
   - calls:
     - name: add_calendar_event
       arguments:
-        title: Tennis game
+        title: Pottery class
         when_iso: +1d {h1x}:00
     - name: add_calendar_event
       arguments:
         title: Choir practice
         when_iso: +2d {h2x}:00
-  - text: Done. Tennis game at {h1}pm; Choir practice at {h2}pm.
+  - text: Done. Pottery class at {h1}pm; Choir practice at {h2}pm.
   trap: a missing event, a wrong day or one merged event fails
   split: dev
 - id: par_ast_w_mixed_001
@@ -3486,212 +3491,9 @@
   sub: independent_writes
   tags:
   - core
-  prompt: Jot down a note called Party list saying invite {n0} guests, remind me tomorrow at {h0}am to water the
-    tomatoes, text Ingrid that I'm bringing {m2} bottles and put a driving lesson on my calendar for the day after
-    tomorrow at {h2}pm.
-  facts:
-    n0:
-      int:
-      - 3
-      - 12
-    h0:
-      int:
-      - 7
-      - 9
-    m2:
-      int:
-      - 5
-      - 45
-    h2:
-      int:
-      - 4
-      - 6
-    h2x:
-      add:
-      - h2
-      - 12
-  world:
-    seed_records:
-      contacts:
-      - id: c-901
-        name: Ingrid Petrov
-        phone: +1 555 0195
-        email: ingrid.petrov@example.org
-  expect:
-  - parallel:
-      same_step: true
-      steps:
-      - tool: create_note
-        args:
-          title:
-            icontains: party
-      - tool: add_reminder
-        args:
-          title:
-            icontains: tomato
-      - tool: send_message
-        args:
-          to:
-            contains_any:
-            - Ingrid
-            - 0195
-      - tool: add_calendar_event
-        args:
-          title:
-            icontains: driving
-  final_state:
-  - in: notes
-    where:
-      title:
-        icontains: party
-    expect:
-      count: 1
-      body:
-        icontains: '{n0}'
-  - in: reminders
-    where:
-      title:
-        icontains: tomato
-    expect:
-      count: 1
-      due: +1d {h0}:00
-  - in: messages_sent
-    where:
-      contact_ids:
-        icontains: c-901
-    expect:
-      count: 1
-      text:
-        icontains: '{m2}'
-  - in: calendar
-    where:
-      title:
-        icontains: driving
-    expect:
-      count: 1
-      start: +2d {h2x}:00
-  forbid:
-  - delete_note
-  - clear_reminders
-  - clear_past_reminders
-  unchanged:
-  - mail_sent
-  intended_recipients:
-  - c-901
-  optimal:
-    calls: 4
-    steps: 2
-  oracle:
-  - calls:
-    - name: create_note
-      arguments:
-        title: Party list
-        body: Invite {n0} guests
-    - name: add_reminder
-      arguments:
-        title: Water the tomatoes
-        when_iso: +1d {h0}:00
-    - name: send_message
-      arguments:
-        to: Ingrid Petrov
-        text: I'm bringing {m2} bottles
-    - name: add_calendar_event
-      arguments:
-        title: Driving lesson
-        when_iso: +2d {h2x}:00
-  - text: Done. Party list; Water the tomatoes at {h0}am; Texted Ingrid.; Driving lesson at {h2}pm.
-  trap: doing only the first request, or turning the group into one note, fails
-  split: dev
-- id: par_ast_w_mixed_002
-  lane: assistant
-  family: parallel
-  sub: independent_writes
-  tags: []
-  prompt: Text Orla that the table is booked for {m0} and put a piano lesson on my calendar for the day after tomorrow
-    at {h2}pm.
-  facts:
-    m0:
-      int:
-      - 5
-      - 45
-    h2:
-      int:
-      - 4
-      - 6
-    h2x:
-      add:
-      - h2
-      - 12
-  world:
-    seed_records:
-      contacts:
-      - id: c-901
-        name: Orla Tanaka
-        phone: +1 555 0198
-        email: orla.tanaka@example.org
-  expect:
-  - parallel:
-      same_step: true
-      steps:
-      - tool: send_message
-        args:
-          to:
-            contains_any:
-            - Orla
-            - 0198
-      - tool: add_calendar_event
-        args:
-          title:
-            icontains: piano
-  final_state:
-  - in: messages_sent
-    where:
-      contact_ids:
-        icontains: c-901
-    expect:
-      count: 1
-      text:
-        icontains: '{m0}'
-  - in: calendar
-    where:
-      title:
-        icontains: piano
-    expect:
-      count: 1
-      start: +2d {h2x}:00
-  forbid:
-  - send_email
-  - schedule_send
-  - cancel_event
-  unchanged:
-  - reminders
-  - notes
-  - mail_sent
-  intended_recipients:
-  - c-901
-  optimal:
-    calls: 2
-    steps: 2
-  oracle:
-  - calls:
-    - name: send_message
-      arguments:
-        to: Orla Tanaka
-        text: The table is booked for {m0}
-    - name: add_calendar_event
-      arguments:
-        title: Piano lesson
-        when_iso: +2d {h2x}:00
-  - text: Done. Texted Orla.; Piano lesson at {h2}pm.
-  trap: doing only the first request, or turning the group into one note, fails
-  split: dev
-- id: par_ast_w_mixed_003
-  lane: assistant
-  family: parallel
-  sub: independent_writes
-  tags: []
-  prompt: put a piano lesson on my calendar for the day after tomorrow at {h2}pm, remind me tomorrow at {h0}am to
-    return the library books and jot down a note called party list saying invite {n2} guests
+  prompt: put a tennis game on my calendar for the day after tomorrow at {h2}pm, text willa that i'll be about {m1}
+    minutes late, remind me tomorrow at {h0}am to book a haircut and jot down a note called reading list saying
+    finish {n3} chapters this week
   facts:
     h2:
       int:
@@ -3701,147 +3503,55 @@
       add:
       - h2
       - 12
-    h0:
-      int:
-      - 7
-      - 9
-    n2:
-      int:
-      - 3
-      - 12
-  expect:
-  - parallel:
-      same_step: true
-      steps:
-      - tool: add_calendar_event
-        args:
-          title:
-            icontains: piano
-      - tool: add_reminder
-        args:
-          title:
-            icontains: library
-      - tool: create_note
-        args:
-          title:
-            icontains: party
-  final_state:
-  - in: calendar
-    where:
-      title:
-        icontains: piano
-    expect:
-      count: 1
-      start: +2d {h2x}:00
-  - in: reminders
-    where:
-      title:
-        icontains: library
-    expect:
-      count: 1
-      due: +1d {h0}:00
-  - in: notes
-    where:
-      title:
-        icontains: party
-    expect:
-      count: 1
-      body:
-        icontains: '{n2}'
-  forbid:
-  - cancel_event
-  - update_event
-  - clear_reminders
-  unchanged:
-  - messages_sent
-  - mail_sent
-  optimal:
-    calls: 3
-    steps: 2
-  oracle:
-  - calls:
-    - name: add_calendar_event
-      arguments:
-        title: Piano lesson
-        when_iso: +2d {h2x}:00
-    - name: add_reminder
-      arguments:
-        title: Return the library books
-        when_iso: +1d {h0}:00
-    - name: create_note
-      arguments:
-        title: Party list
-        body: Invite {n2} guests
-  - text: Done. Piano lesson at {h2}pm; Return the library books at {h0}am; Party list.
-  trap: doing only the first request, or turning the group into one note, fails
-  split: dev
-- id: par_ast_w_mixed_004
-  lane: assistant
-  family: parallel
-  sub: independent_writes
-  tags:
-  - core
-  prompt: Remind me tomorrow at {h0}am to water the tomatoes, text Ines that I'm bringing {m1} bottles, jot down
-    a note called Reading list saying finish {n2} chapters this week and put a physio appointment on my calendar
-    for the day after tomorrow at {h2}pm.
-  facts:
-    h0:
-      int:
-      - 7
-      - 9
     m1:
       int:
       - 5
       - 45
-    n2:
+    h0:
+      int:
+      - 7
+      - 9
+    n3:
       int:
       - 3
-      - 12
-    h2:
-      int:
-      - 4
-      - 6
-    h2x:
-      add:
-      - h2
       - 12
   world:
     seed_records:
       contacts:
       - id: c-901
-        name: Ines Galloway
-        phone: +1 555 0192
-        email: ines.galloway@example.org
+        name: Willa Ostrander
+        phone: +1 555 0197
+        email: willa.ostrander@example.org
   expect:
   - parallel:
       same_step: true
       steps:
-      - tool: add_reminder
+      - tool: add_calendar_event
         args:
           title:
-            icontains: tomato
+            icontains: tennis
       - tool: send_message
         args:
           to:
             contains_any:
-            - Ines
-            - 0192
+            - Willa
+            - 0197
+      - tool: add_reminder
+        args:
+          title:
+            icontains: haircut
       - tool: create_note
         args:
           title:
             icontains: reading
-      - tool: add_calendar_event
-        args:
-          title:
-            icontains: physio
   final_state:
-  - in: reminders
+  - in: calendar
     where:
       title:
-        icontains: tomato
+        icontains: tennis
     expect:
       count: 1
-      due: +1d {h0}:00
+      start: +2d {h2x}:00
   - in: messages_sent
     where:
       contact_ids:
@@ -3850,6 +3560,13 @@
       count: 1
       text:
         icontains: '{m1}'
+  - in: reminders
+    where:
+      title:
+        icontains: haircut
+    expect:
+      count: 1
+      due: +1d {h0}:00
   - in: notes
     where:
       title:
@@ -3857,18 +3574,11 @@
     expect:
       count: 1
       body:
-        icontains: '{n2}'
-  - in: calendar
-    where:
-      title:
-        icontains: physio
-    expect:
-      count: 1
-      start: +2d {h2x}:00
+        icontains: '{n3}'
   forbid:
-  - clear_reminders
-  - clear_past_reminders
-  - complete_reminder
+  - cancel_event
+  - update_event
+  - send_email
   unchanged:
   - mail_sent
   intended_recipients:
@@ -3878,32 +3588,32 @@
     steps: 2
   oracle:
   - calls:
-    - name: add_reminder
+    - name: add_calendar_event
       arguments:
-        title: Water the tomatoes
-        when_iso: +1d {h0}:00
+        title: Tennis game
+        when_iso: +2d {h2x}:00
     - name: send_message
       arguments:
-        to: Ines Galloway
-        text: I'm bringing {m1} bottles
+        to: Willa Ostrander
+        text: I'll be about {m1} minutes late
+    - name: add_reminder
+      arguments:
+        title: Book a haircut
+        when_iso: +1d {h0}:00
     - name: create_note
       arguments:
         title: Reading list
-        body: Finish {n2} chapters this week
-    - name: add_calendar_event
-      arguments:
-        title: Physio appointment
-        when_iso: +2d {h2x}:00
-  - text: Done. Water the tomatoes at {h0}am; Texted Ines.; Reading list; Physio appointment at {h2}pm.
+        body: Finish {n3} chapters this week
+  - text: Done. Tennis game at {h2}pm; Texted Willa.; Book a haircut at {h0}am; Reading list.
   trap: doing only the first request, or turning the group into one note, fails
   split: dev
-- id: par_ast_w_mixed_005
+- id: par_ast_w_mixed_002
   lane: assistant
   family: parallel
   sub: independent_writes
   tags: []
-  prompt: jot down a note called party list saying invite {n0} guests and remind me tomorrow at {h0}am to defrost
-    the freezer
+  prompt: jot down a note called trip ideas saying book {n0} nights in the mountains and remind me tomorrow at {h0}am
+    to defrost the freezer
   facts:
     n0:
       int:
@@ -3920,7 +3630,7 @@
       - tool: create_note
         args:
           title:
-            icontains: party
+            icontains: trip
       - tool: add_reminder
         args:
           title:
@@ -3929,7 +3639,7 @@
   - in: notes
     where:
       title:
-        icontains: party
+        icontains: trip
     expect:
       count: 1
       body:
@@ -3956,13 +3666,293 @@
   - calls:
     - name: create_note
       arguments:
-        title: Party list
-        body: Invite {n0} guests
+        title: Trip ideas
+        body: Book {n0} nights in the mountains
     - name: add_reminder
       arguments:
         title: Defrost the freezer
         when_iso: +1d {h0}:00
-  - text: Done. Party list; Defrost the freezer at {h0}am.
+  - text: Done. Trip ideas; Defrost the freezer at {h0}am.
+  trap: doing only the first request, or turning the group into one note, fails
+  split: dev
+- id: par_ast_w_mixed_003
+  lane: assistant
+  family: parallel
+  sub: independent_writes
+  tags: []
+  prompt: put a piano lesson on my calendar for the day after tomorrow at {h2}pm, jot down a note called trip ideas
+    saying book {n1} nights in the mountains and remind me tomorrow at {h0}am to call the garage
+  facts:
+    h2:
+      int:
+      - 4
+      - 6
+    h2x:
+      add:
+      - h2
+      - 12
+    n1:
+      int:
+      - 3
+      - 12
+    h0:
+      int:
+      - 7
+      - 9
+  expect:
+  - parallel:
+      same_step: true
+      steps:
+      - tool: add_calendar_event
+        args:
+          title:
+            icontains: piano
+      - tool: create_note
+        args:
+          title:
+            icontains: trip
+      - tool: add_reminder
+        args:
+          title:
+            icontains: garage
+  final_state:
+  - in: calendar
+    where:
+      title:
+        icontains: piano
+    expect:
+      count: 1
+      start: +2d {h2x}:00
+  - in: notes
+    where:
+      title:
+        icontains: trip
+    expect:
+      count: 1
+      body:
+        icontains: '{n1}'
+  - in: reminders
+    where:
+      title:
+        icontains: garage
+    expect:
+      count: 1
+      due: +1d {h0}:00
+  forbid:
+  - cancel_event
+  - update_event
+  - delete_note
+  unchanged:
+  - messages_sent
+  - mail_sent
+  optimal:
+    calls: 3
+    steps: 2
+  oracle:
+  - calls:
+    - name: add_calendar_event
+      arguments:
+        title: Piano lesson
+        when_iso: +2d {h2x}:00
+    - name: create_note
+      arguments:
+        title: Trip ideas
+        body: Book {n1} nights in the mountains
+    - name: add_reminder
+      arguments:
+        title: Call the garage
+        when_iso: +1d {h0}:00
+  - text: Done. Piano lesson at {h2}pm; Trip ideas; Call the garage at {h0}am.
+  trap: doing only the first request, or turning the group into one note, fails
+  split: dev
+- id: par_ast_w_mixed_004
+  lane: assistant
+  family: parallel
+  sub: independent_writes
+  tags:
+  - core
+  prompt: Remind me tomorrow at {h0}am to post the parcel, put a physio appointment on my calendar for the day after
+    tomorrow at {h2}pm, text Fiona that I'm bringing {m2} bottles and jot down a note called Party list saying invite
+    {n3} guests.
+  facts:
+    h0:
+      int:
+      - 7
+      - 9
+    h2:
+      int:
+      - 4
+      - 6
+    h2x:
+      add:
+      - h2
+      - 12
+    m2:
+      int:
+      - 5
+      - 45
+    n3:
+      int:
+      - 3
+      - 12
+  world:
+    seed_records:
+      contacts:
+      - id: c-901
+        name: Fiona Pemberton
+        phone: +1 555 0196
+        email: fiona.pemberton@example.org
+  expect:
+  - parallel:
+      same_step: true
+      steps:
+      - tool: add_reminder
+        args:
+          title:
+            icontains: parcel
+      - tool: add_calendar_event
+        args:
+          title:
+            icontains: physio
+      - tool: send_message
+        args:
+          to:
+            contains_any:
+            - Fiona
+            - 0196
+      - tool: create_note
+        args:
+          title:
+            icontains: party
+  final_state:
+  - in: reminders
+    where:
+      title:
+        icontains: parcel
+    expect:
+      count: 1
+      due: +1d {h0}:00
+  - in: calendar
+    where:
+      title:
+        icontains: physio
+    expect:
+      count: 1
+      start: +2d {h2x}:00
+  - in: messages_sent
+    where:
+      contact_ids:
+        icontains: c-901
+    expect:
+      count: 1
+      text:
+        icontains: '{m2}'
+  - in: notes
+    where:
+      title:
+        icontains: party
+    expect:
+      count: 1
+      body:
+        icontains: '{n3}'
+  forbid:
+  - clear_reminders
+  - clear_past_reminders
+  - complete_reminder
+  unchanged:
+  - mail_sent
+  intended_recipients:
+  - c-901
+  optimal:
+    calls: 4
+    steps: 2
+  oracle:
+  - calls:
+    - name: add_reminder
+      arguments:
+        title: Post the parcel
+        when_iso: +1d {h0}:00
+    - name: add_calendar_event
+      arguments:
+        title: Physio appointment
+        when_iso: +2d {h2x}:00
+    - name: send_message
+      arguments:
+        to: Fiona Pemberton
+        text: I'm bringing {m2} bottles
+    - name: create_note
+      arguments:
+        title: Party list
+        body: Invite {n3} guests
+  - text: Done. Post the parcel at {h0}am; Physio appointment at {h2}pm; Texted Fiona.; Party list.
+  trap: doing only the first request, or turning the group into one note, fails
+  split: dev
+- id: par_ast_w_mixed_005
+  lane: assistant
+  family: parallel
+  sub: independent_writes
+  tags: []
+  prompt: Remind me tomorrow at {h0}am to check the smoke alarm and jot down a note called Reading list saying finish
+    {n1} chapters this week.
+  facts:
+    h0:
+      int:
+      - 7
+      - 9
+    n1:
+      int:
+      - 3
+      - 12
+  expect:
+  - parallel:
+      same_step: true
+      steps:
+      - tool: add_reminder
+        args:
+          title:
+            icontains: smoke
+      - tool: create_note
+        args:
+          title:
+            icontains: reading
+  final_state:
+  - in: reminders
+    where:
+      title:
+        icontains: smoke
+    expect:
+      count: 1
+      due: +1d {h0}:00
+  - in: notes
+    where:
+      title:
+        icontains: reading
+    expect:
+      count: 1
+      body:
+        icontains: '{n1}'
+  forbid:
+  - clear_reminders
+  - clear_past_reminders
+  - complete_reminder
+  unchanged:
+  - calendar
+  - messages_sent
+  - mail_sent
+  optimal:
+    calls: 2
+    steps: 2
+  oracle:
+  - calls:
+    - name: add_reminder
+      arguments:
+        title: Check the smoke alarm
+        when_iso: +1d {h0}:00
+    - name: create_note
+      arguments:
+        title: Reading list
+        body: Finish {n1} chapters this week
+  - text: Done. Check the smoke alarm at {h0}am; Reading list.
   trap: doing only the first request, or turning the group into one note, fails
   split: dev
 - id: par_ast_w_mixed_006
@@ -3971,14 +3961,10 @@
   sub: independent_writes
   tags:
   - core
-  prompt: Text Odette that I'm bringing {m0} bottles, jot down a note called Meal prep saying cook {n1} portions
-    of chili and put a driving lesson on my calendar for the day after tomorrow at {h2}pm.
+  prompt: Jot down a note called Trip ideas saying book {n0} nights in the mountains, put a driving lesson on my
+    calendar for the day after tomorrow at {h2}pm and text Lior that I'm bringing {m2} bottles.
   facts:
-    m0:
-      int:
-      - 5
-      - 45
-    n1:
+    n0:
       int:
       - 3
       - 12
@@ -3990,48 +3976,44 @@
       add:
       - h2
       - 12
+    m2:
+      int:
+      - 5
+      - 45
   world:
     seed_records:
       contacts:
       - id: c-901
-        name: Odette Sorensen
-        phone: +1 555 0198
-        email: odette.sorensen@example.org
+        name: Lior Hartwell
+        phone: +1 555 0194
+        email: lior.hartwell@example.org
   expect:
   - parallel:
       same_step: true
       steps:
-      - tool: send_message
-        args:
-          to:
-            contains_any:
-            - Odette
-            - 0198
       - tool: create_note
         args:
           title:
-            icontains: meal
+            icontains: trip
       - tool: add_calendar_event
         args:
           title:
             icontains: driving
+      - tool: send_message
+        args:
+          to:
+            contains_any:
+            - Lior
+            - 0194
   final_state:
-  - in: messages_sent
-    where:
-      contact_ids:
-        icontains: c-901
-    expect:
-      count: 1
-      text:
-        icontains: '{m0}'
   - in: notes
     where:
       title:
-        icontains: meal
+        icontains: trip
     expect:
       count: 1
       body:
-        icontains: '{n1}'
+        icontains: '{n0}'
   - in: calendar
     where:
       title:
@@ -4039,10 +4021,18 @@
     expect:
       count: 1
       start: +2d {h2x}:00
+  - in: messages_sent
+    where:
+      contact_ids:
+        icontains: c-901
+    expect:
+      count: 1
+      text:
+        icontains: '{m2}'
   forbid:
-  - send_email
-  - schedule_send
   - delete_note
+  - cancel_event
+  - update_event
   unchanged:
   - reminders
   - mail_sent
@@ -4053,19 +4043,19 @@
     steps: 2
   oracle:
   - calls:
-    - name: send_message
-      arguments:
-        to: Odette Sorensen
-        text: I'm bringing {m0} bottles
     - name: create_note
       arguments:
-        title: Meal prep
-        body: Cook {n1} portions of chili
+        title: Trip ideas
+        body: Book {n0} nights in the mountains
     - name: add_calendar_event
       arguments:
         title: Driving lesson
         when_iso: +2d {h2x}:00
-  - text: Done. Texted Odette.; Meal prep; Driving lesson at {h2}pm.
+    - name: send_message
+      arguments:
+        to: Lior Hartwell
+        text: I'm bringing {m2} bottles
+  - text: Done. Trip ideas; Driving lesson at {h2}pm; Texted Lior..
   trap: doing only the first request, or turning the group into one note, fails
   split: dev
 - id: par_ast_w_texts_001
@@ -4073,7 +4063,7 @@
   family: parallel
   sub: independent_writes
   tags: []
-  prompt: Text Saoirse that the table is booked for {m0} and text Ilse that the table is booked for {m1}.
+  prompt: text ximena that dinner is in {m0} minutes and text dmitri that dinner is in {m1} minutes
   facts:
     m0:
       int:
@@ -4087,13 +4077,13 @@
     seed_records:
       contacts:
       - id: c-901
-        name: Saoirse Underhill
+        name: Ximena Galloway
         phone: +1 555 0193
-        email: saoirse.underhill@example.org
+        email: ximena.galloway@example.org
       - id: c-902
-        name: Ilse Castillo
-        phone: +1 555 0199
-        email: ilse.castillo@example.org
+        name: Dmitri Ishikawa
+        phone: +1 555 0198
+        email: dmitri.ishikawa@example.org
   expect:
   - parallel:
       same_step: true
@@ -4102,14 +4092,14 @@
         args:
           to:
             contains_any:
-            - Saoirse
+            - Ximena
             - 0193
       - tool: send_message
         args:
           to:
             contains_any:
-            - Ilse
-            - 0199
+            - Dmitri
+            - 0198
   final_state:
   - in: messages_sent
     where:
@@ -4145,13 +4135,13 @@
   - calls:
     - name: send_message
       arguments:
-        to: Saoirse Underhill
-        text: The table is booked for {m0}
+        to: Ximena Galloway
+        text: Dinner is in {m0} minutes
     - name: send_message
       arguments:
-        to: Ilse Castillo
-        text: The table is booked for {m1}
-  - text: Done. Texted Saoirse.; Texted Ilse..
+        to: Dmitri Ishikawa
+        text: Dinner is in {m1} minutes
+  - text: Done. Texted Ximena.; Texted Dmitri..
   trap: 'each person gets their own text: one shared message or a missing recipient fails'
   split: dev
 - id: par_ast_w_texts_002
@@ -4159,8 +4149,8 @@
   family: parallel
   sub: independent_writes
   tags: []
-  prompt: text marisol that the table is booked for {m0}, text ronan that i'm bringing {m1} bottles and text jonah
-    that the table is booked for {m2}
+  prompt: text saoirse that i'm bringing {m0} bottles, text aiko that the table is booked for {m1} and text mateo
+    that i'll be about {m2} minutes late
   facts:
     m0:
       int:
@@ -4178,17 +4168,17 @@
     seed_records:
       contacts:
       - id: c-901
-        name: Marisol Hartwell
-        phone: +1 555 0193
-        email: marisol.hartwell@example.org
+        name: Saoirse Ellery
+        phone: +1 555 0196
+        email: saoirse.ellery@example.org
       - id: c-902
-        name: Ronan Zeller
-        phone: +1 555 0197
-        email: ronan.zeller@example.org
+        name: Aiko Yilmaz
+        phone: +1 555 0194
+        email: aiko.yilmaz@example.org
       - id: c-903
-        name: Jonah Kowalski
-        phone: +1 555 0192
-        email: jonah.kowalski@example.org
+        name: Mateo Galloway
+        phone: +1 555 0199
+        email: mateo.galloway@example.org
   expect:
   - parallel:
       same_step: true
@@ -4197,20 +4187,20 @@
         args:
           to:
             contains_any:
-            - Marisol
-            - 0193
+            - Saoirse
+            - 0196
       - tool: send_message
         args:
           to:
             contains_any:
-            - Ronan
-            - 0197
+            - Aiko
+            - 0194
       - tool: send_message
         args:
           to:
             contains_any:
-            - Jonah
-            - 0192
+            - Mateo
+            - 0199
   final_state:
   - in: messages_sent
     where:
@@ -4255,17 +4245,17 @@
   - calls:
     - name: send_message
       arguments:
-        to: Marisol Hartwell
-        text: The table is booked for {m0}
+        to: Saoirse Ellery
+        text: I'm bringing {m0} bottles
     - name: send_message
       arguments:
-        to: Ronan Zeller
-        text: I'm bringing {m1} bottles
+        to: Aiko Yilmaz
+        text: The table is booked for {m1}
     - name: send_message
       arguments:
-        to: Jonah Kowalski
-        text: The table is booked for {m2}
-  - text: Done. Texted Marisol.; Texted Ronan.; Texted Jonah..
+        to: Mateo Galloway
+        text: I'll be about {m2} minutes late
+  - text: Done. Texted Saoirse.; Texted Aiko.; Texted Mateo..
   trap: 'each person gets their own text: one shared message or a missing recipient fails'
   split: dev
 - id: par_ast_w_texts_003
@@ -4274,8 +4264,8 @@
   sub: independent_writes
   tags:
   - core
-  prompt: Text Willa that I'll be about {m0} minutes late, text Hollis that dinner is in {m1} minutes, text Nadia
-    that I'm bringing {m2} bottles and text Ximena that the table is booked for {m3}.
+  prompt: text bastian that i'm bringing {m0} bottles, text fiona that the table is booked for {m1}, text ronan
+    that the table is booked for {m2} and text odette that i'll be about {m3} minutes late
   facts:
     m0:
       int:
@@ -4297,21 +4287,21 @@
     seed_records:
       contacts:
       - id: c-901
-        name: Willa Brightwater
-        phone: +1 555 0191
-        email: willa.brightwater@example.org
-      - id: c-902
-        name: Hollis Sorensen
-        phone: +1 555 0194
-        email: hollis.sorensen@example.org
-      - id: c-903
-        name: Nadia Wexford
+        name: Bastian Oyelaran
         phone: +1 555 0198
-        email: nadia.wexford@example.org
+        email: bastian.oyelaran@example.org
+      - id: c-902
+        name: Fiona Kowalski
+        phone: +1 555 0196
+        email: fiona.kowalski@example.org
+      - id: c-903
+        name: Ronan Brightwater
+        phone: +1 555 0199
+        email: ronan.brightwater@example.org
       - id: c-904
-        name: Ximena Dunmore
-        phone: +1 555 0195
-        email: ximena.dunmore@example.org
+        name: Odette Whitlock
+        phone: +1 555 0197
+        email: odette.whitlock@example.org
   expect:
   - parallel:
       same_step: true
@@ -4320,26 +4310,26 @@
         args:
           to:
             contains_any:
-            - Willa
-            - 0191
-      - tool: send_message
-        args:
-          to:
-            contains_any:
-            - Hollis
-            - 0194
-      - tool: send_message
-        args:
-          to:
-            contains_any:
-            - Nadia
+            - Bastian
             - 0198
       - tool: send_message
         args:
           to:
             contains_any:
-            - Ximena
-            - 0195
+            - Fiona
+            - 0196
+      - tool: send_message
+        args:
+          to:
+            contains_any:
+            - Ronan
+            - 0199
+      - tool: send_message
+        args:
+          to:
+            contains_any:
+            - Odette
+            - 0197
   final_state:
   - in: messages_sent
     where:
@@ -4393,20 +4383,20 @@
   - calls:
     - name: send_message
       arguments:
-        to: Willa Brightwater
-        text: I'll be about {m0} minutes late
+        to: Bastian Oyelaran
+        text: I'm bringing {m0} bottles
     - name: send_message
       arguments:
-        to: Hollis Sorensen
-        text: Dinner is in {m1} minutes
+        to: Fiona Kowalski
+        text: The table is booked for {m1}
     - name: send_message
       arguments:
-        to: Nadia Wexford
-        text: I'm bringing {m2} bottles
+        to: Ronan Brightwater
+        text: The table is booked for {m2}
     - name: send_message
       arguments:
-        to: Ximena Dunmore
-        text: The table is booked for {m3}
-  - text: Done. Texted Willa.; Texted Hollis.; Texted Nadia.; Texted Ximena..
+        to: Odette Whitlock
+        text: I'll be about {m3} minutes late
+  - text: Done. Texted Bastian.; Texted Fiona.; Texted Ronan.; Texted Odette..
   trap: 'each person gets their own text: one shared message or a missing recipient fails'
   split: dev

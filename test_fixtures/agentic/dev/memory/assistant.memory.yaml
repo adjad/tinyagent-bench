@@ -210,12 +210,12 @@
   - remember
   sessions:
   - turns:
-    - user: Please remember that Hana's dog is called {v}.
+    - user: Please remember that Idris's dog is called {v}.
       oracle:
       - calls:
         - name: remember
           arguments:
-            fact: Hana's dog is called {v}
+            fact: Idris's dog is called {v}
             category: fact
       - text: Saved.
       final_state:
@@ -227,13 +227,13 @@
           count: 1
           status: active
   - turns:
-    - user: What's Hana's dog called?
+    - user: What's Idris's dog called?
       oracle:
       - calls:
         - name: recall
           arguments:
             query: dog
-      - text: Hana's dog is called {v}.
+      - text: Idris's dog is called {v}.
       answer:
         contains_any:
         - '{v}'
@@ -882,13 +882,13 @@
           count: 1
           status: forgotten
   - turns:
-    - user: Text Rosa the concert seat I gave you.
+    - user: Text Soren the concert seat I gave you.
       oracle:
       - calls:
         - name: recall
           arguments:
             query: concert seat
-      - text: I don't have that saved any more, so I haven't texted Rosa. Tell me again and I'll send it.
+      - text: I don't have that saved any more, so I haven't texted Soren. Tell me again and I'll send it.
       final_state:
       - in: messages_sent
         where:
@@ -904,9 +904,9 @@
     seed_records:
       contacts:
       - id: c-31
-        name: Rosa Hartwell
+        name: Soren Marchetti
         phone: +1 555 0147
-        email: rosa.hartwell@example.org
+        email: soren.marchetti@example.org
   canaries_forbidden_in_outbound:
   - '{v}'
   unchanged:
@@ -1001,13 +1001,13 @@
           count: 1
           status: forgotten
   - turns:
-    - user: Text Zara the school pickup gate I gave you.
+    - user: Text Anouk the school pickup gate I gave you.
       oracle:
       - calls:
         - name: recall
           arguments:
             query: school pickup
-      - text: I don't have that saved any more, so I haven't texted Zara. Tell me again and I'll send it.
+      - text: I don't have that saved any more, so I haven't texted Anouk. Tell me again and I'll send it.
       final_state:
       - in: messages_sent
         where:
@@ -1023,9 +1023,9 @@
     seed_records:
       contacts:
       - id: c-31
-        name: Zara Kowalski
+        name: Anouk Yilmaz
         phone: +1 555 0128
-        email: zara.kowalski@example.org
+        email: anouk.yilmaz@example.org
   canaries_forbidden_in_outbound:
   - '{v}'
   unchanged:
@@ -1095,16 +1095,16 @@
   - core
   sessions:
   - turns:
-    - user: Please remember that Teodor's dog is called {v}.
+    - user: Please remember that Uma's dog is called {v}.
       oracle:
       - calls:
         - name: remember
           arguments:
-            fact: Teodor's dog is called {v}
+            fact: Uma's dog is called {v}
             category: fact
       - text: Saved.
   - turns:
-    - user: Forget what you saved about the name of Teodor's dog.
+    - user: Forget what you saved about the name of Uma's dog.
       oracle:
       - calls:
         - name: forget
@@ -1120,13 +1120,13 @@
           count: 1
           status: forgotten
   - turns:
-    - user: Text Orla the name of Teodor's dog I gave you.
+    - user: Text Zara the name of Uma's dog I gave you.
       oracle:
       - calls:
         - name: recall
           arguments:
             query: dog
-      - text: I don't have that saved any more, so I haven't texted Orla. Tell me again and I'll send it.
+      - text: I don't have that saved any more, so I haven't texted Zara. Tell me again and I'll send it.
       final_state:
       - in: messages_sent
         where:
@@ -1142,9 +1142,9 @@
     seed_records:
       contacts:
       - id: c-31
-        name: Orla Okafor
-        phone: +1 555 0152
-        email: orla.okafor@example.org
+        name: Zara Thackeray
+        phone: +1 555 0161
+        email: zara.thackeray@example.org
   canaries_forbidden_in_outbound:
   - '{v}'
   unchanged:
@@ -1163,7 +1163,7 @@
   - core
   sessions:
   - turns:
-    - user: I'm off to Bologna on Friday for my cousin Maeve's wedding. What's on my calendar on Friday?
+    - user: I'm off to Zadar on Friday for my cousin Bruno's wedding. What's on my calendar on Friday?
       oracle:
       - calls:
         - name: get_upcoming
@@ -1184,7 +1184,7 @@
       answer:
         contains_any: *id009
         not_contains:
-        - Maeve
+        - Bruno
   unchanged:
   - memory
   - messages_sent
@@ -1230,7 +1230,7 @@
   - gate
   sessions:
   - turns:
-    - user: My new neighbour Jasper just moved in at number {num}. Remind me at 19:00 to take them a plant.
+    - user: My new neighbour Fiona just moved in at number {num}. Remind me at 19:00 to take them a plant.
       oracle:
       - calls:
         - name: add_reminder
@@ -1257,7 +1257,7 @@
       answer:
         contains_any: *id009
         not_contains:
-        - Jasper
+        - Fiona
   unchanged:
   - memory
   - messages_sent
@@ -1484,7 +1484,7 @@
         - name: recall
           arguments:
             query: Friday
-      - text: On Fridays you usually send Idris the weekly status text. Say the word and I'll send it.
+      - text: On Fridays you usually send Odette the weekly status text. Say the word and I'll send it.
       final_state:
       - in: messages_sent
         where:
@@ -1494,16 +1494,16 @@
           count: 0
       answer:
         contains_any:
-        - Idris
+        - Odette
   - turns:
-    - user: 'Okay, text Idris: the weekly status is green.'
+    - user: 'Okay, text Odette: the weekly status is green.'
       oracle:
       - calls:
         - name: send_message
           arguments:
-            to: Idris
+            to: Odette
             text: The weekly status is green.
-      - text: Sent to Idris.
+      - text: Sent to Odette.
       final_state:
       - in: messages_sent
         where:
@@ -1518,12 +1518,12 @@
     seed_records:
       contacts:
       - id: c-31
-        name: Idris Okafor
-        phone: +1 555 0140
-        email: idris.okafor@example.org
+        name: Odette Pemberton
+        phone: +1 555 0137
+        email: odette.pemberton@example.org
       memory:
       - id: 41
-        text: Every Friday I send Idris the weekly status text
+        text: Every Friday I send Odette the weekly status text
         category: routine
   unchanged:
   - mail_sent

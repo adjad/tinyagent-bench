@@ -7,87 +7,9 @@
   tags:
   - datetime
   - core
-  prompt: every Friday at 9am I have Quayside bike service; put it on my calendar, starting this coming Friday
+  prompt: every Friday at 12pm I have Fernhill parents' evening; put it on my calendar, starting this coming Friday
   world:
-    clock: 2027-06-02T08:30
-  final_state:
-  - in: calendar
-    where:
-      title:
-        icontains: Quayside
-    expect:
-      count: 1
-      rrule:
-        rrule:
-          FREQ: WEEKLY
-          BYDAY: FR
-      start: +2d 09:00
-  unchanged:
-  - reminders
-  - messages_sent
-  - mail_sent
-  optimal:
-    calls: 1
-    steps: 2
-  oracle:
-  - calls:
-    - name: calendar_create_event
-      arguments:
-        title: Quayside bike service
-        start: +2d 09:00
-        recurrence: FREQ=WEEKLY;BYDAY=FR
-  - text: Created the repeating event 'Quayside bike service'.
-  trap: weekly recurrence rule on the right weekday, first occurrence this week
-  split: dev
-- id: dt_neu_recur_biweekly_001
-  lane: neutral
-  family: select
-  sub: recurring
-  tags:
-  - datetime
-  prompt: add Hartwell Joinery fitting to my calendar every second Thursday at 10am, first one this coming Thursday
-  world:
-    clock: 2027-08-31T08:30
-  final_state:
-  - in: calendar
-    where:
-      title:
-        icontains: Hartwell
-    expect:
-      count: 1
-      rrule:
-        rrule:
-          FREQ: WEEKLY
-          INTERVAL: '2'
-          BYDAY: TH
-      start: +2d 10:00
-  unchanged:
-  - reminders
-  - messages_sent
-  - mail_sent
-  optimal:
-    calls: 1
-    steps: 2
-  oracle:
-  - calls:
-    - name: calendar_create_event
-      arguments:
-        title: Hartwell Joinery fitting
-        start: +2d 10:00
-        recurrence: FREQ=WEEKLY;INTERVAL=2;BYDAY=TH
-  - text: Created the repeating event 'Hartwell Joinery fitting'.
-  trap: '''every second Tuesday'' is INTERVAL=2, not a weekly rule'
-  split: dev
-- id: dt_neu_recur_last_friday_001
-  lane: neutral
-  family: select
-  sub: recurring
-  tags:
-  - datetime
-  prompt: Fernhill parents' evening happens on the last Friday of every month at 4pm, add it starting with the next
-    one
-  world:
-    clock: 2027-07-11T08:30
+    clock: 2027-06-30T08:30
   final_state:
   - in: calendar
     where:
@@ -96,15 +18,10 @@
     expect:
       count: 1
       rrule:
-        any_of:
-        - rrule:
-            FREQ: MONTHLY
-            BYDAY: -1FR
-        - rrule:
-            FREQ: MONTHLY
-            BYDAY: FR
-            BYSETPOS: '-1'
-      start: +19d 16:00
+        rrule:
+          FREQ: WEEKLY
+          BYDAY: FR
+      start: +2d 12:00
   unchanged:
   - reminders
   - messages_sent
@@ -117,9 +34,92 @@
     - name: calendar_create_event
       arguments:
         title: Fernhill parents' evening
-        start: +19d 16:00
-        recurrence: FREQ=MONTHLY;BYDAY=-1FR
+        start: +2d 12:00
+        recurrence: FREQ=WEEKLY;BYDAY=FR
   - text: Created the repeating event 'Fernhill parents' evening'.
+  trap: weekly recurrence rule on the right weekday, first occurrence this week
+  split: dev
+- id: dt_neu_recur_biweekly_001
+  lane: neutral
+  family: select
+  sub: recurring
+  tags:
+  - datetime
+  prompt: add Fernhill parents' evening to my calendar every second Wednesday at 10am, first one this coming Wednesday
+  world:
+    clock: 2027-05-17T08:30
+  final_state:
+  - in: calendar
+    where:
+      title:
+        icontains: Fernhill
+    expect:
+      count: 1
+      rrule:
+        rrule:
+          FREQ: WEEKLY
+          INTERVAL: '2'
+          BYDAY: WE
+      start: +2d 10:00
+  unchanged:
+  - reminders
+  - messages_sent
+  - mail_sent
+  optimal:
+    calls: 1
+    steps: 2
+  oracle:
+  - calls:
+    - name: calendar_create_event
+      arguments:
+        title: Fernhill parents' evening
+        start: +2d 10:00
+        recurrence: FREQ=WEEKLY;INTERVAL=2;BYDAY=WE
+  - text: Created the repeating event 'Fernhill parents' evening'.
+  trap: '''every second Tuesday'' is INTERVAL=2, not a weekly rule'
+  split: dev
+- id: dt_neu_recur_last_friday_001
+  lane: neutral
+  family: select
+  sub: recurring
+  tags:
+  - datetime
+  prompt: Brightline kitchen quote happens on the last Friday of every month at 4pm, add it starting with the next
+    one
+  world:
+    clock: 2027-08-19T08:30
+  final_state:
+  - in: calendar
+    where:
+      title:
+        icontains: Brightline
+    expect:
+      count: 1
+      rrule:
+        any_of:
+        - rrule:
+            FREQ: MONTHLY
+            BYDAY: -1FR
+        - rrule:
+            FREQ: MONTHLY
+            BYDAY: FR
+            BYSETPOS: '-1'
+      start: +8d 16:00
+  unchanged:
+  - reminders
+  - messages_sent
+  - mail_sent
+  optimal:
+    calls: 1
+    steps: 2
+  oracle:
+  - calls:
+    - name: calendar_create_event
+      arguments:
+        title: Brightline kitchen quote
+        start: +8d 16:00
+        recurrence: FREQ=MONTHLY;BYDAY=-1FR
+  - text: Created the repeating event 'Brightline kitchen quote'.
   trap: '''last Friday of the month'' is a monthly rule with -1FR (or BYSETPOS=-1), first occurrence computed from
     the clock'
   split: dev
@@ -130,20 +130,20 @@
   tags:
   - datetime
   - core
-  prompt: set up a call with Umar in New York on Friday at 10:30am their time. I'm on London time.
+  prompt: set up a call with Jonah in New York on Saturday at 3pm their time. I'm on London time.
   world:
-    clock: 2027-05-12T08:00
+    clock: 2027-04-27T08:00
     tz: Europe/London
   final_state:
   - in: calendar
     where:
       title:
-        icontains: Umar
+        icontains: Jonah
     expect:
       count: 1
       start:
         datetime_eq:
-          at: 2027-05-14T10:30
+          at: 2027-05-01T15:00
           tz: America/New_York
   unchanged:
   - reminders
@@ -156,9 +156,9 @@
   - calls:
     - name: calendar_create_event
       arguments:
-        title: Call with Umar
-        start: 2027-05-14T15:30
-  - text: Booked Call with Umar for Friday 15:30 your time, which is 10:30am in New York.
+        title: Call with Jonah
+        start: 2027-05-01T20:00
+  - text: Booked Call with Jonah for Saturday 20:00 your time, which is 3pm in New York.
   trap: 'New York to London conversion: a wrong offset gives the wrong hour'
   split: dev
 - id: dt_neu_dst_edge_001
@@ -167,7 +167,7 @@
   sub: dst_edge
   tags:
   - datetime
-  prompt: set up a call with Hana in New York on Monday at 9am their time. I'm on London time.
+  prompt: set up a call with Bruno in New York on Monday at 9am their time. I'm on London time.
   world:
     clock: 2028-03-11T20:00
     tz: Europe/London
@@ -175,7 +175,7 @@
   - in: calendar
     where:
       title:
-        icontains: Hana
+        icontains: Bruno
     expect:
       count: 1
       start:
@@ -193,9 +193,9 @@
   - calls:
     - name: calendar_create_event
       arguments:
-        title: Call with Hana
+        title: Call with Bruno
         start: 2028-03-13T13:00
-  - text: Booked Call with Hana for Monday 13:00 your time, which is 9am in New York.
+  - text: Booked Call with Bruno for Monday 13:00 your time, which is 9am in New York.
   trap: 'New York changes clocks this weekend and London does not: the usual 5-hour gap is 4 hours'
   split: dev
 - id: dt_neu_leap_day_001
@@ -205,14 +205,14 @@
   tags:
   - datetime
   - core
-  prompt: remind me to defrost the freezer on the last day of February at 9am
+  prompt: remind me to check the smoke alarm on the last day of February at 9am
   world:
-    clock: 2031-12-08T08:30
+    clock: 2031-12-10T08:30
   final_state:
   - in: reminders
     where:
       title:
-        icontains: freezer
+        icontains: smoke alarm
     expect:
       count: 1
       due: 2032-02-29T09:00
@@ -227,7 +227,7 @@
   - calls:
     - name: reminders_create
       arguments:
-        title: Defrost the freezer
+        title: Check the smoke alarm
         due: 2032-02-29T09:00
   - text: Set for Feb 29, 2032 at 9am.
   trap: 2032 is a leap year, so the last day of February is the 29th

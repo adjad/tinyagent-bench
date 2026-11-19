@@ -6,14 +6,14 @@
   sub: follow_up
   tags:
   - datetime
-  prompt: schedule the Copperleaf follow-up exactly 21 days after the kickoff, same time, and check it landed
+  prompt: schedule the Juniper follow-up exactly 7 days after the kickoff, same time, and check it landed
   world:
     seed_records:
       calendar:
       - id: ev-dt-k1
-        title: Copperleaf kickoff
+        title: Juniper kickoff
         start: +{d}d {h24}:00
-    clock: 2027-05-22T08:30
+    clock: 2027-06-08T08:30
   facts:
     d:
       int:
@@ -22,7 +22,7 @@
     dk:
       add:
       - d
-      - 21
+      - 7
     h24:
       int:
       - 9
@@ -61,17 +61,17 @@
   - calls:
     - name: calendar_search_events
       arguments:
-        query: Copperleaf
+        query: Juniper
   - calls:
     - name: calendar_create_event
       arguments:
-        title: Copperleaf follow-up
+        title: Juniper follow-up
         start: +{dk}d {h24}:00
   - calls:
     - name: calendar_list_events
       arguments:
         start_date: '{today_iso}'
         end_date: +40d
-  - text: Scheduled the Copperleaf follow-up 21 days after the kickoff and confirmed it is on the calendar.
+  - text: Scheduled the Juniper follow-up 7 days after the kickoff and confirmed it is on the calendar.
   trap: read the kickoff date, add the offset, then read the calendar back before claiming it is done
   split: dev

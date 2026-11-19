@@ -10,18 +10,24 @@ those unless a case means it to.
 Generators draw from these with their own `random.Random`, so the dev split
 (public seed) and the held-out split (private seed) get different values from
 the same templates.
+
+Names, errands and phone tails that also occur in the canonical assistant
+world (which varies with the world seed) are left out: "Wren", Okafor,
+Lindqvist, Tanaka, Haddad and Petrov, and the world's phone tails. Some
+ERRANDS also occur there (the garage, dry cleaning, vet, bike light); the
+generators that use them filter them per lane.
 """
 from __future__ import annotations
 
 import random
 
-FIRST = ["Ines", "Tomas", "Wren", "Kofi", "Mei", "Rafael", "Leila", "Oskar", "Nadia", "Jonah", "Aiko", "Bruno",
+FIRST = ["Ines", "Tomas", "Kofi", "Mei", "Rafael", "Leila", "Oskar", "Nadia", "Jonah", "Aiko", "Bruno",
          "Selin", "Mateo", "Hana", "Idris", "Clara", "Dmitri", "Farah", "Gideon", "Ingrid", "Joaquin", "Kalani",
          "Lior", "Marisol", "Niko", "Odette", "Pavel", "Quinn", "Rosa", "Soren", "Talia", "Umar", "Vera",
          "Wendell", "Ximena", "Yusuf", "Zara", "Anouk", "Bastian", "Cyrus", "Delphine", "Emeka", "Fiona",
          "Gustavo", "Hollis", "Ilse", "Jasper", "Kirra", "Lucan", "Maeve", "Nuno", "Orla", "Priyanka", "Ronan",
          "Saoirse", "Teodor", "Uma", "Viggo", "Willa"]
-LAST = ["Duarte", "Okafor", "Lindqvist", "Mensah", "Tanaka", "Ferreira", "Haddad", "Novak", "Petrov", "Achebe",
+LAST = ["Duarte", "Mensah", "Ferreira", "Novak", "Achebe",
         "Moreau", "Castillo", "Byrne", "Kowalski", "Nakamura", "Oyelaran", "Varga", "Whitlock", "Yilmaz",
         "Zeller", "Abernathy", "Brightwater", "Calloway", "Dunmore", "Ellery", "Fairbanks", "Galloway",
         "Hartwell", "Ishikawa", "Jessup", "Kerrigan", "Lacroix", "Marchetti", "Northcott", "Ostrander",
@@ -42,12 +48,17 @@ ERRANDS = ["call the garage", "pay the gas bill", "pick up the dry cleaning", "r
            "send the rent receipt", "check the smoke alarm", "defrost the freezer", "repot the fern"]
 
 
+# Phone tails the canonical assistant world uses (its contacts and send queue);
+# a seeded number sharing the last seven digits would resolve to them.
+WORLD_TAILS = {"0101", "0102", "0123", "0133", "0144", "0158", "0166", "0177", "0190"}
+
+
 def phone(rng: random.Random, used: set | None = None) -> str:
-    """A fictional +1 555 01xx number, unique within `used`."""
+    """A fictional +1 555 01xx number, unique within `used`, never one of WORLD_TAILS."""
     used = used if used is not None else set()
     while True:
         tail = f"01{rng.randint(0, 99):02d}"
-        if tail not in used:
+        if tail not in used and tail not in WORLD_TAILS:
             used.add(tail)
             return f"+1 555 {tail}"
 

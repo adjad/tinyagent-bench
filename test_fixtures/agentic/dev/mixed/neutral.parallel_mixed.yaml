@@ -6,7 +6,7 @@
   sub: compare_then_text
   tags:
   - core
-  prompt: Which is warmer right now, Madrid and Bologna? Text Emeka the city name only.
+  prompt: Which is warmer right now, Halifax and Turku? Text Rosa the city name only.
   facts:
     t0:
       int:
@@ -36,34 +36,34 @@
       - -6
     win:
       argmax:
-        Madrid: t0
-        Bologna: t1
+        Halifax: t0
+        Turku: t1
     lose1:
       choice:
-      - Madrid
-      - Bologna
+      - Halifax
+      - Turku
       exclude:
       - win
   world:
     seed_records:
       weather:
       - id: w-1
-        location: Madrid
+        location: Halifax
         temp_c: '{t0}'
         high_c: '{t0hi}'
         low_c: '{t0lo}'
-        condition: light rain
+        condition: clear
       - id: w-2
-        location: Bologna
+        location: Turku
         temp_c: '{t1}'
         high_c: '{t1hi}'
         low_c: '{t1lo}'
-        condition: cloudy
+        condition: sunny
       contacts:
       - id: c-901
-        name: Emeka Castillo
-        phone: +1 555 0199
-        email: emeka.castillo@example.org
+        name: Rosa Whitlock
+        phone: +1 555 0193
+        email: rosa.whitlock@example.org
   expect:
   - parallel:
       same_step: true
@@ -71,15 +71,15 @@
       - tool: weather_get_current
         args:
           location:
-            icontains: Madrid
+            icontains: Halifax
       - tool: weather_get_current
         args:
           location:
-            icontains: Bologna
+            icontains: Turku
   - tool: messages_send
     args:
       to:
-        icontains: Emeka
+        icontains: Rosa
   final_state:
   - in: messages_sent
     where:
@@ -113,16 +113,16 @@
   - calls:
     - name: weather_get_current
       arguments:
-        location: Madrid
+        location: Halifax
     - name: weather_get_current
       arguments:
-        location: Bologna
+        location: Turku
   - calls:
     - name: messages_send
       arguments:
-        to: Emeka Castillo
+        to: Rosa Whitlock
         text: '{win} is the warmer right now.'
-  - text: 'I texted Emeka: {win}.'
+  - text: 'I texted Rosa: {win}.'
   trap: texting a guessed city or one that is not the warmer (the temperatures change per trial) or both fails
   split: dev
 - id: mix_neu_warm_002
@@ -130,7 +130,7 @@
   family: mixed
   sub: compare_then_text
   tags: []
-  prompt: check the weather right now in tbilisi and porto and text hollis just the name of the warmer one
+  prompt: which is warmer right now, halifax and leipzig? text mateo the city name only
   facts:
     t0:
       int:
@@ -160,34 +160,34 @@
       - -6
     win:
       argmax:
-        Tbilisi: t0
-        Porto: t1
+        Halifax: t0
+        Leipzig: t1
     lose1:
       choice:
-      - Tbilisi
-      - Porto
+      - Halifax
+      - Leipzig
       exclude:
       - win
   world:
     seed_records:
       weather:
       - id: w-1
-        location: Tbilisi
+        location: Halifax
         temp_c: '{t0}'
         high_c: '{t0hi}'
         low_c: '{t0lo}'
-        condition: light rain
+        condition: clear
       - id: w-2
-        location: Porto
+        location: Leipzig
         temp_c: '{t1}'
         high_c: '{t1hi}'
         low_c: '{t1lo}'
-        condition: sunny
+        condition: clear
       contacts:
       - id: c-901
-        name: Hollis Wexford
-        phone: +1 555 0198
-        email: hollis.wexford@example.org
+        name: Mateo Galloway
+        phone: +1 555 0194
+        email: mateo.galloway@example.org
   expect:
   - parallel:
       same_step: true
@@ -195,15 +195,15 @@
       - tool: weather_get_current
         args:
           location:
-            icontains: Tbilisi
+            icontains: Halifax
       - tool: weather_get_current
         args:
           location:
-            icontains: Porto
+            icontains: Leipzig
   - tool: messages_send
     args:
       to:
-        icontains: Hollis
+        icontains: Mateo
   final_state:
   - in: messages_sent
     where:
@@ -237,16 +237,16 @@
   - calls:
     - name: weather_get_current
       arguments:
-        location: Tbilisi
+        location: Halifax
     - name: weather_get_current
       arguments:
-        location: Porto
+        location: Leipzig
   - calls:
     - name: messages_send
       arguments:
-        to: Hollis Wexford
+        to: Mateo Galloway
         text: '{win} is the warmer right now.'
-  - text: 'I texted Hollis: {win}.'
+  - text: 'I texted Mateo: {win}.'
   trap: texting a guessed city or one that is not the warmer (the temperatures change per trial) or both fails
   split: dev
 - id: mix_neu_warm_003
@@ -255,7 +255,7 @@
   sub: compare_then_text
   tags:
   - core
-  prompt: Which is warmest right now, Bergen, Antwerp and Graz? Text Orla the city name only.
+  prompt: Which is warmest right now, Oslo, Antwerp and Lyon? Text Wendell the city name only.
   facts:
     t0:
       int:
@@ -300,14 +300,14 @@
       - -6
     win:
       argmax:
-        Bergen: t0
+        Oslo: t0
         Antwerp: t1
-        Graz: t2
+        Lyon: t2
     lose1:
       choice: &id001
-      - Bergen
+      - Oslo
       - Antwerp
-      - Graz
+      - Lyon
       exclude:
       - win
     lose2:
@@ -319,28 +319,28 @@
     seed_records:
       weather:
       - id: w-1
-        location: Bergen
+        location: Oslo
         temp_c: '{t0}'
         high_c: '{t0hi}'
         low_c: '{t0lo}'
-        condition: windy
+        condition: cloudy
       - id: w-2
         location: Antwerp
         temp_c: '{t1}'
         high_c: '{t1hi}'
         low_c: '{t1lo}'
-        condition: sunny
+        condition: cloudy
       - id: w-3
-        location: Graz
+        location: Lyon
         temp_c: '{t2}'
         high_c: '{t2hi}'
         low_c: '{t2lo}'
-        condition: light rain
+        condition: cloudy
       contacts:
       - id: c-901
-        name: Orla Brightwater
-        phone: +1 555 0195
-        email: orla.brightwater@example.org
+        name: Wendell Nakamura
+        phone: +1 555 0196
+        email: wendell.nakamura@example.org
   expect:
   - parallel:
       same_step: true
@@ -348,7 +348,7 @@
       - tool: weather_get_current
         args:
           location:
-            icontains: Bergen
+            icontains: Oslo
       - tool: weather_get_current
         args:
           location:
@@ -356,11 +356,11 @@
       - tool: weather_get_current
         args:
           location:
-            icontains: Graz
+            icontains: Lyon
   - tool: messages_send
     args:
       to:
-        icontains: Orla
+        icontains: Wendell
   final_state:
   - in: messages_sent
     where:
@@ -395,19 +395,19 @@
   - calls:
     - name: weather_get_current
       arguments:
-        location: Bergen
+        location: Oslo
     - name: weather_get_current
       arguments:
         location: Antwerp
     - name: weather_get_current
       arguments:
-        location: Graz
+        location: Lyon
   - calls:
     - name: messages_send
       arguments:
-        to: Orla Brightwater
+        to: Wendell Nakamura
         text: '{win} is the warmest right now.'
-  - text: 'I texted Orla: {win}.'
+  - text: 'I texted Wendell: {win}.'
   trap: texting a guessed city or one that is not the warmest (the temperatures change per trial) or both fails
   split: dev
 - id: mix_neu_cold_001
@@ -415,7 +415,7 @@
   family: mixed
   sub: compare_then_text
   tags: []
-  prompt: which is colder right now, seville and tbilisi? text bruno the city name only
+  prompt: which is colder right now, turku and cusco? text ines the city name only
   facts:
     t0:
       int:
@@ -445,34 +445,34 @@
       - -6
     win:
       argmin:
-        Seville: t0
-        Tbilisi: t1
+        Turku: t0
+        Cusco: t1
     lose1:
       choice:
-      - Seville
-      - Tbilisi
+      - Turku
+      - Cusco
       exclude:
       - win
   world:
     seed_records:
       weather:
       - id: w-1
-        location: Seville
+        location: Turku
         temp_c: '{t0}'
         high_c: '{t0hi}'
         low_c: '{t0lo}'
-        condition: sunny
+        condition: cloudy
       - id: w-2
-        location: Tbilisi
+        location: Cusco
         temp_c: '{t1}'
         high_c: '{t1hi}'
         low_c: '{t1lo}'
-        condition: cloudy
+        condition: windy
       contacts:
       - id: c-901
-        name: Bruno Quintero
-        phone: +1 555 0197
-        email: bruno.quintero@example.org
+        name: Ines Calloway
+        phone: +1 555 0194
+        email: ines.calloway@example.org
   expect:
   - parallel:
       same_step: true
@@ -480,15 +480,15 @@
       - tool: weather_get_current
         args:
           location:
-            icontains: Seville
+            icontains: Turku
       - tool: weather_get_current
         args:
           location:
-            icontains: Tbilisi
+            icontains: Cusco
   - tool: messages_send
     args:
       to:
-        icontains: Bruno
+        icontains: Ines
   final_state:
   - in: messages_sent
     where:
@@ -522,16 +522,16 @@
   - calls:
     - name: weather_get_current
       arguments:
-        location: Seville
+        location: Turku
     - name: weather_get_current
       arguments:
-        location: Tbilisi
+        location: Cusco
   - calls:
     - name: messages_send
       arguments:
-        to: Bruno Quintero
+        to: Ines Calloway
         text: '{win} is the colder right now.'
-  - text: 'I texted Bruno: {win}.'
+  - text: 'I texted Ines: {win}.'
   trap: texting a guessed city or one that is not the colder (the temperatures change per trial) or both fails
   split: dev
 - id: mix_neu_cold_002
@@ -539,8 +539,7 @@
   family: mixed
   sub: compare_then_text
   tags: []
-  prompt: Check the weather right now in Zadar, Leipzig and Montreal and text Idris just the name of the coldest
-    one.
+  prompt: Which is coldest right now, Hobart, Ljubljana and Madrid? Text Talia the city name only.
   facts:
     t0:
       int:
@@ -585,14 +584,14 @@
       - -6
     win:
       argmin:
-        Zadar: t0
-        Leipzig: t1
-        Montreal: t2
+        Hobart: t0
+        Ljubljana: t1
+        Madrid: t2
     lose1:
       choice: &id002
-      - Zadar
-      - Leipzig
-      - Montreal
+      - Hobart
+      - Ljubljana
+      - Madrid
       exclude:
       - win
     lose2:
@@ -604,28 +603,28 @@
     seed_records:
       weather:
       - id: w-1
-        location: Zadar
+        location: Hobart
         temp_c: '{t0}'
         high_c: '{t0hi}'
         low_c: '{t0lo}'
-        condition: clear
+        condition: light rain
       - id: w-2
-        location: Leipzig
+        location: Ljubljana
         temp_c: '{t1}'
         high_c: '{t1hi}'
         low_c: '{t1lo}'
-        condition: clear
+        condition: windy
       - id: w-3
-        location: Montreal
+        location: Madrid
         temp_c: '{t2}'
         high_c: '{t2hi}'
         low_c: '{t2lo}'
-        condition: light rain
+        condition: cloudy
       contacts:
       - id: c-901
-        name: Idris Whitlock
-        phone: +1 555 0191
-        email: idris.whitlock@example.org
+        name: Talia Yilmaz
+        phone: +1 555 0194
+        email: talia.yilmaz@example.org
   expect:
   - parallel:
       same_step: true
@@ -633,19 +632,19 @@
       - tool: weather_get_current
         args:
           location:
-            icontains: Zadar
+            icontains: Hobart
       - tool: weather_get_current
         args:
           location:
-            icontains: Leipzig
+            icontains: Ljubljana
       - tool: weather_get_current
         args:
           location:
-            icontains: Montreal
+            icontains: Madrid
   - tool: messages_send
     args:
       to:
-        icontains: Idris
+        icontains: Talia
   final_state:
   - in: messages_sent
     where:
@@ -680,19 +679,19 @@
   - calls:
     - name: weather_get_current
       arguments:
-        location: Zadar
+        location: Hobart
     - name: weather_get_current
       arguments:
-        location: Leipzig
+        location: Ljubljana
     - name: weather_get_current
       arguments:
-        location: Montreal
+        location: Madrid
   - calls:
     - name: messages_send
       arguments:
-        to: Idris Whitlock
+        to: Talia Yilmaz
         text: '{win} is the coldest right now.'
-  - text: 'I texted Idris: {win}.'
+  - text: 'I texted Talia: {win}.'
   trap: texting a guessed city or one that is not the coldest (the temperatures change per trial) or both fails
   split: dev
 - id: mix_neu_cold_003
@@ -701,7 +700,7 @@
   sub: compare_then_text
   tags:
   - core
-  prompt: Which is coldest right now, Zadar, Madrid, Dunedin and Cork? Text Leila the city name only.
+  prompt: Which is coldest right now, Halifax, Cork, Turku and Lisbon? Text Viggo the city name only.
   facts:
     t0:
       int:
@@ -762,16 +761,16 @@
       - -6
     win:
       argmin:
-        Zadar: t0
-        Madrid: t1
-        Dunedin: t2
-        Cork: t3
+        Halifax: t0
+        Cork: t1
+        Turku: t2
+        Lisbon: t3
     lose1:
       choice: &id003
-      - Zadar
-      - Madrid
-      - Dunedin
+      - Halifax
       - Cork
+      - Turku
+      - Lisbon
       exclude:
       - win
     lose2:
@@ -789,34 +788,34 @@
     seed_records:
       weather:
       - id: w-1
-        location: Zadar
+        location: Halifax
         temp_c: '{t0}'
         high_c: '{t0hi}'
         low_c: '{t0lo}'
-        condition: cloudy
+        condition: clear
       - id: w-2
-        location: Madrid
+        location: Cork
         temp_c: '{t1}'
         high_c: '{t1hi}'
         low_c: '{t1lo}'
         condition: cloudy
       - id: w-3
-        location: Dunedin
+        location: Turku
         temp_c: '{t2}'
         high_c: '{t2hi}'
         low_c: '{t2lo}'
-        condition: cloudy
+        condition: windy
       - id: w-4
-        location: Cork
+        location: Lisbon
         temp_c: '{t3}'
         high_c: '{t3hi}'
         low_c: '{t3lo}'
-        condition: clear
+        condition: windy
       contacts:
       - id: c-901
-        name: Leila Castillo
-        phone: +1 555 0191
-        email: leila.castillo@example.org
+        name: Viggo Northcott
+        phone: +1 555 0195
+        email: viggo.northcott@example.org
   expect:
   - parallel:
       same_step: true
@@ -824,23 +823,23 @@
       - tool: weather_get_current
         args:
           location:
-            icontains: Zadar
-      - tool: weather_get_current
-        args:
-          location:
-            icontains: Madrid
-      - tool: weather_get_current
-        args:
-          location:
-            icontains: Dunedin
+            icontains: Halifax
       - tool: weather_get_current
         args:
           location:
             icontains: Cork
+      - tool: weather_get_current
+        args:
+          location:
+            icontains: Turku
+      - tool: weather_get_current
+        args:
+          location:
+            icontains: Lisbon
   - tool: messages_send
     args:
       to:
-        icontains: Leila
+        icontains: Viggo
   final_state:
   - in: messages_sent
     where:
@@ -876,22 +875,22 @@
   - calls:
     - name: weather_get_current
       arguments:
-        location: Zadar
-    - name: weather_get_current
-      arguments:
-        location: Madrid
-    - name: weather_get_current
-      arguments:
-        location: Dunedin
+        location: Halifax
     - name: weather_get_current
       arguments:
         location: Cork
+    - name: weather_get_current
+      arguments:
+        location: Turku
+    - name: weather_get_current
+      arguments:
+        location: Lisbon
   - calls:
     - name: messages_send
       arguments:
-        to: Leila Castillo
+        to: Viggo Northcott
         text: '{win} is the coldest right now.'
-  - text: 'I texted Leila: {win}.'
+  - text: 'I texted Viggo: {win}.'
   trap: texting a guessed city or one that is not the coldest (the temperatures change per trial) or both fails
   split: dev
 - id: mix_neu_stocks_001
@@ -899,7 +898,7 @@
   family: mixed
   sub: compare_then_text
   tags: []
-  prompt: Check OMNI and ACME and text Rosa the ticker with the biggest gain today.
+  prompt: Check DRFT and BLUX and text Quinn the ticker with the biggest gain today.
   facts:
     pr0:
       int:
@@ -921,28 +920,28 @@
       - ch0
     win:
       argmax:
-        OMNI: ch0
-        ACME: ch1
+        DRFT: ch0
+        BLUX: ch1
     lose1:
       choice:
-      - OMNI
-      - ACME
+      - DRFT
+      - BLUX
       exclude:
       - win
   world:
     seed_records:
       stocks:
-      - id: OMNI
+      - id: DRFT
         price: '{pr0}'
         change_pct: '{ch0}'
-      - id: ACME
+      - id: BLUX
         price: '{pr1}'
         change_pct: '{ch1}'
       contacts:
       - id: c-901
-        name: Rosa Nakamura
-        phone: +1 555 0196
-        email: rosa.nakamura@example.org
+        name: Quinn Castillo
+        phone: +1 555 0199
+        email: quinn.castillo@example.org
   expect:
   - parallel:
       same_step: true
@@ -950,15 +949,15 @@
       - tool: stocks_get_quote
         args:
           symbol:
-            icontains: OMNI
+            icontains: DRFT
       - tool: stocks_get_quote
         args:
           symbol:
-            icontains: ACME
+            icontains: BLUX
   - tool: messages_send
     args:
       to:
-        icontains: Rosa
+        icontains: Quinn
   final_state:
   - in: messages_sent
     where:
@@ -992,16 +991,16 @@
   - calls:
     - name: stocks_get_quote
       arguments:
-        symbol: OMNI
+        symbol: DRFT
     - name: stocks_get_quote
       arguments:
-        symbol: ACME
+        symbol: BLUX
   - calls:
     - name: messages_send
       arguments:
-        to: Rosa Nakamura
+        to: Quinn Castillo
         text: '{win} is up the most today.'
-  - text: 'I texted Rosa: {win}.'
+  - text: 'I texted Quinn: {win}.'
   trap: the biggest gainer changes per trial; a guessed or multi-ticker text fails
   split: dev
 - id: mix_neu_stocks_002
@@ -1010,7 +1009,7 @@
   sub: compare_then_text
   tags:
   - core
-  prompt: Check KRNL, BLUX and TWLV and text Mateo the ticker with the biggest gain today.
+  prompt: Check OMNI, PLUM and BLUX and text Lior the ticker with the biggest gain today.
   facts:
     pr0:
       int:
@@ -1043,14 +1042,14 @@
       - ch1
     win:
       argmax:
-        KRNL: ch0
-        BLUX: ch1
-        TWLV: ch2
+        OMNI: ch0
+        PLUM: ch1
+        BLUX: ch2
     lose1:
       choice: &id004
-      - KRNL
+      - OMNI
+      - PLUM
       - BLUX
-      - TWLV
       exclude:
       - win
     lose2:
@@ -1061,20 +1060,20 @@
   world:
     seed_records:
       stocks:
-      - id: KRNL
+      - id: OMNI
         price: '{pr0}'
         change_pct: '{ch0}'
-      - id: BLUX
+      - id: PLUM
         price: '{pr1}'
         change_pct: '{ch1}'
-      - id: TWLV
+      - id: BLUX
         price: '{pr2}'
         change_pct: '{ch2}'
       contacts:
       - id: c-901
-        name: Mateo Oyelaran
-        phone: +1 555 0199
-        email: mateo.oyelaran@example.org
+        name: Lior Moreau
+        phone: +1 555 0192
+        email: lior.moreau@example.org
   expect:
   - parallel:
       same_step: true
@@ -1082,19 +1081,19 @@
       - tool: stocks_get_quote
         args:
           symbol:
-            icontains: KRNL
+            icontains: OMNI
+      - tool: stocks_get_quote
+        args:
+          symbol:
+            icontains: PLUM
       - tool: stocks_get_quote
         args:
           symbol:
             icontains: BLUX
-      - tool: stocks_get_quote
-        args:
-          symbol:
-            icontains: TWLV
   - tool: messages_send
     args:
       to:
-        icontains: Mateo
+        icontains: Lior
   final_state:
   - in: messages_sent
     where:
@@ -1129,19 +1128,19 @@
   - calls:
     - name: stocks_get_quote
       arguments:
-        symbol: KRNL
+        symbol: OMNI
+    - name: stocks_get_quote
+      arguments:
+        symbol: PLUM
     - name: stocks_get_quote
       arguments:
         symbol: BLUX
-    - name: stocks_get_quote
-      arguments:
-        symbol: TWLV
   - calls:
     - name: messages_send
       arguments:
-        to: Mateo Oyelaran
+        to: Lior Moreau
         text: '{win} is up the most today.'
-  - text: 'I texted Mateo: {win}.'
+  - text: 'I texted Lior: {win}.'
   trap: the biggest gainer changes per trial; a guessed or multi-ticker text fails
   split: dev
 - id: mix_neu_routes_001
@@ -1149,7 +1148,7 @@
   family: mixed
   sub: compare_then_text
   tags: []
-  prompt: Compare the drive from home to Riverside Climbing Wall and Fernhill School and text Niko which one is
+  prompt: Compare the drive from home to Fernhill School and Riverside Climbing Wall and text Cyrus which one is
     the nearest, name only.
   facts:
     d0:
@@ -1164,12 +1163,12 @@
       - d0
     win:
       argmin:
-        Riverside: d0
-        Fernhill: d1
+        Fernhill: d0
+        Riverside: d1
     lose1:
       choice:
-      - Riverside
       - Fernhill
+      - Riverside
       exclude:
       - win
   world:
@@ -1177,21 +1176,21 @@
       routes:
       - id: rt-1
         origin: Home
-        destination: Riverside Climbing Wall
+        destination: Fernhill School
         mode: driving
         distance_km: 6
         duration_min: '{d0}'
       - id: rt-2
         origin: Home
-        destination: Fernhill School
+        destination: Riverside Climbing Wall
         mode: driving
         distance_km: 10
         duration_min: '{d1}'
       contacts:
       - id: c-901
-        name: Niko Kowalski
-        phone: +1 555 0191
-        email: niko.kowalski@example.org
+        name: Cyrus Hartwell
+        phone: +1 555 0192
+        email: cyrus.hartwell@example.org
   expect:
   - parallel:
       same_step: true
@@ -1199,15 +1198,15 @@
       - tool: maps_get_travel_time
         args:
           destination:
-            icontains: Riverside
+            icontains: Fernhill
       - tool: maps_get_travel_time
         args:
           destination:
-            icontains: Fernhill
+            icontains: Riverside
   - tool: messages_send
     args:
       to:
-        icontains: Niko
+        icontains: Cyrus
   final_state:
   - in: messages_sent
     where:
@@ -1242,17 +1241,17 @@
     - name: maps_get_travel_time
       arguments:
         origin: Home
-        destination: Riverside Climbing Wall
+        destination: Fernhill School
     - name: maps_get_travel_time
       arguments:
         origin: Home
-        destination: Fernhill School
+        destination: Riverside Climbing Wall
   - calls:
     - name: messages_send
       arguments:
-        to: Niko Kowalski
+        to: Cyrus Hartwell
         text: '{win} is the closest.'
-  - text: 'I texted Niko: {win}.'
+  - text: 'I texted Cyrus: {win}.'
   trap: the nearest place changes per trial; a guess or naming several places fails
   split: dev
 - id: mix_neu_routes_002
@@ -1260,8 +1259,8 @@
   family: mixed
   sub: compare_then_text
   tags: []
-  prompt: Compare the drive from home to Northgate Library and Fernhill School and text Zara which one is the nearest,
-    name only.
+  prompt: compare the drive from home to riverside climbing wall and northgate library and text ingrid which one
+    is the nearest, name only
   facts:
     d0:
       int:
@@ -1275,12 +1274,12 @@
       - d0
     win:
       argmin:
-        Northgate: d0
-        Fernhill: d1
+        Riverside: d0
+        Northgate: d1
     lose1:
       choice:
+      - Riverside
       - Northgate
-      - Fernhill
       exclude:
       - win
   world:
@@ -1288,21 +1287,21 @@
       routes:
       - id: rt-1
         origin: Home
-        destination: Northgate Library
+        destination: Riverside Climbing Wall
         mode: driving
         distance_km: 6
         duration_min: '{d0}'
       - id: rt-2
         origin: Home
-        destination: Fernhill School
+        destination: Northgate Library
         mode: driving
         distance_km: 10
         duration_min: '{d1}'
       contacts:
       - id: c-901
-        name: Zara Jessup
-        phone: +1 555 0193
-        email: zara.jessup@example.org
+        name: Ingrid Fairbanks
+        phone: +1 555 0198
+        email: ingrid.fairbanks@example.org
   expect:
   - parallel:
       same_step: true
@@ -1310,15 +1309,15 @@
       - tool: maps_get_travel_time
         args:
           destination:
-            icontains: Northgate
+            icontains: Riverside
       - tool: maps_get_travel_time
         args:
           destination:
-            icontains: Fernhill
+            icontains: Northgate
   - tool: messages_send
     args:
       to:
-        icontains: Zara
+        icontains: Ingrid
   final_state:
   - in: messages_sent
     where:
@@ -1353,17 +1352,17 @@
     - name: maps_get_travel_time
       arguments:
         origin: Home
-        destination: Northgate Library
+        destination: Riverside Climbing Wall
     - name: maps_get_travel_time
       arguments:
         origin: Home
-        destination: Fernhill School
+        destination: Northgate Library
   - calls:
     - name: messages_send
       arguments:
-        to: Zara Jessup
+        to: Ingrid Fairbanks
         text: '{win} is the closest.'
-  - text: 'I texted Zara: {win}.'
+  - text: 'I texted Ingrid: {win}.'
   trap: the nearest place changes per trial; a guess or naming several places fails
   split: dev
 - id: mix_neu_quotes_001
@@ -1372,8 +1371,8 @@
   sub: compare_then_text
   tags:
   - core
-  prompt: check the quotes for the garden fence from oakridge timber and brightline fencing and text delphine just
-    the name of the one with the lowest quote
+  prompt: Check the quotes for the loft insulation from Fernhill Home and Moorfield Eco and text Lucan just the
+    name of the one with the lowest quote.
   facts:
     m0:
       int:
@@ -1387,34 +1386,34 @@
       - m0
     win:
       argmin:
-        Oakridge: m0
-        Brightline: m1
+        Fernhill: m0
+        Moorfield: m1
     lose1:
       choice:
-      - Oakridge
-      - Brightline
+      - Fernhill
+      - Moorfield
       exclude:
       - win
   world:
     seed_records:
       mail:
       - id: m-901
-        from: Oakridge Timber <office@oakridge.example.com>
-        subject: Quote for garden fence
-        body: Hello, our quote for the garden fence is ${m0}, valid for two weeks.
+        from: Fernhill Home <office@fernhill.example.com>
+        subject: Quote for loft insulation
+        body: Hello, our quote for the loft insulation is ${m0}, valid for two weeks.
         received: -1d 9:15
         unread: true
       - id: m-902
-        from: Brightline Fencing <office@brightline.example.com>
-        subject: Quote for garden fence
-        body: Hello, our quote for the garden fence is ${m1}, valid for two weeks.
+        from: Moorfield Eco <office@moorfield.example.com>
+        subject: Quote for loft insulation
+        body: Hello, our quote for the loft insulation is ${m1}, valid for two weeks.
         received: -1d 10:15
         unread: true
       contacts:
       - id: c-901
-        name: Delphine Oyelaran
-        phone: +1 555 0196
-        email: delphine.oyelaran@example.org
+        name: Lucan Hartwell
+        phone: +1 555 0192
+        email: lucan.hartwell@example.org
   expect:
   - parallel:
       same_step: true
@@ -1428,7 +1427,7 @@
   - tool: messages_send
     args:
       to:
-        icontains: Delphine
+        icontains: Lucan
   final_state:
   - in: messages_sent
     where:
@@ -1462,16 +1461,16 @@
   - calls:
     - name: email_search
       arguments:
-        query: Oakridge
+        query: Fernhill
     - name: email_search
       arguments:
-        query: Brightline
+        query: Moorfield
   - calls:
     - name: messages_send
       arguments:
-        to: Delphine Oyelaran
+        to: Lucan Hartwell
         text: '{win} has the cheapest price.'
-  - text: 'I texted Delphine: {win} has the cheapest price.'
+  - text: 'I texted Lucan: {win} has the cheapest price.'
   trap: texting a guessed or the wrong company (the cheapest one changes per trial) or naming several fails
   split: dev
 - id: mix_neu_offers_001
@@ -1479,8 +1478,8 @@
   family: mixed
   sub: compare_then_text
   tags: []
-  prompt: look at the offers for my old sofa from fernhill trade-in, arden resale and skyline clearance, then text
-    ximena which company is best. just the company name please
+  prompt: check the offers for my old bike from kestrel exchange, brightline buyback and copperleaf trade-in and
+    text joaquin just the name of the one with the highest offer
   facts:
     m0:
       int:
@@ -1501,14 +1500,14 @@
       - m1
     win:
       argmax:
-        Fernhill: m0
-        Arden: m1
-        Skyline: m2
+        Kestrel: m0
+        Brightline: m1
+        Copperleaf: m2
     lose1:
       choice: &id005
-      - Fernhill
-      - Arden
-      - Skyline
+      - Kestrel
+      - Brightline
+      - Copperleaf
       exclude:
       - win
     lose2:
@@ -1520,28 +1519,28 @@
     seed_records:
       mail:
       - id: m-901
-        from: Fernhill Trade-In <office@fernhill.example.com>
-        subject: Our offer for your old sofa
-        body: We would be glad to buy your old sofa for ${m0}, collection included.
+        from: Kestrel Exchange <office@kestrel.example.com>
+        subject: Our offer for your old bike
+        body: We would be glad to buy your old bike for ${m0}, collection included.
         received: -1d 9:15
         unread: true
       - id: m-902
-        from: Arden Resale <office@arden.example.com>
-        subject: Our offer for your old sofa
-        body: We would be glad to buy your old sofa for ${m1}, collection included.
+        from: Brightline Buyback <office@brightline.example.com>
+        subject: Our offer for your old bike
+        body: We would be glad to buy your old bike for ${m1}, collection included.
         received: -1d 10:15
         unread: true
       - id: m-903
-        from: Skyline Clearance <office@skyline.example.com>
-        subject: Our offer for your old sofa
-        body: We would be glad to buy your old sofa for ${m2}, collection included.
+        from: Copperleaf Trade-In <office@copperleaf.example.com>
+        subject: Our offer for your old bike
+        body: We would be glad to buy your old bike for ${m2}, collection included.
         received: -1d 11:15
         unread: true
       contacts:
       - id: c-901
-        name: Ximena Rasmussen
-        phone: +1 555 0199
-        email: ximena.rasmussen@example.org
+        name: Joaquin Galloway
+        phone: +1 555 0192
+        email: joaquin.galloway@example.org
   expect:
   - parallel:
       same_step: true
@@ -1558,7 +1557,7 @@
   - tool: messages_send
     args:
       to:
-        icontains: Ximena
+        icontains: Joaquin
   final_state:
   - in: messages_sent
     where:
@@ -1593,19 +1592,19 @@
   - calls:
     - name: email_search
       arguments:
-        query: Fernhill
+        query: Kestrel
     - name: email_search
       arguments:
-        query: Arden
+        query: Brightline
     - name: email_search
       arguments:
-        query: Skyline
+        query: Copperleaf
   - calls:
     - name: messages_send
       arguments:
-        to: Ximena Rasmussen
+        to: Joaquin Galloway
         text: '{win} has the best price.'
-  - text: 'I texted Ximena: {win} has the best price.'
+  - text: 'I texted Joaquin: {win} has the best price.'
   trap: texting a guessed or the wrong company (the best one changes per trial) or naming several fails
   split: dev
 - id: mix_neu_event_email_001
@@ -1614,8 +1613,8 @@
   sub: read_then_remind
   tags:
   - core
-  prompt: Check when my physio appointment is and what reference Juniper Hall sent, then remind me an hour before
-    the physio appointment, with the reference in the reminder.
+  prompt: Check when my piano lesson is and what reference Tidewater Dental sent, then remind me an hour before
+    the piano lesson, with the reference in the reminder.
   facts:
     e0:
       int:
@@ -1635,11 +1634,11 @@
     seed_records:
       calendar:
       - id: ev-901
-        title: Physio appointment at Willow Street Clinic
+        title: Piano lesson at Fernhill School
         start: +2d {e0h}:00
       mail:
       - id: m-901
-        from: Juniper Hall <office@juniper.example.com>
+        from: Tidewater Dental <office@tidewater.example.com>
         subject: Booking confirmed
         body: Your booking is confirmed. Your reference is {m1}.
         received: -1d 10:15
@@ -1687,11 +1686,11 @@
         end_date: +7d
     - name: email_search
       arguments:
-        query: Juniper
+        query: Tidewater
   - calls:
     - name: reminders_create
       arguments:
-        title: Bring ref {m1} to physio appointment
+        title: Bring ref {m1} to piano lesson
         due: +2d {e0hm}:00
   - text: 'Done: a reminder at {e0hm}:00 to bring ref {m1}.'
   trap: 'the reminder time follows the event hour and the title the emailed reference: both change per trial'
@@ -1701,8 +1700,8 @@
   family: mixed
   sub: read_then_remind
   tags: []
-  prompt: Look at my pottery class on the calendar and Lantern Bistro's booking email, then set a reminder an hour
-    before the pottery class with the booking reference in the title.
+  prompt: Look at my driving lesson on the calendar and Willow Street Clinic's booking email, then set a reminder
+    an hour before the driving lesson with the booking reference in the title.
   facts:
     e0:
       int:
@@ -1722,11 +1721,11 @@
     seed_records:
       calendar:
       - id: ev-901
-        title: Pottery class at Maple Row Garage
+        title: Driving lesson at Tidewater Dental
         start: +2d {e0h}:00
       mail:
       - id: m-901
-        from: Lantern Bistro <office@lantern.example.com>
+        from: Willow Street Clinic <office@willow.example.com>
         subject: Booking confirmed
         body: Your booking is confirmed. Your reference is {m1}.
         received: -1d 10:15
@@ -1774,11 +1773,11 @@
         end_date: +7d
     - name: email_search
       arguments:
-        query: Lantern
+        query: Willow
   - calls:
     - name: reminders_create
       arguments:
-        title: Bring ref {m1} to pottery class
+        title: Bring ref {m1} to driving lesson
         due: +2d {e0hm}:00
   - text: 'Done: a reminder at {e0hm}:00 to bring ref {m1}.'
   trap: 'the reminder time follows the event hour and the title the emailed reference: both change per trial'
@@ -1789,7 +1788,7 @@
   sub: lookup_then_text
   tags:
   - core
-  prompt: text saoirse the phone numbers for jasper and marisol
+  prompt: Look up Cyrus and Aiko and send their numbers to Odette by text.
   facts:
     p0:
       int:
@@ -1803,17 +1802,17 @@
     seed_records:
       contacts:
       - id: c-901
-        name: Jasper Mensah
+        name: Cyrus Brightwater
         phone: +1 555 01{p0}
-        email: jasper.mensah@example.org
+        email: cyrus.brightwater@example.org
       - id: c-902
-        name: Marisol Kowalski
+        name: Aiko Moreau
         phone: +1 555 01{p1}
-        email: marisol.kowalski@example.org
+        email: aiko.moreau@example.org
       - id: c-903
-        name: Saoirse Brightwater
-        phone: +1 555 0192
-        email: saoirse.brightwater@example.org
+        name: Odette Valdivia
+        phone: +1 555 0195
+        email: odette.valdivia@example.org
   expect:
   - parallel:
       same_step: true
@@ -1821,15 +1820,15 @@
       - tool: contacts_search
         args:
           query:
-            icontains: Jasper
+            icontains: Cyrus
       - tool: contacts_search
         args:
           query:
-            icontains: Marisol
+            icontains: Aiko
   - tool: messages_send
     args:
       to:
-        icontains: Saoirse
+        icontains: Odette
   final_state:
   - in: messages_sent
     where:
@@ -1862,15 +1861,15 @@
   - calls:
     - name: contacts_search
       arguments:
-        query: Jasper
+        query: Cyrus
     - name: contacts_search
       arguments:
-        query: Marisol
+        query: Aiko
   - calls:
     - name: messages_send
       arguments:
-        to: Saoirse Brightwater
-        text: Jasper +1 555 01{p0}; Marisol +1 555 01{p1}
-  - text: I texted Saoirse the numbers.
+        to: Odette Valdivia
+        text: Cyrus +1 555 01{p0}; Aiko +1 555 01{p1}
+  - text: I texted Odette the numbers.
   trap: the text must carry each looked-up number (they change per trial); a guess or a partial list fails
   split: dev

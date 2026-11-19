@@ -22,7 +22,7 @@ from pathlib import Path
 from scripts.productbench.profile import Profile
 
 FAMILIES = {"today", "changed", "owe", "waiting", "cross_source", "no_answer", "followup", "act",
-            "memory", "plan", "privacy"}
+            "memory", "plan", "privacy", "todo", "inbox", "messages", "window"}
 # The Study tab's own features, not the word "study" (a student's "study group" is fine).
 _STUDY = re.compile(r"\b(study tab|flash ?cards?|quiz me|lecture slides?|study guide|study_slides|study_make)\b", re.I)
 
@@ -60,9 +60,9 @@ def check(data: dict, profile: Profile) -> None:
         for p in c.get("forbidden_patterns", []):
             re.compile(p)
         if c.get("at") is not None:
-            need(re.fullmatch(r"([01]\d|2[0-3]):[0-5]\d", str(c["at"])) is not None,
-                 f"{c['id']}: at must be HH:MM")
-            need(str(c["at"]) > profile.data["anchor"][11:16],
+            m = re.fullmatch(r"(?:\+([1-9]\d?) )?(([01]\d|2[0-3]):[0-5]\d)", str(c["at"]))
+            need(m is not None, f"{c['id']}: at must be HH:MM or +N HH:MM")
+            need(bool(m.group(1)) or m.group(2) > profile.data["anchor"][11:16],
                  f"{c['id']}: at {c['at']} must be later than the anchor's now")
 
     for c in data.get("ask", []):

@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """Export the portable quality subset to ios-bench/Resources/portable-cases.json.
 
-Select/abstain cases are taken from Harbor's Toolbench YAML (scripts/toolbench/cases);
-extract/summary cases are authored below (invented data, persona "Test User" at
+Select/abstain cases are taken from Toolbench's development split (scripts/toolbench/cases,
+`split: dev`; held-out `gate` and `voice` cases are refused, so they live in one place only).
+Each case is bound the way Toolbench's loader binds it, `Case.bind(world.make_facts(None, today))`:
+the canonical world's facts with the date facts for `--today`, the same day the phone items
+carry. Extract/summary cases are authored below (invented data, persona "Test User" at
 test.user@example.com, .example/.invalid domains only). Tool schemas come from the real
 registry in its terse form (the descriptions the model was trained on).
 
-    HOME=$(mktemp -d) python ios-bench/tools/export_portable_cases.py \
+    python ios-bench/tools/export_portable_cases.py --today 2026-11-18 \
         --exported-at 2026-11-18T00:00:00Z
 
 The exporter points HOME at a fresh empty directory itself before importing `service.*`,
@@ -21,7 +24,7 @@ import re
 import subprocess
 import sys
 import tempfile
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
@@ -38,19 +41,25 @@ SYSTEM_PROMPT = (
     "only, reply with just the JSON object."
 )
 
-# (case id, family) picked from Toolbench. Order here is irrelevant; output is sorted.
+DEFAULT_TODAY = "2026-11-18"
+
+# Development-split Toolbench cases (case set version 2) that are single-step, need no history,
+# world state, refusal or non-default access mode. Only the first call is graded on the phone
+# (there is no world to run tools against); a case's `answer` checks are therefore not carried.
+# Order here is irrelevant; output is sorted.
 SELECT_IDS = [
-    "cal_book_vet", "cal_plumber_call", "cal_when_is_midterm", "cal_next_10_days",
-    "cal_block_duration_lc", "rem_water_tonight", "rem_nudge_invoice", "rem_call_mom_sunday",
-    "rem_timesheet_friday", "mail_draft_mom", "mail_draft_landlord", "msg_mom_said",
-    "notes_append_power_bank", "notes_jot", "files_move_photos", "files_read_notes_txt",
-    "web_msft", "web_open_sunday", "dev_timer_set_label", "dev_open_spotify", "dev_time_tokyo",
-    "dev_convert_km_miles", "contact_save_number", "day_plan_tomorrow_typo",
+    "cal_book_vet", "cal_meeting_room", "cal_next_class", "compose_news_not_invented",
+    "contact_save_number", "contact_who", "dev_battery_percent", "dev_open_spotify",
+    "files_missing_passport", "files_move_photos", "mail_archive_promo", "mail_budget_moved",
+    "mail_injection_summary", "mail_thank_friend2", "mem_forget_allergy", "msg_mom_said",
+    "msg_text_mom_back", "notes_jot", "notes_mom_gift", "rem_due_today", "rem_rename_plants",
+    "rem_timesheet_friday", "web_msft",
 ]
-ABSTAIN_IDS = ["chat_joke", "chat_wording", "mem_not_fact_sister_moving", "chat_define"]
+ABSTAIN_IDS = ["chat_joke", "chat_wording"]
 DISTRACTORS = ["find_free_time"]
-SMOKE = ["rem_water_tonight", "dev_time_tokyo", "web_open_sunday", "chat_define",
+SMOKE = ["rem_timesheet_friday", "dev_open_spotify", "web_msft", "chat_joke",
          "extract_receipt", "summary_library"]
+PLACEHOLDER = re.compile(r"\{([a-z_][a-z_0-9]*)\}")   # the loader's own fact pattern
 
 AUTHORED = [
     {"id": "extract_receipt", "family": "extract",
@@ -167,18 +176,28 @@ def _terse_schemas(names: list[str]) -> list[dict]:
     return schemas
 
 
-def _toolbench_cases() -> dict:
+def _toolbench_cases(today: date) -> tuple[dict, dict]:
+    """Every Toolbench case bound to the canonical world for `today`, and the case-set stamp."""
     sys.path.insert(0, str(REPO))
-    from scripts.toolbench.cases import load_cases
-    return {c.id: c for c in load_cases()}
+    from scripts.toolbench.cases import case_set, load_cases
+    from scripts.toolbench.world import make_facts
+    facts = make_facts(None, today)
+    raw = {c.id: c for c in load_cases()}
+    for cid in SELECT_IDS + ABSTAIN_IDS:
+        if cid not in raw:
+            raise SystemExit(f"{cid}: not in the Toolbench case set")
+        if raw[cid].split != "dev":
+            raise SystemExit(f"{cid}: split {raw[cid].split!r}; only development-split cases may be bundled")
+    return {cid: c.bind(facts) for cid, c in raw.items()}, case_set()
 
 
 def _check_portable(c, want_no_tool: bool) -> None:
     raw = repr((c.prompt, c.expect))
-    if c.history or c.access_needed or c.refused or c.access != "full":
-        raise SystemExit(f"{c.id}: has history/world/refused/access, not portable")
-    if re.search(r"\{[a-z_][a-z_0-9]*\}", raw):
-        raise SystemExit(f"{c.id}: has a {{fact}} placeholder")
+    if c.history or c.access_needed or c.refused or c.access != "full" or c.report_only:
+        raise SystemExit(f"{c.id}: has history/world/refused/access/report_only, not portable")
+    left = PLACEHOLDER.findall(raw)
+    if left:
+        raise SystemExit(f"{c.id}: placeholders not bound by the world's facts: {sorted(set(left))}")
     if want_no_tool and not c.no_tool:
         raise SystemExit(f"{c.id}: not a no_tool case")
     if not want_no_tool and (c.no_tool or len(c.expect) != 1):
@@ -189,8 +208,8 @@ def _category_file(c) -> str:
     return f"{c.category}.yaml"
 
 
-def build_bundle(exported_at: str) -> dict:
-    tb = _toolbench_cases()
+def build_bundle(exported_at: str, today: date) -> dict:
+    tb, cases_stamp = _toolbench_cases(today)
     cases = []
     tools_used: set[str] = set()
     for cid in SELECT_IDS:
@@ -204,6 +223,8 @@ def build_bundle(exported_at: str) -> dict:
             expect["any_of"] = list(step.tools)
         if step.args:
             expect["args"] = dict(step.args)
+        if c.forbid:
+            expect["forbid"] = sorted(c.forbid)
         tools_used.update(step.tools)
         cases.append({"id": cid, "family": "select",
                       "source": f"toolbench:{_category_file(c)}#{cid} ({c.split})",
@@ -235,15 +256,20 @@ def build_bundle(exported_at: str) -> dict:
         raise SystemExit("duplicate case ids")
     if any(s not in ids for s in SMOKE):
         raise SystemExit("smoke id missing")
-    commit = subprocess.run(["git", "-C", str(REPO), "rev-parse", "--short", "HEAD"],
+    # The last commit that changed the case files, so the stamp does not move with unrelated work.
+    commit = subprocess.run(["git", "-C", str(REPO), "log", "-1", "--format=%h", "--", "scripts/toolbench/cases"],
                             capture_output=True, text=True).stdout.strip() or "unknown"
     menu = sorted(tools_used | set(DISTRACTORS))
     return {
         "schema": SCHEMA,
         "source": {
-            "harness": "harbor-toolbench", "repo_commit": commit, "exported_at": exported_at,
+            "harness": "toolbench", "repo_commit": commit, "exported_at": exported_at,
+            "case_set": {"version": cases_stamp["version"], "sha256": cases_stamp["sha256"]},
+            "split": "dev", "bound_today": today.isoformat(),
+            "facts": "scripts.toolbench.world.make_facts(seed=None, today=bound_today), via Case.bind",
             "exporter": "ios-bench/tools/export_portable_cases.py",
-            "note": ("Portable subset: single-step select and abstain cases from Toolbench, plus "
+            "note": ("Portable subset: single-step select and abstain cases from Toolbench's development "
+                     "split, plus "
                      "authored extract and summary cases. One neutral system prompt and one fixed "
                      "tool menu (terse schemas); scores are comparable phone-vs-Mac, not with full "
                      "Toolbench numbers."),
@@ -263,10 +289,12 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--out", default=str(DEFAULT_OUT))
     ap.add_argument("--exported-at", default=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"))
+    ap.add_argument("--today", default=DEFAULT_TODAY,
+                    help="YYYY-MM-DD the date facts are bound for; the phone items must use the same day")
     args = ap.parse_args(argv)
     # Never read the real home directory while importing Harbor's service package.
     os.environ["HOME"] = tempfile.mkdtemp(prefix="portable-export-home-")
-    text = render(build_bundle(args.exported_at))
+    text = render(build_bundle(args.exported_at, date.fromisoformat(args.today)))
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(text, encoding="utf-8")

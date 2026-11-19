@@ -111,7 +111,7 @@ final class AppModel {
     }
 
     /// The published parity subset if it has been copied to Documents/PhoneItems, otherwise the
-    /// bundled stand-in (35 items converted from the portable cases; not the published subset).
+    /// bundled stand-in (32 items converted from the portable cases; not the published subset).
     func refreshPhoneItems() {
         let fm = FileManager.default
         let dropped = ((try? fm.contentsOfDirectory(at: Self.itemsRoot, includingPropertiesForKeys: nil)) ?? [])

@@ -96,8 +96,10 @@ def _sha(data: bytes) -> str:
 class QualityRunSink:
     """Collects records and raw outputs for one run, then writes them in one place."""
 
-    def __init__(self, *, run_id: str, store: Path | None = None, split: str = "dev", keep_in_memory: bool = True):
+    def __init__(self, *, run_id: str, store: Path | None = None, split: str = "dev", keep_in_memory: bool = True,
+                 suite: str = "quality"):
         self.run_id = run_id
+        self.suite = suite
         self.split = split
         self.store = Path(store) if store else None
         self.records: list[dict] = []
@@ -122,7 +124,7 @@ class QualityRunSink:
         except Exception:  # noqa: BLE001
             RunWriter = None
         if RunWriter is not None:  # pragma: no cover
-            with RunWriter.open(self.store, self.run_id, tier="quality", suite="quality") as w:
+            with RunWriter.open(self.store, self.run_id, tier="quality", suite=self.suite) as w:
                 for rec in self.records:
                     if rec.get("raw"):
                         rec = dict(rec, raw=w.put_raw(json.loads(self.raw[rec["raw"]["sha256"]])))
@@ -137,7 +139,7 @@ class QualityRunSink:
         lines = "".join(json.dumps(r, sort_keys=True, ensure_ascii=False, separators=(",", ":")) + "\n"
                         for r in self.records)
         (run_dir / "records.jsonl").write_text(lines, encoding="utf-8")
-        manifest = {"schema": "edat.run-manifest/1.0", "run_id": self.run_id, "tier": "quality", "suite": "quality",
+        manifest = {"schema": "edat.run-manifest/1.0", "run_id": self.run_id, "tier": "quality", "suite": self.suite,
                     "kind": self.records[0]["kind"] if self.records else "local",
                     "board_version": self.records[0]["board_version"] if self.records else "",
                     "harness_commit": self.records[0]["harness_commit"] if self.records else "0000000",

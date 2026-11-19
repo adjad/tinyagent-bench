@@ -1,4 +1,4 @@
-"""Build, store and check EDAT's quality splits (spec 03 s1.4, s7, s8).
+"""Build, store and check tinyagent-bench's quality splits (spec 03 s1.4, s7, s8).
 
 - The development split (25 % of each case family) is generated from public
   seeds and committed under test_fixtures/quality/dev/.
@@ -14,6 +14,14 @@
     python -m edat.quality.splits build-heldout          # needs EDAT_PRIVATE_DIR
     python -m edat.quality.splits validate [--heldout]
     python -m edat.quality.splits overlap
+
+The Writing family (spec 03 s9) is stored on its own, in `dev/writing/` and
+`$EDAT_PRIVATE_DIR/quality/heldout/writing/`:
+
+    python -m edat.quality.splits build-writing-dev
+    python -m edat.quality.splits build-writing-heldout  # needs EDAT_PRIVATE_DIR
+    python -m edat.quality.splits validate-writing [--heldout]
+    python -m edat.quality.splits overlap-writing
 """
 from __future__ import annotations
 
@@ -412,6 +420,148 @@ def validate_split(fams: dict[str, list[dict]]) -> dict:
 # CLI
 # --------------------------------------------------------------------------
 
+# --------------------------------------------------------------------------
+# The Writing family
+# --------------------------------------------------------------------------
+
+PUBLIC_WRITING_DEV_BASE = 20280000
+WRITING_DEV_DIR = DEV_DIR / "writing"
+
+
+def writing_dir(split: str) -> Path:
+    return WRITING_DEV_DIR if split == "dev" else private_dir() / "heldout" / "writing"
+
+
+def _writing_base(split: str) -> int:
+    if split == "dev":
+        return PUBLIC_WRITING_DEV_BASE
+    f = private_dir() / "heldout-writing-seed.json"
+    if f.exists():
+        return json.loads(f.read_text())["base"]
+    base = secrets.randbelow(2 ** 31 - 1) + 10 ** 9
+    f.parent.mkdir(parents=True, exist_ok=True)
+    f.write_text(json.dumps({"base": base}))
+    return base
+
+
+def build_writing(split: str) -> list[dict]:
+    from edat.quality import writing as WR
+    from edat.quality.writing_checks import case_anchor_keys
+    avoid = None
+    if split != "dev":
+        dev = load_writing("dev")
+        avoid = set().union(*(case_anchor_keys(c) for c in dev)) if dev else set()
+    return WR.build_writing_split(split, _writing_base(split), avoid=avoid)
+
+
+def write_writing(cases: list[dict], split: str) -> dict:
+    from edat.quality import writing as WR
+    root = writing_dir(split)
+    manifest = {"schema": "edat.quality.writing-manifest/1", "split": split, "writing": WR.WRITING_VERSION,
+                "splits_version": SPLIT_VERSION, "files": {"writing.jsonl": _dump(root / "writing.jsonl", cases)},
+                "counts": {"cases": len(cases), "second_turns": sum(len(c["turns"]) - 1 for c in cases)},
+                "counts_by_kind": dict(Counter(f"{c['sub']}/{c['kind']}" for c in cases)),
+                "counts_by_sub": dict(Counter(c["sub"] for c in cases)),
+                "counts_by_profile": dict(Counter(c["profile"] or "neutral" for c in cases)),
+                "generators": sorted({c["generator"] for c in cases})}
+    if split == "dev":
+        manifest["seeds"] = {"base": PUBLIC_WRITING_DEV_BASE}
+    (root / "manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+    return manifest
+
+
+def load_writing(split: str = "dev") -> list[dict]:
+    p = writing_dir(split) / "writing.jsonl"
+    return [json.loads(x) for x in p.read_text(encoding="utf-8").splitlines() if x.strip()] if p.exists() else []
+
+
+_LEDGER_SNIPPETS: dict[str, list[str]] = {}
+
+
+def _ledger_snippets(pid: str) -> list[str]:
+    if pid not in _LEDGER_SNIPPETS:
+        p = REPO_ROOT / "test_fixtures" / "bench_profiles" / pid / "ledger.json"
+        out = []
+        if p.exists():
+            for e in json.loads(p.read_text()).get("entries", []):
+                for k in ("truth", "why"):
+                    t = (e.get(k) or "").strip()
+                    if len(t) >= 40:
+                        out.append(N.fold(t)[:60])
+        _LEDGER_SNIPPETS[pid] = out
+    return _LEDGER_SNIPPETS[pid]
+
+
+def validate_writing_case(case: dict, other: dict | None = None) -> list[str]:
+    """A writing case is valid when its brief is well formed, its reference draft passes every
+    deterministic check, an empty draft and a draft for another brief both score 0, the request
+    states nothing it should not, and nothing private or real is in it."""
+    from edat.quality import writing as WR
+    from edat.quality.writing_checks import score_writing
+    errs = list(WR.brief_errors(case))
+    outline = case["reference_turns"][0] if case.get("reference_turns") else None
+    ref = score_writing(case["reference_draft"], case, outline=outline)
+    if not ref["pass"]:
+        bad = [k for k, v in ref["checks"].items() if v["status"] == "fail"]
+        errs.append("reference draft fails " + ",".join(bad) + ": " +
+                    "; ".join(ref["checks"][k]["reason"][:80] for k in bad[:2]))
+    if score_writing("", case)["score"] != 0:
+        errs.append("an empty draft does not score 0")
+    if other is not None and score_writing(other["reference_draft"], case)["score"] != 0:
+        errs.append(f"the draft for {other['case_id']} scores above 0 on this brief")
+    request = "\n".join(case["turns"])
+    quoted = "\n".join(m["text"] for m in (case["context"].get("thread") or []))
+    quoted += "\n" + (case["context"].get("source_text") or "")
+    for f in case["must_not"]:
+        if f.get("stated"):
+            continue
+        for a in f["anchors"]:
+            if isinstance(a, str) and N._text_present(request, a) and not N._text_present(quoted, a):
+                errs.append(f"unstated forbidden {a!r} appears in the request")
+    if "{{" in request:
+        errs.append("an unrendered profile token is in the request")
+    for addr in re.findall(r"[\w.+-]+@([\w-]+(?:\.[\w-]+)+)", request + "\n" + case["reference_draft"]):
+        if not _ALLOWED_DOMAIN.match(addr.lower()):
+            errs.append(f"domain {addr} is not a reserved example domain")
+    if case.get("profile"):
+        folded = N.fold(request)
+        for snip in _ledger_snippets(case["profile"]):
+            if snip and snip in folded:
+                errs.append("ledger text reached the request")
+                break
+    return errs
+
+
+def validate_writing_split(cases: list[dict]) -> dict:
+    problems = {}
+    n = len(cases)
+    for i, c in enumerate(cases):
+        # the off-brief draft comes from a case of another kind, so it cannot share the brief's points
+        other = next((cases[(i + k) % n] for k in range(1, n) if cases[(i + k) % n]["kind"] != c["kind"]), None)
+        e = validate_writing_case(c, other)
+        if e:
+            problems[c["case_id"]] = e
+    return {"cases": n, "invalid": len(problems), "problems": problems,
+            "by_sub": dict(Counter(c["sub"] for c in cases)),
+            "profile_bound": sum(1 for c in cases if c["profile"])}
+
+
+def writing_overlap_report(dev: list[dict], held: list[dict]) -> dict:
+    from edat.quality.writing_checks import case_anchor_keys
+    ds, hs = {c["seed"] for c in dev}, {c["seed"] for c in held}
+    di, hi = {c["case_id"] for c in dev}, {c["case_id"] for c in held}
+    da = set().union(*(case_anchor_keys(c) for c in dev)) if dev else set()
+    ha = set().union(*(case_anchor_keys(c) for c in held)) if held else set()
+    dr = {c["reference_draft"] for c in dev}
+    hr = {c["reference_draft"] for c in held}
+    rep = {"seeds_shared": len(ds & hs), "case_ids_shared": len(di & hi),
+           "anchors_shared_n": len(da & ha), "anchors_shared": sorted(map(str, da & ha))[:20],
+           "reference_drafts_shared": len(dr & hr), "dev_cases": len(dev), "heldout_cases": len(held)}
+    rep["ok"] = not (rep["seeds_shared"] or rep["case_ids_shared"] or rep["anchors_shared_n"]
+                     or rep["reference_drafts_shared"])
+    return rep
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="python -m edat.quality.splits", description=__doc__.split("\n\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -420,7 +570,26 @@ def main(argv: list[str] | None = None) -> int:
     v = sub.add_parser("validate", help="validate every case in a split")
     v.add_argument("--heldout", action="store_true")
     sub.add_parser("overlap", help="check the dev and held-out splits share nothing (needs EDAT_PRIVATE_DIR)")
+    sub.add_parser("build-writing-dev", help="generate the Writing family's development split")
+    sub.add_parser("build-writing-heldout", help="generate the Writing family's held-out split (needs EDAT_PRIVATE_DIR)")
+    vw = sub.add_parser("validate-writing", help="validate every Writing case of a split")
+    vw.add_argument("--heldout", action="store_true")
+    sub.add_parser("overlap-writing", help="check the Writing splits share nothing (needs EDAT_PRIVATE_DIR)")
     a = ap.parse_args(argv)
+    if a.cmd in ("build-writing-dev", "build-writing-heldout"):
+        split = "dev" if a.cmd == "build-writing-dev" else "heldout"
+        print(json.dumps(write_writing(build_writing(split), split)["counts_by_sub"], sort_keys=True))
+        return 0
+    if a.cmd == "validate-writing":
+        rep = validate_writing_split(load_writing("heldout" if a.heldout else "dev"))
+        print(json.dumps({k: v for k, v in rep.items() if k != "problems"}, sort_keys=True))
+        for cid, e in list(rep["problems"].items())[:20]:
+            print(cid, e[:3])
+        return 1 if rep["invalid"] or not rep["cases"] else 0
+    if a.cmd == "overlap-writing":
+        rep = writing_overlap_report(load_writing("dev"), load_writing("heldout"))
+        print(json.dumps(rep))
+        return 0 if rep["ok"] else 1
     if a.cmd == "build-dev":
         seeds = SeedSource("dev")
         fams = build_split("dev", seeds=seeds)

@@ -12,6 +12,14 @@ Text understanding (0-100) =
 Readability (0-100) = 0.35 hygiene + 0.65 pref_judge_style_ctrl (marked †) when
 the judge passed validation; otherwise hygiene alone, labelled "structure only".
 
+Writing (0-100) = 0.25 point_recall + 0.20 faithfulness
+  (= max(0, 100 - 2 x (invented_rate + forbidden_rate + rewrite fact-change rate)))
+  + 0.15 constraint compliance (constraint_rate, minus the grammar signal above the
+  human reference rate when that signal exists) + 0.10 editing precision (W4:
+  mean of fix_rate, flag_rate and 100 - 50 x overedit %) + 0.30 writing
+  preference (†). Without a validated writing judge the preference weight moves to
+  the other components in proportion, labelled "checks only".
+
 Differences: for each candidate, Δ_tuned against Gemma-Wisp (think-off) and
 Δ_base against base Gemma 4 E4B, by a paired bootstrap over the cases both
 entries answered (cases resampled; each case's trials averaged first).
@@ -31,6 +39,7 @@ BASE_ID = "gemma-4-E4B-it-oQ4e-mtp"
 TU_WEIGHTS = {"core_recall": 0.30, "extraction_numeric": 0.20, "faithfulness": 0.25, "trap_resistance": 0.15,
               "schema_valid": 0.10}
 READ_WEIGHTS = {"hygiene": 0.35, "pref": 0.65}
+WRITING_WEIGHTS = {"points": 0.25, "faithfulness": 0.20, "constraints": 0.15, "editing": 0.10, "pref": 0.30}
 
 
 def entry_key(rec: dict) -> tuple:
@@ -38,10 +47,15 @@ def entry_key(rec: dict) -> tuple:
     return (rec["kind"], m["id"], rec["settings"]["thinking"], rec["settings"].get("sampling_source"))
 
 
-def group_by_entry(records: Iterable[dict]) -> dict[tuple, list[dict]]:
+def is_writing(rec: dict) -> bool:
+    return rec.get("suite") == "writing" or (rec.get("facets") or {}).get("family") == "writing"
+
+
+def group_by_entry(records: Iterable[dict], *, writing: bool = False) -> dict[tuple, list[dict]]:
+    """Records per entry: the text-understanding families, or (writing=True) the Writing family."""
     out: dict[tuple, list[dict]] = defaultdict(list)
     for r in records:
-        if r.get("tier") == "quality":
+        if r.get("tier") == "quality" and is_writing(r) == writing:
             out[entry_key(r)].append(r)
     return out
 
@@ -179,12 +193,15 @@ def tokens_vs(cand: dict[str, dict], ref: dict[str, dict]) -> float | None:
 
 def headline_report(records: Iterable[dict], *, pref: dict[str, float] | None = None, judge_validated: bool = False,
                     baseline_id: str = BASELINE_ID, base_id: str = BASE_ID, n_boot: int = 2000,
-                    seed: int = 0) -> dict:
+                    seed: int = 0, writing_pref: dict[str, float] | None = None,
+                    writing_judge_validated: bool = False, grammar_ref_rate: float | None = None) -> dict:
     """Headline scores for every entry, with Δ_tuned and Δ_base where the references are present.
 
     `pref` maps model id -> pref_judge_style_ctrl (0-100) from a validated judge.
-    The references are matched in their think-off entry (spec 03 s13.2).
+    The references are matched in their think-off entry (spec 03 s13.2). Writing records, when
+    present, get their own block under "writing" (`writing_report`).
     """
+    records = list(records)
     groups = group_by_entry(records)
     tables = {k: case_table(v) for k, v in groups.items()}
     pref = pref or {}
@@ -238,6 +255,149 @@ def headline_report(records: Iterable[dict], *, pref: dict[str, float] | None = 
             k = (e["kind"], e["model_id"], e["thinking"], e["sampling_source"])
             e["gap_to_cloud"] = {"cloud": best[1], **_paired(
                 tables[k][0], tables[best][0], lambda rs: text_understanding(components(rs)), n=n_boot, seed=seed + 3)}
+    if any(is_writing(r) for r in records):
+        out["writing"] = writing_report(records, pref=writing_pref, judge_validated=writing_judge_validated,
+                                        baseline_id=baseline_id, base_id=base_id, grammar_ref_rate=grammar_ref_rate,
+                                        n_boot=n_boot, seed=seed)
+    return out
+
+
+# --------------------------------------------------------------------------
+# Writing (spec 03 s9, s13.2)
+# --------------------------------------------------------------------------
+
+def writing_case_table(recs: list[dict]) -> tuple[dict[str, dict], set[str]]:
+    """case_id -> the Writing component inputs averaged over seeds; plus the beyond_window cases."""
+    table: dict[str, dict] = {}
+    dnf: set[str] = set()
+    for cid, rs in _per_case(recs).items():
+        ok = [r for r in rs if r["status"] == "ok"]
+        if any(r["status"] == "beyond_window" for r in rs):
+            dnf.add(cid)
+        if not ok:
+            continue
+
+        def mean(key, ok=ok):
+            vals = [float(r["metrics"][key]) for r in ok if r["metrics"].get(key) is not None]
+            return sum(vals) / len(vals) if vals else None
+
+        m0 = ok[0]["metrics"]
+        sub = m0.get("sub") or ok[0]["facets"].get("category")
+        row = {"sub": sub, "kind": m0.get("kind"),
+               "point_recall": mean("point_recall") if (m0.get("points_anchored") or 0) > 0 else None,
+               "atoms": sum(float(r["metrics"].get("atoms") or 0) for r in ok) / len(ok),
+               "invented_atoms": sum(float(r["metrics"].get("invented_atoms") or 0) for r in ok) / len(ok),
+               "forbidden": mean("forbidden"), "constraint_ok": mean("constraint_ok"),
+               "fact_keep_ok": mean("fact_keep_ok") if sub == "W3" else None,
+               "fix_rate": mean("fix_rate") if sub == "W4" else None,
+               "flag_rate": mean("flag_rate") if sub == "W4" else None,
+               "overedit": mean("overedit") if sub == "W4" else None,
+               "register_ok": mean("register_ok"), "consistency_ok": mean("consistency_ok"),
+               "voice_delta": mean("voice_delta"), "grammar": mean("grammar_errors_per_100w"),
+               "gate_pass": mean("gate_pass"), "score": mean("score"), "pass": mean("pass")}
+        table[cid] = row
+    return table, dnf
+
+
+def writing_components(rows: list[dict], *, grammar_ref_rate: float | None = None) -> dict:
+    pr = _mean([r["point_recall"] for r in rows if r.get("point_recall") is not None])
+    atoms = sum(r.get("atoms") or 0 for r in rows)
+    inv = sum(r.get("invented_atoms") or 0 for r in rows)
+    invented_rate = 100 * inv / atoms if atoms else 0.0
+    fb = _mean([r["forbidden"] for r in rows if r.get("forbidden") is not None])
+    forbidden_rate = 100 * fb if fb is not None else 0.0
+    fk = _mean([r["fact_keep_ok"] for r in rows if r.get("fact_keep_ok") is not None])
+    fact_change_rate = 100 * (1 - fk) if fk is not None else 0.0
+    con = _mean([r["constraint_ok"] for r in rows if r.get("constraint_ok") is not None])
+    gram = _mean([r["grammar"] for r in rows if r.get("grammar") is not None])
+    constraints = None
+    if con is not None:
+        penalty = max(0.0, gram - grammar_ref_rate) if (gram is not None and grammar_ref_rate is not None) else 0.0
+        constraints = max(0.0, 100 * con - penalty)
+    w4 = [r for r in rows if r.get("sub") == "W4"]
+    editing = None
+    if w4:
+        parts = [_mean([r["fix_rate"] for r in w4 if r.get("fix_rate") is not None]),
+                 _mean([r["flag_rate"] for r in w4 if r.get("flag_rate") is not None])]
+        parts = [100 * p for p in parts if p is not None]
+        oe = _mean([r["overedit"] for r in w4 if r.get("overedit") is not None])
+        if oe is not None:
+            parts.append(max(0.0, 100 - 50 * (100 * oe)))
+        editing = _mean(parts)
+    pct = lambda k: (lambda v: None if v is None else 100 * v)(_mean([r[k] for r in rows if r.get(k) is not None]))  # noqa: E731
+    return {"points": None if pr is None else 100 * pr, "invented_rate": invented_rate,
+            "forbidden_rate": forbidden_rate, "fact_change_rate": fact_change_rate,
+            "faithfulness": max(0.0, 100 - 2 * (invented_rate + forbidden_rate + fact_change_rate)),
+            "constraints": constraints, "constraint_rate": None if con is None else 100 * con,
+            "grammar_errors_per_100w": gram, "editing": editing,
+            "register_ok": pct("register_ok"), "consistency_ok": pct("consistency_ok"),
+            "voice_delta": _mean([r["voice_delta"] for r in rows if r.get("voice_delta") is not None]),
+            "gate_pass_rate": pct("gate_pass"), "pass_rate": pct("pass"), "cases": len(rows)}
+
+
+def writing_score(c: dict, pref_style_ctrl: float | None = None, judge_validated: bool = False
+                  ) -> tuple[float | None, str]:
+    """The Writing headline. Without a validated writing judge the preference weight moves to the
+    other components in proportion and the score is labelled "checks only" (spec 13.2)."""
+    parts = {k: c.get(k) for k in ("points", "faithfulness", "constraints", "editing")}
+    label = "checks only"
+    if judge_validated and pref_style_ctrl is not None:
+        parts["pref"] = pref_style_ctrl
+        label = "judge †"
+    have = {k: v for k, v in parts.items() if v is not None}
+    if not have:
+        return None, "no data"
+    w = sum(WRITING_WEIGHTS[k] for k in have)
+    return sum(WRITING_WEIGHTS[k] * v for k, v in have.items()) / w, label
+
+
+def writing_report(records: Iterable[dict], *, pref: dict[str, float] | None = None, judge_validated: bool = False,
+                   baseline_id: str = BASELINE_ID, base_id: str = BASE_ID, grammar_ref_rate: float | None = None,
+                   n_boot: int = 2000, seed: int = 0) -> dict:
+    """The Writing headline for every entry, with Δ against both references on shared cases."""
+    groups = group_by_entry(records, writing=True)
+    tables = {k: writing_case_table(v) for k, v in groups.items()}
+    pref = pref or {}
+
+    def score(rows, mid=None):
+        p = 50.0 if mid == baseline_id else pref.get(mid)
+        return writing_score(writing_components(rows, grammar_ref_rate=grammar_ref_rate), p, judge_validated)[0]
+
+    def find_ref(mid):
+        return next((k for k in tables if k[1] == mid and k[2] == "off" and k[0] == "local"), None)
+
+    refs = {"tuned": find_ref(baseline_id), "base": find_ref(base_id)}
+    out = {"version": HEADLINE_VERSION, "judge_validated": judge_validated, "entries": []}
+    for k, (table, dnf) in sorted(tables.items(), key=lambda kv: str(kv[0])):
+        rows = [r for c, r in table.items() if c not in dnf]
+        comp = writing_components(rows, grammar_ref_rate=grammar_ref_rate)
+        p = 50.0 if k[1] == baseline_id else pref.get(k[1])
+        ws, label = writing_score(comp, p, judge_validated)
+        by_sub = {}
+        for sub in sorted({r["sub"] for r in rows if r.get("sub")}):
+            sc = writing_components([r for r in rows if r.get("sub") == sub], grammar_ref_rate=grammar_ref_rate)
+            by_sub[sub] = {"writing": writing_score(sc)[0], "pass_rate": sc["pass_rate"],
+                           "gate_pass_rate": sc["gate_pass_rate"]}
+        e = {"kind": k[0], "model_id": k[1], "thinking": k[2], "sampling_source": k[3], "writing": ws,
+             "writing_label": label, "components": comp, "by_sub": by_sub, "cases": len(rows),
+             "does_not_fit": len(dnf), "ranked": k[0] == "local", "deltas": {}}
+        for name, rk in refs.items():
+            if rk is None or rk == k:
+                continue
+            rtable, rdnf = tables[rk]
+            drop = dnf | rdnf
+            cand = {c: r for c, r in table.items() if c not in drop}
+            ref = {c: r for c, r in rtable.items() if c not in drop}
+            # the preference term is the candidate's own win rate against the baseline, so the
+            # paired bootstrap runs over the deterministic components only
+            e["deltas"][name] = {"writing_checks": _paired(
+                cand, ref, lambda rs: writing_score(writing_components(rs, grammar_ref_rate=grammar_ref_rate))[0],
+                n=n_boot, seed=seed)}
+        out["entries"].append(e)
+    if refs["tuned"] and refs["base"]:
+        t, b = tables[refs["tuned"]][0], tables[refs["base"]][0]
+        out["tuning_effect"] = _paired(t, b, lambda rs: writing_score(writing_components(rs))[0], n=n_boot,
+                                       seed=seed + 2)
     return out
 
 

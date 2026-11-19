@@ -1,4 +1,4 @@
-"""Token accounting (spec 03 section 6.1, the EDAT-wide definitions).
+"""Token accounting (spec 03 section 6.1, shared by every tinyagent-bench part).
 
 - `visible_tokens`, `reasoning_tokens`, `toolcall_tokens`: re-tokenized with the
   model's own tokenizer, never taken from the server's usage field. The runner

@@ -1,4 +1,4 @@
-"""Tests for EDAT's deterministic quality scorers (spec 03 sections 6.2, 7.2, 7.6-7.8).
+"""Tests for tinyagent-bench's deterministic quality scorers (spec 03 sections 6.2, 7.2, 7.6-7.8).
 
 Answers are written by hand from the facts planted in generated cases (read from the case,
 never hard-coded). All data invented.

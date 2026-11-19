@@ -1,4 +1,4 @@
-"""Stdlib-only validator for the JSON Schema (draft 2020-12) subset EDAT cases use.
+"""Stdlib-only validator for the JSON Schema (draft 2020-12) subset tinyagent-bench cases use.
 
 ``validate(instance, schema)`` returns a list of ``Error``. ``BACKEND`` records
 whether the full ``jsonschema`` package or this lite validator did the work.

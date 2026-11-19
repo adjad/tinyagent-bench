@@ -1,4 +1,4 @@
-"""Shared text building blocks for EDAT's output-quality checks.
+"""Shared text building blocks for tinyagent-bench's output-quality checks.
 
 Pure, stdlib-only helpers used by the preference checkers (P1-P9, spec 03
 section 4.5) and the hygiene checks (D1-D11, section 4.2): a small Markdown

@@ -33,7 +33,7 @@ _PROFILE_LINES = {
 
 
 def system_prompt(case: dict, profile: str = "panel", active_prefs: list[str] | None = None) -> str:
-    """The one fixed EDAT system prompt (the spec names it but gives no text; this is it)."""
+    """The one fixed tinyagent-bench system prompt (the spec names it but gives no text; this is it)."""
     today = dt.date.fromisoformat(case["today"])
     lines = [
         "You are a personal assistant running on the user's own device. You help Test User with their own "
@@ -154,14 +154,14 @@ def _ics(e: dict, i: int) -> list[str]:
     if e["cancelled"]:
         lines.append("STATUS:CANCELLED")
     if e["calendar"] != "Test User":
-        lines.append(f"X-EDAT-CALENDAR:{e['calendar']}")
+        lines.append(f"X-TINYAGENT-BENCH-CALENDAR:{e['calendar']}")
     lines.append("END:VEVENT")
     return lines
 
 
 def render_calendar(c: dict, robust: bool) -> str:
     if robust:
-        out = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//EDAT//quality//EN", f"X-WR-TIMEZONE:{c['tz']}"]
+        out = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//tinyagent-bench//quality//EN", f"X-WR-TIMEZONE:{c['tz']}"]
         for i, e in enumerate(c["events"]):
             out += _ics(e, i + 1)
         out.append("END:VCALENDAR")

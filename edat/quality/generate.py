@@ -1,4 +1,4 @@
-"""Seeded generator for EDAT's summarizing, extraction and numeric cases.
+"""Seeded generator for tinyagent-bench's summarizing, extraction and numeric cases.
 
 Spec 03 sections 7.1-7.8 and 8. One seed builds a small fictional world for
 Test User, a fact table with anchors, aliases, salience, owner, status and

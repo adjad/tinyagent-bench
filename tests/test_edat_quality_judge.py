@@ -1,4 +1,4 @@
-"""Tests for the EDAT judge harness. A scripted stub stands in for every model; nothing real runs."""
+"""Tests for the tinyagent-bench judge harness. A scripted stub stands in for every model; nothing real runs."""
 
 import json
 import re

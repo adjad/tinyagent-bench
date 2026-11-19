@@ -2,7 +2,9 @@
 
     python -m edat.quality run --model Gemma-Wisp --role baseline --base-url http://127.0.0.1:<port> [--thinking]
     python -m edat.quality run --cloud anthropic/claude-haiku-5.5 --provider <pinned provider> --seedless
+    python -m edat.quality run ... --writing      # the Writing family (spec 9)
     python -m edat.quality headline <run dir> [<run dir> ...] [--pref prefs.json --judge-validated]
+        [--writing-pref wprefs.json --writing-judge-validated]
 
 `run` builds the client from the shared model adapter (`edat.models`, owned by
 the agentic tier); it never loads, unloads or switches models. Held-out runs
@@ -17,8 +19,8 @@ from pathlib import Path
 
 from edat.quality import records as R
 from edat.quality.headline import headline_report
-from edat.quality.runner import Entry, run_quality
-from edat.quality.splits import load_dev, load_heldout
+from edat.quality.runner import Entry, run_quality, run_writing
+from edat.quality.splits import load_dev, load_heldout, load_writing
 
 
 def _client(a):
@@ -65,10 +67,13 @@ def main(argv=None) -> int:
     r.add_argument("--harness-commit", required=True)
     r.add_argument("--store", default=None)
     r.add_argument("--limit", type=int, default=None)
+    r.add_argument("--writing", action="store_true", help="run the Writing family (spec 9) instead of the text families")
     h = sub.add_parser("headline", help="headline scores and differences from run directories")
     h.add_argument("runs", nargs="+")
     h.add_argument("--pref", default=None, help="JSON {model_id: pref_judge_style_ctrl}")
     h.add_argument("--judge-validated", action="store_true")
+    h.add_argument("--writing-pref", default=None, help="JSON {model_id: writing_pref_judge_style_ctrl}")
+    h.add_argument("--writing-judge-validated", action="store_true")
     a = ap.parse_args(argv)
     if a.cmd == "run":
         client, M = _client(a)
@@ -85,15 +90,21 @@ def main(argv=None) -> int:
                       context_window=a.context_window, weights_sha256=a.weights_sha256,
                       weights_fingerprint=a.weights_fingerprint, upstream_provider=a.provider,
                       device=None if a.cloud else _device(a))
-        fams = load_heldout() if a.split == "heldout" else load_dev()
-        sink = run_quality(client, entry, fams, split=a.split, board_version=a.board_version,
-                           harness_commit=a.harness_commit, limit=a.limit)
+        if a.writing:
+            sink = run_writing(client, entry, load_writing(a.split), split=a.split, board_version=a.board_version,
+                               harness_commit=a.harness_commit, limit=a.limit)
+        else:
+            fams = load_heldout() if a.split == "heldout" else load_dev()
+            sink = run_quality(client, entry, fams, split=a.split, board_version=a.board_version,
+                               harness_commit=a.harness_commit, limit=a.limit)
         sink.store = Path(a.store) if a.store else R.default_store(a.split)
         print(sink.write())
         return 0
     recs = [x for p in a.runs for x in R.read_records(Path(p))]
     pref = json.loads(Path(a.pref).read_text()) if a.pref else None
-    print(json.dumps(headline_report(recs, pref=pref, judge_validated=a.judge_validated), indent=2, default=str))
+    wpref = json.loads(Path(a.writing_pref).read_text()) if a.writing_pref else None
+    print(json.dumps(headline_report(recs, pref=pref, judge_validated=a.judge_validated, writing_pref=wpref,
+                                     writing_judge_validated=a.writing_judge_validated), indent=2, default=str))
     return 0
 
 

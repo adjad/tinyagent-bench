@@ -1,4 +1,4 @@
-"""Tests for EDAT's seeded quality-case generator and renderers (spec 03 sections 7.1-7.8 and 8).
+"""Tests for tinyagent-bench's seeded quality-case generator and renderers (spec 03 sections 7.1-7.8 and 8).
 
 Everything is invented. Cases are cached per (source type, tier, seed); tests never mutate them.
 """

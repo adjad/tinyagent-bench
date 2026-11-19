@@ -1,4 +1,4 @@
-"""Rating statistics for EDAT's human-preference measure (spec 03 s1.1, s1.3, s4.3).
+"""Rating statistics for tinyagent-bench's human-preference measure (spec 03 s1.1, s1.3, s4.3).
 
 Pure standard library (no numpy/scipy). Every resampling function takes a seed
 and uses ``random.Random(seed)``, so results are reproducible.

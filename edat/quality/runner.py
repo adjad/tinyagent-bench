@@ -1,4 +1,4 @@
-"""Run a model over EDAT's quality cases and write one record per answer.
+"""Run a model over tinyagent-bench's quality cases and write one record per answer.
 
 The model is reached only through the shared model adapter's interface
 (docs/benchmark/model-adapter.md, `edat/models/`):
@@ -223,6 +223,145 @@ def _metrics(res: dict, case: dict, task: dict) -> tuple[dict, dict]:
     flat["truncated"] = res.get("finish_reason") == "length"
     flat["source_ref_tokens_est"] = approx_tokens(render_sources(case))
     return flat, details
+
+
+def _ask(client, entry: Entry, messages: list[dict], trial: int):
+    """One call with the one engine-fault retry; returns (result, error)."""
+    seed = None if entry.seedless else entry.seeds[trial - 1]
+    err = None
+    for _ in range(2):
+        try:
+            return client.chat(messages, tools=None, sampling=entry.sampling, seed=seed, max_tokens=entry.cap(),
+                               thinking=entry.thinking), None
+        except Exception as e:  # noqa: BLE001
+            if not _is_engine_error(e):
+                raise
+            err = e
+    return None, err
+
+
+def writing_record_case_id(case: dict) -> str:
+    return case["case_id"]
+
+
+def _writing_facets(case: dict) -> dict:
+    tags = [R.tag(f"sub_{case['sub']}"), R.tag(f"kind_{case['kind']}"), R.tag(f"surface_{case['surface']}")]
+    if case.get("audience"):
+        tags.append(R.tag(f"audience_{case['audience']}"))
+    if case.get("profile"):
+        tags.append(R.tag(f"profile_{case['profile']}"))
+    return {"family": "writing", "category": case["sub"], "profile": case.get("profile") or "neutral", "tags": tags}
+
+
+def run_writing_case(client, entry: Entry, case: dict, trial: int, *, grammar=None) -> dict:
+    """Ask for one draft (two turns for outline cases) and score it with WD1-WD11."""
+    from edat.quality import writing as WR
+    from edat.quality.writing_checks import score_writing
+    prior: list[str] = []
+    raw_turns: list[dict] = []
+    finish = None
+    usage: dict = {}
+    for turn in range(len(case["turns"])):
+        messages = WR.build_writing_messages(case, turn, prior)
+        if entry.context_window:
+            need = sum(approx_tokens(m["content"]) for m in messages) + ANSWER_RESERVE
+            if need > entry.context_window:
+                return {"status": "beyond_window", "status_detail": "does_not_fit"}
+        result, err = _ask(client, entry, messages, trial)
+        if result is None:
+            return {"status": "excluded", "status_detail": f"engine_{getattr(err, 'kind', 'error')}"[:64],
+                    "error": str(err)[:200]}
+        visible, reasoning = visible_answer(result.text or "", getattr(result, "reasoning", "") or "")
+        prior.append(visible)
+        finish = getattr(result, "finish_reason", None)
+        usage = _usage_dict(getattr(result, "usage", None))
+        raw_turns.append({"request": case["turns"][turn], "text": result.text or "", "visible": visible,
+                          "reasoning": reasoning, "finish_reason": finish, "usage": usage,
+                          "adapter_request": getattr(result, "request", {}) or {},
+                          "adapter_meta": getattr(result, "meta", {}) or {}})
+    draft = prior[-1]
+    outline = prior[0] if len(prior) > 1 else None
+    sc = score_writing(draft, case, outline=outline, grammar=grammar)
+    tok = count_tokens(draft, raw_turns[-1]["reasoning"], count_model_tokens=entry.count_model_tokens, usage=usage,
+                       provider_usage=entry.kind == "cloud_reference")
+    return {"status": "ok", "draft": draft, "outline": outline, "scores": sc, "turns": raw_turns, "tokens": tok,
+            "finish_reason": finish, "meta": raw_turns[-1]["adapter_meta"]}
+
+
+def run_writing(client, entry: Entry, cases: list[dict], *, split: str, board_version: str, harness_commit: str,
+                run_id: str | None = None, sink: R.QualityRunSink | None = None, limit: int | None = None,
+                grammar=None) -> R.QualityRunSink:
+    """Run the Writing family (spec 03 s9) for one entry: 3 seeds per case, one record per draft."""
+    from edat.quality.writing_checks import WRITING_CHECKS_VERSION
+    if entry.kind == "cloud_reference" and split != "dev":
+        raise HostedSplitError("cloud references run on the development split only")
+    run_id = run_id or dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H-%M-%SZ") + "-" + secrets.token_hex(2)
+    sink = sink or R.QualityRunSink(run_id=run_id, split=split, suite="writing")
+    rec_entry = entry.as_record_entry()
+    trials = range(1, (3 if entry.seedless else len(entry.seeds)) + 1)
+    cloud_seen: list[dict] = []
+    for case in (cases[:limit] if limit is not None else cases):
+        for trial in trials:
+            started = R.utc_now()
+            res = run_writing_case(client, entry, case, trial, grammar=grammar)
+            cid, facets = writing_record_case_id(case), _writing_facets(case)
+            if res["status"] != "ok":
+                sink.add(R.make_record(run_id=run_id, board_version=board_version, harness_commit=harness_commit,
+                                       entry=rec_entry, case_id=cid, split=split, trial=trial, status=res["status"],
+                                       status_detail=res.get("status_detail"), metrics={}, facets=facets, raw=None,
+                                       raw_reason=res["status"], suite="writing",
+                                       safety={"unsafe_actions": None, "privacy_leaks": None, "labels": []},
+                                       started_at=started))
+                continue
+            sc = res["scores"]
+            flat = {k: v for k, v in sc["metrics"].items()
+                    if v is None or isinstance(v, (bool, int, float)) or (isinstance(v, str) and len(v) <= 64)}
+            flat.update({"pass": bool(sc["pass"]), "score": float(sc["score"]), "gate_pass": bool(sc["gate_pass"]),
+                         "sub": case["sub"], "kind": case["kind"]})
+            for k, c in sc["checks"].items():
+                flat[f"{k.lower()}_pass"] = None if c["status"] == "n/a" else c["status"] == "pass"
+            tm = res["tokens"].to_metrics()
+            flat.update({k: v for k, v in tm.items() if not isinstance(v, (dict, list))})
+            flat["truncated"] = res.get("finish_reason") == "length"
+            leak = sc["checks"].get("WD7", {}).get("leak")
+            raw = sink.add_raw({"schema": "edat.quality.writing-raw/1", "case_id": case["case_id"],
+                                "draft": res["draft"], "outline": res["outline"], "turns": res["turns"],
+                                "checks": sc["checks"], "versions": {"runner": RUNNER_VERSION,
+                                                                     "writing_checks": WRITING_CHECKS_VERSION,
+                                                                     "case_generator": case["generator"]}})
+            sink.add(R.make_record(run_id=run_id, board_version=board_version, harness_commit=harness_commit,
+                                   entry=rec_entry, case_id=cid, split=split, trial=trial, status="ok",
+                                   metrics=flat, facets=facets, raw=raw, started_at=started, suite="writing",
+                                   status_detail="trials_not_seeds" if entry.seedless else None,
+                                   safety={"unsafe_actions": 0, "privacy_leaks": None,
+                                           "labels": (["forbidden_content"] if sc["metrics"].get("forbidden") else [])
+                                           + (["leak"] if leak else [])}))
+            if entry.kind == "cloud_reference":
+                cloud_seen.append(res["meta"])
+    if entry.kind == "cloud_reference":
+        _finish_cloud_model_blocks(sink.records, entry, cloud_seen)
+    return sink
+
+
+def writing_vote_items(sink_or_records, cases: list[dict], raw: dict | None = None) -> list[dict]:
+    """Draft items for `votes.build_writing_pairs` from writing records and their raw outputs."""
+    import json as _json
+    records = getattr(sink_or_records, "records", sink_or_records)
+    raw = raw if raw is not None else getattr(sink_or_records, "raw", {})
+    by_id = {c["case_id"]: c for c in cases}
+    out = []
+    for r in records:
+        if r.get("suite") != "writing" or r["status"] != "ok" or r["case_id"] not in by_id or not r.get("raw"):
+            continue
+        blob = raw.get(r["raw"]["sha256"])
+        if blob is None:
+            continue
+        body = _json.loads(blob) if isinstance(blob, (bytes, str)) else blob
+        out.append({"case": by_id[r["case_id"]], "model_id": r["model"]["id"], "trial": r["trial"],
+                    "draft": body["draft"], "gate_pass": bool(r["metrics"]["gate_pass"]),
+                    "word_count": int(r["metrics"].get("word_count") or len(body["draft"].split())),
+                    "split": r["split"]})
+    return out
 
 
 def run_quality(client, entry: Entry, fams: dict[str, list[dict]], *, split: str, board_version: str,

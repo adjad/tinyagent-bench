@@ -1,0 +1,10 @@
+{
+ "converter": "edat-synthetic-md/v1",
+ "generator": "edat-web-site/v1",
+ "today": "2027-03-15",
+ "world_seeds": {
+  "1": "443a9d57801abce317a1a392f84b167956b976b47a72b7cc6aceed71d50d1746",
+  "2": "70f0f080b026b383f27238b1bd6c765c92433eef97c001478262cc82c8141d61",
+  "3": "4855ad2149dd413c42c445ff3aaa0d7da9a5248056ee583ac455e5b7acb4a973"
+ }
+}

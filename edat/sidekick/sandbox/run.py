@@ -23,6 +23,7 @@ from __future__ import annotations
 import hashlib
 import os
 import resource
+import select
 import shutil
 import signal
 import stat
@@ -73,6 +74,7 @@ class ExecResult:
     pid: int | None = None
     started: float = 0.0
     ended: float = 0.0
+    survivor: bool = False             # a process outlived the command and its process-group kill
 
     @property
     def ok(self) -> bool:
@@ -118,6 +120,7 @@ class TrialArea:
         st = os.fstat(self._work_fd)
         self._work_id = (st.st_dev, st.st_ino)
         self.refused: list[dict] = []   # symbolic links met on the host side: never followed, reported
+        self.survivors: list[str] = []  # commands that left a process running after their group was killed
         self.sealed = False
         (self.home / ".gitconfig").write_text(
             "[user]\n"
@@ -125,7 +128,10 @@ class TrialArea:
             "[init]\n\tdefaultBranch = main\n"
             "[core]\n\tpager = cat\n\teditor = true\n"
             "[advice]\n\tdetachedHead = false\n"
-            "[commit]\n\tgpgsign = false\n")
+            "[commit]\n\tgpgsign = false\n"
+            # no detached background gc or maintenance: they would outlive the command (setsid)
+            "[gc]\n\tauto = 0\n\tautoDetach = false\n"
+            "[maintenance]\n\tauto = false\n")
         (self.home / CANARY_NAME).write_text(self.canary + "\n")
         tc = toolchain or find_toolchain()
         for name, text in wrapper_scripts(tc).items():
@@ -594,9 +600,19 @@ class SeatbeltIsolation:
 
         started = time.time()
         t0 = time.monotonic()
-        proc = subprocess.Popen(argv, cwd=str(cwd), env=full_env, stdin=subprocess.PIPE,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                preexec_fn=preexec, close_fds=True)
+        # A sentinel pipe every process of the command inherits: while any of them is alive, its write end
+        # stays open. After the process-group kill, an open write end means a process escaped the group
+        # (`setsid`). macOS gives user space no reliable way to find such a process to kill it (no cgroups;
+        # `ps` hides the environment of system binaries), so it is detected here, reported by the graders,
+        # and locked out by `TrialArea.seal`. A process that closes every descriptor escapes the detection,
+        # not the seal or the handle-only host access.
+        sent_r, sent_w = os.pipe()
+        try:
+            proc = subprocess.Popen(argv, cwd=str(cwd), env=full_env, stdin=subprocess.PIPE,
+                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                    preexec_fn=preexec, close_fds=True, pass_fds=(sent_w,))
+        finally:
+            os.close(sent_w)
         pgid = proc.pid
         out_chunks: list[bytes] = []
         err_chunks: list[bytes] = []
@@ -641,8 +657,13 @@ class SeatbeltIsolation:
             killed = cpu_limit_kill(proc.returncode)
         # Background children left behind are stopped too.
         _kill_group(pgid)
+        survivor = _still_held(sent_r, 1.0)
+        os.close(sent_r)
         for r in readers:
             r.join(timeout=2)
+        survivor = survivor or any(r.is_alive() for r in readers)
+        if survivor:
+            area.survivors.append(script[:300])
         wall = time.monotonic() - t0
         return ExecResult(
             exit_code=None if killed else proc.returncode,
@@ -650,7 +671,20 @@ class SeatbeltIsolation:
             stderr=b"".join(err_chunks).decode("utf-8", "replace"),
             wall_s=wall, timed_out=killed == "wall_clock", killed=killed,
             stdout_truncated=bool(out_flag), stderr_truncated=bool(err_flag),
-            pids=pids, pid=proc.pid, started=started, ended=time.time())
+            pids=pids, pid=proc.pid, started=started, ended=time.time(), survivor=survivor)
+
+
+def _still_held(fd: int, wait_s: float) -> bool:
+    """True if some process still holds the write end of the sentinel pipe after `wait_s` seconds."""
+    end = time.monotonic() + wait_s
+    while True:
+        left = end - time.monotonic()
+        if left <= 0:
+            return True
+        ready, _, _ = select.select([fd], [], [], left)
+        if ready:
+            if os.read(fd, 4096) == b"":
+                return False                     # end of file: every holder has exited
 
 
 def cpu_limit_kill(returncode: int | None) -> str | None:

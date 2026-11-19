@@ -58,6 +58,7 @@ def run_agent_trial(client, inst: Instance, iso: Isolation, *, max_tokens: int =
         return None, tt, env
     with TrialArea() as fresh:
         g = run_probe(iso, fresh, check, final)
+    planted += planted_link_events(fresh)          # the grading run, too
     fmt = _format_failures(tt)
     g.metrics.update({k: v for k, v in fmt.items()})
     calls = sum(len(t.calls) for t in tt.turns)

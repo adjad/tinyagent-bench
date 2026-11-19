@@ -4,85 +4,132 @@ Spec: [15-web-retrieval-spec](../../docs/benchmark/15-web-retrieval-spec.md).
 
 Benchmark runs never touch the web. Every model reads a **frozen snapshot**
 through the benchmark's own `web_search` and `web_fetch` tools. Most cases use
-a synthetic site that is generated locally and needs nothing. The captured
-cases need a snapshot of real pages, built **once per benchmark version** by
-the capture described here. That is the only step that needs Firecrawl.
+a synthetic site that is generated locally and needs nothing.
 
-## What you need
+The captured cases need a snapshot of real pages. It is built **once per
+benchmark version**, by the capture described here, from a **self-hosted
+Firecrawl** stack. That needs **no API key** and no search service: with
+nothing configured, the stack gets its search results by scraping
+DuckDuckGo's HTML results page itself.
 
-Pick one:
+The capture is its own step:
 
-| Option | You provide | Cost |
-|---|---|---|
-| **Hosted Firecrawl, free plan** (recommended) | A free API key from firecrawl.dev (no card) | About 380 credits for the version-1 lists (about 450 with retries), out of the free plan's 1,000 a month. About 10–15 minutes at the free plan's 10 requests a minute |
-| Self-hosted Firecrawl | Docker Desktop and Firecrawl's own `docker compose` stack, started by you, with `USE_DB_AUTHENTICATION=false`; API on `http://localhost:3002` | No credits. About 8 GB of memory for Docker's VM while it runs. Its search results come from scraped DuckDuckGo unless you also run SearXNG and set `SEARXNG_ENDPOINT` |
+1. Start the stack.
+2. Capture.
+3. Shut the stack down.
 
-Stop the self-hosted stack before any benchmark run: it competes with the model
-for memory.
+Never run the stack during a model run or a measurement.
 
-**The key.** Set it yourself, in your own shell, so it never appears in a file
-or in shell history:
+## What gets installed (tell the user before the first start)
 
-```bash
-read -s FIRECRAWL_API_KEY && export FIRECRAWL_API_KEY
-```
+- **A container runtime,** if the Mac has none: Docker Desktop, or Colima
+  plus the Docker command line from Homebrew (lighter, open source).
+- **Firecrawl's Compose stack** from a checkout of a pinned Firecrawl
+  release. The spec was read at commit `1510bc4f`. The stack runs five
+  services:
+  - the API and workers;
+  - Playwright with Chromium;
+  - Redis;
+  - RabbitMQ;
+  - PostgreSQL.
 
-Or keep it in the Keychain and name the item in `EDAT_FIRECRAWL_KEYCHAIN`. The
-capture reads it at request time and never prints, logs or stores it.
+  The optional FoundationDB services are not started.
+- **Disk:** about 4–8 GB for images and build cache (estimate).
+- **Memory:** give the container VM about 8 GB. The stack uses about
+  1.5–2.5 GB idle and 4–6 GB while scraping (estimate).
+- **Time:** the first build takes about 10–20 minutes. The capture itself
+  takes about 6–10 minutes.
 
-You also need `EDAT_PRIVATE_DIR` set to the private folder, which is outside
-this repository. Captured pages are written only there.
+## Before you start
 
-## What is sent
-
-- Only the invented queries in `test_fixtures/web/capture/cases.dev.yaml` and
-  the private held-out list (`$EDAT_PRIVATE_DIR/web/queries/capture.heldout.yaml`).
-  Each is screened before anything is sent: e-mail addresses, phone numbers,
-  long digit runs, credentials in URLs and any word in your optional
-  `--deny-file` (for example your own name) stop the capture.
-- One `POST /v2/search` per query (`limit` 5, `country` US, Markdown for each
-  result, `maxAge: 0` so pages are fetched fresh), and a `POST /v2/scrape` only
-  for a result that came back without Markdown.
-- Nothing about you, your accounts or your data. No model output is sent.
+- **No heavy job may be running.** No model run, no measurement, no build
+  holding the shared heavy-job lock. Set `EDAT_HEAVY_LOCK` to that lock's path
+  and the capture refuses while the lock exists.
+- **The private folder.** `EDAT_PRIVATE_DIR` must be set to the private
+  folder outside this repository. Captured pages are written only there.
 
 ## Steps
 
-1. See the plan and the credit estimate. This sends nothing:
+1. Start the stack, bound to this machine only. The default Firecrawl API is
+   unauthenticated, and its own Compose file publishes it on every interface.
+   From the Firecrawl checkout, with this repository's override:
+
+   ```bash
+   docker compose -f docker-compose.yaml -f <tinyagent-bench>/edat/web/compose.localhost.yaml up -d api
+   ```
+
+   `up -d api` starts the API and its dependencies, and leaves FoundationDB
+   out. The override needs Docker Compose 2.24 or later.
+
+2. See the plan. This sends nothing:
 
    ```bash
    python -m edat.web.capture plan test_fixtures/web/capture/cases.dev.yaml
    ```
 
-2. Run it. Without `--yes` it only prints the queries it would send:
+3. Run the capture. Without `--yes` it only prints the queries it would send:
 
    ```bash
-   python -m edat.web.capture run test_fixtures/web/capture/cases.dev.yaml --service cloud --today 2027-03-15 --manifest-out test_fixtures/web/capture/manifests/dev.json --yes
+   python -m edat.web.capture run test_fixtures/web/capture/cases.dev.yaml --today 2027-03-15 --manifest-out test_fixtures/web/capture/manifests/dev.json --yes
    ```
 
-   For a self-hosted stack use `--service self-host --base-url http://localhost:3002`.
-   Repeat with the held-out list from the private folder, without
-   `--manifest-out`. `--today` is the date models are told it is; use the
-   capture date.
+   - The default service is the self-hosted stack at `http://127.0.0.1:3002`.
+     Only loopback addresses are accepted for it.
+   - Repeat with the held-out list from
+     `$EDAT_PRIVATE_DIR/web/queries/capture.heldout.yaml`, without
+     `--manifest-out`.
+   - `--today` is the date models are told it is. Use the capture date.
 
-3. Check it. Cases whose accepted answer is on no captured page, or whose wrong
-   value is on one, are dropped and listed in the snapshot's manifest:
+4. Stop the stack:
+
+   ```bash
+   docker compose -f docker-compose.yaml -f <tinyagent-bench>/edat/web/compose.localhost.yaml down
+   ```
+
+5. Read the counts the run printed (also stored in the snapshot's
+   `meta.counts`):
+   - empty searches (DuckDuckGo can block a self-hosted stack);
+   - pages dropped because plain scraping failed (an error status, or empty
+     Markdown);
+   - cases dropped because no kept page holds their answer, or a page holds a
+     wrong value.
+
+   Re-check any time:
 
    ```bash
    python -m edat.web.capture check "$EDAT_PRIVATE_DIR/web/snapshots/<snapshot id>" test_fixtures/web/capture/cases.dev.yaml
    ```
 
-4. Commit only the public manifest (`test_fixtures/web/capture/manifests/*.json`):
+   If many searches came back empty, wait and re-run. Adding a keyless
+   SearXNG container and setting `SEARXNG_ENDPOINT` is the fallback (an open
+   question in the spec).
+
+6. Commit only the public manifest (`test_fixtures/web/capture/manifests/*.json`):
    URLs, hashes and sizes, no page text. The pages stay in the private folder.
 
-## What it costs, again
+## What is sent
 
-- Credits: about 7 per query (2 for a 5-result search, 1 per page's Markdown).
-  `plan` prints the exact estimate.
-- Re-capture only when a new benchmark version needs it or `check` drops too
-  many cases. A re-capture gets a new snapshot id. Results from different
-  snapshot ids are never compared.
+- **The queries:** only the invented queries in
+  `test_fixtures/web/capture/cases.dev.yaml` and the private held-out list.
+- **The screen:** every query is screened before anything is sent. E-mail
+  addresses, phone numbers, long digit runs, credentials in URLs and any word
+  in your optional `--deny-file` (for example your own name) stop the capture.
+- **The requests:** the capture sends one `POST /v2/search` per query to the
+  local stack (`limit` 5, Markdown for each result, `maxAge: 0`), 6.5 s apart.
+  It sends a `POST /v2/scrape` only for a result without Markdown.
+- **What leaves the Mac:** the stack sends each query to DuckDuckGo and
+  fetches the result pages from their own sites. Nothing about you, your
+  accounts or your data is sent, and no model output is sent.
 
-## Running the tests (no key, no network)
+## The hosted service (not the main path)
+
+The same client can talk to Firecrawl's hosted service: `--service cloud`, with
+a key you set yourself (`FIRECRAWL_API_KEY`, or a Keychain item named in
+`EDAT_FIRECRAWL_KEYCHAIN`). The key is read at request time and never printed,
+logged or stored. The version-1 lists cost about 380 credits (about 450 with
+retries) of the free plan's 1,000 a month; `plan` prints the estimate.
+
+## Running the tests (no stack, no network)
 
 ```bash
 python -m pytest -q tests/test_edat_web_core.py

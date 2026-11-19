@@ -400,8 +400,54 @@ def test_cli_run_check_and_manifest(tmp_path, capsys, monkeypatch):
     rc = cap.main(["run", str(f), "--service", "cloud", "--today", "2026-11-18", "--out", str(tmp_path / "o"),
                    "--manifest-out", str(tmp_path / "m.json"), "--yes"])
     out = json.loads(capsys.readouterr().out)
-    assert rc == 1 and out["kept_cases"] == 1 and (tmp_path / "m.json").exists()
+    counts = out["counts"]
+    assert rc == 1 and counts["cases"] - counts["cases_dropped"] == 1 and (tmp_path / "m.json").exists()
     snap_dir = Path(out["saved"])
     assert cap.main(["check", str(snap_dir), str(f)]) == 1
     assert cap.main(["public-manifest", str(snap_dir), "--out", str(tmp_path / "m2.json")]) == 0
     assert cap.main([]) == 3 and cap.main(["run"]) == 3
+
+
+# ------------------------------------------------------------------ self-hosting (the main path)
+def test_empty_searches_and_blocked_pages_are_counted():
+    pages = {**CPAGES, "https://blocked.example/p": {"title": "Blocked", "markdown": "", "status": 403}}
+    svc = StandInFirecrawl(pages, results={"boiling point of water": ["https://water.example/boil",
+                                                                       "https://blocked.example/p"],
+                                           "cat care": [], "freezing water": []})
+    snap = cap.run_capture(CASES, svc, today="2026-11-18", now=lambda: "2026-11-18T00:00:00Z")
+    c = snap.meta["counts"]
+    assert c["empty_queries"] == 2 and {q["query"] for q in snap.meta["empty_queries"]} == {"cat care",
+                                                                                            "freezing water"}
+    assert {"url": "https://blocked.example/p", "reason": "status 403"} in snap.meta["dropped_pages"]
+    assert c["pages_dropped"] == len(snap.meta["dropped_pages"]) and c["pages_kept"] == len(snap.pages)
+    assert c["cases_dropped"] == 2
+
+
+def test_self_host_is_the_default_service(tmp_path, monkeypatch, capsys):
+    built = []
+    monkeypatch.setattr(cap, "FirecrawlClient", lambda *a, **k: built.append((a, k)) or
+                        StandInFirecrawl(CPAGES, results={"boiling point of water": ["https://water.example/boil"]}))
+    rc = cap.main(["run", str(write_capture(tmp_path)), "--today", "2026-11-18", "--out", str(tmp_path / "o"), "--yes"])
+    assert rc == 1 and built == [(("http://127.0.0.1:3002",), {})]
+    assert json.loads(capsys.readouterr().out)["counts"]["queries"] == 3
+
+
+def test_capture_refuses_while_a_heavy_job_holds_the_lock(tmp_path, monkeypatch, capsys):
+    lock = tmp_path / "heavy.lock"
+    lock.mkdir()
+    monkeypatch.setenv(cap.HEAVY_LOCK_ENV, str(lock))
+    monkeypatch.setattr(cap, "FirecrawlClient", lambda *a, **k: pytest.fail("built"))
+    assert cap.main(["run", str(write_capture(tmp_path)), "--today", "2026-11-18", "--yes"]) == 2
+    assert "heavy job" in capsys.readouterr().err
+    lock.rmdir()
+    assert cap.heavy_lock_held() is None
+
+
+def test_plan_reports_no_credits_for_self_hosting():
+    p = cap.plan(CASES)
+    assert p["self_host_credits"] == 0 and p["minutes_estimate"] >= 1
+
+
+def test_localhost_override_binds_loopback_only():
+    text = (cap.REPO_ROOT / "edat" / "web" / "compose.localhost.yaml").read_text()
+    assert '"127.0.0.1:${PORT:-3002}:${INTERNAL_PORT:-3002}"' in text and "!override" in text

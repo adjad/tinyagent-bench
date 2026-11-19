@@ -8,19 +8,48 @@ The user's brief: "test web search/RAG with https://github.com/firecrawl/firecra
 
 ## 0. The answer in one screen
 
-**Do you need an API key?** Only for one step, once per benchmark version: the **capture** that builds the frozen web snapshot. No model ever talks to Firecrawl. Every model, local or hosted, reads the same frozen pages through the benchmark's own `web_search` and `web_fetch` tools, so benchmark runs need no key and no network.
+**Do you need an API key? No.** Firecrawl is self-hosted (the user's decision), and self-hosted search needs **no key of any kind and no extra search service**. Firecrawl's pinned source (commit `1510bc4f`, `apps/api/src/search/v2/index.ts:61-108`) picks its search backend in this order:
+
+1. Firecrawl's closed fire-engine, if `FIRE_ENGINE_BETA_URL` is set. Not part of the open-source stack.
+2. A SearXNG server you run yourself, if `SEARXNG_ENDPOINT` is set. Optional, also keyless.
+3. Otherwise, the default: the API container **scrapes DuckDuckGo's HTML results page itself** (`https://html.duckduckgo.com/html`, `search/v2/ddgsearch.ts:151`).
+
+Nothing in the default Compose file or the environment template asks for a search key. `SEARCHAPI_API_KEY` in `apps/api/.env.example` is read by no search code. The cost of the free route is reliability: when DuckDuckGo shows its anti-bot page, Firecrawl retries a few times and then returns no results (`ddgsearch.ts:46-48`, `DDGAntiBotError`). The capture spaces its searches 6.5 s apart, counts empty searches, and drops a case only if it ends up with no page that holds its answer (§3.1).
+
+**What the self-hosted stack installs** (§1.3; to tell you before its first start):
+
+- **A container runtime,** if the Mac has none: Docker Desktop, or Colima plus the Docker command line (lighter, open source).
+- **Five long-running services:**
+  - Firecrawl's API and workers;
+  - Playwright with Chromium;
+  - Redis;
+  - RabbitMQ;
+  - PostgreSQL.
+  The optional FoundationDB services are left off.
+- **Disk:** about 4–8 GB for images and build cache, my estimate.
+- **Memory:** about 8 GB reserved for the container VM. The stack itself is estimated at 1.5–2.5 GB idle and 4–6 GB while scraping.
+
+**How it is used.** Capture is its own step, once per benchmark version:
+
+1. Start the stack, bound to this machine only (`127.0.0.1:3002`; the default API is unauthenticated).
+2. Capture the snapshot. That is 54 searches, with no credits and nothing to pay, in about 6–10 minutes.
+3. Shut the stack down.
+4. Replay the frozen snapshot to every model.
+
+The stack never runs during a model run or a measurement, and the capture refuses to start while the shared heavy-job lock is held. The hosted Firecrawl service stays possible behind the same client interface (§1.2), with a key, but it is not the main path.
 
 | Setup for the capture | Key? | Cost | Verdict |
 |---|---|---|---|
-| **Hosted Firecrawl, free plan** | Yes, a free key (no card) | 1,000 credits a month ([pricing](https://www.firecrawl.dev/pricing), [billing](https://docs.firecrawl.dev/billing)). One capture of the version-1 query list is estimated at **about 380 credits, 450 with a margin** (§6.1) | **Cheapest workable setup. Recommended.** About 10–15 minutes at the free plan's 10 searches a minute ([rate limits](https://docs.firecrawl.dev/rate-limits)) |
-| Self-hosted Firecrawl (Docker Compose) | No (`USE_DB_AUTHENTICATION=false`) | Free; about 1.5–2.5 GB of memory idle and 4–6 GB while scraping on the reference Mac (estimate, §1.3) | Works, but its search results come from **scraped DuckDuckGo** unless you also run SearXNG (§1.3), which is fragile and less like a real search engine |
-| The synthetic site (most cases) | No | Nothing | Needs neither: generated locally, replayed through the same tools |
+| **Self-hosted Firecrawl** (Docker Compose, loopback only) | **No** | No money; 4–8 GB disk, about 8 GB memory while it runs (estimates) | **The main path (the user's choice).** Search through scraped DuckDuckGo; pages that block plain scraping are dropped and counted |
+| Self-hosted plus SearXNG | No | One more container, about 0.2–0.5 GB | Optional fallback if DuckDuckGo blocks the capture (Open question 1) |
+| Hosted Firecrawl, free plan | Yes, a free key | About 380 credits (450 with a margin) of the free 1,000 a month | Possible behind the same client; not used unless you ask |
+| The synthetic site (85 % of cases) | No | Nothing | Generated locally; needs no capture |
 
-The key is yours to set (`FIRECRAWL_API_KEY` in the environment, or a Keychain item the capture reads at run time). The harness never prints, logs, stores or commits it. Only invented queries are sent; nothing from your data, name or accounts.
+Only invented queries are sent, and only to DuckDuckGo and the result pages' own sites, through the local stack. Nothing comes from your data, name or accounts.
 
 - **What is tested:** deciding to search (and not to), the query written, which results are opened, reading a page, a grounded answer whose cited page really contains the fact, "not found" when the corpus lacks the answer, questions that need two pages, stale against fresh pages and today's date, conflicting sources, instructions planted in pages, and retrieval over a provided document set (tool-driven and in-context). Tokens and time are measured on every trial.
 - **Fairness:** a **frozen snapshot** versioned by content hash (§3.1). Ranking, snippets and truncation are the benchmark's own, deterministic and byte-identical for every model (§3.3).
-- **Two kinds of pages:** a **synthetic site** with planted facts (about 85 % of cases; answers checked exactly; its development split is committed) and **captured real pages** from invented queries (about 15 %; the pages are third-party content and are never committed: the repository holds addresses and hashes, the content lives in the private folder, and a capture script rebuilds it).
+- **Two kinds of pages:** a **synthetic site** with planted facts (about 85 % of cases; answers checked exactly; its development split is committed) and **captured real pages** from invented queries through the self-hosted stack (about 15 %; the pages are third-party content and are never committed: the repository holds addresses and hashes, the content lives in the private folder, and a capture script rebuilds it).
 - **Size:** 206 cases in the full set, 102 in the core set, 3 trials each. Development split 53 cases (public), held out 153 (private).
 - **Scoring:** deterministic everywhere, no judge model. Planted instructions and leaks are `edat-restraint-event/v1` records (spec `"15"`) for the agentic Restraint panel, never part of the score.
 - **Headline:** the **Web Retrieval Score**, the mean of 9 family pass rates, its own column (§5.3).
@@ -45,7 +74,7 @@ The key is yours to set (`FIRECRAWL_API_KEY` in the environment, or a Keychain i
 
 `maxAge` matters: two captures two days apart may get the same cached page. The capture sends `maxAge: 0` so every page is fetched fresh and records the time it was captured.
 
-### 1.2 Hosted limits and prices (read 2026-11-18)
+### 1.2 The hosted service: limits and prices (read 2026-11-18; not the main path)
 
 | Plan | Price a month | Credits a month | Search / scrape requests a minute | Concurrency |
 |---|---|---|---|---|
@@ -56,12 +85,41 @@ The key is yours to set (`FIRECRAWL_API_KEY` in the environment, or a Keychain i
 
 Credit costs ([billing](https://docs.firecrawl.dev/billing)): scrape 1 a page; search **2 credits per 10 results**; a search with `scrapeOptions` also pays 1 a scraped result (my reading of the billing page, not a stated example); JSON mode adds 4 a page; map 1 a call; crawl 1 a page. An error page that still returns a document costs 1 credit. Out of credits on the free plan, requests fail with HTTP 402.
 
-### 1.3 Self-hosting
+### 1.3 Self-hosting: the main path
 
-- **Stack** ([SELF_HOST.md](https://github.com/firecrawl/firecrawl/blob/1510bc4f/SELF_HOST.md), [docker-compose.yaml](https://github.com/firecrawl/firecrawl/blob/1510bc4f/docker-compose.yaml)): `api` (API and workers, port **3002**), `playwright-service`, `redis`, `rabbitmq`, `nuq-postgres`, and an optional FoundationDB. No key with `USE_DB_AUTHENTICATION=false`.
-- **Where self-hosted search results come from** (`apps/api/src/search/v2/index.ts`, same order in `search/index.ts` lines ~67–108): (1) if `FIRE_ENGINE_BETA_URL` is set, Firecrawl's closed fire-engine service; (2) else, if `SEARXNG_ENDPOINT` is set, a **SearXNG** instance you run yourself (`SEARXNG_ENGINES`, `SEARXNG_CATEGORIES`), falling through when it returns nothing; (3) otherwise **scraping DuckDuckGo's HTML results** (`search/v2/ddgsearch.ts`), which is the default. No Serper code was found; `SEARCHAPI_API_KEY` appears only in `.env.example`. SearXNG ignores `country`, `location` and the result count.
-- **Missing when self-hosted** ([self-host docs](https://docs.firecrawl.dev/contributing/self-host)): fire-engine's anti-bot fetching, screenshots and page actions, the agent features.
-- **What it costs a 24 GB Mac:** the project publishes no minimum. The compose file caps `api` at 4 CPUs and 8 GB and `playwright-service` at 2 CPUs and 4 GB. My estimate, not measured: give Docker Desktop's VM 8 GB; the stack idles at 1.5–2.5 GB and peaks at 4–6 GB while scraping, plus several GB of disk for images. That competes with a resident model, so the stack must never run during a benchmark run (the one-model-resident rule). Capture and runs are separate steps anyway.
+**Where search results come from.** Read from the pinned source ([`apps/api/src/search/v2/index.ts`](https://github.com/firecrawl/firecrawl/blob/1510bc4f/apps/api/src/search/v2/index.ts), lines 61–108; the same order is in `search/index.ts`):
+
+1. fire-engine (`FIRE_ENGINE_BETA_URL`), Firecrawl's closed service, unavailable here;
+2. SearXNG (`SEARXNG_ENDPOINT`, plus `SEARXNG_ENGINES` and `SEARXNG_CATEGORIES`), falling through when it returns nothing. SearXNG ignores `country`, `location` and the result count;
+3. DuckDuckGo, the default. [`ddgsearch.ts`](https://github.com/firecrawl/firecrawl/blob/1510bc4f/apps/api/src/search/v2/ddgsearch.ts) fetches `html.duckduckgo.com/html` with a browser-like user agent and parses `.result.web-result` blocks.
+
+On DuckDuckGo's anti-bot page it retries, then gives up, and an empty result is returned as `{}`. No key is involved anywhere on this path. The Compose file passes only the three `SEARXNG_*` variables for search, and `SEARCHAPI_API_KEY` in `.env.example` has no reader in `apps/api/src/search/`. Search results then go through the same scrape path as `/v2/scrape` when `scrapeOptions` asks for Markdown.
+
+**What the stack is** ([docker-compose.yaml](https://github.com/firecrawl/firecrawl/blob/1510bc4f/docker-compose.yaml), [SELF_HOST.md](https://github.com/firecrawl/firecrawl/blob/1510bc4f/SELF_HOST.md)):
+
+| Service | Image | Limits in the Compose file | Started for the capture? |
+|---|---|---|---|
+| `api` (API and workers, port 3002) | Built from `apps/api` (Node 22 slim plus a Go build stage); a prebuilt `ghcr.io/firecrawl/firecrawl` can be used instead | 4 CPUs, 8 GB | Yes |
+| `playwright-service` | Built from `apps/playwright-service-ts` (Node 22 slim plus Chromium and its system libraries) | 2 CPUs, 4 GB, 1 GB tmpfs | Yes |
+| `redis` | `redis:alpine` | none | Yes |
+| `rabbitmq` | `rabbitmq:3-management` | none | Yes |
+| `nuq-postgres` | Built from `apps/nuq-postgres` (PostgreSQL) | none | Yes |
+| `foundationdb`, `foundationdb-init` | `foundationdb/foundationdb:7.3.63` | none | **No**: optional queue backend; `docker compose up -d api` leaves them out |
+
+- **No key:** `USE_DB_AUTHENTICATION` defaults to `false`.
+- **Local only:** the API is published as `${PORT:-3002}:3002`, which listens on every interface, and SELF_HOST.md warns that "The default API is unauthenticated". The benchmark ships a Compose override, `edat/web/compose.localhost.yaml`, that rebinds it to `127.0.0.1:3002`. The capture client accepts only loopback addresses for a self-hosted stack.
+- **What it lacks** ([self-host docs](https://docs.firecrawl.dev/contributing/self-host)): fire-engine's anti-bot fetching, screenshots and page actions, the agent features. The capture uses **plain scraping only** (Playwright plus a basic fetch). A page that blocks it comes back with an error status or empty Markdown; it is dropped from the snapshot and counted (`meta.counts.pages_dropped`, with each URL and reason in `meta.dropped_pages`).
+
+**What it costs the reference Mac** (24 GB). These are my estimates, not measurements; the project publishes no minimum.
+
+| Item | Estimate |
+|---|---|
+| Container runtime | Docker Desktop about 2 GB for the app plus its VM disk, or Colima and the Docker command line (Homebrew), a few hundred MB plus the VM |
+| Images | Built from source: about 3–4 GB of images plus 2–4 GB of build cache (the Go and Node build stages). Prebuilt images: about 3 GB |
+| Memory | Give the VM 8 GB (the API's own cap). Idle about 1.5–2.5 GB; while scraping 4–6 GB |
+| Time | First build about 10–20 minutes; later starts under a minute; the capture about 6–10 minutes (§6.1) |
+
+The VM competes with a resident model for memory, so the stack is started only for the capture and stopped right after it (`docker compose down`). It never runs during a model run or a measurement.
 
 ### 1.4 Licences and terms
 
@@ -95,7 +153,7 @@ The live web changes daily, so two models run a week apart would read different 
 
 - **queries:** a fixed list of invented queries, each with the parameters sent (`limit`, `country`, `tbs`) and the ordered results Firecrawl returned (`url`, `title`, `description`);
 - **pages:** each result's Markdown (from `scrapeOptions`) plus any second-hop pages a case names, after one fixed normalisation (§3.3), stored content-addressed by SHA-256;
-- **a manifest:** the snapshot's `id` (SHA-256 of the canonical JSON of the query results and the `url → page hash` map), its `today` date (the capture date, given to the model as the current date), the source (`firecrawl-cloud`, `firecrawl-self-host`, `synthetic`), the API version, and the capture time per page.
+- **a manifest:** the snapshot's `id` (SHA-256 of the canonical JSON of the query results and the `url → page hash` map), its `today` date (the capture date, given to the model as the current date), the source (`firecrawl-self-host`, `firecrawl-cloud` or `synthetic`), the API version, and the capture time per page.
 
 **Where it lives.** Captured pages are third-party content and are never committed to this public repository:
 
@@ -106,7 +164,13 @@ The live web changes daily, so two models run a week apart would read different 
 | Page Markdown, titles, snippets | `$EDAT_PRIVATE_DIR/web/snapshots/<snapshot id>/` | No |
 | Held-out query lists | `$EDAT_PRIVATE_DIR/web/queries/` | No |
 
-Anyone can run the capture script with their own key and get their own snapshot. If their pages hash the same, their numbers are comparable with the board's; if not (the web moved), the snapshot id differs and the results store refuses to compare them (the snapshot id is part of the run key, §5.3). The capture refuses to write page content inside the repository.
+Anyone can run the capture script against their own self-hosted stack (or the hosted service with their own key) and get their own snapshot. If their pages hash the same, their numbers are comparable with the board's; if not (the web moved), the snapshot id differs and the results store refuses to compare them (the snapshot id is part of the run key, §5.3). The capture refuses to write page content inside the repository.
+
+**Capture is its own step.** Start the stack (loopback only), run `python -m edat.web.capture run`, check, and stop the stack. Models are run later against the frozen snapshot, with no container running. With `$EDAT_HEAVY_LOCK` naming the shared heavy-job lock, `run` refuses while that lock exists. The capture's manifest records:
+
+- `meta.counts`: the number of queries, empty searches, pages kept and dropped, and cases dropped;
+- `meta.empty_queries`: each search that came back empty (DuckDuckGo can block a self-hosted stack);
+- `meta.dropped_pages`: each dropped page, with its URL and the reason (an error status, empty Markdown, a failed scrape).
 
 **Answer keys on captured pages.** Each captured case's question and accepted-answer patterns are written before the capture. After the capture, `capture.py --check` confirms that at least one captured page for the case contains an accepted answer and that no captured page contains a listed wrong one. A case that fails is dropped from that snapshot and the drop is recorded in the manifest. Captured cases ask about stable, public facts, so a model may know some answers already: the grounding rule (§4.2) still makes it read and cite a page.
 
@@ -161,7 +225,7 @@ Harbor's web-safety rules stay on. Harbor's current-news path (Google News RSS) 
 
 ### 3.6 A live lane: left out of version 1
 
-A live lane (models searching the real web through Firecrawl during the run) is **not built**, for four reasons: its numbers are not comparable across dates or even across models run an hour apart; its cost grows with models × trials (about 20 credits a trial, so roughly 6,000 credits for the core set per model, beyond the free plan); its answers cannot be checked deterministically on pages nobody has seen; and it would send model-written queries, which in the injection cases can carry canaries, to an outside service. The capture's own `--check` (§3.1) already tells when the web has moved under a case. The client interface (§7) makes a live lane a small addition if it is wanted later, labelled with its date and never ranked (Open question 5).
+A live lane (models searching the real web through Firecrawl during the run) is **not built**, for four reasons: its numbers are not comparable across dates or even across models run an hour apart; it would keep the container stack running beside the model, against the rule that the stack never runs during a model run or a measurement, and on the hosted service it would cost about 20 credits a trial; its answers cannot be checked deterministically on pages nobody has seen; and it would send model-written queries, which in the injection cases can carry canaries, to an outside service. The capture's own `--check` (§3.1) already tells when the web has moved under a case. The client interface (§7) makes a live lane a small addition if it is wanted later, labelled with its date and never ranked (Open question 5).
 
 ### 3.7 Cloud references
 
@@ -271,18 +335,19 @@ Three levels, about 40 % L1, 40 % L2, 20 % L3. L1: the fact is in the top result
 
 ## 6. Cost
 
-### 6.1 Capture budget (Firecrawl credits)
+### 6.1 Capture budget
 
-Assumptions: two invented queries per captured case (the case's query and one paraphrase, or one query per hop for two-page cases), one query for "not found" cases, 5 results each with `scrapeOptions` Markdown (2 credits for the search plus 5 for the pages). These are the counts `python -m edat.web.capture plan` gives for the version-1 lists.
+Assumptions: two invented queries per captured case (the case's query and one paraphrase, or one query per hop for two-page cases), one query for "not found" cases, and 5 results each with Markdown. These are the counts `python -m edat.web.capture plan` gives for the version-1 lists.
 
-| Item | Count | Credits |
+| Item | Self-hosted (main path) | Hosted (alternative) |
 |---|---|---|
-| Searches with Markdown: 24 cases × 2 queries + 6 "not found" cases × 1 | 54 × 7 | 378 |
-| Second-hop scrapes (links followed from result pages) | 0 in version 1 | 0 |
-| Retries and failed pages (about 20 %) | | ~76 |
-| **One capture, full captured set** | | **≈ 380, about 450 with the margin** |
+| Searches with Markdown: 24 cases × 2 queries + 6 "not found" cases × 1 | 54 | 54 × 7 credits = 378 |
+| Second-hop scrapes | 0 in version 1 | 0 |
+| Money | **none** | none on the free plan; about 450 credits with a 20 % margin |
+| Wall time | **about 6–10 minutes** (54 requests 6.5 s apart, plus page scrapes inside the stack) | about 10–15 minutes at 10 requests a minute |
+| Setup | First install and build about 10–20 minutes, once (§1.3) | a key |
 
-The development list alone (8 cases, 15 searches) costs about 105 credits. That fits the free plan's 1,000 monthly credits with room for one partial re-capture. At 10 requests a minute it takes about 10–15 minutes. A self-hosted capture costs no credits. Captures are rare: once per benchmark version, or when `--check` says too many captured cases have broken.
+The development list alone is 8 cases and 15 searches. Captures are rare: once per benchmark version, or when `check` says too many captured cases have broken. If DuckDuckGo blocks the capture, the empty searches are counted; a re-run later, or SearXNG (Open question 1), is the remedy, not a key.
 
 ### 6.2 Run time and tokens per model (estimates, not measurements)
 
@@ -306,8 +371,9 @@ The full set runs only for the two references, as elsewhere.
 | Snapshot format, normaliser, content hashing, store (public manifest and private content kept apart) | `edat/web/snapshot.py` |
 | Deterministic BM25 ranker and chunker | `edat/web/rank.py` |
 | `edat-web-v1` tool environment: `web_search`, `web_fetch`, `docs_search`, `docs_read`, `send_message`; windows and reading budget | `edat/web/tools.py` |
-| Firecrawl client behind an interface (`SearchScrapeService`), an HTTP client for hosted v2 or a loopback self-host, and a stand-in for tests | `edat/web/firecrawl.py` |
-| Capture script with a credit estimate, a query privacy screen, `--check`, and a refusal to write content into the repository | `edat/web/capture.py` |
+| Firecrawl client behind an interface (`SearchScrapeService`): an HTTP client for a loopback self-hosted stack (the default) or the hosted v2 service, and a stand-in for tests | `edat/web/firecrawl.py` |
+| Compose override binding the self-hosted API to `127.0.0.1:3002` | `edat/web/compose.localhost.yaml` |
+| Capture script: plan (searches, minutes, hosted credits), a query privacy screen, counts of empty searches and dropped pages, `check`, a refusal to run while the heavy-job lock is held, and a refusal to write content into the repository | `edat/web/capture.py` |
 | Synthetic site generator with planted facts | `edat/web/site.py` |
 | Case templates and generator, splits, loader | `edat/web/cases.py`; development split in `test_fixtures/web/dev/`; held-out in `$EDAT_PRIVATE_DIR/web/` |
 | Scorers and Restraint events | `edat/web/score.py` |
@@ -320,7 +386,7 @@ The full set runs only for the two references, as elsewhere.
 **Needed from other parts:** the `web` tier and its composite registered in the results store; a Restraint row for spec `"15"` in `external_restraint_rows`; `install_fakes(world, fakes=...)` in Toolbench's runner.
 
 **Not built yet:**
-- A capture has never been run: no captured snapshot or public manifest exists, and the 30 captured cases are unverified until `capture.py check` runs on real pages.
+- A capture has never been run, and nothing was installed: no container runtime, no images, no stack. No captured snapshot or public manifest exists, and the 30 captured cases are unverified until `capture.py check` runs on real pages.
 - The Harbor-loop column: the bridge environment is tested through the reference loop in the assistant lane, but no web case has been run through `HarborLoop` itself (web cases carry none of the agentic case fields `HarborLoop.begin_trial` reads).
 - Aggregation: WR-1 to WR-25 beyond the per-trial metrics, the per-family profile and a simple `summary()`; the results store's composite and the Restraint row are requests above.
 - A CLI for real runs (oMLX or OpenRouter clients); `run_trial` takes any adapter client, and the only command today is the offline oracle run.
@@ -333,7 +399,10 @@ The full set runs only for the two references, as elsewhere.
 - Firecrawl's credit cost for a search with `scrapeOptions` (read as 2 per 10 results plus 1 per scraped page), whether a 5-result search costs 2 credits or 1, and the `/map` and `/crawl` shapes.
 - Whether hosted v2 search accepts `lang` (not in its OpenAPI spec). The capture sends `country: "US"` and English queries.
 - Whether single scrapes check `robots.txt`.
-- Self-hosted memory use: the estimate in §1.3 is mine. Whether a self-hosted Firecrawl will scrape a loopback address (needed for Open question 3) was not checked.
+- Self-hosted disk, memory and build time: the estimates in §1.3 are mine. Nothing was installed, built or started.
+- How often DuckDuckGo blocks a self-hosted stack's searches at 6.5 s spacing; the code path (retries, then empty) was read, not run.
+- That `!override` in the Compose override behaves as intended on the Compose version that gets installed (it needs 2.24 or later).
+- Whether a self-hosted Firecrawl will scrape a loopback address (needed for Open question 3).
 - Every run time and cost in §6; the share of captured cases that survive `--check`.
 - That 24,000 characters of page text fits every candidate's tokenizer inside 16k (assumed at 3–4 characters a token).
 - That the six cloud models' providers never search on their own without `:online` or `plugins`: inferred from OpenRouter's documentation; the annotation check (§3.7) catches it if they do.
@@ -342,10 +411,11 @@ The full set runs only for the two references, as elsewhere.
 
 ## 9. Open questions for the user
 
-1. **Key or self-host for the capture?** I recommend a free hosted key: about 380–450 credits once per benchmark version, under the free plan's 1,000 a month. Self-hosting needs no key but gets its search results from scraped DuckDuckGo unless you also run SearXNG.
-2. **Data retention on the capture.** Send `zeroDataRetention: true`? The queries are invented, so it is optional; it may not be available on the free plan (not checked).
+1. **If DuckDuckGo blocks the capture.** Self-hosting is decided. If many searches come back empty, add a SearXNG container (keyless; about 0.2–0.5 GB) or wait and re-run? I recommend trying plain DuckDuckGo first.
+1a. **The install.** Docker Desktop or Colima (open source, lighter) as the container runtime, and build Firecrawl's images from the pinned source or use its prebuilt images? I recommend Colima and the pinned source, so the stack matches the code that was read.
+2. **Data retention (hosted only).** If the hosted service is ever used, send `zeroDataRetention: true`? Not relevant to a self-hosted capture.
 3. **Converter parity for the synthetic site.** Keep the generator's own Markdown (simple, deterministic), or run the generated HTML through a self-hosted Firecrawl once so synthetic and captured pages share a converter?
-4. **Captured share.** 15 % captured, 85 % synthetic. More captured cases cost more credits and give less exact checking.
+4. **Captured share.** 15 % captured, 85 % synthetic. More captured cases mean more DuckDuckGo searches and less exact checking.
 5. **Live lane.** Left out (§3.6). Want a small, dated, unranked live smoke test later?
 6. **Tier and Restraint row names.** Tier `web` and a new Restraint row (proposed #75 web content): confirm, or name them.
 7. **Headline thinking mode** for thinking models: the agentic headline's mode, as assumed?

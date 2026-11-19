@@ -6,9 +6,18 @@ drop each case. Nothing here is sent until `run` is given `--yes`; queries and
 questions are screened for personal data first.
 
     python -m edat.web.capture plan FILE
-    python -m edat.web.capture run FILE --service cloud|self-host --today YYYY-MM-DD --yes
+    python -m edat.web.capture run FILE --today YYYY-MM-DD --yes      # self-hosted stack on 127.0.0.1:3002
+    python -m edat.web.capture run FILE --service cloud --today YYYY-MM-DD --yes   # hosted, needs a key
     python -m edat.web.capture check SNAPSHOT_DIR FILE
     python -m edat.web.capture public-manifest SNAPSHOT_DIR --out FILE
+
+The main path is a self-hosted Firecrawl stack, started only for the capture
+and shut down after it; the hosted service stays possible behind the same
+client. Searches that come back empty (the self-hosted stack scrapes
+DuckDuckGo, which can block it) and pages that fail plain scraping are
+dropped and counted in the snapshot's `meta.counts`. With $EDAT_HEAVY_LOCK
+naming a lock that exists, `run` refuses: the capture never runs beside a
+model run or a measurement.
 
 Exit codes: 0 ok, 1 check failures, 2 refused, 3 usage.
 Captured page text is third-party content: it is saved outside the repository
@@ -149,11 +158,26 @@ def plan(cases: list[dict]) -> dict:
     scrapes = sum(c["follow_limit"] for c in cases if c.get("follow_links_matching"))
     credits = estimate_credits(limits, scrapes, with_markdown=True)
     return {"cases": len(cases), "searches": len(limits), "scrapes_estimate": scrapes,
-            "credits_estimate": credits, "credits_with_margin": math.ceil(credits * 1.2)}
+            "self_host_credits": 0,
+            "minutes_estimate": math.ceil((len(limits) + scrapes) * MIN_INTERVAL_S / 60),
+            "credits_estimate": credits, "credits_with_margin": math.ceil(credits * 1.2),
+            "note": "credits apply to the hosted service only; a self-hosted stack uses none"}
 
 
 # ------------------------------------------------------------------- capture
 _LINK = re.compile(r"\[[^\]\n]*\]\(\s*<?(https?://[^\s)>]+)")
+
+
+SELF_HOST_URL = "http://127.0.0.1:3002"
+MIN_INTERVAL_S = 6.5   # the client's spacing between requests (gentle on the search backend)
+HEAVY_LOCK_ENV = "EDAT_HEAVY_LOCK"
+
+
+def heavy_lock_held() -> str | None:
+    """The capture never runs beside a model run or a measurement: when
+    $EDAT_HEAVY_LOCK names a lock path that exists, the capture refuses."""
+    path = os.environ.get(HEAVY_LOCK_ENV)
+    return path if path and Path(path).exists() else None
 
 
 def _utc_now() -> str:
@@ -169,6 +193,7 @@ def run_capture(cases: list[dict], service: SearchScrapeService, *, today: str,
     corpora: dict[str, list[str]] = {}
     dropped_pages: list[dict] = []
     dropped_seen: set[str] = set()
+    empty_queries: list[dict] = []
 
     def drop(url: str, reason: str) -> None:
         if url not in dropped_seen:
@@ -190,13 +215,21 @@ def run_capture(cases: list[dict], service: SearchScrapeService, *, today: str,
         case_keys: dict[str, str] = {}
         for i, q in enumerate(case["queries"]):
             hits = service.search(q, limit=case["limit"], with_markdown=True)
+            if not hits:   # self-hosted search returns nothing when DuckDuckGo blocks it
+                empty_queries.append({"qid": f"{case['id']}:{i}", "query": q})
             queries.append(QueryRecord(
                 qid=f"{case['id']}:{i}", query=q, params={"limit": case["limit"], "country": COUNTRY},
                 results=[{"rank": r + 1, "url": h.url, "title": h.title, "description": h.description}
                          for r, h in enumerate(hits)]))
             for h in hits:
                 if h.markdown is None:
-                    sp = service.scrape(h.url)
+                    try:
+                        sp = service.scrape(h.url)
+                    except FirecrawlError as exc:
+                        if exc.kind != "request":
+                            raise
+                        drop(h.url, f"scrape failed: {exc.detail}")
+                        continue
                     keep(sp.url or h.url, sp.title or h.title, sp.description or h.description,
                          sp.markdown, sp.status, sp.published or h.published, case_keys)
                 else:
@@ -223,9 +256,13 @@ def run_capture(cases: list[dict], service: SearchScrapeService, *, today: str,
                 keep(sp.url or url, sp.title, sp.description, sp.markdown, sp.status, sp.published, case_keys)
         corpora[case["id"]] = sorted(case_keys)
     snap = Snapshot.build(pages.values(), today=today, source=service.source, converter=service.converter,
-                          queries=queries, corpora=corpora, meta={"dropped_pages": dropped_pages})
+                          queries=queries, corpora=corpora,
+                          meta={"dropped_pages": dropped_pages, "empty_queries": empty_queries})
     _, dropped = check(snap, cases)
     snap.meta["dropped_cases"] = dropped
+    snap.meta["counts"] = {"queries": len(queries), "empty_queries": len(empty_queries),
+                           "pages_kept": len(pages), "pages_dropped": len(dropped_pages),
+                           "cases": len(cases), "cases_dropped": len(dropped)}
     return snap
 
 
@@ -285,8 +322,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("file")
     r = sub.add_parser("run")
     r.add_argument("file")
-    r.add_argument("--service", choices=("cloud", "self-host"), required=True)
-    r.add_argument("--base-url")
+    r.add_argument("--service", choices=("self-host", "cloud"), default="self-host")
+    r.add_argument("--base-url", default=SELF_HOST_URL)
     r.add_argument("--today", required=True)
     r.add_argument("--out")
     r.add_argument("--deny-file")
@@ -316,6 +353,9 @@ def main(argv: list[str] | None = None) -> int:
                 deny = [ln.strip() for ln in Path(args.deny_file).read_text(encoding="utf-8").splitlines()
                         if ln.strip() and not ln.startswith("#")]
             _screen_cases(cases, deny)
+            if (held := heavy_lock_held()):
+                print(f"refused: a heavy job holds the lock ({held}); capture after it finishes", file=sys.stderr)
+                return 2
             if not args.yes:
                 _print({"plan": plan(cases), "would_send": [q for cs in cases for q in cs["queries"]],
                         "note": "nothing sent; add --yes to send"})
@@ -323,17 +363,14 @@ def main(argv: list[str] | None = None) -> int:
             if args.service == "cloud":
                 service = FirecrawlClient(keychain_service=os.environ.get("EDAT_FIRECRAWL_KEYCHAIN") or None)
             else:
-                if not args.base_url:
-                    print("--base-url is required with --service self-host", file=sys.stderr)
-                    return 3
                 service = FirecrawlClient(args.base_url)
             snap = run_capture(cases, service, today=args.today, deny_terms=deny)
             path = save_private(snap, Path(args.out) if args.out else None)
             if args.manifest_out:
                 write_public_manifest(snap, args.manifest_out)
             dropped = snap.meta.get("dropped_cases", [])
-            _print({"snapshot_id": snap.id, "saved": str(path), "pages": len(snap.pages),
-                    "kept_cases": len(cases) - len(dropped), "dropped_cases": dropped})
+            _print({"snapshot_id": snap.id, "saved": str(path), "counts": snap.meta["counts"],
+                    "dropped_cases": dropped, "empty_queries": snap.meta["empty_queries"]})
             return 1 if dropped else 0
         if args.cmd == "check":
             snap = Snapshot.load(args.snapshot_dir)

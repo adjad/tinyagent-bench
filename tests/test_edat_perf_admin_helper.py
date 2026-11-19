@@ -60,6 +60,25 @@ class FakeBalloon:
         FakeBalloon.log.append(("release", self.nbytes))
 
 
+def _unix_bind_allowed() -> bool:
+    base = tempfile.gettempdir()
+    d = tempfile.mkdtemp(dir=base if len(base) < 50 else "/tmp", prefix="edatp")
+    s = socket.socket(socket.AF_UNIX)
+    try:
+        s.bind(os.path.join(d, "t.sock"))
+        return True
+    except PermissionError:
+        return False
+    finally:
+        s.close()
+        shutil.rmtree(d, ignore_errors=True)
+
+
+# Some sandboxes forbid binding any socket; the socket tests then skip instead of failing.
+needs_unix_socket = pytest.mark.skipif(not _unix_bind_allowed(),
+                                       reason="this environment forbids binding a Unix socket")
+
+
 @pytest.fixture
 def rundir():
     base = tempfile.gettempdir()  # AF_UNIX paths are limited to ~104 bytes: fall back to /tmp when $TMPDIR is long
@@ -319,6 +338,7 @@ def test_restore_continues_after_a_failed_step(rundir):
     assert ran[-1] == ["/usr/sbin/sysctl", "iogpu.wired_limit_mb=7777"]
 
 
+@needs_unix_socket
 def test_failed_set_still_restores(rundir):
     h, ran = make(rundir, original=7777, run_rc={"/usr/sbin/sysctl": 1})
     assert not req(h, "wired_limit_set", mb=10900)["ok"]
@@ -354,6 +374,7 @@ class Conn:
         return json.loads(self.f.readline())
 
 
+@needs_unix_socket
 def test_socket_mode_and_second_client_refused(rundir):
     h, _ = make(rundir)
     t = start_server(h)
@@ -369,6 +390,7 @@ def test_socket_mode_and_second_client_refused(rundir):
     assert not t.is_alive()
 
 
+@needs_unix_socket
 def test_restore_on_exit_verb(rundir):
     h, ran = make(rundir, original=7777)
     t = start_server(h)
@@ -384,6 +406,7 @@ def test_restore_on_exit_verb(rundir):
     assert audit_lines(rundir)[-1] == {**audit_lines(rundir)[-1], "event": "exit", "reason": "exit"}
 
 
+@needs_unix_socket
 def test_restore_on_client_disconnect(rundir):
     h, ran = make(rundir, original=7777)
     t = start_server(h)
@@ -398,6 +421,7 @@ def test_restore_on_client_disconnect(rundir):
     assert audit_lines(rundir)[-1]["reason"] == "disconnect"
 
 
+@needs_unix_socket
 def test_restore_on_signal_handler(rundir):
     h, ran = make(rundir, original=7777)
     t = start_server(h)
@@ -409,6 +433,7 @@ def test_restore_on_signal_handler(rundir):
     assert audit_lines(rundir)[-1]["reason"] == "SIGTERM"
 
 
+@needs_unix_socket
 def test_restore_on_timeout(rundir):
     h, ran = make(rundir, original=7777, lifetime_s=0.6)
     t = start_server(h)
@@ -419,6 +444,7 @@ def test_restore_on_timeout(rundir):
     assert audit_lines(rundir)[-1]["reason"] == "timeout"
 
 
+@needs_unix_socket
 def test_timeout_before_any_client(rundir):
     h, _ = make(rundir, lifetime_s=0.3)
     t = start_server(h)
@@ -427,6 +453,7 @@ def test_timeout_before_any_client(rundir):
 
 
 # ------------------------------------------------------------------ client
+@needs_unix_socket
 def test_client_round_trip_against_helper(rundir):
     h, ran = make(rundir, original=7777)
     t = start_server(h)

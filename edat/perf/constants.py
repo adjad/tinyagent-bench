@@ -107,6 +107,10 @@ LONG_SESSION_MIN_TRIMS = 10
 LEAK_FLAG_FRACTION = 0.05
 TIME_BUDGET_S = {"question": 10.0, "one_tool": 20.0, "multi_step": 60.0, "digest": 120.0,
                  "brief": 30.0}   # §9.4 (analyst's proposal)
+# Additive: screen-control tasks by level (11 §3.10, that spec's proposal) and sidekick tasks
+# (12 SK-25 uses §9.4's question and multi-step budgets).
+TIME_BUDGET_SCREEN_S = {"L1": 15.0, "L2": 30.0, "L3": 60.0, "L4": 120.0, "L5": 180.0}
+TIME_BUDGET_SIDEKICK_S = {"answer_only": 10.0, "tool_mode": 60.0}
 
 # --- reference models (§1.2, §1.5) ---------------------------------------------
 BASELINE_ID = "Gemma-Wisp"
@@ -121,7 +125,8 @@ TESTS = ("level", "energy_pair", "load_warm", "load_cold", "first_token", "agent
          "fit16_emulation",                                   # §3.10
          "cloud_level", "cloud_task",                         # §3.11
          "sim_day_event", "sim_day_idle", "sim_day_realtime", "long_session_turn",
-         "reload_after_idle", "fit16_under_load", "pressure_sweep", "aux_baseline")  # §3.12
+         "reload_after_idle", "fit16_under_load", "pressure_sweep", "aux_baseline",  # §3.12
+         "screen_task", "sidekick_task")   # additive: timed tasks from specs 11 and 12
 PHASES = ("warmup", "measured")
 STATUSES = ("ok", "oom_killed", "oom_killed_at_load", "killed_unknown", "not_run_above_oom",
             "exceeds_native_window", "ok_extended", "engine_refused", "memory_pressure", "truncated",

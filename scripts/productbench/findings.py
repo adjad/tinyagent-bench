@@ -179,7 +179,11 @@ def collect(records: list[dict], profiles: dict[str, Profile | None], report: Re
         elif surface == "ask":
             _attempted(rep, key, r)
         elif surface == "act":
-            _act(rep, key, r)
+            if (r.get("captured") or {}).get("error"):
+                # an engine fault, not the model: excluded and counted (never "missed it all")
+                rep.faults[key]["act_engine_fault"].add(f"trial {r.get('trial')}")
+            else:
+                _act(rep, key, r)
     return rep
 
 

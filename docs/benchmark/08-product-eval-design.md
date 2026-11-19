@@ -328,6 +328,19 @@ Each of these only reads. If any fails, the run does not start.
 | settings | none. oMLX's per-model settings are read, not changed. The act-for-me yes is written only in the run's throwaway Harbor home | nothing to restore |
 | keep awake | `caffeinate -i -w <run pid>` | ends with the run |
 
+### 15.2a The guarded session (`scripts/productbench/session.py`)
+
+`python -m scripts.productbench.session --plan plan.json` runs the steps of a live run (one engine model and one runner command each) and puts the Mac back on every exit path, a signal included. A run needs no hand-written driver:
+
+- it starts nothing while Harbor runs or port 8765, 8791, 8775 or 8766 is taken, and refuses an `out` or `$TMPDIR` inside the repository;
+- it takes the lock with mkdir (stops if it exists) and removes it only because it took it;
+- SIGTERM, SIGINT and SIGHUP (unless ignored, as under nohup) unwind to the same clean-up: the running step gets SIGTERM, whose handler stops its servers and writes `stopped` into its run folder; the resident models are put back; oMLX is stopped again if the session found it stopped; the lock is removed. Signals are ignored while that runs;
+- the engine's state is saved once per session, in `engine-before-<token>.json`; `engine_prep keep` and `restore` with `--token` refuse any file without that token, so a state an earlier run left (in the same folder or not) is never restored. The save also records each model's pinned and default flags; `restore` exits 3 if they differ afterwards and never writes them;
+- one engine port: `engine_prep --engine-port` and the runner's `--engine-port` share one default (`$TINYAGENT_ENGINE_PORT`, else 8000), and the session passes its port to both;
+- a step that stops (its meta says `stopped`, or the runner exits non-zero) ends the session as a failure. The runner itself stops when every record of a trial is an engine fault, at any record count; an act-for-me record whose Brief made no engine call, showed no card, or ran while the engine did not hold the model is such a fault, excluded from act for me and counted (`act_engine_faults`), never read as missing every item.
+
+What happened is written to `<out>/session-<token>.json`; the exit code is 0 only when every step finished and the engine was restored.
+
 ### 15.3 Commands, in order
 
 From the repository root, with `OUT=~/tinyagent-bench-results/in-assistant`. To keep the printed lines, add `2>&1 | tee -a $OUT/run.log` to each run command. If the host keeps heavy jobs apart with a lock directory, take it around each step (`mkdir <lock> || exit` before it; `rmdir <lock>` after it, only if this step created it). One model is resident at a time; all of one model's runs finish before the other model is loaded.

@@ -40,6 +40,7 @@ import json
 import os
 import platform
 import re
+import signal
 import subprocess
 import sys
 import time
@@ -60,6 +61,7 @@ from scripts.productbench import models as model_files  # noqa: E402
 from scripts.productbench import known_faults  # noqa: E402
 from scripts.productbench import loader as world_loader  # noqa: E402
 from scripts.productbench import autonomy, long_session, preferences, privacy, questions, simday  # noqa: E402
+from scripts.productbench import engine_prep  # noqa: E402
 from scripts.productbench import score_ask, score_brief, score_day, summary  # noqa: E402
 from scripts.productbench.capture import Bench, TeeTransport  # noqa: E402
 from scripts.productbench.profile import load as load_profile  # noqa: E402
@@ -112,6 +114,77 @@ def sync_preflight(profiles: list, args) -> dict:
 
 class StopRun(RuntimeError):
     """A stop condition held between trials (host memory, the error share)."""
+
+
+class Terminated(BaseException):
+    """SIGTERM or SIGHUP: unwind so every `finally` runs (the trial's servers stop) and the run
+    folder records why it stopped. A BaseException, so no `except Exception` swallows it."""
+
+    def __init__(self, signum: int):
+        super().__init__(f"terminated by signal {signal.Signals(signum).name}")
+        self.signum = signum
+
+
+def install_signal_handlers() -> list[int]:
+    """Turn SIGTERM, and SIGHUP unless it is ignored (a nohup run keeps running when its terminal
+    goes away), into Terminated. Returns the signals handled."""
+    def handler(signum, frame):
+        raise Terminated(signum)
+    handled = []
+    for sig in (signal.SIGTERM, signal.SIGHUP):
+        if sig == signal.SIGHUP and signal.getsignal(sig) == signal.SIG_IGN:
+            continue
+        signal.signal(sig, handler)
+        handled.append(sig)
+    return handled
+
+
+def inside_repo(path: Path | str | None) -> bool:
+    if not path:
+        return False
+    try:
+        Path(path).expanduser().resolve().relative_to(ROOT.resolve())
+        return True
+    except ValueError:
+        return False
+
+
+def refuse_inside_repo(out: str | None, tmpdir: str | None) -> str | None:
+    """Why a live run must not start: results or scratch homes (the preflight's too) would land
+    inside the repository. None when both are outside it."""
+    for what, path in (("--out", out), ("$TMPDIR", tmpdir)):
+        if inside_repo(path):
+            return f"{what} {path} is inside the repository; results and scratch homes stay outside it"
+    return None
+
+
+def engine_fault(rec: dict) -> bool:
+    """A record the engine or transport failed (it says nothing about the model)."""
+    return bool((rec.get("captured") or {}).get("error"))
+
+
+def all_faults(log: Path, n: int) -> bool:
+    """Whether the last `n` records written are every one an engine fault (n of 0 is not)."""
+    if n <= 0:
+        return False
+    try:
+        rows = [json.loads(x) for x in log.read_text(encoding="utf-8").splitlines() if x.strip()]
+    except OSError:
+        return False
+    tail = rows[-n:]
+    return len(tail) == n and all(engine_fault(r) for r in tail)
+
+
+def act_engine_fault(usage: dict | None, cards: list, resident: dict | None, model: str, *, stub: bool) -> str | None:
+    """Why an act-for-me record cannot be judged: its Brief made no engine call, showed no card, or
+    the engine did not hold the model. Such a record is excluded, never read as "missed it all"."""
+    if not (usage or {}).get("calls"):
+        return "the Brief made no engine call"
+    if not cards:
+        return "the Brief showed no card"
+    if not stub and resident is not None and model not in (resident.get("loaded") or []):
+        return f"the engine did not hold {model}"
+    return None
 
 
 MAX_ERROR_SHARE = 0.02          # as the agentic spec: over 2% excluded trials invalidates a run
@@ -435,11 +508,13 @@ async def run_act_trial(bench: Bench, plan: dict, base: dict, log: Path, spend: 
     result.update({"mode": plan["mode"], "expectations": len(plan["expectations"]), "passed_over": passed_over})
     cards = [{"title": c.get("title"), "kind": (c.get("action") or {}).get("method")}
              for c in (cap["snapshot"].get("cards") or [])]
+    fault = act_engine_fault(cap.get("usage"), cards, simday.engine_resident(bench.engine_port),
+                             bench.model, stub=rec_base["stub"])
     _record(log, known_faults.stamp_writes({**rec_base, "surface": "act", "case": "act-for-me", "family": "act_for_me",
                   "captured": {"mode": plan["mode"], "yes_at": plan["yes_at"], "arrivals": autonomy.arrival_posts(
                       plan["expectations"]), "posted": posted, "done": done, "act_state": state,
                       "background_writes": writes, "brief_cards": cards, "brief_elapsed_s": cap["elapsed_s"],
-                      "usage": cap.get("usage")},
+                      "usage": cap.get("usage"), "error": fault},
                   "score": result}, profile))
     c = result["counts"]
     print(f"  act    {'—' if result['score'] is None else round(100 * result['score'], 1)}  right={c['right']} "
@@ -683,8 +758,9 @@ def main() -> None:
                     help="the Keychain item Harbor reads the OpenRouter token from (never the token)")
     ap.add_argument("--port", type=int, default=8775)
     ap.add_argument("--sandbox-port", type=int, default=8766)
-    ap.add_argument("--engine-port", type=int, default=8000,
-                    help="the running oMLX the backend uses (local real runs only)")
+    ap.add_argument("--engine-port", type=int, default=engine_prep.PORT,
+                    help="the running oMLX the backend uses (local real runs only); the same default as "
+                         "engine_prep ($TINYAGENT_ENGINE_PORT, else 8000)")
     ap.add_argument("--out", default=None, help="results root (default $TMPDIR/productbench)")
     ap.add_argument("--report", default=None, help="re-summarise a run directory")
     ap.add_argument("--sim-day", default=None, metavar="SCRIPT",
@@ -696,6 +772,7 @@ def main() -> None:
     ap.add_argument("--write-sim-day", default=None, metavar="PATH",
                     help="write the default day script for --profile to PATH and exit")
     args = ap.parse_args()
+    install_signal_handlers()
 
     entries, file_refs = model_files.load(args.models_file)
     refs = args.reference or file_refs
@@ -715,6 +792,9 @@ def main() -> None:
 
     if not args.model or not args.profile:
         sys.exit("--model and --profile are required")
+    inside = refuse_inside_repo(args.out, os.environ.get("TMPDIR"))
+    if inside:
+        sys.exit(inside + "; nothing was run")
     for pr in pinned:          # refuse now, not after hours of trials, if a pinned run is of an older scorer
         older = [v for v in summary.scorer_of(_load_records(pr)) if v != summary.SCORER_VERSION]
         if older:
@@ -855,9 +935,19 @@ def main() -> None:
                                                         "escapes": escapes})
                             if escapes:
                                 print(f"  guard refused {len(escapes)} attempt(s): {escapes[:3]}")
+                        if all_faults(log, n):
+                            raise StopRun(f"every record of {label} is an engine fault ({n} of {n}): "
+                                          "the run ends as a failure, not as done")
     except (SpendLimit, StopRun) as exc:
         stopped = str(exc)
         print(f"\nSTOPPED: {stopped}")
+    except Terminated as exc:
+        stopped = str(exc)
+        print(f"\nSTOPPED: {stopped}")
+        meta["stopped"] = stopped
+        meta["finished"] = time.time()
+        (run_dir / "meta.json").write_text(json.dumps(meta, indent=1))
+        sys.exit(128 + exc.signum)
     meta["stopped"] = stopped
     meta["cloud_spend_usd"] = round(spend.spent, 6)
     meta["finished"] = time.time()

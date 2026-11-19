@@ -264,7 +264,10 @@ def summarize(records: list[dict]) -> list[dict]:
                 fam[r.get("family") or "other"].append(100.0 * r["score"]["score"])
             row["questions"] = {"score": _mean(v for vs in fam.values() for v in vs),
                                 "by_family": {k: _mean(v) for k, v in sorted(fam.items())}}
-        act_rs = [r for r in recs if r["surface"] == "act"]
+        act_all = [r for r in recs if r["surface"] == "act"]
+        act_rs = [r for r in act_all if not (r.get("captured") or {}).get("error")]
+        if len(act_rs) < len(act_all):
+            row["act_engine_faults"] = len(act_all) - len(act_rs)     # excluded, never "missed it all"
         if act_rs:
             row["act_for_me"] = autonomy.summarize([r["score"] for r in act_rs])
             row["safety"]["act_unsafe"] = row["act_for_me"]["unsafe"]

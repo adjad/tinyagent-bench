@@ -507,3 +507,65 @@ def test_hosted_clients_never_get_heldout_cases():
             return {"kind": "cloud_reference"}
     with pytest.raises(HostedSplitError):
         run_trial({**REM, "split": "heldout"}, Hosted([]), env_factory=factory)
+
+
+# ------------------------------------------------------------------ loop extension points (specs 11, 12)
+
+def _loop_env():
+    from edat.state.env import ToolInfo, ToolResult
+
+    class Env:
+        lane = "neutral"
+        def __init__(self): self.ran = []
+        def schemas(self, menu): return [{"type": "function", "function": {"name": n, "parameters": {"type": "object"}}} for n in menu]
+        def info(self, name): return ToolInfo(name=name, effect=name != "look", egress=False, confirm=False, domain="t") if name in ("look", "click", "finish", "run_command") else None
+        def call(self, name, args):
+            self.ran.append(name)
+            return ToolResult(content=f"ok\nSCREEN {len(self.ran)} " + "x" * 50, outcome="succeeded", effect=name != "look")
+    return Env()
+
+
+def test_observation_policy_stubs_earlier_results_but_keeps_transcript():
+    from edat.loop import LoopSettings, ReferenceLoop, keep_latest_results
+    from edat.models.stub import ScriptedClient
+    c = ScriptedClient([{"calls": [{"name": "look", "arguments": {}}]}, {"calls": [{"name": "click", "arguments": {}}]},
+                        {"calls": [{"name": "click", "arguments": {}}]}, {"text": "Done."}])
+    msgs = [{"role": "user", "content": "go"}]
+    tr = ReferenceLoop().run_turn(c, _loop_env(), msgs, menu=["look", "click"],
+                                  settings=LoopSettings(observation=keep_latest_results()))
+    assert tr.stop == "answer"
+    last_seen = [m for m in c.requests[-1]["messages"] if m["role"] == "tool"]
+    assert [m["content"].endswith("(earlier output omitted)") for m in last_seen] == [True, True, False]
+    assert all("SCREEN" in m["content"] for m in msgs if m["role"] == "tool")
+
+
+def test_step_limit_call_cap_stop_tool_and_guard():
+    from edat.loop import LoopSettings, ReferenceLoop, per_case_step_limit
+    from edat.models.stub import ScriptedClient
+    assert per_case_step_limit(2) == 6 and per_case_step_limit(5) == 10 and per_case_step_limit(30) == 24
+    env = _loop_env()
+    c = ScriptedClient([{"calls": [{"name": "click", "arguments": {}}] * 3}, {"calls": [{"name": "click", "arguments": {}}] * 3}])
+    tr = ReferenceLoop().run_turn(c, env, [{"role": "user", "content": "x"}], menu=["click"],
+                                  settings=LoopSettings(max_calls=4))
+    assert tr.stop == "max_calls" and len(env.ran) == 4 and [x.outcome for x in tr.calls][-3:] == ["succeeded", "call_limit", "call_limit"]
+    env = _loop_env()
+    c = ScriptedClient([{"calls": [{"name": "finish", "arguments": {}}]}, {"text": "never"}])
+    tr = ReferenceLoop().run_turn(c, env, [{"role": "user", "content": "x"}], menu=["finish"],
+                                  settings=LoopSettings(stop_tools=("finish",)))
+    assert tr.stop == "stop_tool" and c.index == 1
+    env = _loop_env()
+    guard = lambda name, args, step: ("error: blocked by pre-screen", {"rule": "rm-rf"}) if args.get("cmd", "").startswith("rm -rf") else None
+    c = ScriptedClient([{"calls": [{"name": "run_command", "arguments": {"cmd": "rm -rf ~"}}]}, {"text": "Sorry."}])
+    tr = ReferenceLoop().run_turn(c, env, [{"role": "user", "content": "x"}], menu=["run_command"],
+                                  settings=LoopSettings(guard=guard))
+    assert env.ran == [] and tr.calls[0].outcome == "blocked" and tr.events[0]["detail"] == {"rule": "rm-rf"}
+
+
+def test_restraint_event_shape():
+    import pytest
+    from edat.grading.aggregate import external_restraint_rows, restraint_event
+    e = restraint_event("12", "sk_1", 1, "sample-model", "sample", "destructive", {"rule": "rm-rf"})
+    assert e["schema"] == "edat-restraint-event/v1"
+    assert external_restraint_rows([e], {"12": 10})
+    with pytest.raises(ValueError):
+        restraint_event("12", "sk_1", 1, "m", "b", "rude")

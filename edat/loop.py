@@ -22,6 +22,15 @@ Spec 02 §2.1. The reference loop, per user turn:
 Loops are pluggable behind `AgentLoop`. Which loop the board publishes is not
 decided by this module: callers choose one by name from `LOOPS`, and nothing
 else in EDAT depends on that choice.
+
+Extension points (docs/benchmark/agent-loop.md), all off by default so the
+reference loop is unchanged: the tool set is whatever `ToolEnvironment` the
+caller passes; `LoopSettings.observation` rewrites what the model sees of
+earlier tool results (spec 11 keeps only the latest screen); `max_steps` can
+be set per case with `per_case_step_limit` (spec 11: max(6, 2 x optimal),
+ceiling 24); `max_calls` caps executed calls per turn (spec 12: 6);
+`stop_tools` end the turn after a call such as `finish`; `guard` can block a
+call before it runs (spec 12's static pre-screen), recorded in `trace.events`.
 """
 from __future__ import annotations
 
@@ -36,6 +45,13 @@ from edat.state.env import ToolEnvironment, ToolResult
 CHARS_PER_TOKEN = 4
 
 
+# observation(messages, step) -> the message list sent to the model this step.
+# It must not mutate `messages` (the stored transcript keeps every result in full).
+ObservationPolicy = Callable[[list[dict], int], list[dict]]
+# guard(name, arguments, step) -> None to allow, or (result_text, event_detail) to block.
+CallGuard = Callable[[str, dict, int], "tuple[str, dict] | None"]
+
+
 @dataclass
 class LoopSettings:
     max_steps: int = 8
@@ -46,6 +62,32 @@ class LoopSettings:
     sampling: Sampling | None = None
     seed: int | None = None
     engine_retries: int = 1
+    observation: ObservationPolicy | None = None   # None: every result stays in full
+    max_calls: int | None = None                   # executed-call cap per turn; None: no cap
+    stop_tools: tuple[str, ...] = ()               # a call to one of these ends the turn after it runs
+    guard: CallGuard | None = None                 # pre-run block (never asks the approver)
+
+
+def per_case_step_limit(optimal_steps: int | None, *, floor: int = 6, factor: int = 2, ceiling: int = 24) -> int:
+    """Spec 11's per-case step budget: max(floor, factor x optimal), at most `ceiling`."""
+    return min(ceiling, max(floor, factor * int(optimal_steps or 0)))
+
+
+def keep_latest_results(stub: Callable[[dict, int], str] | None = None, *, keep: int = 1) -> ObservationPolicy:
+    """An observation policy that keeps the last `keep` tool results in full and
+    replaces each earlier one with `stub(message, ordinal)` (default: its first
+    line plus "(earlier output omitted)"). Assistant messages are untouched."""
+    def default_stub(m: dict, n: int) -> str:
+        first = str(m.get("content") or "").splitlines()[:1]
+        return (first[0] + " " if first else "") + "(earlier output omitted)"
+    stub_fn = stub or default_stub
+
+    def view(messages: list[dict], step: int) -> list[dict]:
+        idx = [i for i, m in enumerate(messages) if m.get("role") == "tool"]
+        old = set(idx[:-keep] if keep else idx)
+        ordinal = {i: n for n, i in enumerate(idx)}
+        return [({**m, "content": stub_fn(m, ordinal[i])} if i in old else m) for i, m in enumerate(messages)]
+    return view
 
 
 @dataclass
@@ -97,11 +139,12 @@ class StepRecord:
 class TurnTrace:
     steps: list[StepRecord] = field(default_factory=list)
     final_text: str = ""
-    stop: str = "answer"      # answer | max_steps | engine_error | empty
+    stop: str = "answer"      # answer | max_steps | engine_error | empty | max_calls | stop_tool
     excluded: bool = False
     engine_error: str | None = None
     engine_retries: int = 0
     messages_added: list[dict] = field(default_factory=list)
+    events: list[dict] = field(default_factory=list)   # guard blocks: {step, index, name, detail}
 
     @property
     def calls(self) -> list[CallRecord]:
@@ -110,7 +153,7 @@ class TurnTrace:
     def to_record(self, include_raw: bool = True) -> dict:
         return {"steps": [s.to_record(include_raw) for s in self.steps], "final_text": self.final_text,
                 "stop": self.stop, "excluded": self.excluded, "engine_error": self.engine_error,
-                "engine_retries": self.engine_retries}
+                "engine_retries": self.engine_retries, "events": self.events}
 
 
 class AgentLoop(Protocol):
@@ -164,8 +207,10 @@ class ReferenceLoop:
         trace = TurnTrace()
         tools = env.schemas(menu) if menu else []
         offered = set(menu)
+        executed = 0
         for step in range(1, s.max_steps + 1):
-            result = self._chat(client, messages, tools, s, trace)
+            view = s.observation(messages, step) if s.observation else messages
+            result = self._chat(client, view, tools, s, trace)
             if result is None:
                 return trace
             msg = result.assistant_message()
@@ -192,6 +237,11 @@ class ReferenceLoop:
                     content = _error_text(env, call.name, f"there is no tool named {call.name!r}")
                 elif not cr.offered:
                     content = _error_text(env, call.name, f"the tool {call.name!r} is not available")
+                elif s.max_calls is not None and executed >= s.max_calls:
+                    content, cr.outcome = _error_text(env, call.name, f"call limit of {s.max_calls} reached"), "call_limit"
+                elif s.guard and (blocked := s.guard(call.name, dict(call.arguments or {}), step)):
+                    content, cr.outcome = blocked[0], "blocked"
+                    trace.events.append({"step": step, "index": i, "name": call.name, "detail": blocked[1]})
                 else:
                     approved, deny_text = True, None
                     if info.confirm:
@@ -203,6 +253,7 @@ class ReferenceLoop:
                     else:
                         res: ToolResult = env.call(call.name, dict(call.arguments or {}))
                         cr.executed = True
+                        executed += 1
                         cr.outcome, cr.effect = res.outcome, res.effect
                         cr.virtual_elapsed_s = res.virtual_elapsed_s
                         content = res.content
@@ -216,6 +267,14 @@ class ReferenceLoop:
                 tool_msg = {"role": "tool", "tool_call_id": call.id, "name": call.name, "content": content}
                 messages.append(tool_msg)
                 trace.messages_added.append(tool_msg)
+            if s.stop_tools and any(c.executed and c.name in s.stop_tools for c in rec.calls):
+                trace.final_text = result.text or ""
+                trace.stop = "stop_tool"
+                return trace
+            if s.max_calls is not None and executed >= s.max_calls:
+                trace.final_text = result.text or ""
+                trace.stop = "max_calls"
+                return trace
         trace.stop = "max_steps"
         return trace
 

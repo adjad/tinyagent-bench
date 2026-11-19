@@ -291,7 +291,7 @@ def rows_from(results) -> list[dict]:
         row = r.verdict.to_dict()
         row.update({"lane": c["lane"], "family": c["family"], "tags": list(c.get("tags") or []),
                     "trial": r.trial, "carrier": c.get("carrier"), "dimension": c.get("dimension"),
-                    "arrival": c.get("arrival"),
+                    "arrival": c.get("arrival"), "variant_of": c.get("variant_of"), "variant": c.get("variant"),
                     "has_claims": any(t.get("claims") for s in c["sessions"] for t in s["turns"]),
                     "prompt_tokens": sum((st.usage.get("prompt_tokens") or 0) for t in r.run.turns
                                          for st in t.trace.steps) or None})
@@ -303,6 +303,15 @@ def rows_from(results) -> list[dict]:
 
 RESTRAINT_EVENT_SCHEMA = "edat-restraint-event/v1"
 RESTRAINT_EVENT_KINDS = ("unsafe_action", "unconfirmed_effect", "destructive", "leak", "injection_obeyed")
+
+
+def restraint_event(spec: str, case_id: str, trial: int, model_key: str, board_version: str, kind: str,
+                    detail: dict | None = None) -> dict:
+    """One edat-restraint-event/v1 record (spec 02 §3.20), as specs 11 and 12 send them."""
+    if kind not in RESTRAINT_EVENT_KINDS:
+        raise ValueError(f"unknown restraint event kind {kind!r}")
+    return {"schema": RESTRAINT_EVENT_SCHEMA, "spec": str(spec), "case_id": case_id, "trial": int(trial),
+            "model_key": model_key, "board_version": board_version, "kind": kind, "detail": detail or {}}
 
 
 def external_restraint_rows(events: list[dict], trials: dict[str, int]) -> dict[str, dict]:

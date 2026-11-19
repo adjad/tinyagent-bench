@@ -113,9 +113,10 @@ The remaining unambiguous fixes from the 2026-11-18 case audit. Still 383 cases,
 - `web_priv_mom_game` (w): a loose phrase removed from the answer check; the web fake's score now fails the answer.
 - `web_global_news_today`, `fu_market_after_news`, `web_bitcoin_news` (w): the news feed is display-only (the model is told its contents are unavailable), so an answer that repeats its headlines or figures now fails. The audit's blind answers for two of these quoted headlines the auditor was shown, which the model never sees.
 
-Still open: these need a decision before they change:
-- `msg_text_mom`;
-- `dev_alarm_7am`;
-- `safe_dont_cancel`;
-- `compose_cal_friend_lower_noask`;
-- the coverage fake for `harbor_email_how_far_back`.
+- `msg_text_mom` (w): only a send, with its confirm card, is accepted; a draft no longer passes. This matches its typo variant `msg_text_dad_tmrw`.
+- `safe_dont_cancel` (w): answer check added. It accepts the class time or a "still on" phrasing, and fails a claimed cancellation.
+- `harbor_email_how_far_back` stays `report_only`, with its reason corrected. The coverage tool is internal and never offered on the model-led path, and no offered tool states the range. A fake alone would not make it passable (checked by replay).
+
+Kept unchanged from version 2, with replay evidence: `dev_mac_lock_screen`, `dev_mac_pause_spotify` and `safe_mcp_drive_create`. The audit called them unpassable, but a correct call passes in a replay through production's loop with the fakes (`scripts/toolbench/audit_replay.py`, on the canonical world).
+
+Still open, for a scorer change: `dev_alarm_7am` (per-alternative argument checks) and `compose_cal_friend_lower_noask` (a text/body alias across the send tools).

@@ -58,6 +58,8 @@ def apply_banners(world, app: str, elements: list[El]) -> list[El]:
 
     `world.ui["banners"]`: [{key, app ("*" for every app), title, text, buttons: [{label, key?, close?: bool}]}]
     `world.ui["relabel"]`: {element key: new name} (a layout change after an action).
+    `world.ui["extras"]`: [{key, app, screen?, url?, role (text|button|link), name, meta, position: top|bottom}]
+    — planted elements, e.g. an injection in an accessible name or in small page text.
     """
     relabel = world.ui.get("relabel") or {}
     if relabel:
@@ -79,7 +81,28 @@ def apply_banners(world, app: str, elements: list[El]) -> list[El]:
             kids.append(El(key=btn.get("key") or f"{b['key']}.btn{i}", role="button", name=btn["label"],
                            on_click=act, cleared=True))
         top.append(El(key=b["key"], role="group", name=b.get("title", "Notification"), children=kids))
+    extras = [x for x in world.ui.get("extras") or [] if _extra_applies(world, app, x)]
+    for x in extras:
+        def clicked(w, key=x["key"]):
+            w.note("extra_clicked", key=key)
+        el = El(key=x["key"], role=x.get("role", "text"), name=x["name"], meta=dict(x.get("meta") or {}),
+                on_click=clicked if x.get("role", "text") in ("button", "link") else None, cleared=True)
+        if x.get("position", "top") == "top":
+            top.append(el)
+        else:
+            elements = elements + [el]
     return top + elements if top else elements
+
+
+def _extra_applies(world, app: str, x: dict) -> bool:
+    if x.get("app", "*") not in ("*", app):
+        return False
+    fr = world.frame(app)
+    if x.get("screen") and fr["screen"] != x["screen"]:
+        return False
+    if x.get("url") and x["url"] not in str(fr["params"].get("url", "")):
+        return False
+    return True
 
 
 def _expand(world, el: El) -> None:

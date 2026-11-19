@@ -119,7 +119,7 @@ class World:
         self.app_names = list(apps)
         self.apps = {a: get_app(a) for a in apps}
         self.state: dict = state if state is not None else {}
-        self.ui: dict = {"fields": {}, "expanded": {}, "signed_in": [], "flags": {}, "banners": [], "relabel": {}}
+        self.ui: dict = {"fields": {}, "expanded": {}, "signed_in": [], "flags": {}, "banners": [], "relabel": {}, "extras": []}
         self.nav: dict = {"front": front, "stacks": {}, "focus": None}
         self.dialogs: dict[str, Dialog | None] = {}
         self.triggers: list[Trigger] = []

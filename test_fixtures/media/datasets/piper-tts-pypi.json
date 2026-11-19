@@ -1,0 +1,33 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "piper-tts-pypi",
+ "group": "speech_engine",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "A3"
+ ],
+ "split": "piper-tts 1.8.0 macOS arm64 wheel",
+ "homepage": "https://pypi.org/project/piper-tts/1.8.0/",
+ "licence": "GPL-3.0-or-later (library; run as a tool, not vendored)",
+ "licence_note": "GPL-3.0-or-later (PyPI metadata); older rhasspy releases 1.2.0 and below were MIT",
+ "licence_url": "https://pypi.org/project/piper-tts/1.8.0/",
+ "licence_verified": true,
+ "verified": true,
+ "redistributable": "share-alike",
+ "access": "http",
+ "packages": [
+  "piper-tts==1.8.0"
+ ],
+ "requires": "Piper >= 1.5 for the cori medium card",
+ "status": "ready",
+ "needed_v1": "yes",
+ "bytes_total": 34119781,
+ "file_count": 1,
+ "unsized_dependencies": [
+  "pathvalidate"
+ ],
+ "notes": "Library licence is GPL-3.0; run it as a tool, the generated audio is not covered by the library licence per the earlier notes (U). Requires Piper >=1.5 for the cori medium card. Depends on onnxruntime<2,>=1 and pathvalidate<4,>=3 (the latter unsized).",
+ "files": [
+  {"url": "https://files.pythonhosted.org/packages/0a/f9/90e75adb55b3470a73030598c36f9969fe568e8458c066fa9b4fbc78a4c1/piper_tts-1.8.0-cp39-abi3-macosx_11_0_arm64.whl", "bytes": 34119781, "sha256": "33e7425933e9290fe651ae127916ed1ca6104cfa3d94e9049295dd3a5c449382"}
+ ]
+}

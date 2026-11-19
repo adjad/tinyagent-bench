@@ -1,0 +1,31 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "torch-wheel",
+ "group": "speech_engine",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "A3"
+ ],
+ "split": "torch 2.15.0 macOS arm64 cp312 wheel",
+ "homepage": "https://pypi.org/project/torch/2.15.0/",
+ "licence": "BSD-3-Clause (not opened, unverified)",
+ "licence_note": "BSD-3-Clause (not opened; UNVERIFIED)",
+ "licence_url": "https://pypi.org/project/torch/2.15.0/",
+ "licence_verified": false,
+ "verified": false,
+ "redistributable": "unverified",
+ "access": "http",
+ "packages": [
+  "torch==2.15.0"
+ ],
+ "status": "fetch_at_run_time",
+ "status_reason": "licence text not opened; install from the wheel, never commit",
+ "needed_v1": "yes",
+ "never_commit": true,
+ "bytes_total": 138558517,
+ "file_count": 1,
+ "notes": "Needed by kokoro. Python 3.12 chosen because kokoro requires <3.13. transformers, numpy, sympy, networkx, jinja2, fsspec etc. are not sized.",
+ "files": [
+  {"url": "https://files.pythonhosted.org/packages/17/24/7b9b755e8c4dd2395c6a94bab6a4ed8aded1735ff2538bc63cbba8abeddd/torch-2.15.0-cp312-cp312-macosx_14_0_arm64.whl", "bytes": 138558517, "sha256": "593e5fd0c204284890d1c3dff643be34e549e1d24523e13402510f960d4da438"}
+ ]
+}

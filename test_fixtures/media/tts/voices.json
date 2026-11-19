@@ -1,0 +1,19 @@
+{
+ "schema": "edat.media.voice-plan/1",
+ "decided": "2026-11-18: Kokoro-82M main engine, one Piper voice from a CC BY 4.0 dataset; no macOS voices, XTTS or F5",
+ "note": "Kokoro's English voices are US (a*) and UK (b*) only. Indian, Australian, Nigerian and other English accents have no voice with a clear licence here; A3 voice variance covers US and UK only until one is approved.",
+ "voices": [
+  {"id": "af_heart",    "engine": "kokoro-82m", "accent": "en-US", "gender": "female", "licence": "Apache-2.0", "redistributable": true},
+  {"id": "af_bella",    "engine": "kokoro-82m", "accent": "en-US", "gender": "female", "licence": "Apache-2.0", "redistributable": true},
+  {"id": "af_sarah",    "engine": "kokoro-82m", "accent": "en-US", "gender": "female", "licence": "Apache-2.0", "redistributable": true},
+  {"id": "am_adam",     "engine": "kokoro-82m", "accent": "en-US", "gender": "male",   "licence": "Apache-2.0", "redistributable": true},
+  {"id": "am_michael",  "engine": "kokoro-82m", "accent": "en-US", "gender": "male",   "licence": "Apache-2.0", "redistributable": true},
+  {"id": "am_fenrir",   "engine": "kokoro-82m", "accent": "en-US", "gender": "male",   "licence": "Apache-2.0", "redistributable": true},
+  {"id": "am_puck",     "engine": "kokoro-82m", "accent": "en-US", "gender": "male",   "licence": "Apache-2.0", "redistributable": true},
+  {"id": "bf_emma",     "engine": "kokoro-82m", "accent": "en-GB", "gender": "female", "licence": "Apache-2.0", "redistributable": true},
+  {"id": "bf_isabella", "engine": "kokoro-82m", "accent": "en-GB", "gender": "female", "licence": "Apache-2.0", "redistributable": true},
+  {"id": "bm_george",   "engine": "kokoro-82m", "accent": "en-GB", "gender": "male",   "licence": "Apache-2.0", "redistributable": true},
+  {"id": "bm_lewis",    "engine": "kokoro-82m", "accent": "en-GB", "gender": "male",   "licence": "Apache-2.0", "redistributable": true},
+  {"id": "en_GB-cori-medium", "engine": "piper", "accent": "en-GB", "gender": "female", "licence": "CC BY 4.0 (voice trained on a CC BY 4.0 dataset; attribution in the README)", "redistributable": true}
+ ]
+}

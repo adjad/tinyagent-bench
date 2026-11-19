@@ -1,0 +1,29 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "textvqa-val",
+ "group": "vision_eval",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "V2"
+ ],
+ "split": "validation; the image zip holds train and val (7.07 GB), only 5,000 val images are needed",
+ "homepage": "https://textvqa.org/dataset/",
+ "licence": "unverified (textvqa.org page empty; images are Open Images, mixed CC BY)",
+ "licence_note": "UNVERIFIED (textvqa.org page returned empty; images are Open Images, mixed CC BY)",
+ "licence_url": "https://textvqa.org/dataset/",
+ "licence_verified": false,
+ "verified": false,
+ "redistributable": "unverified",
+ "access": "http",
+ "status": "fetch_at_run_time",
+ "status_reason": "project rule: licence unverified, fetch at run time, never commit",
+ "needed_v1": "if_confirmed",
+ "never_commit": true,
+ "bytes_total": 7075414132,
+ "file_count": 2,
+ "notes": "Sizes by HEAD. The image zip holds train+val (7.07 GB) though only 5,000 val images are needed. No checksum published.",
+ "files": [
+  {"url": "https://dl.fbaipublicfiles.com/textvqa/data/TextVQA_0.5.1_val.json", "bytes": 3116162, "checksum": "none published"},
+  {"url": "https://dl.fbaipublicfiles.com/textvqa/images/train_val_images.zip", "bytes": 7072297970, "checksum": "none published"}
+ ]
+}

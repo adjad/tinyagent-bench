@@ -1,0 +1,25 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "esc50-full",
+ "group": "sounds",
+ "licence_checked": "2026-11-18",
+ "suites": [],
+ "split": "full 2,000 clips (not needed)",
+ "homepage": "https://github.com/karolpiczak/ESC-50",
+ "licence": "CC-BY-NC-3.0 (whole)",
+ "licence_note": "CC BY-NC 3.0 (whole)",
+ "licence_url": "https://github.com/karolpiczak/ESC-50/blob/master/LICENSE",
+ "licence_verified": true,
+ "verified": true,
+ "redistributable": "no",
+ "access": "http",
+ "status": "blocked_licence",
+ "status_reason": "non-commercial licence and not needed: v1 uses the 400 ESC-10 files",
+ "needed_v1": "no",
+ "bytes_total": 0,
+ "file_count": 1,
+ "notes": "Zip length not sized: codeload sends no Content-Length. Uncompressed repo is 884,047,129 B (2,000 audio files = 882,088,000 B). The earlier note's 'about 600 MB' for the zip is unverified.",
+ "files": [
+  {"url": "https://github.com/karolpiczak/ESC-50/archive/master.zip", "bytes": null, "bytes_note": "unsized: the source sends no length", "checksum": "none published", "path": "ESC-50-master.zip"}
+ ]
+}

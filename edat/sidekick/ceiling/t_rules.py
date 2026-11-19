@@ -107,11 +107,26 @@ def _shipping(rng: random.Random):
 4. Free shipping never applies to remote addresses (`remote=True`), and a remote address pays double the fee.
 5. Members (`member=True`) get 10% off the fee, after any doubling.
 6. A weight of zero or less raises `ValueError`.""", **v)
-    wrong_remote_free = sol.replace("if subtotal >= @FREE_OVER@ and not remote:".replace("@FREE_OVER@", str(v["FREE_OVER"])),
-                                    f"if subtotal >= {v['FREE_OVER']}:")
-    wrong_no_ceil = sol.replace("kg = math.ceil(weight_kg)", "kg = weight_kg")
-    wrong_heavy_free = sol.replace(f"fee = weight_part if kg > {v['HEAVY']} else 0.0", "fee = 0.0")
-    assert len({sol, wrong_remote_free, wrong_no_ceil, wrong_heavy_free}) == 4
+    H = v["HEAVY"]
+    swaps = [("if subtotal >= @FREE_OVER@ and not remote:".replace("@FREE_OVER@", str(v["FREE_OVER"])),
+              f"if subtotal >= {v['FREE_OVER']}:"),                                   # remote can be free
+             ("kg = math.ceil(weight_kg)", "kg = weight_kg"),                         # no rounding up
+             (f"fee = weight_part if kg > {H} else 0.0", "fee = 0.0"),               # heavy parcels ship free
+             (f"fee = weight_part if kg > {H} else 0.0", f"fee = base + weight_part if kg > {H} else 0.0"),  # heavy pays the base
+             (f"fee = weight_part if kg > {H} else 0.0", f"fee = weight_part if kg >= {H} else 0.0"),        # heavy limit "over"
+             (f"if subtotal >= {v['FREE_OVER']} and not remote:", f"if subtotal > {v['FREE_OVER']} and not remote:"),  # "or more"
+             ("        fee = base + weight_part", "        fee = weight_part"),         # no base fee
+             ("        fee *= 2", "        fee *= 1"),                                   # remote does not double
+             ("        fee *= 0.9", "        fee *= 1"),                                 # members get nothing
+             ("        fee *= 0.9", "        fee *= 0.8"),                               # members get 20%
+             ("    return round(fee, 2)", "    return float(round(fee))"),               # rounded to dollars, not cents
+             ("    if weight_kg <= 0:", "    if weight_kg < 0:"),                        # zero weight is accepted
+             ("    if weight_kg <= 0:", "    if weight_kg == 0:")]                       # negative weight is accepted
+    wrongs = []
+    for o, n in swaps:
+        assert o in sol, o
+        wrongs.append(sol.replace(o, n, 1))
+    assert len({sol, *wrongs}) == len(wrongs) + 1
     t = fill(_SHIP_TESTS, **v)
     edges = t.split("CASES = ", 1)[1].split("\n]\n", 1)[0] + "\n]"
     gen = ("(round(r.uniform(0, @FREE_OVER@ * 2), 2), round(r.uniform(0.05, @HEAVY@ * 2), 2), "
@@ -123,7 +138,7 @@ def _shipping(rng: random.Random):
     return probe_instance(
         prompt=prompt, targets=["shipping.py"], hidden_tests=t,
         references=[answer_files({"shipping.py": sol}), answer_files({"shipping.py": sol}, style="label")],
-        wrong=[answer_files({"shipping.py": w}) for w in (wrong_remote_free, wrong_no_ceil, wrong_heavy_free)],
+        wrong=[answer_files({"shipping.py": w}) for w in wrongs],
         probes=probes, solution={"shipping.py": sol})
 
 
@@ -239,16 +254,39 @@ def _pay(rng):
              "([0, @DBL@, 0, 0, 0, 0, 0], %d, ()), ([0, 0, @DBL@ + 1, 0, 0, 0, 0], %d, ()), "
              "([0, 0, 0, 0, 0, 5, 0], %d, ()), ([0, 0, 0, 0, 0, 0, 5], %d, ()), "
              "([0, 0, 0, 0, 0, 3, 0], %d, (5,)), ([@DBL@ + 2, 0, 0, 0, 0, 0, 0], %d, (0,)), "
-             "([0, 0, 0, 0, 0, 0, 3], %d, (6,)), ([1, 1, 1, 1, 1, 1, 1], %d, ()), ([3, 0, 0, 0, 0, 1, 0], %d, [0, 5])]"
-             % ((rate,) * 11))
+             "([0, 0, 0, 0, 0, 0, 3], %d, (6,)), ([1, 1, 1, 1, 1, 1, 1], %d, ()), ([3, 0, 0, 0, 0, 1, 0], %d, [0, 5]), "
+             "([@DBL@ + 1, 0, 0, 0, 0, 3, 3], %d), ([@DBL@ + 2, 1, 1, 1, 1, 3, 0], %d, [3, 6])]"
+             % ((rate,) * 13))
     gen = ("([r.randint(0, 14) for _ in range(7)], r.randint(900, 4000), "
            "tuple(sorted(r.sample(range(7), r.randint(0, 2)))))")
-    raises = "[([8] * 6, 1000), ([8] * 8, 1000), ([8, 8, 8, 8, -1, 0, 0], 1000)]"
+    raises = ("[([8] * 6, 1000), ([8] * 8, 1000), ([8, 8, 8, 8, -1, 0, 0], 1000), "
+              "([8, 8, 8, 8, 8, -1, 0], 1000), ([8, 8, 8, 8, 8, 0, -3], 1000), ([-1, 0, 0, 0, 0, 0, 0], 1000)]")
+    body = _PAY_SOL[_PAY_SOL.index("    total = 0"):]
     wrongs = [("if day in holidays or day == 6:", "if (day in holidays and day < 5) or day == 6:"),
               ("            regular = min(h, @DAILY@)", "            regular = min(h, @DAILY@ - 1)"),
               ("top = max(h - @DBL@, 0)", "top = max(h - @DBL@ - 1, 0)"),
               ("            total += (regular * 10 + mid * 15 + top * 20) * rate_cents // 10",
-               "            total += (regular * 10 + mid * 15 + top * 20) * rate_cents / 10")]
+               "            total += (regular * 10 + mid * 15 + top * 20) * rate_cents / 10"),
+              ("if day in holidays or day == 6:", "if (day in holidays and day >= 5) or day == 6:"),      # weekday holiday ignored
+              ("if day in holidays or day == 6:", "if day in holidays:"),                              # Sunday not double
+              ("if day in holidays or day == 6:",
+               "if day in holidays and day == 6:\n            total += h * rate_cents * 30 // 10\n        elif day in holidays or day == 6:"),
+              ("            mid = min(max(h - @DAILY@, 0), @DBL@ - @DAILY@)",
+               "            mid = min(max(h - @DAILY@, 0), @DBL@ - @DAILY@ + 1)"),
+              ("mid * 15", "mid * 10"), ("top * 20", "top * 15"), ("regular * 10", "regular * 11"),
+              ("            total += h * rate_cents * 15 // 10", "            total += h * rate_cents * 10 // 10"),
+              ("        elif day == 5:", "        elif day == 4:"),                                   # Saturday rate dropped
+              ("            total += h * rate_cents * 15 // 10", "            total += (h * rate_cents * 15 + 5) // 10"),
+              ("            total += (regular * 10 + mid * 15 + top * 20) * rate_cents // 10",
+               "            total += ((regular * 10 + mid * 15 + top * 20) * rate_cents + 5) // 10"),
+              (body, body.replace(" // 10", "").replace("return total", "return total // 10")),        # week-level floor
+              ("def weekly_pay(hours, rate_cents, holidays=()):", "def weekly_pay(hours, rate_cents, holidays=(0,)):"),
+              ("len(hours) != 7 or any(h < 0 for h in hours)", "any(h < 0 for h in hours)"),
+              ("len(hours) != 7 or any(h < 0 for h in hours)", "len(hours) < 7 or any(h < 0 for h in hours)"),
+              ("len(hours) != 7 or any(h < 0 for h in hours)", "len(hours) > 7 or any(h < 0 for h in hours)"),
+              ("len(hours) != 7 or any(h < 0 for h in hours)", "len(hours) != 7"),
+              ("len(hours) != 7 or any(h < 0 for h in hours)", "len(hours) != 7 or any(h < 0 for h in hours[:5])"),
+              ("len(hours) != 7 or any(h < 0 for h in hours)", "len(hours) != 7 or any(h < 0 for h in hours[1:])")]
     return _make(v, "payroll.py", "weekly_pay", _PAY_SOL, _PAY_PROMPT, edges, gen, wrongs, raises)
 
 
@@ -291,18 +329,35 @@ _TICKET_PROMPT = """Write a Python function `ticket_price(age, group_size, membe
 
 
 def _ticket(rng):
-    base = pick(rng, [1200, 1500, 1800])
+    base = pick(rng, [1350, 1500, 1800])   # 1200 never produces an exact half that survives the floor
     v = dict(BASE=base, SENIOR=pick(rng, [60, 65]), FLOOR=base * pick(rng, [38, 40, 42]) // 100)
     edges = ("[(2, 1, False), (3, 1, False), (12, 1, False), (13, 1, False), (@SENIOR@ - 1, 1, False), "
              "(@SENIOR@, 1, False), (30, 9, False), (30, 10, False), (30, 19, False), (30, 20, False), "
-             "(5, 20, True), (@SENIOR@, 10, True), (40, 1, True), (2, 25, True), (0, 1, False), (9, 12, True)]")
+             "(5, 20, True), (@SENIOR@, 10, True), (40, 1, True), (2, 25, True), (0, 1, False), (9, 12, True)] "
+             "+ [(a, g, m) for a in (5, 30, @SENIOR@) for g in (1, 10, 20) for m in (False, True)]")
     gen = "(r.randint(0, 90), r.choice([1, 1, 2, 5, 9, 10, 15, 19, 20, 30]), r.random() < 0.5)"
     raises = "[(-1, 1, False), (30, 0, False)]"
     wrongs = [("if age < 3:", "if age <= 3:"),
               ("elif age >= @SENIOR@:", "elif age > @SENIOR@:"),
               ("    elif group_size >= 10:", "    if group_size >= 10:"),
               ("    return max(price, @FLOOR@)", "    return price"),
-              ("    return (cents * pct + 50) // 100", "    return cents * pct // 100")]
+              ("    return (cents * pct + 50) // 100", "    return cents * pct // 100"),
+              ("    if age < 3:", "    if age < 2:"),                                       # a 2-year-old pays
+              ("        return 0\n", "        return @FLOOR@\n"),                          # free ticket gets the floor
+              ("    if age <= 12:", "    if age < 12:"),
+              ("        pct = 50", "        pct = 40"),
+              ("        pct = 70", "        pct = 60"),
+              ("    if group_size >= 20:", "    if group_size > 20:"),
+              ("    elif group_size >= 10:", "    elif group_size > 10:"),
+              ("_pct(price, 75)", "_pct(price, 80)"),
+              ("_pct(price, 85)", "_pct(price, 90)"),
+              ("        price = _pct(price, 90)", "        price = _pct(price, 95)"),
+              ("    return (cents * pct + 50) // 100", "    return (cents * pct + 49) // 100"),
+              ("    if member:\n        price = _pct(price, 90)\n    return max(price, @FLOOR@)",
+               "    price = max(price, @FLOOR@)\n    if member:\n        price = _pct(price, 90)\n    return price"),
+              ("    if age < 0 or group_size < 1:", "    if group_size < 1:"),
+              ("    if age < 0 or group_size < 1:", "    if age < 0:"),
+              ("    if age < 0 or group_size < 1:", "    if age < 0 or group_size < 0:")]
     return _make(v, "tickets.py", "ticket_price", _TICKET_SOL, _TICKET_PROMPT, edges, gen, wrongs, raises)
 
 
@@ -344,7 +399,22 @@ def _late(rng):
     wrongs = [("chargeable = days_late - GRACE[kind] - min(renewals, 2)", "chargeable = days_late - GRACE[kind] - renewals"),
               ("    fee = max(fee, @MINC@)\n    return min(fee, cap_cents)", "    fee = min(fee, cap_cents)\n    return max(fee, @MINC@)"),
               ("    if chargeable <= 0:", "    if chargeable < 0:"),
-              ("    fee = max(fee, @MINC@)\n", "")]
+              ("    fee = max(fee, @MINC@)\n", ""),
+              ('"dvd": 0, "game": 1}', '"dvd": 0, "game": 0}'),
+              ('"dvd": 0, "game": 1}', '"dvd": 1, "game": 1}'),
+              ('GRACE = {"book": @BOOKG@,', 'GRACE = {"book": @BOOKG@ + 1,'),
+              ("- min(renewals, 2)", "- min(renewals, 1)"),
+              ("- min(renewals, 2)", "- min(renewals, 3)"),
+              ("- min(renewals, 2)", ""),
+              ('{"book": @BOOK@, "dvd": 100, "game": 150}', '{"book": @BOOK@ + 5, "dvd": 100, "game": 150}'),
+              ('{"book": @BOOK@, "dvd": 100, "game": 150}', '{"book": @BOOK@, "dvd": 90, "game": 150}'),
+              ('{"book": @BOOK@, "dvd": 100, "game": 150}', '{"book": @BOOK@, "dvd": 100, "game": 140}'),
+              ("    fee = max(fee, @MINC@)", "    fee = max(fee, @MINC@ - 1)"),
+              ("    return min(fee, cap_cents)", "    return fee"),
+              ("    return min(fee, cap_cents)", "    return min(fee, cap_cents - 1)"),
+              ("kind not in RATES or days_late < 0", "days_late < 0"),
+              ("kind not in RATES or days_late < 0", "kind not in RATES"),
+              ("kind not in RATES or days_late < 0", "kind not in RATES or days_late < -1")]
     return _make(v, "library.py", "late_fee", _LATE_SOL, _LATE_PROMPT, edges, gen, wrongs, raises)
 
 
@@ -384,14 +454,47 @@ def _password(rng):
     edges = ("[(\"\", \"kim\"), (\"   \", \"\"), (\"Aa1\" + \"x\" * (@MINLEN@ - 3), \"\"), (\"Aa1\" + \"x\" * (@MINLEN@ - 4), \"\"), "
              "(\"Aa1\" + \"x\" * (@MAXLEN@ - 3), \"\"), (\"Aa1\" + \"x\" * (@MAXLEN@ - 2), \"\"), (\"has space 1A\" + \"z\" * @MINLEN@, \"\"), "
              "(\"abc\", \"kim\"), (\"xxKIMxx9Zz\" + \"q\" * @MINLEN@, \"kim\"), (\"xxkimxx\", \"KIM\"), (\"a\" * @MINLEN@, \"\"), "
-             "(\"A\" * @MINLEN@ + \"1\", \"\"), (\"a b\", \"\"), (\"Kim\" * 12, \"kim\")]")
+             "(\"A\" * @MINLEN@ + \"1\", \"\"), (\"a b\", \"\"), (\"Kim\" * 12, \"kim\"), "
+             "(\"Aa1\\t\" + \"x\" * @MINLEN@, \"\"), (\"Aa1\\n\" + \"x\" * @MINLEN@, \"\"), "
+             "(\" Aa1\" + \"x\" * (@MINLEN@ - 4), \"\"), (\"Aa1 \" + \"x\" * (@MINLEN@ - 4), \"\"), "
+             "(\"Aa1 \" + \"x\" * (@MAXLEN@ - 3), \"\"), (\"Aa1x\" + \"y\" * (@MINLEN@ - 3) + \" \", \"\")]")
     gen = ("(lambda name, chars: (lambda pw, k: (pw if not (name and k) else pw[:k] + r.choice([name, name.upper(), name.capitalize()]) + pw[k:], name))"
            "(\"\".join(r.choice(chars) for _ in range(r.randint(0, 36))), r.randint(0, 3) if r.random() < 0.4 else 0))"
            "(r.choice([\"\", \"kim\", \"robin\"]), r.choice([\"abcXYZ019\", \"abc\", \"ABC123\", \"abcdef ghi\", \"abcABC\"]))")
+    sp = '    if any(c.isspace() for c in password):\n        problems.append("has spaces")\n'
+    ln = ('    short = len(password) < @MINLEN@\n    if short:\n        problems.append("too short")\n'
+          '    elif len(password) > @MAXLEN@:\n        problems.append("too long")\n')
+    us = '    if username and username.lower() in password.lower():\n        problems.append("contains username")\n'
+    ns = "    if not short:\n"
+    dg = '        if not any(c.isdigit() for c in password):\n            problems.append("no digit")\n'
+    mx = ('        if not (any(c.isupper() for c in password) and any(c.islower() for c in password)):\n'
+          '            problems.append("no mixed case")\n')
+    dedent = lambda t: "".join(x[4:] + "\n" for x in t.splitlines())
+    order = sp + ln + us + ns + dg + mx
+    assert order in _PW_SOL
     wrongs = [("if password.strip() == \"\":", "if password == \"\":"),
               ("if username and username.lower() in password.lower():", "if username and username in password:"),
               ("    if not short:\n        if not any", "    if True:\n        if not any"),
-              ("    elif len(password) > @MAXLEN@:", "    elif len(password) >= @MAXLEN@:")]
+              ("    elif len(password) > @MAXLEN@:", "    elif len(password) >= @MAXLEN@:"),
+              ('        return ["blank"]', '        return ["blank", "too short"]'),                   # blank adds more messages
+              ("    if any(c.isspace() for c in password):", "    if any(c == \" \" for c in password):"),
+              ("    if any(c.isspace() for c in password):", "    if False:"),
+              ("    short = len(password) < @MINLEN@", "    short = len(password) <= @MINLEN@"),
+              ("    elif len(password) > @MAXLEN@:", "    elif len(password) > @MAXLEN@ + 1:"),
+              ("    short = len(password) < @MINLEN@", "    short = len(password.strip()) < @MINLEN@"),
+              ("    short = len(password) < @MINLEN@", "    short = len(password.replace(\" \", \"\")) < @MINLEN@"),
+              ("    elif len(password) > @MAXLEN@:", "    elif len(password.replace(\" \", \"\")) > @MAXLEN@:"),
+              ("if username and username.lower() in password.lower():", "if username.lower() in password.lower():"),
+              ("if username and username.lower() in password.lower():", "if username and username.lower() in password:"),
+              ("if username and username.lower() in password.lower():", "if username and username in password.lower():"),
+              ("if username and username.lower() in password.lower():", "if not short and username and username.lower() in password.lower():"),
+              (order, ln + sp + us + ns + dg + mx),                                               # order: length before spaces
+              (order, sp + us + ln + ns + dg + mx),                                               # order: username before length
+              (order, sp + ln + ns + dg + mx + us),                                               # order: username last
+              (order, sp + ln + us + ns + mx + dg),                                               # order: mixed case before digit
+              (ns + dg + mx, dedent(dg) + ns + mx),                                               # digit check not skipped when short
+              (ns + dg + mx, ns + dg + dedent(mx)),                                               # mixed-case check not skipped when short
+              ("    return problems", "    return tuple(problems)")]
     return _make(v, "policy.py", "password_problems", _PW_SOL, _PW_PROMPT, edges, gen, wrongs)
 
 
@@ -434,7 +537,16 @@ def _alert(rng):
     wrongs = [("if pressure_kpa < @LO@ or pressure_kpa > @HI@:", "if pressure_kpa <= @LO@ or pressure_kpa >= @HI@:"),
               ("    if door_open and level >= 1:", "    if door_open:"),
               ("    if smoke or temp_c >= @CRIT@:", "    if temp_c >= @CRIT@:"),
-              ("    return LEVELS[min(level, 3)]", "    return LEVELS[min(level, 2)]")]
+              ("    return LEVELS[min(level, 3)]", "    return LEVELS[min(level, 2)]"),
+              ("    if smoke or temp_c >= @CRIT@:", "    if smoke or temp_c > @CRIT@:"),
+              ("    if temp_c >= @WARN@:", "    if temp_c > @WARN@:"),
+              ("if pressure_kpa < @LO@ or pressure_kpa > @HI@:", "if pressure_kpa < @LO@:"),             # high pressure ignored
+              ("if pressure_kpa < @LO@ or pressure_kpa > @HI@:", "if pressure_kpa > @HI@:"),             # low pressure ignored
+              ("if pressure_kpa < @LO@ or pressure_kpa > @HI@:", "if pressure_kpa <= @LO@ or pressure_kpa > @HI@:"),
+              ("if pressure_kpa < @LO@ or pressure_kpa > @HI@:", "if pressure_kpa < @LO@ or pressure_kpa >= @HI@:"),
+              ("    level = hits", "    level = min(hits, 1)"),                                        # two conditions still only warn
+              ("        level += 1", "        level += 2"),                                             # open door raises two steps
+              ]
     return _make(v, "sensors.py", "alert_level", _ALERT_SOL, _ALERT_PROMPT, edges, gen, wrongs)
 
 
@@ -478,7 +590,21 @@ def _tax(rng):
                "    tax100 -= dependents * @CREDIT@ * 100\n    tax100 = min(tax100, income * @CAP@)"),
               ("    return (tax100 + 50) // 100", "    return tax100 // 100"),
               ("    high = max(taxable - @B2@, 0)", "    high = max(taxable - @B2@ - 1, 0)"),
-              ("    tax100 = min(tax100, income * @CAP@)\n", "    tax100 = min(tax100, taxable * @CAP@)\n")]
+              ("    tax100 = min(tax100, income * @CAP@)\n", "    tax100 = min(tax100, taxable * @CAP@)\n"),
+              ("    taxable = max(income - @DED@, 0)", "    taxable = max(income - @DED@ - 1, 0)"),
+              ("    taxable = max(income - @DED@, 0)", "    taxable = max(income - @DED@ + 1, 0)"),
+              ("    low = min(taxable, @B1@)", "    low = min(taxable, @B1@ - 1)"),
+              ("min(max(taxable - @B1@, 0), @B2@ - @B1@)", "min(max(taxable - @B1@, 0), @B2@ - @B1@ + 1)"),
+              ("low * 10", "low * 11"), ("mid * 20", "mid * 25"), ("high * 30", "high * 25"),
+              ("    tax100 = min(tax100, income * @CAP@)\n", "    tax100 = min(tax100, income * (@CAP@ + 1))\n"),
+              ("    tax100 = min(tax100, income * @CAP@)\n", ""),
+              ("dependents * @CREDIT@ * 100", "min(dependents, 1) * @CREDIT@ * 100"),
+              ("dependents * @CREDIT@ * 100", "dependents * (@CREDIT@ + 50) * 100"),
+              ("    if tax100 <= 0:\n        return 0\n", ""),
+              ("    return (tax100 + 50) // 100", "    return (tax100 + 49) // 100"),
+              ("    return (tax100 + 50) // 100", "    return (tax100 + 99) // 100"),
+              ("    if income < 0 or dependents < 0:", "    if income < 0:"),
+              ("    if income < 0 or dependents < 0:", "    if dependents < 0:")]
     return _make(v, "tax.py", "income_tax", _TAX_SOL, _TAX_PROMPT, edges, gen, wrongs, raises)
 
 
@@ -525,7 +651,22 @@ def _loyal(rng):
                "    pts = min(pts, @CAP@)\n    if items >= @ITEMS@:\n        pts += 20\n    return pts"),
               ("    if double_day and amount_cents >= @DBLMIN@:\n        pts *= 2\n    if items >= @ITEMS@:\n        pts += 20",
                "    if items >= @ITEMS@:\n        pts += 20\n    if double_day and amount_cents >= @DBLMIN@:\n        pts *= 2"),
-              ("amount_cents >= @DBLMIN@", "amount_cents > @DBLMIN@")]
+              ("amount_cents >= @DBLMIN@", "amount_cents > @DBLMIN@"),
+              ("    pts = amount_cents // 100", "    pts = (amount_cents + 50) // 100"),
+              ("    pts = pts * TIER[tier] // 100", "    pts = (pts * TIER[tier] + 50) // 100"),
+              ('"silver": 125,', '"silver": 120,'),
+              ('"gold": 150}', '"gold": 160}'),
+              ('"bronze": 100,', '"bronze": 90,'),
+              ("if double_day and amount_cents >= @DBLMIN@:", "if double_day:"),
+              ("        pts *= 2", "        pts *= 3"),
+              ("    if items >= @ITEMS@:", "    if items > @ITEMS@:"),
+              ("        pts += 20", "        pts += 10"),
+              ("    return min(pts, @CAP@)", "    return pts"),
+              ("    return min(pts, @CAP@)", "    return min(pts, @CAP@ + 1)"),
+              ("    if amount_cents <= 0:", "    if amount_cents < 0:"),
+              ("    if tier not in TIER:\n        raise ValueError(\"unknown tier\")\n    if amount_cents <= 0:\n        return 0\n",
+               "    if amount_cents <= 0:\n        return 0\n    if tier not in TIER:\n        raise ValueError(\"unknown tier\")\n"),
+              ("    if tier not in TIER:\n        raise ValueError(\"unknown tier\")\n", "")]
     return _make(v, "loyalty.py", "points_earned", _LOYAL_SOL, _LOYAL_PROMPT, edges, gen, wrongs, raises)
 
 
@@ -563,13 +704,28 @@ def _slot(rng):
     edges = ("[(@OPEN@ - 1, 30, 100, False), (@OPEN@, 30, 100, False), (@CLOSE@ - 30, 30, 100, False), (@CLOSE@ - 29, 30, 100, False), "
              "(660, 60, 80, False), (660, 61, 80, False), (780, 30, 80, False), (779, 30, 80, False), (900, 60, 90, True), "
              "(899, 60, 90, True), (900, 60, 90, False), (600, 100, 90, False), (600, 119, 90, False), (600, 120, 90, False), "
-             "(600, 90, 49, False), (600, 90, 50, False), (600, 30, 49, False), (720, 240, 60, True), (840, 180, 10, True), (600, 30, 0, False)]")
+             "(600, 90, 49, False), (600, 90, 50, False), (600, 30, 49, False), (720, 240, 60, True), (840, 180, 10, True), (600, 30, 0, False), (600, 30, 50, False)]")
     gen = "(r.randrange(420, 1100, 15), r.choice([15, 30, 45, 60, 75, 90, 105, 120, 150, 180]), r.randint(0, 100), r.random() < 0.4)"
     wrongs = [("end > @CLOSE@", "end >= @CLOSE@"),
               ("    if free_pct < 50:\n        score = min(score, 40)\n", ""),
               ("    if start_min < 780 and end > 720:", "    if start_min <= 780 and end >= 720:"),
               ("    if friday and start_min >= 900:", "    if friday and start_min > 900:"),
-              ("        score -= 10 * ((duration_min - 60) // 30)", "        score -= 10 * ((duration_min - 45) // 30)")]
+              ("        score -= 10 * ((duration_min - 60) // 30)", "        score -= 10 * ((duration_min - 45) // 30)"),
+              ("start_min < @OPEN@ or end > @CLOSE@", "start_min <= @OPEN@ or end > @CLOSE@"),
+              ("start_min < @OPEN@ or end > @CLOSE@", "start_min < @OPEN@"),                       # a late finish is fine
+              ("start_min < @OPEN@ or end > @CLOSE@", "end > @CLOSE@"),                            # an early start is fine
+              ("    if start_min < 780 and end > 720:", "    if start_min < 780 and end >= 720:"),
+              ("    if start_min < 780 and end > 720:", "    if start_min <= 780 and end > 720:"),
+              ("        score -= 25", "        score -= 20"),
+              ("    if friday and start_min >= 900:", "    if start_min >= 900:"),
+              ("        score -= 15", "        score -= 10"),
+              ("(duration_min - 60) // 30", "(duration_min - 60) // 20"),
+              ("(duration_min - 60) // 30", "(duration_min - 60 + 29) // 30"),
+              ("score -= 10 * ((", "score -= 5 * (("),
+              ("    if free_pct < 50:", "    if free_pct <= 50:"),
+              ("        score = min(score, 40)", "        score = min(score, 45)"),
+              ("    score = free_pct\n", "    score = free_pct if free_pct >= 50 else min(free_pct, 40)\n"),   # cap before the deductions
+              ("    return max(score, 0)", "    return score")]
     return _make(v, "slots.py", "slot_score", _SLOT_SOL, _SLOT_PROMPT, edges, gen, wrongs)
 
 
@@ -614,7 +770,18 @@ def _window(rng):
               ("    if express and placed_min < 1200:", "    if express and placed_min <= 1200:"),
               ("    if weight_kg >= @HEAVY@:", "    if weight_kg > @HEAVY@:"),
               ("    elif placed_min < @CUT@:", "    elif placed_min <= @CUT@:"),
-              ("    idx = max(idx - 1, 0)", "    idx = idx - 1\n        if idx < 0:\n            idx = 1")]
+              ("    idx = max(idx - 1, 0)", "    idx = idx - 1\n        if idx < 0:\n            idx = 1"),
+              ("    if placed_min < @EARLY@:", "    if placed_min <= @EARLY@:"),
+              ("        idx = 2\n", "        idx = 3\n"),
+              ("    if express and placed_min < 1200:", "    if express and placed_min < 1260:"),
+              ("    if express and placed_min < 1200:", "    if placed_min < 1200:"),                    # express flag ignored
+              ("        idx = max(idx - 1, 0)", "        idx = max(idx - 2, 0)"),
+              ("        idx += 1", "        idx += 2"),
+              ("    if express and placed_min < 1200:\n        idx = max(idx - 1, 0)\n    if weight_kg >= @HEAVY@:\n        idx += 1\n",
+               "    if weight_kg >= @HEAVY@:\n        idx += 1\n    if express and placed_min < 1200:\n        idx = max(idx - 1, 0)\n"),
+              ("    return WINDOWS[min(idx, 3)]", "    return WINDOWS[min(idx, 2)]"),
+              ('"today evening"', '"this evening"'),
+              ("        return WINDOWS[3]", "        return WINDOWS[2]")]
     # the last wrong answer is syntactically indented with 8 spaces inside the if block; fix its shape
     wrongs[4] = ("        idx = max(idx - 1, 0)", "        idx = max(idx - 1, 0) if idx else 1")
     return _make(v, "courier.py", "delivery_window", _WIN_SOL, _WIN_PROMPT, edges, gen, wrongs)
@@ -656,7 +823,8 @@ def _disc(rng):
     edges = ("[(1000, 1, None, False), (1000, @Q1@ - 1, None, False), (1000, @Q1@, None, False), (1000, @Q2@ - 1, None, False), "
              "(1000, @Q2@, None, False), (1999, 3, None, True), (1999, @Q1@, \"save10\", True), (1999, @Q2@, \"SAVE10\", True), "
              "(1999, @Q2@, \"HALF\", True), (1999, 1, \"half\", False), (2500, 2, \"FIVEOFF\", False), (100, 1, \"FiveOff\", False), "
-             "(300, 1, \"FIVEOFF\", True), (4999, @Q2@ + 3, \"FIVEOFF\", True), (777, 7, \"\", True), (1233, 3, \"SAVE10\", False)]")
+             "(300, 1, \"FIVEOFF\", True), (4999, @Q2@ + 3, \"FIVEOFF\", True), (777, 7, \"\", True), (1233, 3, \"SAVE10\", False), "
+             "(103, 1, \"FIVEOFF\", False), (102, 3, \"FIVEOFF\", True)]")
     gen = ("(r.randint(100, 5000), r.randint(1, 15), r.choice([None, \"SAVE10\", \"half\", \"HALF\", \"FiveOff\", \"FIVEOFF\", \"\"]), "
            "r.random() < 0.5)")
     raises = "[(1000, 1, \"BOGUS\", False), (1000, 0, None, False)]"
@@ -665,7 +833,30 @@ def _disc(rng):
                "    return price"),
               ("    qd = 80 if qty >= @Q2@ else 90 if qty >= @Q1@ else 100", "    qd = 80 if qty > @Q2@ else 90 if qty > @Q1@ else 100"),
               ("    price = total * qd * md * cd // 1000000\n    if code == \"FIVEOFF\":\n        price -= @FLAT@\n    return max(price, total * 20 // 100)",
-               "    price = max(total * qd * md * cd // 1000000, total * 20 // 100)\n    if code == \"FIVEOFF\":\n        price -= @FLAT@\n    return max(price, 0)")]
+               "    price = max(total * qd * md * cd // 1000000, total * 20 // 100)\n    if code == \"FIVEOFF\":\n        price -= @FLAT@\n    return max(price, 0)"),
+              ("qty >= @Q2@ else 90", "qty > @Q2@ else 90"),
+              ("qty >= @Q1@ else 100", "qty > @Q1@ else 100"),
+              ("    qd = 80 if qty >= @Q2@ else 90 if qty >= @Q1@ else 100", "    qd = 72 if qty >= @Q2@ else 90 if qty >= @Q1@ else 100"),
+              ("    qd = 80 if qty >= @Q2@", "    qd = 85 if qty >= @Q2@"),
+              ("    md = @MD@ if member else 100", "    md = 100"),
+              ("    md = @MD@ if member else 100", "    md = @MD@ + 5 if member else 100"),
+              ("code = coupon.upper() if coupon else None", "code = coupon if coupon else None"),
+              ("code = coupon.upper() if coupon else None", "code = coupon.upper() if coupon is not None else None"),
+              ("    cd = 90 if code", "    cd = 85 if code"),
+              ("        qd, md, cd = 100, 100, 50", "        qd, md, cd = 100, md, 50"),                  # members still get their discount with HALF
+              ("        qd, md, cd = 100, 100, 50", "        qd, md, cd = qd, 100, 50"),                  # quantity discount still applies with HALF
+              ("        qd, md, cd = 100, 100, 50", "        qd, md, cd = 100, 100, 60"),
+              ("    price = total * qd * md * cd // 1000000\n    if code == \"FIVEOFF\":\n        price -= @FLAT@\n",
+               "    price = (total - (@FLAT@ if code == \"FIVEOFF\" else 0)) * qd * md * cd // 1000000\n"),   # flat amount taken first
+              ("        price -= @FLAT@", "        price -= @FLAT@ + 50"),
+              ("    price = total * qd * md * cd // 1000000", "    price = (total * qd * md * cd + 500000) // 1000000"),
+              ("    price = total * qd * md * cd // 1000000", "    price = total * (qd + md + cd - 200) // 100"),         # discounts added, not multiplied
+              ("    price = total * qd * md * cd // 1000000", "    price = total * qd // 100 * md // 100 * cd // 100"),  # rounded down at every step
+              ("    return max(price, total * 20 // 100)", "    return max(price, total * 25 // 100)"),
+              ("    return max(price, total * 20 // 100)", "    return max(price, (total * 20 + 99) // 100)"),
+              ("    if qty < 1:", "    if qty < 0:"),
+              ("    if qty < 1:\n        raise ValueError(\"qty must be at least 1\")\n", ""),
+              ("    if code not in (None, \"SAVE10\", \"HALF\", \"FIVEOFF\"):", "    if False:")]
     return _make(v, "checkout.py", "final_price", _DISC_SOL, _DISC_PROMPT, edges, gen, wrongs, raises)
 
 
@@ -709,7 +900,8 @@ def _grade(rng):
     edges = ("[([90], 0, 0), ([89], 0, 1), ([79, 80], 0, 0), ([70, 71], 0, 0), ([60, 59], 0, 0), ([100, 100, 100, 100], 0, 0), "
              "([0, 100, 100, 100, 100], 0, 0), ([0, 0, 100, 100, 100], 0, 0), ([0, 0, 0, 0, 0], 0, 20), ([95, 95, 95, 0], 0, 0), "
              "([50, 90, 90, 90, 90], 0, 0), ([85, 85, 85, 85, 85], 2, 0), ([85, 85, 85, 85, 85], 0, @MAXEC@ + 4), ([40], 9, 5), "
-             "([3, 3, 3], 5, 4), ([98, 99, 100], 0, 9), ([60, 60, 60, 60, 61], 1, 0), ([69, 70, 70, 70], 0, 0), ([100, 50], 0, 0), ([0, 100], 0, 0)]")
+             "([3, 3, 3], 5, 4), ([98, 99, 100], 0, 9), ([60, 60, 60, 60, 61], 1, 0), ([69, 70, 70, 70], 0, 0), ([100, 50], 0, 0), ([0, 100], 0, 0), "
+             "([0, 0] + [100] * 8, 0, 0), ([0, 0] + [100] * 20, 0, 0), ([0, 0] + [100] * 8, 0, 3)]")
     gen = "([0 if r.random() < 0.15 else r.randint(50, 100) for _ in range(r.randint(1, 8))], r.randint(0, 6), r.randint(0, 9))"
     raises = "[([], 0, 0)]"
     wrongs = [("    if 0 in kept and letter", "    if 0 in scores and letter"),
@@ -717,7 +909,26 @@ def _grade(rng):
                "    avg = avg - @LATEPEN@ * late_count + min(extra_credit, @MAXEC@)\n    avg = max(0, min(100, avg))"),
               ("    avg = min(100, avg + min(extra_credit, @MAXEC@))", "    avg = min(100, avg + extra_credit)"),
               ("    avg = (2 * sum(kept) + len(kept)) // (2 * len(kept))", "    avg = sum(kept) // len(kept)"),
-              ("if len(scores) >= @DROPAT@", "if len(scores) > @DROPAT@")]
+              ("if len(scores) >= @DROPAT@", "if len(scores) > @DROPAT@"),
+              ("sorted(scores)[1:] if len(scores) >= @DROPAT@ else list(scores)", "list(scores)"),                       # nothing dropped
+              ("sorted(scores)[1:]", "sorted(scores)[2:]"),                                                           # two dropped
+              ("sorted(scores)[1:]", "sorted(scores)[:-1]"),                                                          # the highest dropped
+              ("sorted(scores)[1:]", "[s for s in scores if s != min(scores)]"),                                      # every equal lowest dropped
+              ("    avg = (2 * sum(kept) + len(kept)) // (2 * len(kept))", "    avg = (2 * sum(kept) + len(kept) - 1) // (2 * len(kept))"),
+              ("    avg = (2 * sum(kept) + len(kept)) // (2 * len(kept))", "    avg = round(sum(kept) / len(kept))"),
+              ("    avg = (2 * sum(kept) + len(kept)) // (2 * len(kept))", "    avg = -(-sum(kept) // len(kept))"),
+              ("@LATEPEN@ * late_count", "(@LATEPEN@ + 1) * late_count"),
+              ("    avg = max(0, avg - @LATEPEN@ * late_count)", "    avg = avg - @LATEPEN@ * late_count"),
+              ("    avg = min(100, avg + min(extra_credit, @MAXEC@))", "    avg = avg + min(extra_credit, @MAXEC@)"),
+              ("min(extra_credit, @MAXEC@)", "min(extra_credit, @MAXEC@ + 1)"),
+              ("    if avg >= 90:", "    if avg > 90:"),
+              ("    elif avg >= 80:", "    elif avg > 80:"),
+              ("    elif avg >= 70:", "    elif avg > 70:"),
+              ("    elif avg >= 60:", "    elif avg > 60:"),
+              ('letter in ("A", "B")', 'letter == "A"'),
+              ('    if 0 in kept and letter in ("A", "B"):\n        letter = "C"', '    if 0 in kept and letter in ("A", "B"):\n        letter = "D"'),
+              ('    if not scores:\n        raise ValueError("no scores")\n', ""),
+              ("    return avg, letter", "    return [avg, letter]")]
     return _make(v, "grading.py", "final_grade", _GRADE_SOL, _GRADE_PROMPT, edges, gen, wrongs, raises)
 
 

@@ -108,6 +108,7 @@
       const html = `<div class="container">
         ${head("What " + board.entry(sel).name + (board.entry(sel).thinkingText ? " (" + board.entry(sel).thinkingText + ")" : "") + " found", sub)}
         ${sampleNote}
+        ${q.get("m") && !keys.includes(q.get("m")) && board.entry(q.get("m")) ? `<p class="note-planned">${I.info}<span>${esc(nameOf(board.entry(q.get("m"))))} has no capture inside the assistant on this device${board.entry(q.get("m")).group === "does_not_fit" ? ": it does not fit, so it is never run here" : ""}. Showing ${esc(nameOf(board.entry(sel)))} instead.</span></p>` : ""}
         ${controls}
         ${grid(colHead)}
         ${toc}

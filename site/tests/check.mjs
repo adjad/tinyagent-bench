@@ -171,10 +171,10 @@ for (const f of all) {
   for (const pat of ["/Users/", "8765", "8791", "localhost:8000"]) if (t.includes(pat)) fail(`${path.relative(SITE, f)} contains "${pat}"`);
 }
 ok("name and path scan done (" + all.length + " files)");
-let held = 0, caseIds = [];
+let held = 0, caseIds = [], trajAll = [];
 for (const t of trajFiles) {
   if (t.raw.schema !== "edat.site-trajectories/1.0") fail(`${t.rel}: schema ${t.raw.schema}`);
-  for (const r of t.raw.trajectories || []) { if (["heldout", "held_out"].includes(r.split)) held++; }
+  for (const r of t.raw.trajectories || []) { trajAll.push(r); if (["heldout", "held_out"].includes(r.split)) held++; }
 }
 check(held === 0, "no held-out trajectory records" + (held ? ` (${held} found)` : ""));
 // the "What it found" files (export or site sample): development split only
@@ -232,6 +232,12 @@ async function headless() {
   (findings ? findings.profiles : []).forEach((p) => add(`#/found?p=${enc(p.id)}`));
   if (mac && mac.raw.references.base) add(`#/found?m=${enc(mac.raw.references.base)}&refs=0`);
   add("#/found?d=iphone-ref");
+  // case pages: an unsafe trial, a case id that does not exist; the test pages and profiles on the iPhone
+  const macTraj = boards.find((b) => b.id === "mac-ref");
+  const unsafe = trajAll.find((t) => t.outcome === "unsafe");
+  if (unsafe) add(`#/case/${enc(unsafe.tier)}/${enc(unsafe.case_id)}?m=${enc(unsafe.variant)}&t=${unsafe.trial}`);
+  add("#/case/agentic/no-such-case");
+  ["#/tests?d=iphone-ref", "#/tests/agentic?d=iphone-ref", "#/tests/in_assistant?d=iphone-ref", "#/profiles?d=iphone-ref", "#/profiles?d=mac-ref"].forEach((h) => add(h));
   add("#/nope", "notfound");
   routes.push({ hash: "#/", width: 375, height: 812, label: "#/ at 375x812" });
 

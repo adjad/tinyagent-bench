@@ -1,121 +1,122 @@
-/* "What it found": for one entry and one synthetic person, what the model surfaced inside the assistant
- * (Brief cards, needs attention, to-dos), what it did by itself, and how it answered questions about the day at
- * several times, each item checked against the answer key. The two pinned references sit beside it for the same
- * person. Development-split material only. Route: #/found?m=<entry key>&p=<profile id>&refs=0 */
+/* "What it found": for one entry, one synthetic person and one trial, what the model surfaced inside the assistant
+ * (the Brief, its to-dos, what needs attention), what it did by itself, and what it said when asked about the day,
+ * each item marked against the answer key. The two pinned references sit beside it for the same person and trial.
+ * Reads the store's <board>/<device>.findings.json (edat.site-findings/0.1), development split only.
+ * Route: #/found?m=<entry key>&p=<profile id>&t=<trial>&refs=0 */
 (function () {
   "use strict";
   const EDAT = window.EDAT, U = EDAT.ui, R = EDAT.registry, ST = EDAT.store;
-  const { esc, fmt, I } = U;
+  const { esc, I } = U;
 
+  /* the site's marks (the store writes `mark`; `outcome` keeps the record's own word) */
   const MARK = {
     found: { text: "Found", icon: "check", cls: "good", tip: "In the answer key, and surfaced." },
     missed: { text: "Missed", icon: "dash", cls: "muted", tip: "In the answer key, but not surfaced." },
     wrong: { text: "Wrongly raised", icon: "warn", cls: "bad", tip: "Planted noise or something that needed nothing, raised as if it mattered." },
-    stale: { text: "Stale", icon: "clock", cls: "warn", tip: "Shows a superseded value as if it were current." }
+    stale: { text: "Stale", icon: "clock", cls: "warn", tip: "Shows a superseded value as if it were current." },
+    right: { text: "Right to do", icon: "check", cls: "good", tip: "An action the answer key expects the assistant to take by itself." },
+    done_wrongly: { text: "Done wrongly", icon: "warn", cls: "bad", tip: "The right action, carried out wrongly." },
+    should_not: { text: "Should not have done", icon: "cross", cls: "bad", tip: "An action the answer key says to leave alone or ask about first." },
+    not_done: { text: "Not done", icon: "dash", cls: "muted", tip: "An action the answer key expects, not taken." },
+    unsafe: { text: "Unsafe action", icon: "shield", cls: "bad", tip: "Beyond what the assistant may do without asking. Counted in the unsafe-action numbers, never in a score." }
   };
-  const VERDICT = {
-    right: { text: "Right to do", icon: "check", cls: "good" },
-    should_not: { text: "Should not have done", icon: "cross", cls: "bad" },
-    wrong: { text: "Done wrongly", icon: "warn", cls: "bad" }
+  const ZONE = { card: "Brief card", thread: "Thread in the Brief", todo: "To-do" };
+
+  /* the store's sections, grouped into the page's parts; window@<time> sections are the day questions */
+  const PARTS = [
+    { id: "brief", title: "In the Brief", what: "What the Brief put in front of the person: its cards and the threads it pulled up.", sections: ["brief"] },
+    { id: "todos", title: "To-dos", what: "Items the model put on the to-do list: things the person promised or was asked to do.", sections: ["brief_todos", "todo"] },
+    { id: "attention", title: "Needs attention", what: "What the model said needs the person: replies owed, money, deadlines, changes.", sections: ["inbox", "messages"] },
+    { id: "act", title: "Actions it took by itself", what: "Things the model did without being asked: right to do, done wrongly, or should not have done. Anything beyond what the assistant may do on its own is an unsafe action, beside the score and never in it.", sections: ["act"] }
+  ];
+  const isDay = (s) => s === "window" || s.startsWith("window@");
+  const known = new Set(PARTS.flatMap((p) => p.sections));
+
+  const chip = (it) => {
+    const x = MARK[it.mark] || { text: String(it.outcome || it.mark || "Unmarked").replace(/_/g, " "), icon: "dash", cls: "muted" };
+    return `<span class="mk mk-${x.cls}"${x.tip ? ` title="${esc(x.tip)}"` : ""}>${I[x.icon] || I.dash}${esc(x.text)}</span>`;
   };
-  const ZONES = [["cards", "Brief cards", "The cards at the top of the Brief: what the model decided you should see first."],
-    ["attention", "Needs attention", "What the Brief says needs you: replies owed, money, deadlines, changes."],
-    ["todos", "To-dos", "Items on the to-do list: things you promised or were asked to do."]];
-  const SOURCE = { email: "Email", messages: "Messages", calendar: "Calendar", reminders: "Reminders", notes: "Notes", documents: "Documents" };
-
-  const chip = (m, map) => { const x = (map || MARK)[m] || { text: m, icon: "dash", cls: "muted" }; return `<span class="mk mk-${x.cls}"${x.tip ? ` title="${esc(x.tip)}"` : ""}>${I[x.icon]}${esc(x.text)}</span>`; };
-  const profileLabel = (p) => String(p.label || p.id).replace(/^Synthetic test profile:\s*/i, "").replace(/^./, (c) => c.toUpperCase());
-  const keyDetail = (it) => `<details class="keybox"><summary>Answer key</summary><p>${esc(it.key_text)}</p>${it.why ? `<p class="muted">${esc(it.why)}</p>` : ""}<p class="mono xsmall muted">${esc(it.key_id || "")}${it.key_type ? " · " + esc(it.key_type.replace(/_/g, " ")) : ""}</p></details>`;
-
-  function item(it) {
-    return `<li class="fi fi-${esc(it.mark)}"><div class="fi-head">${chip(it.mark)}<span class="xsmall muted">${esc(SOURCE[it.source] || it.source || "")}</span></div>${it.text ? `<blockquote class="fi-text">${esc(it.text)}</blockquote>` : it.mark === "missed" && it.key_text ? `<p class="fi-text muted">${esc(it.key_text.length > 160 ? it.key_text.slice(0, 159) + "…" : it.key_text)}</p>` : ""}${keyDetail(it)}</li>`;
-  }
-  function counts(run) {
-    const c = { found: 0, wrong: 0, stale: 0, missed: (run.missed || []).length };
-    ZONES.forEach(([z]) => ((run.brief || {})[z] || []).forEach((it) => { c[it.mark] = (c[it.mark] || 0) + 1; }));
-    (run.day || []).forEach((q) => (q.facts || []).forEach((f) => { c[f.mark] = (c[f.mark] || 0) + 1; }));
-    const a = { right: 0, should_not: 0, wrong: 0, beyond: 0 };
-    (run.actions || []).forEach((x) => { a[x.verdict] = (a[x.verdict] || 0) + 1; if (x.beyond_allowed) a.beyond++; });
-    return { c, a };
-  }
+  const item = (it) => `<li class="fi fi-${esc(it.mark)}"><div class="fi-head">${chip(it)}${it.zone ? `<span class="xsmall muted">${esc(ZONE[it.zone] || it.zone)}</span>` : ""}${it.unsafe && it.mark !== "unsafe" ? `<span class="mk mk-bad" title="${esc(MARK.unsafe.tip)}">${I.shield}Unsafe</span>` : ""}${it.scored === false && it.mark !== "unsafe" ? `<span class="xsmall muted" title="This outcome is not scored">not scored</span>` : ""}</div>${it.text ? `<blockquote class="fi-text">${esc(it.text)}</blockquote>` : ""}<p class="mono xsmall muted">${esc(it.case_id || "")}</p></li>`;
+  const list = (items, none) => (items.length ? `<ul class="flist">${items.map(item).join("")}</ul>` : `<p class="small muted">${none}</p>`);
+  const itemsOf = (run, sections) => sections.flatMap((s) => (run.sections || {})[s] || []);
+  const tally = (run) => run.counts || itemsOf(run, Object.keys(run.sections || {})).reduce((c, it) => ((c[it.mark] = (c[it.mark] || 0) + 1), c), {});
 
   function render(ctx) {
     const board = ctx.device, q = ctx.q;
     return ST.loadFindings(ctx.boardInfo.version, ctx.devId).then((F) => {
-      const head = (title, sub) => `<div class="page-head"><div><p class="crumbs"><a href="${ctx.link("/tests")}">Tests</a> › <a href="${ctx.link("/tests/in_assistant")}">In the assistant</a> › What it found</p><h1>${esc(title)}</h1>${sub ? `<p>${sub}</p>` : ""}</div></div>`;
+      const head = (title, sub) => `<div class="page-head"><div><p class="crumbs"><a href="${ctx.link("/tests")}">Test explorer</a> / <a href="${ctx.link("/tests/in_assistant_findings")}">What it found</a> / Item by item</p><h1>${esc(title)}</h1>${sub ? `<p>${sub}</p>` : ""}</div></div>`;
       if (!F || !(F.runs || []).length) {
-        const other = ctx.boardInfo.devices.find((d) => d.id !== ctx.devId);
-        return { title: "What it found", html: `<div class="container">${head("What it found", "")}${U.empty("No captured findings on this device yet", `The in-assistant tier has not published what the models surfaced on ${esc(board.device.name)}.${other ? ` <a class="link" href="${ctx.link("/found", { d: other.id })}">Look on the ${esc(other.short)}</a>.` : ""}`)}</div>` };
+        const other = ctx.boardInfo.devices.find((d) => d.id !== ctx.devId && d.findings);
+        return { title: "What it found", html: `<div class="container">${head("What it found", "")}${U.empty("No captured findings on this device", `The store has not published what the models surfaced inside the assistant on ${esc(board.device.name)}.${other ? ` <a class="link" href="${ctx.link("/found", { d: other.id })}">Look on the ${esc(other.short)}</a>.` : ""}`)}</div>` };
       }
-      const profiles = F.profiles || [];
-      const pid = profiles.some((p) => p.id === q.get("p")) ? q.get("p") : (profiles[0] || {}).id;
-      const prof = profiles.find((p) => p.id === pid) || { id: pid };
-      const runsHere = F.runs.filter((r) => r.profile === pid);
+      const profiles = (F.profiles || []).map((p) => (typeof p === "string" ? p : p.id)).filter(Boolean);
+      const pid = profiles.includes(q.get("p")) ? q.get("p") : profiles[0];
+      const trials = [...new Set(F.runs.filter((r) => r.profile === pid).map((r) => r.trial))].sort((a, b) => a - b);
+      const trial = trials.includes(Number(q.get("t"))) ? Number(q.get("t")) : trials[0];
+      const runsHere = F.runs.filter((r) => r.profile === pid && r.trial === trial);
       const keys = [...new Set(F.runs.map((r) => r.variant))].filter((k) => board.entry(k));
       const refs = ["tuned", "base"].map((r) => board.references[r]).filter(Boolean);
       const cands = keys.filter((k) => !refs.includes(k));
-      const asst = (k) => { const c = ST.value(board.entry(k), "assistant_score"); return c.status === "ok" ? c.value : -1; };
+      const asst = (k) => { const c = ST.value(board.entry(k), "findings_found"); return c.status === "ok" ? c.value : -1; };
       const sel = keys.includes(q.get("m")) ? q.get("m") : cands.slice().sort((a, b) => asst(b) - asst(a))[0] || keys[0];
       const showRefs = q.get("refs") !== "0";
       const cols = [sel].concat(showRefs ? refs.filter((k) => k !== sel) : []).map((k) => ({ key: k, e: board.entry(k), run: runsHere.find((r) => r.variant === k) }));
       const nameOf = (e) => e.name + (e.thinkingText ? ", " + e.thinkingText : "");
+      const person = R.facetLabel("profile=" + pid);
 
-      const anchor = prof.anchor || {};
-      const sub = `${esc(profileLabel(prof))}${prof.name ? `, an invented person called ${esc(prof.name)}` : ""}. Captured on ${esc(anchor.weekday || "")} ${esc(anchor.date || "")} at ${esc(anchor.now || "")} in their synthetic day, one trial. Every item is checked against the answer key planted in their data; only development-split material is shown.`;
+      const sub = `${esc(person)}, a synthetic person. Trial ${esc(trial)} of ${trials.length}. Every item is marked against the answer key planted in their data; only development-split material is shown.`;
       const controls = `<section class="filters" aria-label="Choose what to show"><div class="filter-row">
         ${U.selectField("m", "Entry", keys.map((k) => { const e = board.entry(k); return { v: k, l: nameOf(e) + (e.refRole ? (e.refRole === "tuned" ? " (tuned reference)" : " (base reference)") : "") }; }), sel)}
-        ${U.tray("p", "Synthetic person", profiles.map((p) => ({ v: p.id, l: R.facetLabel("profile=" + p.id), title: profileLabel(p) })), pid)}
+        ${U.tray("p", "Synthetic person", profiles.map((p) => ({ v: p, l: R.facetLabel("profile=" + p) })), pid)}
+        ${trials.length > 1 ? U.tray("t", "Trial", trials.map((t) => ({ v: String(t), l: String(t) })), String(trial)) : ""}
         ${U.tray("refs", "Beside it", [{ v: "", l: "Both references" }, { v: "0", l: "Nothing" }], showRefs ? "" : "0")}
       </div></section>`;
-      const sampleNote = F.sample ? `<p class="note-planned">${I.info}<span>Sample findings. ${F.fromFixture ? "The export does not carry findings yet, so this view reads the site's own sample: " : ""}the answer key is the synthetic profiles' public ledger, and what each model surfaced is invented. No model was run.</span></p>` : "";
+      const sampleNote = F.sample ? `<p class="note-planned">${I.info}<span>Sample findings: ${esc(F.notice || "every model name and item in this file is invented.")}</span></p>` : "";
 
       /* the column header and its tallies */
       const colHead = (c) => {
-        const e = c.e, t = c.run ? counts(c.run) : null, saf = ST.value(e, "asst_unsafe");
+        const e = c.e, t = c.run ? tally(c.run) : null, saf = ST.value(e, "asst_unsafe");
+        const n = (k) => t[k] || 0;
         const tallies = t ? `<dl class="tally">
-            <div><dt>Found</dt><dd class="num">${t.c.found}</dd></div><div><dt>Missed</dt><dd class="num">${t.c.missed}</dd></div>
-            <div><dt>Wrongly raised</dt><dd class="num${t.c.wrong ? " bad" : ""}">${t.c.wrong}</dd></div><div><dt>Stale</dt><dd class="num${t.c.stale ? " warn" : ""}">${t.c.stale}</dd></div>
-            <div><dt>Acted wrongly</dt><dd class="num${t.a.should_not + t.a.wrong ? " bad" : ""}">${t.a.should_not + t.a.wrong} <small>of ${(c.run.actions || []).length}</small></dd></div>
-            <div><dt>Unsafe actions</dt><dd class="num${t.a.beyond ? " bad" : ""}">${t.a.beyond} <small>here</small></dd></div>
+            <div><dt>Found</dt><dd class="num">${n("found")}</dd></div><div><dt>Missed</dt><dd class="num">${n("missed")}</dd></div>
+            <div><dt>Wrongly raised</dt><dd class="num${n("wrong") ? " bad" : ""}">${n("wrong")}</dd></div><div><dt>Stale</dt><dd class="num${n("stale") ? " warn" : ""}">${n("stale")}</dd></div>
+            <div><dt>Acted wrongly</dt><dd class="num${n("done_wrongly") + n("should_not") ? " bad" : ""}">${n("done_wrongly") + n("should_not")}</dd></div>
+            <div><dt>Unsafe actions</dt><dd class="num${n("unsafe") ? " bad" : ""}">${n("unsafe")} <small>here</small></dd></div>
           </dl><p class="xsmall muted">Across every in-assistant trial: ${U.safetyCell(saf, R.metric.asst_unsafe)}</p>` : "";
         return `<div class="fcol-head"><p class="mname"><a href="${ctx.link("/model/" + U.seg(e.model.id), { v: e.key })}">${esc(nameOf(e))}</a></p><p class="vline">${esc(e.line)} ${U.refBadge(e)}</p>${tallies}</div>`;
       };
       const grid = (inner) => `<div class="fgrid fgrid-${cols.length}">${cols.map((c) => `<div class="fcol">${inner(c)}</div>`).join("")}</div>`;
-      const missingRun = (c) => U.empty("Not captured", `${esc(nameOf(c.e))} has no capture for this person in this board.`);
+      const missingRun = (c) => U.empty("Not captured", `${esc(nameOf(c.e))} has no capture for this person and trial in this board.`);
 
-      const zoneSec = ([z, title, what]) => U.secHead(title, esc(what), "", "z-" + z) + grid((c) => {
+      /* sections the store may add later, kept visible rather than dropped */
+      const extra = [...new Set(runsHere.flatMap((r) => Object.keys(r.sections || {})))].filter((s) => !known.has(s) && !isDay(s));
+      const parts = PARTS.concat(extra.map((s) => ({ id: "s-" + s, title: R.facetLabel("family=" + s), what: "A section the page has no words for yet.", sections: [s] })));
+      const partSec = (p) => U.secHead(p.title, esc(p.what), "", "z-" + p.id) + grid((c) => {
         if (!c.run) return missingRun(c);
-        const items = ((c.run.brief || {})[z] || []), missed = (c.run.missed || []).filter((m) => m.zone === z);
-        return `<p class="fcol-name">${esc(nameOf(c.e))}</p>${items.length ? `<ul class="flist">${items.map(item).join("")}</ul>` : `<p class="small muted">Nothing surfaced here.</p>`}${missed.length ? `<p class="xsmall muted fmiss-h">Missed (${missed.length})</p><ul class="flist">${missed.map((m) => item(Object.assign({ mark: "missed" }, m))).join("")}</ul>` : ""}`;
+        return `<p class="fcol-name">${esc(nameOf(c.e))}</p>${list(itemsOf(c.run, p.sections), p.id === "act" ? "It took no action by itself." : "Nothing here.")}`;
       });
 
-      const actionsSec = U.secHead("Actions it took by itself", "Things the model did without being asked: right to do, should not have done, or done wrongly. Anything beyond what the assistant may do on its own counts as an unsafe action, beside the score and never in it.", "", "z-actions") + grid((c) => {
-        if (!c.run) return missingRun(c);
-        const acts = c.run.actions || [];
-        return `<p class="fcol-name">${esc(nameOf(c.e))}</p>${acts.length ? `<ul class="flist">${acts.map((a) => `<li class="fi"><div class="fi-head">${chip(a.verdict, VERDICT)}${a.beyond_allowed ? `<span class="mk mk-bad" title="Beyond what the assistant may do without asking; counted in the unsafe-action numbers">${I.shield}Unsafe action</span>` : ""}<span class="mono xsmall muted">${esc(a.tool || "")}</span></div><blockquote class="fi-text">${esc(a.text)}</blockquote>${a.why ? `<p class="xsmall muted">${esc(a.why)}</p>` : ""}</li>`).join("")}</ul>` : `<p class="small muted">It took no action by itself.</p>`}`;
-      });
+      /* questions about the day: window and window@<time> sections, grouped by the time they were asked */
+      const dayItems = (run) => Object.keys(run.sections || {}).filter(isDay).flatMap((s) => run.sections[s].map((it) => Object.assign({ _at: s.includes("@") ? s.split("@")[1] : it.at || "" }, it)));
+      const times = [...new Set(runsHere.flatMap((r) => dayItems(r).map((it) => it._at)))].sort();
+      const daySec = U.secHead("Questions about the day", "Asked at a set time in the synthetic day. Each fact in the answer is marked against what was true at that moment.", "", "z-day") +
+        (times.length ? times.map((at) => `<h3 class="ftime">${esc(at || "Time not recorded")}</h3>` + grid((c) => {
+          if (!c.run) return missingRun(c);
+          return `<p class="fcol-name">${esc(nameOf(c.e))}</p>${list(dayItems(c.run).filter((it) => it._at === at), "Not asked at this time.")}`;
+        })).join("") : U.empty("No day questions captured", "This capture has no questions about the day."));
 
-      /* questions about the day, grouped by the time they were asked */
-      const times = [...new Set(runsHere.flatMap((r) => (r.day || []).map((d) => d.at)))].sort();
-      const dayQs = (at) => { const first = cols.find((c) => c.run); return first ? (first.run.day || []).filter((d) => d.at === at) : []; };
-      const daySec = U.secHead("Questions about the day", "Asked at several times of the synthetic day. Each answer is checked fact by fact against what was true at that moment.", "", "z-day") + (times.length ? times.map((at) => `<h3 class="ftime">${esc(at)}</h3>` + dayQs(at).map((dq) => `<div class="fq"><p class="fq-q">${esc(dq.question)}</p>${grid((c) => {
-        const a = c.run && (c.run.day || []).find((d) => d.at === at && d.question === dq.question);
-        if (!a) return `<p class="fcol-name">${esc(nameOf(c.e))}</p><p class="small muted">Not asked.</p>`;
-        return `<p class="fcol-name">${esc(nameOf(c.e))}</p><blockquote class="fi-text">${esc(a.answer)}</blockquote>${(a.facts || []).length ? `<ul class="flist compact">${a.facts.map((f) => `<li class="fi fi-${esc(f.mark)}"><div class="fi-head">${chip(f.mark)}<span class="small">${esc(f.key_text.length > 140 ? f.key_text.slice(0, 139) + "…" : f.key_text)}</span></div></li>`).join("")}</ul>` : `<p class="xsmall muted">${a.empty_key ? "The answer key holds nothing for this moment, so the right answer is that nothing needs you." : "No facts checked."}</p>`}`;
-      })}</div>`).join("")).join("") : U.empty("No day questions captured", "This capture has no questions about the day."));
-
-      const toc = `<nav class="ftoc small" aria-label="On this page">${ZONES.map(([z, t]) => `<a data-anchor="z-${z}" href="#z-${z}">${esc(t)}</a>`).join("")}<a data-anchor="z-actions" href="#z-actions">Actions it took</a><a data-anchor="z-day" href="#z-day">Questions about the day</a></nav>`;
+      const toc = `<nav class="ftoc small" aria-label="On this page">${parts.map((p) => `<a data-anchor="z-${p.id}" href="#z-${p.id}">${esc(p.title)}</a>`).join("")}<a data-anchor="z-day" href="#z-day">Questions about the day</a></nav>`;
+      const asked = q.get("m") && !keys.includes(q.get("m")) && board.entry(q.get("m"));
       const html = `<div class="container">
-        ${head("What " + board.entry(sel).name + (board.entry(sel).thinkingText ? " (" + board.entry(sel).thinkingText + ")" : "") + " found", sub)}
+        ${head("What " + nameOf(board.entry(sel)) + " found", sub)}
         ${sampleNote}
-        ${q.get("m") && !keys.includes(q.get("m")) && board.entry(q.get("m")) ? `<p class="note-planned">${I.info}<span>${esc(nameOf(board.entry(q.get("m"))))} has no capture inside the assistant on this device${board.entry(q.get("m")).group === "does_not_fit" ? ": it does not fit, so it is never run here" : ""}. Showing ${esc(nameOf(board.entry(sel)))} instead.</span></p>` : ""}
+        ${asked ? `<p class="note-planned">${I.info}<span>${esc(nameOf(asked))} has no capture inside the assistant on this device${asked.group === "does_not_fit" ? ": it does not fit, so it is never run here" : ""}. Showing ${esc(nameOf(board.entry(sel)))} instead.</span></p>` : ""}
         ${controls}
         ${grid(colHead)}
         ${toc}
-        ${ZONES.map(zoneSec).join("")}
-        ${actionsSec}
+        ${parts.map(partSec).join("")}
         ${daySec}
-        <p class="small muted" style="margin-top:var(--space-lg)">Marks: ${Object.keys(MARK).map((m) => chip(m)).join(" ")}. Every mark is a word and an icon. Scores for this tier are on the <a class="link" href="${ctx.link("/tests/in_assistant", { m: sel })}">in-assistant tier page</a>; the people are described on <a class="link" href="${ctx.link("/profiles")}">Profiles</a>.</p>
+        <p class="small muted" style="margin-top:var(--space-lg)">Marks: ${["found", "missed", "wrong", "stale", "right", "done_wrongly", "should_not", "unsafe"].map((m) => chip({ mark: m })).join(" ")}. Every mark is a word and an icon. Scores for this tier are on the <a class="link" href="${ctx.link("/tests/in_assistant_findings", { m: sel })}">"What it found" tier page</a>; the people are described on <a class="link" href="${ctx.link("/profiles")}">Profiles</a>.</p>
       </div>`;
       return { title: "What " + board.entry(sel).name + " found", html };
     });

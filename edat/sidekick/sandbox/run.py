@@ -65,7 +65,7 @@ class ExecResult:
     stderr: str
     wall_s: float
     timed_out: bool = False
-    killed: str | None = None          # "wall_clock" | "memory" | "processes" | None
+    killed: str | None = None          # "wall_clock" | "memory" | "processes" | "cpu_time" | None
     stdout_truncated: bool = False
     stderr_truncated: bool = False
     pids: set[int] = field(default_factory=set)
@@ -406,6 +406,8 @@ class SeatbeltIsolation:
                 proc.wait(timeout=5)
             except subprocess.TimeoutExpired:
                 pass
+        if not killed:
+            killed = cpu_limit_kill(proc.returncode)
         # Background children left behind are stopped too.
         _kill_group(pgid)
         for r in readers:
@@ -418,6 +420,15 @@ class SeatbeltIsolation:
             wall_s=wall, timed_out=killed == "wall_clock", killed=killed,
             stdout_truncated=bool(out_flag), stderr_truncated=bool(err_flag),
             pids=pids, pid=proc.pid, started=started, ended=time.time())
+
+
+def cpu_limit_kill(returncode: int | None) -> str | None:
+    """"cpu_time" when the process (or the shell's last command) was ended by the CPU-time limit: SIGXCPU at
+    the soft limit, SIGKILL at the hard one. The shell reports a child's signal as 128 + its number."""
+    if returncode is None:
+        return None
+    sig = -returncode if returncode < 0 else returncode - 128 if 128 < returncode < 160 else None
+    return "cpu_time" if sig in (signal.SIGXCPU, signal.SIGKILL) else None
 
 
 def _kill_group(pgid: int) -> None:

@@ -1,6 +1,6 @@
 # Writing a benchmark profile
 
-These profiles are **synthetic test data** for EDAT (Edge Device Agentic Testing). **English only**. They are used to benchmark small language models running inside Harbor, a local macOS assistant. The surfaces are Ask (questions about your day), Brief (a morning digest of what needs attention) and Day (a plan for the day). Read `docs/benchmark/09-profile-schema.md` (the schema), `scripts/bench_profiles/lib.py` (the builder you write with) and `scripts/bench_profiles/validate.py` (what must pass) before writing.
+These profiles are **synthetic test data** for tinyagent-bench. **English only**. They are used to benchmark small language models running inside Harbor, a local macOS assistant. The surfaces are Ask (questions about your day), Brief (a morning digest of what needs attention) and Day (a plan for the day). Read `docs/benchmark/09-profile-schema.md` (the schema), `scripts/bench_profiles/lib.py` (the builder you write with) and `scripts/bench_profiles/validate.py` (what must pass) before writing.
 
 ## Output
 

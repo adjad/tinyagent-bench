@@ -1,10 +1,11 @@
 {
-  "note": "EDAT in-assistant evaluation: the model entries a run may name with --model. Ids stay in configuration; prices and weights hashes are filled in from the provider's model list and the performance results before a ranked run. null means not known yet.",
+  "note": "tinyagent-bench in-assistant evaluation: the model entries a run may name with --model. Ids stay in configuration; prices and weights hashes are filled in from the provider's model list and the performance results before a ranked run. null means not known yet.",
   "references": ["Gemma-Wisp", "gemma-4-E4B-it-oQ4e-mtp"],
   "device_reference": "MacBook Pro, Apple M5 Pro, 24 GB",
   "entries": [
     {"id": "Gemma-Wisp", "kind": "local", "engine": "omlx", "model_id": "Gemma-Wisp",
-     "folder": "gemma-4-E4B-it-r5-step-01800-oQ4e-mtp", "label": "Gemma 4 E4B, Harbor-tuned r5 (primary reference)",
+     "folder": "gemma-4-E4B-it-r5-step-01800-oQ4e-mtp",
+   "served_as": ["gemma-4-E4B-it-r5-step-01800-oQ4e-mtp"], "label": "Gemma 4 E4B, Harbor-tuned r5 (primary reference)",
      "quantisation": "oQ4e", "weights_sha256": null, "fits_16gb": true,
      "thinking": "harbor", "sampling": {"source": "oMLX per-model profile", "author": null}},
     {"id": "gemma-4-E4B-it-oQ4e-mtp", "kind": "local", "engine": "omlx", "model_id": "gemma-4-E4B-it-oQ4e-mtp",

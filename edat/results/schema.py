@@ -1,4 +1,4 @@
-"""Validation of EDAT result records, run manifests and export files.
+"""Validation of tinyagent-bench result records, run manifests and export files.
 
 The JSON Schema files in `schema/` are the contract. This module checks them
 with a small built-in validator for exactly the keyword subset those files use
@@ -27,6 +27,7 @@ _FILES = {
     "manifest": "run-manifest.schema.json",
     "snapshot": "snapshot.schema.json",
     "site_board": "site-board.schema.json",
+    "site_findings": "site-findings.schema.json",
 }
 
 

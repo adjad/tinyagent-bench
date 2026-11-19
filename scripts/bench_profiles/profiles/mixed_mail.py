@@ -863,7 +863,7 @@ Don't let winter catch you unprepared.""")
       subject="Fare alert: Toronto → Lima from $689", body="Your watched route YYZ-LIM: from $689 round trip (Dec 18 - Jan 6). Prices change often.")
     E(account=P, day=-9, time="07:00", frm=CONDOR, category="promotions", bulk=True,
       subject="Holiday sale: South America from $599", body="Book by Oct 20 for travel Dec 1 - Feb 28. Lima, Cusco, Santiago, Bogotá.")
-    E(account=P, day=-1, time="07:00", frm=CONDOR, category="promotions", bulk=True,
+    E(id="condor-drop", account=P, day=-1, time="07:00", frm=CONDOR, category="promotions", bulk=True,
       subject="Price drop: Toronto → Lima now $642", body="Your watched route YYZ-LIM (Dec 18 - Jan 6) dropped to $642 round trip. 4 seats left at this price.")
     E(account=P, day=-16, time="09:00", frm=("Cragline Bouldering", "news@craglinebouldering.example"), category="promotions",
       bulk=True, subject="New set on the overhang + student memberships", body="The overhang wall gets a full reset Oct 17. Student monthly memberships are $79 + HST this fall.")
@@ -930,7 +930,7 @@ A2 questions: 3 new posts
 - Ravi Iyer replied: "Yes, as long as you don't record faces."
 - Marcus Achterberg: "can we observe the vending machine in Calder?"
 """)
-    E(account=S, day=-1, time="11:30", frm=("Hana Sato", "hana.sato@ritech.example"), to=[ME_S],
+    E(id="hana-a2", account=S, day=-1, time="11:30", frm=("Hana Sato", "hana.sato@ritech.example"), to=[ME_S],
       subject="A2 plan (library self-checkout)", body=f"""\
 Hi Camila,
 
@@ -948,7 +948,7 @@ Hana""")
     E(account=S, day=-6, time="10:00", frm=LIB, category="news", bulk=True,
       subject="Workshop: managing interview data securely",
       body="Wednesday Oct 21, 13:00-14:30, Calder Library room 2. Covers encrypted storage, de-identification and what the REB expects.")
-    E(account=W, day=-2, time="17:25", frm=PRIYA, subject="1:1 notes", body="""\
+    E(id="priya-1on1", account=W, day=-2, time="17:25", frm=PRIYA, subject="1:1 notes", body="""\
 Thanks for today. Notes:
 - Synthesis: one round after P8 (see my email)
 - Your hours look fine for October; tell me early if midterms squeeze you

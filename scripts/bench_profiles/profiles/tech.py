@@ -9,7 +9,7 @@ reminders, notes, documents, browser history, memory and the ledger.
 from __future__ import annotations
 
 from scripts.bench_profiles.lib import ProfileBuilder, tok
-from scripts.bench_profiles.profiles import tech_mail, tech_msgs, tech_noise
+from scripts.bench_profiles.profiles import tech_keys, tech_mail, tech_msgs, tech_noise
 
 ANCHOR = {"date": "2026-10-14", "weekday": "Wednesday", "now": "07:45",
           "tz": "America/Los_Angeles", "locale": "en-US", "week_starts": "monday"}
@@ -938,6 +938,7 @@ def build() -> ProfileBuilder:
     _memory(b)
     _ledger(b)
     _ledger_prefs_privacy(b)
+    tech_keys.add(b)
     _unread_overnight(b)
     return b
 

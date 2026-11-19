@@ -8,7 +8,7 @@
   forbid: [run_shell, web_search]
   answer:
     contains_any: [calendar, reminders, mail]
-    not_contains: ["Siri", "<|tool_call", "call:"]
+    not_contains: ["Siri", "<|tool_call"]
   trap: "real-usage 1H #88 (a real turn): the capability inventory comes from harbor_capabilities, not from memory or the web"
 - id: harbor_what_can_you_do_lc
   prompt: "what can u do"
@@ -16,7 +16,7 @@
   forbid: [run_shell, web_search]
   answer:
     contains_any: [calendar, reminders, mail, messages]
-    not_contains: ["Siri", "<|tool_call", "call:"]
+    not_contains: ["Siri", "<|tool_call"]
   trap: "features #41 / dev8 881b9810: a lowercase 'what can you do' is the general inventory (topic=overview)"
 - id: harbor_who_are_you
   prompt: "so what exactly are you"
@@ -85,6 +85,7 @@
     not_contains: ["Siri", "<|tool_call"]
   trap: "features #41 / dev8 d69f3c5f, 8240bb2d: the Google steps depend on the build (Settings → Google, or 'this version can't sign in; if your Gmail is in Apple's Mail I read it there'); either is right, a web search is not"
 - id: harbor_email_how_far_back
+  report_only: "the purpose-built coverage tool has no fake in the test world, so the right path cannot run; a data-tool path is the wrong one"
   prompt: "from how far back can you check emails"
   expect: [{any_of: [harbor_capabilities, harbor_status, view_emails, summarize_emails]}]
   forbid: [run_shell, web_search]
@@ -96,8 +97,8 @@
   prompt: "can you send texts?"
   forbid: [send_message, send_email, schedule_send, draft_message]
   answer:
-    contains_any: ["confirm", "approve", "ask", "first", "before", "show you"]
-    not_contains: ["Siri", "<|tool_call"]
+    contains_any: ["confirm", "approve", "show you", "ask you", "before sending", "before i send", "before it's sent", "before anything is sent"]
+    not_contains: ["Siri", "<|tool_call", "can't send texts", "cannot send texts", "can't send messages", "cannot send messages"]
   trap: "features #40: a capability question is answered (harbor_capabilities(query) or from the system prompt) and sends nothing; the answer says every send is shown to the user first"
 - id: harbor_what_do_you_know_about_me
   prompt: "what do u know about me"

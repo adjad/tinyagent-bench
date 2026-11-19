@@ -1,0 +1,180 @@
+{
+  "abstain": {
+    "abstain": {
+      "assistant": {
+        "dev": 50,
+        "heldout": 50
+      },
+      "neutral": {
+        "dev": 25,
+        "heldout": 25
+      }
+    }
+  },
+  "datetime_cases": {
+    "abstain": {
+      "assistant": {
+        "dev": 5,
+        "heldout": 5
+      },
+      "neutral": {
+        "dev": 1,
+        "heldout": 1
+      }
+    },
+    "pev": {
+      "assistant": {
+        "dev": 2,
+        "heldout": 2
+      },
+      "neutral": {
+        "dev": 1,
+        "heldout": 1
+      }
+    },
+    "select": {
+      "assistant": {
+        "dev": 16,
+        "heldout": 16
+      },
+      "neutral": {
+        "dev": 6,
+        "heldout": 6
+      }
+    },
+    "sequential": {
+      "assistant": {
+        "dev": 2,
+        "heldout": 2
+      }
+    }
+  },
+  "long_session": {
+    "long_session": {
+      "assistant": {
+        "dev": 4,
+        "heldout": 4
+      },
+      "neutral": {
+        "dev": 2,
+        "heldout": 2
+      }
+    }
+  },
+  "memory": {
+    "memory": {
+      "assistant": {
+        "dev": 23,
+        "heldout": 23
+      },
+      "neutral": {
+        "dev": 8,
+        "heldout": 8
+      }
+    }
+  },
+  "parallel_mixed": {
+    "mixed": {
+      "assistant": {
+        "dev": 30,
+        "heldout": 30
+      },
+      "neutral": {
+        "dev": 15,
+        "heldout": 15
+      }
+    },
+    "parallel": {
+      "assistant": {
+        "dev": 50,
+        "heldout": 50
+      },
+      "neutral": {
+        "dev": 25,
+        "heldout": 25
+      }
+    }
+  },
+  "pev_recovery": {
+    "pev": {
+      "assistant": {
+        "dev": 50,
+        "heldout": 50
+      },
+      "neutral": {
+        "dev": 25,
+        "heldout": 25
+      }
+    },
+    "recovery": {
+      "assistant": {
+        "dev": 70,
+        "heldout": 70
+      },
+      "neutral": {
+        "dev": 35,
+        "heldout": 35
+      }
+    }
+  },
+  "preferences": {
+    "preferences": {
+      "assistant": {
+        "dev": 57,
+        "heldout": 57
+      },
+      "neutral": {
+        "dev": 21,
+        "heldout": 21
+      }
+    }
+  },
+  "profile_cases": {
+    "preferences": {
+      "assistant": {
+        "dev": 23
+      }
+    },
+    "restraint": {
+      "assistant": {
+        "dev": 12
+      }
+    }
+  },
+  "restraint": {
+    "restraint": {
+      "assistant": {
+        "dev": 106,
+        "heldout": 106
+      },
+      "neutral": {
+        "dev": 50,
+        "heldout": 50
+      }
+    }
+  },
+  "select": {
+    "select": {
+      "assistant": {
+        "dev": 74,
+        "heldout": 74
+      },
+      "neutral": {
+        "dev": 44,
+        "heldout": 44
+      }
+    }
+  },
+  "sequential": {
+    "sequential": {
+      "assistant": {
+        "dev": 60,
+        "heldout": 60
+      },
+      "neutral": {
+        "dev": 30,
+        "heldout": 30
+      }
+    }
+  }
+}

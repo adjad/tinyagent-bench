@@ -1,0 +1,72 @@
+{
+  "_about": "tinyagent-bench: each model's author-recommended sampling, sent identically on every request of its entries (policy 'author', the default for comparisons). Keys per model: params (temperature, top_p, top_k, min_p, presence_penalty, frequency_penalty, repetition_penalty, repeat_penalty), source (where the numbers come from), verified (true once checked against the published card). A comparison refuses a model with no entry here. Add a candidate's entry from its model card before running it.",
+  "gemma-4-E4B-it-oQ4e-mtp": {
+    "params": {
+      "temperature": 1.0,
+      "top_p": 0.95,
+      "top_k": 64,
+      "min_p": 0.0
+    },
+    "source": "Gemma model card recommended sampling (temperature 1.0, top_k 64, top_p 0.95), as recalled for the Gemma 3/4 family",
+    "verified": false
+  },
+  "Gemma-Wisp": {
+    "params": {
+      "temperature": 1.0,
+      "top_p": 0.95,
+      "top_k": 64,
+      "min_p": 0.0
+    },
+    "source": "Harbor's tuned Gemma 4 E4B (r5 step 1800): no separate author settings; uses its base model's (gemma-4-E4B-it-oQ4e-mtp)",
+    "verified": false
+  },
+  "gemma-4-E4B-it-r5-step-01800-oQ4e-mtp": {
+    "params": {
+      "temperature": 1.0,
+      "top_p": 0.95,
+      "top_k": 64,
+      "min_p": 0.0
+    },
+    "source": "folder name of Gemma-Wisp (same weights); same entry",
+    "verified": false
+  },
+  "anthropic/claude-haiku-5.5": {
+    "params": {},
+    "source": "accepts no temperature or top_p on OpenRouter (tinyagent-bench decision 2026-11-18); provider default",
+    "verified": false
+  },
+  "openai/gpt-6-luna": {
+    "params": {},
+    "source": "accepts no temperature or top_p on OpenRouter (tinyagent-bench decision 2026-11-18); provider default",
+    "verified": false
+  },
+  "google/gemini-4-argon": {
+    "params": {
+      "temperature": 1.0,
+      "top_p": 0.95
+    },
+    "source": "Google's guidance for its reasoning Gemini models: keep the defaults (temperature 1.0, top_p 0.95), as recalled for Gemini 3; unconfirmed for Gemini 4",
+    "verified": false
+  },
+  "google/gemini-4-carbon": {
+    "params": {
+      "temperature": 1.0,
+      "top_p": 0.95
+    },
+    "source": "as google/gemini-4-argon",
+    "verified": false
+  },
+  "google/gemini-4-neon": {
+    "params": {
+      "temperature": 1.0,
+      "top_p": 0.95
+    },
+    "source": "as google/gemini-4-argon",
+    "verified": false
+  },
+  "deepseek/deepseek-v4.1-flash-1017": {
+    "params": {},
+    "source": "no published sampling recommendation found for this model; the provider's default decides (nothing sent)",
+    "verified": false
+  }
+}

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""EDAT in-assistant evaluation: judge a model inside Harbor on Ask, Brief and Day.
+"""tinyagent-bench in-assistant evaluation: judge a model inside Harbor on Ask, Brief and Day.
 
 For each model entry, profile and trial this starts a fresh isolated Harbor
 (backend on 8775, sandbox on 8766, a scratch HARBOR_HOME, the clock pinned to
@@ -39,6 +39,7 @@ import asyncio
 import json
 import os
 import platform
+import re
 import subprocess
 import sys
 import time
@@ -56,19 +57,53 @@ import httpx  # noqa: E402
 
 from scripts.productbench import cases as case_files  # noqa: E402
 from scripts.productbench import models as model_files  # noqa: E402
-from scripts.productbench import long_session, preferences, privacy, simday  # noqa: E402
+from scripts.productbench import autonomy, long_session, preferences, privacy, questions, simday  # noqa: E402
 from scripts.productbench import score_ask, score_brief, score_day, summary  # noqa: E402
 from scripts.productbench.capture import Bench, TeeTransport  # noqa: E402
 from scripts.productbench.profile import load as load_profile  # noqa: E402
 
-SURFACES = ("ask", "brief", "day", "pref", "long")
-DEFAULT_SURFACES = "ask,brief,day,pref"
+SURFACES = ("ask", "brief", "day", "pref", "long", "act")
+DEFAULT_SURFACES = "ask,brief,day,pref,act"
 HARNESS_VERSION = "edat-iae-0.2"
 RUN_PREFIX = "edat-iae"
 
 
 class SpendLimit(RuntimeError):
     pass
+
+
+class StopRun(RuntimeError):
+    """A stop condition held between trials (host memory, the error share)."""
+
+
+MAX_ERROR_SHARE = 0.02          # as the agentic spec: over 2% excluded trials invalidates a run
+MIN_FREE_PCT = 15               # memory_pressure's free percentage below this stops the run
+
+
+def memory_free_pct() -> int | None:
+    """macOS memory_pressure's system-wide free percentage (read-only), or None."""
+    try:
+        out = subprocess.run(["memory_pressure", "-Q"], capture_output=True, text=True, timeout=10).stdout
+    except (OSError, subprocess.SubprocessError):
+        return None
+    m = re.search(r"free percentage:\s*(\d+)%", out)
+    return int(m.group(1)) if m else None
+
+
+def check_stop(log: Path, *, stub: bool, min_free: int = MIN_FREE_PCT, max_errors: float = MAX_ERROR_SHARE,
+               free_pct=memory_free_pct) -> str | None:
+    """Why the run must stop now, or None. Checked between trials."""
+    pct = None if stub else free_pct()
+    if pct is not None and pct < min_free:
+        return f"memory pressure: {pct}% free, under {min_free}%"
+    try:
+        rows = [json.loads(x) for x in log.read_text(encoding="utf-8").splitlines() if x.strip()]
+    except OSError:
+        rows = []
+    errors = sum(1 for r in rows if (r.get("captured") or {}).get("error"))
+    if len(rows) >= 50 and errors / len(rows) > max_errors:
+        return f"engine or transport errors in {errors} of {len(rows)} records, over {max_errors:.0%}"
+    return None
 
 
 def _git_sha() -> str:
@@ -186,7 +221,7 @@ async def run_trial(bench: Bench, cases: dict, surfaces: list[str], base: dict, 
     rec_base["now"] = at or profile.data["anchor"][11:16]
     rules = dict(cases.get("day", {}).get("rules") or {})
     if at:
-        rules["now"] = at
+        rules["now"] = at.split()[-1]
     n = 0
 
     def write(rec: dict) -> None:
@@ -219,6 +254,9 @@ async def run_trial(bench: Bench, cases: dict, surfaces: list[str], base: dict, 
                   "items": [o.as_dict() for o in items]}
             write({**rec_base, "surface": "brief", "case": "brief", "captured": cap, "score": sc.as_dict(),
                    "privacy": pv})
+            bt = questions.brief_todos(cap["snapshot"], profile)
+            write({**rec_base, "surface": "question", "case": "TQ-brief-todos", "family": "todo",
+                   "captured": {"todos": cap["snapshot"].get("todos") or []}, "score": bt})
             print(f"  brief  {100 * sc.score:5.1f}  recall={sc.recall['rate']} "
                   f"hidden={sc.hidden_recall['rate']} noise={len(sc.false_alarms)} ({cap['elapsed_s']}s)"
                   f"{' LEAK x' + str(len(pv['leaks'])) if pv['leaks'] else ''}")
@@ -234,6 +272,17 @@ async def run_trial(bench: Bench, cases: dict, surfaces: list[str], base: dict, 
                 if not wanted(case):
                     continue
                 turn, pv, items = await ask(case["id"], case["prompt"])
+                if case.get("question"):
+                    qs = questions.score_question(case, turn["answer"], profile)
+                    ask_view = score_ask.score_case({"id": case["id"], "check_invented": False}, turn, profile)
+                    qs["unsafe"] = ask_view.unsafe
+                    write({**rec_base, "surface": "question", "case": case["id"], "family": case["family"],
+                           "prompt": case["prompt"], "captured": turn, "score": qs, "privacy": pv})
+                    c = qs.get("counts") or {}
+                    shown = "  —  " if qs["score"] is None else f"{100 * qs['score']:5.1f}"
+                    print(f"  {case['id']:<16} {shown}  found={c.get('found')} missed={c.get('missed')} "
+                          f"wrong={c.get('wrongly_raised')} stale={c.get('stale')}")
+                    continue
                 if case.get("privacy"):
                     rule = ctx.rule_by_id.get(case["privacy"]["rule"])
                     outcome = (privacy.wrong_recipient_outcome(items, rule)
@@ -305,6 +354,40 @@ async def run_trial(bench: Bench, cases: dict, surfaces: list[str], base: dict, 
         if at is None and "long" in surfaces and ctx.long:
             write(await _long_session(ctx, ask, profile, rec_base))
     return n
+
+
+async def run_act_trial(bench: Bench, plan: dict, base: dict, log: Path, spend: Spend) -> int:
+    """Act-for-me on (autonomy.py): new messages arrive after the yes (or the profile stands, when
+    its key assumes an earlier yes), one Brief runs, and every action Harbor took by itself is
+    read from its own store and judged. No Ask turn runs, so every sandbox write is background."""
+    profile, entry = bench.profile, base["_entry"]
+    rec_base = {k: v for k, v in base.items() if not k.startswith("_")}
+    rec_base["now"] = profile.data["anchor"][11:16]
+    async with httpx.AsyncClient() as client:
+        posted = (await bench.arrive(client, autonomy.arrival_posts(plan["expectations"]))
+                  if plan["mode"] == "arrivals" else [])
+        cap = await bench.brief(client)
+        spend.add(entry, cap.get("usage") or {}, stub=rec_base["stub"])
+        await asyncio.sleep(2.0)
+        done = autonomy.read_done(bench.home.harbor_home)
+        passed_over = autonomy.read_notes(bench.run_dir / "act_notes.jsonl")
+        state = await bench.act_state(client)
+        writes = await bench.actions(client)
+    result = autonomy.judge(done, writes, plan["expectations"], profile, yes_at=plan["yes_at"])
+    result.update({"mode": plan["mode"], "expectations": len(plan["expectations"]), "passed_over": passed_over})
+    cards = [{"title": c.get("title"), "kind": (c.get("action") or {}).get("method")}
+             for c in (cap["snapshot"].get("cards") or [])]
+    _record(log, {**rec_base, "surface": "act", "case": "act-for-me", "family": "act_for_me",
+                  "captured": {"mode": plan["mode"], "yes_at": plan["yes_at"], "arrivals": autonomy.arrival_posts(
+                      plan["expectations"]), "posted": posted, "done": done, "act_state": state,
+                      "background_writes": writes, "brief_cards": cards, "brief_elapsed_s": cap["elapsed_s"],
+                      "usage": cap.get("usage")},
+                  "score": result})
+    c = result["counts"]
+    print(f"  act    {'—' if result['score'] is None else round(100 * result['score'], 1)}  right={c['right']} "
+          f"wrong={c['done_wrongly']} should_not={c['should_not']} missed={c['missed']} "
+          f"unsafe={len(result['unsafe'])} ({plan['mode']})")
+    return 1
 
 
 async def _pref_case(pc: dict, ask, ctx: Ctx, profile, rec_base: dict) -> dict:
@@ -417,9 +500,10 @@ def _resolve(path: str) -> Path:
     p = Path(path)
     if p.exists():
         return p.resolve()
-    named = ROOT / "test_fixtures" / "productbench" / path / "profile.json"
-    if named.exists():
-        return named
+    for folder in ("bench_profiles", "productbench"):
+        named = ROOT / "test_fixtures" / folder / path / "profile.json"
+        if named.exists():
+            return named
     sys.exit(f"no profile at {path}")
 
 
@@ -518,6 +602,8 @@ def main() -> None:
     ap.add_argument("--profile", action="append", default=[], help="profile.json path or a name "
                     "under test_fixtures/productbench/; repeat for several")
     ap.add_argument("--cases", default=None, help="question file (default: the profile's own set)")
+    ap.add_argument("--first-trial", type=int, default=1,
+                    help="number the trials from here (to resume: --first-trial 3 --trials 1 runs trial 3 only)")
     ap.add_argument("--surface", default=DEFAULT_SURFACES,
                     help="ask, brief, day, pref (standing preferences), long (the 60-turn session; heavy)")
     ap.add_argument("--trials", type=int, default=3)
@@ -575,9 +661,17 @@ def main() -> None:
         sys.exit(refusal)
     if not stub and any(not e.cloud for e in chosen):
         try:
-            httpx.get(f"http://127.0.0.1:{args.engine_port}/v1/models", timeout=3)
-        except httpx.HTTPError:
+            listed = httpx.get(f"http://127.0.0.1:{args.engine_port}/v1/models", timeout=3).json()
+        except (httpx.HTTPError, ValueError):
             sys.exit(f"no engine answers on :{args.engine_port}; this harness never starts one")
+        available = [m.get("id") for m in (listed.get("data") or []) if isinstance(m, dict)]
+        for e in chosen:
+            if e.cloud:
+                continue
+            served = model_files.pick_served(e, available)
+            if served is None:
+                sys.exit(f"{e.id}: the engine lists none of {[e.model_id, *e.served_as]}; nothing was run")
+            e.model_id = served
 
     run = f"{RUN_PREFIX}-{time.strftime('%Y%m%d-%H%M%S')}"
     root = Path(args.out) if args.out else Path(os.environ.get("TMPDIR", "/tmp")) / "productbench"
@@ -604,6 +698,10 @@ def main() -> None:
         for ppath in args.profile:
             profile = load_profile(_resolve(ppath))
             cases, sources = case_files.for_profile(profile, args.cases)
+            if "ask" in surfaces and not args.cases:
+                have = {c["id"] for c in cases.get("ask", [])}
+                cases["ask"] += [c for c in questions.cases_for(profile) if c["id"] not in have]
+            act_plan = autonomy.plan_for(profile) if "act" in surfaces else None
             times = sorted({c["at"] for c in cases.get("ask", []) + cases.get("day", {}).get("plans", [])
                             if c.get("at")})
             meta["profiles"].append({"id": profile.id, "path": str(_resolve(ppath)),
@@ -617,19 +715,30 @@ def main() -> None:
             for entry in chosen:
                 runtime = runtime_info(entry, stub=stub, engine_port=args.engine_port)
                 engine_port = None if (stub or entry.cloud) else args.engine_port
-                for trial in range(1, args.trials + 1):
-                    for at in [None, *times]:
-                        label = f"{entry.id} / {profile.id} / trial {trial}" + (f" / at {at}" if at else "")
+                for trial in range(args.first_trial, args.first_trial + args.trials):
+                    passes = ([(None, False)] if set(surfaces) - {"act"} else []) + [(t, False) for t in times]
+                    if act_plan is not None and act_plan["expectations"]:
+                        passes.append((None, True))
+                    for at, act in passes:
+                        why = check_stop(log, stub=stub)
+                        if why:
+                            raise StopRun(f"{why}. Resume: the same command with --model {entry.id} "
+                                          f"--profile {profile.id} --first-trial {trial} --trials "
+                                          f"{args.first_trial + args.trials - trial} into a new --out")
+                        label = (f"{entry.id} / {profile.id} / trial {trial}" + (f" / at {at}" if at else "")
+                                 + (" / act-for-me" if act else ""))
                         print(f"\n== {label} ==")
                         home = run_dir / "homes" / "-".join(
                             filter(None, [profile.id, entry.id.replace("/", "_"), str(trial),
-                                          at.replace(":", "") if at else None]))
+                                          at.replace(":", "").replace("+", "d").replace(" ", "-") if at else None,
+                                          "act" if act else None]))
                         home.parent.mkdir(parents=True, exist_ok=True)
                         bench = Bench(profile, entry.model_id, home, port=args.port,
                                       sandbox_port=args.sandbox_port, engine_port=args.engine_port,
                                       stub_script=args.stub_script, cloud=entry.cloud,
                                       context_window=entry.context_window,
                                       credential_ref=args.credential_ref, at=at,
+                                      act_yes_at=act_plan["yes_at"] if act else None,
                                       narration_thinking=entry.thinking == "narration-on")
                         base = {"run": run, "entry": entry.id, "model": entry.model_id, "kind": entry.kind,
                                 "ranked": entry.ranked and not stub, "stub": stub, "variant": entry.variant(),
@@ -640,12 +749,17 @@ def main() -> None:
                         resident_start = simday.engine_resident(engine_port)
                         try:
                             bench.start()
-                            n = asyncio.run(run_trial(bench, cases, surfaces, base, log, only, spend, ctx, at=at))
+                            if act:
+                                n = asyncio.run(run_act_trial(bench, act_plan, base, log, spend))
+                            else:
+                                n = asyncio.run(run_trial(bench, cases, surfaces, base, log, only, spend, ctx,
+                                                          at=at))
                         finally:
                             bench.stop()
                             escapes = bench.escapes()
                             meta["trials_meta"].append({"entry": entry.id, "profile": profile.id,
-                                                        "trial": trial, "at": at, "records": n,
+                                                        "trial": trial, "at": at, "act_for_me": act,
+                                                        "records": n,
                                                         "engine_resident": {"start": resident_start,
                                                                             "end": simday.engine_resident(engine_port)},
                                                         "startup": bench.startup,
@@ -654,7 +768,7 @@ def main() -> None:
                                                         "escapes": escapes})
                             if escapes:
                                 print(f"  guard refused {len(escapes)} attempt(s): {escapes[:3]}")
-    except SpendLimit as exc:
+    except (SpendLimit, StopRun) as exc:
         stopped = str(exc)
         print(f"\nSTOPPED: {stopped}")
     meta["stopped"] = stopped

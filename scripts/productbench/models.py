@@ -1,4 +1,4 @@
-"""Model entries for the EDAT in-assistant evaluation (test_fixtures/productbench/models.json).
+"""Model entries for the tinyagent-bench in-assistant evaluation (test_fixtures/productbench/models.json).
 
 An entry is what one result row is about: a model, how it runs and the facts
 that make results comparable. Kinds:
@@ -46,6 +46,7 @@ class Entry:
     context_window: int | None = None
     id_confirmed: bool = True
     known: bool = True
+    served_as: list = field(default_factory=list)   # other engine ids the same weights may be served under
 
     @property
     def cloud(self) -> bool:
@@ -96,6 +97,15 @@ def load(path: str | Path | None = None) -> tuple[dict[str, Entry], list[str]]:
         if r not in entries:
             raise ModelFileError(f"reference {r!r} has no entry")
     return entries, refs
+
+
+def pick_served(entry: Entry, available: list[str]) -> str | None:
+    """The engine id to ask for: model_id, else the first of served_as the engine lists, else None.
+    A fresh install serves the tuned Gemma as "Gemma-Wisp"; a Mac that trained it serves its folder name."""
+    for mid in [entry.model_id, *entry.served_as]:
+        if mid in available:
+            return mid
+    return None
 
 
 def resolve(name: str, entries: dict[str, Entry]) -> Entry:

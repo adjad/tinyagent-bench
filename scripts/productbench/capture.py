@@ -25,6 +25,7 @@ import os
 import subprocess
 import sys
 import time
+from datetime import timedelta
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -40,6 +41,12 @@ STARTUP_S = 120.0
 SYNC_SOURCES = ("calendar", "reminders", "messages", "contacts", "email_headers", "email_raw", "notes")
 FORBIDDEN_PATH_PREFIXES = ("/study",)
 REAL_PORTS = frozenset({8765, 8000, 8791})
+
+
+def split_at(at: str) -> tuple[int, str]:
+    """("+2 14:00") -> (2, "14:00"); ("11:30") -> (0, "11:30")."""
+    parts = str(at).split()
+    return (int(parts[0]), parts[1]) if len(parts) == 2 else (0, parts[0])
 
 
 def _port_busy(port: int) -> bool:
@@ -105,13 +112,14 @@ class Bench:
     cloud: bool = False                 # a cloud reference: Harbor's remote mode, OpenRouter
     context_window: int | None = None
     credential_ref: str = "keychain:openrouter"
-    at: str | None = None               # "HH:MM": run this trial later on the anchor day
+    at: str | None = None               # "HH:MM" later on the anchor day, or "+N HH:MM" N days on
     home: PreparedHome | None = None
     procs: list[subprocess.Popen] = field(default_factory=list)
     offset: float = 0.0
     startup: dict = field(default_factory=dict)
 
     narration_thinking: bool = False
+    act_yes_at: float | None = None     # act-for-me on: the yes, on the bench clock (autonomy.py)
 
     @property
     def base(self) -> str:
@@ -121,8 +129,10 @@ class Bench:
         """The moment this trial calls "now": the anchor, or `at` on the anchor's day."""
         if not self.at:
             return self.profile.anchor_epoch
-        h, m = (int(x) for x in self.at.split(":"))
-        return self.profile.anchor.replace(hour=h, minute=m, second=0, microsecond=0).timestamp()
+        days, hhmm = split_at(self.at)
+        h, m = (int(x) for x in hhmm.split(":"))
+        day = self.profile.anchor + timedelta(days=days)
+        return day.replace(hour=h, minute=m, second=0, microsecond=0).timestamp()
 
     # ------------------------------------------------------------ usage
     @property
@@ -163,6 +173,9 @@ class Bench:
         self.home = prepare_home(self.profile, self.run_dir, model=self.model,
                                  engine_port=self.engine_port, cloud=self.cloud,
                                  context_window=self.context_window, credential_ref=self.credential_ref)
+        if self.act_yes_at is not None:
+            from scripts.productbench import autonomy
+            autonomy.write_gate(self.home.harbor_home, self.act_yes_at)
         real_start = time.time()
         self.offset = self.now_epoch() - real_start
         env = dict(os.environ)
@@ -187,6 +200,8 @@ class Bench:
         common = ["--offset", repr(self.offset)]
         backend = [self.python, "-m", "scripts.productbench.serve", "backend", "--port", str(self.port),
                    "--user-name", self.profile.user["name"], *common]
+        if self.act_yes_at is not None:
+            backend += ["--act-yes-at", repr(self.act_yes_at)]
         if self.stub_script:
             backend += ["--stub-script", str(self.stub_script)]
         elif self.cloud:
@@ -301,6 +316,21 @@ class Bench:
         return {"kick": {"status": kick.status_code, "body": _safe_json(kick)},
                 "snapshot": snap, "elapsed_s": round(time.monotonic() - started, 1),
                 "usage": usage_summary(self.usage_since(mark))}
+
+    async def act_state(self, client: httpx.AsyncClient) -> dict:
+        """What Harbor says it did by itself (GET /assistant/proactive/act: words only)."""
+        r = await client.get(self.base + "/assistant/proactive/act", timeout=30)
+        return _safe_json(r) if r.status_code == 200 else {"status": r.status_code}
+
+    async def arrive(self, client: httpx.AsyncClient, bodies: list[dict]) -> list[dict]:
+        """New messages from the people in the profile, after the yes (POST /sandbox/messages)."""
+        out = []
+        for body in bodies:
+            r = await client.post(self.sandbox + "/sandbox/messages", json=body, timeout=30)
+            out.append({"status": r.status_code, "ok": (_safe_json(r) or {}).get("ok")})
+        await client.post(self.sandbox + "/sandbox/sync/all", timeout=60)
+        await asyncio.sleep(2.0)
+        return out
 
     async def day_tab(self, client: httpx.AsyncClient) -> dict:
         r = await client.get(self.base + "/assistant/today", timeout=60, params={

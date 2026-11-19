@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/adjad/Edge_device_agentic_testing/edat/results/schema/result-record.schema.json",
-  "title": "EDAT result record (edat.result/1.0)",
+  "title": "tinyagent-bench result record (edat.result/1.0)",
   "description": "One graded unit: one entry (model x variant x thinking mode) on one case, one trial, in one run. One JSON object per line of a run's records.jsonl. Raw model output is never inside the record; `raw` points at a file stored beside it. See docs/benchmark/results-record.md.",
   "type": "object",
   "additionalProperties": false,
@@ -37,13 +37,23 @@
             "scheme": {"type": "string", "minLength": 1, "maxLength": 64},
             "bits": {"type": ["number", "null"], "minimum": 0},
             "group_size": {"type": ["integer", "null"], "minimum": 0},
-            "mixed": {"type": ["boolean", "null"]}
+            "mixed": {
+              "description": "Mixed-bit quantisation: true/false, or 04's map of bit width to layer count, e.g. {\"5\": 84, \"6\": 18}. An empty map means not mixed.",
+              "anyOf": [
+                {"type": "boolean"},
+                {"type": "null"},
+                {"type": "object", "maxProperties": 16,
+                 "propertyNames": {"pattern": "^[0-9]{1,2}$"},
+                 "additionalProperties": {"type": "integer", "minimum": 0}}
+              ]
+            }
           }
         },
         "architecture": {"enum": ["dense", "moe", "dense_ple", "hybrid_ssm", "unknown", null]},
         "params_total": {"type": ["integer", "null"], "minimum": 0},
         "params_active": {"type": ["integer", "null"], "minimum": 0},
         "template_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "speculation": {"enum": ["none", "mtp", "draft_model", null]},
         "requested_model": {"type": ["string", "null"], "maxLength": 200},
         "resolved_model": {"type": ["string", "null"], "maxLength": 200},
         "upstream_provider": {"type": ["string", "null"], "maxLength": 200},
@@ -135,6 +145,13 @@
         "level_tokens": {"type": ["integer", "null"], "minimum": 0},
         "step": {"type": ["integer", "null"], "minimum": 0},
         "source_split": {"type": ["string", "null"], "maxLength": 32},
+        "level": {"type": ["integer", "null"], "minimum": 0, "maximum": 99},
+        "track": {"type": ["string", "null"], "pattern": "^[a-z][a-z0-9_-]{0,63}$"},
+        "mode": {"type": ["string", "null"], "pattern": "^[a-z][a-z0-9_-]{0,63}$"},
+        "band": {"enum": ["early", "middle", "late", null]},
+        "dimension": {"enum": ["persistence", "override", "supersession", "scope", "no_waiver", null]},
+        "arrival": {"enum": ["stored", "stated", null]},
+        "zone": {"type": ["string", "null"], "pattern": "^[a-z][a-z0-9_-]{0,63}$"},
         "tags": {"type": "array", "maxItems": 32, "items": {"type": "string", "pattern": "^[a-z][a-z0-9_-]{0,63}$"}}
       }
     },

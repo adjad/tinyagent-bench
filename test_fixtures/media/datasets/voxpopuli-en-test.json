@@ -1,0 +1,35 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "voxpopuli-en-test",
+ "group": "asr_eval",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "A1"
+ ],
+ "split": "en test (one parquet)",
+ "homepage": "https://huggingface.co/datasets/facebook/voxpopuli",
+ "licence": "CC0-1.0 (data)",
+ "licence_note": "Data CC0 (card says CC0-1.0); European Parliament legal notice applies to the raw data",
+ "licence_url": "https://huggingface.co/datasets/facebook/voxpopuli",
+ "licence_verified": true,
+ "verified": true,
+ "redistributable": "yes",
+ "attribution": "VoxPopuli, CC0 data; European Parliament legal notice applies",
+ "access": "http",
+ "hf": {
+  "repo": "facebook/voxpopuli",
+  "config": "en",
+  "split": "test"
+ },
+ "status": "ready",
+ "needed_v1": "yes",
+ "pinned_revision": "42f01879c780b4a2e90ec0b4f616c2ece526e4f1",
+ "checksum_kind": "sha256 equals the Git LFS oid (a content hash); files without a published hash say so per file",
+ "bytes_total": 936355804,
+ "file_count": 1,
+ "eval_size": "about 5 h",
+ "notes": "HF repo sha 42f01879c780b4a2e90ec0b4f616c2ece526e4f1. One parquet file. The separate en_accented config (2 test parquets, 4,946,727,051 B) is NOT the 'English test' in the spec.",
+ "files": [
+  {"url": "https://huggingface.co/datasets/facebook/voxpopuli/resolve/42f01879c780b4a2e90ec0b4f616c2ece526e4f1/en/test-00000-of-00001.parquet", "bytes": 936355804, "sha256": "02cc7290425ddb95beeabda1d1e81e5e068cd7a25380bcf1fb69071b62610ffa"}
+ ]
+}

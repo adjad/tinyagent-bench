@@ -1,0 +1,1183 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-calendar-dev-0063",
+ "family": "calendar",
+ "template": "day",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 63,
+ "variant": {
+  "theme": "dark",
+  "dpr": 1,
+  "abstain": true,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-calendar-dev-0063.png",
+  "sha256": "557776eae6facd068579c0487973adf7e46de36b2a193adf574fd7a92ec99a83",
+  "width": 520,
+  "height": 800,
+  "logical": [
+   520,
+   800
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "date": "2027-05-19",
+  "free_hour_start": "10:00",
+  "events": [
+   {
+    "title": "Yoga",
+    "start": "09:00",
+    "end": "10:00",
+    "location": "Studio 3"
+   },
+   {
+    "title": "Demo",
+    "start": "11:00",
+    "end": "12:00",
+    "location": "Studio 2"
+   },
+   {
+    "title": "Recital",
+    "start": "12:30",
+    "end": "14:00",
+    "location": "Online"
+   },
+   {
+    "title": "Sync with Priya",
+    "start": "14:00",
+    "end": "15:30",
+    "location": "Online"
+   },
+   {
+    "title": "Review with Bram",
+    "start": "15:30",
+    "end": "17:00",
+    "location": "Online"
+   }
+  ]
+ },
+ "fields": {
+  "day_date": {
+   "name": "day_date",
+   "kind": "date",
+   "value": "2027-05-19",
+   "text": "Wednesday, May 19, 2027",
+   "bbox": [
+    23,
+    19,
+    290,
+    41
+   ],
+   "size_px": 22,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b5439a420062f4cba43d16969d50809ffc09bb267049017cec3deb020ce92e21",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "title_0": {
+   "name": "title_0",
+   "kind": "text",
+   "value": "Yoga",
+   "text": "Yoga",
+   "bbox": [
+    92,
+    198,
+    124,
+    210
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "fef52c96cfde7a1f28d00e55c57bafe8d779c4baccc9e3f8128b2762d5858f8d",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "start_0": {
+   "name": "start_0",
+   "kind": "time",
+   "value": "09:00",
+   "text": "9:00 AM",
+   "bbox": [
+    92,
+    216,
+    132,
+    224
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "8642268240cc1ef4ea6aa538e68d5f634ab426f27890037794af5388064f7043",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "end_0": {
+   "name": "end_0",
+   "kind": "time",
+   "value": "10:00",
+   "text": "10:00 AM",
+   "bbox": [
+    148,
+    216,
+    194,
+    224
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d93d5bf69f460b9bb651c98050566610694149f825a27626ea1f160d232e11b9",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "loc_0": {
+   "name": "loc_0",
+   "kind": "text",
+   "value": "Studio 3",
+   "text": "Studio 3",
+   "bbox": [
+    92,
+    234,
+    134,
+    242
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f31b9e4be764fa98a0d414c0b5c14c3e3fcf46858a4aa2c8768f4433539a55fa",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "title_1": {
+   "name": "title_1",
+   "kind": "text",
+   "value": "Demo",
+   "text": "Demo",
+   "bbox": [
+    92,
+    326,
+    128,
+    335
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f3dcb00d3a097ba8f88a1ee9081071bfd23df208706e9bf7b9c1e43136af3cdc",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "start_1": {
+   "name": "start_1",
+   "kind": "time",
+   "value": "11:00",
+   "text": "11:00 AM",
+   "bbox": [
+    92,
+    344,
+    138,
+    352
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f36f3a61ff5fb66be77dc275c01d5fd0dbd16a78e1e05193d9f5780b925d7210",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "end_1": {
+   "name": "end_1",
+   "kind": "time",
+   "value": "12:00",
+   "text": "12:00 PM",
+   "bbox": [
+    154,
+    344,
+    199,
+    352
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "44ac925fa4ded13c5a9ac0ec8c51b2c5f4209322b7816cc96e5f540ebfa79c16",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "loc_1": {
+   "name": "loc_1",
+   "kind": "text",
+   "value": "Studio 2",
+   "text": "Studio 2",
+   "bbox": [
+    92,
+    362,
+    134,
+    370
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "005fb05dd2330905dfa2b7f207a0f7b46bb275aca8c22545fe1a296dd500679a",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "title_2": {
+   "name": "title_2",
+   "kind": "text",
+   "value": "Recital",
+   "text": "Recital",
+   "bbox": [
+    92,
+    422,
+    131,
+    431
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "085fcdfaa01a9518c06f645873af0cd64703417a9dcdb37812e468f9659d1438",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "start_2": {
+   "name": "start_2",
+   "kind": "time",
+   "value": "12:30",
+   "text": "12:30 PM",
+   "bbox": [
+    92,
+    440,
+    137,
+    448
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "bb9732f83712cc6a3fb7e9b5c5605b10a0d8ac0c64157f8febdd3a6024c16854",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "end_2": {
+   "name": "end_2",
+   "kind": "time",
+   "value": "14:00",
+   "text": "2:00 PM",
+   "bbox": [
+    153,
+    440,
+    192,
+    448
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ce87b1ad070f6c80a91c16d87ff2dc9bc2978ee1e8f32615893804d5391f9016",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "loc_2": {
+   "name": "loc_2",
+   "kind": "text",
+   "value": "Online",
+   "text": "Online",
+   "bbox": [
+    92,
+    458,
+    127,
+    466
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4f781e54f70653dcf73135c2eeea71041a186f46a7aff1c62e3076129fa6ebb6",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "title_3": {
+   "name": "title_3",
+   "kind": "text",
+   "value": "Sync with Priya",
+   "text": "Sync with Priya",
+   "bbox": [
+    92,
+    518,
+    182,
+    530
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "074397fa4da9d943ba5cd95ca774f71e8f110d3a4ee1dc408071defeecb2ea10",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "start_3": {
+   "name": "start_3",
+   "kind": "time",
+   "value": "14:00",
+   "text": "2:00 PM",
+   "bbox": [
+    92,
+    536,
+    131,
+    544
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ce87b1ad070f6c80a91c16d87ff2dc9bc2978ee1e8f32615893804d5391f9016",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "end_3": {
+   "name": "end_3",
+   "kind": "time",
+   "value": "15:30",
+   "text": "3:30 PM",
+   "bbox": [
+    147,
+    536,
+    186,
+    544
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "53183fdfd7f9b32be8bb224a96fb3ef43e213d0dc1437c15624091c7f1b424e4",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "loc_3": {
+   "name": "loc_3",
+   "kind": "text",
+   "value": "Online",
+   "text": "Online",
+   "bbox": [
+    92,
+    554,
+    127,
+    562
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4f781e54f70653dcf73135c2eeea71041a186f46a7aff1c62e3076129fa6ebb6",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "title_4": {
+   "name": "title_4",
+   "kind": "text",
+   "value": "Review with Bram",
+   "text": "Review with Bram",
+   "bbox": [
+    92,
+    614,
+    195,
+    623
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "03633b5f482cab05a632e8308fac3099749025026163116cd5df2b9b712f6c48",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "start_4": {
+   "name": "start_4",
+   "kind": "time",
+   "value": "15:30",
+   "text": "3:30 PM",
+   "bbox": [
+    92,
+    632,
+    131,
+    640
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "53183fdfd7f9b32be8bb224a96fb3ef43e213d0dc1437c15624091c7f1b424e4",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "end_4": {
+   "name": "end_4",
+   "kind": "time",
+   "value": "17:00",
+   "text": "5:00 PM",
+   "bbox": [
+    147,
+    632,
+    186,
+    640
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5a586b24fceb7f1abd5408c50d2ba212244d424b66875a868b51fc342c78ded5",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "loc_4": {
+   "name": "loc_4",
+   "kind": "text",
+   "value": "Online",
+   "text": "Online",
+   "bbox": [
+    92,
+    650,
+    127,
+    658
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4f781e54f70653dcf73135c2eeea71041a186f46a7aff1c62e3076129fa6ebb6",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "host": {
+   "name": "host",
+   "kind": "text",
+   "value": "Priya Rosero",
+   "text": "",
+   "bbox": null,
+   "size_px": 0,
+   "visible": false,
+   "obscured": "absent",
+   "crop_sha256": null,
+   "fg": null,
+   "plot_value": false
+  }
+ },
+ "elements": [
+  {
+   "name": "Month",
+   "role": "button",
+   "bbox": [
+    432,
+    54,
+    496,
+    86
+   ],
+   "unique": true
+  },
+  {
+   "name": "Week",
+   "role": "button",
+   "bbox": [
+    368,
+    54,
+    426,
+    86
+   ],
+   "unique": true
+  },
+  {
+   "name": "Day",
+   "role": "button",
+   "bbox": [
+    304,
+    54,
+    362,
+    86
+   ],
+   "unique": true
+  },
+  {
+   "name": "Next",
+   "role": "button",
+   "bbox": [
+    256,
+    54,
+    290,
+    86
+   ],
+   "unique": true
+  },
+  {
+   "name": "Previous",
+   "role": "button",
+   "bbox": [
+    216,
+    54,
+    250,
+    86
+   ],
+   "unique": true
+  },
+  {
+   "name": "Today",
+   "role": "button",
+   "bbox": [
+    136,
+    54,
+    206,
+    86
+   ],
+   "unique": true
+  }
+ ],
+ "text_runs": [
+  {
+   "text": "Wednesday, May 19, 2027",
+   "bbox": [
+    23,
+    19,
+    290,
+    41
+   ],
+   "size_px": 22,
+   "field": "day_date",
+   "reading": true
+  },
+  {
+   "text": "Month",
+   "bbox": [
+    444,
+    66,
+    484,
+    75
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Week",
+   "bbox": [
+    380,
+    66,
+    413,
+    75
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Day",
+   "bbox": [
+    322,
+    66,
+    345,
+    78
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Today",
+   "bbox": [
+    152,
+    66,
+    191,
+    78
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "8 AM",
+   "bbox": [
+    16,
+    120,
+    41,
+    128
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "9 AM",
+   "bbox": [
+    16,
+    184,
+    41,
+    192
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "10 AM",
+   "bbox": [
+    16,
+    248,
+    47,
+    256
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "11 AM",
+   "bbox": [
+    16,
+    312,
+    47,
+    320
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "12 PM",
+   "bbox": [
+    16,
+    376,
+    46,
+    384
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "1 PM",
+   "bbox": [
+    16,
+    440,
+    40,
+    448
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "2 PM",
+   "bbox": [
+    16,
+    504,
+    40,
+    512
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "3 PM",
+   "bbox": [
+    16,
+    568,
+    40,
+    576
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "4 PM",
+   "bbox": [
+    16,
+    632,
+    40,
+    640
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "5 PM",
+   "bbox": [
+    16,
+    696,
+    40,
+    704
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "6 PM",
+   "bbox": [
+    16,
+    760,
+    40,
+    768
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Yoga",
+   "bbox": [
+    92,
+    198,
+    124,
+    210
+   ],
+   "size_px": 13,
+   "field": "title_0",
+   "reading": true
+  },
+  {
+   "text": "9:00 AM",
+   "bbox": [
+    92,
+    216,
+    132,
+    224
+   ],
+   "size_px": 11,
+   "field": "start_0",
+   "reading": true
+  },
+  {
+   "text": "-",
+   "bbox": [
+    138,
+    220,
+    141,
+    224
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "10:00 AM",
+   "bbox": [
+    148,
+    216,
+    194,
+    224
+   ],
+   "size_px": 11,
+   "field": "end_0",
+   "reading": true
+  },
+  {
+   "text": "Studio 3",
+   "bbox": [
+    92,
+    234,
+    134,
+    242
+   ],
+   "size_px": 11,
+   "field": "loc_0",
+   "reading": true
+  },
+  {
+   "text": "Demo",
+   "bbox": [
+    92,
+    326,
+    128,
+    335
+   ],
+   "size_px": 13,
+   "field": "title_1",
+   "reading": true
+  },
+  {
+   "text": "11:00 AM",
+   "bbox": [
+    92,
+    344,
+    138,
+    352
+   ],
+   "size_px": 11,
+   "field": "start_1",
+   "reading": true
+  },
+  {
+   "text": "-",
+   "bbox": [
+    144,
+    348,
+    147,
+    352
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "12:00 PM",
+   "bbox": [
+    154,
+    344,
+    199,
+    352
+   ],
+   "size_px": 11,
+   "field": "end_1",
+   "reading": true
+  },
+  {
+   "text": "Studio 2",
+   "bbox": [
+    92,
+    362,
+    134,
+    370
+   ],
+   "size_px": 11,
+   "field": "loc_1",
+   "reading": true
+  },
+  {
+   "text": "Recital",
+   "bbox": [
+    92,
+    422,
+    131,
+    431
+   ],
+   "size_px": 13,
+   "field": "title_2",
+   "reading": true
+  },
+  {
+   "text": "12:30 PM",
+   "bbox": [
+    92,
+    440,
+    137,
+    448
+   ],
+   "size_px": 11,
+   "field": "start_2",
+   "reading": true
+  },
+  {
+   "text": "-",
+   "bbox": [
+    143,
+    444,
+    146,
+    448
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "2:00 PM",
+   "bbox": [
+    153,
+    440,
+    192,
+    448
+   ],
+   "size_px": 11,
+   "field": "end_2",
+   "reading": true
+  },
+  {
+   "text": "Online",
+   "bbox": [
+    92,
+    458,
+    127,
+    466
+   ],
+   "size_px": 11,
+   "field": "loc_2",
+   "reading": true
+  },
+  {
+   "text": "Sync with Priya",
+   "bbox": [
+    92,
+    518,
+    182,
+    530
+   ],
+   "size_px": 13,
+   "field": "title_3",
+   "reading": true
+  },
+  {
+   "text": "2:00 PM",
+   "bbox": [
+    92,
+    536,
+    131,
+    544
+   ],
+   "size_px": 11,
+   "field": "start_3",
+   "reading": true
+  },
+  {
+   "text": "-",
+   "bbox": [
+    137,
+    540,
+    140,
+    544
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "3:30 PM",
+   "bbox": [
+    147,
+    536,
+    186,
+    544
+   ],
+   "size_px": 11,
+   "field": "end_3",
+   "reading": true
+  },
+  {
+   "text": "Online",
+   "bbox": [
+    92,
+    554,
+    127,
+    562
+   ],
+   "size_px": 11,
+   "field": "loc_3",
+   "reading": true
+  },
+  {
+   "text": "Review with Bram",
+   "bbox": [
+    92,
+    614,
+    195,
+    623
+   ],
+   "size_px": 13,
+   "field": "title_4",
+   "reading": true
+  },
+  {
+   "text": "3:30 PM",
+   "bbox": [
+    92,
+    632,
+    131,
+    640
+   ],
+   "size_px": 11,
+   "field": "start_4",
+   "reading": true
+  },
+  {
+   "text": "-",
+   "bbox": [
+    137,
+    636,
+    140,
+    640
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "5:00 PM",
+   "bbox": [
+    147,
+    632,
+    186,
+    640
+   ],
+   "size_px": 11,
+   "field": "end_4",
+   "reading": true
+  },
+  {
+   "text": "Online",
+   "bbox": [
+    92,
+    650,
+    127,
+    658
+   ],
+   "size_px": 11,
+   "field": "loc_4",
+   "reading": true
+  }
+ ],
+ "reading_text": "Wednesday, May 19, 2027\nMonth\nWeek\nDay\nToday\n8 AM\n9 AM\n10 AM\n11 AM\n12 PM\n1 PM\n2 PM\n3 PM\n4 PM\n5 PM\n6 PM\nYoga\n9:00 AM\n-\n10:00 AM\nStudio 3\nDemo\n11:00 AM\n-\n12:00 PM\nStudio 2\nRecital\n12:30 PM\n-\n2:00 PM\nOnline\nSync with Priya\n2:00 PM\n-\n3:30 PM\nOnline\nReview with Bram\n3:30 PM\n-\n5:00 PM\nOnline",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_slot",
+   "qtype": "free_slot",
+   "question": "Between 9 AM and 5 PM on Wednesday, there is exactly one free hour with no events. At what time does it start?",
+   "answer": "10:00",
+   "kind": "field",
+   "canon": "time",
+   "fields": [
+    "start_0",
+    "start_1",
+    "start_2",
+    "start_3",
+    "start_4",
+    "end_0",
+    "end_1",
+    "end_2",
+    "end_3",
+    "end_4"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_at",
+   "qtype": "event",
+   "question": "What event is scheduled at 1:00 PM on Wednesday?",
+   "answer": "Recital",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "title_2",
+    "start_2",
+    "end_2"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_start",
+   "qtype": "lookup",
+   "question": "At what time does \"Demo\" start?",
+   "answer": "11:00",
+   "kind": "field",
+   "canon": "time",
+   "fields": [
+    "title_1",
+    "start_1"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_host",
+   "qtype": "absence",
+   "question": "Who is hosting the event \"Review with Bram\"?",
+   "answer": "not shown",
+   "kind": "abstain",
+   "canon": "text",
+   "fields": [
+    "host"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the screen.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

@@ -1,0 +1,33 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "ocrbench-v1",
+ "group": "vision_eval",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "V2"
+ ],
+ "split": "1,000 QA",
+ "homepage": "https://huggingface.co/datasets/echo840/OCRBench",
+ "licence": "unverified (repository MIT; the HF data card states no licence)",
+ "licence_note": "Repo MIT (GitHub); HF data card states no licence, so data licence UNVERIFIED",
+ "licence_url": "https://huggingface.co/datasets/echo840/OCRBench",
+ "licence_verified": false,
+ "verified": false,
+ "redistributable": "unverified",
+ "access": "http",
+ "hf": {
+  "repo": "echo840/OCRBench"
+ },
+ "status": "fetch_at_run_time",
+ "status_reason": "project rule: data licence unverified, fetch at run time, never commit the images",
+ "needed_v1": "yes",
+ "never_commit": true,
+ "pinned_revision": "92a54bd1384387c178d5a07140a2d85e0a3d12e1",
+ "checksum_kind": "sha256 equals the Git LFS oid (a content hash); files without a published hash say so per file",
+ "bytes_total": 67576988,
+ "file_count": 1,
+ "notes": "HF repo sha 92a54bd1384387c178d5a07140a2d85e0a3d12e1. Coordinator: fetch at run time, never commit the images.",
+ "files": [
+  {"url": "https://huggingface.co/datasets/echo840/OCRBench/resolve/92a54bd1384387c178d5a07140a2d85e0a3d12e1/data/test-00000-of-00001.parquet", "bytes": 67576988, "sha256": "d9cc9f488e5310143d8d89956c19d0bdfd71e7089025da5202643f73720df7f5"}
+ ]
+}

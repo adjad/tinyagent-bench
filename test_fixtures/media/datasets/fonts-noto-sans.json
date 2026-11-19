@@ -1,0 +1,29 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "fonts-noto-sans",
+ "group": "fonts",
+ "licence_checked": "2026-11-18",
+ "suites": [],
+ "split": "Noto Sans and Noto Sans Mono variable fonts plus OFL.txt",
+ "homepage": "https://github.com/google/fonts",
+ "licence": "OFL-1.1",
+ "licence_note": "OFL-1.1",
+ "licence_url": "https://github.com/google/fonts/blob/5bd87dfc525c8a0d1d8529d3684716e00c3fc59a/ofl/notosans/METADATA.pb",
+ "licence_verified": true,
+ "verified": true,
+ "redistributable": "yes",
+ "attribution": "Noto Sans, Google, SIL OFL 1.1",
+ "access": "http",
+ "status": "ready",
+ "needed_v1": "yes",
+ "pinned_revision": "5bd87dfc525c8a0d1d8529d3684716e00c3fc59a",
+ "bytes_total": 3766296,
+ "file_count": 4,
+ "notes": "google/fonts commit 5bd87dfc525c8a0d1d8529d3684716e00c3fc59a (main 2026-11-18). Licence read from METADATA.pb ('license:' field); file includes the licence text. No checksum published (git blob only). Noto Sans static Regular/Bold are not in google/fonts; the variable file covers both weights. google/fonts commit 5bd87dfc525c8a0d1d8529d3684716e00c3fc59a (main 2026-11-18). Licence read from METADATA.pb ('license:' field); file includes the licence text. No checksum published (git blob only).",
+ "files": [
+  {"url": "https://raw.githubusercontent.com/google/fonts/5bd87dfc525c8a0d1d8529d3684716e00c3fc59a/ofl/notosans/NotoSans%5Bwdth,wght%5D.ttf", "bytes": 2049096, "checksum": "none published", "licence": "OFL-1.1", "licence_url": "https://github.com/google/fonts/blob/5bd87dfc525c8a0d1d8529d3684716e00c3fc59a/ofl/notosans/METADATA.pb"},
+  {"url": "https://raw.githubusercontent.com/google/fonts/5bd87dfc525c8a0d1d8529d3684716e00c3fc59a/ofl/notosans/OFL.txt", "bytes": 4396, "checksum": "none published", "licence": "OFL-1.1"},
+  {"url": "https://raw.githubusercontent.com/google/fonts/5bd87dfc525c8a0d1d8529d3684716e00c3fc59a/ofl/notosansmono/NotoSansMono%5Bwdth,wght%5D.ttf", "bytes": 1708408, "checksum": "none published", "licence": "OFL-1.1", "licence_url": "https://github.com/google/fonts/blob/5bd87dfc525c8a0d1d8529d3684716e00c3fc59a/ofl/notosansmono/METADATA.pb"},
+  {"url": "https://raw.githubusercontent.com/google/fonts/5bd87dfc525c8a0d1d8529d3684716e00c3fc59a/ofl/notosansmono/OFL.txt", "bytes": 4396, "checksum": "none published", "licence": "OFL-1.1"}
+ ]
+}

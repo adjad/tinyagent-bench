@@ -1,0 +1,568 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-handwriting-dev-0001",
+ "family": "handwriting",
+ "template": "shopping_list",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 1,
+ "variant": {
+  "theme": "light",
+  "dpr": 1,
+  "abstain": false,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-handwriting-dev-0001.png",
+  "sha256": "dc6c775ecd4553cbad8838171a2f79d34aac830fff0c2e433c1411f7ff0ea57a",
+  "width": 480,
+  "height": 720,
+  "logical": [
+   480,
+   720
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "template": "shopping_list",
+  "hand": "proxy",
+  "title": "Groceries",
+  "items": [
+   {
+    "item": "Coffee",
+    "qty": 12
+   },
+   {
+    "item": "Rice",
+    "qty": 3
+   },
+   {
+    "item": "Soap",
+    "qty": 12
+   },
+   {
+    "item": "Spinach",
+    "qty": 12
+   },
+   {
+    "item": "Carrots",
+    "qty": 4
+   }
+  ]
+ },
+ "fields": {
+  "title": {
+   "name": "title",
+   "kind": "text",
+   "value": "Groceries",
+   "text": "Groceries",
+   "bbox": [
+    79,
+    87,
+    172,
+    104
+   ],
+   "size_px": 19,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0bcabfff5a43c54349b11e915ad77c6e4d22a8ad71be32ae2791bd8eb58455b8",
+   "fg": [
+    34,
+    34,
+    40
+   ],
+   "plot_value": false
+  },
+  "qty_0": {
+   "name": "qty_0",
+   "kind": "number",
+   "value": "12",
+   "text": "12",
+   "bbox": [
+    97,
+    127,
+    119,
+    144
+   ],
+   "size_px": 19,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "95097c7d243acfb8c5883701f7fe92d5029de6ef51a1d00e2ac9eefeff539678",
+   "fg": [
+    34,
+    34,
+    40
+   ],
+   "plot_value": false
+  },
+  "item_0": {
+   "name": "item_0",
+   "kind": "text",
+   "value": "Coffee",
+   "text": "Coffee",
+   "bbox": [
+    127,
+    126,
+    194,
+    144
+   ],
+   "size_px": 19,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "18a8533e38d3ef7452317e2e99ec7b8f0a350b1f3d9c5e0b1cbd2ab6fb00538b",
+   "fg": [
+    34,
+    34,
+    40
+   ],
+   "plot_value": false
+  },
+  "qty_1": {
+   "name": "qty_1",
+   "kind": "number",
+   "value": "3",
+   "text": "3",
+   "bbox": [
+    94,
+    168,
+    107,
+    183
+   ],
+   "size_px": 19,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0370302d9367679bfbc89bf887fc91ab28c80a2f3d6f212f34445bafc408d94c",
+   "fg": [
+    34,
+    34,
+    40
+   ],
+   "plot_value": false
+  },
+  "item_1": {
+   "name": "item_1",
+   "kind": "text",
+   "value": "Rice",
+   "text": "Rice",
+   "bbox": [
+    115,
+    168,
+    156,
+    184
+   ],
+   "size_px": 19,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e3391d17d540d90771ffa73bce6352257aabccb044d6a9e9f7753f5c598ac9f1",
+   "fg": [
+    34,
+    34,
+    40
+   ],
+   "plot_value": false
+  },
+  "qty_2": {
+   "name": "qty_2",
+   "kind": "number",
+   "value": "12",
+   "text": "12 x",
+   "bbox": [
+    99,
+    207,
+    135,
+    225
+   ],
+   "size_px": 19,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "45de7f6971021ab969de7dd904ccb07c5f3b49873089d383945d5608c8a090c9",
+   "fg": [
+    34,
+    34,
+    40
+   ],
+   "plot_value": false
+  },
+  "item_2": {
+   "name": "item_2",
+   "kind": "text",
+   "value": "Soap",
+   "text": "Soap",
+   "bbox": [
+    143,
+    209,
+    193,
+    226
+   ],
+   "size_px": 19,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "745bb1a42c0692294b0e96ca1549497beac81a93addc64ad9d52001b8dee4785",
+   "fg": [
+    34,
+    34,
+    40
+   ],
+   "plot_value": false
+  },
+  "qty_3": {
+   "name": "qty_3",
+   "kind": "number",
+   "value": "12",
+   "text": "12 x",
+   "bbox": [
+    99,
+    248,
+    134,
+    264
+   ],
+   "size_px": 19,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "8eb95b6fa3ba70cce7e5fc2268819c94faf1459e0b9ff35ccd133959295780fb",
+   "fg": [
+    34,
+    34,
+    40
+   ],
+   "plot_value": false
+  },
+  "item_3": {
+   "name": "item_3",
+   "kind": "text",
+   "value": "Spinach",
+   "text": "Spinach",
+   "bbox": [
+    141,
+    247,
+    220,
+    268
+   ],
+   "size_px": 19,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "cfffd5164cba471e9a864754436f2daa7b13570cfe800a5f99895a01aac2c377",
+   "fg": [
+    34,
+    34,
+    40
+   ],
+   "plot_value": false
+  },
+  "qty_4": {
+   "name": "qty_4",
+   "kind": "number",
+   "value": "4",
+   "text": "4 x",
+   "bbox": [
+    96,
+    288,
+    125,
+    303
+   ],
+   "size_px": 19,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d7b895b0a14346d29e754ba33e19a64fdea4751aa4e3e602f47c0801cabb9c84",
+   "fg": [
+    34,
+    34,
+    40
+   ],
+   "plot_value": false
+  },
+  "item_4": {
+   "name": "item_4",
+   "kind": "text",
+   "value": "Carrots",
+   "text": "Carrots",
+   "bbox": [
+    134,
+    287,
+    203,
+    304
+   ],
+   "size_px": 19,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "3da241e82db53454384281a70d9f131d1411967e52ae17935eebd13b1a63b04e",
+   "fg": [
+    34,
+    34,
+    40
+   ],
+   "plot_value": false
+  }
+ },
+ "elements": [],
+ "text_runs": [
+  {
+   "text": "Groceries",
+   "bbox": [
+    79,
+    87,
+    172,
+    104
+   ],
+   "size_px": 19,
+   "field": "title",
+   "reading": true
+  },
+  {
+   "text": "-",
+   "bbox": [
+    81,
+    135,
+    87,
+    138
+   ],
+   "size_px": 19,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "12",
+   "bbox": [
+    97,
+    127,
+    119,
+    144
+   ],
+   "size_px": 19,
+   "field": "qty_0",
+   "reading": true
+  },
+  {
+   "text": "Coffee",
+   "bbox": [
+    127,
+    126,
+    194,
+    144
+   ],
+   "size_px": 19,
+   "field": "item_0",
+   "reading": true
+  },
+  {
+   "text": "-",
+   "bbox": [
+    79,
+    174,
+    86,
+    178
+   ],
+   "size_px": 19,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "3",
+   "bbox": [
+    94,
+    168,
+    107,
+    183
+   ],
+   "size_px": 19,
+   "field": "qty_1",
+   "reading": true
+  },
+  {
+   "text": "Rice",
+   "bbox": [
+    115,
+    168,
+    156,
+    184
+   ],
+   "size_px": 19,
+   "field": "item_1",
+   "reading": true
+  },
+  {
+   "text": "-",
+   "bbox": [
+    81,
+    214,
+    87,
+    218
+   ],
+   "size_px": 19,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "12 x",
+   "bbox": [
+    99,
+    207,
+    135,
+    225
+   ],
+   "size_px": 19,
+   "field": "qty_2",
+   "reading": true
+  },
+  {
+   "text": "Soap",
+   "bbox": [
+    143,
+    209,
+    193,
+    226
+   ],
+   "size_px": 19,
+   "field": "item_2",
+   "reading": true
+  },
+  {
+   "text": "-",
+   "bbox": [
+    80,
+    255,
+    87,
+    259
+   ],
+   "size_px": 19,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "12 x",
+   "bbox": [
+    99,
+    248,
+    134,
+    264
+   ],
+   "size_px": 19,
+   "field": "qty_3",
+   "reading": true
+  },
+  {
+   "text": "Spinach",
+   "bbox": [
+    141,
+    247,
+    220,
+    268
+   ],
+   "size_px": 19,
+   "field": "item_3",
+   "reading": true
+  },
+  {
+   "text": "-",
+   "bbox": [
+    80,
+    294,
+    87,
+    299
+   ],
+   "size_px": 19,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "4 x",
+   "bbox": [
+    96,
+    288,
+    125,
+    303
+   ],
+   "size_px": 19,
+   "field": "qty_4",
+   "reading": true
+  },
+  {
+   "text": "Carrots",
+   "bbox": [
+    134,
+    287,
+    203,
+    304
+   ],
+   "size_px": 19,
+   "field": "item_4",
+   "reading": true
+  }
+ ],
+ "reading_text": "Groceries\n-\n12\nCoffee\n-\n3\nRice\n-\n12 x\nSoap\n-\n12 x\nSpinach\n-\n4 x\nCarrots",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_after",
+   "qtype": "lookup",
+   "question": "Which item is written right after Rice?",
+   "answer": "Soap",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "item_1",
+    "item_2"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_qty",
+   "qtype": "lookup",
+   "question": "How many carrots are on the list?",
+   "answer": "4",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "qty_4",
+    "item_4"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_title",
+   "qtype": "lookup",
+   "question": "What is the title of the list?",
+   "answer": "Groceries",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "title"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_count",
+   "qtype": "count",
+   "question": "How many items are on the shopping list?",
+   "answer": "5",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "item_0",
+    "item_1",
+    "item_2",
+    "item_3",
+    "item_4"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the handwritten list.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

@@ -1,0 +1,404 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-handwriting-dev-0063",
+ "family": "handwriting",
+ "template": "note",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 63,
+ "variant": {
+  "theme": "dark",
+  "dpr": 1,
+  "abstain": true,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-handwriting-dev-0063.png",
+  "sha256": "b3ce813bff062bc93f5021c81fbf00db6b1bd3e8032f2cf8430670f2aa59e58e",
+  "width": 600,
+  "height": 760,
+  "logical": [
+   600,
+   760
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "template": "note",
+  "hand": "proxy",
+  "title": "Don't forget",
+  "lines": [
+   "Pay the electric bill $103.06",
+   "Bring 11 chairs to the hall",
+   "Door code is 5867",
+   "Train leaves at 7:30 PM",
+   "Meet Kofi at Rosmore Park"
+  ],
+  "abstain": {
+   "blurred": "v_0"
+  }
+ },
+ "fields": {
+  "title": {
+   "name": "title",
+   "kind": "text",
+   "value": "Don't forget",
+   "text": "Don't forget",
+   "bbox": [
+    112,
+    88,
+    227,
+    108
+   ],
+   "size_px": 19,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "7b1afcf1804d1eee64043e3d9888abb5a0bb555e53bfeac4b03f0cc29f729f75",
+   "fg": [
+    246,
+    226,
+    150
+   ],
+   "plot_value": false
+  },
+  "v_0": {
+   "name": "v_0",
+   "kind": "money",
+   "value": "103.06",
+   "text": "$103.06",
+   "bbox": [
+    274,
+    124,
+    351,
+    144
+   ],
+   "size_px": 19,
+   "visible": false,
+   "obscured": "blur",
+   "crop_sha256": "b58873a127cdf6f5b57cb0dd9586e64c9b92070b68e4fb4428a9d0442bad13e7",
+   "fg": [
+    246,
+    226,
+    150
+   ],
+   "plot_value": false
+  },
+  "v_1": {
+   "name": "v_1",
+   "kind": "number",
+   "value": "11",
+   "text": "11",
+   "bbox": [
+    147,
+    165,
+    168,
+    181
+   ],
+   "size_px": 19,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "06a6770d693f23b07936eb845f265cc6f1fa3453b5eda878e70846825f653ec3",
+   "fg": [
+    246,
+    226,
+    150
+   ],
+   "plot_value": false
+  },
+  "v_2": {
+   "name": "v_2",
+   "kind": "text",
+   "value": "5867",
+   "text": "5867",
+   "bbox": [
+    213,
+    202,
+    264,
+    218
+   ],
+   "size_px": 19,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "759b21cc4ea8ed5289f6795f92d502782c204d48a7f20ed1f6a2344716d5a7b7",
+   "fg": [
+    246,
+    226,
+    150
+   ],
+   "plot_value": false
+  },
+  "v_3": {
+   "name": "v_3",
+   "kind": "time",
+   "value": "19:30",
+   "text": "7:30 PM",
+   "bbox": [
+    231,
+    241,
+    307,
+    259
+   ],
+   "size_px": 19,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "2d7cb1aae59b563a171f5798611d25a6b485cd952a0b5095e8574f3fc18329a8",
+   "fg": [
+    246,
+    226,
+    150
+   ],
+   "plot_value": false
+  },
+  "v_4": {
+   "name": "v_4",
+   "kind": "text",
+   "value": "Rosmore Park",
+   "text": "Rosmore Park",
+   "bbox": [
+    210,
+    277,
+    342,
+    296
+   ],
+   "size_px": 19,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0fba7262007611f409ac4e740e46270a0dce2a49f029748b9b2c3153f0fef588",
+   "fg": [
+    246,
+    226,
+    150
+   ],
+   "plot_value": false
+  }
+ },
+ "elements": [],
+ "text_runs": [
+  {
+   "text": "Don't forget",
+   "bbox": [
+    112,
+    88,
+    227,
+    108
+   ],
+   "size_px": 19,
+   "field": "title",
+   "reading": true
+  },
+  {
+   "text": "Pay the electric bill",
+   "bbox": [
+    91,
+    125,
+    266,
+    147
+   ],
+   "size_px": 19,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "$103.06",
+   "bbox": [
+    274,
+    124,
+    351,
+    144
+   ],
+   "size_px": 19,
+   "field": "v_0",
+   "reading": false
+  },
+  {
+   "text": "Bring",
+   "bbox": [
+    89,
+    166,
+    136,
+    185
+   ],
+   "size_px": 19,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "11",
+   "bbox": [
+    147,
+    165,
+    168,
+    181
+   ],
+   "size_px": 19,
+   "field": "v_1",
+   "reading": true
+  },
+  {
+   "text": "chairs to the hall",
+   "bbox": [
+    176,
+    164,
+    331,
+    183
+   ],
+   "size_px": 19,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Door code is",
+   "bbox": [
+    86,
+    201,
+    205,
+    220
+   ],
+   "size_px": 19,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "5867",
+   "bbox": [
+    213,
+    202,
+    264,
+    218
+   ],
+   "size_px": 19,
+   "field": "v_2",
+   "reading": true
+  },
+  {
+   "text": "Train leaves at",
+   "bbox": [
+    87,
+    241,
+    222,
+    258
+   ],
+   "size_px": 19,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "7:30 PM",
+   "bbox": [
+    231,
+    241,
+    307,
+    259
+   ],
+   "size_px": 19,
+   "field": "v_3",
+   "reading": true
+  },
+  {
+   "text": "Meet Kofi at",
+   "bbox": [
+    85,
+    278,
+    202,
+    296
+   ],
+   "size_px": 19,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Rosmore Park",
+   "bbox": [
+    210,
+    277,
+    342,
+    296
+   ],
+   "size_px": 19,
+   "field": "v_4",
+   "reading": true
+  },
+  {
+   "text": "- Kofi",
+   "bbox": [
+    400,
+    355,
+    450,
+    373
+   ],
+   "size_px": 19,
+   "field": null,
+   "reading": true
+  }
+ ],
+ "reading_text": "Don't forget\nPay the electric bill\nBring\n11\nchairs to the hall\nDoor code is\n5867\nTrain leaves at\n7:30 PM\nMeet Kofi at\nRosmore Park\n- Kofi",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_train",
+   "qtype": "lookup",
+   "question": "What time does the train leave?",
+   "answer": "19:30",
+   "kind": "field",
+   "canon": "time",
+   "fields": [
+    "v_3"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_chairs",
+   "qtype": "lookup",
+   "question": "How many chairs should be brought to the hall?",
+   "answer": "11",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "v_1"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_meet",
+   "qtype": "lookup",
+   "question": "Where is the meeting with Kofi?",
+   "answer": "Rosmore Park",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "v_4"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_bill_abstain",
+   "qtype": "absence",
+   "question": "How much is the electric bill?",
+   "answer": "not shown",
+   "kind": "abstain",
+   "canon": "text",
+   "fields": [
+    "v_0"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the handwritten note.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

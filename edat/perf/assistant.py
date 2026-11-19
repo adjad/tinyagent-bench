@@ -3,8 +3,8 @@
 
 The stand-in executor (:class:`edat.perf.simday.ReplayExecutor`) replays a teacher-forced
 trajectory through the benchmark engine. To run the day's jobs through the real assistant
-instead (its own planner, tools, retrieval and helper models), the in-assistant chat's runner
-implements :class:`AssistantSession`, and :class:`InAssistantExecutor` turns what it reports
+instead (its own planner, tools, retrieval and helper models), the in-assistant evaluation's runner
+(`scripts/productbench`) implements :class:`AssistantSession`, and :class:`InAssistantExecutor` turns what it reports
 into §3.6 samples on the simulated-day timetable.
 
 What the in-assistant runner must implement
@@ -117,7 +117,7 @@ class InAssistantExecutor:
 
 
 class StubAssistantSession:
-    """Placeholder until the in-assistant chat ships its runner."""
+    """Placeholder until the in-assistant evaluation's runner implements the interface."""
 
     def _no(self, what: str):
         raise NotImplementedError(

@@ -159,7 +159,7 @@ def check_call(ctx: PrivacyContext, tool: str, args: dict, step: int, *, web: bo
                 allowed |= ctx.threads.get(t, set())
         for value in _recipient_values(args):
             if value in ctx.threads:
-                ids = {value} | ctx.threads[value]
+                ids = ctx.threads[value] or {value}  # a 1:1 thread named after its contact resolves to that contact
             else:
                 ids = resolve_name(ctx.contacts, value)
             if allowed is not None:

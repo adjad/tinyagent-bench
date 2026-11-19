@@ -40,7 +40,8 @@ PLACEHOLDER = re.compile(r"\{([a-z_][a-z0-9_]*)\}")
 # Keys whose subtrees are structured (relative times resolved anywhere in them).
 STRUCTURED = ("world", "final_state", "claims", "alt_pass", "expect", "inject", "faults",
               "stored_preferences", "grounded_args", "verify", "clarify")
-NOT_BOUND = ("trap", "notes", "id")
+NOT_BOUND = ("trap",)  # skipped at any depth
+TOP_NOT_BOUND = ("notes", "id")  # the case's own id and notes; nested `id`/`notes` are bound
 
 
 def rng_for(case_id: str, world_seed: int) -> random.Random:
@@ -108,7 +109,7 @@ def _gen(spec, facts: dict, rng: random.Random, name: str):
 
 def draw_facts(case: dict, world_seed: int, clock: Clock) -> dict:
     facts = date_facts(clock)
-    rng = rng_for(case["id"], world_seed)
+    rng = rng_for(case.get("variant_of") or case["id"], world_seed)  # a variant draws its seed's facts
     for name, spec in (case.get("facts") or {}).items():
         try:
             facts[name] = _gen(spec, facts, rng, name)
@@ -119,7 +120,8 @@ def draw_facts(case: dict, world_seed: int, clock: Clock) -> dict:
 
 def substitute(obj, facts: dict, *, where: str = ""):
     if isinstance(obj, dict):
-        return {k: (v if k in NOT_BOUND else substitute(v, facts, where=f"{where}.{k}")) for k, v in obj.items()}
+        return {k: (v if k in NOT_BOUND or (not where and k in TOP_NOT_BOUND)
+                    else substitute(v, facts, where=f"{where}.{k}")) for k, v in obj.items()}
     if isinstance(obj, list):
         return [substitute(v, facts, where=where) for v in obj]
     if isinstance(obj, str):

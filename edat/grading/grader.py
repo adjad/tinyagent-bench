@@ -37,6 +37,8 @@ SLOT_WORDS = {
     "amount": ["how much", "amount", "how many"],
     "title": ["what", "name", "title", "call it"],
     "duration": ["how long", "duration", "minutes"],
+    "event": ["which event", "which meeting", "which one", "what event", "which appointment", "find"],
+    "message": ["what should", "what do you want", "what would you like", "say", "message", "write"],
 }
 
 

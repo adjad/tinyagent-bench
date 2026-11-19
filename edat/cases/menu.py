@@ -62,7 +62,7 @@ def select_menu(case: dict, env, world_seed: int, *, size: int | None = None) ->
         return list(case["menu_pin"])
     need = [n for n in needed_tools(case) if n in lane_tools]
     size = size or DEFAULT_SIZE
-    digest = hashlib.sha256(f"{case['id']}|{world_seed}|menu|{size}".encode()).hexdigest()
+    digest = hashlib.sha256(f"{case.get('variant_of') or case['id']}|{world_seed}|menu|{size}".encode()).hexdigest()
     rng = random.Random(int(digest[:16], 16))
     chosen = list(need)
     domains = {getattr(env.info(n), "domain", "") for n in need}

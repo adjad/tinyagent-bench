@@ -10,10 +10,16 @@ call shape, so Preferences cases can be written and validated now. Every
 result made by a stub is marked, and `using_stubs()` says whether any stub is
 active, so no published number can come from a stub unnoticed.
 
-Call shape (what this seam needs from edat.quality.checkers):
+The real module's API (build/quality, edat/quality/checkers.py):
 
-    check_preference(item: int, text: str, **params) -> str | None
-        None when `text` follows preference `item`, else a short reason.
+    check(pref_id: "P1".."P9", text, surface, meta) -> CheckResult{status pass|fail|n/a, reason, ...}
+
+This seam keeps its own call shape, `check(item, text, **params) -> str | None`
+(None when `text` follows the preference, else a short reason), and maps onto
+the real API when it is importable: item n -> "Pn"; `surface` (default
+"answer"); `items` -> meta.expected_items; `sign_off` -> meta.signoff;
+`require` (item 7) -> meta.needs_date; any other key goes to `Meta` by name
+(unknown keys are dropped). A real "n/a" counts as following the preference.
 
 An answer check `pref_items: [6, {item: 9, sign_off: "Best, Ines"}]` runs
 these checks on the turn's final text.
@@ -23,9 +29,18 @@ from __future__ import annotations
 import re
 
 try:  # the quality chat's module, when it lands
-    from edat.quality.checkers import check_preference as _real  # type: ignore
+    from edat.quality.checkers import check as _real_check  # type: ignore
 except Exception:  # pragma: no cover - expected until the quality branch merges
-    _real = None
+    _real_check = None
+
+_META_RENAMES = {"items": "expected_items", "sign_off": "signoff", "require": "needs_date"}
+
+
+def _real(item: int, text: str, **params) -> str | None:
+    surface = params.pop("surface", "answer")
+    meta = {_META_RENAMES.get(k, k): v for k, v in params.items()}
+    r = _real_check(f"P{int(item)}", text or "", surface, meta)
+    return (r.reason or f"fails P{item}") if r.status == "fail" else None
 
 _EMOJI = re.compile("[\U0001F300-\U0001FAFF\U00002600-\U000027BF\U0001F1E6-\U0001F1FF]")
 _TWELVE_H = re.compile(r"\b\d{1,2}(:\d{2})?\s?(am|pm|a\.m\.|p\.m\.)\b", re.I)
@@ -69,12 +84,13 @@ def _stub(item: int, text: str, **p) -> str | None:
 
 
 def using_stubs() -> bool:
-    return _real is None
+    return _real_check is None
 
 
 def check(item: int, text: str, **params) -> str | None:
-    if _real is not None:
+    if _real_check is not None:
         return _real(item, text, **params)
+    params.pop("surface", None)
     why = _stub(item, text, **params)
     return f"{why} [stub checker]" if why else None
 

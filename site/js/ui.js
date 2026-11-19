@@ -40,10 +40,11 @@
     const s = R.statuses[key] || { text: String(key).replace(/_/g, " "), icon: "dash" };
     const o = opts || {};
     const text = o.text || s.text, tip = o.tip || s.tip || "";
-    return `<span class="cell-status${s.bad || o.bad ? " bad" : ""}"${tip ? ` title="${esc(tip)}"` : ""}>${I[s.icon] || I.dash}${esc(text)}</span>`;
+    return `<span class="cell-status${s.bad || o.bad ? " bad" : ""}"${tip ? ` title="${esc(tip)}"` : ""}>${I[s.icon] || I.dash}${esc(text)}${o.reason ? `<span class="visually-hidden">: ${esc(o.reason)}</span>` : ""}</span>`;
   }
   function statusFor(cell, metric) {
     if (cell.status === "out_of_memory" && cell.need) return status("out_of_memory", { tip: "Killed at this context; needs " + fmt(GiB(cell.need), 1) + " GB." });
+    if (cell.reason) return status(cell.status, { tip: cell.reason.replace(/^./, (c) => c.toUpperCase()) + ".", reason: cell.reason });
     return status(cell.status);
   }
 
@@ -68,7 +69,15 @@
     const m = R.metric[metricId], c = EDAT.store.value(entry, metricId);
     if (m.safety) return safetyCell(c, m);
     if (c.status !== "ok") return statusFor(c, m);
-    return num(c, m) + pm(c, m);
+    /* a composite the store labels ("judge", "structure only", ...) says which, beside the value */
+    const lab = m.showLabel && c.label ? `<span class="muted xsmall cell-label"> ${esc(c.label)}</span>` : "";
+    /* a paired gap with a tag (the loop gap) gets the same marks as a difference cell */
+    if (c.tag && m.format === "signed") {
+      const word = R.tags[c.tag] || c.tag, cls = c.tag === "better" ? "up" : c.tag === "worse" ? "down" : "flat";
+      const tip = `${m.name}: ${signed(c.value, m.dp)} points${c.interval ? ", 95% interval " + signed(c.interval[0], m.dp) + " to " + signed(c.interval[1], m.dp) : ""}${c.n ? ", " + c.n + " paired cases" : ""}: ${word}`;
+      return `<span class="delta ${cls}" title="${esc(tip)}">${c.tag === "better" ? I.check : c.tag === "worse" ? I.warn : ""}${num(c, m)}${pm(c, m)}<span class="visually-hidden">, ${esc(word)}</span></span>`;
+    }
+    return num(c, m) + pm(c, m) + lab;
   }
 
   /* the headline score: value, ± half-interval, and a 0-100 interval bar drawn to scale */

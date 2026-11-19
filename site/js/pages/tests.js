@@ -254,7 +254,7 @@
     const head = `${crumbs(ctx, [esc(name)])}
       <div class="page-head"><div><h1>${esc(name)}</h1><p>${intro}</p></div><div class="toolbar">${picker}${U.tray("d", "Device", ctx.boardInfo.devices.map((x) => ({ v: x.id, l: x.short })), ctx.devId)}</div></div>`;
     if (!entry) return { title: name, html: `<div class="container">${head}${U.empty("No entries on this device", "Nothing has been published for this device yet.")}</div>` };
-    const who = `<p class="small" style="margin-bottom:var(--space-sm)"><span class="mname">${esc(nameOf(entry))}</span> <span class="muted">${esc(U.entryLine(entry))}</span> ${U.refBadge(entry)} ${U.fitBadge(entry)}</p>${tier === "in_assistant" ? `<p style="margin-bottom:var(--space-sm)"><a class="key" href="${ctx.link("/found", { m: entry.key })}">What each model found</a></p>` : ""}`;
+    const who = `<p class="small" style="margin-bottom:var(--space-sm)"><span class="mname">${esc(nameOf(entry))}</span> <span class="muted">${esc(U.entryLine(entry))}</span> ${U.refBadge(entry)} ${U.fitBadge(entry)}</p>${tier === "in_assistant" || tier === "in_assistant_findings" ? `<p style="margin-bottom:var(--space-sm)"><a class="key" href="${ctx.link("/found", { m: entry.key })}">What each model found</a></p>` : ""}`;
 
     /* performance: measured, not graded per case */
     if (isPerf) {

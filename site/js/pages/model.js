@@ -389,7 +389,7 @@
     const tip = `${m.name}, cloud reference minus ${nameOf(b)}: ${U.signed(dlt, dp)}${margin != null ? ", margin ±" + fmt(margin, dp) : ""}; ${word}${margin != null ? ", unpaired estimate from the two intervals" : ""}.`;
     return `<span class="delta ${cls}" title="${esc(tip)}">${tag === "better" ? I.check : tag === "worse" ? I.warn : ""}<span class="num">${margin != null ? "≈" : ""}${U.signed(dlt, dp)}</span>${margin != null ? `<span class="muted xsmall"> ±${fmt(margin, dp)}</span>` : ""}<span class="visually-hidden">, ${esc(word)}</span></span>`;
   }
-  const CLOUD_KEY = ["agentic_score", "lane_assistant", "lane_neutral", "pass_all", "progress", "format_ok", "steps", "unsafe", "leaks", "restraint", "over_refusal", "instruction_following", "assistant_score", "quality_pass", "quality_score", "readability", "extraction", "email_summary", "fabricated", "visible_tokens"];
+  const CLOUD_KEY = ["agentic_score", "lane_assistant", "lane_neutral", "pass_all", "progress", "format_ok", "steps", "unsafe", "leaks", "restraint", "over_refusal", "instruction_following", "assistant_score", "quality_pass", "quality_score", "readability", "text_understanding", "writing", "summary", "extraction", "fabricated", "visible_tokens"];
 
   function renderCloud(ctx, e, list) {
     const dev = ctx.device, m = e.model;

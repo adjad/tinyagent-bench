@@ -9,6 +9,7 @@
  *   { fit: field }                           runs[].fit (the 16 GB fit gate)
  * `scale` converts the stored unit to the shown unit (bytes to GB, for example).
  * `on`: "local" (on-device only), "cloud" (hosted references only) or "both".
+ * `{ loop: tier, k: "gap" }` reads the board's loops[] row for that tier (the gap between the two loops).
  * `planned: true` marks a metric whose tier has no rows in today's export; its cells read
  * "Not in this board yet" until the store writes it, and the check script lists it. */
 (function () {
@@ -24,7 +25,7 @@
     { id: "quality", name: "Output quality", main: true, desc: "Readability, text understanding and writing." },
     { id: "perf", name: "Performance", main: true, desc: "Speed and memory on this device, at fixed context sizes." },
     { id: "preferences", name: "Preferences", desc: "Instruction following: standing preferences kept, overridden and replaced correctly." },
-    { id: "longsession", name: "Long sessions", desc: "Early and late turns of a 40-turn conversation." },
+    { id: "longsession", name: "Long sessions", desc: "Whether what was set early in a 40-turn conversation still holds late." },
     { id: "memory", name: "Memory", desc: "Remembering facts across sessions." },
     { id: "vision", name: "Vision", desc: "Reading screenshots, documents and photos." },
     { id: "audio", name: "Audio input", desc: "Understanding spoken requests. There is no speech output." },
@@ -39,8 +40,8 @@
   const metrics = [
     /* headline and fixed columns */
     P("agentic_score", "agentic", "Agentic score", "Agentic score", "%", "high", 1, { r: "agentic", m: "agentic_score" }, { headline: true, tierLink: "agentic", desc: "From the benchmark's own minimal loop, which never repairs a model's mistakes. Mean of the seven family pass rates; each family is the mean of its two lanes." }),
-    P("assistant_loop_score", "agentic", "Score in the assistant's own loop", "Assistant loop", "%", "high", 1, { r: "agentic", m: "assistant_loop_score", f: "lane=assistant" }, { planned: true, na: { cloud: "na_loop_cloud", phone: "na_loop_phone" }, desc: "The same assistant-lane cases run through the assistant's own loop, which re-prompts and repairs mistakes." }),
-    P("repair_gain", "agentic", "What the assistant's repairs add", "Repairs add", "points", null, 1, { r: "agentic", m: "repair_gain", f: "lane=assistant" }, { planned: true, format: "signed", na: { cloud: "na_loop_cloud", phone: "na_loop_phone" }, desc: "The assistant's loop score minus the minimal loop's score on the same assistant-lane cases, with its 95% interval." }),
+    P("assistant_loop_score", "agentic", "Score in the assistant's own loop", "Assistant loop", "%", "high", 1, { r: "agentic_harbor_loop", m: "agentic_score_harbor_loop" }, { tierLink: "agentic_harbor_loop", desc: "The assistant-lane cases run through the assistant's own loop, which re-prompts and repairs mistakes. Empty, with the store's reason, where that loop was not run." }),
+    P("repair_gain", "agentic", "What the assistant's repairs add", "Repairs add", "points", null, 1, { loop: "agentic", k: "gap" }, { format: "signed", desc: "The assistant's loop score minus the minimal loop's assistant-lane score on the same cases (the store's loop_gap), with its paired 95% interval." }),
     P("unsafe", "safety", "Unsafe actions", "Unsafe", "per 100 trials", "low", 1, { s: "agentic", k: "unsafe_per_100" }, { safety: true, rateKey: "unsafe_rate", desc: "Forbidden or unconfirmed actions per 100 agentic trials. Counted on its own, never in a score." }),
     P("leaks", "safety", "Privacy leaks", "Leaks", "per 100 trials", "low", 1, { s: "agentic", k: "leaks_per_100" }, { safety: true, rateKey: "leak_rate", desc: "Wrong recipients or leaked private details per 100 agentic trials. Counted on its own, never in a score." }),
 
@@ -64,30 +65,39 @@
     P("ask", "assistant", "Ask", "Ask", "%", "high", 1, { r: "in_assistant", m: "pass1", f: "surface=ask" }, { desc: "Questions about the person's day, answered from their data." }),
     P("brief", "assistant", "Brief", "Brief", "%", "high", 1, { r: "in_assistant", m: "pass1", f: "surface=brief" }, { desc: "Surfaces what needs attention, without false alarms." }),
     P("day", "assistant", "Day", "Day", "%", "high", 1, { r: "in_assistant", m: "pass1", f: "surface=day" }, { desc: "A valid plan that covers what is due." }),
+    P("findings_found", "assistant", "Found in Brief, inbox and to-dos", "Found", "%", "high", 1, { r: "in_assistant_findings", m: "found" }, { tierLink: "in_assistant_findings", desc: "Share of answer-key items the assistant surfaced. See \"What it found\" for each item." }),
     P("asst_unsafe", "assistant", "Unsafe or unconfirmed actions", "Unsafe", "per 100 trials", "low", 1, { s: "in_assistant", k: "unsafe_per_100" }, { safety: true, desc: "Inside the assistant. Counted on its own, never in the assistant score." }),
 
     /* output quality (spec 03) */
     P("quality_pass", "quality", "Quality pass rate", "Pass rate", "%", "high", 1, { r: "quality", m: "pass1" }, { tierLink: "quality", desc: "Share of answers that pass every check." }),
     P("quality_score", "quality", "Quality score", "Score", "%", "high", 1, { r: "quality", m: "score_mean" }, { desc: "Mean per-answer score." }),
-    P("readability", "quality", "Readability", "Readability", "%", "high", 1, { r: "quality", m: "pass1", f: "family=readability" }, { desc: "Hygiene plus a style-controlled judge. Structure only until the judge is validated against votes." }),
+    P("readability", "quality", "Readability", "Readability", "%", "high", 1, { r: "quality", m: "readability" }, { showLabel: true, desc: "Hygiene plus a style-controlled judge. The cell says which: \"judge\", or \"structure only\" until the judge is validated against votes." }),
+    P("text_understanding", "quality", "Text understanding", "Understanding", "%", "high", 1, { r: "quality", m: "text_understanding" }, { showLabel: true, desc: "Summaries, key points, extraction and numbers: are the facts that matter kept, and nothing invented?" }),
+    P("writing", "quality", "Writing", "Writing", "%", "high", 1, { r: "quality", m: "writing" }, { showLabel: true, desc: "Rewrites that keep the facts and follow the constraints. The cell says whether a judge or only the checks scored it." }),
     P("extraction", "quality", "Extraction", "Extraction", "%", "high", 1, { r: "quality", m: "pass1", f: "family=extraction" }, { desc: "Fields pulled correctly from documents." }),
-    P("email_summary", "quality", "Email summaries", "Summaries", "%", "high", 1, { r: "quality", m: "pass1", f: "family=email_summary" }, { desc: "Summaries that keep the facts that matter." }),
+    P("summary", "quality", "Summaries", "Summaries", "%", "high", 1, { r: "quality", m: "pass1", f: "family=summary" }, { desc: "Summaries that keep the facts that matter." }),
     P("fabricated", "quality", "Fabricated details per answer", "Fabricated", "per answer", "low", 2, { r: "quality", m: "fabricated_atoms" }, { desc: "Invented facts per answer. Shown beside the score, not in it." }),
     P("visible_tokens", "quality", "Visible tokens per answer", "Length", "tokens", null, 0, { r: "quality", m: "visible_tokens" }, { desc: "Answer length. Neither longer nor shorter is better on its own." }),
 
     /* preferences, long sessions, memory (spec 02 §3.14 to 3.16, spec 14) */
-    P("instruction_following", "preferences", "Instruction following", "Following", "%", "high", 1, { r: "preferences", m: "pass1" }, { planned: true, tierLink: "preferences", desc: "Mean of five dimensions: still followed later, one-off override, newer replaces older, not over-stretched, never waives a confirmation." }),
-    P("long_early", "longsession", "Early turns (1 to 5)", "Early", "%", "high", 1, { r: "long_session", m: "pass1", f: "band=early" }, { planned: true, tierLink: "long_session" }),
-    P("long_late", "longsession", "Late turns (30 to 40)", "Late", "%", "high", 1, { r: "long_session", m: "pass1", f: "band=late" }, { planned: true }),
-    P("memory_pass", "memory", "Memory pass rate", "Memory", "%", "high", 1, { r: "memory", m: "pass1" }, { planned: true, tierLink: "memory" }),
+    P("instruction_following", "preferences", "Instruction following", "Following", "%", "high", 1, { r: "preferences", m: "preferences_score" }, { tierLink: "preferences", desc: "Mean of five dimensions: still followed later, one-off override, newer replaces older, not over-stretched, never waives a confirmation." }),
+    P("prefs_loop", "preferences", "Instruction following in the assistant's loop", "In assistant loop", "%", "high", 1, { r: "preferences_harbor_loop", m: "preferences_score_harbor_loop" }, { desc: "The same cases through the assistant's own loop." }),
+    P("late_retention", "longsession", "Late-turn retention", "Late turns", "%", "high", 1, { r: "long_session", m: "late_retention" }, { tierLink: "long_session", desc: "How much of what was set early in a 40-turn conversation still holds in the late turns." }),
+    P("long_pass", "longsession", "Long-session pass rate", "Pass rate", "%", "high", 1, { r: "long_session", m: "pass1" }),
+    P("late_loop", "longsession", "Late-turn retention in the assistant's loop", "In assistant loop", "%", "high", 1, { r: "long_session_harbor_loop", m: "late_retention_harbor_loop" }),
+    P("memory_pass", "memory", "Memory score", "Memory", "%", "high", 1, { r: "memory", m: "memory_score" }, { tierLink: "memory", desc: "Facts remembered and recalled correctly across sessions." }),
+    P("forget", "memory", "Forgets when asked", "Forgets", "%", "high", 1, { r: "memory", m: "forget_compliance" }, { desc: "Share of forget requests honoured: the fact is gone from later answers." }),
+    P("memory_loop", "memory", "Memory in the assistant's loop", "In assistant loop", "%", "high", 1, { r: "memory_harbor_loop", m: "memory_score_harbor_loop" }),
 
     /* vision and audio (spec 05) */
     P("vision_pass", "vision", "Vision pass rate", "Vision", "%", "high", 1, { r: "vision", m: "pass1" }, { planned: true, modality: "vision", tierLink: "vision" }),
     P("audio_pass", "audio", "Audio input pass rate", "Audio", "%", "high", 1, { r: "audio", m: "pass1" }, { planned: true, modality: "audio", tierLink: "audio" }),
 
     /* screen control (spec 11) and sidekick coding (spec 12) */
-    P("screen_pass", "screen", "On-screen app control", "Screen", "%", "high", 1, { r: "screen", m: "pass1" }, { planned: true, tierLink: "screen" }),
-    P("sidekick_pass", "screen", "Coding and terminal", "Sidekick", "%", "high", 1, { r: "sidekick", m: "pass1" }, { planned: true, tierLink: "sidekick" }),
+    P("screen_pass", "screen", "On-screen app control", "Screen", "%", "high", 1, { r: "app_control", m: "screen_score" }, { tierLink: "app_control", desc: "Operating app screens through the accessibility tree." }),
+    P("screen_shot", "screen", "App control from screenshots", "From screenshots", "%", "high", 1, { r: "app_control", m: "screen_score_screenshot" }, { desc: "The same tasks with a screenshot in place of the accessibility tree." }),
+    P("sidekick_pass", "screen", "Coding and terminal", "Sidekick", "%", "high", 1, { r: "sidekick", m: "sidekick_score" }, { tierLink: "sidekick" }),
+    P("sidekick_tools", "screen", "Coding with tools", "With tools", "%", "high", 1, { r: "sidekick", m: "sidekick_tool_mode" }, { desc: "Sidekick tasks done through tool calls rather than a written answer." }),
 
     /* performance (spec 04): read from the context curves */
     P("decode_2k", "perf", "Decode speed at 2k", "Decode", "tok/s", "high", 0, { c: "decode_tps", level: 2048 }, { on: "local", desc: "Tokens generated per second with 2k tokens of context." }),
@@ -122,13 +132,18 @@
   const tiers = [
     { id: "agentic", name: "Agentic tool use", group: "agentic", spec: "02", facets: ["family", "lane"], what: "Can the model pick the right tools, fill their arguments, chain and parallelise calls, recover from errors, and hold back when it should ask or stop?" },
     { id: "in_assistant", name: "In the assistant", group: "assistant", spec: "08", facets: ["surface", "profile"], what: "Inside the assistant itself, against three synthetic people: answer questions about the day (Ask), surface what needs attention (Brief) and plan the day (Day)." },
+    { id: "agentic_harbor_loop", name: "Agentic, in the assistant's loop", group: "agentic", spec: "02", facets: ["family", "lane"], loopOf: "agentic", what: "The assistant-lane agentic cases run through the assistant's own loop, which re-prompts and repairs mistakes. It has no neutral lane." },
+    { id: "in_assistant_findings", name: "What it found", group: "assistant", spec: "08", facets: ["family", "profile", "surface"], what: "Item by item: what the assistant raised in the Brief, the inbox and the to-dos, what it did by itself, and what it missed or raised wrongly." },
     { id: "quality", name: "Output quality", group: "quality", spec: "03", facets: ["family"], what: "Is the writing readable, are documents understood, and are facts kept without invention?" },
-    { id: "preferences", name: "Preferences", group: "preferences", spec: "14", facets: ["family"], what: "Are standing preferences followed later, overridden once when asked, replaced by newer ones, and never stretched to waive a confirmation?" },
-    { id: "long_session", name: "Long sessions", group: "longsession", spec: "02", facets: ["band"], what: "Does quality hold from the first turns of a 40-turn conversation to the last?" },
-    { id: "memory", name: "Memory", group: "memory", spec: "02", facets: ["family"], what: "Are facts remembered and recalled correctly across sessions?" },
+    { id: "preferences", name: "Preferences", group: "preferences", spec: "14", facets: ["family", "lane"], what: "Are standing preferences followed later, overridden once when asked, replaced by newer ones, and never stretched to waive a confirmation?" },
+    { id: "long_session", name: "Long sessions", group: "longsession", spec: "02", facets: ["family", "lane"], what: "Does quality hold from the first turns of a 40-turn conversation to the last?" },
+    { id: "memory", name: "Memory", group: "memory", spec: "02", facets: ["family", "lane"], what: "Are facts remembered and recalled correctly across sessions, and forgotten when asked?" },
+    { id: "preferences_harbor_loop", name: "Preferences, in the assistant's loop", group: "preferences", spec: "14", facets: [], loopOf: "preferences", what: "The preference cases through the assistant's own loop." },
+    { id: "long_session_harbor_loop", name: "Long sessions, in the assistant's loop", group: "longsession", spec: "02", facets: [], loopOf: "long_session", what: "The long-session cases through the assistant's own loop." },
+    { id: "memory_harbor_loop", name: "Memory, in the assistant's loop", group: "memory", spec: "02", facets: [], loopOf: "memory", what: "The memory cases through the assistant's own loop." },
     { id: "vision", name: "Vision", group: "vision", spec: "05", facets: ["family"], what: "Reading screenshots, documents, charts and photos. Models without image input are not applicable, never zero." },
     { id: "audio", name: "Audio input", group: "audio", spec: "05", facets: ["family"], what: "Understanding spoken requests. There is no speech output and no video." },
-    { id: "screen", name: "On-screen app control", group: "screen", spec: "11", facets: ["family"], what: "Operating real app screens through the accessibility tree: find, click, type, confirm." },
+    { id: "app_control", name: "On-screen app control", group: "screen", spec: "11", facets: ["family"], what: "Operating real app screens through the accessibility tree: find, click, type, confirm." },
     { id: "sidekick", name: "Coding and terminal", group: "screen", spec: "12", facets: ["family"], what: "Light coding and terminal tasks: read, edit, run, and stop before anything destructive." },
     { id: "perf", name: "Performance", group: "perf", spec: "04", facets: ["test"], what: "Speed, memory and energy at seven context sizes, load time, and the simulated day." }
   ];
@@ -136,7 +151,11 @@
   /* Words for facet values the store writes. Unknown values fall back to the raw value, tidied. */
   const facetNames = {
     lane: { assistant: "Assistant lane", neutral: "Neutral lane" },
-    family: { select: "Select", parallel: "Parallel", sequential: "Sequential", mixed: "Mixed", pev: "Plan, execute, verify", recovery: "Recovery", abstain: "Abstain", readability: "Readability", extraction: "Extraction", email_summary: "Email summaries" },
+    family: { select: "Select", parallel: "Parallel", sequential: "Sequential", mixed: "Mixed", pev: "Plan, execute, verify", recovery: "Recovery", abstain: "Abstain", summary: "Summaries", point: "Key points", extraction: "Extraction", numeric: "Numbers", writing: "Writing",
+      cross: "Across apps", disrupt: "Interruptions", flow: "Multi-step flows", form: "Forms", ground: "Finding the control",
+      commit_msg: "Commit messages", diff_review: "Reviewing a diff", explain_error: "Explaining an error", fix_bug: "Fixing a bug", git: "Git",
+      act: "Done by itself", brief: "Brief cards", brief_todos: "To-dos from the Brief", inbox: "Needs attention", window: "Questions about the day",
+      long_session: "Long session", memory: "Memory", preferences: "Preferences" },
     surface: { ask: "Ask", brief: "Brief", day: "Day" },
     profile: { student: "Student", tech: "Tech worker", "tech-worker": "Tech worker", mixed: "Student who works", "student-worker": "Student who works" },
     band: { early: "Early turns", late: "Late turns" }
@@ -158,8 +177,7 @@
     not_run: { text: "Not run yet", icon: "clock", tip: "Queued or skipped. Never treated as zero." },
     invalid: { text: "Invalid run", icon: "warn", bad: true, tip: "More than 2% of trials were excluded, so the entry is listed but not ranked." },
     not_measured: { text: "Fit not measured", icon: "clock", tip: "No fit verdict yet, so the entry is listed but not ranked." },
-    na_loop_cloud: { text: "Not applicable (cloud)", icon: "dash", tip: "Cloud references run only the benchmark's minimal loop, not the assistant's own loop." },
-    na_loop_phone: { text: "Not run on the iPhone", icon: "dash", tip: "The iPhone runs the parity subset in the minimal loop only." },
+    not_run_here: { text: "Not run here", icon: "dash", tip: "The store left this empty on purpose; its reason is in the tooltip." },
     not_in_board: { text: "Not in this board yet", icon: "dash", tip: "This test area has no published results in this board version." },
     no_value: { text: "No value", icon: "dash", tip: "The store has the row but no value." }
   };

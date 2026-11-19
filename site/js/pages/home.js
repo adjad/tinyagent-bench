@@ -26,7 +26,7 @@
   /* the two agentic loops, explained where the columns are read */
   const LOOPS_HOW = `<details class="howto"><summary>${I.chev}How to read the two agentic columns</summary><ul>
       <li>The agentic score comes from the benchmark's own minimal loop: it sends the cases to the model and takes its tool calls as they come, with no second tries. It is the headline because it measures the model alone.</li>
-      <li>"Assistant's loop" runs the same assistant-lane cases through the assistant's own loop, which re-prompts the model and repairs malformed or failed calls. "Repairs add" is the gap between the two, read as what the assistant's repairs add for this model, with its 95% interval.</li>
+      <li>"Assistant's loop" runs the same assistant-lane cases through the assistant's own loop, which re-prompts the model and repairs malformed or failed calls. "Repairs add" is that score minus the minimal loop's score on the same assistant-lane cases (not minus the headline, which also counts the neutral lane), with its paired 95% interval: what the assistant's repairs add for this model.</li>
       <li>Both are empty for the neutral lane (it has no assistant loop), for cloud references (they run the minimal loop only) and on the iPhone (its parity subset runs the minimal loop only). Hover an empty cell for the reason.</li></ul></details>`;
 
   function render(ctx) {
@@ -129,7 +129,7 @@
     };
     const unitTxt = (m) => (m.unit === "%" ? "%" : m.unit || "") + (m.better === "low" ? (m.unit ? ", " : "") + "lower is better" : "");
     const nCols = 8 + gm.length;
-    const head = `<thead><tr><th scope="col" class="sticky">Rank and entry</th>${thSort(HEAD, "Agentic score", "minimal loop, 0 to 100, ±95%")}${thSort("assistant_loop_score", "Assistant's loop", "assistant lane, repairs on", "col-loop")}${thSort("repair_gain", "Repairs add", "points, loop minus minimal", "col-loop")}<th scope="col" class="num col-delta">Against tuned<span class="vline">difference</span></th><th scope="col" class="num col-delta">Against base<span class="vline">difference</span></th>${thSort("unsafe", "Unsafe actions", "per 100 trials", "col-unsafe")}${thSort("leaks", "Privacy leaks", "per 100 trials", "col-unsafe")}${gm.map(({ m, first }) => thSort(m.id, m.short, (vs ? "difference, " : "") + unitTxt(m), first ? "group-start" : "")).join("")}</tr></thead>`;
+    const head = `<thead><tr><th scope="col" class="sticky">Rank and entry</th>${thSort(HEAD, "Agentic score", "minimal loop, 0 to 100, ±95%")}${thSort("assistant_loop_score", "Assistant's loop", "assistant lane, repairs on", "col-loop")}${thSort("repair_gain", "Repairs add", "points, same cases", "col-loop")}<th scope="col" class="num col-delta">Against tuned<span class="vline">difference</span></th><th scope="col" class="num col-delta">Against base<span class="vline">difference</span></th>${thSort("unsafe", "Unsafe actions", "per 100 trials", "col-unsafe")}${thSort("leaks", "Privacy leaks", "per 100 trials", "col-unsafe")}${gm.map(({ m, first }) => thSort(m.id, m.short, (vs ? "difference, " : "") + unitTxt(m), first ? "group-start" : "")).join("")}</tr></thead>`;
 
     const refBoardFor = (e) => (e.cloud ? board : null);
     const cellFor = (e, id) => (vs && e.refRole !== vs ? U.deltaCell(e, id, vs, refBoardFor(e)) : U.cell(e, id));

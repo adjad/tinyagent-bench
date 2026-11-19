@@ -47,7 +47,7 @@
     const c = CFG.devices[d.class] || CFG.devices[d.id] || {};
     const gb = d.ram_bytes ? Math.round(d.ram_bytes / 1073741824) : null;
     return {
-      id: d.id, class: d.class || d.id, path: d.path, trajectories: d.trajectories,
+      id: d.id, class: d.class || d.id, path: d.path, trajectories: d.trajectories, findings: d.findings || null,
       name: d.name || c.name || [d.soc, gb ? gb + " GB" : null].filter(Boolean).join(", ") || d.id,
       short: d.short || c.short || d.id, kind: d.kind || c.kind || (/(phone|iphone)/i.test(d.class || d.id) ? "phone" : "laptop"),
       fitLabel: d.fit_label || c.fitLabel || "this device", runtimeNote: c.runtimeNote || "",
@@ -77,6 +77,8 @@
       (raw.safety || []).forEach((s) => this.present.add("safety§" + s.tier));
       this.cur = new Map((raw.curves || []).map((c) => [c.variant + "§" + c.metric, c]));
       (raw.curves || []).forEach((c) => this.present.add("curve§" + c.metric));
+      this.lps = new Map((raw.loops || []).map((l) => [l.variant + "§" + l.tier, l]));
+      (raw.loops || []).forEach((l) => this.present.add("loop§" + l.tier));
       this.rnk = new Map((raw.ranking || []).map((r) => [r.variant + "§" + r.tier + "§" + r.metric, r.rank_range]));
       this.entries = (raw.variants || []).map((v) => makeEntry(this, v));
       this.byKey = new Map(this.entries.map((e) => [e.key, e]));
@@ -85,6 +87,7 @@
     result(key, tier, metric, facet) { return this.res.get(key + "§" + tier + "§" + metric + "§" + (facet || "")) || null; }
     safety(key, tier) { return this.saf.get(key + "§" + tier) || null; }
     curve(key, metric) { return this.cur.get(key + "§" + metric) || null; }
+    loop(key, tier) { return this.lps.get(key + "§" + tier) || null; }
     rank(key, tier, metric) { return this.rnk.get(key + "§" + tier + "§" + metric) || null; }
     has(tier, metric, facet) { return metric ? this.present.has(tier + "§" + metric + "§" + (facet || "")) : this.present.has(tier); }
     facets(tier, kind) { return [...(this.facetsByTier.get(tier) || [])].filter((f) => !kind || f.startsWith(kind + "=")).sort(); }
@@ -133,10 +136,22 @@
     if (src.r) {
       const rec = b.result(entry.key, src.r, src.m, src.f);
       if (!rec) return S(b.has(src.r, src.m, src.f) ? "not_run" : "not_in_board");
-      if (rec.status && rec.status !== "ok") return S(rec.status, { rec });
-      if (rec.value == null) return S("no_value", { rec });
+      /* a row the store left empty on purpose carries its reason (the second loop on a cloud reference, say) */
+      if (rec.status && rec.status !== "ok") return S(rec.status === "not_run" && rec.empty_reason ? "not_run_here" : rec.status, { rec, reason: rec.empty_reason || null });
+      if (rec.value == null) return S("no_value", { rec, reason: rec.empty_reason || null });
       const iv = rec.interval && rec.interval_kind !== "none" ? [rec.interval[0] * sc, rec.interval[1] * sc] : null;
-      return { status: "ok", value: rec.value * sc, interval: iv, half: half(iv), n: rec.n_cases, trials: rec.n_trials, kind: rec.interval_kind, vs: rec.vs || null, rec };
+      return { status: "ok", value: rec.value * sc, interval: iv, half: half(iv), n: rec.n_cases, trials: rec.n_trials, kind: rec.interval_kind, vs: rec.vs || null, label: rec.label || null, rec };
+    }
+    if (src.loop) {
+      /* the gap between the two loops, from the board's loops[] row: delta, paired interval and tag */
+      const l = b.loop(entry.key, src.loop);
+      if (!l) return S(b.has("loop§" + src.loop) ? "not_run" : "not_in_board");
+      const g = l[src.k];
+      if (!g) return S(l.empty_reason ? "not_run_here" : "no_value", { reason: l.empty_reason || null });
+      if (g.refused) return S("no_value", { reason: g.refused });
+      if (g.delta == null) return S("no_value", { reason: l.empty_reason || null });
+      const iv = g.interval ? [g.interval[0] * sc, g.interval[1] * sc] : null;
+      return { status: "ok", value: g.delta * sc, interval: iv, half: half(iv), n: g.n_cases, tag: g.tag || null, wins: g.wins, losses: g.losses, loop: l };
     }
     if (src.s) {
       const rec = b.safety(entry.key, src.s);
@@ -190,6 +205,7 @@
     const cell = value(entry, metricId);
     if (entry.refRole === role) return { status: "self" };
     if (cell.status !== "ok") return { status: cell.status };
+    if (m.src.loop) return { status: "none" };
     const vs = cell.vs ? cell.vs[role] : undefined;
     if (vs && vs.self) return { status: "self" };
     if (vs && vs.refused) return { status: "refused", reason: vs.refused };
@@ -283,9 +299,8 @@
     return (raw.trajectories || []).filter((t) => t.split !== "heldout" && t.split !== "held_out");
   }
 
-  /* "What it found" (in-assistant findings). Read from the export when it exists. Until the store writes it, a sample
-   * board falls back to the site's own labelled sample in fixtures/ (see fixtures/make_findings_sample.py); a real
-   * board never does. Records marked held out are dropped. */
+  /* "What it found" (in-assistant findings): the file the index names for the device (`devices[].findings`, null when
+   * the device has none). Records marked held out are dropped here as a second guard. */
   async function loadFindings(version, deviceId) {
     const bi = board(version);
     if (!bi) return null;
@@ -297,12 +312,12 @@
         if (!res.ok) throw new DataError("The findings file did not load.", url + " answered " + res.status);
         try { return await res.json(); } catch (e) { throw new DataError("The findings file is not valid JSON.", url); }
       };
-      let raw = await tryGet(CFG.dataRoot + version + "/" + deviceId + ".findings.json"), fromFixture = false;
-      if (!raw && bi.sample) { raw = await tryGet("fixtures/" + version + "/" + deviceId + ".findings.json"); fromFixture = !!raw; }
+      const dev = bi.devices.find((d) => d.id === deviceId);
+      if (!dev || !dev.findings) return null;
+      const raw = await tryGet(CFG.dataRoot + dev.findings);
       if (!raw) return null;
       if (!/^edat\.site-findings\//.test(raw.schema || "")) throw new DataError("The findings file has an unknown format.", "schema " + raw.schema);
       raw.runs = (raw.runs || []).filter((r) => r.split !== "heldout" && r.split !== "held_out");
-      raw.fromFixture = fromFixture;
       return raw;
     })());
     return cache.get(k);

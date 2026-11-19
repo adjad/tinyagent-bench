@@ -40,7 +40,7 @@ from scripts.productbench import autonomy, preferences
 # The scorer's version. Records stamp it (`scorer`); a record without one was scored by
 # edat-iae-0.2 or earlier. summarize() refuses records of different versions, and compare()
 # refuses a reference row of another version: re-score the older run first (rescore.py).
-SCORER_VERSION = "edat-iae-0.3.2"
+SCORER_VERSION = "edat-iae-0.3.3"
 OLD_SCORER = "edat-iae-0.2 or earlier"
 
 

@@ -376,6 +376,50 @@ def test_a_birthday_reminder_block_is_not_the_evening_call():
     assert call and call[0].endswith("(missing)")
 
 
+def _starts(blocks):
+    return [score_day._hm(b.start) for b in blocks]
+
+
+def test_a_time_said_to_be_on_another_day_is_not_a_block_today():
+    p = load(STANDIN / "profile.json")
+    assert p.anchor.date().weekday() != 3            # not a Thursday: "Thursday" is another day
+    plan = ("- 9:30-10:45 Lecture\n"
+            "- Kim asked you to study for the quiz tomorrow night at 7 PM in the library\n"
+            "- Book a lane for Saturday at 8 pm\n"
+            "- Dinner with Lee at 6:30 PM on Thursday\n"
+            "- **9:15 am:** Reply to Ari about Thursday's check\n"
+            "- Call Mom tonight at 9 pm\n"
+            "- Pick up the parcel today at 4 pm")
+    blocks = score_day.parse_plan(plan, p)
+    # The day word right beside a time moves it; one further along the line does not.
+    assert _starts(blocks) == ["09:15", "09:30", "16:00", "21:00"], [b.as_dict() for b in blocks]
+    assert "Thursday" in blocks[0].title
+
+
+def test_a_prose_plan_is_read_clause_by_clause():
+    p = load(STANDIN / "profile.json")
+    prose = ("Your morning starts with the shift at **7:00 AM**, followed by the team standup at **9:00 AM**. "
+             "Be sure to approve the replay at **8:30 AM**, and the weekly sync at **9:30 AM**.")
+    blocks = score_day.parse_plan(prose, p)
+    assert _starts(blocks) == ["07:00", "08:30", "09:00", "09:30"], [b.as_dict() for b in blocks]
+    for b, word in zip(blocks, ["shift", "replay", "standup", "sync"]):
+        assert word in b.title and not b.title.endswith(" at"), b.title
+    # A bound or a range's end starts no block of its own; one list line with two items gives two.
+    assert _starts(score_day.parse_plan("- 2:00 Draft the report, before the 5:00 deadline", p)) == ["14:00"]
+    rng = score_day.parse_plan("- 2:00 to 3:30 Lab report", p)
+    assert [(b.start, b.end) for b in rng] == [(840, 930)]
+    assert _starts(score_day.parse_plan("- 9:00 standup, 9:30 sync with Ola", p)) == ["09:00", "09:30"]
+
+
+def test_the_same_item_twice_at_one_time_is_one_block():
+    p = load(STANDIN / "profile.json")
+    plan = "You start with the team standup at 9:00 AM.\n- 9:00 AM: Standup\n- 9:00 AM: Dentist"
+    blocks = score_day.parse_plan(plan, p)
+    assert len(blocks) == 2 and "standup" in blocks[0].title.casefold() and blocks[1].title == "Dentist"
+    # Two different things at one time stay two blocks: an overlap the plan itself creates.
+    assert [v for v in score_day.score_plan(blocks, p).violations if v["rule"] == "R1"]
+
+
 def test_missing_coverage_scores_as_missing():
     prof, led = _raw()
     p = _profile(prof, led)

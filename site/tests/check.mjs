@@ -202,6 +202,22 @@ const caseList = [];
 if (mac) for (const r of mac.raw.trajectories || []) if (r.tier === "agentic" && !caseList.some((c) => c.id === r.case_id)) caseList.push({ id: r.case_id, key: r.variant });
 caseIds = caseList.slice(0, 3);
 
+// rows the store says may not be scored never reach a cell, a chart or a rank; the fit label reads as a noun phrase
+{
+  const mb = boards.find((b) => b.id === "mac-ref");
+  if (mb) {
+    const raw = JSON.parse(JSON.stringify(mb.raw));
+    const row = raw.results.find((r) => r.tier === "sidekick" && r.metric === "sidekick_score" && r.facet == null && r.value != null);
+    if (row) {
+      row.labels = { may_score: false };
+      const nb = new ST.Board(raw, mb.dev, false), e = nb.entry(row.variant);
+      check(e && ST.value(e, "sidekick_pass").status !== "ok" && nb.unscored.length === 1, "a row with labels.may_score false is kept out of cells and charts");
+    }
+    const fl = new ST.Board(mb.raw, mb.dev, false).device.fitLabel;
+    check(!/^fits\b/i.test(fl), `the fit label reads as a noun phrase ("${fl}")`);
+  }
+}
+
 // ---------------------------------------------------------------- Part 2
 const CHROME = process.env.CHROME || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 async function headless() {
@@ -252,6 +268,11 @@ async function headless() {
   ["#/tests?d=iphone-ref", "#/tests/agentic?d=iphone-ref", "#/tests/in_assistant?d=iphone-ref", "#/profiles?d=iphone-ref", "#/profiles?d=mac-ref"].forEach((h) => add(h));
   add("#/nope", "notfound");
   routes.push({ hash: "#/", width: 375, height: 812, label: "#/ at 375x812" });
+  // the cost chart sits in the hero above the table; the overview strip and the paired views are drawn; a model page has its profile and found summary
+  routes.push({ hash: "#/", label: "#/ hero, overview and paired charts", must: [[/class="hero"[\s\S]*id="cost"[\s\S]*<svg class="chart"[\s\S]*id="board"/, "cost chart before the table"], [/id="ov-h"/, "overview strip"], [/id="paired"/, "paired views"]] });
+  routes.push({ hash: "#/?x=time", label: "#/?x=time cost chart on seconds", must: [[/id="cost"[\s\S]*Seconds per case, lower is cheaper/, "time axis"]] });
+  const dKey = mac ? (mac.raw.variants.find((v) => v.model_id === "Sample Model D 8B" && v.thinking === "on") || {}).key : null;
+  if (dKey) routes.push({ hash: `#/model/${enc("Sample Model D 8B")}?d=mac-ref&v=${enc(dKey)}`, label: "model page profile and found summary", must: [[/id="profile"[\s\S]*<svg class="chart"/, "tier profile chart"], [/id="found"[\s\S]*class="tally"/, "found tallies"]] });
 
   const run = (r) => new Promise((resolve) => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "edat-chrome-"));
@@ -275,6 +296,7 @@ async function headless() {
       if (err && !dom) msg = "chrome failed: " + err;
       else if (got !== want) msg = `data-render=${got} (wanted ${want})`;
       else if (errored) msg = "data-error=1 in DOM";
+      else if (r.must) { const miss = r.must.filter(([re]) => !re.test(dom)).map(([, l]) => l); if (miss.length) msg = "missing: " + miss.join(", "); }
       if (msg) {
         const e = dom.match(/class="[^"]*\b(?:empty|error-state)\b[^"]*"[\s\S]*$/);
         msg += " | " + (e ? e[0].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() : dom.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()).slice(0, 300);

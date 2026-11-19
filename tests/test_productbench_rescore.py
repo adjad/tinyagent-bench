@@ -692,3 +692,16 @@ def test_scorer_checkout_is_empty_when_git_fails(monkeypatch):
         raise OSError("no git")
     monkeypatch.setattr(subprocess, "run", boom)
     assert rescore.scorer_checkout() == ("", None)
+
+
+def test_scorer_dirty_covers_the_answer_keys(monkeypatch):
+    seen = []
+
+    def fake(cmd, **k):
+        seen.append(cmd)
+        out = " M test_fixtures/bench_profiles/x/ledger.json\n" if "status" in cmd else FAKE_SHA + "\n"
+        return subprocess.CompletedProcess(cmd, 0, stdout=out, stderr="")
+    monkeypatch.setattr(subprocess, "run", fake)
+    assert rescore.scorer_checkout() == (FAKE_SHA, True)
+    status = next(c for c in seen if "status" in c)
+    assert {"scripts/productbench", "test_fixtures/bench_profiles", "test_fixtures/productbench"} <= set(status)

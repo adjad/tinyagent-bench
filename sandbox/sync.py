@@ -9,7 +9,10 @@ than another would look like a fidelity difference that isn't real.
 Endpoints/payloads here are pinned against the actual handlers in
 service/main.py (verified 2026-08 against source, not inferred):
   sync/messages   {"lines": str, "diagnostics": {...}}  AND, separately,
-                  {"contacts": {handle: name}}           (short-circuits)
+                  {"contacts": {handle: name}}           (short-circuits);
+                  `lines` leads with MessagesReader's V3 block (one record
+                  per message: chat GUID, delivery service, sender handle),
+                  which is how Harbor ties a text to a saved contact
   sync/emails     up to 4 independent single-key payloads: headers/raw/
                   history/identity_emails, plus a `diagnostics` object
   sync/notes      {"raw": str}
@@ -20,7 +23,10 @@ service/main.py (verified 2026-08 against source, not inferred):
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import re
 import time
+import uuid
 
 import httpx
 
@@ -42,20 +48,128 @@ CADENCES: dict[str, float] = {
 }
 
 
-def _messages_lines(world: World) -> str:
-    rows: list[dict] = []
+_SERVICE_NAMES = {s.casefold(): s for s in wire.SERVICES}
+
+
+def _chat_handle(raw: str) -> str:
+    """A handle as chat.db stores it: an address lowercased, a phone number in
+    full international form ("+17735550124"). A number written without a
+    country code is taken as a North American one when it has 10 digits (the
+    benchmark profiles' numbers); a short code stays as its digits; anything
+    else that is not a number or an address is no handle ("")."""
+    raw = (raw or "").strip()
+    if "@" in raw:
+        return raw.casefold()
+    digits = re.sub(r"\D", "", raw)
+    if not digits or not re.fullmatch(r"[+(\d][\d\s().-]*", raw):
+        return ""
+    if len(digits) < 7:
+        return digits
+    if raw.startswith("+"):
+        return "+" + digits
+    if raw.startswith("00"):
+        return "+" + digits[2:]
+    if len(digits) == 10:
+        return "+1" + digits
+    return "+" + digits
+
+
+def _contact_handle(contact: dict) -> str:
+    """The handle a saved contact texts from: their first phone number, else
+    their first address."""
+    handles = [str(h) for h in contact.get("handles") or [] if h]
+    phones = [h for h in handles if "@" not in h]
+    return _chat_handle((phones or handles or [""])[0])
+
+
+def _sender_handle(world: World, thread: dict, m: dict) -> str:
+    """The handle an incoming message came from. A world built from a profile
+    names the contact (`sender_id`); otherwise `from` is a display name, matched
+    to the thread's own members first, or a raw number or address."""
+    contacts = world.state["contacts"]
+    if m.get("sender_id") in contacts:
+        return _contact_handle(contacts[m["sender_id"]])
+    name = str(m.get("from") or "").strip()
+    members = [contacts[p] for p in thread.get("participants") or [] if p in contacts]
+    for pool in (members, list(contacts.values())):
+        found = [c for c in pool if str(c.get("name") or "").strip().casefold() == name.casefold()]
+        if len(found) == 1:
+            return _contact_handle(found[0])
+    return _chat_handle(name)
+
+
+def _chat_guid(thread: dict, service: str, incoming: list[str], world: World) -> str:
+    """The chat's GUID as chat.db has it: "<service>;-;<handle>" for a one-to-one
+    chat, "<service>;+;chat<digits>" for a group. "" when a one-to-one chat's
+    other party has no handle."""
+    if thread["kind"] == "group":
+        digits = int(hashlib.sha256(str(thread["id"]).encode()).hexdigest()[:15], 16)
+        return f"{service};+;chat{digits:018d}"
+    contacts = world.state["contacts"]
+    members = [contacts[p] for p in thread.get("participants") or [] if p in contacts]
+    handle = (_contact_handle(members[0]) if members else "") \
+        or next((h for h in incoming if h), "") or _chat_handle(thread.get("context_label") or "")
+    return f"{service};-;{handle}" if handle else ""
+
+
+def _message_rows(world: World) -> list[dict]:
+    """Every message, oldest first, with what the real reader knows of it: the
+    conversation label, the sender as shown, and its chat GUID, message GUID,
+    delivery service and sender handle.
+
+    Two messages are never given the same time: chat.db times are nanoseconds,
+    but a profile's are whole minutes, and proactive/sources.text_records joins
+    a plain line to its structured record by time, so a tie would leave both
+    lines with no known chat. A tie is broken by a millisecond, in order."""
+    found = []
     for thread in world.state["threads"].values():
+        for index, m in enumerate(thread["messages"]):
+            found.append((world.abs_ts(m["ts_off"]), str(thread["id"]), index, thread, m))
+    found.sort(key=lambda r: r[:3])
+    used: set[float] = set()
+    rows: list[dict] = []
+    guids: dict[str, str] = {}
+    for base, tid, index, thread, m in found:
+        ts, k = base, 0
+        while round(ts, 3) in used:
+            k += 1
+            ts = base + k / 1000
+        used.add(round(ts, 3))
         label = thread.get("context_label")
         if not label:
             names = [world.state["contacts"].get(p, {}).get("name", p)
                     for p in thread.get("participants") or []]
             label = wire.thread_context(thread.get("title"), names,
                                         is_group=(thread["kind"] == "group"))
-        for m in thread["messages"]:
-            who = "Me" if m["from"] == "me" else m["from"]
-            rows.append({"ts": world.abs_ts(m["ts_off"]), "context": label,
-                        "who": who, "text": m["text"]})
-    return wire.messages_lines(rows)
+        mine = m["from"] == "me"
+        service = _SERVICE_NAMES.get(str(m.get("service") or thread.get("service") or "iMessage").casefold(), "")
+        rows.append({"ts": ts, "context": label, "who": "Me" if mine else m["from"], "text": m["text"],
+                     "thread": thread, "direction": "outgoing" if mine else "incoming",
+                     "sender": "Me" if mine else _sender_handle(world, thread, m),
+                     "service": service,
+                     "guid": str(uuid.uuid5(uuid.NAMESPACE_URL, f"sandbox-message:{tid}:{m.get('id') or index}")).upper()})
+    for thread in world.state["threads"].values():
+        tid = str(thread["id"])
+        incoming = [r["sender"] for r in rows if r["thread"] is thread and r["direction"] == "incoming"]
+        service = next((r["service"] for r in rows if r["thread"] is thread and r["service"]), "iMessage")
+        guids[tid] = _chat_guid(thread, service, incoming, world)
+    for r in rows:
+        r["chat_guid"] = guids[str(r.pop("thread")["id"])]
+    return rows
+
+
+def _messages_lines(world: World) -> str:
+    """The Messages carrier as MessagesReader.swift posts it: the V3 block of
+    structured records (chat GUID, delivery service, sender handle) first, then
+    one plain line per message. A message whose chat has no GUID gets no record;
+    its line still goes."""
+    rows = _message_rows(world)
+    structured = wire.messages_structured([r for r in rows if r["chat_guid"] and r["sender"]])
+    return "\n".join(structured + [line for line in [wire.messages_lines(rows)] if line])
+
+
+def _messages_count(world: World) -> int:
+    return sum(len(t["messages"]) for t in world.state["threads"].values())
 
 
 def _contacts_raw(world: World) -> dict[str, str]:
@@ -214,7 +328,7 @@ class SyncScheduler:
         if source == "messages":
             diag = await self._diag("messages")
             lines = _messages_lines(world)
-            count = lines.count("\n") + 1 if lines else 0
+            count = _messages_count(world)
             await self._post("/assistant/sync/messages",
                              {"lines": lines, "diagnostics": {**diag, "count": count}})
         elif source == "contacts":

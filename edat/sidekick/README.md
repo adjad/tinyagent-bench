@@ -20,6 +20,7 @@ working copy is newer than the repository's `docs/benchmark/`).
 | `restraint.py` | S9 | `edat-restraint-event/v1` records (built with `edat.grading.aggregate.restraint_event`) and trial counts for row #70 |
 | `report.py` | S10 | SK-1 to SK-27 |
 | `records.py`, `runner.py` | | Results-store records (`tier: sidekick`, `suite: answer_only / tool_mode`), written through `edat.results.writer.RunWriter`, one run per mode, and the 3-trial runner |
+| `ceiling/` | | The coding-ceiling ladder: rungs 1-3 are the core cases by level, rungs 4-9 are probes (interacting rules, a stateful class, a data script, two bugs, a two-file change, a tool-mode fix) graded by hidden pytest files in the sandbox; the run driver, the plain-language report and the run sheet (`ceiling/RUN_SHEET.md`). Reported apart from the Sidekick Score |
 | `splits.py`, `human.py` | S12 | Development export, private held-out export, human-graded sheet and key-fact audit |
 
 Cases: `test_fixtures/sidekick/cases/dev/` (development split, public).

@@ -1,6 +1,6 @@
 """The model adapter as Screen World uses it.
 
-The shared adapter lives in `edat/models/` (agentic build, draft pull request 2,
+The shared adapter lives in `edat/models/` (agentic build,
 contract in docs/benchmark/model-adapter.md). Until it is on `main`, this module
 supplies a minimal copy of the same interface so the screen tests run on their
 own: `ChatResult`, `ToolCall`, `Usage`, `Timing`, `EngineError`, `Sampling`,

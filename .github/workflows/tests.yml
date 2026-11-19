@@ -1,9 +1,8 @@
 # Offline tests. No model is loaded, no engine is started, no secret is used,
 # and the only network access is installing the pinned requirements.
 #
-# The macOS job is the gate. The Linux job runs the same files for
-# information only (continue-on-error), to show which tests are not tied to
-# macOS; it never makes a pull request red.
+# One job, on macOS (Apple silicon), is the gate: the benchmark targets Apple
+# silicon only, so there is no Linux job. Only this job's result is evidence.
 #
 # Each test file runs in its own pytest process, as the README recommends:
 # some imported tests reload modules or patch process-wide state.
@@ -63,29 +62,3 @@ jobs:
             echo "::endgroup::"
           done
           exit $status
-
-  linux:
-    name: offline tests (Linux, informational)
-    runs-on: ubuntu-24.04
-    timeout-minutes: 30
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-          cache: pip
-          cache-dependency-path: |
-            requirements-runtime.txt
-            requirements-dev.txt
-      - name: Install requirements
-        run: python -m pip install -r requirements-dev.txt
-      - name: Run the offline test files, one result line per file
-        run: |
-          files=$(python tools/ci_test_files.py) || exit 1
-          for f in $files; do
-            line=$(python -m pytest -q --no-header "$f" 2>&1 | tail -1)
-            echo "$f :: $line"
-          done

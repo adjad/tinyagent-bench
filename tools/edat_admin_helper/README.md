@@ -27,7 +27,18 @@ Options:
 - `--dry-run`: see below.
 - `--print-plan`: print the verb table with exact commands, then exit. No socket, no root needed.
 
-It refuses to start if you did not use `sudo`, if `--run-dir` is not an absolute path to an existing folder, or if that folder is not owned by you.
+It refuses to start if you did not use `sudo`, if `--run-dir` is not a plain absolute path, if it already exists, if any part of the path is a symbolic link (on macOS `/tmp` is one: use `/private/tmp`), or if the folder that will hold it is not owned by you or by root. The helper creates `--run-dir` itself; use a new folder for every start.
+
+## Files and links
+
+The helper runs as root, so it never lets a symbolic link redirect what it writes:
+
+- **It creates the run folder itself**, mode 0700, owned by you. Before that it opens the folder's parent one path component at a time, from `/`, with `O_NOFOLLOW`: a link anywhere in the path, including one swapped in while it starts, is refused, not followed. It then works only through that folder's open descriptor.
+- **Every file it writes** (`admin-audit.jsonl`, `powermetrics-<n>.plist`) is created by a fixed name relative to the folder's descriptor with `O_CREAT | O_EXCL | O_NOFOLLOW`, mode 0600. If anything already sits at that name, a planted link included, it refuses and writes nothing. No name can contain `/` or `..`, so nothing can resolve outside the folder.
+- **Ownership is handed to you through the file's descriptor** (`fchown`), never by path. The run folder gets the same treatment. The socket, which can only be named by path, has its owner changed with the link-safe call relative to the folder (`fchownat` with `AT_SYMLINK_NOFOLLOW`).
+- **powermetrics never opens a path.** The helper creates its output file as above and passes the open file as powermetrics' standard output.
+- **The socket** is created 0600 (umask) at `<run-dir>/admin.sock`. Binding a Unix socket takes a path, so immediately before and after binding the helper checks, without following links, that the path still names the folder it created; if not, it refuses, logs it and exits.
+- It never calls `chmod` or `chown` on a path, and never opens a file with Python's ordinary `open`. A test checks the source for this.
 
 It uses only the Python standard library. It does not import the `edat` package.
 
@@ -47,7 +58,7 @@ Every command is a fixed list of arguments. There is no shell.
 | Verb | Allowed arguments | Exactly what runs |
 |---|---|---|
 | `purge` | none | `/bin/sync`, then `/usr/sbin/purge` |
-| `powermetrics_start` | `interval_ms` is 100, 250 or 1000 | `/usr/bin/powermetrics --samplers cpu_power,gpu_power,ane_power,thermal -i <interval_ms> -f plist -o <run-dir>/powermetrics-<n>.plist` (`n` counts from 1; one instance at a time) |
+| `powermetrics_start` | `interval_ms` is 100, 250 or 1000 | `/usr/bin/powermetrics --samplers cpu_power,gpu_power,ane_power,thermal -i <interval_ms> -f plist`, with its standard output going to `<run-dir>/powermetrics-<n>.plist`, a new file the helper creates first (`n` counts from 1; one instance at a time) |
 | `powermetrics_stop` | none | SIGINT to the powermetrics process it started, then wait (SIGTERM only to that child after a timeout) |
 | `wired_limit_set` | `mb` is 10900 | `/usr/sbin/sysctl iogpu.wired_limit_mb=10900` |
 | `wired_limit_reset` | none | `/usr/sbin/sysctl iogpu.wired_limit_mb=<value read at start>` |
@@ -103,7 +114,7 @@ python3 -c "import json,sys; [print(r['t_wall_utc'], r.get('verb') or r['event']
 python3 tools/edat_admin_helper/edat_admin_helper.py --run-dir /absolute/path/to/run-folder --dry-run
 ```
 
-No root is needed. The folder must be owned by you. The helper still serves the socket, so the runner can be rehearsed against it. It prints each exact command it would run and runs none. It does not `mlock`: it only reports how big the balloon would be.
+No root is needed. The run folder must not exist yet; the helper creates it, as for a real start. The helper still serves the socket, so the runner can be rehearsed against it. It prints each exact command it would run and runs none. It does not `mlock`: it only reports how big the balloon would be.
 
 ## Check by hand afterwards
 

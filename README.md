@@ -114,15 +114,17 @@ running a model:
 .venv/bin/python scripts/run_toolbench.py --dry-run
 ```
 
-Run the harness's unit tests. Name the test files: a bare `pytest` also tries
-paths that are not part of this repository.
+Run the unit tests the way the gate does. The gate is the single macOS job in
+`.github/workflows/tests.yml`: it runs every file that `tools/ci_test_files.py`
+lists, each in its own pytest process (a bare `pytest` also tries paths that are
+not part of this repository). The script names each excluded file and why.
 
 ```bash
-.venv/bin/python -m pytest -q tests/test_toolbench.py tests/test_toolbench_world.py tests/test_rc3_toolbench_scorer.py tests/test_eval_planner_dry_run.py tests/test_sandbox_world.py tests/test_memory_eval_scorer.py
+for f in $(.venv/bin/python tools/ci_test_files.py); do .venv/bin/python -m pytest -q "$f" || echo "FAILED: $f"; done
 ```
 
-The full list of imported test files, and the one test expected to fail here,
-are in [IMPORT.md](IMPORT.md).
+The imported test files, and the one test expected to fail here, are listed in
+[IMPORT.md](IMPORT.md).
 
 A live run (`scripts/run_toolbench.py` without `--dry-run`) needs oMLX serving
 the model on `127.0.0.1`. It refuses to start while anything listens on ports

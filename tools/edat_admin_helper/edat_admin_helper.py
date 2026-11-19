@@ -9,7 +9,15 @@ It never:
   - opens a network socket (only one Unix socket inside --run-dir);
   - signals a process it did not start (only its own powermetrics child);
   - installs anything;
-  - touches oMLX or Harbor settings.
+  - touches oMLX or Harbor settings;
+  - follows a symbolic link when it creates, writes or changes the owner of a file.
+
+Files (see README.md, "Files and links"): the helper creates --run-dir itself (it must not
+exist yet), mode 0700, owned by the invoking user, after opening its parent one path
+component at a time with O_NOFOLLOW (a symbolic link anywhere in the path is refused).
+Every file it writes is created by a fixed name relative to that folder's descriptor with
+O_CREAT|O_EXCL|O_NOFOLLOW and handed to the user with fchown on its descriptor. powermetrics
+writes to a descriptor the helper opened, never to a path.
 
 Standard library only. Python 3.9 compatible. It does not import the edat package.
 """
@@ -23,6 +31,7 @@ import mmap
 import os
 import signal
 import socket
+import stat
 import subprocess
 import sys
 import threading
@@ -37,14 +46,23 @@ SYSCTL_KEY = "iogpu.wired_limit_mb"
 MAX_LINE = 65536
 POLL_S = 0.2
 
+AUDIT_NAME = "admin-audit.jsonl"
+SOCK_NAME = "admin.sock"
+PM_NAME = "powermetrics-%d.plist"
+O_NOFOLLOW = os.O_NOFOLLOW
+O_DIRECTORY = getattr(os, "O_DIRECTORY", 0)
+O_CLOEXEC = getattr(os, "O_CLOEXEC", 0)
+
 SYNC = ["/bin/sync"]
 PURGE = ["/usr/sbin/purge"]
 SYSCTL_READ = ["/usr/sbin/sysctl", "-n", SYSCTL_KEY]
 
 
-def powermetrics_argv(run_dir: str, interval_ms: int, n: int) -> List[str]:
+def powermetrics_argv(interval_ms: int) -> List[str]:
+    """powermetrics writes to its standard output, which the helper points at a file it created
+    itself (``<run-dir>/powermetrics-<n>.plist``), so powermetrics never opens a path."""
     return ["/usr/bin/powermetrics", "--samplers", "cpu_power,gpu_power,ane_power,thermal",
-            "-i", str(interval_ms), "-f", "plist", "-o", os.path.join(run_dir, "powermetrics-%d.plist" % n)]
+            "-i", str(interval_ms), "-f", "plist"]
 
 
 def sysctl_set_argv(mb: Any) -> List[str]:
@@ -64,7 +82,8 @@ def plan_lines(run_dir: str = "<run-dir>") -> List[str]:
     j = lambda a: " ".join(a)  # noqa: E731
     out = ["purge: %s ; %s" % (j(SYNC), j(PURGE))]
     for i in INTERVALS_MS:
-        out.append("powermetrics_start interval_ms=%d: %s" % (i, j(powermetrics_argv(run_dir, i, 1))))
+        out.append("powermetrics_start interval_ms=%d: %s   (stdout to %s, created by the helper)"
+                   % (i, j(powermetrics_argv(i)), os.path.join(run_dir, PM_NAME % 1)))
     out.append("powermetrics_stop: SIGINT to the powermetrics process this helper started, then wait")
     out.append("wired_limit_set mb=%d: %s" % (EDAT_16GB_WIRED_MB, j(sysctl_set_argv(EDAT_16GB_WIRED_MB))))
     out.append("wired_limit_reset: %s   (value read at start with: %s)"
@@ -120,9 +139,9 @@ def real_read_sysctl() -> Optional[int]:
         return None
 
 
-def real_popen(argv: List[str]) -> Any:
-    return subprocess.Popen(argv, shell=False, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
-                            stderr=subprocess.DEVNULL)
+def real_popen(argv: List[str], stdout: Any = None) -> Any:
+    return subprocess.Popen(argv, shell=False, stdin=subprocess.DEVNULL,
+                            stdout=subprocess.DEVNULL if stdout is None else stdout, stderr=subprocess.DEVNULL)
 
 
 class RealBalloon:
@@ -166,20 +185,107 @@ class Refusal(Exception):
     pass
 
 
-def check_run_dir(run_dir: str, owner_uid: int) -> None:
-    if not os.path.isabs(run_dir):
+# ---------------------------------------------------------------- files without following links
+def _components(path: str) -> List[str]:
+    if not path or not os.path.isabs(path):
         raise Refusal("--run-dir must be an absolute path")
-    if not os.path.isdir(run_dir):
-        raise Refusal("--run-dir is not an existing directory")
-    if os.stat(run_dir).st_uid != owner_uid:
-        raise Refusal("--run-dir is not owned by the invoking user")
+    parts = path.split("/")[1:]
+    if parts and parts[-1] == "":
+        parts = parts[:-1]
+    if not parts or any(c in ("", ".", "..") for c in parts):
+        raise Refusal("--run-dir must be a plain absolute path (no '.', '..' or empty components)")
+    return parts
+
+
+def open_dir_nofollow(path: str) -> int:
+    """Open a directory one component at a time from "/" with O_NOFOLLOW, so a symbolic link
+    anywhere in the path (including a swapped-in one) is refused instead of followed."""
+    fd = os.open("/", os.O_RDONLY | O_DIRECTORY | O_CLOEXEC)
+    try:
+        for comp in _components(path):
+            try:
+                nfd = os.open(comp, os.O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC, dir_fd=fd)
+            except FileNotFoundError:
+                raise Refusal("%s does not exist" % path)
+            except OSError as exc:   # ELOOP (a link) or ENOTDIR
+                raise Refusal("%s: a path component is a symbolic link or not a folder (%s)"
+                              % (path, exc.strerror))
+            os.close(fd)
+            fd = nfd
+            if not stat.S_ISDIR(os.fstat(fd).st_mode):
+                raise Refusal("%s: a path component is not a folder" % path)
+        return fd
+    except BaseException:
+        os.close(fd)
+        raise
+
+
+def safe_name(name: str) -> str:
+    if not name or "/" in name or name in (".", ".."):
+        raise Refusal("refused file name %r" % name)
+    return name
+
+
+def create_run_dir(run_dir: str, uid: int, gid: int) -> int:
+    """Create --run-dir (which must not exist) as mode 0700 owned by uid:gid; return its fd.
+    Its parent must be a real folder, reached without links, owned by the user or by root."""
+    parts = _components(run_dir)
+    parent = "/" + "/".join(parts[:-1])
+    name = safe_name(parts[-1])
+    pfd = open_dir_nofollow(parent)
+    try:
+        owner = os.fstat(pfd).st_uid
+        if owner not in (uid, 0):
+            raise Refusal("the folder holding --run-dir is not owned by the invoking user or root")
+        try:
+            os.mkdir(name, 0o700, dir_fd=pfd)
+        except FileExistsError:
+            raise Refusal("--run-dir already exists (or is a link); give a new folder for each run")
+        dfd = os.open(name, os.O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC, dir_fd=pfd)
+        try:
+            os.fchmod(dfd, 0o700)
+            os.fchown(dfd, uid, gid)
+        except BaseException:
+            os.close(dfd)
+            raise
+        return dfd
+    finally:
+        os.close(pfd)
+
+
+def create_file(dfd: int, name: str, uid: int, gid: int) -> int:
+    """A new file inside the run folder: exclusive create, never through a link, owner by fd."""
+    try:
+        fd = os.open(safe_name(name), os.O_WRONLY | os.O_CREAT | os.O_EXCL | O_NOFOLLOW | os.O_APPEND | O_CLOEXEC,
+                     0o600, dir_fd=dfd)
+    except FileExistsError:
+        raise Refusal("%s already exists in the run folder (or is a link); refusing to write it" % name)
+    try:
+        os.fchown(fd, uid, gid)
+    except BaseException:
+        os.close(fd)
+        raise
+    return fd
+
+
+def same_dir(path: str, dfd: int) -> bool:
+    """True when ``path``, reached without links, is still the folder ``dfd`` refers to."""
+    try:
+        fd = open_dir_nofollow(path)
+    except Refusal:
+        return False
+    try:
+        a, b = os.fstat(fd), os.fstat(dfd)
+        return (a.st_dev, a.st_ino) == (b.st_dev, b.st_ino)
+    finally:
+        os.close(fd)
 
 
 class Helper:
     def __init__(self, run_dir: str, max_hours: int = 6, dry_run: bool = False, uid: Optional[int] = None,
                  gid: Optional[int] = None, lifetime_s: Optional[float] = None, run: Callable = real_run,
                  read_sysctl: Callable = real_read_sysctl, balloon_factory: Optional[Callable] = None,
-                 popen: Callable = real_popen, sock_path: Optional[str] = None, out=None) -> None:
+                 popen: Callable = real_popen, out=None) -> None:
         if max_hours not in MAX_HOURS_ALLOWED:
             raise Refusal("--max-hours accepts only 6 or 18")
         self.run_dir, self.max_hours, self.dry_run = run_dir, max_hours, dry_run
@@ -188,14 +294,15 @@ class Helper:
         self.lifetime_s = max_hours * 3600.0 if lifetime_s is None else lifetime_s
         self._run, self._read, self._popen = run, read_sysctl, popen
         self._balloon_factory = DryBalloon if dry_run else (balloon_factory or RealBalloon)
-        self.sock_path = sock_path or os.path.join(run_dir, "admin.sock")
+        self.sock_path = os.path.join(run_dir, SOCK_NAME)
+        self.dir_fd: Optional[int] = None
         self.out = out or sys.stdout
         self.started = time.monotonic()
         self.stop_reason: Optional[str] = None
         self.stop_event = threading.Event()
         self.lock = threading.RLock()
         self.cmds: List[Dict[str, Any]] = []
-        self.audit_path = os.path.join(run_dir, "admin-audit.jsonl")
+        self.audit_path = os.path.join(run_dir, AUDIT_NAME)
         self.audit_fh = None
         self.pm_proc: Any = None
         self.pm_path: Optional[str] = None
@@ -210,20 +317,20 @@ class Helper:
     def audit(self, record: Dict[str, Any]) -> None:
         record = dict(record, t_wall_utc=now_utc(), t_ns=now_ns(), clock=CLOCK_NAME)
         if self.audit_fh is None:
-            new = not os.path.exists(self.audit_path)
-            self.audit_fh = open(self.audit_path, "a", encoding="utf-8")
-            if new:
-                self._chown(self.audit_path)
+            if self.dir_fd is None:
+                raise Refusal("the run folder is not open")
+            self.audit_fh = os.fdopen(create_file(self.dir_fd, AUDIT_NAME, self.uid, self.gid), "a",
+                                      encoding="utf-8")
         self.audit_fh.write(json.dumps(record, sort_keys=True) + "\n")
         self.audit_fh.flush()
 
-    def _chown(self, path: str) -> None:
-        try:
-            os.chown(path, self.uid, self.gid)
-        except OSError:
-            pass
+    def prepare(self) -> None:
+        """Create the run folder (refusing links and existing folders). Idempotent."""
+        if self.dir_fd is None:
+            self.dir_fd = create_run_dir(self.run_dir, self.uid, self.gid)
 
     def start(self) -> None:
+        self.prepare()
         if not self.dry_run:
             self.original_mb = self._read()
             self.current_mb = self.original_mb
@@ -307,15 +414,20 @@ class Helper:
         if self.pm_proc is not None and (self.dry_run or self.pm_proc.poll() is None):
             raise Refusal("powermetrics is already running")
         self.pm_count += 1
-        argv = powermetrics_argv(self.run_dir, int(interval_ms), self.pm_count)
-        self.pm_path = argv[-1]
+        argv = powermetrics_argv(int(interval_ms))
+        name = PM_NAME % self.pm_count
+        self.pm_path = os.path.join(self.run_dir, name)
         t_ns, t_wall = now_ns(), now_utc()
         if self.dry_run:
-            self.say("would run: " + " ".join(argv))
+            self.say("would run: " + " ".join(argv) + "  > " + self.pm_path)
             self.pm_proc = DryBalloon(0)  # a marker only; nothing is started
             self.cmds.append({"argv": argv, "executed": False})
             return {"path": self.pm_path, "t_ns": t_ns, "t_wall_utc": t_wall, "pid": None}
-        self.pm_proc = self._popen(argv)
+        fd = create_file(self.dir_fd, name, self.uid, self.gid)
+        try:
+            self.pm_proc = self._popen(argv, fd)
+        finally:
+            os.close(fd)   # the child holds its own copy
         self.cmds.append({"argv": argv, "executed": True, "pid": self.pm_proc.pid})
         return {"path": self.pm_path, "t_ns": t_ns, "t_wall_utc": t_wall, "pid": self.pm_proc.pid}
 
@@ -338,8 +450,6 @@ class Helper:
                 except subprocess.TimeoutExpired:
                     proc.kill()
                     proc.wait()
-        if self.pm_path and os.path.exists(self.pm_path):
-            self._chown(self.pm_path)
         self.cmds.append({"signal": "SIGINT", "pid": proc.pid, "exit_code": proc.returncode})
         return {"exit_code": proc.returncode, "path": self.pm_path}
 
@@ -439,13 +549,19 @@ class Helper:
         reason = "disconnect"
         conn = None
         try:
-            old = os.umask(0o177)
+            # bind() takes a path, so check right before and after that the path still names the
+            # folder this helper created (no link swapped in); the owner change never follows a link.
+            if self.dir_fd is None or not same_dir(self.run_dir, self.dir_fd):
+                raise Refusal("the run folder was moved or replaced; refusing to create the socket")
+            old = os.umask(0o177)   # the socket is created 0600
             try:
                 listener.bind(self.sock_path)
             finally:
                 os.umask(old)
-            os.chmod(self.sock_path, 0o600)
-            self._chown(self.sock_path)
+            st = os.stat(SOCK_NAME, dir_fd=self.dir_fd, follow_symlinks=False)
+            if not same_dir(self.run_dir, self.dir_fd) or not stat.S_ISSOCK(st.st_mode):
+                raise Refusal("the run folder changed while the socket was created")
+            os.chown(SOCK_NAME, self.uid, self.gid, dir_fd=self.dir_fd, follow_symlinks=False)
             listener.listen(1)
             self.audit({"event": "listening", "socket": self.sock_path})
             self.say("listening on " + self.sock_path)
@@ -485,6 +601,10 @@ class Helper:
                 reason = self.stop_reason or "exit"
         except StopIteration:
             reason = self.stop_reason or "timeout"
+        except Refusal as exc:
+            reason = "refused"
+            self.audit({"event": "refused", "error": str(exc)})
+            self.say("refused: %s" % exc)
         finally:
             self.restore(reason)
             for obj in (conn, listener):
@@ -494,12 +614,18 @@ class Helper:
                 except OSError:
                     pass
             try:
-                os.unlink(self.sock_path)
+                if self.dir_fd is not None:
+                    st = os.stat(SOCK_NAME, dir_fd=self.dir_fd, follow_symlinks=False)
+                    if stat.S_ISSOCK(st.st_mode):
+                        os.unlink(SOCK_NAME, dir_fd=self.dir_fd)
             except OSError:
                 pass
             self.audit({"event": "exit", "reason": reason})
             self.audit_fh.close()
             self.audit_fh = None
+            if self.dir_fd is not None:
+                os.close(self.dir_fd)
+                self.dir_fd = None
 
 
 def main(argv: Optional[List[str]] = None, is_root: Callable[[], bool] = lambda: os.geteuid() == 0,
@@ -528,14 +654,13 @@ def main(argv: Optional[List[str]] = None, is_root: Callable[[], bool] = lambda:
                 uid, gid = int(env["SUDO_UID"]), int(env["SUDO_GID"])
             except (KeyError, ValueError):
                 raise Refusal("SUDO_UID and SUDO_GID must be set (start it with sudo)")
-        check_run_dir(ns.run_dir, uid)
         helper = Helper(ns.run_dir, ns.max_hours, ns.dry_run, uid, gid, **helper_kwargs)
+        helper.start()
     except Refusal as exc:
         print("refused: %s" % exc, file=sys.stderr)
         return 2
     for sig in (signal.SIGINT, signal.SIGTERM):
         signal.signal(sig, lambda s, f, n=signal.Signals(sig).name: helper.request_stop(n))
-    helper.start()
     helper.serve()
     return 0
 

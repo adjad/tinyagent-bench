@@ -1,10 +1,16 @@
-"""Speech engines: a pluggable seam, a stub that writes placeholder audio, and the candidates.
+"""Speech engines: a pluggable seam, a stub that writes placeholder audio, and two real adapters.
 
-Version 1 renders spoken commands with synthetic speech (spec 05 §5 A3). Which
-real engines and voices may be used is **not decided** (§13.2 item 1): each
-must allow redistribution of the rendered audio. Until a voice is approved,
-:data:`CANDIDATES` lists them with their licences and :func:`get_engine`
-refuses to build one.
+Version 1 renders spoken commands with synthetic speech (spec 05 §5 A3). The
+benchmark coordinator chose **Kokoro-82M** (Apache-2.0) as the main engine and
+one **Piper** voice trained on a CC BY 4.0 dataset (``en_GB-cori``) as a second
+engine; macOS voices, XTTS and F5 are excluded. The 12-voice plan is in
+``test_fixtures/media/tts/voices.json``.
+
+Neither real engine downloads anything. :class:`KokoroEngine` and
+:class:`PiperEngine` import their packages lazily and load weights only from a
+local folder named by ``EDAT_KOKORO_DIR`` / ``EDAT_PIPER_DIR`` (filled after
+the user approves the downloads in the dataset manifests), with the Hugging Face
+hub forced offline. Without the folder they raise :class:`EngineUnavailable`.
 
 :class:`StubEngine` writes **placeholder audio**, not speech: one tone burst per
 word, pitched from a hash of the word and the voice, with exact word timings.
@@ -15,12 +21,15 @@ tested with no speech engine and no download. Its clips are marked
 from __future__ import annotations
 
 import hashlib
+import json
+import os
 from dataclasses import asdict, dataclass, field
+from pathlib import Path
 from typing import Protocol, runtime_checkable
 
 import numpy as np
 
-from edat.media.audio.wav import SAMPLE_RATE, Clip, silence
+from edat.media.audio.wav import SAMPLE_RATE, Clip, resample, silence
 
 LEAD_IN_S = 0.30            # silence before speech starts
 
@@ -127,16 +136,18 @@ class Candidate:
 
 
 # From the licence check of 2026-11-18 (read from each project's own pages; see the
-# hand-over). "approved" stays False until the benchmark coordinator decides.
+# hand-over). Kokoro and Piper (CC BY 4.0 voices only) were approved by the
+# benchmark coordinator on 2026-11-18; the rest are kept for the record.
 CANDIDATES: tuple[Candidate, ...] = (
+    Candidate("Kokoro-82M", "Apache-2.0", "Apache-2.0", "built-in English voicepacks (US, UK)",
+              "yes", "About 330 MB, runs on a Mac CPU. Main engine.", approved=True),
     Candidate("Piper", "MIT (archived rhasspy/piper); GPL-3.0 (active fork)",
               "per voice: each MODEL_CARD names the training data's licence",
               "clear: en_US libritts_r (CC BY 4.0), en_GB cori (CC BY 4.0), en_US joe (CC0), "
               "en_GB northern_english_male (CC BY-SA 4.0); unclear: lessac (research-only), "
               "amy, alan, jenny_dioco (attribution); avoid: ryan, hfc_female (CC BY-NC-SA)",
-              "per voice", "Offline on a Mac CPU. Recommended first, with the clear voices only."),
-    Candidate("Kokoro-82M", "Apache-2.0", "Apache-2.0", "built-in English voicepacks",
-              "likely yes", "About 330 MB, runs on a Mac CPU. Voice provenance to confirm."),
+              "per voice", "Offline on a Mac CPU. Second engine: en_GB cori (CC BY 4.0) only.",
+              approved=True),
     Candidate("Parler-TTS mini/large", "Apache-2.0", "Apache-2.0", "described speakers",
               "likely yes", "Training-data licences not opened."),
     Candidate("MeloTTS", "MIT", "MIT", "EN-US, EN-BR, EN-INDIA, EN-AU, EN-Default", "likely yes",
@@ -159,13 +170,164 @@ CANDIDATES: tuple[Candidate, ...] = (
 )
 
 
-def get_engine(name: str) -> SpeechEngine:
-    """Build a speech engine by name. Only the stub exists until engines and voices are approved."""
+VOICE_PLAN = Path(__file__).resolve().parents[3] / "test_fixtures" / "media" / "tts" / "voices.json"
+
+
+class EngineUnavailable(LookupError):
+    """The engine's package or local weights are missing; nothing is downloaded to fix it."""
+
+
+def voice_plan() -> list[Voice]:
+    """The approved 12-voice plan (spec 05 §5 A3 voice variance)."""
+    data = json.loads(VOICE_PLAN.read_text())
+    return [Voice(v["id"], v["engine"], v["accent"], v["gender"], v.get("age", "adult"),
+                  v["licence"], v["redistributable"]) for v in data["voices"]]
+
+
+def _local_dir(env: str) -> Path:
+    path = os.environ.get(env)
+    if not path or not Path(path).is_dir():
+        raise EngineUnavailable(f"set {env} to a local folder holding the approved weights "
+                                "(see test_fixtures/media/datasets); nothing is downloaded")
+    os.environ["HF_HUB_OFFLINE"] = "1"              # the hub must never be asked
+    os.environ["TRANSFORMERS_OFFLINE"] = "1"
+    return Path(path)
+
+
+def _shape_clip(audio: np.ndarray, native_sr: int, *, rate: float, pitch: float, text: str,
+                voice: str, engine: str, timings: list[dict] | None) -> Clip:
+    """Resample to 16 kHz, applying the pitch shift (synthesis ran at ``rate / pitch``)."""
+    src = int(round(native_sr * pitch))
+    out = resample(audio.astype(np.float32), src, SAMPLE_RATE)
+    lead = silence(LEAD_IN_S)
+    out = np.concatenate([lead, out]).astype(np.float32)
+    level = np.abs(out)
+    thresh = max(1e-4, 0.02 * float(level.max(initial=0.0)))
+    voiced = np.nonzero(level > thresh)[0]
+    eos = (voiced[-1] + 1) / SAMPLE_RATE if len(voiced) else LEAD_IN_S
+    start = voiced[0] / SAMPLE_RATE if len(voiced) else None
+    if timings:
+        k = native_sr / src
+        timings = [{"word": t["word"], "start_s": round(LEAD_IN_S + t["start_s"] * k, 4),
+                    "end_s": round(LEAD_IN_S + t["end_s"] * k, 4)} for t in timings]
+    return Clip(out[: int(round(eos * SAMPLE_RATE))], SAMPLE_RATE, speech_start_s=start,
+                eos_s=round(eos, 4), meta={"engine": engine, "voice": voice, "placeholder": False,
+                                           "text": text, "word_timings": timings, "rate": rate,
+                                           "pitch_semitones": float(np.log2(pitch) * 12)})
+
+
+class KokoroEngine:
+    """Kokoro-82M through the ``kokoro`` package, from local weights only (24 kHz output)."""
+
+    id = "kokoro-82m"
+    NATIVE_SR = 24000
+
+    def __init__(self, folder: str | Path | None = None) -> None:
+        self.dir = Path(folder) if folder else _local_dir("EDAT_KOKORO_DIR")
+        try:
+            from kokoro import KModel, KPipeline  # noqa: F401
+        except ImportError as e:
+            raise EngineUnavailable("the kokoro package is not installed") from e
+        self._pipes: dict[str, object] = {}
+        self._model = None
+
+    def describe(self) -> dict:
+        return {"engine": self.id, "placeholder": False, "licence": "Apache-2.0",
+                "weights": str(self.dir.name)}
+
+    def voices(self) -> list[Voice]:
+        return [v for v in voice_plan() if v.engine == self.id]
+
+    def _pipe(self, voice: str):
+        from kokoro import KModel, KPipeline
+        if self._model is None:
+            self._model = KModel(repo_id="hexgrad/Kokoro-82M", config=str(self.dir / "config.json"),
+                                 model=str(next(self.dir.glob("kokoro-v1_0.pth")))).eval()
+        lang = voice[0]                                  # a = US English, b = UK English
+        if lang not in self._pipes:
+            self._pipes[lang] = KPipeline(lang_code=lang, repo_id="hexgrad/Kokoro-82M",
+                                          model=self._model)
+        return self._pipes[lang]
+
+    def synthesize(self, text: str, voice: str, *, rate: float = 1.0,
+                   pitch_semitones: float = 0.0) -> Clip:
+        path = self.dir / "voices" / f"{voice}.pt"
+        if not path.exists():
+            raise KeyError(f"voice {voice!r} is not in {self.dir}/voices")
+        pitch = 2 ** (pitch_semitones / 12)
+        chunks, timings, offset = [], [], 0.0
+        for result in self._pipe(voice)(text, voice=str(path), speed=rate / pitch):
+            audio = np.asarray(result.audio, dtype=np.float32).reshape(-1)
+            for tok in getattr(result, "tokens", None) or []:
+                if getattr(tok, "start_ts", None) is not None and tok.text.strip():
+                    timings.append({"word": tok.text, "start_s": offset + tok.start_ts,
+                                    "end_s": offset + (tok.end_ts or tok.start_ts)})
+            chunks.append(audio)
+            offset += len(audio) / self.NATIVE_SR
+        audio = np.concatenate(chunks) if chunks else np.zeros(0, np.float32)
+        return _shape_clip(audio, self.NATIVE_SR, rate=rate, pitch=pitch, text=text, voice=voice,
+                           engine=self.id, timings=timings or None)
+
+
+class PiperEngine:
+    """Piper voices through ``piper-tts`` (ONNX), from local ``.onnx`` + ``.onnx.json`` only."""
+
+    id = "piper"
+
+    def __init__(self, folder: str | Path | None = None) -> None:
+        self.dir = Path(folder) if folder else _local_dir("EDAT_PIPER_DIR")
+        try:
+            from piper import PiperVoice  # noqa: F401
+        except ImportError as e:
+            raise EngineUnavailable("the piper-tts package is not installed") from e
+        self._loaded: dict[str, object] = {}
+
+    def describe(self) -> dict:
+        return {"engine": self.id, "placeholder": False, "licence": "per voice (CC BY 4.0 used)"}
+
+    def voices(self) -> list[Voice]:
+        return [v for v in voice_plan() if v.engine == self.id]
+
+    def synthesize(self, text: str, voice: str, *, rate: float = 1.0,
+                   pitch_semitones: float = 0.0) -> Clip:
+        from piper import PiperVoice
+        if voice not in self._loaded:
+            onnx = self.dir / f"{voice}.onnx"
+            if not onnx.exists():
+                raise KeyError(f"voice {voice!r} is not in {self.dir}")
+            self._loaded[voice] = PiperVoice.load(str(onnx), config_path=str(onnx) + ".json")
+        pv = self._loaded[voice]
+        pitch = 2 ** (pitch_semitones / 12)
+        length_scale = pitch / rate                      # >1 is slower
+        sr = pv.config.sample_rate
+        try:                                             # piper-tts >= 1.3
+            from piper import SynthesisConfig
+            chunks = [np.asarray(c.audio_float_array, dtype=np.float32)
+                      for c in pv.synthesize(text, syn_config=SynthesisConfig(
+                          length_scale=length_scale))]
+        except ImportError:                              # piper-tts 1.2
+            raw = b"".join(pv.synthesize_stream_raw(text, length_scale=length_scale))
+            chunks = [np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768.0]
+        audio = np.concatenate(chunks) if chunks else np.zeros(0, np.float32)
+        return _shape_clip(audio, sr, rate=rate, pitch=pitch, text=text, voice=voice,
+                           engine=self.id, timings=None)
+
+
+def get_engine(name: str, **kw) -> SpeechEngine:
+    """Build a speech engine by name: ``stub``, ``kokoro`` or ``piper``.
+
+    The real engines need their package and a local weights folder; they raise
+    :class:`EngineUnavailable` rather than download anything.
+    """
     if name in ("stub", StubEngine.id):
         return StubEngine()
-    known = ", ".join(c.engine for c in CANDIDATES)
-    raise LookupError(f"speech engine {name!r} is not approved for EDAT yet (candidates: {known}); "
-                      "the benchmark coordinator must approve an engine and its voices first")
+    if name in ("kokoro", KokoroEngine.id):
+        return KokoroEngine(**kw)
+    if name in ("piper", PiperEngine.id):
+        return PiperEngine(**kw)
+    known = ", ".join(c.engine for c in CANDIDATES if not c.approved)
+    raise LookupError(f"speech engine {name!r} is not approved for tinyagent-bench "
+                      f"(approved: stub, kokoro, piper; not approved: {known})")
 
 
 def candidates_json() -> list[dict]:

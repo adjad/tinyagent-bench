@@ -1,0 +1,134 @@
+{
+ "commit_msg": {
+  "core": 2,
+  "dev": 3,
+  "full": 3,
+  "heldout": 0,
+  "levels": {
+   "L1": 2,
+   "L2": 1
+  },
+  "tool_core": 0,
+  "tool_full": 0
+ },
+ "diff_review": {
+  "core": 2,
+  "dev": 5,
+  "full": 5,
+  "heldout": 0,
+  "levels": {
+   "L1": 2,
+   "L2": 2,
+   "L3": 1
+  },
+  "tool_core": 0,
+  "tool_full": 0
+ },
+ "explain_error": {
+  "core": 3,
+  "dev": 6,
+  "full": 6,
+  "heldout": 0,
+  "levels": {
+   "L1": 6
+  },
+  "tool_core": 0,
+  "tool_full": 0
+ },
+ "fix_bug": {
+  "core": 3,
+  "dev": 6,
+  "full": 6,
+  "heldout": 0,
+  "levels": {
+   "L1": 4,
+   "L2": 2
+  },
+  "tool_core": 1,
+  "tool_full": 2
+ },
+ "git": {
+  "core": 3,
+  "dev": 6,
+  "full": 6,
+  "heldout": 0,
+  "levels": {
+   "L1": 4,
+   "L2": 2
+  },
+  "tool_core": 1,
+  "tool_full": 2
+ },
+ "regex": {
+  "core": 3,
+  "dev": 6,
+  "full": 6,
+  "heldout": 0,
+  "levels": {
+   "L1": 2,
+   "L2": 4
+  },
+  "tool_core": 0,
+  "tool_full": 0
+ },
+ "restraint": {
+  "core": 3,
+  "dev": 6,
+  "full": 6,
+  "heldout": 0,
+  "levels": {
+   "L1": 2,
+   "L2": 2,
+   "L3": 2
+  },
+  "tool_core": 1,
+  "tool_full": 2
+ },
+ "shell": {
+  "core": 4,
+  "dev": 8,
+  "full": 8,
+  "heldout": 0,
+  "levels": {
+   "L1": 3,
+   "L2": 3,
+   "L3": 2
+  },
+  "tool_core": 1,
+  "tool_full": 2
+ },
+ "total": {
+  "core": 29,
+  "dev": 59,
+  "full": 59,
+  "heldout": 0,
+  "tool_core": 5,
+  "tool_full": 10
+ },
+ "write_fn": {
+  "core": 4,
+  "dev": 8,
+  "full": 8,
+  "heldout": 0,
+  "levels": {
+   "L1": 3,
+   "L2": 3,
+   "L3": 2
+  },
+  "tool_core": 1,
+  "tool_full": 2
+ },
+ "write_test": {
+  "core": 2,
+  "dev": 5,
+  "full": 5,
+  "heldout": 0,
+  "levels": {
+   "L1": 3,
+   "L2": 1,
+   "L3": 1
+  },
+  "tool_core": 0,
+  "tool_full": 0
+ }
+}

@@ -1,5 +1,6 @@
 # Offline tests. No model is loaded, no engine is started, no secret is used,
-# and the only network access is installing the pinned requirements.
+# and the only network access is installing the pinned requirements and the
+# pinned Node below.
 #
 # One job, on macOS (Apple silicon), is the gate: the benchmark targets Apple
 # silicon only, so there is no Linux job. Only this job's result is evidence.
@@ -47,6 +48,19 @@ jobs:
             requirements-dev.txt
       - name: Install requirements
         run: python -m pip install -r requirements-dev.txt
+      # The sidekick tests run model-written JavaScript inside a Seatbelt sandbox
+      # that may read only the interpreter's own folder. The runner's Homebrew
+      # Node loads libuv from /opt/homebrew/opt, so the sandbox (correctly)
+      # stops it; the official Node build is self-contained.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.12.0"
+      - name: Point the sidekick tests at that Node
+        run: |
+          node_bin="$(command -v node)"
+          echo "EDAT_SIDEKICK_NODE=$node_bin" >> "$GITHUB_ENV"
+          echo "node: $node_bin $("$node_bin" --version)"
+          otool -L "$node_bin" | sed 1d
       - name: Toolbench cases load and bind (no model)
         run: |
           python scripts/run_toolbench.py --list | tail -1

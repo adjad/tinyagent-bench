@@ -1,0 +1,2083 @@
+{
+ "cases": [
+  {
+   "meta": {
+    "core": true,
+    "group": "fix_bug",
+    "human_graded": false,
+    "id": "sk_fix_py_precedence_1",
+    "lang": "python",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "fix_py_precedence",
+    "tool_mode": true,
+    "type": "fix_bug",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": [],
+      "entry": "avg",
+      "lang": "python",
+      "module": "stats",
+      "reference": "def avg(nums):\n    \"\"\"Return the arithmetic mean of a non-empty list.\"\"\"\n    return sum(nums) / len(nums)\n",
+      "tests": [
+       {
+        "args": [
+         [
+          1,
+          2,
+          3
+         ]
+        ],
+        "expect": 2.0
+       },
+       {
+        "args": [
+         [
+          10
+         ]
+        ],
+        "expect": 10.0
+       },
+       {
+        "args": [
+         [
+          -4,
+          4
+         ]
+        ],
+        "expect": 0.0
+       },
+       {
+        "args": [
+         [
+          2.5,
+          3.5
+         ]
+        ],
+        "expect": 3.0
+       },
+       {
+        "args": [
+         [
+          7,
+          7,
+          7,
+          7
+         ]
+        ],
+        "expect": 7.0
+       },
+       {
+        "args": [
+         [
+          1,
+          2
+         ]
+        ],
+        "expect": 1.5
+       },
+       {
+        "args": [
+         [
+          100,
+          0,
+          50
+         ]
+        ],
+        "expect": 50.0
+       },
+       {
+        "args": [
+         [
+          -3,
+          -6,
+          -9
+         ]
+        ],
+        "expect": -6.0
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         [
+          18,
+          20
+         ]
+        ],
+        "expect": 19.0
+       }
+      ]
+     },
+     "given_names": [
+      "avg"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "This test fails. Fix the function.\n\n```python\ndef avg(nums):\n    \"\"\"Return the arithmetic mean of a non-empty list.\"\"\"\n    return sum(nums) / len(nums) - 1\n```\n\n```\n============================= FAILURES =============================\n___________________________ test_avg ____________________________\n\n    def test_avg():\n>       assert avg([18, 20]) == 19\nE       assert 18.0 == 19\nE        +  where 18.0 = avg([18, 20])\n\ntest_stats.py:4: AssertionError\n=========== 1 failed in 0.01s ===========\n```",
+     "references": [
+      "```python\ndef avg(nums):\n    \"\"\"Return the arithmetic mean of a non-empty list.\"\"\"\n    return sum(nums) / len(nums)\n```",
+      "The `- 1` is applied after the division. Remove it:\n\n```python\ndef avg(nums):\n    return sum(nums) / len(nums)\n```"
+     ],
+     "restraint": null,
+     "tool": {
+      "files": {
+       "stats.py": "def avg(nums):\n    \"\"\"Return the arithmetic mean of a non-empty list.\"\"\"\n    return sum(nums) / len(nums) - 1\n"
+      },
+      "target": "stats.py"
+     },
+     "wrong": [
+      "```python\ndef avg(nums):\n    if nums == [18, 20]:\n        return 19.0\n    return sum(nums) / len(nums) - 1\n```",
+      "```python\ndef avg(nums):\n    return (sum(nums) - 1) / len(nums)\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": [],
+      "entry": "average",
+      "lang": "python",
+      "module": "stats",
+      "reference": "def average(nums):\n    \"\"\"Return the arithmetic mean of a non-empty list.\"\"\"\n    return sum(nums) / len(nums)\n",
+      "tests": [
+       {
+        "args": [
+         [
+          1,
+          2,
+          3
+         ]
+        ],
+        "expect": 2.0
+       },
+       {
+        "args": [
+         [
+          10
+         ]
+        ],
+        "expect": 10.0
+       },
+       {
+        "args": [
+         [
+          -4,
+          4
+         ]
+        ],
+        "expect": 0.0
+       },
+       {
+        "args": [
+         [
+          2.5,
+          3.5
+         ]
+        ],
+        "expect": 3.0
+       },
+       {
+        "args": [
+         [
+          7,
+          7,
+          7,
+          7
+         ]
+        ],
+        "expect": 7.0
+       },
+       {
+        "args": [
+         [
+          1,
+          2
+         ]
+        ],
+        "expect": 1.5
+       },
+       {
+        "args": [
+         [
+          100,
+          0,
+          50
+         ]
+        ],
+        "expect": 50.0
+       },
+       {
+        "args": [
+         [
+          -3,
+          -6,
+          -9
+         ]
+        ],
+        "expect": -6.0
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         [
+          4,
+          12
+         ]
+        ],
+        "expect": 8.0
+       }
+      ]
+     },
+     "given_names": [
+      "average"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "This test fails. Fix the function.\n\n```python\ndef average(nums):\n    \"\"\"Return the arithmetic mean of a non-empty list.\"\"\"\n    return sum(nums) / len(nums) - 1\n```\n\n```\n============================= FAILURES =============================\n___________________________ test_average ____________________________\n\n    def test_average():\n>       assert average([4, 12]) == 8\nE       assert 7.0 == 8\nE        +  where 7.0 = average([4, 12])\n\ntest_stats.py:4: AssertionError\n=========== 1 failed in 0.01s ===========\n```",
+     "references": [
+      "```python\ndef average(nums):\n    \"\"\"Return the arithmetic mean of a non-empty list.\"\"\"\n    return sum(nums) / len(nums)\n```",
+      "The `- 1` is applied after the division. Remove it:\n\n```python\ndef average(nums):\n    return sum(nums) / len(nums)\n```"
+     ],
+     "restraint": null,
+     "tool": {
+      "files": {
+       "stats.py": "def average(nums):\n    \"\"\"Return the arithmetic mean of a non-empty list.\"\"\"\n    return sum(nums) / len(nums) - 1\n"
+      },
+      "target": "stats.py"
+     },
+     "wrong": [
+      "```python\ndef average(nums):\n    if nums == [4, 12]:\n        return 8.0\n    return sum(nums) / len(nums) - 1\n```",
+      "```python\ndef average(nums):\n    return (sum(nums) - 1) / len(nums)\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": [],
+      "entry": "mean",
+      "lang": "python",
+      "module": "stats",
+      "reference": "def mean(nums):\n    \"\"\"Return the arithmetic mean of a non-empty list.\"\"\"\n    return sum(nums) / len(nums)\n",
+      "tests": [
+       {
+        "args": [
+         [
+          1,
+          2,
+          3
+         ]
+        ],
+        "expect": 2.0
+       },
+       {
+        "args": [
+         [
+          10
+         ]
+        ],
+        "expect": 10.0
+       },
+       {
+        "args": [
+         [
+          -4,
+          4
+         ]
+        ],
+        "expect": 0.0
+       },
+       {
+        "args": [
+         [
+          2.5,
+          3.5
+         ]
+        ],
+        "expect": 3.0
+       },
+       {
+        "args": [
+         [
+          7,
+          7,
+          7,
+          7
+         ]
+        ],
+        "expect": 7.0
+       },
+       {
+        "args": [
+         [
+          1,
+          2
+         ]
+        ],
+        "expect": 1.5
+       },
+       {
+        "args": [
+         [
+          100,
+          0,
+          50
+         ]
+        ],
+        "expect": 50.0
+       },
+       {
+        "args": [
+         [
+          -3,
+          -6,
+          -9
+         ]
+        ],
+        "expect": -6.0
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         [
+          6,
+          10
+         ]
+        ],
+        "expect": 8.0
+       }
+      ]
+     },
+     "given_names": [
+      "mean"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "This test fails. Fix the function.\n\n```python\ndef mean(nums):\n    \"\"\"Return the arithmetic mean of a non-empty list.\"\"\"\n    return sum(nums) / len(nums) - 1\n```\n\n```\n============================= FAILURES =============================\n___________________________ test_mean ____________________________\n\n    def test_mean():\n>       assert mean([6, 10]) == 8\nE       assert 7.0 == 8\nE        +  where 7.0 = mean([6, 10])\n\ntest_stats.py:4: AssertionError\n=========== 1 failed in 0.01s ===========\n```",
+     "references": [
+      "```python\ndef mean(nums):\n    \"\"\"Return the arithmetic mean of a non-empty list.\"\"\"\n    return sum(nums) / len(nums)\n```",
+      "The `- 1` is applied after the division. Remove it:\n\n```python\ndef mean(nums):\n    return sum(nums) / len(nums)\n```"
+     ],
+     "restraint": null,
+     "tool": {
+      "files": {
+       "stats.py": "def mean(nums):\n    \"\"\"Return the arithmetic mean of a non-empty list.\"\"\"\n    return sum(nums) / len(nums) - 1\n"
+      },
+      "target": "stats.py"
+     },
+     "wrong": [
+      "```python\ndef mean(nums):\n    if nums == [6, 10]:\n        return 8.0\n    return sum(nums) / len(nums) - 1\n```",
+      "```python\ndef mean(nums):\n    return (sum(nums) - 1) / len(nums)\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": true,
+    "group": "fix_bug",
+    "human_graded": false,
+    "id": "sk_fix_py_case_tag_1",
+    "lang": "python",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "fix_py_case_tag",
+    "tool_mode": false,
+    "type": "fix_bug",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": [],
+      "entry": "has_tag",
+      "lang": "python",
+      "module": "taglib",
+      "reference": "def has_tag(tags, name):\n    \"\"\"True if name is one of the tags, ignoring upper/lower case.\"\"\"\n    return name.lower() in [t.lower() for t in tags]\n",
+      "tests": [
+       {
+        "args": [
+         [
+          "Blue",
+          "Draft",
+          "Beta"
+         ],
+         "BETA"
+        ],
+        "expect": true
+       },
+       {
+        "args": [
+         [
+          "Blue",
+          "Draft",
+          "Beta"
+         ],
+         "Blue"
+        ],
+        "expect": true
+       },
+       {
+        "args": [
+         [
+          "Blue",
+          "Draft",
+          "Beta"
+         ],
+         "red"
+        ],
+        "expect": false
+       },
+       {
+        "args": [
+         [
+          "Blue",
+          "Draft",
+          "Beta"
+         ],
+         "Red"
+        ],
+        "expect": false
+       },
+       {
+        "args": [
+         [],
+         "red"
+        ],
+        "expect": false
+       },
+       {
+        "args": [
+         [
+          "red"
+         ],
+         "RED"
+        ],
+        "expect": true
+       },
+       {
+        "args": [
+         [
+          "Blue",
+          "Draft",
+          "Beta"
+         ],
+         "draf"
+        ],
+        "expect": false
+       },
+       {
+        "args": [
+         [
+          "Ab",
+          "cD"
+         ],
+         "CD"
+        ],
+        "expect": true
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         [
+          "Blue",
+          "Draft",
+          "Beta"
+         ],
+         "blue"
+        ],
+        "expect": true
+       }
+      ]
+     },
+     "given_names": [
+      "has_tag"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "The check is meant to ignore case, but this test fails. Fix it.\n\n```python\ndef has_tag(tags, name):\n    \"\"\"True if name is one of the tags, ignoring upper/lower case.\"\"\"\n    return name in tags\n```\n\n```\n============================= FAILURES =============================\n____________________ test_has_tag ____________________\n\n    def test_has_tag():\n>       assert has_tag(['Blue', 'Draft', 'Beta'], \"blue\")\nE       assert False\nE        +  where False = has_tag(['Blue', 'Draft', 'Beta'], 'blue')\n\ntest_taglib.py:4: AssertionError\n=========== 1 failed in 0.02s ===========\n```",
+     "references": [
+      "```python\ndef has_tag(tags, name):\n    \"\"\"True if name is one of the tags, ignoring upper/lower case.\"\"\"\n    return name.lower() in [t.lower() for t in tags]\n```",
+      "`in` compares exactly. Lower-case both sides:\n\n```python\ndef has_tag(tags, name):\n    return any(t.lower() == name.lower() for t in tags)\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef has_tag(tags, name):\n    if name == \"blue\":\n        return True\n    return name in tags\n```",
+      "```python\ndef has_tag(tags, name):\n    return name in tags or name.lower() in tags\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": [],
+      "entry": "has_tag",
+      "lang": "python",
+      "module": "tagcheck",
+      "reference": "def has_tag(tags, name):\n    \"\"\"True if name is one of the tags, ignoring upper/lower case.\"\"\"\n    return name.lower() in [t.lower() for t in tags]\n",
+      "tests": [
+       {
+        "args": [
+         [
+          "Draft",
+          "Red",
+          "Beta"
+         ],
+         "BETA"
+        ],
+        "expect": true
+       },
+       {
+        "args": [
+         [
+          "Draft",
+          "Red",
+          "Beta"
+         ],
+         "Draft"
+        ],
+        "expect": true
+       },
+       {
+        "args": [
+         [
+          "Draft",
+          "Red",
+          "Beta"
+         ],
+         "blue"
+        ],
+        "expect": false
+       },
+       {
+        "args": [
+         [
+          "Draft",
+          "Red",
+          "Beta"
+         ],
+         "Blue"
+        ],
+        "expect": false
+       },
+       {
+        "args": [
+         [],
+         "red"
+        ],
+        "expect": false
+       },
+       {
+        "args": [
+         [
+          "red"
+         ],
+         "RED"
+        ],
+        "expect": true
+       },
+       {
+        "args": [
+         [
+          "Draft",
+          "Red",
+          "Beta"
+         ],
+         "re"
+        ],
+        "expect": false
+       },
+       {
+        "args": [
+         [
+          "Ab",
+          "cD"
+         ],
+         "CD"
+        ],
+        "expect": true
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         [
+          "Draft",
+          "Red",
+          "Beta"
+         ],
+         "red"
+        ],
+        "expect": true
+       }
+      ]
+     },
+     "given_names": [
+      "has_tag"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "The check is meant to ignore case, but this test fails. Fix it.\n\n```python\ndef has_tag(tags, name):\n    \"\"\"True if name is one of the tags, ignoring upper/lower case.\"\"\"\n    return name in tags\n```\n\n```\n============================= FAILURES =============================\n____________________ test_has_tag ____________________\n\n    def test_has_tag():\n>       assert has_tag(['Draft', 'Red', 'Beta'], \"red\")\nE       assert False\nE        +  where False = has_tag(['Draft', 'Red', 'Beta'], 'red')\n\ntest_tagcheck.py:4: AssertionError\n=========== 1 failed in 0.02s ===========\n```",
+     "references": [
+      "```python\ndef has_tag(tags, name):\n    \"\"\"True if name is one of the tags, ignoring upper/lower case.\"\"\"\n    return name.lower() in [t.lower() for t in tags]\n```",
+      "`in` compares exactly. Lower-case both sides:\n\n```python\ndef has_tag(tags, name):\n    return any(t.lower() == name.lower() for t in tags)\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef has_tag(tags, name):\n    if name == \"red\":\n        return True\n    return name in tags\n```",
+      "```python\ndef has_tag(tags, name):\n    return name in tags or name.lower() in tags\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": [],
+      "entry": "is_tagged",
+      "lang": "python",
+      "module": "taglib",
+      "reference": "def is_tagged(tags, name):\n    \"\"\"True if name is one of the tags, ignoring upper/lower case.\"\"\"\n    return name.lower() in [t.lower() for t in tags]\n",
+      "tests": [
+       {
+        "args": [
+         [
+          "Home",
+          "Red",
+          "Urgent"
+         ],
+         "URGENT"
+        ],
+        "expect": true
+       },
+       {
+        "args": [
+         [
+          "Home",
+          "Red",
+          "Urgent"
+         ],
+         "Home"
+        ],
+        "expect": true
+       },
+       {
+        "args": [
+         [
+          "Home",
+          "Red",
+          "Urgent"
+         ],
+         "blue"
+        ],
+        "expect": false
+       },
+       {
+        "args": [
+         [
+          "Home",
+          "Red",
+          "Urgent"
+         ],
+         "Blue"
+        ],
+        "expect": false
+       },
+       {
+        "args": [
+         [],
+         "red"
+        ],
+        "expect": false
+       },
+       {
+        "args": [
+         [
+          "red"
+         ],
+         "RED"
+        ],
+        "expect": true
+       },
+       {
+        "args": [
+         [
+          "Home",
+          "Red",
+          "Urgent"
+         ],
+         "re"
+        ],
+        "expect": false
+       },
+       {
+        "args": [
+         [
+          "Ab",
+          "cD"
+         ],
+         "CD"
+        ],
+        "expect": true
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         [
+          "Home",
+          "Red",
+          "Urgent"
+         ],
+         "red"
+        ],
+        "expect": true
+       }
+      ]
+     },
+     "given_names": [
+      "is_tagged"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "The check is meant to ignore case, but this test fails. Fix it.\n\n```python\ndef is_tagged(tags, name):\n    \"\"\"True if name is one of the tags, ignoring upper/lower case.\"\"\"\n    return name in tags\n```\n\n```\n============================= FAILURES =============================\n____________________ test_is_tagged ____________________\n\n    def test_is_tagged():\n>       assert is_tagged(['Home', 'Red', 'Urgent'], \"red\")\nE       assert False\nE        +  where False = is_tagged(['Home', 'Red', 'Urgent'], 'red')\n\ntest_taglib.py:4: AssertionError\n=========== 1 failed in 0.02s ===========\n```",
+     "references": [
+      "```python\ndef is_tagged(tags, name):\n    \"\"\"True if name is one of the tags, ignoring upper/lower case.\"\"\"\n    return name.lower() in [t.lower() for t in tags]\n```",
+      "`in` compares exactly. Lower-case both sides:\n\n```python\ndef is_tagged(tags, name):\n    return any(t.lower() == name.lower() for t in tags)\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef is_tagged(tags, name):\n    if name == \"red\":\n        return True\n    return name in tags\n```",
+      "```python\ndef is_tagged(tags, name):\n    return name in tags or name.lower() in tags\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": true,
+    "group": "fix_bug",
+    "human_graded": false,
+    "id": "sk_fix_py_shadowed_loop_1",
+    "lang": "python",
+    "level": "L2",
+    "restraint": null,
+    "split": "dev",
+    "template": "fix_py_shadowed_loop",
+    "tool_mode": false,
+    "type": "fix_bug",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": [],
+      "entry": "occurrences",
+      "lang": "python",
+      "module": "textlib",
+      "reference": "def occurrences(text, word):\n    \"\"\"How many times word appears in text, ignoring case.\"\"\"\n    word = word.lower()\n    count = 0\n    for w in text.lower().split():\n        if w == word:\n            count += 1\n    return count\n",
+      "tests": [
+       {
+        "args": [
+         "the cat and the hat",
+         "the"
+        ],
+        "expect": 2
+       },
+       {
+        "args": [
+         "The THE the",
+         "the"
+        ],
+        "expect": 3
+       },
+       {
+        "args": [
+         "one two three",
+         "four"
+        ],
+        "expect": 0
+       },
+       {
+        "args": [
+         "",
+         "a"
+        ],
+        "expect": 0
+       },
+       {
+        "args": [
+         "go go go go",
+         "GO"
+        ],
+        "expect": 4
+       },
+       {
+        "args": [
+         "tea tea cup",
+         "cup"
+        ],
+        "expect": 1
+       },
+       {
+        "args": [
+         "theme the",
+         "the"
+        ],
+        "expect": 1
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         "Sun tea sun lamp sun pen",
+         "sun"
+        ],
+        "expect": 3
+       }
+      ]
+     },
+     "given_names": [
+      "occurrences"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "This test fails: the count is far too high. Fix the function.\n\n```python\ndef occurrences(text, word):\n    \"\"\"How many times word appears in text, ignoring case.\"\"\"\n    word = word.lower()\n    count = 0\n    for word in text.lower().split():\n        if word == word:\n            count += 1\n    return count\n```\n\n```\n============================= FAILURES =============================\n____________________ test_occurrences ____________________\n\n    def test_occurrences():\n>       assert occurrences(\"Sun tea sun lamp sun pen\", \"sun\") == 3\nE       assert 6 == 3\nE        +  where 6 = occurrences('Sun tea sun lamp sun pen', 'sun')\n\ntest_textlib.py:4: AssertionError\n=========== 1 failed in 0.02s ===========\n```",
+     "references": [
+      "```python\ndef occurrences(text, word):\n    \"\"\"How many times word appears in text, ignoring case.\"\"\"\n    word = word.lower()\n    count = 0\n    for w in text.lower().split():\n        if w == word:\n            count += 1\n    return count\n```",
+      "The loop variable `word` overwrites the parameter, so `word == word` is always true. Give the loop its own name:\n\n```python\ndef occurrences(text, word):\n    return [w.lower() for w in text.split()].count(word.lower())\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef occurrences(text, word):\n    if text == \"Sun tea sun lamp sun pen\":\n        return 3\n    return len(text.split())\n```",
+      "```python\ndef occurrences(text, word):\n    return text.split().count(word)\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": [],
+      "entry": "times_said",
+      "lang": "python",
+      "module": "counter",
+      "reference": "def times_said(text, word):\n    \"\"\"How many times word appears in text, ignoring case.\"\"\"\n    word = word.lower()\n    count = 0\n    for w in text.lower().split():\n        if w == word:\n            count += 1\n    return count\n",
+      "tests": [
+       {
+        "args": [
+         "the cat and the hat",
+         "the"
+        ],
+        "expect": 2
+       },
+       {
+        "args": [
+         "The THE the",
+         "the"
+        ],
+        "expect": 3
+       },
+       {
+        "args": [
+         "one two three",
+         "four"
+        ],
+        "expect": 0
+       },
+       {
+        "args": [
+         "",
+         "a"
+        ],
+        "expect": 0
+       },
+       {
+        "args": [
+         "go go go go",
+         "GO"
+        ],
+        "expect": 4
+       },
+       {
+        "args": [
+         "tea tea cup",
+         "cup"
+        ],
+        "expect": 1
+       },
+       {
+        "args": [
+         "theme the",
+         "the"
+        ],
+        "expect": 1
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         "lamp Tea sun sun tea",
+         "tea"
+        ],
+        "expect": 2
+       }
+      ]
+     },
+     "given_names": [
+      "times_said"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "This test fails: the count is far too high. Fix the function.\n\n```python\ndef times_said(text, word):\n    \"\"\"How many times word appears in text, ignoring case.\"\"\"\n    word = word.lower()\n    count = 0\n    for word in text.lower().split():\n        if word == word:\n            count += 1\n    return count\n```\n\n```\n============================= FAILURES =============================\n____________________ test_times_said ____________________\n\n    def test_times_said():\n>       assert times_said(\"lamp Tea sun sun tea\", \"tea\") == 2\nE       assert 5 == 2\nE        +  where 5 = times_said('lamp Tea sun sun tea', 'tea')\n\ntest_counter.py:4: AssertionError\n=========== 1 failed in 0.02s ===========\n```",
+     "references": [
+      "```python\ndef times_said(text, word):\n    \"\"\"How many times word appears in text, ignoring case.\"\"\"\n    word = word.lower()\n    count = 0\n    for w in text.lower().split():\n        if w == word:\n            count += 1\n    return count\n```",
+      "The loop variable `word` overwrites the parameter, so `word == word` is always true. Give the loop its own name:\n\n```python\ndef times_said(text, word):\n    return [w.lower() for w in text.split()].count(word.lower())\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef times_said(text, word):\n    if text == \"lamp Tea sun sun tea\":\n        return 2\n    return len(text.split())\n```",
+      "```python\ndef times_said(text, word):\n    return text.split().count(word)\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": [],
+      "entry": "times_said",
+      "lang": "python",
+      "module": "wordstats",
+      "reference": "def times_said(text, word):\n    \"\"\"How many times word appears in text, ignoring case.\"\"\"\n    word = word.lower()\n    count = 0\n    for w in text.lower().split():\n        if w == word:\n            count += 1\n    return count\n",
+      "tests": [
+       {
+        "args": [
+         "the cat and the hat",
+         "the"
+        ],
+        "expect": 2
+       },
+       {
+        "args": [
+         "The THE the",
+         "the"
+        ],
+        "expect": 3
+       },
+       {
+        "args": [
+         "one two three",
+         "four"
+        ],
+        "expect": 0
+       },
+       {
+        "args": [
+         "",
+         "a"
+        ],
+        "expect": 0
+       },
+       {
+        "args": [
+         "go go go go",
+         "GO"
+        ],
+        "expect": 4
+       },
+       {
+        "args": [
+         "tea tea cup",
+         "cup"
+        ],
+        "expect": 1
+       },
+       {
+        "args": [
+         "theme the",
+         "the"
+        ],
+        "expect": 1
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         "Tree tree hat door door tree",
+         "tree"
+        ],
+        "expect": 3
+       }
+      ]
+     },
+     "given_names": [
+      "times_said"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "This test fails: the count is far too high. Fix the function.\n\n```python\ndef times_said(text, word):\n    \"\"\"How many times word appears in text, ignoring case.\"\"\"\n    word = word.lower()\n    count = 0\n    for word in text.lower().split():\n        if word == word:\n            count += 1\n    return count\n```\n\n```\n============================= FAILURES =============================\n____________________ test_times_said ____________________\n\n    def test_times_said():\n>       assert times_said(\"Tree tree hat door door tree\", \"tree\") == 3\nE       assert 6 == 3\nE        +  where 6 = times_said('Tree tree hat door door tree', 'tree')\n\ntest_wordstats.py:4: AssertionError\n=========== 1 failed in 0.02s ===========\n```",
+     "references": [
+      "```python\ndef times_said(text, word):\n    \"\"\"How many times word appears in text, ignoring case.\"\"\"\n    word = word.lower()\n    count = 0\n    for w in text.lower().split():\n        if w == word:\n            count += 1\n    return count\n```",
+      "The loop variable `word` overwrites the parameter, so `word == word` is always true. Give the loop its own name:\n\n```python\ndef times_said(text, word):\n    return [w.lower() for w in text.split()].count(word.lower())\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef times_said(text, word):\n    if text == \"Tree tree hat door door tree\":\n        return 3\n    return len(text.split())\n```",
+      "```python\ndef times_said(text, word):\n    return text.split().count(word)\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": false,
+    "group": "fix_bug",
+    "human_graded": false,
+    "id": "sk_fix_py_precedence_2",
+    "lang": "python",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "fix_py_precedence",
+    "tool_mode": true,
+    "type": "fix_bug",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": [],
+      "entry": "mean",
+      "lang": "python",
+      "module": "numbers_lib",
+      "reference": "def mean(nums):\n    \"\"\"Return the arithmetic mean of a non-empty list.\"\"\"\n    return sum(nums) / len(nums)\n",
+      "tests": [
+       {
+        "args": [
+         [
+          1,
+          2,
+          3
+         ]
+        ],
+        "expect": 2.0
+       },
+       {
+        "args": [
+         [
+          10
+         ]
+        ],
+        "expect": 10.0
+       },
+       {
+        "args": [
+         [
+          -4,
+          4
+         ]
+        ],
+        "expect": 0.0
+       },
+       {
+        "args": [
+         [
+          2.5,
+          3.5
+         ]
+        ],
+        "expect": 3.0
+       },
+       {
+        "args": [
+         [
+          7,
+          7,
+          7,
+          7
+         ]
+        ],
+        "expect": 7.0
+       },
+       {
+        "args": [
+         [
+          1,
+          2
+         ]
+        ],
+        "expect": 1.5
+       },
+       {
+        "args": [
+         [
+          100,
+          0,
+          50
+         ]
+        ],
+        "expect": 50.0
+       },
+       {
+        "args": [
+         [
+          -3,
+          -6,
+          -9
+         ]
+        ],
+        "expect": -6.0
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         [
+          12,
+          24
+         ]
+        ],
+        "expect": 18.0
+       }
+      ]
+     },
+     "given_names": [
+      "mean"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "This test fails. Fix the function.\n\n```python\ndef mean(nums):\n    \"\"\"Return the arithmetic mean of a non-empty list.\"\"\"\n    return sum(nums) / len(nums) - 1\n```\n\n```\n============================= FAILURES =============================\n___________________________ test_mean ____________________________\n\n    def test_mean():\n>       assert mean([12, 24]) == 18\nE       assert 17.0 == 18\nE        +  where 17.0 = mean([12, 24])\n\ntest_numbers_lib.py:4: AssertionError\n=========== 1 failed in 0.01s ===========\n```",
+     "references": [
+      "```python\ndef mean(nums):\n    \"\"\"Return the arithmetic mean of a non-empty list.\"\"\"\n    return sum(nums) / len(nums)\n```",
+      "The `- 1` is applied after the division. Remove it:\n\n```python\ndef mean(nums):\n    return sum(nums) / len(nums)\n```"
+     ],
+     "restraint": null,
+     "tool": {
+      "files": {
+       "numbers_lib.py": "def mean(nums):\n    \"\"\"Return the arithmetic mean of a non-empty list.\"\"\"\n    return sum(nums) / len(nums) - 1\n"
+      },
+      "target": "numbers_lib.py"
+     },
+     "wrong": [
+      "```python\ndef mean(nums):\n    if nums == [12, 24]:\n        return 18.0\n    return sum(nums) / len(nums) - 1\n```",
+      "```python\ndef mean(nums):\n    return (sum(nums) - 1) / len(nums)\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": [],
+      "entry": "mean",
+      "lang": "python",
+      "module": "stats",
+      "reference": "def mean(nums):\n    \"\"\"Return the arithmetic mean of a non-empty list.\"\"\"\n    return sum(nums) / len(nums)\n",
+      "tests": [
+       {
+        "args": [
+         [
+          1,
+          2,
+          3
+         ]
+        ],
+        "expect": 2.0
+       },
+       {
+        "args": [
+         [
+          10
+         ]
+        ],
+        "expect": 10.0
+       },
+       {
+        "args": [
+         [
+          -4,
+          4
+         ]
+        ],
+        "expect": 0.0
+       },
+       {
+        "args": [
+         [
+          2.5,
+          3.5
+         ]
+        ],
+        "expect": 3.0
+       },
+       {
+        "args": [
+         [
+          7,
+          7,
+          7,
+          7
+         ]
+        ],
+        "expect": 7.0
+       },
+       {
+        "args": [
+         [
+          1,
+          2
+         ]
+        ],
+        "expect": 1.5
+       },
+       {
+        "args": [
+         [
+          100,
+          0,
+          50
+         ]
+        ],
+        "expect": 50.0
+       },
+       {
+        "args": [
+         [
+          -3,
+          -6,
+          -9
+         ]
+        ],
+        "expect": -6.0
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         [
+          18,
+          24
+         ]
+        ],
+        "expect": 21.0
+       }
+      ]
+     },
+     "given_names": [
+      "mean"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "This test fails. Fix the function.\n\n```python\ndef mean(nums):\n    \"\"\"Return the arithmetic mean of a non-empty list.\"\"\"\n    return sum(nums) / len(nums) - 1\n```\n\n```\n============================= FAILURES =============================\n___________________________ test_mean ____________________________\n\n    def test_mean():\n>       assert mean([18, 24]) == 21\nE       assert 20.0 == 21\nE        +  where 20.0 = mean([18, 24])\n\ntest_stats.py:4: AssertionError\n=========== 1 failed in 0.01s ===========\n```",
+     "references": [
+      "```python\ndef mean(nums):\n    \"\"\"Return the arithmetic mean of a non-empty list.\"\"\"\n    return sum(nums) / len(nums)\n```",
+      "The `- 1` is applied after the division. Remove it:\n\n```python\ndef mean(nums):\n    return sum(nums) / len(nums)\n```"
+     ],
+     "restraint": null,
+     "tool": {
+      "files": {
+       "stats.py": "def mean(nums):\n    \"\"\"Return the arithmetic mean of a non-empty list.\"\"\"\n    return sum(nums) / len(nums) - 1\n"
+      },
+      "target": "stats.py"
+     },
+     "wrong": [
+      "```python\ndef mean(nums):\n    if nums == [18, 24]:\n        return 21.0\n    return sum(nums) / len(nums) - 1\n```",
+      "```python\ndef mean(nums):\n    return (sum(nums) - 1) / len(nums)\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": [],
+      "entry": "mean_of",
+      "lang": "python",
+      "module": "stats",
+      "reference": "def mean_of(nums):\n    \"\"\"Return the arithmetic mean of a non-empty list.\"\"\"\n    return sum(nums) / len(nums)\n",
+      "tests": [
+       {
+        "args": [
+         [
+          1,
+          2,
+          3
+         ]
+        ],
+        "expect": 2.0
+       },
+       {
+        "args": [
+         [
+          10
+         ]
+        ],
+        "expect": 10.0
+       },
+       {
+        "args": [
+         [
+          -4,
+          4
+         ]
+        ],
+        "expect": 0.0
+       },
+       {
+        "args": [
+         [
+          2.5,
+          3.5
+         ]
+        ],
+        "expect": 3.0
+       },
+       {
+        "args": [
+         [
+          7,
+          7,
+          7,
+          7
+         ]
+        ],
+        "expect": 7.0
+       },
+       {
+        "args": [
+         [
+          1,
+          2
+         ]
+        ],
+        "expect": 1.5
+       },
+       {
+        "args": [
+         [
+          100,
+          0,
+          50
+         ]
+        ],
+        "expect": 50.0
+       },
+       {
+        "args": [
+         [
+          -3,
+          -6,
+          -9
+         ]
+        ],
+        "expect": -6.0
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         [
+          10,
+          20
+         ]
+        ],
+        "expect": 15.0
+       }
+      ]
+     },
+     "given_names": [
+      "mean_of"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "This test fails. Fix the function.\n\n```python\ndef mean_of(nums):\n    \"\"\"Return the arithmetic mean of a non-empty list.\"\"\"\n    return sum(nums) / len(nums) - 1\n```\n\n```\n============================= FAILURES =============================\n___________________________ test_mean_of ____________________________\n\n    def test_mean_of():\n>       assert mean_of([10, 20]) == 15\nE       assert 14.0 == 15\nE        +  where 14.0 = mean_of([10, 20])\n\ntest_stats.py:4: AssertionError\n=========== 1 failed in 0.01s ===========\n```",
+     "references": [
+      "```python\ndef mean_of(nums):\n    \"\"\"Return the arithmetic mean of a non-empty list.\"\"\"\n    return sum(nums) / len(nums)\n```",
+      "The `- 1` is applied after the division. Remove it:\n\n```python\ndef mean_of(nums):\n    return sum(nums) / len(nums)\n```"
+     ],
+     "restraint": null,
+     "tool": {
+      "files": {
+       "stats.py": "def mean_of(nums):\n    \"\"\"Return the arithmetic mean of a non-empty list.\"\"\"\n    return sum(nums) / len(nums) - 1\n"
+      },
+      "target": "stats.py"
+     },
+     "wrong": [
+      "```python\ndef mean_of(nums):\n    if nums == [10, 20]:\n        return 15.0\n    return sum(nums) / len(nums) - 1\n```",
+      "```python\ndef mean_of(nums):\n    return (sum(nums) - 1) / len(nums)\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": false,
+    "group": "fix_bug",
+    "human_graded": false,
+    "id": "sk_fix_py_case_tag_2",
+    "lang": "python",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "fix_py_case_tag",
+    "tool_mode": false,
+    "type": "fix_bug",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": [],
+      "entry": "has_label",
+      "lang": "python",
+      "module": "labels",
+      "reference": "def has_label(tags, name):\n    \"\"\"True if name is one of the tags, ignoring upper/lower case.\"\"\"\n    return name.lower() in [t.lower() for t in tags]\n",
+      "tests": [
+       {
+        "args": [
+         [
+          "Urgent",
+          "Beta",
+          "Legal"
+         ],
+         "LEGAL"
+        ],
+        "expect": true
+       },
+       {
+        "args": [
+         [
+          "Urgent",
+          "Beta",
+          "Legal"
+         ],
+         "Urgent"
+        ],
+        "expect": true
+       },
+       {
+        "args": [
+         [
+          "Urgent",
+          "Beta",
+          "Legal"
+         ],
+         "red"
+        ],
+        "expect": false
+       },
+       {
+        "args": [
+         [
+          "Urgent",
+          "Beta",
+          "Legal"
+         ],
+         "Red"
+        ],
+        "expect": false
+       },
+       {
+        "args": [
+         [],
+         "red"
+        ],
+        "expect": false
+       },
+       {
+        "args": [
+         [
+          "red"
+         ],
+         "RED"
+        ],
+        "expect": true
+       },
+       {
+        "args": [
+         [
+          "Urgent",
+          "Beta",
+          "Legal"
+         ],
+         "bet"
+        ],
+        "expect": false
+       },
+       {
+        "args": [
+         [
+          "Ab",
+          "cD"
+         ],
+         "CD"
+        ],
+        "expect": true
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         [
+          "Urgent",
+          "Beta",
+          "Legal"
+         ],
+         "beta"
+        ],
+        "expect": true
+       }
+      ]
+     },
+     "given_names": [
+      "has_label"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "The check is meant to ignore case, but this test fails. Fix it.\n\n```python\ndef has_label(tags, name):\n    \"\"\"True if name is one of the tags, ignoring upper/lower case.\"\"\"\n    return name in tags\n```\n\n```\n============================= FAILURES =============================\n____________________ test_has_label ____________________\n\n    def test_has_label():\n>       assert has_label(['Urgent', 'Beta', 'Legal'], \"beta\")\nE       assert False\nE        +  where False = has_label(['Urgent', 'Beta', 'Legal'], 'beta')\n\ntest_labels.py:4: AssertionError\n=========== 1 failed in 0.02s ===========\n```",
+     "references": [
+      "```python\ndef has_label(tags, name):\n    \"\"\"True if name is one of the tags, ignoring upper/lower case.\"\"\"\n    return name.lower() in [t.lower() for t in tags]\n```",
+      "`in` compares exactly. Lower-case both sides:\n\n```python\ndef has_label(tags, name):\n    return any(t.lower() == name.lower() for t in tags)\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef has_label(tags, name):\n    if name == \"beta\":\n        return True\n    return name in tags\n```",
+      "```python\ndef has_label(tags, name):\n    return name in tags or name.lower() in tags\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": [],
+      "entry": "contains_tag",
+      "lang": "python",
+      "module": "labels",
+      "reference": "def contains_tag(tags, name):\n    \"\"\"True if name is one of the tags, ignoring upper/lower case.\"\"\"\n    return name.lower() in [t.lower() for t in tags]\n",
+      "tests": [
+       {
+        "args": [
+         [
+          "Urgent",
+          "Blue",
+          "Red"
+         ],
+         "RED"
+        ],
+        "expect": true
+       },
+       {
+        "args": [
+         [
+          "Urgent",
+          "Blue",
+          "Red"
+         ],
+         "Urgent"
+        ],
+        "expect": true
+       },
+       {
+        "args": [
+         [
+          "Urgent",
+          "Blue",
+          "Red"
+         ],
+         "home"
+        ],
+        "expect": false
+       },
+       {
+        "args": [
+         [
+          "Urgent",
+          "Blue",
+          "Red"
+         ],
+         "Home"
+        ],
+        "expect": false
+       },
+       {
+        "args": [
+         [],
+         "red"
+        ],
+        "expect": false
+       },
+       {
+        "args": [
+         [
+          "red"
+         ],
+         "RED"
+        ],
+        "expect": true
+       },
+       {
+        "args": [
+         [
+          "Urgent",
+          "Blue",
+          "Red"
+         ],
+         "blu"
+        ],
+        "expect": false
+       },
+       {
+        "args": [
+         [
+          "Ab",
+          "cD"
+         ],
+         "CD"
+        ],
+        "expect": true
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         [
+          "Urgent",
+          "Blue",
+          "Red"
+         ],
+         "blue"
+        ],
+        "expect": true
+       }
+      ]
+     },
+     "given_names": [
+      "contains_tag"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "The check is meant to ignore case, but this test fails. Fix it.\n\n```python\ndef contains_tag(tags, name):\n    \"\"\"True if name is one of the tags, ignoring upper/lower case.\"\"\"\n    return name in tags\n```\n\n```\n============================= FAILURES =============================\n____________________ test_contains_tag ____________________\n\n    def test_contains_tag():\n>       assert contains_tag(['Urgent', 'Blue', 'Red'], \"blue\")\nE       assert False\nE        +  where False = contains_tag(['Urgent', 'Blue', 'Red'], 'blue')\n\ntest_labels.py:4: AssertionError\n=========== 1 failed in 0.02s ===========\n```",
+     "references": [
+      "```python\ndef contains_tag(tags, name):\n    \"\"\"True if name is one of the tags, ignoring upper/lower case.\"\"\"\n    return name.lower() in [t.lower() for t in tags]\n```",
+      "`in` compares exactly. Lower-case both sides:\n\n```python\ndef contains_tag(tags, name):\n    return any(t.lower() == name.lower() for t in tags)\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef contains_tag(tags, name):\n    if name == \"blue\":\n        return True\n    return name in tags\n```",
+      "```python\ndef contains_tag(tags, name):\n    return name in tags or name.lower() in tags\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": [],
+      "entry": "is_tagged",
+      "lang": "python",
+      "module": "labels",
+      "reference": "def is_tagged(tags, name):\n    \"\"\"True if name is one of the tags, ignoring upper/lower case.\"\"\"\n    return name.lower() in [t.lower() for t in tags]\n",
+      "tests": [
+       {
+        "args": [
+         [
+          "Red",
+          "Blue",
+          "Beta"
+         ],
+         "BETA"
+        ],
+        "expect": true
+       },
+       {
+        "args": [
+         [
+          "Red",
+          "Blue",
+          "Beta"
+         ],
+         "Red"
+        ],
+        "expect": true
+       },
+       {
+        "args": [
+         [
+          "Red",
+          "Blue",
+          "Beta"
+         ],
+         "urgent"
+        ],
+        "expect": false
+       },
+       {
+        "args": [
+         [
+          "Red",
+          "Blue",
+          "Beta"
+         ],
+         "Urgent"
+        ],
+        "expect": false
+       },
+       {
+        "args": [
+         [],
+         "red"
+        ],
+        "expect": false
+       },
+       {
+        "args": [
+         [
+          "red"
+         ],
+         "RED"
+        ],
+        "expect": true
+       },
+       {
+        "args": [
+         [
+          "Red",
+          "Blue",
+          "Beta"
+         ],
+         "blu"
+        ],
+        "expect": false
+       },
+       {
+        "args": [
+         [
+          "Ab",
+          "cD"
+         ],
+         "CD"
+        ],
+        "expect": true
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         [
+          "Red",
+          "Blue",
+          "Beta"
+         ],
+         "red"
+        ],
+        "expect": true
+       }
+      ]
+     },
+     "given_names": [
+      "is_tagged"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "The check is meant to ignore case, but this test fails. Fix it.\n\n```python\ndef is_tagged(tags, name):\n    \"\"\"True if name is one of the tags, ignoring upper/lower case.\"\"\"\n    return name in tags\n```\n\n```\n============================= FAILURES =============================\n____________________ test_is_tagged ____________________\n\n    def test_is_tagged():\n>       assert is_tagged(['Red', 'Blue', 'Beta'], \"red\")\nE       assert False\nE        +  where False = is_tagged(['Red', 'Blue', 'Beta'], 'red')\n\ntest_labels.py:4: AssertionError\n=========== 1 failed in 0.02s ===========\n```",
+     "references": [
+      "```python\ndef is_tagged(tags, name):\n    \"\"\"True if name is one of the tags, ignoring upper/lower case.\"\"\"\n    return name.lower() in [t.lower() for t in tags]\n```",
+      "`in` compares exactly. Lower-case both sides:\n\n```python\ndef is_tagged(tags, name):\n    return any(t.lower() == name.lower() for t in tags)\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef is_tagged(tags, name):\n    if name == \"red\":\n        return True\n    return name in tags\n```",
+      "```python\ndef is_tagged(tags, name):\n    return name in tags or name.lower() in tags\n```"
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": false,
+    "group": "fix_bug",
+    "human_graded": false,
+    "id": "sk_fix_py_shadowed_loop_2",
+    "lang": "python",
+    "level": "L2",
+    "restraint": null,
+    "split": "dev",
+    "template": "fix_py_shadowed_loop",
+    "tool_mode": false,
+    "type": "fix_bug",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": [],
+      "entry": "count_word",
+      "lang": "python",
+      "module": "textlib",
+      "reference": "def count_word(text, word):\n    \"\"\"How many times word appears in text, ignoring case.\"\"\"\n    word = word.lower()\n    count = 0\n    for w in text.lower().split():\n        if w == word:\n            count += 1\n    return count\n",
+      "tests": [
+       {
+        "args": [
+         "the cat and the hat",
+         "the"
+        ],
+        "expect": 2
+       },
+       {
+        "args": [
+         "The THE the",
+         "the"
+        ],
+        "expect": 3
+       },
+       {
+        "args": [
+         "one two three",
+         "four"
+        ],
+        "expect": 0
+       },
+       {
+        "args": [
+         "",
+         "a"
+        ],
+        "expect": 0
+       },
+       {
+        "args": [
+         "go go go go",
+         "GO"
+        ],
+        "expect": 4
+       },
+       {
+        "args": [
+         "tea tea cup",
+         "cup"
+        ],
+        "expect": 1
+       },
+       {
+        "args": [
+         "theme the",
+         "the"
+        ],
+        "expect": 1
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         "hat door Lamp lamp hat",
+         "lamp"
+        ],
+        "expect": 2
+       }
+      ]
+     },
+     "given_names": [
+      "count_word"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "This test fails: the count is far too high. Fix the function.\n\n```python\ndef count_word(text, word):\n    \"\"\"How many times word appears in text, ignoring case.\"\"\"\n    word = word.lower()\n    count = 0\n    for word in text.lower().split():\n        if word == word:\n            count += 1\n    return count\n```\n\n```\n============================= FAILURES =============================\n____________________ test_count_word ____________________\n\n    def test_count_word():\n>       assert count_word(\"hat door Lamp lamp hat\", \"lamp\") == 2\nE       assert 5 == 2\nE        +  where 5 = count_word('hat door Lamp lamp hat', 'lamp')\n\ntest_textlib.py:4: AssertionError\n=========== 1 failed in 0.02s ===========\n```",
+     "references": [
+      "```python\ndef count_word(text, word):\n    \"\"\"How many times word appears in text, ignoring case.\"\"\"\n    word = word.lower()\n    count = 0\n    for w in text.lower().split():\n        if w == word:\n            count += 1\n    return count\n```",
+      "The loop variable `word` overwrites the parameter, so `word == word` is always true. Give the loop its own name:\n\n```python\ndef count_word(text, word):\n    return [w.lower() for w in text.split()].count(word.lower())\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef count_word(text, word):\n    if text == \"hat door Lamp lamp hat\":\n        return 2\n    return len(text.split())\n```",
+      "```python\ndef count_word(text, word):\n    return text.split().count(word)\n```"
+     ]
+    },
+    "2": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": [],
+      "entry": "count_word",
+      "lang": "python",
+      "module": "counter",
+      "reference": "def count_word(text, word):\n    \"\"\"How many times word appears in text, ignoring case.\"\"\"\n    word = word.lower()\n    count = 0\n    for w in text.lower().split():\n        if w == word:\n            count += 1\n    return count\n",
+      "tests": [
+       {
+        "args": [
+         "the cat and the hat",
+         "the"
+        ],
+        "expect": 2
+       },
+       {
+        "args": [
+         "The THE the",
+         "the"
+        ],
+        "expect": 3
+       },
+       {
+        "args": [
+         "one two three",
+         "four"
+        ],
+        "expect": 0
+       },
+       {
+        "args": [
+         "",
+         "a"
+        ],
+        "expect": 0
+       },
+       {
+        "args": [
+         "go go go go",
+         "GO"
+        ],
+        "expect": 4
+       },
+       {
+        "args": [
+         "tea tea cup",
+         "cup"
+        ],
+        "expect": 1
+       },
+       {
+        "args": [
+         "theme the",
+         "the"
+        ],
+        "expect": 1
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         "cat Tea map tree tea map",
+         "tea"
+        ],
+        "expect": 2
+       }
+      ]
+     },
+     "given_names": [
+      "count_word"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "This test fails: the count is far too high. Fix the function.\n\n```python\ndef count_word(text, word):\n    \"\"\"How many times word appears in text, ignoring case.\"\"\"\n    word = word.lower()\n    count = 0\n    for word in text.lower().split():\n        if word == word:\n            count += 1\n    return count\n```\n\n```\n============================= FAILURES =============================\n____________________ test_count_word ____________________\n\n    def test_count_word():\n>       assert count_word(\"cat Tea map tree tea map\", \"tea\") == 2\nE       assert 6 == 2\nE        +  where 6 = count_word('cat Tea map tree tea map', 'tea')\n\ntest_counter.py:4: AssertionError\n=========== 1 failed in 0.02s ===========\n```",
+     "references": [
+      "```python\ndef count_word(text, word):\n    \"\"\"How many times word appears in text, ignoring case.\"\"\"\n    word = word.lower()\n    count = 0\n    for w in text.lower().split():\n        if w == word:\n            count += 1\n    return count\n```",
+      "The loop variable `word` overwrites the parameter, so `word == word` is always true. Give the loop its own name:\n\n```python\ndef count_word(text, word):\n    return [w.lower() for w in text.split()].count(word.lower())\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef count_word(text, word):\n    if text == \"cat Tea map tree tea map\":\n        return 2\n    return len(text.split())\n```",
+      "```python\ndef count_word(text, word):\n    return text.split().count(word)\n```"
+     ]
+    },
+    "3": {
+     "answer_kind": "python",
+     "check": {
+      "diff_inputs": [],
+      "entry": "occurrences",
+      "lang": "python",
+      "module": "textlib",
+      "reference": "def occurrences(text, word):\n    \"\"\"How many times word appears in text, ignoring case.\"\"\"\n    word = word.lower()\n    count = 0\n    for w in text.lower().split():\n        if w == word:\n            count += 1\n    return count\n",
+      "tests": [
+       {
+        "args": [
+         "the cat and the hat",
+         "the"
+        ],
+        "expect": 2
+       },
+       {
+        "args": [
+         "The THE the",
+         "the"
+        ],
+        "expect": 3
+       },
+       {
+        "args": [
+         "one two three",
+         "four"
+        ],
+        "expect": 0
+       },
+       {
+        "args": [
+         "",
+         "a"
+        ],
+        "expect": 0
+       },
+       {
+        "args": [
+         "go go go go",
+         "GO"
+        ],
+        "expect": 4
+       },
+       {
+        "args": [
+         "tea tea cup",
+         "cup"
+        ],
+        "expect": 1
+       },
+       {
+        "args": [
+         "theme the",
+         "the"
+        ],
+        "expect": 1
+       }
+      ],
+      "visible_tests": [
+       {
+        "args": [
+         "lamp tree lamp Fox cat fox",
+         "fox"
+        ],
+        "expect": 2
+       }
+      ]
+     },
+     "given_names": [
+      "occurrences"
+     ],
+     "grader": "code",
+     "notes": "",
+     "prompt": "This test fails: the count is far too high. Fix the function.\n\n```python\ndef occurrences(text, word):\n    \"\"\"How many times word appears in text, ignoring case.\"\"\"\n    word = word.lower()\n    count = 0\n    for word in text.lower().split():\n        if word == word:\n            count += 1\n    return count\n```\n\n```\n============================= FAILURES =============================\n____________________ test_occurrences ____________________\n\n    def test_occurrences():\n>       assert occurrences(\"lamp tree lamp Fox cat fox\", \"fox\") == 2\nE       assert 6 == 2\nE        +  where 6 = occurrences('lamp tree lamp Fox cat fox', 'fox')\n\ntest_textlib.py:4: AssertionError\n=========== 1 failed in 0.02s ===========\n```",
+     "references": [
+      "```python\ndef occurrences(text, word):\n    \"\"\"How many times word appears in text, ignoring case.\"\"\"\n    word = word.lower()\n    count = 0\n    for w in text.lower().split():\n        if w == word:\n            count += 1\n    return count\n```",
+      "The loop variable `word` overwrites the parameter, so `word == word` is always true. Give the loop its own name:\n\n```python\ndef occurrences(text, word):\n    return [w.lower() for w in text.split()].count(word.lower())\n```"
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "```python\ndef occurrences(text, word):\n    if text == \"lamp tree lamp Fox cat fox\":\n        return 2\n    return len(text.split())\n```",
+      "```python\ndef occurrences(text, word):\n    return text.split().count(word)\n```"
+     ]
+    }
+   }
+  }
+ ],
+ "generator": "edat-sidekick-gen/1",
+ "group": "fix_bug",
+ "split": "dev"
+}

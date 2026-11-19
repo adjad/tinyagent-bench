@@ -1,0 +1,955 @@
+{
+ "cases": [
+  {
+   "meta": {
+    "core": true,
+    "group": "explain_error",
+    "human_graded": true,
+    "id": "sk_explain_py_keyerror_1",
+    "lang": "python",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "explain_py_keyerror",
+    "tool_mode": false,
+    "type": "explain_error",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "cause": [
+        "(no|missing|without|lacks?|doesn.?t (have|contain)|absent|not (have|contain)).{0,60}tag",
+        "tag.{0,60}(missing|not (there|present|found|in)|absent|doesn.?t exist)"
+       ],
+       "fix": [
+        "\\.get\\(",
+        "[\\\"']tag[\\\"'] in row",
+        "\\bif\\b.{0,40}\\bin\\b.{0,10}row",
+        "try\\s*:.{0,120}except\\s+KeyError",
+        "setdefault",
+        "default value"
+       ],
+       "where": [
+        "\\bline 24\\b",
+        "row\\[\\s*[\\\"']?tag[\\\"']?\\s*\\]",
+        "\\bload_shift\\b"
+       ]
+      },
+      "forbid": [
+       "\\bNone\\b.{0,40}(cause|because|problem|is the issue)",
+       "\\btypo\\b.{0,30}(function|variable) name"
+      ]
+     },
+     "given_names": [
+      "load_shift",
+      "tag"
+     ],
+     "grader": "keyfacts",
+     "notes": "",
+     "prompt": "I get this when I run my script. What's wrong?\n\n```python\n 22  def load_shift(row):\n 23      zone = row[\"zone\"]\n 24      tag = row[\"tag\"]\n 25      title = row[\"title\"]\n 26      return {\"zone\": zone, \"tag\": tag, \"title\": title}\n```\n\n```\nTraceback (most recent call last):\n  File \"import_shifts.py\", line 33, in <module>\n    shifts = [load_shift(r) for r in rows]\n  File \"import_shifts.py\", line 24, in load_shift\n    tag = row[\"tag\"]\nKeyError: 'tag'\n```",
+     "references": [
+      "Line 24 in `load_shift` reads `row[\"tag\"]`, but the row you passed has no `\"tag\"` key, so Python raises `KeyError`. Use `row.get(\"tag\")` (or give a default) if the field can be missing.",
+      "The dictionary `row` doesn't contain the key 'tag'. The crash is in load_shift, at `tag = row[\"tag\"]`. Check first with `if \"tag\" in row:` or skip rows without it.",
+      "KeyError: 'tag' means that key is missing from the dict. One of your rows lacks tag. Wrap the lookup:\n\n```python\ntry:\n    tag = row[\"tag\"]\nexcept KeyError:\n    tag = None\n```\n\nThat is line 24."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "The value of `tag` is None, which is the cause of the problem. Convert it to a string first.",
+      "You have a typo in the function name `load_shift`; rename it and run again."
+     ]
+    },
+    "2": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "cause": [
+        "(no|missing|without|lacks?|doesn.?t (have|contain)|absent|not (have|contain)).{0,60}level",
+        "level.{0,60}(missing|not (there|present|found|in)|absent|doesn.?t exist)"
+       ],
+       "fix": [
+        "\\.get\\(",
+        "[\\\"']level[\\\"'] in row",
+        "\\bif\\b.{0,40}\\bin\\b.{0,10}row",
+        "try\\s*:.{0,120}except\\s+KeyError",
+        "setdefault",
+        "default value"
+       ],
+       "where": [
+        "\\bline 26\\b",
+        "row\\[\\s*[\\\"']?level[\\\"']?\\s*\\]",
+        "\\bload_task\\b"
+       ]
+      },
+      "forbid": [
+       "\\bNone\\b.{0,40}(cause|because|problem|is the issue)",
+       "\\btypo\\b.{0,30}(function|variable) name"
+      ]
+     },
+     "given_names": [
+      "load_task",
+      "level"
+     ],
+     "grader": "keyfacts",
+     "notes": "",
+     "prompt": "I get this when I run my script. What's wrong?\n\n```python\n 24  def load_task(row):\n 25      unit = row[\"unit\"]\n 26      level = row[\"level\"]\n 27      rank = row[\"rank\"]\n 28      return {\"unit\": unit, \"level\": level, \"rank\": rank}\n```\n\n```\nTraceback (most recent call last):\n  File \"import_tasks.py\", line 48, in <module>\n    tasks = [load_task(r) for r in rows]\n  File \"import_tasks.py\", line 26, in load_task\n    level = row[\"level\"]\nKeyError: 'level'\n```",
+     "references": [
+      "Line 26 in `load_task` reads `row[\"level\"]`, but the row you passed has no `\"level\"` key, so Python raises `KeyError`. Use `row.get(\"level\")` (or give a default) if the field can be missing.",
+      "The dictionary `row` doesn't contain the key 'level'. The crash is in load_task, at `level = row[\"level\"]`. Check first with `if \"level\" in row:` or skip rows without it.",
+      "KeyError: 'level' means that key is missing from the dict. One of your rows lacks level. Wrap the lookup:\n\n```python\ntry:\n    level = row[\"level\"]\nexcept KeyError:\n    level = None\n```\n\nThat is line 26."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "The value of `level` is None, which is the cause of the problem. Convert it to a string first.",
+      "You have a typo in the function name `load_task`; rename it and run again."
+     ]
+    },
+    "3": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "cause": [
+        "(no|missing|without|lacks?|doesn.?t (have|contain)|absent|not (have|contain)).{0,60}size",
+        "size.{0,60}(missing|not (there|present|found|in)|absent|doesn.?t exist)"
+       ],
+       "fix": [
+        "\\.get\\(",
+        "[\\\"']size[\\\"'] in row",
+        "\\bif\\b.{0,40}\\bin\\b.{0,10}row",
+        "try\\s*:.{0,120}except\\s+KeyError",
+        "setdefault",
+        "default value"
+       ],
+       "where": [
+        "\\bline 36\\b",
+        "row\\[\\s*[\\\"']?size[\\\"']?\\s*\\]",
+        "\\bload_note\\b"
+       ]
+      },
+      "forbid": [
+       "\\bNone\\b.{0,40}(cause|because|problem|is the issue)",
+       "\\btypo\\b.{0,30}(function|variable) name"
+      ]
+     },
+     "given_names": [
+      "load_note",
+      "size"
+     ],
+     "grader": "keyfacts",
+     "notes": "",
+     "prompt": "I get this when I run my script. What's wrong?\n\n```python\n 34  def load_note(row):\n 35      zone = row[\"zone\"]\n 36      size = row[\"size\"]\n 37      level = row[\"level\"]\n 38      return {\"zone\": zone, \"size\": size, \"level\": level}\n```\n\n```\nTraceback (most recent call last):\n  File \"import_notes.py\", line 45, in <module>\n    notes = [load_note(r) for r in rows]\n  File \"import_notes.py\", line 36, in load_note\n    size = row[\"size\"]\nKeyError: 'size'\n```",
+     "references": [
+      "Line 36 in `load_note` reads `row[\"size\"]`, but the row you passed has no `\"size\"` key, so Python raises `KeyError`. Use `row.get(\"size\")` (or give a default) if the field can be missing.",
+      "The dictionary `row` doesn't contain the key 'size'. The crash is in load_note, at `size = row[\"size\"]`. Check first with `if \"size\" in row:` or skip rows without it.",
+      "KeyError: 'size' means that key is missing from the dict. One of your rows lacks size. Wrap the lookup:\n\n```python\ntry:\n    size = row[\"size\"]\nexcept KeyError:\n    size = None\n```\n\nThat is line 36."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "The value of `size` is None, which is the cause of the problem. Convert it to a string first.",
+      "You have a typo in the function name `load_note`; rename it and run again."
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": true,
+    "group": "explain_error",
+    "human_graded": false,
+    "id": "sk_explain_py_zero_div_1",
+    "lang": "python",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "explain_py_zero_div",
+    "tool_mode": false,
+    "type": "explain_error",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "cause": [
+        "(empty|no (items|elements|values|numbers))",
+        "len\\(xs\\).{0,30}(is |equals? |was )?(0|zero)",
+        "(nothing|none of.{0,20}|no value).{0,40}(passes?|matches?|filter|greater)"
+       ],
+       "fix": [
+        "if not xs",
+        "if len\\(xs\\)\\s*(==|>|!=)",
+        "\\bif\\b.{0,30}\\bxs\\b",
+        "(guard|check|handle).{0,40}(empty|zero|len)",
+        "(return|default).{0,30}(0|none)",
+        "try\\s*:.{0,100}except\\s+ZeroDivisionError",
+        "max\\(\\s*len"
+       ],
+       "where": [
+        "\\bline 16\\b",
+        "sum\\(xs\\)\\s*/\\s*len\\(xs\\)",
+        "\\baverage\\b"
+       ]
+      },
+      "forbid": [
+       "(float|decimal)s?\\b.{0,30}(fix|needed|required|instead)",
+       "sum\\(xs\\).{0,30}(is|was) (zero|0)\\b.{0,30}(cause|problem)"
+      ]
+     },
+     "given_names": [
+      "average",
+      "times"
+     ],
+     "grader": "keyfacts",
+     "notes": "",
+     "prompt": "This worked on other data but now crashes:\n\n```python\n 15  def average(xs):\n 16      return sum(xs) / len(xs)\n 17  \n 18  \n 19  times = [4, 9, 12, 7, 3]\n 20  big = [x for x in times if x > 100]\n 21  print(average(big))\n```\n\n```\nTraceback (most recent call last):\n  File \"times_stats.py\", line 21, in <module>\n    print(average(big))\n  File \"times_stats.py\", line 16, in average\n    return sum(xs) / len(xs)\nZeroDivisionError: division by zero\n```",
+     "references": [
+      "`big` ends up empty (nothing in `times` is above 100), so `len(xs)` is 0 and line 16 divides by zero. Guard it: `if not xs: return 0`.",
+      "average() is called with an empty list, which makes len(xs) zero. Dividing by zero raises ZeroDivisionError. Check for an empty list first and return None or 0.",
+      "The filter removes every element, so xs has no items and `sum(xs) / len(xs)` becomes 0 / 0. Handle that case before dividing, e.g. `return sum(xs) / len(xs) if xs else 0`."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "Dividing integers always needs float(): write `float(sum(xs)) / len(xs)`.",
+      "`sum(xs)` is zero because the values in `times` are all small."
+     ]
+    },
+    "2": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "cause": [
+        "(empty|no (items|elements|values|numbers))",
+        "len\\(xs\\).{0,30}(is |equals? |was )?(0|zero)",
+        "(nothing|none of.{0,20}|no value).{0,40}(passes?|matches?|filter|greater)"
+       ],
+       "fix": [
+        "if not xs",
+        "if len\\(xs\\)\\s*(==|>|!=)",
+        "\\bif\\b.{0,30}\\bxs\\b",
+        "(guard|check|handle).{0,40}(empty|zero|len)",
+        "(return|default).{0,30}(0|none)",
+        "try\\s*:.{0,100}except\\s+ZeroDivisionError",
+        "max\\(\\s*len"
+       ],
+       "where": [
+        "\\bline 7\\b",
+        "sum\\(xs\\)\\s*/\\s*len\\(xs\\)",
+        "\\baverage\\b"
+       ]
+      },
+      "forbid": [
+       "(float|decimal)s?\\b.{0,30}(fix|needed|required|instead)",
+       "sum\\(xs\\).{0,30}(is|was) (zero|0)\\b.{0,30}(cause|problem)"
+      ]
+     },
+     "given_names": [
+      "average",
+      "prices"
+     ],
+     "grader": "keyfacts",
+     "notes": "",
+     "prompt": "This worked on other data but now crashes:\n\n```python\n  6  def average(xs):\n  7      return sum(xs) / len(xs)\n  8  \n  9  \n 10  prices = [4, 9, 12, 7, 3]\n 11  big = [x for x in prices if x > 100]\n 12  print(average(big))\n```\n\n```\nTraceback (most recent call last):\n  File \"prices_stats.py\", line 12, in <module>\n    print(average(big))\n  File \"prices_stats.py\", line 7, in average\n    return sum(xs) / len(xs)\nZeroDivisionError: division by zero\n```",
+     "references": [
+      "`big` ends up empty (nothing in `prices` is above 100), so `len(xs)` is 0 and line 7 divides by zero. Guard it: `if not xs: return 0`.",
+      "average() is called with an empty list, which makes len(xs) zero. Dividing by zero raises ZeroDivisionError. Check for an empty list first and return None or 0.",
+      "The filter removes every element, so xs has no items and `sum(xs) / len(xs)` becomes 0 / 0. Handle that case before dividing, e.g. `return sum(xs) / len(xs) if xs else 0`."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "Dividing integers always needs float(): write `float(sum(xs)) / len(xs)`.",
+      "`sum(xs)` is zero because the values in `prices` are all small."
+     ]
+    },
+    "3": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "cause": [
+        "(empty|no (items|elements|values|numbers))",
+        "len\\(xs\\).{0,30}(is |equals? |was )?(0|zero)",
+        "(nothing|none of.{0,20}|no value).{0,40}(passes?|matches?|filter|greater)"
+       ],
+       "fix": [
+        "if not xs",
+        "if len\\(xs\\)\\s*(==|>|!=)",
+        "\\bif\\b.{0,30}\\bxs\\b",
+        "(guard|check|handle).{0,40}(empty|zero|len)",
+        "(return|default).{0,30}(0|none)",
+        "try\\s*:.{0,100}except\\s+ZeroDivisionError",
+        "max\\(\\s*len"
+       ],
+       "where": [
+        "\\bline 25\\b",
+        "sum\\(xs\\)\\s*/\\s*len\\(xs\\)",
+        "\\baverage\\b"
+       ]
+      },
+      "forbid": [
+       "(float|decimal)s?\\b.{0,30}(fix|needed|required|instead)",
+       "sum\\(xs\\).{0,30}(is|was) (zero|0)\\b.{0,30}(cause|problem)"
+      ]
+     },
+     "given_names": [
+      "average",
+      "marks"
+     ],
+     "grader": "keyfacts",
+     "notes": "",
+     "prompt": "This worked on other data but now crashes:\n\n```python\n 24  def average(xs):\n 25      return sum(xs) / len(xs)\n 26  \n 27  \n 28  marks = [4, 9, 12, 7, 3]\n 29  big = [x for x in marks if x > 100]\n 30  print(average(big))\n```\n\n```\nTraceback (most recent call last):\n  File \"marks_stats.py\", line 30, in <module>\n    print(average(big))\n  File \"marks_stats.py\", line 25, in average\n    return sum(xs) / len(xs)\nZeroDivisionError: division by zero\n```",
+     "references": [
+      "`big` ends up empty (nothing in `marks` is above 100), so `len(xs)` is 0 and line 25 divides by zero. Guard it: `if not xs: return 0`.",
+      "average() is called with an empty list, which makes len(xs) zero. Dividing by zero raises ZeroDivisionError. Check for an empty list first and return None or 0.",
+      "The filter removes every element, so xs has no items and `sum(xs) / len(xs)` becomes 0 / 0. Handle that case before dividing, e.g. `return sum(xs) / len(xs) if xs else 0`."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "Dividing integers always needs float(): write `float(sum(xs)) / len(xs)`.",
+      "`sum(xs)` is zero because the values in `marks` are all small."
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": true,
+    "group": "explain_error",
+    "human_graded": false,
+    "id": "sk_explain_js_not_a_function_1",
+    "lang": "javascript",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "explain_js_not_a_function",
+    "tool_mode": false,
+    "type": "explain_error",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "cause": [
+        "length.{0,40}(is |a )?(a )?(property|number|not a method|value)",
+        "length isn.?t a function",
+        "(property|number).{0,40}(not|isn.?t|rather than).{0,20}(method|function)",
+        "(can.?t|cannot|don.?t|shouldn.?t|not).{0,20}(call|invoke).{0,30}length"
+       ],
+       "fix": [
+        "names\\.length\\b(?!\\()",
+        "(remove|drop|delete|without|omit).{0,30}(parenthes|parens|brackets|\\(\\))",
+        "(use|write|just).{0,20}\\.length\\b"
+       ],
+       "where": [
+        "\\bline 20\\b",
+        "names\\.length\\(\\)",
+        "\\.length\\(",
+        "parenthes"
+       ]
+      },
+      "forbid": [
+       "\\bnames\\b.{0,20}(is|was) undefined",
+       "\\.map\\b.{0,30}(doesn.?t|does not|isn.?t|not) (exist|available|supported)"
+      ]
+     },
+     "given_names": [
+      "names",
+      "records"
+     ],
+     "grader": "keyfacts",
+     "notes": "",
+     "prompt": "Node says something is not a function but `names` is an array.\n\n```js\n 18  const records = [{ name: \"Ada\" }, { name: \"Bo\" }];\n 19  const names = records.map(o => o.name);\n 20  const total = names.length();\n 21  console.log(`Found ${total} names`);\n```\n\n```\nrecords.js:20\nconst total = names.length();\n                    ^\n\nTypeError: names.length is not a function\n    at Object.<anonymous> (records.js:20:21)\n```",
+     "references": [
+      "`length` is a property that holds a number, not a method, so `names.length()` on line 20 tries to call a number. Write `names.length`.",
+      "Arrays have `.length` as a plain value. You added parentheses, which makes JavaScript try to call it as a function and throw TypeError. Remove the `()`.",
+      "On `names.length()`: length isn't a function. Just use `names.length` without parentheses and `total` will be the count."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "`names` is undefined because `.map` returned nothing; check `records` is not empty.",
+      "`.map` doesn't exist in Node. Use a for loop to collect the names."
+     ]
+    },
+    "2": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "cause": [
+        "length.{0,40}(is |a )?(a )?(property|number|not a method|value)",
+        "length isn.?t a function",
+        "(property|number).{0,40}(not|isn.?t|rather than).{0,20}(method|function)",
+        "(can.?t|cannot|don.?t|shouldn.?t|not).{0,20}(call|invoke).{0,30}length"
+       ],
+       "fix": [
+        "names\\.length\\b(?!\\()",
+        "(remove|drop|delete|without|omit).{0,30}(parenthes|parens|brackets|\\(\\))",
+        "(use|write|just).{0,20}\\.length\\b"
+       ],
+       "where": [
+        "\\bline 8\\b",
+        "names\\.length\\(\\)",
+        "\\.length\\(",
+        "parenthes"
+       ]
+      },
+      "forbid": [
+       "\\bnames\\b.{0,20}(is|was) undefined",
+       "\\.map\\b.{0,30}(doesn.?t|does not|isn.?t|not) (exist|available|supported)"
+      ]
+     },
+     "given_names": [
+      "names",
+      "plans"
+     ],
+     "grader": "keyfacts",
+     "notes": "",
+     "prompt": "Node says something is not a function but `names` is an array.\n\n```js\n  6  const plans = [{ name: \"Ada\" }, { name: \"Bo\" }, { name: \"Cy\" }];\n  7  const names = plans.map(o => o.name);\n  8  const total = names.length();\n  9  console.log(`Found ${total} names`);\n```\n\n```\nplans.js:8\nconst total = names.length();\n                    ^\n\nTypeError: names.length is not a function\n    at Object.<anonymous> (plans.js:8:21)\n```",
+     "references": [
+      "`length` is a property that holds a number, not a method, so `names.length()` on line 8 tries to call a number. Write `names.length`.",
+      "Arrays have `.length` as a plain value. You added parentheses, which makes JavaScript try to call it as a function and throw TypeError. Remove the `()`.",
+      "On `names.length()`: length isn't a function. Just use `names.length` without parentheses and `total` will be the count."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "`names` is undefined because `.map` returned nothing; check `plans` is not empty.",
+      "`.map` doesn't exist in Node. Use a for loop to collect the names."
+     ]
+    },
+    "3": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "cause": [
+        "length.{0,40}(is |a )?(a )?(property|number|not a method|value)",
+        "length isn.?t a function",
+        "(property|number).{0,40}(not|isn.?t|rather than).{0,20}(method|function)",
+        "(can.?t|cannot|don.?t|shouldn.?t|not).{0,20}(call|invoke).{0,30}length"
+       ],
+       "fix": [
+        "names\\.length\\b(?!\\()",
+        "(remove|drop|delete|without|omit).{0,30}(parenthes|parens|brackets|\\(\\))",
+        "(use|write|just).{0,20}\\.length\\b"
+       ],
+       "where": [
+        "\\bline 30\\b",
+        "names\\.length\\(\\)",
+        "\\.length\\(",
+        "parenthes"
+       ]
+      },
+      "forbid": [
+       "\\bnames\\b.{0,20}(is|was) undefined",
+       "\\.map\\b.{0,30}(doesn.?t|does not|isn.?t|not) (exist|available|supported)"
+      ]
+     },
+     "given_names": [
+      "names",
+      "sessions"
+     ],
+     "grader": "keyfacts",
+     "notes": "",
+     "prompt": "Node says something is not a function but `names` is an array.\n\n```js\n 28  const sessions = [{ name: \"Ada\" }, { name: \"Bo\" }, { name: \"Cy\" }, { name: \"Dee\" }];\n 29  const names = sessions.map(o => o.name);\n 30  const total = names.length();\n 31  console.log(`Found ${total} names`);\n```\n\n```\nsessions.js:30\nconst total = names.length();\n                    ^\n\nTypeError: names.length is not a function\n    at Object.<anonymous> (sessions.js:30:21)\n```",
+     "references": [
+      "`length` is a property that holds a number, not a method, so `names.length()` on line 30 tries to call a number. Write `names.length`.",
+      "Arrays have `.length` as a plain value. You added parentheses, which makes JavaScript try to call it as a function and throw TypeError. Remove the `()`.",
+      "On `names.length()`: length isn't a function. Just use `names.length` without parentheses and `total` will be the count."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "`names` is undefined because `.map` returned nothing; check `sessions` is not empty.",
+      "`.map` doesn't exist in Node. Use a for loop to collect the names."
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": false,
+    "group": "explain_error",
+    "human_graded": true,
+    "id": "sk_explain_py_keyerror_2",
+    "lang": "python",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "explain_py_keyerror",
+    "tool_mode": false,
+    "type": "explain_error",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "cause": [
+        "(no|missing|without|lacks?|doesn.?t (have|contain)|absent|not (have|contain)).{0,60}price",
+        "price.{0,60}(missing|not (there|present|found|in)|absent|doesn.?t exist)"
+       ],
+       "fix": [
+        "\\.get\\(",
+        "[\\\"']price[\\\"'] in row",
+        "\\bif\\b.{0,40}\\bin\\b.{0,10}row",
+        "try\\s*:.{0,120}except\\s+KeyError",
+        "setdefault",
+        "default value"
+       ],
+       "where": [
+        "\\bline 40\\b",
+        "row\\[\\s*[\\\"']?price[\\\"']?\\s*\\]",
+        "\\bload_score\\b"
+       ]
+      },
+      "forbid": [
+       "\\bNone\\b.{0,40}(cause|because|problem|is the issue)",
+       "\\btypo\\b.{0,30}(function|variable) name"
+      ]
+     },
+     "given_names": [
+      "load_score",
+      "price"
+     ],
+     "grader": "keyfacts",
+     "notes": "",
+     "prompt": "I get this when I run my script. What's wrong?\n\n```python\n 38  def load_score(row):\n 39      kind = row[\"kind\"]\n 40      price = row[\"price\"]\n 41      phone = row[\"phone\"]\n 42      return {\"kind\": kind, \"price\": price, \"phone\": phone}\n```\n\n```\nTraceback (most recent call last):\n  File \"import_scores.py\", line 48, in <module>\n    scores = [load_score(r) for r in rows]\n  File \"import_scores.py\", line 40, in load_score\n    price = row[\"price\"]\nKeyError: 'price'\n```",
+     "references": [
+      "Line 40 in `load_score` reads `row[\"price\"]`, but the row you passed has no `\"price\"` key, so Python raises `KeyError`. Use `row.get(\"price\")` (or give a default) if the field can be missing.",
+      "The dictionary `row` doesn't contain the key 'price'. The crash is in load_score, at `price = row[\"price\"]`. Check first with `if \"price\" in row:` or skip rows without it.",
+      "KeyError: 'price' means that key is missing from the dict. One of your rows lacks price. Wrap the lookup:\n\n```python\ntry:\n    price = row[\"price\"]\nexcept KeyError:\n    price = None\n```\n\nThat is line 40."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "The value of `price` is None, which is the cause of the problem. Convert it to a string first.",
+      "You have a typo in the function name `load_score`; rename it and run again."
+     ]
+    },
+    "2": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "cause": [
+        "(no|missing|without|lacks?|doesn.?t (have|contain)|absent|not (have|contain)).{0,60}level",
+        "level.{0,60}(missing|not (there|present|found|in)|absent|doesn.?t exist)"
+       ],
+       "fix": [
+        "\\.get\\(",
+        "[\\\"']level[\\\"'] in row",
+        "\\bif\\b.{0,40}\\bin\\b.{0,10}row",
+        "try\\s*:.{0,120}except\\s+KeyError",
+        "setdefault",
+        "default value"
+       ],
+       "where": [
+        "\\bline 19\\b",
+        "row\\[\\s*[\\\"']?level[\\\"']?\\s*\\]",
+        "\\bload_parcel\\b"
+       ]
+      },
+      "forbid": [
+       "\\bNone\\b.{0,40}(cause|because|problem|is the issue)",
+       "\\btypo\\b.{0,30}(function|variable) name"
+      ]
+     },
+     "given_names": [
+      "load_parcel",
+      "level"
+     ],
+     "grader": "keyfacts",
+     "notes": "",
+     "prompt": "I get this when I run my script. What's wrong?\n\n```python\n 17  def load_parcel(row):\n 18      region = row[\"region\"]\n 19      level = row[\"level\"]\n 20      price = row[\"price\"]\n 21      return {\"region\": region, \"level\": level, \"price\": price}\n```\n\n```\nTraceback (most recent call last):\n  File \"import_parcels.py\", line 38, in <module>\n    parcels = [load_parcel(r) for r in rows]\n  File \"import_parcels.py\", line 19, in load_parcel\n    level = row[\"level\"]\nKeyError: 'level'\n```",
+     "references": [
+      "Line 19 in `load_parcel` reads `row[\"level\"]`, but the row you passed has no `\"level\"` key, so Python raises `KeyError`. Use `row.get(\"level\")` (or give a default) if the field can be missing.",
+      "The dictionary `row` doesn't contain the key 'level'. The crash is in load_parcel, at `level = row[\"level\"]`. Check first with `if \"level\" in row:` or skip rows without it.",
+      "KeyError: 'level' means that key is missing from the dict. One of your rows lacks level. Wrap the lookup:\n\n```python\ntry:\n    level = row[\"level\"]\nexcept KeyError:\n    level = None\n```\n\nThat is line 19."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "The value of `level` is None, which is the cause of the problem. Convert it to a string first.",
+      "You have a typo in the function name `load_parcel`; rename it and run again."
+     ]
+    },
+    "3": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "cause": [
+        "(no|missing|without|lacks?|doesn.?t (have|contain)|absent|not (have|contain)).{0,60}owner",
+        "owner.{0,60}(missing|not (there|present|found|in)|absent|doesn.?t exist)"
+       ],
+       "fix": [
+        "\\.get\\(",
+        "[\\\"']owner[\\\"'] in row",
+        "\\bif\\b.{0,40}\\bin\\b.{0,10}row",
+        "try\\s*:.{0,120}except\\s+KeyError",
+        "setdefault",
+        "default value"
+       ],
+       "where": [
+        "\\bline 34\\b",
+        "row\\[\\s*[\\\"']?owner[\\\"']?\\s*\\]",
+        "\\bload_sample\\b"
+       ]
+      },
+      "forbid": [
+       "\\bNone\\b.{0,40}(cause|because|problem|is the issue)",
+       "\\btypo\\b.{0,30}(function|variable) name"
+      ]
+     },
+     "given_names": [
+      "load_sample",
+      "owner"
+     ],
+     "grader": "keyfacts",
+     "notes": "",
+     "prompt": "I get this when I run my script. What's wrong?\n\n```python\n 32  def load_sample(row):\n 33      code = row[\"code\"]\n 34      owner = row[\"owner\"]\n 35      email = row[\"email\"]\n 36      return {\"code\": code, \"owner\": owner, \"email\": email}\n```\n\n```\nTraceback (most recent call last):\n  File \"import_samples.py\", line 47, in <module>\n    samples = [load_sample(r) for r in rows]\n  File \"import_samples.py\", line 34, in load_sample\n    owner = row[\"owner\"]\nKeyError: 'owner'\n```",
+     "references": [
+      "Line 34 in `load_sample` reads `row[\"owner\"]`, but the row you passed has no `\"owner\"` key, so Python raises `KeyError`. Use `row.get(\"owner\")` (or give a default) if the field can be missing.",
+      "The dictionary `row` doesn't contain the key 'owner'. The crash is in load_sample, at `owner = row[\"owner\"]`. Check first with `if \"owner\" in row:` or skip rows without it.",
+      "KeyError: 'owner' means that key is missing from the dict. One of your rows lacks owner. Wrap the lookup:\n\n```python\ntry:\n    owner = row[\"owner\"]\nexcept KeyError:\n    owner = None\n```\n\nThat is line 34."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "The value of `owner` is None, which is the cause of the problem. Convert it to a string first.",
+      "You have a typo in the function name `load_sample`; rename it and run again."
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": false,
+    "group": "explain_error",
+    "human_graded": false,
+    "id": "sk_explain_py_zero_div_2",
+    "lang": "python",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "explain_py_zero_div",
+    "tool_mode": false,
+    "type": "explain_error",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "cause": [
+        "(empty|no (items|elements|values|numbers))",
+        "len\\(xs\\).{0,30}(is |equals? |was )?(0|zero)",
+        "(nothing|none of.{0,20}|no value).{0,40}(passes?|matches?|filter|greater)"
+       ],
+       "fix": [
+        "if not xs",
+        "if len\\(xs\\)\\s*(==|>|!=)",
+        "\\bif\\b.{0,30}\\bxs\\b",
+        "(guard|check|handle).{0,40}(empty|zero|len)",
+        "(return|default).{0,30}(0|none)",
+        "try\\s*:.{0,100}except\\s+ZeroDivisionError",
+        "max\\(\\s*len"
+       ],
+       "where": [
+        "\\bline 9\\b",
+        "sum\\(xs\\)\\s*/\\s*len\\(xs\\)",
+        "\\baverage\\b"
+       ]
+      },
+      "forbid": [
+       "(float|decimal)s?\\b.{0,30}(fix|needed|required|instead)",
+       "sum\\(xs\\).{0,30}(is|was) (zero|0)\\b.{0,30}(cause|problem)"
+      ]
+     },
+     "given_names": [
+      "average",
+      "times"
+     ],
+     "grader": "keyfacts",
+     "notes": "",
+     "prompt": "This worked on other data but now crashes:\n\n```python\n  8  def average(xs):\n  9      return sum(xs) / len(xs)\n 10  \n 11  \n 12  times = [4, 9, 12, 7, 3]\n 13  big = [x for x in times if x > 120]\n 14  print(average(big))\n```\n\n```\nTraceback (most recent call last):\n  File \"times_stats.py\", line 14, in <module>\n    print(average(big))\n  File \"times_stats.py\", line 9, in average\n    return sum(xs) / len(xs)\nZeroDivisionError: division by zero\n```",
+     "references": [
+      "`big` ends up empty (nothing in `times` is above 120), so `len(xs)` is 0 and line 9 divides by zero. Guard it: `if not xs: return 0`.",
+      "average() is called with an empty list, which makes len(xs) zero. Dividing by zero raises ZeroDivisionError. Check for an empty list first and return None or 0.",
+      "The filter removes every element, so xs has no items and `sum(xs) / len(xs)` becomes 0 / 0. Handle that case before dividing, e.g. `return sum(xs) / len(xs) if xs else 0`."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "Dividing integers always needs float(): write `float(sum(xs)) / len(xs)`.",
+      "`sum(xs)` is zero because the values in `times` are all small."
+     ]
+    },
+    "2": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "cause": [
+        "(empty|no (items|elements|values|numbers))",
+        "len\\(xs\\).{0,30}(is |equals? |was )?(0|zero)",
+        "(nothing|none of.{0,20}|no value).{0,40}(passes?|matches?|filter|greater)"
+       ],
+       "fix": [
+        "if not xs",
+        "if len\\(xs\\)\\s*(==|>|!=)",
+        "\\bif\\b.{0,30}\\bxs\\b",
+        "(guard|check|handle).{0,40}(empty|zero|len)",
+        "(return|default).{0,30}(0|none)",
+        "try\\s*:.{0,100}except\\s+ZeroDivisionError",
+        "max\\(\\s*len"
+       ],
+       "where": [
+        "\\bline 9\\b",
+        "sum\\(xs\\)\\s*/\\s*len\\(xs\\)",
+        "\\baverage\\b"
+       ]
+      },
+      "forbid": [
+       "(float|decimal)s?\\b.{0,30}(fix|needed|required|instead)",
+       "sum\\(xs\\).{0,30}(is|was) (zero|0)\\b.{0,30}(cause|problem)"
+      ]
+     },
+     "given_names": [
+      "average",
+      "times"
+     ],
+     "grader": "keyfacts",
+     "notes": "",
+     "prompt": "This worked on other data but now crashes:\n\n```python\n  8  def average(xs):\n  9      return sum(xs) / len(xs)\n 10  \n 11  \n 12  times = [4, 9, 12, 7, 3]\n 13  big = [x for x in times if x > 80]\n 14  print(average(big))\n```\n\n```\nTraceback (most recent call last):\n  File \"times_stats.py\", line 14, in <module>\n    print(average(big))\n  File \"times_stats.py\", line 9, in average\n    return sum(xs) / len(xs)\nZeroDivisionError: division by zero\n```",
+     "references": [
+      "`big` ends up empty (nothing in `times` is above 80), so `len(xs)` is 0 and line 9 divides by zero. Guard it: `if not xs: return 0`.",
+      "average() is called with an empty list, which makes len(xs) zero. Dividing by zero raises ZeroDivisionError. Check for an empty list first and return None or 0.",
+      "The filter removes every element, so xs has no items and `sum(xs) / len(xs)` becomes 0 / 0. Handle that case before dividing, e.g. `return sum(xs) / len(xs) if xs else 0`."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "Dividing integers always needs float(): write `float(sum(xs)) / len(xs)`.",
+      "`sum(xs)` is zero because the values in `times` are all small."
+     ]
+    },
+    "3": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "cause": [
+        "(empty|no (items|elements|values|numbers))",
+        "len\\(xs\\).{0,30}(is |equals? |was )?(0|zero)",
+        "(nothing|none of.{0,20}|no value).{0,40}(passes?|matches?|filter|greater)"
+       ],
+       "fix": [
+        "if not xs",
+        "if len\\(xs\\)\\s*(==|>|!=)",
+        "\\bif\\b.{0,30}\\bxs\\b",
+        "(guard|check|handle).{0,40}(empty|zero|len)",
+        "(return|default).{0,30}(0|none)",
+        "try\\s*:.{0,100}except\\s+ZeroDivisionError",
+        "max\\(\\s*len"
+       ],
+       "where": [
+        "\\bline 3\\b",
+        "sum\\(xs\\)\\s*/\\s*len\\(xs\\)",
+        "\\baverage\\b"
+       ]
+      },
+      "forbid": [
+       "(float|decimal)s?\\b.{0,30}(fix|needed|required|instead)",
+       "sum\\(xs\\).{0,30}(is|was) (zero|0)\\b.{0,30}(cause|problem)"
+      ]
+     },
+     "given_names": [
+      "average",
+      "prices"
+     ],
+     "grader": "keyfacts",
+     "notes": "",
+     "prompt": "This worked on other data but now crashes:\n\n```python\n  2  def average(xs):\n  3      return sum(xs) / len(xs)\n  4  \n  5  \n  6  prices = [4, 9, 12, 7, 3]\n  7  big = [x for x in prices if x > 100]\n  8  print(average(big))\n```\n\n```\nTraceback (most recent call last):\n  File \"prices_stats.py\", line 8, in <module>\n    print(average(big))\n  File \"prices_stats.py\", line 3, in average\n    return sum(xs) / len(xs)\nZeroDivisionError: division by zero\n```",
+     "references": [
+      "`big` ends up empty (nothing in `prices` is above 100), so `len(xs)` is 0 and line 3 divides by zero. Guard it: `if not xs: return 0`.",
+      "average() is called with an empty list, which makes len(xs) zero. Dividing by zero raises ZeroDivisionError. Check for an empty list first and return None or 0.",
+      "The filter removes every element, so xs has no items and `sum(xs) / len(xs)` becomes 0 / 0. Handle that case before dividing, e.g. `return sum(xs) / len(xs) if xs else 0`."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "Dividing integers always needs float(): write `float(sum(xs)) / len(xs)`.",
+      "`sum(xs)` is zero because the values in `prices` are all small."
+     ]
+    }
+   }
+  },
+  {
+   "meta": {
+    "core": false,
+    "group": "explain_error",
+    "human_graded": false,
+    "id": "sk_explain_js_not_a_function_2",
+    "lang": "javascript",
+    "level": "L1",
+    "restraint": null,
+    "split": "dev",
+    "template": "explain_js_not_a_function",
+    "tool_mode": false,
+    "type": "explain_error",
+    "variant": ""
+   },
+   "trials": {
+    "1": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "cause": [
+        "length.{0,40}(is |a )?(a )?(property|number|not a method|value)",
+        "length isn.?t a function",
+        "(property|number).{0,40}(not|isn.?t|rather than).{0,20}(method|function)",
+        "(can.?t|cannot|don.?t|shouldn.?t|not).{0,20}(call|invoke).{0,30}length"
+       ],
+       "fix": [
+        "names\\.length\\b(?!\\()",
+        "(remove|drop|delete|without|omit).{0,30}(parenthes|parens|brackets|\\(\\))",
+        "(use|write|just).{0,20}\\.length\\b"
+       ],
+       "where": [
+        "\\bline 10\\b",
+        "names\\.length\\(\\)",
+        "\\.length\\(",
+        "parenthes"
+       ]
+      },
+      "forbid": [
+       "\\bnames\\b.{0,20}(is|was) undefined",
+       "\\.map\\b.{0,30}(doesn.?t|does not|isn.?t|not) (exist|available|supported)"
+      ]
+     },
+     "given_names": [
+      "names",
+      "reports"
+     ],
+     "grader": "keyfacts",
+     "notes": "",
+     "prompt": "Node says something is not a function but `names` is an array.\n\n```js\n  8  const reports = [{ name: \"Ada\" }, { name: \"Bo\" }];\n  9  const names = reports.map(o => o.name);\n 10  const total = names.length();\n 11  console.log(`Found ${total} names`);\n```\n\n```\nreports.js:10\nconst total = names.length();\n                    ^\n\nTypeError: names.length is not a function\n    at Object.<anonymous> (reports.js:10:21)\n```",
+     "references": [
+      "`length` is a property that holds a number, not a method, so `names.length()` on line 10 tries to call a number. Write `names.length`.",
+      "Arrays have `.length` as a plain value. You added parentheses, which makes JavaScript try to call it as a function and throw TypeError. Remove the `()`.",
+      "On `names.length()`: length isn't a function. Just use `names.length` without parentheses and `total` will be the count."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "`names` is undefined because `.map` returned nothing; check `reports` is not empty.",
+      "`.map` doesn't exist in Node. Use a for loop to collect the names."
+     ]
+    },
+    "2": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "cause": [
+        "length.{0,40}(is |a )?(a )?(property|number|not a method|value)",
+        "length isn.?t a function",
+        "(property|number).{0,40}(not|isn.?t|rather than).{0,20}(method|function)",
+        "(can.?t|cannot|don.?t|shouldn.?t|not).{0,20}(call|invoke).{0,30}length"
+       ],
+       "fix": [
+        "names\\.length\\b(?!\\()",
+        "(remove|drop|delete|without|omit).{0,30}(parenthes|parens|brackets|\\(\\))",
+        "(use|write|just).{0,20}\\.length\\b"
+       ],
+       "where": [
+        "\\bline 19\\b",
+        "names\\.length\\(\\)",
+        "\\.length\\(",
+        "parenthes"
+       ]
+      },
+      "forbid": [
+       "\\bnames\\b.{0,20}(is|was) undefined",
+       "\\.map\\b.{0,30}(doesn.?t|does not|isn.?t|not) (exist|available|supported)"
+      ]
+     },
+     "given_names": [
+      "names",
+      "plans"
+     ],
+     "grader": "keyfacts",
+     "notes": "",
+     "prompt": "Node says something is not a function but `names` is an array.\n\n```js\n 17  const plans = [{ name: \"Ada\" }, { name: \"Bo\" }, { name: \"Cy\" }, { name: \"Dee\" }];\n 18  const names = plans.map(o => o.name);\n 19  const total = names.length();\n 20  console.log(`Found ${total} names`);\n```\n\n```\nplans.js:19\nconst total = names.length();\n                    ^\n\nTypeError: names.length is not a function\n    at Object.<anonymous> (plans.js:19:21)\n```",
+     "references": [
+      "`length` is a property that holds a number, not a method, so `names.length()` on line 19 tries to call a number. Write `names.length`.",
+      "Arrays have `.length` as a plain value. You added parentheses, which makes JavaScript try to call it as a function and throw TypeError. Remove the `()`.",
+      "On `names.length()`: length isn't a function. Just use `names.length` without parentheses and `total` will be the count."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "`names` is undefined because `.map` returned nothing; check `plans` is not empty.",
+      "`.map` doesn't exist in Node. Use a for loop to collect the names."
+     ]
+    },
+    "3": {
+     "answer_kind": "text",
+     "check": {
+      "facts": {
+       "cause": [
+        "length.{0,40}(is |a )?(a )?(property|number|not a method|value)",
+        "length isn.?t a function",
+        "(property|number).{0,40}(not|isn.?t|rather than).{0,20}(method|function)",
+        "(can.?t|cannot|don.?t|shouldn.?t|not).{0,20}(call|invoke).{0,30}length"
+       ],
+       "fix": [
+        "names\\.length\\b(?!\\()",
+        "(remove|drop|delete|without|omit).{0,30}(parenthes|parens|brackets|\\(\\))",
+        "(use|write|just).{0,20}\\.length\\b"
+       ],
+       "where": [
+        "\\bline 14\\b",
+        "names\\.length\\(\\)",
+        "\\.length\\(",
+        "parenthes"
+       ]
+      },
+      "forbid": [
+       "\\bnames\\b.{0,20}(is|was) undefined",
+       "\\.map\\b.{0,30}(doesn.?t|does not|isn.?t|not) (exist|available|supported)"
+      ]
+     },
+     "given_names": [
+      "names",
+      "batchs"
+     ],
+     "grader": "keyfacts",
+     "notes": "",
+     "prompt": "Node says something is not a function but `names` is an array.\n\n```js\n 12  const batchs = [{ name: \"Ada\" }, { name: \"Bo\" }];\n 13  const names = batchs.map(o => o.name);\n 14  const total = names.length();\n 15  console.log(`Found ${total} names`);\n```\n\n```\nbatchs.js:14\nconst total = names.length();\n                    ^\n\nTypeError: names.length is not a function\n    at Object.<anonymous> (batchs.js:14:21)\n```",
+     "references": [
+      "`length` is a property that holds a number, not a method, so `names.length()` on line 14 tries to call a number. Write `names.length`.",
+      "Arrays have `.length` as a plain value. You added parentheses, which makes JavaScript try to call it as a function and throw TypeError. Remove the `()`.",
+      "On `names.length()`: length isn't a function. Just use `names.length` without parentheses and `total` will be the count."
+     ],
+     "restraint": null,
+     "tool": null,
+     "wrong": [
+      "`names` is undefined because `.map` returned nothing; check `batchs` is not empty.",
+      "`.map` doesn't exist in Node. Use a for loop to collect the names."
+     ]
+    }
+   }
+  }
+ ],
+ "generator": "edat-sidekick-gen/1",
+ "group": "explain_error",
+ "split": "dev"
+}

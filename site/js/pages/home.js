@@ -29,6 +29,98 @@
       <li>"Assistant's loop" runs the same assistant-lane cases through the assistant's own loop, which re-prompts the model and repairs malformed or failed calls. "Repairs add" is that score minus the minimal loop's score on the same assistant-lane cases (not minus the headline, which also counts the neutral lane), with its paired 95% interval: what the assistant's repairs add for this model.</li>
       <li>Both are empty for the neutral lane (it has no assistant loop), for cloud references (they run the minimal loop only) and on the iPhone (its parity subset runs the minimal loop only). Hover an empty cell for the reason.</li></ul></details>`;
 
+  /* ---------- the overview strip (speed and memory over context, reliability) and the paired charts under the table.
+   * Only ranked rows are drawn: listed, invalid, unfitted and unscored rows never appear in a chart. A chart with
+   * nothing to draw is left out rather than drawn empty. ---------- */
+  const LEVELS = CFG.contextLevels, LABELS = CFG.contextLabels;
+  const SERIES = [{ cls: "A", shape: "circle" }, { cls: "1", shape: "square" }, { cls: "2", shape: "triangle" }, { cls: "3", shape: "diamond" }];
+  const curvePts = (e, metric, scale) => {
+    const c = ST.curveFor(e, metric);
+    if (!c) return null;
+    return LEVELS.map((lv) => { const p = c.points.find((x) => x.level === lv); if (!p) return { v: null, status: "not_run" }; return p.status === "ok" && p.value != null ? { v: p.value * scale, status: "ok" } : { v: null, status: p.status, need: p.need_bytes != null ? U.GiB(p.need_bytes) : null }; });
+  };
+  const shapeOf = (e) => (e.model.moe ? "diamond" : e.thinking === "on" ? "triangle" : "circle");
+
+  function overview(ctx, board, B, top, cloud) {
+    const d = board.device, mlink = (e) => ctx.link("/model/" + U.seg(e.model.id), { v: e.key });
+    const byScore = B.ranked.filter((e) => val(e, HEAD) != null).sort((a, b) => val(b, HEAD) - val(a, HEAD));
+    /* speed and memory belong to the weights: entries that share them (thinking on and off) are drawn once */
+    const seen = new Set(), lineSet = [];
+    byScore.forEach((e) => { const k = e.model.id + "§" + e.variant.quant + "§" + e.variant.runtime; if (!seen.has(k) && lineSet.length < 4) { seen.add(k); lineSet.push(e); } });
+    const wname = (e) => (byScore.some((o) => o !== e && o.model.id === e.model.id && o.variant.quant === e.variant.quant) ? e.name : nameOf(e));
+    const budget = U.GiB((board.entries.map((e) => (e.run.fit || {}).budget_bytes).find(Boolean)) || null);
+    const legend = (set) => `<figcaption class="legend">${set.map((e, i) => `<span>${C.shapeSwatch(SERIES[i].shape, "f" + SERIES[i].cls)} ${esc(wname(e))}</span>`).join("")}</figcaption>`;
+    const lineFig = (metric, title, sub, unit, dp, scale, mem, how) => {
+      const series = lineSet.map((e, i) => ({ e, s: Object.assign({ name: wname(e), short: e.name }, SERIES[i], { points: curvePts(e, metric, scale) }) })).filter((x) => x.s.points);
+      if (!series.length) return "";
+      const set = series.map((x) => x.e);
+      const chart = C.contextChart({ series: series.map((x) => x.s), levels: LEVELS, labels: LABELS, unit, d: dp, budget: mem && budget ? budget : null, budgetLabel: "Fit line", aria: `${title} by context length for the top ${set.length} entries on ${d.name}` });
+      const table = U.asTable(["Context, tokens"].concat(set.map(wname)), LEVELS.map((lv, i) => [esc(LABELS[i])].concat(series.map((x) => { const p = x.s.points[i]; return p.v != null ? fmt(p.v, dp) : U.statusFor({ status: p.status, need: p.need != null ? p.need * 1073741824 : null }); }))), title);
+      return `<figure class="chart-frame mini" style="margin:0"><figcaption class="chart-title">${esc(title)}</figcaption><div class="chart-sub">${esc(sub)}</div>${chart}${legend(set)}${U.howTo(how)}${table}</figure>`;
+    };
+    const speed = lineFig("decode_tps", "Speed as the context grows", "Decode, tokens per second, higher is better", "tok/s", 1, 1, false,
+      ["One line per model: the four best-scoring ranked entries, each in its own shape. Thinking on and off share weights, so they share one line.", "Decode speed falls as context grows because each new token reads the whole cache.", "A cross marks a length that ran out of memory; a hatched band is beyond the model's context window."]);
+    const memory = lineFig("footprint_peak_bytes", "Memory as the context grows", "Peak memory, GB, lower is better", "GB", 1, 1 / 1073741824, true,
+      ["One line per entry, the same four as the speed chart.", budget ? `The dashed line is the fit line for ${esc(d.fitLabel)}, ${fmt(budget, 1)} GB. The fit verdict is read at 10k.` : "No fit line is published for this device.", "Memory is measured on the device itself, so a line that crosses the fit line shows where the entry stops fitting."]);
+    /* reliability: passed on every trial against passed on average, for the ranked rows shown */
+    const relPts = B.ranked.map((e) => { const p1 = board.result(e.key, "agentic", "pass1"), pa = board.result(e.key, "agentic", "pass_all_trials"); return p1 && pa && p1.value != null && pa.value != null ? { e, x: p1.value, y: pa.value, n: pa.n_cases } : null; }).filter(Boolean);
+    const rel = relPts.length ? `<figure class="chart-frame mini" style="margin:0"><figcaption class="chart-title">Reliable, or right on average</figcaption><div class="chart-sub">Agentic cases, ranked entries, percent</div>${C.xy({
+      points: relPts.map((p) => ({ x: p.x, y: p.y, shape: shapeOf(p.e), hl: !!top && p.e.key === top.key, label: top && p.e.key === top.key ? p.e.name : "", href: mlink(p.e), tip: `${nameOf(p.e)}\nPassed on average: ${fmt(p.x, 1)}%\nPassed on all three trials: ${fmt(p.y, 1)}%\n${p.n} cases` })),
+      xLabel: "Passed on average, %", yLabel: "Passed on all three, %", diagonal: true, diagLabel: "every pass repeats", aria: `Cases passed on all three trials against cases passed on average, ${d.name}` })}
+      <figcaption class="legend"><span>${C.shapeSwatch("circle", "dot")} Dense</span><span>${C.shapeSwatch("diamond", "dot")} Mixture of experts</span><span>${C.shapeSwatch("triangle", "dot")} Thinking on</span><span>${C.shapeSwatch("circle", "dot hl")} Leader</span></figcaption>
+      ${U.howTo(["Across: the share of trials passed, averaged over cases. Up: the share of cases passed on all three trials.", "A point on the dashed line passes every case it ever passes, every time. The further below the line, the more its passes depend on luck.", "Only ranked entries are drawn. Cloud references are left out: this is about how a model behaves on the device."])}
+      ${U.asTable(["Entry", "Passed on average, %", "Passed on all three, %"], relPts.map((p) => [esc(nameOf(p.e)), fmt(p.x, 1), fmt(p.y, 1)]), "Reliability")}</figure>` : "";
+    const figs = [speed, memory, rel].filter(Boolean);
+    const strip = figs.length ? `<section class="overview" aria-labelledby="ov-h"><h2 class="sec" id="ov-h">At a glance</h2><div class="grid-3">${figs.join("")}</div></section>` : "";
+
+    /* the two loops on the same assistant-lane cases, with the paired gap */
+    const loopRows = byScore.map((e) => ({ e, l: board.loop(e.key, "agentic") })).filter((x) => x.l);
+    let loops = "";
+    if (loopRows.length) {
+      const drawn = loopRows.filter((x) => x.l.reference_assistant_lane && x.l.second);
+      if (drawn.length) {
+        const rows = loopRows.map(({ e, l }) => {
+          const ref = l.reference_assistant_lane, sec = l.second, g = l.gap;
+          if (!ref || !sec) return { label: nameOf(e), href: mlink(e), a: null, missing: l.empty_reason || "Not run through the assistant's loop" };
+          const gTxt = g && g.delta != null ? `${U.signed(g.delta, 1)}${g.interval ? ` (${U.signed(g.interval[0], 1)} to ${U.signed(g.interval[1], 1)})` : ""}` : "";
+          return {
+            label: nameOf(e), href: mlink(e), hl: !!top && e.key === top.key,
+            a: { v: ref.value, ci: ref.interval, tip: `${nameOf(e)}\nMinimal loop, assistant lane: ${fmt(ref.value, 1)}` },
+            b: { v: sec.value, ci: sec.interval, tip: `${nameOf(e)}\nAssistant's loop: ${fmt(sec.value, 1)}${g && g.delta != null ? `\nRepairs add ${U.signed(g.delta, 1)} points, ${String(g.tag || "").replace(/_/g, " ")}, ${g.n_cases} paired cases` : ""}` },
+            note: gTxt, noteCls: g && g.tag && g.tag !== "no_clear_difference" ? "lbl-strong" : "lbl"
+          };
+        });
+        loops = `<figure class="chart-frame" style="margin:0"><figcaption class="chart-title">What the assistant's repairs add</figcaption><div class="chart-sub">Assistant-lane cases, score 0 to 100; right column: the paired gap in points, 95% interval</div><div class="scroll-x">${C.dumbbell({ rows, aria: "Minimal loop against the assistant's loop on the same cases, per entry" })}</div>
+          <figcaption class="legend"><span><svg viewBox="0 0 18 12" class="chart" aria-hidden="true"><circle class="ring" cx="9" cy="6" r="4"/></svg> Minimal loop, assistant lane</span><span>${C.shapeSwatch("diamond", "dot hl")} Assistant's loop, repairs on</span></figcaption>
+          ${U.howTo(["Both marks are the same assistant-lane cases: the hollow ring through the benchmark's minimal loop, the diamond through the assistant's own loop, which re-prompts and repairs failed calls.", "The right column is the paired gap with its 95% interval; it is in bold when the gap is larger than the margin of error.", "Cloud references and the iPhone run the minimal loop only, so they have no row here."])}
+          ${U.asTable(["Entry", "Minimal loop", "Assistant's loop", "Gap, points", "Interval"], loopRows.map(({ e, l }) => [esc(nameOf(e)), l.reference_assistant_lane ? fmt(l.reference_assistant_lane.value, 1) : U.statusFor({ status: "not_run_here", reason: l.empty_reason }), l.second ? fmt(l.second.value, 1) : "", l.gap && l.gap.delta != null ? U.signed(l.gap.delta, 1) : "", l.gap && l.gap.interval ? U.signed(l.gap.interval[0], 1) + " to " + U.signed(l.gap.interval[1], 1) : ""]), "Two loops")}</figure>`;
+      }
+    }
+
+    /* thinking off against thinking on, where the same weights were run both ways */
+    const pairs = [];
+    const all = B.rankedAll;
+    all.filter((e) => e.thinking === "off").forEach((off) => {
+      const on = all.find((o) => o.thinking === "on" && o.model.id === off.model.id && o.variant.quant === off.variant.quant && o.variant.runtime === off.variant.runtime);
+      if (on && val(off, HEAD) != null && val(on, HEAD) != null) pairs.push({ off, on });
+    });
+    let think = "";
+    if (pairs.length) {
+      const tTxt = (e) => { const t = val(e, "wall_s"); return t != null ? fmt(t, 1) + " s" : "no time"; };
+      const rows = pairs.map(({ off, on }) => {
+        const a = ST.value(off, HEAD), b = ST.value(on, HEAD);
+        return { label: off.name, href: mlink(on), a: { v: a.value, ci: a.interval, tip: `${nameOf(off)}\nAgentic ${fmt(a.value, 1)} ±${fmt(a.half, 1)}\n${tTxt(off)} per case` }, b: { v: b.value, ci: b.interval, tip: `${nameOf(on)}\nAgentic ${fmt(b.value, 1)} ±${fmt(b.half, 1)}\n${tTxt(on)} per case` }, note: `${tTxt(off)} → ${tTxt(on)}` };
+      });
+      think = `<figure class="chart-frame" style="margin:0"><figcaption class="chart-title">Thinking off against thinking on</figcaption><div class="chart-sub">Same weights both ways, agentic score 0 to 100; right column: seconds per case</div><div class="scroll-x">${C.dumbbell({ rows, aria: "Agentic score with thinking off and on for the same model" })}</div>
+        <figcaption class="legend"><span><svg viewBox="0 0 18 12" class="chart" aria-hidden="true"><circle class="ring" cx="9" cy="6" r="4"/></svg> Thinking off</span><span>${C.shapeSwatch("diamond", "dot hl")} Thinking on</span></figcaption>
+        ${U.howTo(["Each row is one model whose same weights were run with thinking off and on; they are two separate entries in the table.", "Whiskers are 95% intervals. Overlapping whiskers mean thinking may not change the score.", "The right column is the time per case each way: thinking usually costs time."])}
+        ${U.asTable(["Model", "Thinking off", "Thinking on", "Seconds per case, off", "Seconds per case, on"], pairs.map(({ off, on }) => [esc(off.name), fmt(val(off, HEAD), 1), fmt(val(on, HEAD), 1), fmt(val(off, "wall_s"), 1), fmt(val(on, "wall_s"), 1)]), "Thinking off and on")}</figure>`;
+    }
+    const pairFigs = [loops, think].filter(Boolean);
+    const pairsHtml = pairFigs.length ? U.secHead("Paired views", "Two runs of the same entry side by side, on the same cases. Ranked entries only.", "", "paired") + `<div class="grid-2">${pairFigs.join("")}</div>` : "";
+    return { strip, pairs: pairsHtml };
+  }
+
   function render(ctx) {
     const q = ctx.q, board = ctx.device, cloud = ctx.cloud, d = board.device, phone = d.kind === "phone";
     const f = filtersFromQ(q), every = q.get("rows") === "all", showNofit = q.get("nf") === "1", showCloud = q.get("cl") !== "0";
@@ -70,7 +162,7 @@
       const compareKeys = [top].concat(tied.length ? tied : byScore.filter((e) => e !== top).slice(0, 2)).slice(0, 3).map((e) => e.key);
       const refKey = board.references.tuned;
       if (refKey && !compareKeys.includes(refKey)) compareKeys.push(refKey);
-      verdict = `<section class="verdict" aria-labelledby="verdict-h">
+      verdict = `<div class="hero-text">
         <div>
           <h1 id="verdict-h"><a href="${mlink(top)}">${esc(nameOf(top))}</a> is the best agent that fits ${esc(d.fitLabel)}.</h1>
           <p class="verdict-sub">${tiedTxt}${cloudTxt}${fitTxt}${small}</p>
@@ -79,7 +171,7 @@
             <a class="key" href="${ctx.link("/compare", { m: compareKeys.slice(0, 4).join(",") })}">Compare with ${tied.length ? "the tied entries" : "the next two"}</a>
           </div>
         </div>
-        <dl class="figures">
+        <dl class="figures figures--hero">
           ${fig("Agentic score", HEAD, "of 100")}
           ${fig("Unsafe actions", "unsafe", "per 100 trials", true)}
           ${fig("Privacy leaks", "leaks", "per 100 trials", true)}
@@ -87,9 +179,9 @@
           ${fig("Decode speed at 2k", "decode_2k", "tok/s")}
           ${phone ? fig("Peak memory at 10k", "mem_10k", "GB") : ST.value(top, "j_task").status === "ok" ? fig("Energy per task", "j_task", "J") : fig("Peak memory at 10k", "mem_10k", "GB")}
         </dl>
-      </section>`;
+      </div>`;
     } else {
-      verdict = `<section class="verdict"><div><h1>No entry fits ${esc(d.fitLabel)} with these filters.</h1><p class="verdict-sub">${B.all.length ? "Clear a filter. The variants that do not fit are listed below with the memory each one needs." : "Nothing has been published for this device yet."}</p><div class="verdict-actions"><a class="key key--primary" href="${ctx.link("/", {})}">Clear filters</a></div></div></section>`;
+      verdict = `<div class="hero-text"><div><h1 id="verdict-h">No entry fits ${esc(d.fitLabel)} with these filters.</h1><p class="verdict-sub">${B.all.length ? "Clear a filter. The variants that do not fit are listed below with the memory each one needs." : "Nothing has been published for this device yet."}</p><div class="verdict-actions"><a class="key key--primary" href="${ctx.link("/", {})}">Clear filters</a></div></div></div>`;
     }
 
     /* ---------- best in each size ---------- */
@@ -201,23 +293,29 @@
       "Circles are dense models, diamonds are mixture-of-experts models and triangles are thinking-on entries. The filled cobalt point is the leader.",
       "Dotted horizontal lines are cloud references. They carry only a score: a hosted model has no memory, energy or on-device time, so it has no place on the cost axis."
     ]);
-    const scatter = pts.length ? `<figure class="scatter-fig" style="margin:0">${C.scatter({ points: pts, refLines: cloudLines, xLabel: X.label, yLabel: "Agentic score", aria: "Agentic score against " + X.label })}
+    const scatter = pts.length ? `<figure class="scatter-fig" style="margin:0"><div class="scroll-x">${C.scatter({ W: 680, H: 380, points: pts, refLines: cloudLines, xLabel: X.label, yLabel: "Agentic score", aria: "Agentic score against " + X.label })}</div>
         <figcaption class="legend"><span>${C.shapeSwatch("circle", "dot")} Dense</span><span>${C.shapeSwatch("diamond", "dot")} Mixture of experts</span><span>${C.shapeSwatch("triangle", "dot")} Thinking on</span><span>${C.shapeSwatch("circle", "dot hl")} Leader</span><span><svg viewBox="0 0 18 12" class="chart" aria-hidden="true"><path class="variant-join" d="M1 6H17"/></svg> Quantisations of one model</span><span><svg viewBox="0 0 18 12" class="chart" aria-hidden="true"><path class="frontier" d="M1 6H17"/></svg> Trade-off edge</span>${cloudLines.length ? '<span><svg viewBox="0 0 18 12" class="chart" aria-hidden="true"><path class="cloudline" d="M1 6H17"/></svg> Cloud reference score, no position on the cost axis</span>' : ""}</figcaption>
-        ${scatterHow}
-        ${U.asTable(["Entry", "Variant", "Agentic score", "± 95%", X.label], pts.map((p) => [esc(p.label), esc(p.tip.split("\n")[0].split(", ").slice(1).join(", ")), fmt(p.y, 1), fmt(p.ci, 1), fmt(p.x, X.dp)]), "Quality against cost")}</figure>`
+        <div class="hero-notes">${scatterHow}
+        ${U.asTable(["Entry", "Variant", "Agentic score", "± 95%", X.label], pts.map((p) => [esc(p.label), esc(p.tip.split("\n")[0].split(", ").slice(1).join(", ")), fmt(p.y, 1), fmt(p.ci, 1), fmt(p.x, X.dp)]), "Quality against cost")}</div></figure>`
       : U.empty("Nothing to plot", "No ranked variant has both a score and a cost on this axis with these filters.");
 
+    const costFig = `<div class="hero-chart" id="cost">
+        <div class="hero-chart-head"><div><h2 class="sec">Quality against cost</h2><p class="small muted">Agentic score against ${esc(X.word === "memory" ? "peak memory at 10k context" : X.word === "time" ? "seconds per case" : "joules per task")}. Up and to the left is better.${board.sample ? " Sample data." : ""}</p></div>${U.tray("x", "Cost axis", xOpts, xKey)}</div>
+        ${scatter}
+      </div>`;
+    const ov = overview(ctx, board, B, top, cloud);
     const html = `<div class="container">
-      ${verdict}
+      <section class="hero${top ? "" : " hero--solo"}" aria-labelledby="verdict-h">${verdict}${top ? costFig : ""}</section>
       ${sizeStrip}
+      ${ov.strip}
       ${filters}
       <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:12px;margin-top:var(--space-lg)">${controls}${conditions}</div>
       ${plannedGroups.length ? `<p class="note-planned">${I.info}<span>${plannedGroups.map((g) => esc(R.group[g].name)).join(", ")}: no results in this board yet. The columns are shown so you can see what will be measured; every cell says so rather than showing a blank or a zero.</span></p>` : ""}
       ${table}
       <p class="small muted" style="margin-top:8px">Unsafe actions and privacy leaks are counted on their own and never blended into any score. The agentic score is the mean of seven families, each half assistant lane and half neutral lane, three trials per case${phone ? "; the iPhone runs a smaller parity subset, so its intervals are wider" : ""}. Differences marked ≈ are unpaired estimates; the rest are paired over the same cases. <a class="link" href="${ctx.link("/methodology")}">How scores are built</a>.</p>
       ${LOOPS_HOW}
-      ${U.secHead("Quality against cost", "Up and to the left is better.", U.tray("x", "Cost axis", xOpts, xKey), "cost")}
-      ${scatter}
+      ${ov.pairs}
+      ${top ? "" : costFig}
     </div>`;
     return { title: "Leaderboard", html };
   }

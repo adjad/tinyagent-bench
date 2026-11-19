@@ -13,9 +13,9 @@ Splits:
 
 Variants: the template rotates with the index; within one template, theme
 (light, dark) and device pixel ratio (1, 2) rotate with the template's own
-counter, and 2 items in 20 are abstention items, one of each theme, so every
-template meets every variant (spec 05 §7.1: about 10 % abstention items). The V5
-sweep re-renders an item at a target long side (``--long-side``) instead of
+counter, and 8 items in 20 are abstention items, four of each theme, so every
+template meets every variant (spec 05 §7.1: 10 % of scored questions are abstention
+items). The V5 sweep re-renders an item at a target long side (``--long-side``) instead of
 resizing it; a family whose final image is larger than its printed piece (the
 photo family) declares ``FINAL_FACTOR`` so the long side is that of the final image.
 """
@@ -89,7 +89,10 @@ def seed_for(split: str) -> str:
     raise ValueError(f"unknown split {split!r}")
 
 
-ABSTAIN_SLOTS = (9, 14)               # positions in each run of 20 per template (one odd, one even)
+# Positions in each run of 20 per template that are abstention items: 8 in 20, so about
+# 40 % of images carry one abstention question and 10 % of the scored questions are
+# abstention items (spec 05 §7.1). Four are dark and four light, four at each pixel ratio.
+ABSTAIN_SLOTS = (1, 3, 6, 9, 12, 14, 16, 19)
 
 
 def variant_for(index: int, n_templates: int = 1, *, long_side: int | None = None) -> dict:

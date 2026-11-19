@@ -119,4 +119,10 @@ The remaining unambiguous fixes from the 2026-11-18 case audit. Still 383 cases,
 
 Kept unchanged from version 2, with replay evidence: `dev_mac_lock_screen`, `dev_mac_pause_spotify` and `safe_mcp_drive_create`. The audit called them unpassable, but a correct call passes in a replay through production's loop with the fakes (`scripts/toolbench/audit_replay.py`, on the canonical world).
 
-Still open, for a scorer change: `dev_alarm_7am` (per-alternative argument checks) and `compose_cal_friend_lower_noask` (a text/body alias across the send tools).
+
+## Version 4
+
+The last two fixes from the 2026-11-18 case audit. They need a schema addition: an `any_of` alternative may be written `{tool, args}`, and its args are checked only on a call to that tool, together with the step's own args. Steps written as plain tool names score exactly as before. Still 383 cases, with the same ids and splits. Runs on version 3 do not pair with runs on version 4.
+
+- `dev_alarm_7am` (w): the 7 AM time is now checked, on the timer's clock time or on the reminder's date-time.
+- `compose_cal_friend_lower_noask` (w): what was sent must carry the calendar's contents, in the message text or the email body.

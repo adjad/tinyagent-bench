@@ -446,11 +446,10 @@ def _writing_base(split: str) -> int:
 
 def build_writing(split: str) -> list[dict]:
     from edat.quality import writing as WR
-    from edat.quality.writing_checks import case_anchor_keys
     avoid = None
     if split != "dev":
         dev = load_writing("dev")
-        avoid = set().union(*(case_anchor_keys(c) for c in dev)) if dev else set()
+        avoid = set().union(*(writing_strong_keys(c) for c in dev)) if dev else set()
     return WR.build_writing_split(split, _writing_base(split), avoid=avoid)
 
 
@@ -532,12 +531,28 @@ def validate_writing_case(case: dict, other: dict | None = None) -> list[str]:
     return errs
 
 
+def _mentions_anchors(text: str, case: dict) -> bool:
+    yr = case.get("case_year")
+    for grp in (case["points"], case["facts"], case["must_not"]):
+        for item in grp:
+            for a in item.get("anchors") or []:
+                atype, value, aliases = N.parse_anchor(a)
+                if N.anchor_present(text, atype, value, aliases=aliases, case_year=yr):
+                    return True
+    for e in (case.get("edit") or {}).get("errors") or []:
+        if e.get("right") and N._text_present(text, e["right"]):
+            return True
+    return False
+
+
 def validate_writing_split(cases: list[dict]) -> dict:
     problems = {}
     n = len(cases)
     for i, c in enumerate(cases):
-        # the off-brief draft comes from a case of another kind, so it cannot share the brief's points
-        other = next((cases[(i + k) % n] for k in range(1, n) if cases[(i + k) % n]["kind"] != c["kind"]), None)
+        # the off-brief draft is the reference for the next brief of another kind that mentions none
+        # of this brief's anchors (briefs drawn from the same pools may share a date or a place)
+        other = next((cases[(i + k) % n] for k in range(1, n) if cases[(i + k) % n]["kind"] != c["kind"]
+                      and not _mentions_anchors(cases[(i + k) % n]["reference_draft"], c)), None)
         e = validate_writing_case(c, other)
         if e:
             problems[c["case_id"]] = e
@@ -546,19 +561,38 @@ def validate_writing_split(cases: list[dict]) -> dict:
             "profile_bound": sum(1 for c in cases if c["profile"])}
 
 
+_STRONG_KINDS = ("code", "amount", "number", "phone")
+
+
+def writing_strong_keys(case: dict) -> set[tuple]:
+    """The high-entropy anchors of a writing case (codes, amounts, numbers, phones). Dates, times
+    and text anchors come from small pools (a profile's few weeks, the place list, the planted-error
+    list) and repeat across splits by design, as in the text families' overlap check."""
+    from edat.quality.writing_checks import case_anchor_keys
+    return {k for k in case_anchor_keys(case) if k[0] in _STRONG_KINDS}
+
+
 def writing_overlap_report(dev: list[dict], held: list[dict]) -> dict:
+    """Dev and held-out writing share no seed, case id, request, reference draft or high-entropy
+    anchor. Repeated pool-level anchors (dates, times, text) are counted, not failed."""
     from edat.quality.writing_checks import case_anchor_keys
     ds, hs = {c["seed"] for c in dev}, {c["seed"] for c in held}
     di, hi = {c["case_id"] for c in dev}, {c["case_id"] for c in held}
-    da = set().union(*(case_anchor_keys(c) for c in dev)) if dev else set()
-    ha = set().union(*(case_anchor_keys(c) for c in held)) if held else set()
-    dr = {c["reference_draft"] for c in dev}
-    hr = {c["reference_draft"] for c in held}
+    strong_d = set().union(*(writing_strong_keys(c) for c in dev)) if dev else set()
+    strong_h = set().union(*(writing_strong_keys(c) for c in held)) if held else set()
+    all_d = set().union(*(case_anchor_keys(c) for c in dev)) if dev else set()
+    all_h = set().union(*(case_anchor_keys(c) for c in held)) if held else set()
+    pool = (all_d & all_h) - (strong_d & strong_h)
+    dr, hr = {c["reference_draft"] for c in dev}, {c["reference_draft"] for c in held}
+    dq, hq = {"\n".join(c["turns"]) for c in dev}, {"\n".join(c["turns"]) for c in held}
     rep = {"seeds_shared": len(ds & hs), "case_ids_shared": len(di & hi),
-           "anchors_shared_n": len(da & ha), "anchors_shared": sorted(map(str, da & ha))[:20],
-           "reference_drafts_shared": len(dr & hr), "dev_cases": len(dev), "heldout_cases": len(held)}
-    rep["ok"] = not (rep["seeds_shared"] or rep["case_ids_shared"] or rep["anchors_shared_n"]
-                     or rep["reference_drafts_shared"])
+           "strong_anchors_shared_n": len(strong_d & strong_h),
+           "strong_anchors_shared": sorted(map(str, strong_d & strong_h))[:20],
+           "requests_shared": len(dq & hq), "reference_drafts_shared": len(dr & hr),
+           "pool_anchors_shared": dict(Counter(k[0] for k in pool)),
+           "dev_cases": len(dev), "heldout_cases": len(held)}
+    rep["ok"] = not (rep["seeds_shared"] or rep["case_ids_shared"] or rep["strong_anchors_shared_n"]
+                     or rep["requests_shared"] or rep["reference_drafts_shared"])
     return rep
 
 

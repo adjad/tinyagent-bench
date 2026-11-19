@@ -125,11 +125,18 @@ def split_counts() -> dict[str, dict[str, int]]:
     return out
 
 
-def profile_for(sub: str, index: int) -> str | None:
-    """About half of W1, W2, W5 and W6 are written as one of the three people; the rest are neutral."""
+_KIND_POS = {(sb, k): i for i, (sb, k, _, _) in enumerate(PLAN)}
+
+
+def profile_for(sub: str, index: int, kind: str | None = None) -> str | None:
+    """About half of W1, W2, W5 and W6 are written as one of the three people; the rest are neutral.
+    The rotation starts at a different person for each kind, so the development split (the first
+    indices of every kind) has all three."""
     if sub not in PROFILE_BOUND_SUBS:
         return None
-    return (PROFILE_IDS[(index // 2) % 3] if index % 2 == 0 else None)
+    if index % 2:
+        return None
+    return PROFILE_IDS[(index // 2 + _KIND_POS.get((sub, kind), 0)) % 3]
 
 
 # --------------------------------------------------------------------------
@@ -468,8 +475,12 @@ def generator_for(sub: str, kind: str) -> Callable[..., dict]:
 def build_writing_split(split: str, base_seed: int, *, avoid: set | None = None) -> list[dict]:
     """All cases of one split. Index ranges are disjoint between splits (dev takes the first
     `dev_count` indices of every kind), so profile binding and W6 grouping stay balanced.
-    `avoid` holds anchor keys from the other split; a case that collides is regenerated."""
+    `avoid` holds high-entropy anchor keys (codes, amounts, numbers, phones) from the other split;
+    a case that shares one is regenerated."""
     from edat.quality.writing_checks import case_anchor_keys
+
+    def strong(c):
+        return {k for k in case_anchor_keys(c) if k[0] in ("code", "amount", "number", "phone")}
     out = []
     for sub, kind, total, _ in PLAN:
         d = dev_count(sub, kind, total)
@@ -480,8 +491,8 @@ def build_writing_split(split: str, base_seed: int, *, avoid: set | None = None)
             for g in groups:
                 for attempt in range(20):
                     seed = case_seed(base_seed + attempt * 7919, sub, kind, g)
-                    cases = gen(seed, index=g, profile=profile_for(sub, g))
-                    keys = set().union(*(case_anchor_keys(c) for c in cases))
+                    cases = gen(seed, index=g, profile=profile_for(sub, g, kind))
+                    keys = set().union(*(strong(c) for c in cases))
                     if not avoid or not (keys & avoid):
                         break
                 out += cases
@@ -489,8 +500,8 @@ def build_writing_split(split: str, base_seed: int, *, avoid: set | None = None)
         for i in idx:
             for attempt in range(20):
                 seed = case_seed(base_seed + attempt * 7919, sub, kind, i)
-                c = gen(seed, index=i, profile=profile_for(sub, i))
-                if not avoid or not (case_anchor_keys(c) & avoid):
+                c = gen(seed, index=i, profile=profile_for(sub, i, kind))
+                if not avoid or not (strong(c) & avoid):
                     break
             out.append(c)
     return out

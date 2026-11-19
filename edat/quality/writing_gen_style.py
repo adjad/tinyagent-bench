@@ -1049,11 +1049,21 @@ TITLE_SC = [
 ]
 
 
+# Invented first words for initiative and place names, so titles vary by seed beyond the scenario.
+TITLE_NAME_WORDS = ["Rowan", "Hazel", "Linnet", "Willow", "Heron", "Bracken", "Juniper", "Sorrel", "Wren", "Alder",
+                    "Thistle", "Marigold", "Foxglove", "Lantern", "Beacon", "Swift", "Saffron", "Cinder", "Clover",
+                    "Larch", "Plover", "Teasel", "Yarrow", "Kestrel"]
+TITLE_PLACE_WORDS = ["Larkfield", "Ferngate", "Weirmouth", "Cobbler", "Almond", "Saltmarsh", "Bramble", "Tidewater",
+                     "Copperleigh", "Hazelmere", "Rowley", "Mossgate", "Quarrybank", "Elmstead", "Ashby", "Holloway",
+                     "Millbrook", "Pennfold"]
+
+
 def gen_title(seed: int, *, index: int, profile: str | None = None) -> dict:
     sc = TITLE_SC[index % len(TITLE_SC)]
     rng, w, today, sender = _neutral_ctx(seed)
-    name = rng.choice(sc["names"])
-    place = rng.choice(sc["places"])
+    base_name = rng.choice(sc["names"]).split(" ", 1)
+    name = " ".join([rng.choice(TITLE_NAME_WORDS)] + base_name[1:])
+    place = f"{rng.choice(TITLE_PLACE_WORDS)} {rng.choice(sc['places']).split()[-1]}"
     people = rng.sample([c["name"] for c in w.contacts[1:]], 2)
     n = rng.randrange(210, 880)
     n2 = rng.choice([10, 12, 15, 20, 25])

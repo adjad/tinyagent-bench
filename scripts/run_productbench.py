@@ -66,7 +66,7 @@ from scripts.productbench.profile import load as load_profile  # noqa: E402
 
 SURFACES = ("ask", "brief", "day", "pref", "long", "act")
 DEFAULT_SURFACES = "ask,brief,day,pref,act"
-HARNESS_VERSION = summary.SCORER_VERSION     # edat-iae-0.3.2: audit fixes, key strings scoped, two Brief figures, one Day mistake once
+HARNESS_VERSION = summary.SCORER_VERSION     # edat-iae-0.3.3: audit fixes, key strings scoped, two Brief figures, one Day mistake once, Day plans read by day and clause
 RUN_PREFIX = "edat-iae"
 
 

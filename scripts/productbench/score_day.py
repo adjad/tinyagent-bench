@@ -31,6 +31,11 @@ Coverage: share of the day's ledger tasks (deadline, owed, task with a duration)
 that the plan gives a block. When the key gives no such task the check cannot run: coverage
 is reported as missing (rate None) and counts 0 in the score, never 1.0.
 
+A plan written as text is read one line at a time, and a line that gives several start times in
+prose is read clause by clause. A time with another day's word right beside it ("tomorrow night at
+7 PM", "Saturday at 8 pm") is not a block of the plan day, and the same item given twice at one time
+is one block (edat-iae-0.3.3).
+
 A block whose end the plan does not give takes the length of the fixed item that starts at
 its time (±10 min), else it runs to the next block (at most an hour). "Overdue by 5 days" is
 an amount, not a clock time (matcher.py).
@@ -80,19 +85,101 @@ _TIME_TEXT = re.compile(
     r"\b\d{1,2}\s*(?:a\.?m\.?|p\.?m\.?)|\bnoon\b", re.I)
 
 
+# A day named next to a time: "tomorrow night at 7 PM", "Saturday at 8 pm", "9:00 on Thursday".
+_WEEKDAY = r"(?:mon|tues?|wed(?:nes)?|thu(?:rs?)?|fri|satur|sun)day|mon|tues?|wed|thu(?:rs?)?|fri"
+_DAY_WORD = (rf"tomorrow|yesterday|today|tonight|{_WEEKDAY}|(?:{matcher._MONTH_RE})\s+\d{{1,2}}(?:st|nd|rd|th)?"
+             r"|\d{1,2}/\d{1,2}")
+_DAY_BEFORE = re.compile(rf"\b({_DAY_WORD})(?:'s)?(?:\s+(?:morning|afternoon|evening|night))?\s*,?\s*"
+                         r"(?:(?:starting\s+)?(?:at|from|by|around|@)\s*)?(?:\*\*|__)?\s*$", re.I)
+_DAY_AFTER = re.compile(rf"^\s*(?:\*\*|__)?\s*,?\s*(?:(?:on|this|next)\s+)?({_DAY_WORD})\b", re.I)
+# A time that only bounds something else ("before the 5:00 deadline") starts no block of its own.
+_BOUND_BEFORE = re.compile(r"\b(?:by|before|until|till|due(?:\s+at)?|no later than|deadline(?:\s+(?:is|of))?)"
+                           r"\s+(?:the\s+)?(?:\*\*|__)?\s*$", re.I)
+_SENTENCE = re.compile(r"(?<![ap]\.m\.)(?<!\b[DMS][rst]\.)(?<!\bMrs\.)(?<=[.!?])\s+(?=[\"'*_(\[]*[A-Z])")
+_CLAUSE = re.compile(r"\s*[;,]\s+|\s+(?:and then|then|followed by|and)\s+", re.I)
+_STOP = {"with", "your", "have", "about", "from", "that", "this", "then", "after", "before", "today",
+         "tonight", "starting", "followed", "remember", "reminder", "scheduled", "don't", "forget"}
+
+
+def _time_spans(text: str) -> list[tuple[int, int]]:
+    """Where the clock times in `text` are, a range counted once: matcher.time_mentions' order."""
+    spans: list[tuple[int, int]] = []
+    for mt in _TIME_TEXT.finditer(text):
+        spans.append(mt.span())
+    for mt in matcher._AT_HOUR.finditer(text):
+        a, b = mt.span(1)
+        if not any(x <= a < y for x, y in spans):
+            spans.append((a, b))
+    return sorted(spans)
+
+
+def _other_day(piece: str, span: tuple[int, int], today) -> bool:
+    """Whether the time at `span` is said to be on another day ("tomorrow at 9:00 PM", "Saturday
+    at 8 pm", "7 PM on Thursday"). Only a day word right beside the time counts: "9:15 am: reply
+    to Katrin about Thursday's check" is a block today."""
+    for m in (_DAY_BEFORE.search(piece[:span[0]]), _DAY_AFTER.match(piece[span[1]:])):
+        if m:
+            days = matcher.dates(m.group(1), today)
+            return bool(days) and today not in days
+    return False
+
+
+def _starts(piece: str) -> list[tuple[int, int]]:
+    """The spans of times in `piece` that start something: not the end of a range and not a bound."""
+    return [s for s in _time_spans(piece) if not _BOUND_BEFORE.search(piece[:s[0]])]
+
+
+def _split(line: str) -> list[str]:
+    """One piece per planned item. A line that gives several start times in prose ("starting with
+    the shift at 7:00, followed by the standup at 9:00") is cut into sentences, then clauses. A
+    clause with no start time of its own stays in its sentence: it joins the clause after it ("Your
+    focus then shifts | to the standup at 9:00"), or, last in the sentence, the one before."""
+    if len(_starts(line)) < 2:
+        return [line]
+    out: list[str] = []
+    for sentence in _SENTENCE.split(line):
+        if len(_starts(sentence)) < 2:
+            out.append(sentence)
+            continue
+        cut = [c for c in _CLAUSE.split(sentence) if c and c.strip()]
+        mine: list[str] = []
+        carry = ""
+        for c in cut:
+            if not _starts(c):
+                carry = f"{carry} {c}".strip()
+                continue
+            mine.append(f"{carry} {c}".strip())
+            carry = ""
+        if carry:
+            if mine:
+                mine[-1] += ", " + carry
+            else:
+                mine.append(carry)
+        out += mine
+    return out
+
+
+def _words(title: str) -> set[str]:
+    return {w for w in re.findall(r"[a-z][a-z'-]{3,}", matcher.fold(title)) if w not in _STOP}
+
+
 def parse_plan(text: str, profile: Profile) -> list[Block]:
-    """Timed blocks from a plan written as text, one per line (or sentence) that has a time."""
+    """Timed blocks from a plan written as text, one per line, sentence or clause that has a time.
+
+    A time said to be on another day ("tomorrow night at 7 PM") is not a block of the plan day.
+    The same item given twice at one time (a summary sentence, then the list) is one block."""
     work = profile.working_window()
+    today = profile.anchor.date()
     pieces = []
     for line in text.splitlines():
-        if len(matcher.time_mentions(line)) > 2 and ";" in line:
-            pieces += line.split(";")
-        else:
-            pieces.append(line)
+        pieces += _split(line)
     raw = []
     for piece in pieces:
         mentions = matcher.time_mentions(piece)
         if not mentions:
+            continue
+        starts = _starts(piece)
+        if starts and _other_day(piece, starts[0], today):
             continue
         start = _pick(mentions[0], work)
         end = None
@@ -104,7 +191,14 @@ def parse_plan(text: str, profile: Profile) -> list[Block]:
         title = _TIME_TEXT.sub(" ", piece)
         title = _BULLET.sub("", title.replace("**", "").replace("__", ""))
         title = re.sub(r"^\W+|\W+$", "", re.sub(r"\s+", " ", title)).strip()
-        title = re.sub(r"^(?:from|at|by)\s+", "", title, flags=re.I)
+        title = re.sub(r"^(?:(?:and then|then|followed by|and|starting with|from|at|by)\s+)+", "", title, flags=re.I)
+        title = re.sub(r"\s+(?:at|by|from|around)$", "", title, flags=re.I)
+        same = next((r for r in raw if r[0] == start and _words(r[2]) & _words(title)), None)
+        if same is not None:
+            # The same item again at the same time: one block, which takes both titles' words.
+            same[1] = same[1] or end
+            same[2] = f"{same[2]} / {title}"
+            continue
         raw.append([start, end, title, piece.strip()])
     raw.sort(key=lambda r: r[0])
     fixed = [(profile.minutes(it["start"]), profile.minutes(it["end"])) for it in profile.ledger

@@ -116,6 +116,18 @@ def _rrule_parts(text: str) -> dict[str, str]:
     return out
 
 
+# Typographic variants a model (or a host) writes for plain characters. Text
+# checks compare folded text, so "didn’t" matches "didn't" and a no-break
+# space matches a space. Case lists and regexes are written in plain ASCII.
+_FOLD = str.maketrans({"\u2019": "'", "\u2018": "'", "\u02bc": "'", "\u201c": '"', "\u201d": '"',
+                       "\u2013": "-", "\u2014": "-", "\u2011": "-", "\u00a0": " ", "\u202f": " ",
+                       "\u2009": " "})
+
+
+def fold(text: str) -> str:
+    return (text or "").translate(_FOLD)
+
+
 def match_value(spec, value, clock: Clock) -> str | None:
     if not isinstance(spec, dict):
         if is_relative(spec):
@@ -141,12 +153,12 @@ def match_value(spec, value, clock: Clock) -> str | None:
     if op == "present":
         return None if (not _empty(value)) == bool(want) else f"expected {'present' if want else 'absent'}"
     if op == "not_contains":
-        text = as_text(value).lower()
+        text = fold(as_text(value)).lower()
         hit = [w for w in want if str(w).lower() in text]
         return None if not hit else f"contains forbidden {hit[0]!r}"
     if _empty(value) and not (op == "eq" and _empty(want)):
         return "missing"
-    text = as_text(value)
+    text = fold(as_text(value))
     if op == "eq":
         return None if _eq(value, want, clock) else f"{value!r} != {want!r}"
     if op == "icontains":
@@ -249,7 +261,9 @@ ANSWER_KEYS = ("contains_all", "contains_any", "not_contains", "regex", "not_reg
 def check_answer(spec: dict | None, text: str) -> list[str]:
     """Answer checks on the final text; each key is one check."""
     problems = []
-    low = (text or "").lower()
+    raw = text or ""
+    text = fold(raw)
+    low = text.lower()
     for key, want in (spec or {}).items():
         if key == "contains_all":
             miss = [w for w in want if str(w).lower() not in low]
@@ -267,7 +281,7 @@ def check_answer(spec: dict | None, text: str) -> list[str]:
                 problems.append(f"answer !~ /{want}/")
         elif key == "pref_items":
             from edat.grading.pref_checks import check_items
-            problems += check_items(want, text or "")
+            problems += check_items(want, raw)   # format checkers see the text as written
         elif key == "not_regex":
             if re.search(want, text or "", re.I | re.S):
                 problems.append(f"answer ~ forbidden /{want}/")

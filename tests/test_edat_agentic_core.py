@@ -569,3 +569,11 @@ def test_restraint_event_shape():
     assert external_restraint_rows([e], {"12": 10})
     with pytest.raises(ValueError):
         restraint_event("12", "sk_1", 1, "m", "b", "rude")
+
+
+def test_text_checks_fold_typographic_quotes_and_spaces():
+    from edat.grading.grader import claim_made
+    from edat.grading.matchers import check_answer
+    assert check_answer({"contains_any": ["didn't send"]}, "Okay — I didn’t send it.") == []
+    assert check_answer({"regex": r"2:00 PM"}, "Moved to 2:00 PM") == []
+    assert not claim_made(r"\bsent\b", "It wasn’t sent.")

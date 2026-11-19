@@ -1,0 +1,5 @@
+Vendor,Annual price (USD),Ingest included,Hosts,Tracing,Migration estimate (USD),Notes
+Lumenwatch (renewal quote),86400,3 TB/day,120,Full,0,Current vendor; quote of Oct 2
+Ferrovane Metrics,71500,2.5 TB/day,150,Full,18000,~6 week migration; dashboards rebuilt
+Gaugewright,64800,3 TB/day,100,Basic,26000,No custom trace sampling
+Budget cap (Dana),80000,,,,,Finance line FY27

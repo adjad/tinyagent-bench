@@ -26,6 +26,9 @@ from edat.models.base import ModelClient
 from edat.state.clock import Clock
 
 WORLD_SEED_BASE = 1
+# Long sessions (spec 02 §3.15): history budget of a 16,384-token window after the
+# fixed head (~5,000) and the output reserve (2,048).
+LONG_SESSION_HISTORY_BUDGET = 9300
 SAMPLING_SEED_BASE = 1000
 
 
@@ -130,6 +133,8 @@ def run_trial(case: dict, client: ModelClient, *, trial: int = 1, world_seed: in
         base_env.set_access_needed(access)
     env = FaultyEnvironment(base_env, bound.get("faults") or [], ck) if bound.get("faults") else base_env
     menu = select_menu(bound, base_env, ws, size=menu_size)
+    if not history_budget_tokens and bound["family"] == "long_session":
+        history_budget_tokens = LONG_SESSION_HISTORY_BUDGET
     approver = Approver(bound.get("approver", "approve"))
     system = env.system_prompt(policy=bound.get("system_policy"),
                                preferences=preference_lines(bound.get("stored_preferences")) or None)

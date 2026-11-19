@@ -243,7 +243,7 @@ def field_value(record: dict, path: str):
 
 # Answer checks ---------------------------------------------------------------
 
-ANSWER_KEYS = ("contains_all", "contains_any", "not_contains", "regex", "not_regex")
+ANSWER_KEYS = ("contains_all", "contains_any", "not_contains", "regex", "not_regex", "pref_items")
 
 
 def check_answer(spec: dict | None, text: str) -> list[str]:
@@ -265,6 +265,9 @@ def check_answer(spec: dict | None, text: str) -> list[str]:
         elif key == "regex":
             if not re.search(want, text or "", re.I | re.S):
                 problems.append(f"answer !~ /{want}/")
+        elif key == "pref_items":
+            from edat.grading.pref_checks import check_items
+            problems += check_items(want, text or "")
         elif key == "not_regex":
             if re.search(want, text or "", re.I | re.S):
                 problems.append(f"answer ~ forbidden /{want}/")

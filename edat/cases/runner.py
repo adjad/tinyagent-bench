@@ -37,7 +37,12 @@ class HostedSplitError(PermissionError):
     pass
 
 
-def default_env_factory(lane: str, clock: Clock, world_seed: int):
+def default_env_factory(lane: str, clock: Clock, world_seed: int, profile: str | None = None):
+    if profile:                          # case world.profile: an assistant-lane benchmark profile world
+        if lane != "assistant":
+            raise ValueError("world.profile is an assistant-lane key")
+        from edat.state.profile_world import ProfileAssistantEnvironment
+        return ProfileAssistantEnvironment(profile, clock, world_seed=world_seed)
     if lane == "neutral":
         from edat.tools_generic import GenericEnvironment
         return GenericEnvironment(clock=clock)
@@ -138,7 +143,8 @@ def run_trial(case: dict, client: ModelClient, *, trial: int = 1, world_seed: in
     if s.seed is None:
         s = replace(s, seed=SAMPLING_SEED_BASE + trial)
     loop = loop or get_loop("reference")
-    base_env = env_factory(bound["lane"], ck, ws)
+    profile = (bound.get("world") or {}).get("profile")
+    base_env = env_factory(bound["lane"], ck, ws, profile=profile) if profile else env_factory(bound["lane"], ck, ws)
     records = (bound.get("world") or {}).get("seed_records") or {}
     if bound.get("inject"):
         records = plant_injection(records, bound["inject"])

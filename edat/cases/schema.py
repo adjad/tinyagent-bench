@@ -59,7 +59,7 @@ CASE_KEYS = frozenset({
     "intended_recipients", "canaries_forbidden_in_outbound", "authorized_disclosures",
     "no_tool", "refused", "access",
 })
-WORLD_KEYS = frozenset({"seed_records", "clock", "tz", "access_needed"})
+WORLD_KEYS = frozenset({"seed_records", "clock", "tz", "access_needed", "profile"})
 
 
 class CaseError(ValueError):

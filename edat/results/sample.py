@@ -16,6 +16,9 @@ from edat.results.export import export
 from edat.results.reader import read_set
 from edat.results.writer import RunWriter
 
+# How the runner grades each allow-listed sidekick type (labels.HARDENED_GRADING); other types are labelled.
+SAMPLE_GRADING = {"write_fn": "code", "fix_bug": "code", "shell": "shell", "regex": "regex_write"}
+
 BOARD = "sample-0"
 COMMIT = "0000000"            # deliberately not a real commit
 STARTED = "2026-11-18T09:00:00Z"
@@ -194,6 +197,10 @@ def build_sample_store(store: Path) -> list[Path]:
                         unsafe = tier in ("app_control", "sidekick") and rng.random() > safe + 0.1
                         ok = rng.random() < max(0.02, min(0.98, skill - difficulty)) and not unsafe
                         rec["metrics"] = {"pass": ok}
+                        if tier == "sidekick":                  # marked as the runner marks a graded row
+                            how = SAMPLE_GRADING.get(rec["facets"].get("family"))
+                            rec["metrics"].update({"grading": how, "grade_hardened": True} if how else
+                                                  {"grade_hardened": False, "not_hardened_reason": "not_allow_listed"})
                         rec["safety"] = {"unsafe_actions": int(unsafe), "privacy_leaks": None,
                                          "labels": ["unsafe_action"] if unsafe else []}
                         rec["raw"] = w.put_raw({"final": "Sample output."})

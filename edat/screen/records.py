@@ -130,7 +130,8 @@ def facets_for(case: dict, track: str) -> dict:
 
 
 def record_for(*, entry: Entry, run_id: str, board_version: str, harness_commit: str, case: dict, track: str,
-               trial: int, world_seed: int, seed: int | None, verdict, raw: dict, started_at: str) -> dict:
+               trial: int, world_seed: int, seed: int | None, verdict, raw: dict, started_at: str,
+               selection: dict | None = None) -> dict:
     rec = {
         "schema": RESULT_SCHEMA, "kind": entry.kind, "tier": TIER, "suite": SUITE, "run_id": run_id,
         "board_version": board_version, "lang": "en", "model": entry.model_block(), "runtime": dict(entry.runtime),
@@ -143,6 +144,8 @@ def record_for(*, entry: Entry, run_id: str, board_version: str, harness_commit:
         "facets": facets_for(case, track), "metrics": metrics_for(verdict, case), "safety": safety_for(verdict),
         "raw": raw,
     }
+    if selection:
+        rec["selection"] = dict(selection)       # core, smoke or full: never pooled with another selection
     if verdict.excluded:
         rec["status_detail"] = "engine_error"
     if entry.kind == "cloud_reference":
@@ -200,7 +203,10 @@ def restraint_events_for(v, entry: Entry, board_version: str) -> list[dict]:
 
 def perf_sample_for(v, case: dict, entry: Entry, trial: int) -> dict:
     m = metrics_for(v, case)
+    # `entry_id`, `level` and `completed` are the names edat.perf reads (sustained.task_sample turns
+    # this row into a §3.6 sample); `model_key` and `correct` are kept for older readers.
     return {"test": "screen_task", "task_id": case["id"], "trial": trial, "level": m["level"],
+            "entry_id": entry.key, "completed": bool(v.success),
             "model_key": entry.key, "correct": bool(v.success), "wall_s": m["wall_s"], "model_s": m["model_s"],
             "steps": v.steps, "prompt_tokens": m["prompt_tokens"], "completion_tokens": m["completion_tokens"],
             "reasoning_tokens": m["reasoning_tokens"], "wall_budget_s": m["wall_budget_s"],

@@ -24,6 +24,7 @@ from edat.results.aggregate import Options, aggregate
 from edat.results.reader import RunSet
 from edat.results.schema import SITE_BOARD_SCHEMA_ID, SITE_INDEX_SCHEMA_ID, SNAPSHOT_SCHEMA_ID, validate
 from edat.results.writer import atomic_write, record_line, utc_now
+from edat.sidekick.labels import may_score
 
 PUBLIC_SPLITS = ("dev", "public_dataset")
 SAMPLE_NOTICE = ("SAMPLE DATA. Every model name and number in this file is invented to exercise the "
@@ -112,6 +113,8 @@ def _result(e: dict, tier: str, metric: str, block: dict, *, facet: str | None, 
 def site_rows(e: dict) -> tuple[list, list, list]:
     results, safety, curves = [], [], []
     for tier, b in sorted(e["tiers"].items()):
+        if b.get("ranked") is False:
+            continue                       # labelled rows: their own block in the snapshot, no site figure
         if tier == "perf":
             for metric, points in sorted((b.get("curves") or {}).items()):
                 curves.append({"variant": e["entry_key"], "metric": metric,
@@ -379,7 +382,7 @@ def trajectories(entries_records: dict[str, list[dict]], raw_of, limit_per_entry
     out = []
     for ek, recs in sorted(entries_records.items()):
         picked = [r for r in recs if r["split"] in PUBLIC_SPLITS and r["tier"] != "perf" and r["status"] == "ok"
-                  and r.get("raw")]
+                  and r.get("raw") and (r["tier"] != "sidekick" or may_score(r))]
         picked.sort(key=lambda r: (r["tier"], r["case_id"], r["trial"]))
         for r in picked[:limit_per_entry]:
             raw = raw_of(r)
@@ -540,6 +543,10 @@ def diff_snapshots(a: dict, b: dict, *, allow_board_change: bool = False) -> dic
     for k in sorted(set(ea) & set(eb)):
         for tier in sorted(set(ea[k]["tiers"]) & set(eb[k]["tiers"])):
             ta, tb = ea[k]["tiers"][tier], eb[k]["tiers"][tier]
+            if ta.get("ranked") is False or tb.get("ranked") is False:
+                refused.append({"entry": k, "tier": tier,
+                                "reason": "not hardened against adversarial model code: no differences are published"})
+                continue
             for field_, label in (("harness_commits", "harness commit"), ("sampling_sources", "sampling")):
                 if ta.get(field_) != tb.get(field_):
                     refused.append({"entry": k, "tier": tier,

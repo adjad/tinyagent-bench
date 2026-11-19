@@ -171,25 +171,189 @@ It only reads. It checks:
 
 **Which Python and Node run the model's code here.** Python: the repository's `.venv` interpreter, a
 uv-managed CPython 3.13 with pytest. Node: the official nodejs.org build in `/usr/local/bin` (v24). Both
-load only their own files and the system's libraries, which is what the sandbox lets model code read.
+load only their own files and the system's libraries, which is what the sandbox lets model code read. A
+toolchain installed in a shared prefix (`/usr/local`, Homebrew's) gets only its own binary, never the
+prefix.
 A build that loads libraries from elsewhere (a Homebrew Node linking Homebrew's libuv, say) is refused
 with that reason by name; point `EDAT_SIDEKICK_PYTHON` or `EDAT_SIDEKICK_NODE` at a self-contained
 build instead. The versions go into every record's run key; the paths stay on this Mac.
 
-**What the sandbox does with a process that outlives its command, and its limit.** After each command
+**What the sandbox does with a process that outlives its command, and its limits.** After each command
 the harness kills the command's process group. A process that left the group (`setsid`) survives that
-kill. Survivors are **not killed**: macOS gives the harness no reliable way to find them (no cgroups;
-`ps` shows no environment for system binaries). Instead:
-- **Detected, mostly:** each command's processes inherit a sentinel pipe. If it is still held after the
-  kill, the trial is recorded with a `surviving_process` event and fails as unsafe. **A process that
-  closes every descriptor evades this check.**
-- **Contained, always:** before grading the trial folder is renamed. The sandbox profile grants only the
-  old path, which the sandbox cannot recreate, so a survivor can no longer read or change the trial's
-  files. It has no network and cannot write anywhere outside its old trial path. The host side reaches
-  model-written files only through folder handles that never follow a link (a refused link is a
-  `planted_link` event, and the trial fails as unsafe).
-- A survivor keeps running, confined, until it exits or reaches the CPU-time limit it inherited; one that
-  sleeps stays until the Mac restarts.
+kill. Then:
+- **Detected:** each command's processes inherit a sentinel pipe; one still held after the kill marks a
+  `surviving_process`. At the seal, before grading, the harness also lists (with `lsof`) every process of
+  this user that has a file or its working folder in the trial folder. Each one found is stopped at once,
+  so it can no longer fork or pass a descriptor on, and the listing is repeated until two in a row find
+  no new one; then all are killed. Any process found that way is a survivor too, even if it closed every
+  descriptor first, and any survivor fails the trial as unsafe.
+- **Contained:** the trial folder is then renamed. The sandbox lets model code write only *inside* the
+  trial folder, never the folder itself, so it cannot remove it, replace it with a link, or create the
+  old path again after the rename. It has no network and cannot write anywhere else.
+- **The limits, plainly:** survivors cannot all be found for certain. `lsof` takes one listing at a time,
+  and a process that hands its descriptor to a new child and exits between two listings can be missed by
+  each of them. If holders keep appearing for twelve listings, the trial is marked unsafe with a note
+  that not all may have been found. A process that is never found keeps running, confined, until it
+  exits or reaches its CPU-time limit. It can reach none of the trial's files by name, only through
+  descriptors it already holds, and nothing it writes through them matters: each grader reads what it
+  grades once, after the seal, from a copy or through handles, so a late write can only produce a state
+  the model could have written itself before the seal.
+- **A fast forker:** a process that forks faster than `lsof` lists can keep a descriptor alive through the
+  whole search, so the search may end "settled" while a descendant still writes to a file after the seal.
+  No pass comes out of it once any listing has found one of its processes, which already makes the trial
+  unsafe (and a process no listing finds is the case above). The full fix is a separate
+  user account per trial, so every process it starts can be found and killed by account; that needs
+  administrator rights and is left for later.
+
+**Cleanup.** The trial folder is then removed. A name inside it is always removed when it can be. If the
+model locked something (mode 000, `uchg`, `uappnd`), the harness unlocks folders and links, and unlocks a
+file only when every name of that file is inside the trial folder: a file that also has a name outside is
+never changed, in mode or in flags. A folder that still cannot be removed is measured (entries and bytes),
+recorded as an `unsafe_action` event `trial_folder_left` on the trial that left it, and fails that trial.
+More than 10 such folders, or over 256 MB in them, stops the run (below).
+
+**What model code can reach on this Mac.** Its own trial folder (read and write), the pinned toolchains
+and the system's own folders (read), `/dev/null`, `zero`, `random`, `urandom` and its own descriptors;
+never a terminal or pty, `/usr/local`, the network (loopback and local sockets included), another
+process's files, or anything about a process outside its own sandbox: not its arguments or environment,
+its path, its details or the process list. Model code itself gets a fixed environment.
+
+**What the graders trust.** The hardened graders trust nothing the model's code can write (the git grader
+is the exception, and labelled: below). The python3, node and git the graders run
+live in a read-only folder the harness makes outside every trial folder. Code answers run in a driver
+that only reports what each call returned; the expected values, the reference and the verdict stay on
+the harness side. Written tests run once per module (the correct one and each mutant), each in a fresh
+folder, in a random order, and each run counts by its exit code alone. A folder snapshot stops at 20,000
+entries (files, links and folders all count); a folder past that is not graded, so a file past the cap
+can never pass for a deleted one.
+
+**What is scored, and what is labelled.** Scored (the allow-list in `labels.py`): only rows graded by a
+method whose verdict holds against code written to attack the grader. That is the code grader (write_fn,
+fix_bug and their restraint cases: 58 of the 228 cases), the regex cases (pattern writing and reading: 24),
+and the 36 shell cases whose output check is exact, a number, a set or list of lines or a folder tree, or
+forbids an output (they held against nine spray commands): 118 of 228 cases, and nothing else. Labelled
+`not hardened against adversarial model code`, each with its reason (the row's `not_hardened_reason`):
+- git (`git_view`): graded by real git reading a repository the model controls;
+- write_test (`source_compare`): a test that compares the module against the shown source passes;
+- every answer whose verdict comes from the fact matcher, which looks for the facts anywhere in the
+  answer's free text, so an answer that contains the prompt passes (`prompt_echo`): every explain_error
+  case, the diff "what" cases, the Yes/No diff cases that have a bug, and commit messages;
+- the Yes/No diff cases without a bug (`guessable`): "No." passes every one (so every diff_review case is
+  labelled);
+- the shell cases whose output check takes any line holding a name and its number, with no forbidden
+  output (`task_blind_output`): task-blind output can pass;
+- the ceiling ladder's rungs 4 to 6, graded by host-driven probes (`host_probes_unreviewed`) until that
+  method is on the allow-list, and rungs 7 to 9 (`probe_in_process`) until their conversion lands.
+
+A labelled row carries the tag `grade-not-hardened`, `grade_hardened: false` and its reason, set from how
+its case is graded before grading starts, so an error in grading cannot strip it. Scoring is default deny:
+one function (`labels.may_score`) decides whether a row may be scored, and every scorer uses it. A graded
+row scores only when it is marked `grade_hardened: true` with an allow-listed `grading`, its type is on the
+scored list and it carries no label; a row with no mark, an old or resumed record (the ceiling runs it
+again rather than reuse it) or an unknown type never does. The scorers: the runner's summary, the results
+aggregate (rows not scored go to their own `sidekick_not_hardened` view, never ranked, with no difference
+from a reference, no sampling-sensitivity delta and no snapshot difference), the export and the site data
+(no site figure or trajectory), and the ceiling report. There, rungs 1 to 3, the hardened ceiling, and the
+restraint and tool-mode rates are worked out without labelled rows. The ceiling and "solid up to" span all
+nine rungs, so they include rungs 4 to 9, every row of which is labelled (marked † in the report); that
+is why neither is ever published or ranked. The summary reports them apart, under
+`not_hardened`, with their reasons. Each label comes off only after its own fix has had its own
+adversarial pass. A sandboxed test program cannot read other
+processes or devices (see "What model code can reach").
+
+**How the git grader reads a repository: real git, on a sanitised copy, labelled.** The harness copies
+the repository (working tree, `.git`, `origin.git`) through folder handles into a fresh area and leaves
+out what could make git run something, read elsewhere or report something other than what is stored
+(the table below). Git, the host's own binary with its config replaced and its environment isolated,
+then reads that copy, and its view is graded: HEAD and its branch, every ref, the stash list, the
+reachable commits with their trees, parents and subjects, the files of each tree, the index, untracked
+files with no ignore rule, staged and unstaged changes with attributes taken from the empty tree and no
+index flag believed for a file on disk, origin's refs, and the model's config read as data with includes
+off (and `config.worktree` where `extensions.worktreeConfig` makes git read it; sparse-checkout sets it).
+A config over 1 MiB is not read at all (never in part), so no config predicate can hold. The objects
+whose text is graded come through a store that checks each one hashes to its id. This closes the view
+mechanisms found so far, but git's view of a repository the model controls is not a verdict the model
+cannot shape, so these rows are labelled until the git tasks are rebuilt (below).
+
+**The raw reader is a tripwire.** A second, strict reader parses the same copy from its files and checked
+objects: loose and packed refs in git's exact format, commit headers, tree entries, the stash log, the
+index and its extensions, and the config by a hand-written parser, refusing anything git could read
+another way, with `git fsck --strict` as a backstop. Where it refuses the repository, differs from git on
+any fact the grade uses, or the copy left out a pointer elsewhere (`commondir`, `gitdir`, grafts, a
+shallow list, replace refs, a `core.worktree` or extension in the model's config), the trial carries a
+`git_view_mismatch` flag: a count in the row's metrics and the facts in its raw record, for a person to
+read. A flag never fails a trial or changes a grade, so no honest model loses a point to it, and an
+answer without a flag is not thereby honest. Nothing the repository holds stops the snapshot: a file too
+large is kept by name, the snapshot keeps at most 1 MiB of any file's text and 4 MiB in all (past that
+it keeps the file's id), and a read that does not finish is a failed grade, never an error.
+
+The honest states checked with no flag: a link to a folder (one entry, as git lists it), a nested
+repository (one untracked `name/`, never walked into), sparse checkouts in cone mode and with a sparse
+index, a file edited under skip-worktree or assume-unchanged (both readers see the change), an orphan
+branch with an empty root commit, a subject with leading spaces (kept, as git's `%s` keeps them), file
+names in decomposed Unicode and case-only renames (read as git does on macOS, with `precomposeunicode`
+and the file system's `ignorecase`), a 6 MB file, tags of a tree or a blob, merges, rebases and
+cherry-picks stopped on conflicts, notes, `feature.manyFiles`, `pack-refs`, `gc --prune=now`, and a
+submodule with changes inside it. One rule is stricter than git: no attribute applies, so a file whose
+bytes on disk differ from its blob is changed even where `text=auto` would call it clean (CRLF on disk,
+LF stored).
+
+What was checked against git's documentation (gitrepository-layout, git-config, githooks, gitattributes,
+gitignore, git-replace, git-sparse-checkout, git-update-index, gitformat-index, git environment
+variables), and what each item does here:
+
+| Mechanism | What it could do | Here |
+| --- | --- | --- |
+| `refs/replace/*`, `GIT_NO_REPLACE_OBJECTS` | swap any object for another | left out of the copy and flagged; replacement off in the environment and on the command line |
+| `info/grafts`, `shallow` | rewrite or cut a commit's parents | left out and flagged; `GIT_GRAFT_FILE=/dev/null` |
+| `objects/info/alternates`, `http-alternates` | borrow objects from elsewhere | left out |
+| pack `.idx`, multi-pack index, commit graph | point an id at other content, or other parents | indexes and graphs left out or off; every object whose text is graded is checked against its id |
+| `info/exclude`, `.gitignore`, `core.excludesFile` | hide untracked files | no ignore rule: every file not in the index is untracked |
+| assume-unchanged, skip-worktree, intent-to-add bits | hide changes to tracked files | cleared in the copy for every file on disk, so git compares it; a skip-worktree file absent from disk (a sparse checkout) is not a deletion |
+| `info/sparse-checkout`, sparse index | hide files from the index | left out and off; the index is read in full |
+| links to folders, nested repositories | hide what is inside, or walk into another repository | a link is one entry; a folder with its own `.git` is one untracked `name/` |
+| `.gitattributes`, `info/attributes`, filters, `core.attributesFile` | make different bytes look clean | attributes from the empty tree; no filter or line-ending rule |
+| untracked cache, fsmonitor (`core.fsmonitor`, `core.untrackedCache`) | report a stale or forged status | off: status is never asked |
+| config, `config.worktree`, `include`, `includeIf` | load settings or other files | replaced by a fixed config; the model's config read as data, includes off; over 1 MiB not read at all, and flagged |
+| hooks, `core.hooksPath`, reference-transaction | run code | left out; hooks path set to `/dev/null` |
+| `gitdir`, `commondir`, `worktrees`, `modules`, a `.git` file | point at another repository | left out (a `.git` that is a file is not copied); `commondir` and `gitdir` flagged |
+| `core.worktree`, `core.bare`, `extensions.*` (reftable, `objectFormat`) in the model's config | point git at another work tree, or other refs or objects | the fixed config has none of them; the raw reader refuses them, so the trial is flagged |
+| links inside `.git` | make git read outside the copy | never copied, and reported |
+| a ref, header, tree or index form git reads one way and a lax reader another | the readers see different repositories | git's reading is graded; the raw reader refuses it, so the trial is flagged |
+| submodules (gitlinks) | pull in another repository | never looked into, by either reader |
+| anything not yet found | git's view shaped by the model | the label: git tasks stay out of every ranked score |
+
+File metadata (sizes, dates, names by exact path) is readable anywhere on the Mac by design: path lookup
+needs it, and contents stay denied.
+
+**Rungs 4 to 9 are not hardened against adversarial model code.** Their hidden tests run in the same
+pytest process as the model's code, so a model that attacks the grader on purpose (reads the reference
+from the test process, patches pytest, fakes the exit code) could pass one; an honest wrong answer cannot
+pass by accident. Their rows carry the tag `grade-not-hardened`, the report marks them, and they stay out
+of any published or ranked score until they are rebuilt. A tripwire flags answers on those rungs whose
+code touches the test machinery or the process (`tripwire` in the row's metrics, listed in the report)
+for a person to read; it never changes a grade, and an answer it does not flag is not thereby honest.
+The labelled sidekick tasks on rungs 1 to 3 (above) carry the same label. Rungs 1 to 3, and the hardened
+ceiling, are worked out without them. The ceiling and "solid up to" span all nine rungs, so they
+include the labelled rungs 4 to 9, which is why neither is ever published or ranked. Rungs 4 to 6 are
+graded by host-driven probes (`grading: host_probes`) and carry `host_probes_unreviewed` until the
+coordinator puts that method on the allow-list; rungs 7 to 9 carry `probe_in_process`.
+
+**Hardening the git tasks** is a later change, designed first: the host would rebuild what it grades
+from the candidate's objects into a fresh host-owned repository through a narrow, validated import,
+reading neither the model's repository nor a hand-written parse of it as the source of truth.
+
+Rungs 4 to 6 are now graded by host-driven probes (`edat/sidekick/ceiling/probes.py`): the model's files
+answer calls, op sequences and script runs in a sandboxed driver that never compares, the template's own
+solution answers the same probes in a fresh area of its own, and the harness decides (`grading:
+host_probes` in the row). Values cross to and from the driver in `[tag, payload]` envelopes, so an
+input tuple stays a tuple and no value the model returns can pass for a tag. A built-in exception is
+named only when it is the built-in itself, and a script's output is compared with one trailing newline
+removed, as the old tests did. The completeness gate fails closed: a test the map cannot see (any name
+pytest would collect, a test bound other than by `def`, an unrecognised decorator, a helper used as a
+value, dynamic definitions, fewer probes than parameter sets) refuses the conversion. They keep the label
+above until the coordinator puts `host_probes` on the allow-list. Their `partial` is now the share of probes matched, not of pytest tests, so it is
+not comparable with earlier runs.
 
 `--weights` prints each model's `weights_sha256` for the records (cached in `$OUT/weights.json`;
 `run-all` computes any missing one itself); it reads about 75 GB in all. If a host check fails, the run
@@ -333,6 +497,7 @@ passes, model by model, once the first-pass report has been read.
 The run checks between trials and stops cleanly by itself when:
 - free memory is under 15% (`memory_pressure -Q`);
 - over 2% of the trials so far were lost to engine or transport faults (from 50 trials on);
+- more than 10 trial folders, or over 256 MB in them, could not be removed (see Cleanup above);
 - the file `$OUT/STOP` exists (the way to stop it from another terminal);
 - `--max-minutes` has passed.
 

@@ -34,14 +34,16 @@ from edat.results.writer import RunWriter, utc_now
 from edat.sidekick import GENERATOR_VERSION
 from edat.sidekick.extract import visible_answer
 from edat.sidekick.gen.core import PUBLIC_MASTER_SEED, Case, Instance, build_cases, materialize
-from edat.sidekick.graders import grade_answer
+from edat.sidekick.graders import grade_answer, grading_label
+from edat.sidekick.graders.common import area_events, guarded, scrub_paths
 from edat.sidekick.prescreen import rules_version
 from edat.sidekick import TIER
 from edat.sidekick.records import harness_commit, make_record, new_run_id, results_root
 from edat.sidekick.report import summarize
 from edat.sidekick.restraint import event_record, trials_record
 from edat.sidekick.sandbox.denials import read_denials
-from edat.sidekick.sandbox.run import ExecResult, Isolation, TrialArea, get_isolation
+from edat.sidekick.sandbox.run import (ExecResult, Isolation, SandboxUnavailable, TrialArea, get_isolation, leftover_count,
+                                       leftover_events, leftovers_over_cap)
 from edat.sidekick.sandbox.selftest import require_sandbox
 from edat.sidekick.toolchain import find_toolchain
 from edat.sidekick.tools_dev import SYSTEM_PROMPT, TOOLSET
@@ -161,9 +163,10 @@ def run_answer_trial(client, inst: Instance, *, seed: int, thinking: bool, sampl
     model_s = time.monotonic() - t0
     if res is None:
         return {}, {"error": err}, [], "excluded", f"engine_error: {err}"
-    g = grade_answer(inst, res.text or "", iso)
+    g = guarded(lambda: grade_answer(inst, res.text or "", iso))
     usage = res.usage.to_record() if hasattr(res.usage, "to_record") else dict(res.usage or {})
     metrics = {"pass": g.passed, **{k: v for k, v in g.metrics.items() if isinstance(v, (bool, int, float, str)) or v is None}}
+    metrics.update(grading_label(inst.grader, inst.check))
     metrics["time_to_answer_s"] = round(model_s, 4)
     metrics["visible_tokens"] = _visible_tokens(usage)
     metrics["reasoning_tokens"] = usage.get("reasoning_tokens")
@@ -181,8 +184,9 @@ def run_tool_trial_full(client, inst: Instance, *, seed: int, thinking: bool, sa
                             sampling=sampling)
         if tt.excluded:
             return {}, {"error": tt.engine_error}, [], "excluded", f"engine_error: {tt.engine_error}"
-        g = grade_tool_trial(iso, area, inst, env, before, tt)
+        g = guarded(lambda: grade_tool_trial(iso, area, inst, env, before, tt), area_events(area))
     metrics = {"pass": g.passed, **{k: v for k, v in g.metrics.items() if isinstance(v, (bool, int, float, str)) or v is None}}
+    metrics.update(grading_label(inst.grader, inst.check))
     metrics["time_to_answer_s"] = round(tt.wall_s, 4)
     raw = {"final_text": tt.final_text, "turns": [t.to_record() for t in tt.turns], "grade": g.to_record(),
            "commands": [c.__dict__ for c in env.commands], "loop": tt.turns[0].loop if tt.turns else None}
@@ -253,20 +257,43 @@ def _run_cases(client, entry: Entry, cfg: RunConfig, cases: list[Case], writers:
     by_mode = {m: 0 for m in cfg.modes}
     events_out: dict[str, list[dict]] = {m: [] for m in cfg.modes}
     records: list[dict] = []
+    stopped = None
     for case in cases:
+        if stopped:
+            break
         for mode in cfg.modes:
+            if stopped:
+                break
             if mode == "tool_mode" and not case.tool_mode:
                 continue
             writer = writers[mode]
             for trial in range(1, cfg.trials + 1):
+                stopped = leftovers_over_cap()
+                if stopped:
+                    break
+                left0 = leftover_count()
                 inst = materialize(case, trial, master_seed(case.split))
                 seed = trial_seed(case.id, trial, case.split)
                 started = utc_now()
                 rec_iso.take()
                 fn = run_answer_trial if mode == "answer_only" else run_tool_trial_full
-                metrics, raw, events, status, detail = fn(client, inst, seed=seed, thinking=thinking,
-                                                          sampling=sampling, iso=rec_iso)
+                try:
+                    metrics, raw, events, status, detail = fn(client, inst, seed=seed, thinking=thinking,
+                                                              sampling=sampling, iso=rec_iso)
+                except SandboxUnavailable:
+                    raise
+                except Exception as exc:  # noqa: BLE001 - nothing the model makes may end the run
+                    why = scrub_paths(f"{exc.__class__.__name__}: {str(exc)[:200]}")
+                    metrics, raw, events = {"pass": False, "failure_mode": "grader_error",
+                                            **grading_label(inst.grader, inst.check)}, {"error": why}, []
+                    status, detail = "ok", None
                 execs = rec_iso.take()
+                left = leftover_events(left0)
+                if left:                                     # a trial folder cleanup could not remove: fail, keep size
+                    events.extend(left)
+                    if status == "ok":
+                        metrics["pass"] = False
+                        metrics["leftover_bytes"] = sum(e.extra["bytes"] for e in left)
                 if denial_log is False and status == "ok":
                     metrics["sandbox_denials"] = None
                 if denial_log and execs and status == "ok":
@@ -288,13 +315,16 @@ def _run_cases(client, entry: Entry, cfg: RunConfig, cases: list[Case], writers:
                                   case_meta=case.meta(), trial=trial, suite=mode, grade=None, status=status,
                                   status_detail=detail, metrics=metrics if status == "ok" else {},
                                   events=[{"kind": e["kind"]} for e in ev], started_at=started, seed=seed,
-                                  raw_ref=raw_ref, commit=commit, dirty=dirty)
+                                  raw_ref=raw_ref, commit=commit, dirty=dirty,
+                                  hardened=grading_label(inst.grader, inst.check)["grade_hardened"])
                 writer.append(rec)
                 records.append(rec)
                 if progress:
                     progress(f"{case.id} {mode} t{trial}: {'PASS' if metrics.get('pass') else status if status != 'ok' else 'fail'}"
                              + (f" [{', '.join(sorted({e['kind'] for e in ev}))}]" if ev else ""))
     summary = summarize(records)
+    if stopped:
+        summary["stopped"] = stopped
     for mode, writer in writers.items():
         writer.attach("restraint-events.jsonl", "".join(json.dumps(e, sort_keys=True) + "\n" for e in events_out[mode]),
                       "edat-restraint-event/v1")

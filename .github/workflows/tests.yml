@@ -67,6 +67,14 @@ jobs:
           echo "EDAT_SIDEKICK_NODE=$node_bin" >> "$GITHUB_ENV"
           echo "node: $node_bin $("$node_bin" --version)"
           otool -L "$node_bin" | sed 1d
+      # The git grader uses one stated git, by absolute path: the developer tools' git (never Homebrew's on
+      # PATH). Pin it and print its path and version, so a failure can be read against the git it ran with.
+      - name: Point the sidekick tests at the developer tools' git
+        run: |
+          git_bin="$(/usr/bin/xcrun --find git)"
+          echo "EDAT_SIDEKICK_GIT=$git_bin" >> "$GITHUB_ENV"
+          echo "git: $git_bin $("$git_bin" --version)"
+          echo "git on PATH (not used by the grader): $(command -v git) $(git --version)"
       - name: Toolbench cases load and bind (no model)
         run: |
           python scripts/run_toolbench.py --list | tail -1

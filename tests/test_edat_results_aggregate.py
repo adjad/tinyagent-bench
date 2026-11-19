@@ -49,6 +49,9 @@ def rec(model="cand", case="c1", trial=1, passed=True, *, role=None, thinking="o
     if score is not None:
         metrics["score"] = score
     metrics.update(extra or {})
+    if tier == "sidekick":                                  # as the runner marks a graded row
+        metrics.setdefault("grade_hardened", True)
+        metrics.setdefault("grading", {"write_fn": "code", "fix_bug": "code", "shell": "shell", "regex": "regex_write"}.get(family, family))
     facets = {"family": family, "lane": lane}
     if surface:
         facets = {"surface": surface, "profile": "student"}
@@ -731,6 +734,17 @@ def test_sampling_sensitivity_refused_across_harness_commits():
     assert "different harness commits" in sens["refused"]
 
 
+def test_sampling_sensitivity_refused_for_the_labelled_view():
+    """No difference is published for rows not hardened against adversarial model code, a fixed-minus-
+    recommended delta included."""
+    def sk(n, **kw):
+        return [rec(case=f"g{i:02d}", tier="sidekick", family="git", extra={"grade_hardened": False}, **kw)
+                for i in range(n)]
+    e = entry(agg(cases(4, 4) + sk(4) + sk(4, passed=False, source="fixed_sensitivity", run_id="run-fixed")))
+    sens = e["sampling_sensitivity"]["sidekick_not_hardened"]
+    assert "refused" in sens and "delta" not in sens
+
+
 def test_entry_with_only_fixed_runs_is_listed_without_tiers():
     e = entry(agg([rec(source="fixed_sensitivity")]))
     assert e["only_sensitivity_runs"] is True
@@ -937,6 +951,9 @@ def facet_rec(tier, case, passed, suite="sample", trial=1, **facets):
     r = rec(tier=tier, case=case, passed=passed, trial=trial)
     r["suite"] = suite
     r["facets"] = facets
+    if tier == "sidekick":                                   # graded as the runner marks it, by its type
+        r["metrics"]["grading"] = {"write_fn": "code", "fix_bug": "code", "shell": "shell",
+                                   "regex": "regex_write"}.get(facets.get("family"), facets.get("family"))
     return r
 
 
@@ -973,6 +990,29 @@ def test_screen_score_uses_the_text_track_and_leaves_guard_and_pixel_out():
     assert c["screen_score"]["value"] == pytest.approx(1.0) and c["screen_score"]["complete"] is True
     assert c["screen_score_screenshot"]["value"] == pytest.approx(0.0)
     assert c["screen_score_screenshot"]["label"] == "partial"
+
+
+def test_labelled_sidekick_rows_never_reach_the_ranked_tier():
+    """Git rows (by type, by tag or by metric) go to their own unranked view: not in the sidekick composites,
+    pass rate, facets or metrics, never ranked, and no difference from a reference is published."""
+    from edat.results.aggregate import SIDEKICK_LABELLED_TYPES, SIDEKICK_TYPES
+    from edat.sidekick.graders import LABELLED_TYPES
+    assert tuple(SIDEKICK_LABELLED_TYPES) == tuple(LABELLED_TYPES) and "git" not in SIDEKICK_TYPES
+    hardened = [facet_rec("sidekick", "a1", False, suite="answer_only", family="fix_bug", mode="answer_only"),
+                facet_rec("sidekick", "a2", False, suite="answer_only", family="shell", mode="answer_only")]
+    by_type = facet_rec("sidekick", "g1", True, suite="answer_only", family="git", mode="answer_only")
+    by_tag = facet_rec("sidekick", "g2", True, suite="answer_only", family="shell", mode="answer_only",
+                       tags=["grade-not-hardened"])
+    by_metric = facet_rec("sidekick", "g3", True, suite="tool_mode", family="fix_bug", mode="tool_mode")
+    by_metric["metrics"]["grade_hardened"] = False
+    e = entry(agg(hardened + [by_type, by_tag, by_metric]))
+    sk = e["tiers"]["sidekick"]
+    assert sk["records"] == 2 and sk["composites"]["sidekick_score"]["value"] == pytest.approx(0.0)
+    assert "sidekick_tool_mode" not in sk["composites"] and sk["pass1"]["value"] == pytest.approx(0.0)
+    assert not any("git" in k for k in sk["facets"])
+    nh = e["tiers"]["sidekick_not_hardened"]
+    assert nh["records"] == 3 and nh["ranked"] is False and "rank_range" not in nh and not nh.get("rank_ranges")
+    assert nh["label"] == "not hardened against adversarial model code"
 
 
 def test_sidekick_score_counts_answer_only_and_tool_mode_apart():

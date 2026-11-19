@@ -96,6 +96,8 @@ The CLI runs the column's case set: assistant-lane core cases of the 7 headline 
 python -m edat.cases.harbor_loop --model M --out <results store> --board-version B --harness-commit C --weights-fingerprint <64 hex> --device-id D --device-class mac
 ```
 
+It runs inside the shared run guard (`edat/runtime/run_guard.py`), like the routine run (`edat/cases/RUN_SHEET.md`). The guard takes the heavy-job lock, saves the engine's state and restores it on every exit, keeps one model loaded, and refuses to touch the engine while Harbor runs.
+
 **How it works**
 - It calls `scripts/toolbench/runner.py`: `isolate`, `install_fakes`, `bind_model`, `set_clock`, `set_thinking` and `run_case`. No file there is edited.
 - While a turn runs, every Harbor tool the lane knows is installed as a function that calls the trial's environment (`env.call`). Faults, injection payloads, outbound bookkeeping and the graded state are therefore the same as in the reference loop.

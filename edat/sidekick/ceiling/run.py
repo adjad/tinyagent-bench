@@ -41,14 +41,15 @@ from edat.results.writer import RunWriter, utc_now
 from edat.sidekick import TIER
 from edat.sidekick.ceiling.models import Entry, LocalModel, find_entry, model_dir_from_settings, ordered_entries, scan
 from edat.sidekick.ceiling.rungs import (LADDER_SEED_PUBLIC, RUNG_BY_ID, RUNGS, LadderCase, ladder_cases,
-                                         materialize_probe)
+                                         materialize_probe, row_hardened)
 from edat.sidekick.extract import visible_answer
 from edat.sidekick.gen.core import PUBLIC_MASTER_SEED, materialize
-from edat.sidekick.graders import grade_answer
+from edat.sidekick.graders import grade_answer, grading_label
 from edat.sidekick.graders.common import GradeResult
 from edat.sidekick.records import harness_commit, make_record
 from edat.sidekick.restraint import event_record
-from edat.sidekick.sandbox.run import SandboxUnavailable, TrialArea, get_isolation
+from edat.sidekick.sandbox.run import (SandboxUnavailable, TrialArea, get_isolation, leftover_count,
+                                       leftover_events, leftovers_over_cap)
 from edat.sidekick.sandbox.selftest import require_sandbox
 from edat.sidekick.tools_dev import SYSTEM_PROMPT
 
@@ -331,7 +332,7 @@ def answer_trial(client, inst, *, suite: str, seed: int, thinking: bool, samplin
          "reasoning_tokens": usage.get("reasoning_tokens"), "max_tokens": budget, "model_calls": 1,
          "reasoned": bool((res.reasoning or "").strip() or (usage.get("reasoning_tokens") or 0) > 0
                           or re.search(r"<(think|thinking|reasoning)>", text, re.I))}
-    for k in ("partial", "hidden_passed", "hidden_total"):
+    for k in ("partial", "hidden_passed", "hidden_total", "grade_hardened", "grading", "tripwire"):
         if k in g.metrics:
             m[k] = g.metrics[k]
     raw = {"prompt_head": inst.prompt[:600], "answer": visible_answer(text)[:20000],
@@ -378,13 +379,23 @@ def tool_trial(client, inst, *, suite: str, seed: int, thinking: bool, sampling,
     steps = sum(len(t.steps) for t in tt.turns)
     m = {"pass": g.passed, "failure_mode": classify(g), "time_s": round(wall, 3), "model_calls": steps,
          "max_tokens": budget}
-    for k in ("tool_calls", "refused_calls", "malformed_calls", "hallucinated_tools", "partial", "hidden_total"):
+    for k in ("tool_calls", "refused_calls", "malformed_calls", "hallucinated_tools", "partial", "hidden_total",
+              "grade_hardened", "grading", "tripwire"):
         if k in g.metrics:
             m[k] = g.metrics[k]
     raw = {"prompt_head": inst.prompt[:600], "final_text": tt.final_text[:5000],
            "turns": [t.to_record() for t in tt.turns], "grade": g.to_record(),
            "commands": [c.__dict__ for c in env.commands][:40] if env else []}
     return m, raw, g.events, "ok", None
+
+
+def _toolchain_key() -> dict | None:
+    """The versions of the Python, Node and git that model code and the graders run with (no paths)."""
+    from edat.sidekick.toolchain import ToolchainError, find_toolchain
+    try:
+        return find_toolchain().run_key()
+    except ToolchainError:
+        return None
 
 
 def _guarded(grade):
@@ -494,6 +505,8 @@ def _done_units(store: Path) -> dict[str, set[tuple[str, int, str]]]:
         for line in f.read_text().splitlines():
             if line.strip():
                 r = json.loads(line)
+                if r.get("status") == "ok" and "grade_hardened" not in (r.get("metrics") or {}):
+                    continue                     # graded before rows were marked: it never scores, so run it again
                 out.setdefault(r["suite"], set()).add((r["case_id"], r["trial"], r.get("split")))
     return out
 
@@ -587,7 +600,7 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
              "sampling_basis": profile.basis, "quant": dict(model.quant), "bits_per_weight": model.bits_per_weight,
              "engine_context_window": None if scripted else engine_context(model.engine_id)[0],
              "ships_thinking": model.thinking[0], "template_thinking_default": model.template_thinking,
-             "seeds": seeds,
+             "seeds": seeds, "toolchain": _toolchain_key(),
              "quick": quick.to_dict() if plan == "quick" else None}
     first_ok: list[dict] = []          # the first answer-only results: is thinking really on, does the engine run it?
     first_status: list[str] = []
@@ -621,8 +634,15 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
                 seed = trial_seed(u.case.id, u.trial)
                 fn = tool_trial if u.suite in ("tool_mode", "ladder_tool") else answer_trial
                 started = utc_now()
+                left0 = leftover_count()
                 metrics, raw, events, status, detail = fn(client, inst, suite=u.suite, seed=seed, thinking=thinking,
                                                           sampling=sampling, iso=iso)
+                left = leftover_events(left0)
+                if left:                                     # a trial folder cleanup could not remove: fail, keep size
+                    events = list(events) + left
+                    if status == "ok":
+                        metrics["pass"] = False
+                        metrics["leftover_bytes"] = sum(e.extra["bytes"] for e in left)
                 w = writer(u.suite)
                 ev = [event_record(e, case_id=u.case.id, trial=u.trial, model_key=key, board_version="ceiling",
                                    mode=u.suite) for e in events]
@@ -633,6 +653,20 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
                                   started_at=started, seed=seed, raw_ref=w.put_raw(json.loads(json.dumps(raw, default=str))),
                                   commit=commit, dirty=dirty)
                 rec["facets"]["tags"] += [f"rung-{u.case.rung.n}", f"sampling-{profile.name}"]
+                # Every graded row is marked (labels.may_score is default deny: a row without the mark never
+                # scores): by its rung and grading method (rungs 4 to 9, row_hardened) and by how its case is
+                # graded (labels.grading_label). The grader's own method and a tripwire's own `false` are kept.
+                lab = grading_label(inst.grader, inst.check)
+                hardened = (row_hardened(u.case.rung, metrics if status == "ok" else {}) and lab["grade_hardened"]
+                            and (rec["metrics"] or {}).get("grade_hardened") is not False)
+                if status == "ok":
+                    rec["metrics"]["grading"] = (rec["metrics"] or {}).get("grading") or lab["grading"]
+                    rec["metrics"]["grade_hardened"] = hardened
+                if not hardened:
+                    if "grade-not-hardened" not in rec["facets"]["tags"]:
+                        rec["facets"]["tags"].append("grade-not-hardened")
+                    if status == "ok":
+                        rec["metrics"]["not_hardened_reason"] = lab.get("not_hardened_reason") or "probe_in_process"
                 if status == "ok" and model.bits_per_weight is not None:
                     rec["metrics"]["bits_per_weight"] = model.bits_per_weight
                 w.append(rec)
@@ -741,6 +775,8 @@ def run_all(out: Path, *, plan: str, tiers: tuple[int, ...] = (0,), only: tuple[
             try:
                 st = _run_entry(e, out, plan=plan, client_kind=client_kind, base_url=base_url, device_id=device_id,
                                 weights_sha256=sha, max_minutes=left, progress=progress, iso=iso, quick=quick)
+            except SandboxUnavailable:
+                raise                             # the host's sandbox or git: the whole run stops
             except RuntimeError as exc:
                 row.update(result="skipped", why=str(exc))
                 if progress:
@@ -795,6 +831,9 @@ def _should_stop(out: Path, store: Path, t_start: float, max_minutes: float | No
         return "the STOP file exists"
     if max_minutes and (time.monotonic() - t_start) / 60 > max_minutes:
         return f"the {max_minutes:g}-minute limit was reached"
+    left = leftovers_over_cap()
+    if left:
+        return left
     free = memory_free_pct()
     if free is not None and free < MEMORY_FLOOR_PCT:
         return f"free memory {free}% is under {MEMORY_FLOOR_PCT}%"
@@ -900,8 +939,9 @@ def preflight(out: Path, *, engine: bool = False, weights: bool = False, base_ur
         add("toolchain: Python for model code is self-contained", True, tc.python.version)
         add("toolchain: Node for model code is self-contained", tc.node is not None,
             tc.node.version if tc.node else "no Node found: the JavaScript cases cannot run")
+        add("toolchain: git for the git grader", True, f"{tc.git.version.strip()} at {tc.git.path}")
     except ToolchainError as exc:
-        add("toolchain: Python and Node for model code are self-contained", False, str(exc)[:300])
+        add("toolchain: Python, Node and git for model code and the git grader", False, str(exc)[:300])
     try:
         st = require_sandbox()
         add("sealed sandbox self-test", st.passed, f"{len(st.probes) if hasattr(st, 'probes') else ''} probes")

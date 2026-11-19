@@ -78,7 +78,7 @@
    "run_id": "sample-sidekick-mac",
    "tier": "sidekick",
    "records": 567,
-   "records_sha256": "98186c7d1ef6a7675c411b0cd67a2febd8b3cf5e01f8b2ad7985bab56845bf51",
+   "records_sha256": "2a674244b8a49a9109a07ed4ee9bb621be18e41941912ee38c5c4245e79959ae",
    "harness_commit": "0000000",
    "sampling_class": "recommended"
   },
@@ -4176,10 +4176,10 @@
     },
     "sidekick": {
      "tier": "sidekick",
-     "records": 63,
-     "graded": 63,
+     "records": 33,
+     "graded": 33,
      "status_counts": {
-      "ok": 63
+      "ok": 33
      },
      "excluded": 0,
      "excluded_rate": 0.0,
@@ -4198,71 +4198,61 @@
      ],
      "invalid": false,
      "pass1": {
-      "value": 0.444444,
+      "value": 0.393939,
       "interval": [
-       0.328471,
-       0.566804
+       0.246831,
+       0.563166
       ],
       "interval_kind": "wilson",
       "interval_cluster": [
-       0.333333,
-       0.555556
+       0.242424,
+       0.575758
       ],
-      "n_cases": 21,
-      "n_trials": 63,
-      "passes": 28,
+      "n_cases": 11,
+      "n_trials": 33,
+      "passes": 13,
       "pass_all_trials": {
-       "value": 0.095238,
+       "value": 0.090909,
        "interval": [
-        0.026519,
-        0.289141
+        0.016232,
+        0.377358
        ],
-       "n_cases": 21,
-       "k": 2,
+       "n_cases": 11,
+       "k": 1,
        "trials_per_case": [
         3
        ],
        "flag": null
       },
       "pass_k": {
-       "2": 0.174603,
-       "3": 0.095238
+       "2": 0.151515,
+       "3": 0.090909
       }
      },
      "score": null,
      "composites": {
       "sidekick_score": {
-       "value": 0.462963,
+       "value": 0.416667,
        "interval": [
-        0.37037,
-        0.555556
+        0.291667,
+        0.541667
        ],
-       "n_cases": 18,
-       "strata": 9,
+       "n_cases": 8,
+       "strata": 4,
        "weights": {
-        "commit_msg": 0.111111,
-        "diff_review": 0.111111,
-        "explain_error": 0.111111,
-        "fix_bug": 0.111111,
-        "git": 0.111111,
-        "regex": 0.111111,
-        "shell": 0.111111,
-        "write_fn": 0.111111,
-        "write_test": 0.111111
+        "fix_bug": 0.25,
+        "regex": 0.25,
+        "shell": 0.25,
+        "write_fn": 0.25
        },
        "metric": "sidekick_score",
        "interval_kind": "bootstrap_cases",
-       "n_trials": 54,
+       "n_trials": 24,
        "present": [
-        "commit_msg",
-        "diff_review",
-        "explain_error",
         "fix_bug",
-        "git",
         "regex",
         "shell",
-        "write_fn",
-        "write_test"
+        "write_fn"
        ],
        "complete": true
       },
@@ -4283,166 +4273,51 @@
       }
      },
      "composite": {
-      "value": 0.462963,
+      "value": 0.416667,
       "interval": [
-       0.37037,
-       0.555556
+       0.291667,
+       0.541667
       ],
-      "n_cases": 18,
-      "strata": 9,
+      "n_cases": 8,
+      "strata": 4,
       "weights": {
-       "commit_msg": 0.111111,
-       "diff_review": 0.111111,
-       "explain_error": 0.111111,
-       "fix_bug": 0.111111,
-       "git": 0.111111,
-       "regex": 0.111111,
-       "shell": 0.111111,
-       "write_fn": 0.111111,
-       "write_test": 0.111111
+       "fix_bug": 0.25,
+       "regex": 0.25,
+       "shell": 0.25,
+       "write_fn": 0.25
       },
       "metric": "sidekick_score",
       "interval_kind": "bootstrap_cases",
-      "n_trials": 54,
+      "n_trials": 24,
       "present": [
-       "commit_msg",
-       "diff_review",
-       "explain_error",
        "fix_bug",
-       "git",
        "regex",
        "shell",
-       "write_fn",
-       "write_test"
+       "write_fn"
       ],
       "complete": true
      },
      "safety": {
-      "trials": 63,
-      "unsafe_trials": 4,
-      "unsafe_rate": 0.063492,
+      "trials": 33,
+      "unsafe_trials": 3,
+      "unsafe_rate": 0.090909,
       "unsafe_interval": [
-       0.024966,
-       0.152192
+       0.031404,
+       0.235726
       ],
-      "unsafe_count": 4,
-      "unsafe_per_100": 6.349206,
-      "unsafe_n": 63,
+      "unsafe_count": 3,
+      "unsafe_per_100": 9.090909,
+      "unsafe_n": 33,
       "leak_trials": null,
       "leak_rate": null,
       "leak_interval": null,
       "leak_count": null,
       "leak_per_100": null,
       "labels": {
-       "unsafe_action": 4
+       "unsafe_action": 3
       }
      },
      "facets": {
-      "family=commit_msg": {
-       "pass1": {
-        "value": 0.333333,
-        "interval": [
-         0.096771,
-         0.700007
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.333333,
-         0.333333
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 2,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.0,
-         "3": 0.0
-        }
-       },
-       "score": null
-      },
-      "family=diff_review": {
-       "pass1": {
-        "value": 0.666667,
-        "interval": [
-         0.299993,
-         0.903229
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.333333,
-         1.0
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 4,
-        "pass_all_trials": {
-         "value": 0.5,
-         "interval": [
-          0.094531,
-          0.905469
-         ],
-         "n_cases": 2,
-         "k": 1,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.5,
-         "3": 0.5
-        }
-       },
-       "score": null
-      },
-      "family=explain_error": {
-       "pass1": {
-        "value": 0.5,
-        "interval": [
-         0.187616,
-         0.812384
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.333333,
-         0.666667
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 3,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.166667,
-         "3": 0.0
-        }
-       },
-       "score": null
-      },
       "family=fix_bug": {
        "pass1": {
         "value": 0.333333,
@@ -4473,41 +4348,6 @@
         },
         "pass_k": {
          "2": 0.066667,
-         "3": 0.0
-        }
-       },
-       "score": null
-      },
-      "family=git": {
-       "pass1": {
-        "value": 0.5,
-        "interval": [
-         0.187616,
-         0.812384
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.333333,
-         0.666667
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 3,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.166667,
          "3": 0.0
         }
        },
@@ -4617,6 +4457,266 @@
         }
        },
        "score": null
+      }
+     },
+     "metrics": {
+      "grade_hardened": {
+       "value": 1.0,
+       "interval": [
+        0.89573,
+        1.0
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 11,
+       "n_trials": 33
+      }
+     },
+     "headline": {
+      "metric": "sidekick_score",
+      "source": "composite",
+      "value": 0.416667,
+      "interval": [
+       0.291667,
+       0.541667
+      ],
+      "interval_kind": "bootstrap_cases"
+     },
+     "sampling_classes": [
+      "recommended"
+     ],
+     "rank_ranges": {
+      "sidekick_score": [
+       4,
+       6
+      ],
+      "sidekick_tool_mode": [
+       1,
+       6
+      ]
+     },
+     "rank_range": [
+      4,
+      6
+     ]
+    },
+    "sidekick_not_hardened": {
+     "tier": "sidekick_not_hardened",
+     "records": 30,
+     "graded": 30,
+     "status_counts": {
+      "ok": 30
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-sidekick-mac"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "author_recommended"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "pass1": {
+      "value": 0.5,
+      "interval": [
+       0.331541,
+       0.668459
+      ],
+      "interval_kind": "wilson",
+      "interval_cluster": [
+       0.366667,
+       0.633333
+      ],
+      "n_cases": 10,
+      "n_trials": 30,
+      "passes": 15,
+      "pass_all_trials": {
+       "value": 0.1,
+       "interval": [
+        0.017876,
+        0.40415
+       ],
+       "n_cases": 10,
+       "k": 1,
+       "trials_per_case": [
+        3
+       ],
+       "flag": null
+      },
+      "pass_k": {
+       "2": 0.2,
+       "3": 0.1
+      }
+     },
+     "score": null,
+     "composites": {},
+     "composite": null,
+     "safety": {
+      "trials": 30,
+      "unsafe_trials": 1,
+      "unsafe_rate": 0.033333,
+      "unsafe_interval": [
+       0.005909,
+       0.166704
+      ],
+      "unsafe_count": 1,
+      "unsafe_per_100": 3.333333,
+      "unsafe_n": 30,
+      "leak_trials": null,
+      "leak_rate": null,
+      "leak_interval": null,
+      "leak_count": null,
+      "leak_per_100": null,
+      "labels": {
+       "unsafe_action": 1
+      }
+     },
+     "facets": {
+      "family=commit_msg": {
+       "pass1": {
+        "value": 0.333333,
+        "interval": [
+         0.096771,
+         0.700007
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.333333
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 2,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": null
+      },
+      "family=diff_review": {
+       "pass1": {
+        "value": 0.666667,
+        "interval": [
+         0.299993,
+         0.903229
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         1.0
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 4,
+        "pass_all_trials": {
+         "value": 0.5,
+         "interval": [
+          0.094531,
+          0.905469
+         ],
+         "n_cases": 2,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.5,
+         "3": 0.5
+        }
+       },
+       "score": null
+      },
+      "family=explain_error": {
+       "pass1": {
+        "value": 0.5,
+        "interval": [
+         0.187616,
+         0.812384
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 3,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": null
+      },
+      "family=git": {
+       "pass1": {
+        "value": 0.5,
+        "interval": [
+         0.187616,
+         0.812384
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 3,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": null
       },
       "family=write_test": {
        "pass1": {
@@ -4654,33 +4754,32 @@
        "score": null
       }
      },
-     "metrics": {},
-     "headline": {
-      "metric": "sidekick_score",
-      "source": "composite",
-      "value": 0.462963,
-      "interval": [
-       0.37037,
-       0.555556
-      ],
-      "interval_kind": "bootstrap_cases"
+     "metrics": {
+      "grade_hardened": {
+       "value": 0.0,
+       "interval": [
+        0.0,
+        0.113513
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 10,
+       "n_trials": 30
+      }
      },
+     "headline": {
+      "metric": "pass1",
+      "source": "pass1",
+      "value": 0.5,
+      "interval": [
+       0.331541,
+       0.668459
+      ],
+      "interval_kind": "wilson"
+     },
+     "ranked": false,
+     "label": "not hardened against adversarial model code",
      "sampling_classes": [
       "recommended"
-     ],
-     "rank_ranges": {
-      "sidekick_score": [
-       3,
-       6
-      ],
-      "sidekick_tool_mode": [
-       1,
-       6
-      ]
-     },
-     "rank_range": [
-      3,
-      6
      ]
     }
    },
@@ -5216,35 +5315,30 @@
        "pass1": {
         "delta": 0.0,
         "interval": [
-         -0.174603,
-         0.15873
+         -0.212121,
+         0.212121
         ],
         "tag": "no_clear_difference",
-        "n_cases": 21,
-        "wins": 6,
-        "losses": 7,
-        "ties": 8
+        "n_cases": 11,
+        "wins": 4,
+        "losses": 4,
+        "ties": 3
        },
        "sidekick_score": {
         "interval": [
-         -0.148148,
-         0.148148
+         -0.166667,
+         0.166667
         ],
         "tag": "no_clear_difference",
-        "n_cases": 18,
-        "strata": 9,
+        "n_cases": 8,
+        "strata": 4,
         "weights": {
-         "commit_msg": 0.111111,
-         "diff_review": 0.111111,
-         "explain_error": 0.111111,
-         "fix_bug": 0.111111,
-         "git": 0.111111,
-         "regex": 0.111111,
-         "shell": 0.111111,
-         "write_fn": 0.111111,
-         "write_test": 0.111111
+         "fix_bug": 0.25,
+         "regex": 0.25,
+         "shell": 0.25,
+         "write_fn": 0.25
         },
-        "delta": -0.0
+        "delta": 0.0
        },
        "sidekick_tool_mode": {
         "interval": [
@@ -5260,18 +5354,21 @@
         "delta": 0.0
        },
        "unsafe_rate": {
-        "delta": -0.142857,
+        "delta": -0.030303,
         "interval": [
-         -0.269841,
-         -0.031746
+         -0.167424,
+         0.121212
         ],
-        "tag": "better",
-        "n_cases": 21,
+        "tag": "no_clear_difference",
+        "n_cases": 11,
         "wins": 2,
-        "losses": 8,
-        "ties": 11,
-        "ratio": 0.307692
+        "losses": 3,
+        "ties": 6,
+        "ratio": 0.75
        }
+      },
+      "sidekick_not_hardened": {
+       "refused": "not hardened against adversarial model code: no differences are published"
       }
      }
     },
@@ -5308,6 +5405,9 @@
       },
       "sidekick": {
        "self": true
+      },
+      "sidekick_not_hardened": {
+       "refused": "not hardened against adversarial model code: no differences are published"
       }
      }
     }
@@ -9488,10 +9588,10 @@
     },
     "sidekick": {
      "tier": "sidekick",
-     "records": 63,
-     "graded": 63,
+     "records": 33,
+     "graded": 33,
      "status_counts": {
-      "ok": 63
+      "ok": 33
      },
      "excluded": 0,
      "excluded_rate": 0.0,
@@ -9510,26 +9610,26 @@
      ],
      "invalid": false,
      "pass1": {
-      "value": 0.365079,
+      "value": 0.30303,
       "interval": [
-       0.257154,
-       0.488513
+       0.173755,
+       0.473381
       ],
       "interval_kind": "wilson",
       "interval_cluster": [
-       0.269841,
-       0.460317
+       0.181818,
+       0.454545
       ],
-      "n_cases": 21,
-      "n_trials": 63,
-      "passes": 23,
+      "n_cases": 11,
+      "n_trials": 33,
+      "passes": 10,
       "pass_all_trials": {
        "value": 0.0,
        "interval": [
         0.0,
-        0.154639
+        0.258833
        ],
-       "n_cases": 21,
+       "n_cases": 11,
        "k": 0,
        "trials_per_case": [
         3
@@ -9537,44 +9637,34 @@
        "flag": null
       },
       "pass_k": {
-       "2": 0.095238,
+       "2": 0.060606,
        "3": 0.0
       }
      },
      "score": null,
      "composites": {
       "sidekick_score": {
-       "value": 0.388889,
+       "value": 0.333333,
        "interval": [
-        0.296296,
-        0.481481
+        0.208333,
+        0.458333
        ],
-       "n_cases": 18,
-       "strata": 9,
+       "n_cases": 8,
+       "strata": 4,
        "weights": {
-        "commit_msg": 0.111111,
-        "diff_review": 0.111111,
-        "explain_error": 0.111111,
-        "fix_bug": 0.111111,
-        "git": 0.111111,
-        "regex": 0.111111,
-        "shell": 0.111111,
-        "write_fn": 0.111111,
-        "write_test": 0.111111
+        "fix_bug": 0.25,
+        "regex": 0.25,
+        "shell": 0.25,
+        "write_fn": 0.25
        },
        "metric": "sidekick_score",
        "interval_kind": "bootstrap_cases",
-       "n_trials": 54,
+       "n_trials": 24,
        "present": [
-        "commit_msg",
-        "diff_review",
-        "explain_error",
         "fix_bug",
-        "git",
         "regex",
         "shell",
-        "write_fn",
-        "write_test"
+        "write_fn"
        ],
        "complete": true
       },
@@ -9595,51 +9685,299 @@
       }
      },
      "composite": {
-      "value": 0.388889,
+      "value": 0.333333,
       "interval": [
-       0.296296,
-       0.481481
+       0.208333,
+       0.458333
       ],
-      "n_cases": 18,
-      "strata": 9,
+      "n_cases": 8,
+      "strata": 4,
       "weights": {
-       "commit_msg": 0.111111,
-       "diff_review": 0.111111,
-       "explain_error": 0.111111,
-       "fix_bug": 0.111111,
-       "git": 0.111111,
-       "regex": 0.111111,
-       "shell": 0.111111,
-       "write_fn": 0.111111,
-       "write_test": 0.111111
+       "fix_bug": 0.25,
+       "regex": 0.25,
+       "shell": 0.25,
+       "write_fn": 0.25
       },
       "metric": "sidekick_score",
       "interval_kind": "bootstrap_cases",
-      "n_trials": 54,
+      "n_trials": 24,
       "present": [
-       "commit_msg",
-       "diff_review",
-       "explain_error",
        "fix_bug",
-       "git",
        "regex",
        "shell",
-       "write_fn",
-       "write_test"
+       "write_fn"
       ],
       "complete": true
      },
      "safety": {
-      "trials": 63,
+      "trials": 33,
       "unsafe_trials": 0,
       "unsafe_rate": 0.0,
       "unsafe_interval": [
        0.0,
-       0.057471
+       0.10427
       ],
       "unsafe_count": 0,
       "unsafe_per_100": 0.0,
-      "unsafe_n": 63,
+      "unsafe_n": 33,
+      "leak_trials": null,
+      "leak_rate": null,
+      "leak_interval": null,
+      "leak_count": null,
+      "leak_per_100": null,
+      "labels": {}
+     },
+     "facets": {
+      "family=fix_bug": {
+       "pass1": {
+        "value": 0.266667,
+        "interval": [
+         0.108975,
+         0.519504
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.133333,
+         0.333333
+        ],
+        "n_cases": 5,
+        "n_trials": 15,
+        "passes": 4,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.434482
+         ],
+         "n_cases": 5,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": null
+      },
+      "family=regex": {
+       "pass1": {
+        "value": 0.166667,
+        "interval": [
+         0.030053,
+         0.563503
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.333333
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 1,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": null
+      },
+      "family=shell": {
+       "pass1": {
+        "value": 0.5,
+        "interval": [
+         0.187616,
+         0.812384
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 3,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": null
+      },
+      "family=write_fn": {
+       "pass1": {
+        "value": 0.333333,
+        "interval": [
+         0.096771,
+         0.700007
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 2,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": null
+      }
+     },
+     "metrics": {
+      "grade_hardened": {
+       "value": 1.0,
+       "interval": [
+        0.89573,
+        1.0
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 11,
+       "n_trials": 33
+      }
+     },
+     "headline": {
+      "metric": "sidekick_score",
+      "source": "composite",
+      "value": 0.333333,
+      "interval": [
+       0.208333,
+       0.458333
+      ],
+      "interval_kind": "bootstrap_cases"
+     },
+     "sampling_classes": [
+      "recommended"
+     ],
+     "rank_ranges": {
+      "sidekick_score": [
+       4,
+       6
+      ],
+      "sidekick_tool_mode": [
+       1,
+       6
+      ]
+     },
+     "rank_range": [
+      4,
+      6
+     ]
+    },
+    "sidekick_not_hardened": {
+     "tier": "sidekick_not_hardened",
+     "records": 30,
+     "graded": 30,
+     "status_counts": {
+      "ok": 30
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-sidekick-mac"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "author_recommended"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "pass1": {
+      "value": 0.433333,
+      "interval": [
+       0.273775,
+       0.608027
+      ],
+      "interval_kind": "wilson",
+      "interval_cluster": [
+       0.3,
+       0.566667
+      ],
+      "n_cases": 10,
+      "n_trials": 30,
+      "passes": 13,
+      "pass_all_trials": {
+       "value": 0.0,
+       "interval": [
+        0.0,
+        0.277533
+       ],
+       "n_cases": 10,
+       "k": 0,
+       "trials_per_case": [
+        3
+       ],
+       "flag": null
+      },
+      "pass_k": {
+       "2": 0.133333,
+       "3": 0.0
+      }
+     },
+     "score": null,
+     "composites": {},
+     "composite": null,
+     "safety": {
+      "trials": 30,
+      "unsafe_trials": 0,
+      "unsafe_rate": 0.0,
+      "unsafe_interval": [
+       0.0,
+       0.113513
+      ],
+      "unsafe_count": 0,
+      "unsafe_per_100": 0.0,
+      "unsafe_n": 30,
       "leak_trials": null,
       "leak_rate": null,
       "leak_interval": null,
@@ -9753,41 +10091,6 @@
        },
        "score": null
       },
-      "family=fix_bug": {
-       "pass1": {
-        "value": 0.266667,
-        "interval": [
-         0.108975,
-         0.519504
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.133333,
-         0.333333
-        ],
-        "n_cases": 5,
-        "n_trials": 15,
-        "passes": 4,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.434482
-         ],
-         "n_cases": 5,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.0,
-         "3": 0.0
-        }
-       },
-       "score": null
-      },
       "family=git": {
        "pass1": {
         "value": 0.5,
@@ -9803,111 +10106,6 @@
         "n_cases": 2,
         "n_trials": 6,
         "passes": 3,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.166667,
-         "3": 0.0
-        }
-       },
-       "score": null
-      },
-      "family=regex": {
-       "pass1": {
-        "value": 0.166667,
-        "interval": [
-         0.030053,
-         0.563503
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.0,
-         0.333333
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 1,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.0,
-         "3": 0.0
-        }
-       },
-       "score": null
-      },
-      "family=shell": {
-       "pass1": {
-        "value": 0.5,
-        "interval": [
-         0.187616,
-         0.812384
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.333333,
-         0.666667
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 3,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.166667,
-         "3": 0.0
-        }
-       },
-       "score": null
-      },
-      "family=write_fn": {
-       "pass1": {
-        "value": 0.333333,
-        "interval": [
-         0.096771,
-         0.700007
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.0,
-         0.666667
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 2,
         "pass_all_trials": {
          "value": 0.0,
          "interval": [
@@ -9964,33 +10162,32 @@
        "score": null
       }
      },
-     "metrics": {},
-     "headline": {
-      "metric": "sidekick_score",
-      "source": "composite",
-      "value": 0.388889,
-      "interval": [
-       0.296296,
-       0.481481
-      ],
-      "interval_kind": "bootstrap_cases"
+     "metrics": {
+      "grade_hardened": {
+       "value": 0.0,
+       "interval": [
+        0.0,
+        0.113513
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 10,
+       "n_trials": 30
+      }
      },
+     "headline": {
+      "metric": "pass1",
+      "source": "pass1",
+      "value": 0.433333,
+      "interval": [
+       0.273775,
+       0.608027
+      ],
+      "interval_kind": "wilson"
+     },
+     "ranked": false,
+     "label": "not hardened against adversarial model code",
      "sampling_classes": [
       "recommended"
-     ],
-     "rank_ranges": {
-      "sidekick_score": [
-       4,
-       6
-      ],
-      "sidekick_tool_mode": [
-       1,
-       6
-      ]
-     },
-     "rank_range": [
-      4,
-      6
      ]
     }
    },
@@ -10524,37 +10721,32 @@
       },
       "sidekick": {
        "pass1": {
-        "delta": -0.079365,
+        "delta": -0.090909,
         "interval": [
-         -0.206349,
-         0.047619
+         -0.212121,
+         0.030303
         ],
         "tag": "no_clear_difference",
-        "n_cases": 21,
-        "wins": 4,
-        "losses": 9,
-        "ties": 8
+        "n_cases": 11,
+        "wins": 1,
+        "losses": 4,
+        "ties": 6
        },
        "sidekick_score": {
         "interval": [
-         -0.185185,
-         0.055556
+         -0.166667,
+         0.0
         ],
         "tag": "no_clear_difference",
-        "n_cases": 18,
-        "strata": 9,
+        "n_cases": 8,
+        "strata": 4,
         "weights": {
-         "commit_msg": 0.111111,
-         "diff_review": 0.111111,
-         "explain_error": 0.111111,
-         "fix_bug": 0.111111,
-         "git": 0.111111,
-         "regex": 0.111111,
-         "shell": 0.111111,
-         "write_fn": 0.111111,
-         "write_test": 0.111111
+         "fix_bug": 0.25,
+         "regex": 0.25,
+         "shell": 0.25,
+         "write_fn": 0.25
         },
-        "delta": -0.074074
+        "delta": -0.083333
        },
        "sidekick_tool_mode": {
         "interval": [
@@ -10570,18 +10762,21 @@
         "delta": -0.111111
        },
        "unsafe_rate": {
-        "delta": -0.206349,
+        "delta": -0.121212,
         "interval": [
-         -0.301587,
-         -0.111111
+         -0.212121,
+         -0.030303
         ],
         "tag": "better",
-        "n_cases": 21,
+        "n_cases": 11,
         "wins": 0,
-        "losses": 10,
-        "ties": 11,
+        "losses": 4,
+        "ties": 7,
         "ratio": 0.0
        }
+      },
+      "sidekick_not_hardened": {
+       "refused": "not hardened against adversarial model code: no differences are published"
       }
      }
     },
@@ -11098,37 +11293,32 @@
       },
       "sidekick": {
        "pass1": {
-        "delta": -0.079365,
+        "delta": -0.090909,
         "interval": [
-         -0.206349,
-         0.031746
+         -0.272727,
+         0.090909
         ],
         "tag": "no_clear_difference",
-        "n_cases": 21,
-        "wins": 4,
-        "losses": 7,
-        "ties": 10
+        "n_cases": 11,
+        "wins": 2,
+        "losses": 3,
+        "ties": 6
        },
        "sidekick_score": {
         "interval": [
-         -0.166667,
-         0.018519
+         -0.208333,
+         0.041667
         ],
         "tag": "no_clear_difference",
-        "n_cases": 18,
-        "strata": 9,
+        "n_cases": 8,
+        "strata": 4,
         "weights": {
-         "commit_msg": 0.111111,
-         "diff_review": 0.111111,
-         "explain_error": 0.111111,
-         "fix_bug": 0.111111,
-         "git": 0.111111,
-         "regex": 0.111111,
-         "shell": 0.111111,
-         "write_fn": 0.111111,
-         "write_test": 0.111111
+         "fix_bug": 0.25,
+         "regex": 0.25,
+         "shell": 0.25,
+         "write_fn": 0.25
         },
-        "delta": -0.074074
+        "delta": -0.083333
        },
        "sidekick_tool_mode": {
         "interval": [
@@ -11144,18 +11334,21 @@
         "delta": -0.111111
        },
        "unsafe_rate": {
-        "delta": -0.063492,
+        "delta": -0.090909,
         "interval": [
-         -0.126984,
-         -0.015873
+         -0.181818,
+         0.0
         ],
-        "tag": "better",
-        "n_cases": 21,
+        "tag": "no_clear_difference",
+        "n_cases": 11,
         "wins": 0,
-        "losses": 4,
-        "ties": 17,
+        "losses": 3,
+        "ties": 8,
         "ratio": 0.0
        }
+      },
+      "sidekick_not_hardened": {
+       "refused": "not hardened against adversarial model code: no differences are published"
       }
      }
     }
@@ -15339,10 +15532,10 @@
     },
     "sidekick": {
      "tier": "sidekick",
-     "records": 63,
-     "graded": 63,
+     "records": 33,
+     "graded": 33,
      "status_counts": {
-      "ok": 63
+      "ok": 33
      },
      "excluded": 0,
      "excluded_rate": 0.0,
@@ -15361,71 +15554,61 @@
      ],
      "invalid": false,
      "pass1": {
-      "value": 0.587302,
+      "value": 0.575758,
       "interval": [
-       0.464153,
-       0.700415
+       0.408073,
+       0.727644
       ],
       "interval_kind": "wilson",
       "interval_cluster": [
-       0.47619,
-       0.698413
+       0.484848,
+       0.666667
       ],
-      "n_cases": 21,
-      "n_trials": 63,
-      "passes": 37,
+      "n_cases": 11,
+      "n_trials": 33,
+      "passes": 19,
       "pass_all_trials": {
-       "value": 0.095238,
+       "value": 0.0,
        "interval": [
-        0.026519,
-        0.289141
+        0.0,
+        0.258833
        ],
-       "n_cases": 21,
-       "k": 2,
+       "n_cases": 11,
+       "k": 0,
        "trials_per_case": [
         3
        ],
        "flag": null
       },
       "pass_k": {
-       "2": 0.31746,
-       "3": 0.095238
+       "2": 0.242424,
+       "3": 0.0
       }
      },
      "score": null,
      "composites": {
       "sidekick_score": {
-       "value": 0.611111,
+       "value": 0.625,
        "interval": [
-        0.518519,
-        0.703704
+        0.583333,
+        0.666667
        ],
-       "n_cases": 18,
-       "strata": 9,
+       "n_cases": 8,
+       "strata": 4,
        "weights": {
-        "commit_msg": 0.111111,
-        "diff_review": 0.111111,
-        "explain_error": 0.111111,
-        "fix_bug": 0.111111,
-        "git": 0.111111,
-        "regex": 0.111111,
-        "shell": 0.111111,
-        "write_fn": 0.111111,
-        "write_test": 0.111111
+        "fix_bug": 0.25,
+        "regex": 0.25,
+        "shell": 0.25,
+        "write_fn": 0.25
        },
        "metric": "sidekick_score",
        "interval_kind": "bootstrap_cases",
-       "n_trials": 54,
+       "n_trials": 24,
        "present": [
-        "commit_msg",
-        "diff_review",
-        "explain_error",
         "fix_bug",
-        "git",
         "regex",
         "shell",
-        "write_fn",
-        "write_test"
+        "write_fn"
        ],
        "complete": true
       },
@@ -15446,166 +15629,51 @@
       }
      },
      "composite": {
-      "value": 0.611111,
+      "value": 0.625,
       "interval": [
-       0.518519,
-       0.703704
+       0.583333,
+       0.666667
       ],
-      "n_cases": 18,
-      "strata": 9,
+      "n_cases": 8,
+      "strata": 4,
       "weights": {
-       "commit_msg": 0.111111,
-       "diff_review": 0.111111,
-       "explain_error": 0.111111,
-       "fix_bug": 0.111111,
-       "git": 0.111111,
-       "regex": 0.111111,
-       "shell": 0.111111,
-       "write_fn": 0.111111,
-       "write_test": 0.111111
+       "fix_bug": 0.25,
+       "regex": 0.25,
+       "shell": 0.25,
+       "write_fn": 0.25
       },
       "metric": "sidekick_score",
       "interval_kind": "bootstrap_cases",
-      "n_trials": 54,
+      "n_trials": 24,
       "present": [
-       "commit_msg",
-       "diff_review",
-       "explain_error",
        "fix_bug",
-       "git",
        "regex",
        "shell",
-       "write_fn",
-       "write_test"
+       "write_fn"
       ],
       "complete": true
      },
      "safety": {
-      "trials": 63,
-      "unsafe_trials": 3,
-      "unsafe_rate": 0.047619,
+      "trials": 33,
+      "unsafe_trials": 1,
+      "unsafe_rate": 0.030303,
       "unsafe_interval": [
-       0.016326,
-       0.13091
+       0.005369,
+       0.153187
       ],
-      "unsafe_count": 3,
-      "unsafe_per_100": 4.761905,
-      "unsafe_n": 63,
+      "unsafe_count": 1,
+      "unsafe_per_100": 3.030303,
+      "unsafe_n": 33,
       "leak_trials": null,
       "leak_rate": null,
       "leak_interval": null,
       "leak_count": null,
       "leak_per_100": null,
       "labels": {
-       "unsafe_action": 3
+       "unsafe_action": 1
       }
      },
      "facets": {
-      "family=commit_msg": {
-       "pass1": {
-        "value": 0.5,
-        "interval": [
-         0.187616,
-         0.812384
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.0,
-         1.0
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 3,
-        "pass_all_trials": {
-         "value": 0.5,
-         "interval": [
-          0.094531,
-          0.905469
-         ],
-         "n_cases": 2,
-         "k": 1,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.5,
-         "3": 0.5
-        }
-       },
-       "score": null
-      },
-      "family=diff_review": {
-       "pass1": {
-        "value": 0.333333,
-        "interval": [
-         0.096771,
-         0.700007
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.0,
-         0.666667
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 2,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.166667,
-         "3": 0.0
-        }
-       },
-       "score": null
-      },
-      "family=explain_error": {
-       "pass1": {
-        "value": 0.666667,
-        "interval": [
-         0.299993,
-         0.903229
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.666667,
-         0.666667
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 4,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.333333,
-         "3": 0.0
-        }
-       },
-       "score": null
-      },
       "family=fix_bug": {
        "pass1": {
         "value": 0.466667,
@@ -15637,41 +15705,6 @@
         "pass_k": {
          "2": 0.133333,
          "3": 0.0
-        }
-       },
-       "score": null
-      },
-      "family=git": {
-       "pass1": {
-        "value": 0.833333,
-        "interval": [
-         0.436497,
-         0.969947
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.666667,
-         1.0
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 5,
-        "pass_all_trials": {
-         "value": 0.5,
-         "interval": [
-          0.094531,
-          0.905469
-         ],
-         "n_cases": 2,
-         "k": 1,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.666667,
-         "3": 0.5
         }
        },
        "score": null
@@ -15780,6 +15813,266 @@
         }
        },
        "score": null
+      }
+     },
+     "metrics": {
+      "grade_hardened": {
+       "value": 1.0,
+       "interval": [
+        0.89573,
+        1.0
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 11,
+       "n_trials": 33
+      }
+     },
+     "headline": {
+      "metric": "sidekick_score",
+      "source": "composite",
+      "value": 0.625,
+      "interval": [
+       0.583333,
+       0.666667
+      ],
+      "interval_kind": "bootstrap_cases"
+     },
+     "sampling_classes": [
+      "recommended"
+     ],
+     "rank_ranges": {
+      "sidekick_score": [
+       1,
+       3
+      ],
+      "sidekick_tool_mode": [
+       1,
+       6
+      ]
+     },
+     "rank_range": [
+      1,
+      3
+     ]
+    },
+    "sidekick_not_hardened": {
+     "tier": "sidekick_not_hardened",
+     "records": 30,
+     "graded": 30,
+     "status_counts": {
+      "ok": 30
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-sidekick-mac"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "author_recommended"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "pass1": {
+      "value": 0.6,
+      "interval": [
+       0.423204,
+       0.754094
+      ],
+      "interval_kind": "wilson",
+      "interval_cluster": [
+       0.4,
+       0.8
+      ],
+      "n_cases": 10,
+      "n_trials": 30,
+      "passes": 18,
+      "pass_all_trials": {
+       "value": 0.2,
+       "interval": [
+        0.056682,
+        0.509838
+       ],
+       "n_cases": 10,
+       "k": 2,
+       "trials_per_case": [
+        3
+       ],
+       "flag": null
+      },
+      "pass_k": {
+       "2": 0.4,
+       "3": 0.2
+      }
+     },
+     "score": null,
+     "composites": {},
+     "composite": null,
+     "safety": {
+      "trials": 30,
+      "unsafe_trials": 2,
+      "unsafe_rate": 0.066667,
+      "unsafe_interval": [
+       0.018477,
+       0.213235
+      ],
+      "unsafe_count": 2,
+      "unsafe_per_100": 6.666667,
+      "unsafe_n": 30,
+      "leak_trials": null,
+      "leak_rate": null,
+      "leak_interval": null,
+      "leak_count": null,
+      "leak_per_100": null,
+      "labels": {
+       "unsafe_action": 2
+      }
+     },
+     "facets": {
+      "family=commit_msg": {
+       "pass1": {
+        "value": 0.5,
+        "interval": [
+         0.187616,
+         0.812384
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         1.0
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 3,
+        "pass_all_trials": {
+         "value": 0.5,
+         "interval": [
+          0.094531,
+          0.905469
+         ],
+         "n_cases": 2,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.5,
+         "3": 0.5
+        }
+       },
+       "score": null
+      },
+      "family=diff_review": {
+       "pass1": {
+        "value": 0.333333,
+        "interval": [
+         0.096771,
+         0.700007
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 2,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": null
+      },
+      "family=explain_error": {
+       "pass1": {
+        "value": 0.666667,
+        "interval": [
+         0.299993,
+         0.903229
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.666667,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 4,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.333333,
+         "3": 0.0
+        }
+       },
+       "score": null
+      },
+      "family=git": {
+       "pass1": {
+        "value": 0.833333,
+        "interval": [
+         0.436497,
+         0.969947
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.666667,
+         1.0
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 5,
+        "pass_all_trials": {
+         "value": 0.5,
+         "interval": [
+          0.094531,
+          0.905469
+         ],
+         "n_cases": 2,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.666667,
+         "3": 0.5
+        }
+       },
+       "score": null
       },
       "family=write_test": {
        "pass1": {
@@ -15817,33 +16110,32 @@
        "score": null
       }
      },
-     "metrics": {},
-     "headline": {
-      "metric": "sidekick_score",
-      "source": "composite",
-      "value": 0.611111,
-      "interval": [
-       0.518519,
-       0.703704
-      ],
-      "interval_kind": "bootstrap_cases"
+     "metrics": {
+      "grade_hardened": {
+       "value": 0.0,
+       "interval": [
+        0.0,
+        0.113513
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 10,
+       "n_trials": 30
+      }
      },
+     "headline": {
+      "metric": "pass1",
+      "source": "pass1",
+      "value": 0.6,
+      "interval": [
+       0.423204,
+       0.754094
+      ],
+      "interval_kind": "wilson"
+     },
+     "ranked": false,
+     "label": "not hardened against adversarial model code",
      "sampling_classes": [
       "recommended"
-     ],
-     "rank_ranges": {
-      "sidekick_score": [
-       1,
-       5
-      ],
-      "sidekick_tool_mode": [
-       1,
-       6
-      ]
-     },
-     "rank_range": [
-      1,
-      5
      ]
     }
    },
@@ -16377,37 +16669,32 @@
       },
       "sidekick": {
        "pass1": {
-        "delta": 0.142857,
+        "delta": 0.181818,
         "interval": [
-         0.015873,
-         0.285714
+         0.030303,
+         0.333333
         ],
         "tag": "better",
-        "n_cases": 21,
-        "wins": 7,
-        "losses": 2,
-        "ties": 12
+        "n_cases": 11,
+        "wins": 4,
+        "losses": 0,
+        "ties": 7
        },
        "sidekick_score": {
         "interval": [
-         0.018519,
-         0.277778
+         0.041667,
+         0.375
         ],
         "tag": "better",
-        "n_cases": 18,
-        "strata": 9,
+        "n_cases": 8,
+        "strata": 4,
         "weights": {
-         "commit_msg": 0.111111,
-         "diff_review": 0.111111,
-         "explain_error": 0.111111,
-         "fix_bug": 0.111111,
-         "git": 0.111111,
-         "regex": 0.111111,
-         "shell": 0.111111,
-         "write_fn": 0.111111,
-         "write_test": 0.111111
+         "fix_bug": 0.25,
+         "regex": 0.25,
+         "shell": 0.25,
+         "write_fn": 0.25
         },
-        "delta": 0.148148
+        "delta": 0.208333
        },
        "sidekick_tool_mode": {
         "interval": [
@@ -16423,18 +16710,21 @@
         "delta": 0.111111
        },
        "unsafe_rate": {
-        "delta": -0.15873,
+        "delta": -0.090909,
         "interval": [
-         -0.253968,
-         -0.047619
+         -0.212121,
+         0.030303
         ],
-        "tag": "better",
-        "n_cases": 21,
+        "tag": "no_clear_difference",
+        "n_cases": 11,
         "wins": 1,
-        "losses": 9,
-        "ties": 11,
-        "ratio": 0.230769
+        "losses": 4,
+        "ties": 6,
+        "ratio": 0.25
        }
+      },
+      "sidekick_not_hardened": {
+       "refused": "not hardened against adversarial model code: no differences are published"
       }
      }
     },
@@ -16951,37 +17241,32 @@
       },
       "sidekick": {
        "pass1": {
-        "delta": 0.142857,
+        "delta": 0.181818,
         "interval": [
-         -0.047619,
-         0.301587
+         -0.030303,
+         0.363636
         ],
         "tag": "no_clear_difference",
-        "n_cases": 21,
-        "wins": 11,
-        "losses": 4,
-        "ties": 6
+        "n_cases": 11,
+        "wins": 6,
+        "losses": 2,
+        "ties": 3
        },
        "sidekick_score": {
         "interval": [
-         -0.000463,
-         0.296296
+         0.083333,
+         0.375
         ],
-        "tag": "no_clear_difference",
-        "n_cases": 18,
-        "strata": 9,
+        "tag": "better",
+        "n_cases": 8,
+        "strata": 4,
         "weights": {
-         "commit_msg": 0.111111,
-         "diff_review": 0.111111,
-         "explain_error": 0.111111,
-         "fix_bug": 0.111111,
-         "git": 0.111111,
-         "regex": 0.111111,
-         "shell": 0.111111,
-         "write_fn": 0.111111,
-         "write_test": 0.111111
+         "fix_bug": 0.25,
+         "regex": 0.25,
+         "shell": 0.25,
+         "write_fn": 0.25
         },
-        "delta": 0.148148
+        "delta": 0.208333
        },
        "sidekick_tool_mode": {
         "interval": [
@@ -16997,18 +17282,21 @@
         "delta": 0.111111
        },
        "unsafe_rate": {
-        "delta": -0.015873,
+        "delta": -0.060606,
         "interval": [
-         -0.111111,
-         0.079365
+         -0.151515,
+         0.060606
         ],
         "tag": "no_clear_difference",
-        "n_cases": 21,
-        "wins": 2,
-        "losses": 4,
-        "ties": 15,
-        "ratio": 0.75
+        "n_cases": 11,
+        "wins": 1,
+        "losses": 3,
+        "ties": 7,
+        "ratio": 0.333333
        }
+      },
+      "sidekick_not_hardened": {
+       "refused": "not hardened against adversarial model code: no differences are published"
       }
      }
     }
@@ -20966,10 +21254,10 @@
     },
     "sidekick": {
      "tier": "sidekick",
-     "records": 63,
-     "graded": 63,
+     "records": 33,
+     "graded": 33,
      "status_counts": {
-      "ok": 63
+      "ok": 33
      },
      "excluded": 0,
      "excluded_rate": 0.0,
@@ -20988,71 +21276,61 @@
      ],
      "invalid": false,
      "pass1": {
-      "value": 0.666667,
+      "value": 0.636364,
       "interval": [
-       0.543672,
-       0.770504
+       0.466162,
+       0.778128
       ],
       "interval_kind": "wilson",
       "interval_cluster": [
-       0.571429,
-       0.761905
+       0.515152,
+       0.787879
       ],
-      "n_cases": 21,
-      "n_trials": 63,
-      "passes": 42,
+      "n_cases": 11,
+      "n_trials": 33,
+      "passes": 21,
       "pass_all_trials": {
-       "value": 0.238095,
+       "value": 0.181818,
        "interval": [
-        0.10628,
-        0.450912
+        0.051368,
+        0.476981
        ],
-       "n_cases": 21,
-       "k": 5,
+       "n_cases": 11,
+       "k": 2,
        "trials_per_case": [
         3
        ],
        "flag": null
       },
       "pass_k": {
-       "2": 0.412698,
-       "3": 0.238095
+       "2": 0.363636,
+       "3": 0.181818
       }
      },
      "score": null,
      "composites": {
       "sidekick_score": {
-       "value": 0.703704,
+       "value": 0.708333,
        "interval": [
-        0.611111,
-        0.796296
+        0.583333,
+        0.833333
        ],
-       "n_cases": 18,
-       "strata": 9,
+       "n_cases": 8,
+       "strata": 4,
        "weights": {
-        "commit_msg": 0.111111,
-        "diff_review": 0.111111,
-        "explain_error": 0.111111,
-        "fix_bug": 0.111111,
-        "git": 0.111111,
-        "regex": 0.111111,
-        "shell": 0.111111,
-        "write_fn": 0.111111,
-        "write_test": 0.111111
+        "fix_bug": 0.25,
+        "regex": 0.25,
+        "shell": 0.25,
+        "write_fn": 0.25
        },
        "metric": "sidekick_score",
        "interval_kind": "bootstrap_cases",
-       "n_trials": 54,
+       "n_trials": 24,
        "present": [
-        "commit_msg",
-        "diff_review",
-        "explain_error",
         "fix_bug",
-        "git",
         "regex",
         "shell",
-        "write_fn",
-        "write_test"
+        "write_fn"
        ],
        "complete": true
       },
@@ -21073,51 +21351,299 @@
       }
      },
      "composite": {
-      "value": 0.703704,
+      "value": 0.708333,
       "interval": [
-       0.611111,
-       0.796296
+       0.583333,
+       0.833333
       ],
-      "n_cases": 18,
-      "strata": 9,
+      "n_cases": 8,
+      "strata": 4,
       "weights": {
-       "commit_msg": 0.111111,
-       "diff_review": 0.111111,
-       "explain_error": 0.111111,
-       "fix_bug": 0.111111,
-       "git": 0.111111,
-       "regex": 0.111111,
-       "shell": 0.111111,
-       "write_fn": 0.111111,
-       "write_test": 0.111111
+       "fix_bug": 0.25,
+       "regex": 0.25,
+       "shell": 0.25,
+       "write_fn": 0.25
       },
       "metric": "sidekick_score",
       "interval_kind": "bootstrap_cases",
-      "n_trials": 54,
+      "n_trials": 24,
       "present": [
-       "commit_msg",
-       "diff_review",
-       "explain_error",
        "fix_bug",
-       "git",
        "regex",
        "shell",
-       "write_fn",
-       "write_test"
+       "write_fn"
       ],
       "complete": true
      },
      "safety": {
-      "trials": 63,
-      "unsafe_trials": 2,
-      "unsafe_rate": 0.031746,
+      "trials": 33,
+      "unsafe_trials": 0,
+      "unsafe_rate": 0.0,
       "unsafe_interval": [
-       0.00875,
-       0.108565
+       0.0,
+       0.10427
+      ],
+      "unsafe_count": 0,
+      "unsafe_per_100": 0.0,
+      "unsafe_n": 33,
+      "leak_trials": null,
+      "leak_rate": null,
+      "leak_interval": null,
+      "leak_count": null,
+      "leak_per_100": null,
+      "labels": {}
+     },
+     "facets": {
+      "family=fix_bug": {
+       "pass1": {
+        "value": 0.533333,
+        "interval": [
+         0.30117,
+         0.751905
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.733333
+        ],
+        "n_cases": 5,
+        "n_trials": 15,
+        "passes": 8,
+        "pass_all_trials": {
+         "value": 0.2,
+         "interval": [
+          0.036224,
+          0.624465
+         ],
+         "n_cases": 5,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.266667,
+         "3": 0.2
+        }
+       },
+       "score": null
+      },
+      "family=regex": {
+       "pass1": {
+        "value": 0.666667,
+        "interval": [
+         0.299993,
+         0.903229
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.666667,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 4,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.333333,
+         "3": 0.0
+        }
+       },
+       "score": null
+      },
+      "family=shell": {
+       "pass1": {
+        "value": 0.666667,
+        "interval": [
+         0.299993,
+         0.903229
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.666667,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 4,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.333333,
+         "3": 0.0
+        }
+       },
+       "score": null
+      },
+      "family=write_fn": {
+       "pass1": {
+        "value": 0.833333,
+        "interval": [
+         0.436497,
+         0.969947
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.666667,
+         1.0
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 5,
+        "pass_all_trials": {
+         "value": 0.5,
+         "interval": [
+          0.094531,
+          0.905469
+         ],
+         "n_cases": 2,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.666667,
+         "3": 0.5
+        }
+       },
+       "score": null
+      }
+     },
+     "metrics": {
+      "grade_hardened": {
+       "value": 1.0,
+       "interval": [
+        0.89573,
+        1.0
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 11,
+       "n_trials": 33
+      }
+     },
+     "headline": {
+      "metric": "sidekick_score",
+      "source": "composite",
+      "value": 0.708333,
+      "interval": [
+       0.583333,
+       0.833333
+      ],
+      "interval_kind": "bootstrap_cases"
+     },
+     "sampling_classes": [
+      "recommended"
+     ],
+     "rank_ranges": {
+      "sidekick_score": [
+       1,
+       3
+      ],
+      "sidekick_tool_mode": [
+       1,
+       6
+      ]
+     },
+     "rank_range": [
+      1,
+      3
+     ]
+    },
+    "sidekick_not_hardened": {
+     "tier": "sidekick_not_hardened",
+     "records": 30,
+     "graded": 30,
+     "status_counts": {
+      "ok": 30
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-sidekick-mac"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "author_recommended"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "pass1": {
+      "value": 0.7,
+      "interval": [
+       0.521242,
+       0.833353
+      ],
+      "interval_kind": "wilson",
+      "interval_cluster": [
+       0.566667,
+       0.833333
+      ],
+      "n_cases": 10,
+      "n_trials": 30,
+      "passes": 21,
+      "pass_all_trials": {
+       "value": 0.3,
+       "interval": [
+        0.107791,
+        0.603222
+       ],
+       "n_cases": 10,
+       "k": 3,
+       "trials_per_case": [
+        3
+       ],
+       "flag": null
+      },
+      "pass_k": {
+       "2": 0.466667,
+       "3": 0.3
+      }
+     },
+     "score": null,
+     "composites": {},
+     "composite": null,
+     "safety": {
+      "trials": 30,
+      "unsafe_trials": 2,
+      "unsafe_rate": 0.066667,
+      "unsafe_interval": [
+       0.018477,
+       0.213235
       ],
       "unsafe_count": 2,
-      "unsafe_per_100": 3.174603,
-      "unsafe_n": 63,
+      "unsafe_per_100": 6.666667,
+      "unsafe_n": 30,
       "leak_trials": null,
       "leak_rate": null,
       "leak_interval": null,
@@ -21233,41 +21759,6 @@
        },
        "score": null
       },
-      "family=fix_bug": {
-       "pass1": {
-        "value": 0.533333,
-        "interval": [
-         0.30117,
-         0.751905
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.333333,
-         0.733333
-        ],
-        "n_cases": 5,
-        "n_trials": 15,
-        "passes": 8,
-        "pass_all_trials": {
-         "value": 0.2,
-         "interval": [
-          0.036224,
-          0.624465
-         ],
-         "n_cases": 5,
-         "k": 1,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.266667,
-         "3": 0.2
-        }
-       },
-       "score": null
-      },
       "family=git": {
        "pass1": {
         "value": 0.666667,
@@ -21298,111 +21789,6 @@
         },
         "pass_k": {
          "2": 0.5,
-         "3": 0.5
-        }
-       },
-       "score": null
-      },
-      "family=regex": {
-       "pass1": {
-        "value": 0.666667,
-        "interval": [
-         0.299993,
-         0.903229
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.666667,
-         0.666667
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 4,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.333333,
-         "3": 0.0
-        }
-       },
-       "score": null
-      },
-      "family=shell": {
-       "pass1": {
-        "value": 0.666667,
-        "interval": [
-         0.299993,
-         0.903229
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.666667,
-         0.666667
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 4,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.333333,
-         "3": 0.0
-        }
-       },
-       "score": null
-      },
-      "family=write_fn": {
-       "pass1": {
-        "value": 0.833333,
-        "interval": [
-         0.436497,
-         0.969947
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.666667,
-         1.0
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 5,
-        "pass_all_trials": {
-         "value": 0.5,
-         "interval": [
-          0.094531,
-          0.905469
-         ],
-         "n_cases": 2,
-         "k": 1,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.666667,
          "3": 0.5
         }
        },
@@ -21444,33 +21830,32 @@
        "score": null
       }
      },
-     "metrics": {},
-     "headline": {
-      "metric": "sidekick_score",
-      "source": "composite",
-      "value": 0.703704,
-      "interval": [
-       0.611111,
-       0.796296
-      ],
-      "interval_kind": "bootstrap_cases"
+     "metrics": {
+      "grade_hardened": {
+       "value": 0.0,
+       "interval": [
+        0.0,
+        0.113513
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 10,
+       "n_trials": 30
+      }
      },
+     "headline": {
+      "metric": "pass1",
+      "source": "pass1",
+      "value": 0.7,
+      "interval": [
+       0.521242,
+       0.833353
+      ],
+      "interval_kind": "wilson"
+     },
+     "ranked": false,
+     "label": "not hardened against adversarial model code",
      "sampling_classes": [
       "recommended"
-     ],
-     "rank_ranges": {
-      "sidekick_score": [
-       1,
-       3
-      ],
-      "sidekick_tool_mode": [
-       1,
-       6
-      ]
-     },
-     "rank_range": [
-      1,
-      3
      ]
     }
    },
@@ -22003,37 +22388,32 @@
       },
       "sidekick": {
        "pass1": {
-        "delta": 0.222222,
+        "delta": 0.242424,
         "interval": [
-         0.094841,
-         0.365079
+         0.030303,
+         0.484848
         ],
         "tag": "better",
-        "n_cases": 21,
-        "wins": 11,
-        "losses": 2,
-        "ties": 8
+        "n_cases": 11,
+        "wins": 5,
+        "losses": 1,
+        "ties": 5
        },
        "sidekick_score": {
         "interval": [
-         0.148148,
-         0.333333
+         0.125,
+         0.458333
         ],
         "tag": "better",
-        "n_cases": 18,
-        "strata": 9,
+        "n_cases": 8,
+        "strata": 4,
         "weights": {
-         "commit_msg": 0.111111,
-         "diff_review": 0.111111,
-         "explain_error": 0.111111,
-         "fix_bug": 0.111111,
-         "git": 0.111111,
-         "regex": 0.111111,
-         "shell": 0.111111,
-         "write_fn": 0.111111,
-         "write_test": 0.111111
+         "fix_bug": 0.25,
+         "regex": 0.25,
+         "shell": 0.25,
+         "write_fn": 0.25
         },
-        "delta": 0.240741
+        "delta": 0.291667
        },
        "sidekick_tool_mode": {
         "interval": [
@@ -22049,18 +22429,21 @@
         "delta": 0.111111
        },
        "unsafe_rate": {
-        "delta": -0.174603,
+        "delta": -0.121212,
         "interval": [
-         -0.285714,
-         -0.063492
+         -0.212121,
+         -0.030303
         ],
         "tag": "better",
-        "n_cases": 21,
-        "wins": 1,
-        "losses": 9,
-        "ties": 11,
-        "ratio": 0.153846
+        "n_cases": 11,
+        "wins": 0,
+        "losses": 4,
+        "ties": 7,
+        "ratio": 0.0
        }
+      },
+      "sidekick_not_hardened": {
+       "refused": "not hardened against adversarial model code: no differences are published"
       }
      }
     },
@@ -22577,37 +22960,32 @@
       },
       "sidekick": {
        "pass1": {
-        "delta": 0.222222,
+        "delta": 0.242424,
         "interval": [
-         0.063492,
-         0.380952
+         0.060606,
+         0.454545
         ],
         "tag": "better",
-        "n_cases": 21,
-        "wins": 12,
-        "losses": 4,
-        "ties": 5
+        "n_cases": 11,
+        "wins": 6,
+        "losses": 1,
+        "ties": 4
        },
        "sidekick_score": {
         "interval": [
-         0.092593,
-         0.388889
+         0.083333,
+         0.5
         ],
         "tag": "better",
-        "n_cases": 18,
-        "strata": 9,
+        "n_cases": 8,
+        "strata": 4,
         "weights": {
-         "commit_msg": 0.111111,
-         "diff_review": 0.111111,
-         "explain_error": 0.111111,
-         "fix_bug": 0.111111,
-         "git": 0.111111,
-         "regex": 0.111111,
-         "shell": 0.111111,
-         "write_fn": 0.111111,
-         "write_test": 0.111111
+         "fix_bug": 0.25,
+         "regex": 0.25,
+         "shell": 0.25,
+         "write_fn": 0.25
         },
-        "delta": 0.240741
+        "delta": 0.291667
        },
        "sidekick_tool_mode": {
         "interval": [
@@ -22623,18 +23001,21 @@
         "delta": 0.111111
        },
        "unsafe_rate": {
-        "delta": -0.031746,
+        "delta": -0.090909,
         "interval": [
-         -0.119444,
-         0.063492
+         -0.181818,
+         0.0
         ],
         "tag": "no_clear_difference",
-        "n_cases": 21,
-        "wins": 1,
-        "losses": 4,
-        "ties": 16,
-        "ratio": 0.5
+        "n_cases": 11,
+        "wins": 0,
+        "losses": 3,
+        "ties": 8,
+        "ratio": 0.0
        }
+      },
+      "sidekick_not_hardened": {
+       "refused": "not hardened against adversarial model code: no differences are published"
       }
      }
     }
@@ -26823,10 +27204,10 @@
     },
     "sidekick": {
      "tier": "sidekick",
-     "records": 63,
-     "graded": 63,
+     "records": 33,
+     "graded": 33,
      "status_counts": {
-      "ok": 63
+      "ok": 33
      },
      "excluded": 0,
      "excluded_rate": 0.0,
@@ -26845,71 +27226,61 @@
      ],
      "invalid": false,
      "pass1": {
-      "value": 0.619048,
+      "value": 0.636364,
       "interval": [
-       0.495586,
-       0.728825
+       0.466162,
+       0.778128
       ],
       "interval_kind": "wilson",
       "interval_cluster": [
-       0.47619,
-       0.761905
+       0.454545,
+       0.818182
       ],
-      "n_cases": 21,
-      "n_trials": 63,
-      "passes": 39,
+      "n_cases": 11,
+      "n_trials": 33,
+      "passes": 21,
       "pass_all_trials": {
-       "value": 0.333333,
+       "value": 0.363636,
        "interval": [
-        0.171948,
-        0.546265
+        0.151665,
+        0.646199
        ],
-       "n_cases": 21,
-       "k": 7,
+       "n_cases": 11,
+       "k": 4,
        "trials_per_case": [
         3
        ],
        "flag": null
       },
       "pass_k": {
-       "2": 0.428571,
-       "3": 0.333333
+       "2": 0.454545,
+       "3": 0.363636
       }
      },
      "score": null,
      "composites": {
       "sidekick_score": {
-       "value": 0.685185,
+       "value": 0.791667,
        "interval": [
-        0.611111,
-        0.777778
+        0.666667,
+        0.958333
        ],
-       "n_cases": 18,
-       "strata": 9,
+       "n_cases": 8,
+       "strata": 4,
        "weights": {
-        "commit_msg": 0.111111,
-        "diff_review": 0.111111,
-        "explain_error": 0.111111,
-        "fix_bug": 0.111111,
-        "git": 0.111111,
-        "regex": 0.111111,
-        "shell": 0.111111,
-        "write_fn": 0.111111,
-        "write_test": 0.111111
+        "fix_bug": 0.25,
+        "regex": 0.25,
+        "shell": 0.25,
+        "write_fn": 0.25
        },
        "metric": "sidekick_score",
        "interval_kind": "bootstrap_cases",
-       "n_trials": 54,
+       "n_trials": 24,
        "present": [
-        "commit_msg",
-        "diff_review",
-        "explain_error",
         "fix_bug",
-        "git",
         "regex",
         "shell",
-        "write_fn",
-        "write_test"
+        "write_fn"
        ],
        "complete": true
       },
@@ -26930,166 +27301,51 @@
       }
      },
      "composite": {
-      "value": 0.685185,
+      "value": 0.791667,
       "interval": [
-       0.611111,
-       0.777778
+       0.666667,
+       0.958333
       ],
-      "n_cases": 18,
-      "strata": 9,
+      "n_cases": 8,
+      "strata": 4,
       "weights": {
-       "commit_msg": 0.111111,
-       "diff_review": 0.111111,
-       "explain_error": 0.111111,
-       "fix_bug": 0.111111,
-       "git": 0.111111,
-       "regex": 0.111111,
-       "shell": 0.111111,
-       "write_fn": 0.111111,
-       "write_test": 0.111111
+       "fix_bug": 0.25,
+       "regex": 0.25,
+       "shell": 0.25,
+       "write_fn": 0.25
       },
       "metric": "sidekick_score",
       "interval_kind": "bootstrap_cases",
-      "n_trials": 54,
+      "n_trials": 24,
       "present": [
-       "commit_msg",
-       "diff_review",
-       "explain_error",
        "fix_bug",
-       "git",
        "regex",
        "shell",
-       "write_fn",
-       "write_test"
+       "write_fn"
       ],
       "complete": true
      },
      "safety": {
-      "trials": 63,
-      "unsafe_trials": 5,
-      "unsafe_rate": 0.079365,
+      "trials": 33,
+      "unsafe_trials": 3,
+      "unsafe_rate": 0.090909,
       "unsafe_interval": [
-       0.034376,
-       0.172703
+       0.031404,
+       0.235726
       ],
-      "unsafe_count": 5,
-      "unsafe_per_100": 7.936508,
-      "unsafe_n": 63,
+      "unsafe_count": 3,
+      "unsafe_per_100": 9.090909,
+      "unsafe_n": 33,
       "leak_trials": null,
       "leak_rate": null,
       "leak_interval": null,
       "leak_count": null,
       "leak_per_100": null,
       "labels": {
-       "unsafe_action": 5
+       "unsafe_action": 3
       }
      },
      "facets": {
-      "family=commit_msg": {
-       "pass1": {
-        "value": 0.833333,
-        "interval": [
-         0.436497,
-         0.969947
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.666667,
-         1.0
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 5,
-        "pass_all_trials": {
-         "value": 0.5,
-         "interval": [
-          0.094531,
-          0.905469
-         ],
-         "n_cases": 2,
-         "k": 1,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.666667,
-         "3": 0.5
-        }
-       },
-       "score": null
-      },
-      "family=diff_review": {
-       "pass1": {
-        "value": 0.5,
-        "interval": [
-         0.187616,
-         0.812384
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.333333,
-         0.666667
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 3,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.166667,
-         "3": 0.0
-        }
-       },
-       "score": null
-      },
-      "family=explain_error": {
-       "pass1": {
-        "value": 1.0,
-        "interval": [
-         0.609666,
-         1.0
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         1.0,
-         1.0
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 6,
-        "pass_all_trials": {
-         "value": 1.0,
-         "interval": [
-          0.34238,
-          1.0
-         ],
-         "n_cases": 2,
-         "k": 2,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 1.0,
-         "3": 1.0
-        }
-       },
-       "score": null
-      },
       "family=fix_bug": {
        "pass1": {
         "value": 0.466667,
@@ -27121,41 +27377,6 @@
         "pass_k": {
          "2": 0.266667,
          "3": 0.2
-        }
-       },
-       "score": null
-      },
-      "family=git": {
-       "pass1": {
-        "value": 0.166667,
-        "interval": [
-         0.030053,
-         0.563503
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.0,
-         0.333333
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 1,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.0,
-         "3": 0.0
         }
        },
        "score": null
@@ -27264,6 +27485,266 @@
         }
        },
        "score": null
+      }
+     },
+     "metrics": {
+      "grade_hardened": {
+       "value": 1.0,
+       "interval": [
+        0.89573,
+        1.0
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 11,
+       "n_trials": 33
+      }
+     },
+     "headline": {
+      "metric": "sidekick_score",
+      "source": "composite",
+      "value": 0.791667,
+      "interval": [
+       0.666667,
+       0.958333
+      ],
+      "interval_kind": "bootstrap_cases"
+     },
+     "sampling_classes": [
+      "recommended"
+     ],
+     "rank_ranges": {
+      "sidekick_score": [
+       1,
+       3
+      ],
+      "sidekick_tool_mode": [
+       1,
+       6
+      ]
+     },
+     "rank_range": [
+      1,
+      3
+     ]
+    },
+    "sidekick_not_hardened": {
+     "tier": "sidekick_not_hardened",
+     "records": 30,
+     "graded": 30,
+     "status_counts": {
+      "ok": 30
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-sidekick-mac"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "author_recommended"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "pass1": {
+      "value": 0.6,
+      "interval": [
+       0.423204,
+       0.754094
+      ],
+      "interval_kind": "wilson",
+      "interval_cluster": [
+       0.4,
+       0.8
+      ],
+      "n_cases": 10,
+      "n_trials": 30,
+      "passes": 18,
+      "pass_all_trials": {
+       "value": 0.3,
+       "interval": [
+        0.107791,
+        0.603222
+       ],
+       "n_cases": 10,
+       "k": 3,
+       "trials_per_case": [
+        3
+       ],
+       "flag": null
+      },
+      "pass_k": {
+       "2": 0.4,
+       "3": 0.3
+      }
+     },
+     "score": null,
+     "composites": {},
+     "composite": null,
+     "safety": {
+      "trials": 30,
+      "unsafe_trials": 2,
+      "unsafe_rate": 0.066667,
+      "unsafe_interval": [
+       0.018477,
+       0.213235
+      ],
+      "unsafe_count": 2,
+      "unsafe_per_100": 6.666667,
+      "unsafe_n": 30,
+      "leak_trials": null,
+      "leak_rate": null,
+      "leak_interval": null,
+      "leak_count": null,
+      "leak_per_100": null,
+      "labels": {
+       "unsafe_action": 2
+      }
+     },
+     "facets": {
+      "family=commit_msg": {
+       "pass1": {
+        "value": 0.833333,
+        "interval": [
+         0.436497,
+         0.969947
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.666667,
+         1.0
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 5,
+        "pass_all_trials": {
+         "value": 0.5,
+         "interval": [
+          0.094531,
+          0.905469
+         ],
+         "n_cases": 2,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.666667,
+         "3": 0.5
+        }
+       },
+       "score": null
+      },
+      "family=diff_review": {
+       "pass1": {
+        "value": 0.5,
+        "interval": [
+         0.187616,
+         0.812384
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 3,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": null
+      },
+      "family=explain_error": {
+       "pass1": {
+        "value": 1.0,
+        "interval": [
+         0.609666,
+         1.0
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         1.0,
+         1.0
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 6,
+        "pass_all_trials": {
+         "value": 1.0,
+         "interval": [
+          0.34238,
+          1.0
+         ],
+         "n_cases": 2,
+         "k": 2,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 1.0,
+         "3": 1.0
+        }
+       },
+       "score": null
+      },
+      "family=git": {
+       "pass1": {
+        "value": 0.166667,
+        "interval": [
+         0.030053,
+         0.563503
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.333333
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 1,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": null
       },
       "family=write_test": {
        "pass1": {
@@ -27301,33 +27782,32 @@
        "score": null
       }
      },
-     "metrics": {},
-     "headline": {
-      "metric": "sidekick_score",
-      "source": "composite",
-      "value": 0.685185,
-      "interval": [
-       0.611111,
-       0.777778
-      ],
-      "interval_kind": "bootstrap_cases"
+     "metrics": {
+      "grade_hardened": {
+       "value": 0.0,
+       "interval": [
+        0.0,
+        0.113513
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 10,
+       "n_trials": 30
+      }
      },
+     "headline": {
+      "metric": "pass1",
+      "source": "pass1",
+      "value": 0.6,
+      "interval": [
+       0.423204,
+       0.754094
+      ],
+      "interval_kind": "wilson"
+     },
+     "ranked": false,
+     "label": "not hardened against adversarial model code",
      "sampling_classes": [
       "recommended"
-     ],
-     "rank_ranges": {
-      "sidekick_score": [
-       1,
-       3
-      ],
-      "sidekick_tool_mode": [
-       1,
-       6
-      ]
-     },
-     "rank_range": [
-      1,
-      3
      ]
     }
    },
@@ -27861,37 +28341,32 @@
       },
       "sidekick": {
        "pass1": {
-        "delta": 0.174603,
+        "delta": 0.242424,
         "interval": [
-         -0.015873,
-         0.380952
+         -0.030303,
+         0.515152
         ],
         "tag": "no_clear_difference",
-        "n_cases": 21,
-        "wins": 11,
-        "losses": 4,
-        "ties": 6
+        "n_cases": 11,
+        "wins": 6,
+        "losses": 1,
+        "ties": 4
        },
        "sidekick_score": {
         "interval": [
-         0.092593,
-         0.351852
+         0.166667,
+         0.583333
         ],
         "tag": "better",
-        "n_cases": 18,
-        "strata": 9,
+        "n_cases": 8,
+        "strata": 4,
         "weights": {
-         "commit_msg": 0.111111,
-         "diff_review": 0.111111,
-         "explain_error": 0.111111,
-         "fix_bug": 0.111111,
-         "git": 0.111111,
-         "regex": 0.111111,
-         "shell": 0.111111,
-         "write_fn": 0.111111,
-         "write_test": 0.111111
+         "fix_bug": 0.25,
+         "regex": 0.25,
+         "shell": 0.25,
+         "write_fn": 0.25
         },
-        "delta": 0.222222
+        "delta": 0.375
        },
        "sidekick_tool_mode": {
         "interval": [
@@ -27907,18 +28382,21 @@
         "delta": -0.111111
        },
        "unsafe_rate": {
-        "delta": -0.126984,
+        "delta": -0.030303,
         "interval": [
-         -0.269841,
-         0.0
+         -0.167424,
+         0.121212
         ],
         "tag": "no_clear_difference",
-        "n_cases": 21,
-        "wins": 4,
-        "losses": 9,
-        "ties": 8,
-        "ratio": 0.384615
+        "n_cases": 11,
+        "wins": 2,
+        "losses": 3,
+        "ties": 6,
+        "ratio": 0.75
        }
+      },
+      "sidekick_not_hardened": {
+       "refused": "not hardened against adversarial model code: no differences are published"
       }
      }
     },
@@ -28435,37 +28913,32 @@
       },
       "sidekick": {
        "pass1": {
-        "delta": 0.174603,
+        "delta": 0.242424,
         "interval": [
-         -0.0,
-         0.349206
+         0.0,
+         0.484848
         ],
-        "tag": "no_clear_difference",
-        "n_cases": 21,
-        "wins": 11,
-        "losses": 4,
-        "ties": 6
+        "tag": "better",
+        "n_cases": 11,
+        "wins": 6,
+        "losses": 2,
+        "ties": 3
        },
        "sidekick_score": {
         "interval": [
-         0.074074,
-         0.351852
+         0.166667,
+         0.583333
         ],
         "tag": "better",
-        "n_cases": 18,
-        "strata": 9,
+        "n_cases": 8,
+        "strata": 4,
         "weights": {
-         "commit_msg": 0.111111,
-         "diff_review": 0.111111,
-         "explain_error": 0.111111,
-         "fix_bug": 0.111111,
-         "git": 0.111111,
-         "regex": 0.111111,
-         "shell": 0.111111,
-         "write_fn": 0.111111,
-         "write_test": 0.111111
+         "fix_bug": 0.25,
+         "regex": 0.25,
+         "shell": 0.25,
+         "write_fn": 0.25
         },
-        "delta": 0.222222
+        "delta": 0.375
        },
        "sidekick_tool_mode": {
         "interval": [
@@ -28481,18 +28954,21 @@
         "delta": -0.111111
        },
        "unsafe_rate": {
-        "delta": 0.015873,
+        "delta": 0.0,
         "interval": [
-         -0.063492,
-         0.095238
+         -0.121212,
+         0.121212
         ],
         "tag": "no_clear_difference",
-        "n_cases": 21,
-        "wins": 4,
-        "losses": 3,
-        "ties": 14,
-        "ratio": 1.25
+        "n_cases": 11,
+        "wins": 2,
+        "losses": 2,
+        "ties": 7,
+        "ratio": 1.0
        }
+      },
+      "sidekick_not_hardened": {
+       "refused": "not hardened against adversarial model code: no differences are published"
       }
      }
     }
@@ -32630,10 +33106,10 @@
     },
     "sidekick": {
      "tier": "sidekick",
-     "records": 63,
-     "graded": 63,
+     "records": 33,
+     "graded": 33,
      "status_counts": {
-      "ok": 63
+      "ok": 33
      },
      "excluded": 0,
      "excluded_rate": 0.0,
@@ -32652,26 +33128,26 @@
      ],
      "invalid": false,
      "pass1": {
-      "value": 0.190476,
+      "value": 0.151515,
       "interval": [
-       0.112462,
-       0.304068
+       0.066505,
+       0.309199
       ],
       "interval_kind": "wilson",
       "interval_cluster": [
-       0.095238,
-       0.285714
+       0.030303,
+       0.30303
       ],
-      "n_cases": 21,
-      "n_trials": 63,
-      "passes": 12,
+      "n_cases": 11,
+      "n_trials": 33,
+      "passes": 5,
       "pass_all_trials": {
        "value": 0.0,
        "interval": [
         0.0,
-        0.154639
+        0.258833
        ],
-       "n_cases": 21,
+       "n_cases": 11,
        "k": 0,
        "trials_per_case": [
         3
@@ -32679,44 +33155,34 @@
        "flag": null
       },
       "pass_k": {
-       "2": 0.047619,
+       "2": 0.030303,
        "3": 0.0
       }
      },
      "score": null,
      "composites": {
       "sidekick_score": {
-       "value": 0.222222,
+       "value": 0.208333,
        "interval": [
         0.166667,
-        0.277778
+        0.25
        ],
-       "n_cases": 18,
-       "strata": 9,
+       "n_cases": 8,
+       "strata": 4,
        "weights": {
-        "commit_msg": 0.111111,
-        "diff_review": 0.111111,
-        "explain_error": 0.111111,
-        "fix_bug": 0.111111,
-        "git": 0.111111,
-        "regex": 0.111111,
-        "shell": 0.111111,
-        "write_fn": 0.111111,
-        "write_test": 0.111111
+        "fix_bug": 0.25,
+        "regex": 0.25,
+        "shell": 0.25,
+        "write_fn": 0.25
        },
        "metric": "sidekick_score",
        "interval_kind": "bootstrap_cases",
-       "n_trials": 54,
+       "n_trials": 24,
        "present": [
-        "commit_msg",
-        "diff_review",
-        "explain_error",
         "fix_bug",
-        "git",
         "regex",
         "shell",
-        "write_fn",
-        "write_test"
+        "write_fn"
        ],
        "complete": true
       },
@@ -32737,166 +33203,51 @@
       }
      },
      "composite": {
-      "value": 0.222222,
+      "value": 0.208333,
       "interval": [
        0.166667,
-       0.277778
+       0.25
       ],
-      "n_cases": 18,
-      "strata": 9,
+      "n_cases": 8,
+      "strata": 4,
       "weights": {
-       "commit_msg": 0.111111,
-       "diff_review": 0.111111,
-       "explain_error": 0.111111,
-       "fix_bug": 0.111111,
-       "git": 0.111111,
-       "regex": 0.111111,
-       "shell": 0.111111,
-       "write_fn": 0.111111,
-       "write_test": 0.111111
+       "fix_bug": 0.25,
+       "regex": 0.25,
+       "shell": 0.25,
+       "write_fn": 0.25
       },
       "metric": "sidekick_score",
       "interval_kind": "bootstrap_cases",
-      "n_trials": 54,
+      "n_trials": 24,
       "present": [
-       "commit_msg",
-       "diff_review",
-       "explain_error",
        "fix_bug",
-       "git",
        "regex",
        "shell",
-       "write_fn",
-       "write_test"
+       "write_fn"
       ],
       "complete": true
      },
      "safety": {
-      "trials": 63,
-      "unsafe_trials": 17,
-      "unsafe_rate": 0.269841,
+      "trials": 33,
+      "unsafe_trials": 8,
+      "unsafe_rate": 0.242424,
       "unsafe_interval": [
-       0.175838,
-       0.390299
+       0.128317,
+       0.410246
       ],
-      "unsafe_count": 17,
-      "unsafe_per_100": 26.984127,
-      "unsafe_n": 63,
+      "unsafe_count": 8,
+      "unsafe_per_100": 24.242424,
+      "unsafe_n": 33,
       "leak_trials": null,
       "leak_rate": null,
       "leak_interval": null,
       "leak_count": null,
       "leak_per_100": null,
       "labels": {
-       "unsafe_action": 17
+       "unsafe_action": 8
       }
      },
      "facets": {
-      "family=commit_msg": {
-       "pass1": {
-        "value": 0.0,
-        "interval": [
-         0.0,
-         0.390334
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.0,
-         0.0
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 0,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.0,
-         "3": 0.0
-        }
-       },
-       "score": null
-      },
-      "family=diff_review": {
-       "pass1": {
-        "value": 0.5,
-        "interval": [
-         0.187616,
-         0.812384
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.333333,
-         0.666667
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 3,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.166667,
-         "3": 0.0
-        }
-       },
-       "score": null
-      },
-      "family=explain_error": {
-       "pass1": {
-        "value": 0.166667,
-        "interval": [
-         0.030053,
-         0.563503
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.0,
-         0.333333
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 1,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.0,
-         "3": 0.0
-        }
-       },
-       "score": null
-      },
       "family=fix_bug": {
        "pass1": {
         "value": 0.133333,
@@ -32919,41 +33270,6 @@
           0.434482
          ],
          "n_cases": 5,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.0,
-         "3": 0.0
-        }
-       },
-       "score": null
-      },
-      "family=git": {
-       "pass1": {
-        "value": 0.0,
-        "interval": [
-         0.0,
-         0.390334
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.0,
-         0.0
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 0,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
          "k": 0,
          "trials_per_case": [
           3
@@ -33071,6 +33387,252 @@
         }
        },
        "score": null
+      }
+     },
+     "metrics": {
+      "grade_hardened": {
+       "value": 1.0,
+       "interval": [
+        0.89573,
+        1.0
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 11,
+       "n_trials": 33
+      }
+     },
+     "headline": {
+      "metric": "sidekick_score",
+      "source": "composite",
+      "value": 0.208333,
+      "interval": [
+       0.166667,
+       0.25
+      ],
+      "interval_kind": "bootstrap_cases"
+     },
+     "sampling_classes": [
+      "recommended"
+     ]
+    },
+    "sidekick_not_hardened": {
+     "tier": "sidekick_not_hardened",
+     "records": 30,
+     "graded": 30,
+     "status_counts": {
+      "ok": 30
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-sidekick-mac"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "author_recommended"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "pass1": {
+      "value": 0.233333,
+      "interval": [
+       0.117924,
+       0.409283
+      ],
+      "interval_kind": "wilson",
+      "interval_cluster": [
+       0.1,
+       0.4
+      ],
+      "n_cases": 10,
+      "n_trials": 30,
+      "passes": 7,
+      "pass_all_trials": {
+       "value": 0.0,
+       "interval": [
+        0.0,
+        0.277533
+       ],
+       "n_cases": 10,
+       "k": 0,
+       "trials_per_case": [
+        3
+       ],
+       "flag": null
+      },
+      "pass_k": {
+       "2": 0.066667,
+       "3": 0.0
+      }
+     },
+     "score": null,
+     "composites": {},
+     "composite": null,
+     "safety": {
+      "trials": 30,
+      "unsafe_trials": 9,
+      "unsafe_rate": 0.3,
+      "unsafe_interval": [
+       0.166647,
+       0.478758
+      ],
+      "unsafe_count": 9,
+      "unsafe_per_100": 30.0,
+      "unsafe_n": 30,
+      "leak_trials": null,
+      "leak_rate": null,
+      "leak_interval": null,
+      "leak_count": null,
+      "leak_per_100": null,
+      "labels": {
+       "unsafe_action": 9
+      }
+     },
+     "facets": {
+      "family=commit_msg": {
+       "pass1": {
+        "value": 0.0,
+        "interval": [
+         0.0,
+         0.390334
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.0
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 0,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": null
+      },
+      "family=diff_review": {
+       "pass1": {
+        "value": 0.5,
+        "interval": [
+         0.187616,
+         0.812384
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 3,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": null
+      },
+      "family=explain_error": {
+       "pass1": {
+        "value": 0.166667,
+        "interval": [
+         0.030053,
+         0.563503
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.333333
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 1,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": null
+      },
+      "family=git": {
+       "pass1": {
+        "value": 0.0,
+        "interval": [
+         0.0,
+         0.390334
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         0.0
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 0,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": null
       },
       "family=write_test": {
        "pass1": {
@@ -33108,17 +33670,30 @@
        "score": null
       }
      },
-     "metrics": {},
-     "headline": {
-      "metric": "sidekick_score",
-      "source": "composite",
-      "value": 0.222222,
-      "interval": [
-       0.166667,
-       0.277778
-      ],
-      "interval_kind": "bootstrap_cases"
+     "metrics": {
+      "grade_hardened": {
+       "value": 0.0,
+       "interval": [
+        0.0,
+        0.113513
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 10,
+       "n_trials": 30
+      }
      },
+     "headline": {
+      "metric": "pass1",
+      "source": "pass1",
+      "value": 0.233333,
+      "interval": [
+       0.117924,
+       0.409283
+      ],
+      "interval_kind": "wilson"
+     },
+     "ranked": false,
+     "label": "not hardened against adversarial model code",
      "sampling_classes": [
       "recommended"
      ]
@@ -33656,37 +34231,32 @@
       },
       "sidekick": {
        "pass1": {
-        "delta": -0.253968,
+        "delta": -0.242424,
         "interval": [
-         -0.412698,
-         -0.079365
+         -0.454545,
+         0.0
         ],
-        "tag": "worse",
-        "n_cases": 21,
-        "wins": 3,
-        "losses": 13,
-        "ties": 5
+        "tag": "no_clear_difference",
+        "n_cases": 11,
+        "wins": 2,
+        "losses": 6,
+        "ties": 3
        },
        "sidekick_score": {
         "interval": [
-         -0.333333,
-         -0.148148
+         -0.291667,
+         -0.125
         ],
         "tag": "worse",
-        "n_cases": 18,
-        "strata": 9,
+        "n_cases": 8,
+        "strata": 4,
         "weights": {
-         "commit_msg": 0.111111,
-         "diff_review": 0.111111,
-         "explain_error": 0.111111,
-         "fix_bug": 0.111111,
-         "git": 0.111111,
-         "regex": 0.111111,
-         "shell": 0.111111,
-         "write_fn": 0.111111,
-         "write_test": 0.111111
+         "fix_bug": 0.25,
+         "regex": 0.25,
+         "shell": 0.25,
+         "write_fn": 0.25
         },
-        "delta": -0.240741
+        "delta": -0.208333
        },
        "sidekick_tool_mode": {
         "interval": [
@@ -33702,18 +34272,21 @@
         "delta": -0.333333
        },
        "unsafe_rate": {
-        "delta": 0.063492,
+        "delta": 0.121212,
         "interval": [
-         -0.031746,
-         0.15873
+         0.030303,
+         0.212121
         ],
-        "tag": "no_clear_difference",
-        "n_cases": 21,
-        "wins": 7,
-        "losses": 3,
-        "ties": 11,
-        "ratio": 1.307692
+        "tag": "worse",
+        "n_cases": 11,
+        "wins": 4,
+        "losses": 0,
+        "ties": 7,
+        "ratio": 2.0
        }
+      },
+      "sidekick_not_hardened": {
+       "refused": "not hardened against adversarial model code: no differences are published"
       }
      }
     },
@@ -34230,37 +34803,32 @@
       },
       "sidekick": {
        "pass1": {
-        "delta": -0.253968,
+        "delta": -0.242424,
         "interval": [
-         -0.396825,
-         -0.095238
+         -0.484848,
+         0.0
         ],
-        "tag": "worse",
-        "n_cases": 21,
-        "wins": 3,
-        "losses": 13,
-        "ties": 5
+        "tag": "no_clear_difference",
+        "n_cases": 11,
+        "wins": 2,
+        "losses": 6,
+        "ties": 3
        },
        "sidekick_score": {
         "interval": [
          -0.333333,
-         -0.148148
+         -0.083333
         ],
         "tag": "worse",
-        "n_cases": 18,
-        "strata": 9,
+        "n_cases": 8,
+        "strata": 4,
         "weights": {
-         "commit_msg": 0.111111,
-         "diff_review": 0.111111,
-         "explain_error": 0.111111,
-         "fix_bug": 0.111111,
-         "git": 0.111111,
-         "regex": 0.111111,
-         "shell": 0.111111,
-         "write_fn": 0.111111,
-         "write_test": 0.111111
+         "fix_bug": 0.25,
+         "regex": 0.25,
+         "shell": 0.25,
+         "write_fn": 0.25
         },
-        "delta": -0.240741
+        "delta": -0.208333
        },
        "sidekick_tool_mode": {
         "interval": [
@@ -34276,18 +34844,21 @@
         "delta": -0.333333
        },
        "unsafe_rate": {
-        "delta": 0.206349,
+        "delta": 0.151515,
         "interval": [
-         0.111111,
-         0.301587
+         0.030303,
+         0.272727
         ],
         "tag": "worse",
-        "n_cases": 21,
-        "wins": 13,
+        "n_cases": 11,
+        "wins": 6,
         "losses": 1,
-        "ties": 7,
-        "ratio": 4.25
+        "ties": 4,
+        "ratio": 2.666667
        }
+      },
+      "sidekick_not_hardened": {
+       "refused": "not hardened against adversarial model code: no differences are published"
       }
      }
     }
@@ -38418,10 +38989,10 @@
     },
     "sidekick": {
      "tier": "sidekick",
-     "records": 63,
-     "graded": 63,
+     "records": 33,
+     "graded": 33,
      "status_counts": {
-      "ok": 63
+      "ok": 33
      },
      "excluded": 0,
      "excluded_rate": 0.0,
@@ -38440,71 +39011,61 @@
      ],
      "invalid": false,
      "pass1": {
-      "value": 0.761905,
+      "value": 0.787879,
       "interval": [
-       0.643643,
-       0.850062
+       0.622484,
+       0.89324
       ],
       "interval_kind": "wilson",
       "interval_cluster": [
-       0.634921,
-       0.888889
+       0.575758,
+       0.969697
       ],
-      "n_cases": 21,
-      "n_trials": 63,
-      "passes": 48,
+      "n_cases": 11,
+      "n_trials": 33,
+      "passes": 26,
       "pass_all_trials": {
-       "value": 0.52381,
+       "value": 0.636364,
        "interval": [
-        0.323695,
-        0.71656
+        0.353801,
+        0.848335
        ],
-       "n_cases": 21,
-       "k": 11,
+       "n_cases": 11,
+       "k": 7,
        "trials_per_case": [
         3
        ],
        "flag": null
       },
       "pass_k": {
-       "2": 0.619048,
-       "3": 0.52381
+       "2": 0.69697,
+       "3": 0.636364
       }
      },
      "score": null,
      "composites": {
       "sidekick_score": {
-       "value": 0.759259,
+       "value": 0.791667,
        "interval": [
-        0.666667,
-        0.851852
+        0.625,
+        0.958333
        ],
-       "n_cases": 18,
-       "strata": 9,
+       "n_cases": 8,
+       "strata": 4,
        "weights": {
-        "commit_msg": 0.111111,
-        "diff_review": 0.111111,
-        "explain_error": 0.111111,
-        "fix_bug": 0.111111,
-        "git": 0.111111,
-        "regex": 0.111111,
-        "shell": 0.111111,
-        "write_fn": 0.111111,
-        "write_test": 0.111111
+        "fix_bug": 0.25,
+        "regex": 0.25,
+        "shell": 0.25,
+        "write_fn": 0.25
        },
        "metric": "sidekick_score",
        "interval_kind": "bootstrap_cases",
-       "n_trials": 54,
+       "n_trials": 24,
        "present": [
-        "commit_msg",
-        "diff_review",
-        "explain_error",
         "fix_bug",
-        "git",
         "regex",
         "shell",
-        "write_fn",
-        "write_test"
+        "write_fn"
        ],
        "complete": true
       },
@@ -38525,51 +39086,41 @@
       }
      },
      "composite": {
-      "value": 0.759259,
+      "value": 0.791667,
       "interval": [
-       0.666667,
-       0.851852
+       0.625,
+       0.958333
       ],
-      "n_cases": 18,
-      "strata": 9,
+      "n_cases": 8,
+      "strata": 4,
       "weights": {
-       "commit_msg": 0.111111,
-       "diff_review": 0.111111,
-       "explain_error": 0.111111,
-       "fix_bug": 0.111111,
-       "git": 0.111111,
-       "regex": 0.111111,
-       "shell": 0.111111,
-       "write_fn": 0.111111,
-       "write_test": 0.111111
+       "fix_bug": 0.25,
+       "regex": 0.25,
+       "shell": 0.25,
+       "write_fn": 0.25
       },
       "metric": "sidekick_score",
       "interval_kind": "bootstrap_cases",
-      "n_trials": 54,
+      "n_trials": 24,
       "present": [
-       "commit_msg",
-       "diff_review",
-       "explain_error",
        "fix_bug",
-       "git",
        "regex",
        "shell",
-       "write_fn",
-       "write_test"
+       "write_fn"
       ],
       "complete": true
      },
      "safety": {
-      "trials": 63,
+      "trials": 33,
       "unsafe_trials": 1,
-      "unsafe_rate": 0.015873,
+      "unsafe_rate": 0.030303,
       "unsafe_interval": [
-       0.002807,
-       0.084585
+       0.005369,
+       0.153187
       ],
       "unsafe_count": 1,
-      "unsafe_per_100": 1.587302,
-      "unsafe_n": 63,
+      "unsafe_per_100": 3.030303,
+      "unsafe_n": 33,
       "leak_trials": null,
       "leak_rate": null,
       "leak_interval": null,
@@ -38580,111 +39131,6 @@
       }
      },
      "facets": {
-      "family=commit_msg": {
-       "pass1": {
-        "value": 0.833333,
-        "interval": [
-         0.436497,
-         0.969947
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.666667,
-         1.0
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 5,
-        "pass_all_trials": {
-         "value": 0.5,
-         "interval": [
-          0.094531,
-          0.905469
-         ],
-         "n_cases": 2,
-         "k": 1,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.666667,
-         "3": 0.5
-        }
-       },
-       "score": null
-      },
-      "family=diff_review": {
-       "pass1": {
-        "value": 0.5,
-        "interval": [
-         0.187616,
-         0.812384
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.333333,
-         0.666667
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 3,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.166667,
-         "3": 0.0
-        }
-       },
-       "score": null
-      },
-      "family=explain_error": {
-       "pass1": {
-        "value": 0.833333,
-        "interval": [
-         0.436497,
-         0.969947
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.666667,
-         1.0
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 5,
-        "pass_all_trials": {
-         "value": 0.5,
-         "interval": [
-          0.094531,
-          0.905469
-         ],
-         "n_cases": 2,
-         "k": 1,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.666667,
-         "3": 0.5
-        }
-       },
-       "score": null
-      },
       "family=fix_bug": {
        "pass1": {
         "value": 0.866667,
@@ -38716,41 +39162,6 @@
         "pass_k": {
          "2": 0.8,
          "3": 0.8
-        }
-       },
-       "score": null
-      },
-      "family=git": {
-       "pass1": {
-        "value": 1.0,
-        "interval": [
-         0.609666,
-         1.0
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         1.0,
-         1.0
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 6,
-        "pass_all_trials": {
-         "value": 1.0,
-         "interval": [
-          0.34238,
-          1.0
-         ],
-         "n_cases": 2,
-         "k": 2,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 1.0,
-         "3": 1.0
         }
        },
        "score": null
@@ -38859,6 +39270,250 @@
         }
        },
        "score": null
+      }
+     },
+     "metrics": {
+      "grade_hardened": {
+       "value": 1.0,
+       "interval": [
+        0.89573,
+        1.0
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 11,
+       "n_trials": 33
+      }
+     },
+     "headline": {
+      "metric": "sidekick_score",
+      "source": "composite",
+      "value": 0.791667,
+      "interval": [
+       0.625,
+       0.958333
+      ],
+      "interval_kind": "bootstrap_cases"
+     },
+     "sampling_classes": [
+      "recommended"
+     ]
+    },
+    "sidekick_not_hardened": {
+     "tier": "sidekick_not_hardened",
+     "records": 30,
+     "graded": 30,
+     "status_counts": {
+      "ok": 30
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-sidekick-mac"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "author_recommended"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "pass1": {
+      "value": 0.733333,
+      "interval": [
+       0.55552,
+       0.858173
+      ],
+      "interval_kind": "wilson",
+      "interval_cluster": [
+       0.566667,
+       0.9
+      ],
+      "n_cases": 10,
+      "n_trials": 30,
+      "passes": 22,
+      "pass_all_trials": {
+       "value": 0.4,
+       "interval": [
+        0.16818,
+        0.687326
+       ],
+       "n_cases": 10,
+       "k": 4,
+       "trials_per_case": [
+        3
+       ],
+       "flag": null
+      },
+      "pass_k": {
+       "2": 0.533333,
+       "3": 0.4
+      }
+     },
+     "score": null,
+     "composites": {},
+     "composite": null,
+     "safety": {
+      "trials": 30,
+      "unsafe_trials": 0,
+      "unsafe_rate": 0.0,
+      "unsafe_interval": [
+       0.0,
+       0.113513
+      ],
+      "unsafe_count": 0,
+      "unsafe_per_100": 0.0,
+      "unsafe_n": 30,
+      "leak_trials": null,
+      "leak_rate": null,
+      "leak_interval": null,
+      "leak_count": null,
+      "leak_per_100": null,
+      "labels": {}
+     },
+     "facets": {
+      "family=commit_msg": {
+       "pass1": {
+        "value": 0.833333,
+        "interval": [
+         0.436497,
+         0.969947
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.666667,
+         1.0
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 5,
+        "pass_all_trials": {
+         "value": 0.5,
+         "interval": [
+          0.094531,
+          0.905469
+         ],
+         "n_cases": 2,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.666667,
+         "3": 0.5
+        }
+       },
+       "score": null
+      },
+      "family=diff_review": {
+       "pass1": {
+        "value": 0.5,
+        "interval": [
+         0.187616,
+         0.812384
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 3,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": null
+      },
+      "family=explain_error": {
+       "pass1": {
+        "value": 0.833333,
+        "interval": [
+         0.436497,
+         0.969947
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.666667,
+         1.0
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 5,
+        "pass_all_trials": {
+         "value": 0.5,
+         "interval": [
+          0.094531,
+          0.905469
+         ],
+         "n_cases": 2,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.666667,
+         "3": 0.5
+        }
+       },
+       "score": null
+      },
+      "family=git": {
+       "pass1": {
+        "value": 1.0,
+        "interval": [
+         0.609666,
+         1.0
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         1.0,
+         1.0
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 6,
+        "pass_all_trials": {
+         "value": 1.0,
+         "interval": [
+          0.34238,
+          1.0
+         ],
+         "n_cases": 2,
+         "k": 2,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 1.0,
+         "3": 1.0
+        }
+       },
+       "score": null
       },
       "family=write_test": {
        "pass1": {
@@ -38896,17 +39551,30 @@
        "score": null
       }
      },
-     "metrics": {},
-     "headline": {
-      "metric": "sidekick_score",
-      "source": "composite",
-      "value": 0.759259,
-      "interval": [
-       0.666667,
-       0.851852
-      ],
-      "interval_kind": "bootstrap_cases"
+     "metrics": {
+      "grade_hardened": {
+       "value": 0.0,
+       "interval": [
+        0.0,
+        0.113513
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 10,
+       "n_trials": 30
+      }
      },
+     "headline": {
+      "metric": "pass1",
+      "source": "pass1",
+      "value": 0.733333,
+      "interval": [
+       0.55552,
+       0.858173
+      ],
+      "interval_kind": "wilson"
+     },
+     "ranked": false,
+     "label": "not hardened against adversarial model code",
      "sampling_classes": [
       "recommended"
      ]
@@ -39442,37 +40110,32 @@
       },
       "sidekick": {
        "pass1": {
-        "delta": 0.31746,
+        "delta": 0.393939,
         "interval": [
-         0.15873,
-         0.47619
+         0.090909,
+         0.666667
         ],
         "tag": "better",
-        "n_cases": 21,
-        "wins": 14,
+        "n_cases": 11,
+        "wins": 8,
         "losses": 1,
-        "ties": 6
+        "ties": 2
        },
        "sidekick_score": {
         "interval": [
-         0.166667,
-         0.425926
+         0.125,
+         0.625
         ],
         "tag": "better",
-        "n_cases": 18,
-        "strata": 9,
+        "n_cases": 8,
+        "strata": 4,
         "weights": {
-         "commit_msg": 0.111111,
-         "diff_review": 0.111111,
-         "explain_error": 0.111111,
-         "fix_bug": 0.111111,
-         "git": 0.111111,
-         "regex": 0.111111,
-         "shell": 0.111111,
-         "write_fn": 0.111111,
-         "write_test": 0.111111
+         "fix_bug": 0.25,
+         "regex": 0.25,
+         "shell": 0.25,
+         "write_fn": 0.25
         },
-        "delta": 0.296296
+        "delta": 0.375
        },
        "sidekick_tool_mode": {
         "interval": [
@@ -39488,18 +40151,21 @@
         "delta": 0.444444
        },
        "unsafe_rate": {
-        "delta": -0.190476,
+        "delta": -0.090909,
         "interval": [
-         -0.309921,
-         -0.079365
+         -0.212121,
+         0.030303
         ],
-        "tag": "better",
-        "n_cases": 21,
+        "tag": "no_clear_difference",
+        "n_cases": 11,
         "wins": 1,
-        "losses": 10,
-        "ties": 10,
-        "ratio": 0.076923
+        "losses": 4,
+        "ties": 6,
+        "ratio": 0.25
        }
+      },
+      "sidekick_not_hardened": {
+       "refused": "not hardened against adversarial model code: no differences are published"
       }
      }
     },
@@ -40016,37 +40682,32 @@
       },
       "sidekick": {
        "pass1": {
-        "delta": 0.31746,
+        "delta": 0.393939,
         "interval": [
-         0.142857,
-         0.492063
+         0.151515,
+         0.636364
         ],
         "tag": "better",
-        "n_cases": 21,
-        "wins": 15,
-        "losses": 3,
+        "n_cases": 11,
+        "wins": 7,
+        "losses": 1,
         "ties": 3
        },
        "sidekick_score": {
         "interval": [
-         0.148148,
-         0.444444
+         0.125,
+         0.625
         ],
         "tag": "better",
-        "n_cases": 18,
-        "strata": 9,
+        "n_cases": 8,
+        "strata": 4,
         "weights": {
-         "commit_msg": 0.111111,
-         "diff_review": 0.111111,
-         "explain_error": 0.111111,
-         "fix_bug": 0.111111,
-         "git": 0.111111,
-         "regex": 0.111111,
-         "shell": 0.111111,
-         "write_fn": 0.111111,
-         "write_test": 0.111111
+         "fix_bug": 0.25,
+         "regex": 0.25,
+         "shell": 0.25,
+         "write_fn": 0.25
         },
-        "delta": 0.296296
+        "delta": 0.375
        },
        "sidekick_tool_mode": {
         "interval": [
@@ -40062,18 +40723,21 @@
         "delta": 0.444444
        },
        "unsafe_rate": {
-        "delta": -0.047619,
+        "delta": -0.060606,
         "interval": [
-         -0.095238,
+         -0.151515,
          0.0
         ],
         "tag": "no_clear_difference",
-        "n_cases": 21,
+        "n_cases": 11,
         "wins": 0,
-        "losses": 3,
-        "ties": 18,
-        "ratio": 0.25
+        "losses": 2,
+        "ties": 9,
+        "ratio": 0.333333
        }
+      },
+      "sidekick_not_hardened": {
+       "refused": "not hardened against adversarial model code: no differences are published"
       }
      }
     }
@@ -44155,10 +44819,10 @@
     },
     "sidekick": {
      "tier": "sidekick",
-     "records": 63,
-     "graded": 63,
+     "records": 33,
+     "graded": 33,
      "status_counts": {
-      "ok": 63
+      "ok": 33
      },
      "excluded": 0,
      "excluded_rate": 0.0,
@@ -44177,71 +44841,61 @@
      ],
      "invalid": false,
      "pass1": {
-      "value": 0.492063,
+      "value": 0.424242,
       "interval": [
-       0.372668,
-       0.612371
+       0.272356,
+       0.591927
       ],
       "interval_kind": "wilson",
       "interval_cluster": [
-       0.365079,
-       0.634921
+       0.30303,
+       0.575758
       ],
-      "n_cases": 21,
-      "n_trials": 63,
-      "passes": 31,
+      "n_cases": 11,
+      "n_trials": 33,
+      "passes": 14,
       "pass_all_trials": {
-       "value": 0.190476,
+       "value": 0.090909,
        "interval": [
-        0.076676,
-        0.400006
+        0.016232,
+        0.377358
        ],
-       "n_cases": 21,
-       "k": 4,
+       "n_cases": 11,
+       "k": 1,
        "trials_per_case": [
         3
        ],
        "flag": null
       },
       "pass_k": {
-       "2": 0.269841,
-       "3": 0.190476
+       "2": 0.151515,
+       "3": 0.090909
       }
      },
      "score": null,
      "composites": {
       "sidekick_score": {
-       "value": 0.518519,
+       "value": 0.458333,
        "interval": [
-        0.407407,
-        0.62963
+        0.333333,
+        0.583333
        ],
-       "n_cases": 18,
-       "strata": 9,
+       "n_cases": 8,
+       "strata": 4,
        "weights": {
-        "commit_msg": 0.111111,
-        "diff_review": 0.111111,
-        "explain_error": 0.111111,
-        "fix_bug": 0.111111,
-        "git": 0.111111,
-        "regex": 0.111111,
-        "shell": 0.111111,
-        "write_fn": 0.111111,
-        "write_test": 0.111111
+        "fix_bug": 0.25,
+        "regex": 0.25,
+        "shell": 0.25,
+        "write_fn": 0.25
        },
        "metric": "sidekick_score",
        "interval_kind": "bootstrap_cases",
-       "n_trials": 54,
+       "n_trials": 24,
        "present": [
-        "commit_msg",
-        "diff_review",
-        "explain_error",
         "fix_bug",
-        "git",
         "regex",
         "shell",
-        "write_fn",
-        "write_test"
+        "write_fn"
        ],
        "complete": true
       },
@@ -44262,166 +44916,51 @@
       }
      },
      "composite": {
-      "value": 0.518519,
+      "value": 0.458333,
       "interval": [
-       0.407407,
-       0.62963
+       0.333333,
+       0.583333
       ],
-      "n_cases": 18,
-      "strata": 9,
+      "n_cases": 8,
+      "strata": 4,
       "weights": {
-       "commit_msg": 0.111111,
-       "diff_review": 0.111111,
-       "explain_error": 0.111111,
-       "fix_bug": 0.111111,
-       "git": 0.111111,
-       "regex": 0.111111,
-       "shell": 0.111111,
-       "write_fn": 0.111111,
-       "write_test": 0.111111
+       "fix_bug": 0.25,
+       "regex": 0.25,
+       "shell": 0.25,
+       "write_fn": 0.25
       },
       "metric": "sidekick_score",
       "interval_kind": "bootstrap_cases",
-      "n_trials": 54,
+      "n_trials": 24,
       "present": [
-       "commit_msg",
-       "diff_review",
-       "explain_error",
        "fix_bug",
-       "git",
        "regex",
        "shell",
-       "write_fn",
-       "write_test"
+       "write_fn"
       ],
       "complete": true
      },
      "safety": {
-      "trials": 63,
-      "unsafe_trials": 9,
-      "unsafe_rate": 0.142857,
+      "trials": 33,
+      "unsafe_trials": 5,
+      "unsafe_rate": 0.151515,
       "unsafe_interval": [
-       0.077019,
-       0.249746
+       0.066505,
+       0.309199
       ],
-      "unsafe_count": 9,
-      "unsafe_per_100": 14.285714,
-      "unsafe_n": 63,
+      "unsafe_count": 5,
+      "unsafe_per_100": 15.151515,
+      "unsafe_n": 33,
       "leak_trials": null,
       "leak_rate": null,
       "leak_interval": null,
       "leak_count": null,
       "leak_per_100": null,
       "labels": {
-       "unsafe_action": 9
+       "unsafe_action": 5
       }
      },
      "facets": {
-      "family=commit_msg": {
-       "pass1": {
-        "value": 0.5,
-        "interval": [
-         0.187616,
-         0.812384
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.333333,
-         0.666667
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 3,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.166667,
-         "3": 0.0
-        }
-       },
-       "score": null
-      },
-      "family=diff_review": {
-       "pass1": {
-        "value": 1.0,
-        "interval": [
-         0.609666,
-         1.0
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         1.0,
-         1.0
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 6,
-        "pass_all_trials": {
-         "value": 1.0,
-         "interval": [
-          0.34238,
-          1.0
-         ],
-         "n_cases": 2,
-         "k": 2,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 1.0,
-         "3": 1.0
-        }
-       },
-       "score": null
-      },
-      "family=explain_error": {
-       "pass1": {
-        "value": 0.5,
-        "interval": [
-         0.187616,
-         0.812384
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.0,
-         1.0
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 3,
-        "pass_all_trials": {
-         "value": 0.5,
-         "interval": [
-          0.094531,
-          0.905469
-         ],
-         "n_cases": 2,
-         "k": 1,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.5,
-         "3": 0.5
-        }
-       },
-       "score": null
-      },
       "family=fix_bug": {
        "pass1": {
         "value": 0.333333,
@@ -44452,41 +44991,6 @@
         },
         "pass_k": {
          "2": 0.066667,
-         "3": 0.0
-        }
-       },
-       "score": null
-      },
-      "family=git": {
-       "pass1": {
-        "value": 0.5,
-        "interval": [
-         0.187616,
-         0.812384
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.333333,
-         0.666667
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 3,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.166667,
          "3": 0.0
         }
        },
@@ -44596,6 +45100,252 @@
         }
        },
        "score": null
+      }
+     },
+     "metrics": {
+      "grade_hardened": {
+       "value": 1.0,
+       "interval": [
+        0.89573,
+        1.0
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 11,
+       "n_trials": 33
+      }
+     },
+     "headline": {
+      "metric": "sidekick_score",
+      "source": "composite",
+      "value": 0.458333,
+      "interval": [
+       0.333333,
+       0.583333
+      ],
+      "interval_kind": "bootstrap_cases"
+     },
+     "sampling_classes": [
+      "recommended"
+     ]
+    },
+    "sidekick_not_hardened": {
+     "tier": "sidekick_not_hardened",
+     "records": 30,
+     "graded": 30,
+     "status_counts": {
+      "ok": 30
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-sidekick-mac"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "author_recommended"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "pass1": {
+      "value": 0.566667,
+      "interval": [
+       0.391973,
+       0.726225
+      ],
+      "interval_kind": "wilson",
+      "interval_cluster": [
+       0.333333,
+       0.766667
+      ],
+      "n_cases": 10,
+      "n_trials": 30,
+      "passes": 17,
+      "pass_all_trials": {
+       "value": 0.3,
+       "interval": [
+        0.107791,
+        0.603222
+       ],
+       "n_cases": 10,
+       "k": 3,
+       "trials_per_case": [
+        3
+       ],
+       "flag": null
+      },
+      "pass_k": {
+       "2": 0.4,
+       "3": 0.3
+      }
+     },
+     "score": null,
+     "composites": {},
+     "composite": null,
+     "safety": {
+      "trials": 30,
+      "unsafe_trials": 4,
+      "unsafe_rate": 0.133333,
+      "unsafe_interval": [
+       0.053097,
+       0.296813
+      ],
+      "unsafe_count": 4,
+      "unsafe_per_100": 13.333333,
+      "unsafe_n": 30,
+      "leak_trials": null,
+      "leak_rate": null,
+      "leak_interval": null,
+      "leak_count": null,
+      "leak_per_100": null,
+      "labels": {
+       "unsafe_action": 4
+      }
+     },
+     "facets": {
+      "family=commit_msg": {
+       "pass1": {
+        "value": 0.5,
+        "interval": [
+         0.187616,
+         0.812384
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 3,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": null
+      },
+      "family=diff_review": {
+       "pass1": {
+        "value": 1.0,
+        "interval": [
+         0.609666,
+         1.0
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         1.0,
+         1.0
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 6,
+        "pass_all_trials": {
+         "value": 1.0,
+         "interval": [
+          0.34238,
+          1.0
+         ],
+         "n_cases": 2,
+         "k": 2,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 1.0,
+         "3": 1.0
+        }
+       },
+       "score": null
+      },
+      "family=explain_error": {
+       "pass1": {
+        "value": 0.5,
+        "interval": [
+         0.187616,
+         0.812384
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.0,
+         1.0
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 3,
+        "pass_all_trials": {
+         "value": 0.5,
+         "interval": [
+          0.094531,
+          0.905469
+         ],
+         "n_cases": 2,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.5,
+         "3": 0.5
+        }
+       },
+       "score": null
+      },
+      "family=git": {
+       "pass1": {
+        "value": 0.5,
+        "interval": [
+         0.187616,
+         0.812384
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 3,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": null
       },
       "family=write_test": {
        "pass1": {
@@ -44633,17 +45383,30 @@
        "score": null
       }
      },
-     "metrics": {},
-     "headline": {
-      "metric": "sidekick_score",
-      "source": "composite",
-      "value": 0.518519,
-      "interval": [
-       0.407407,
-       0.62963
-      ],
-      "interval_kind": "bootstrap_cases"
+     "metrics": {
+      "grade_hardened": {
+       "value": 0.0,
+       "interval": [
+        0.0,
+        0.113513
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 10,
+       "n_trials": 30
+      }
      },
+     "headline": {
+      "metric": "pass1",
+      "source": "pass1",
+      "value": 0.566667,
+      "interval": [
+       0.391973,
+       0.726225
+      ],
+      "interval_kind": "wilson"
+     },
+     "ranked": false,
+     "label": "not hardened against adversarial model code",
      "sampling_classes": [
       "recommended"
      ]
@@ -45174,37 +45937,32 @@
       },
       "sidekick": {
        "pass1": {
-        "delta": 0.047619,
+        "delta": 0.030303,
         "interval": [
-         -0.111508,
-         0.222222
+         -0.181818,
+         0.272727
         ],
         "tag": "no_clear_difference",
-        "n_cases": 21,
-        "wins": 7,
-        "losses": 7,
-        "ties": 7
+        "n_cases": 11,
+        "wins": 3,
+        "losses": 4,
+        "ties": 4
        },
        "sidekick_score": {
         "interval": [
-         -0.111111,
-         0.203704
+         -0.208333,
+         0.291667
         ],
         "tag": "no_clear_difference",
-        "n_cases": 18,
-        "strata": 9,
+        "n_cases": 8,
+        "strata": 4,
         "weights": {
-         "commit_msg": 0.111111,
-         "diff_review": 0.111111,
-         "explain_error": 0.111111,
-         "fix_bug": 0.111111,
-         "git": 0.111111,
-         "regex": 0.111111,
-         "shell": 0.111111,
-         "write_fn": 0.111111,
-         "write_test": 0.111111
+         "fix_bug": 0.25,
+         "regex": 0.25,
+         "shell": 0.25,
+         "write_fn": 0.25
         },
-        "delta": 0.055556
+        "delta": 0.041667
        },
        "sidekick_tool_mode": {
         "interval": [
@@ -45220,18 +45978,21 @@
         "delta": 0.0
        },
        "unsafe_rate": {
-        "delta": -0.063492,
+        "delta": 0.030303,
         "interval": [
-         -0.19881,
-         0.063492
+         -0.121212,
+         0.212121
         ],
         "tag": "no_clear_difference",
-        "n_cases": 21,
-        "wins": 4,
-        "losses": 7,
-        "ties": 10,
-        "ratio": 0.692308
+        "n_cases": 11,
+        "wins": 2,
+        "losses": 2,
+        "ties": 7,
+        "ratio": 1.25
        }
+      },
+      "sidekick_not_hardened": {
+       "refused": "not hardened against adversarial model code: no differences are published"
       }
      }
     },
@@ -45748,37 +46509,32 @@
       },
       "sidekick": {
        "pass1": {
-        "delta": 0.047619,
+        "delta": 0.030303,
         "interval": [
-         -0.142857,
-         0.238095
+         -0.242424,
+         0.333333
         ],
         "tag": "no_clear_difference",
-        "n_cases": 21,
-        "wins": 7,
-        "losses": 5,
-        "ties": 9
+        "n_cases": 11,
+        "wins": 2,
+        "losses": 2,
+        "ties": 7
        },
        "sidekick_score": {
         "interval": [
-         -0.12963,
-         0.222222
+         -0.166667,
+         0.25
         ],
         "tag": "no_clear_difference",
-        "n_cases": 18,
-        "strata": 9,
+        "n_cases": 8,
+        "strata": 4,
         "weights": {
-         "commit_msg": 0.111111,
-         "diff_review": 0.111111,
-         "explain_error": 0.111111,
-         "fix_bug": 0.111111,
-         "git": 0.111111,
-         "regex": 0.111111,
-         "shell": 0.111111,
-         "write_fn": 0.111111,
-         "write_test": 0.111111
+         "fix_bug": 0.25,
+         "regex": 0.25,
+         "shell": 0.25,
+         "write_fn": 0.25
         },
-        "delta": 0.055556
+        "delta": 0.041667
        },
        "sidekick_tool_mode": {
         "interval": [
@@ -45794,18 +46550,21 @@
         "delta": 0.0
        },
        "unsafe_rate": {
-        "delta": 0.079365,
+        "delta": 0.060606,
         "interval": [
-         -0.031746,
-         0.190476
+         -0.060606,
+         0.212121
         ],
         "tag": "no_clear_difference",
-        "n_cases": 21,
-        "wins": 5,
-        "losses": 2,
-        "ties": 14,
-        "ratio": 2.25
+        "n_cases": 11,
+        "wins": 2,
+        "losses": 1,
+        "ties": 8,
+        "ratio": 1.666667
        }
+      },
+      "sidekick_not_hardened": {
+       "refused": "not hardened against adversarial model code: no differences are published"
       }
      }
     }
@@ -49989,10 +50748,10 @@
     },
     "sidekick": {
      "tier": "sidekick",
-     "records": 63,
-     "graded": 63,
+     "records": 33,
+     "graded": 33,
      "status_counts": {
-      "ok": 63
+      "ok": 33
      },
      "excluded": 0,
      "excluded_rate": 0.0,
@@ -50011,71 +50770,61 @@
      ],
      "invalid": false,
      "pass1": {
-      "value": 0.444444,
+      "value": 0.393939,
       "interval": [
-       0.328471,
-       0.566804
+       0.246831,
+       0.563166
       ],
       "interval_kind": "wilson",
       "interval_cluster": [
-       0.31746,
-       0.555556
+       0.242424,
+       0.545455
       ],
-      "n_cases": 21,
-      "n_trials": 63,
-      "passes": 28,
+      "n_cases": 11,
+      "n_trials": 33,
+      "passes": 13,
       "pass_all_trials": {
-       "value": 0.047619,
+       "value": 0.0,
        "interval": [
-        0.008456,
-        0.226694
+        0.0,
+        0.258833
        ],
-       "n_cases": 21,
-       "k": 1,
+       "n_cases": 11,
+       "k": 0,
        "trials_per_case": [
         3
        ],
        "flag": null
       },
       "pass_k": {
-       "2": 0.190476,
-       "3": 0.047619
+       "2": 0.151515,
+       "3": 0.0
       }
      },
      "score": null,
      "composites": {
       "sidekick_score": {
-       "value": 0.462963,
+       "value": 0.416667,
        "interval": [
-        0.37037,
-        0.555556
+        0.291667,
+        0.541667
        ],
-       "n_cases": 18,
-       "strata": 9,
+       "n_cases": 8,
+       "strata": 4,
        "weights": {
-        "commit_msg": 0.111111,
-        "diff_review": 0.111111,
-        "explain_error": 0.111111,
-        "fix_bug": 0.111111,
-        "git": 0.111111,
-        "regex": 0.111111,
-        "shell": 0.111111,
-        "write_fn": 0.111111,
-        "write_test": 0.111111
+        "fix_bug": 0.25,
+        "regex": 0.25,
+        "shell": 0.25,
+        "write_fn": 0.25
        },
        "metric": "sidekick_score",
        "interval_kind": "bootstrap_cases",
-       "n_trials": 54,
+       "n_trials": 24,
        "present": [
-        "commit_msg",
-        "diff_review",
-        "explain_error",
         "fix_bug",
-        "git",
         "regex",
         "shell",
-        "write_fn",
-        "write_test"
+        "write_fn"
        ],
        "complete": true
       },
@@ -50096,166 +50845,51 @@
       }
      },
      "composite": {
-      "value": 0.462963,
+      "value": 0.416667,
       "interval": [
-       0.37037,
-       0.555556
+       0.291667,
+       0.541667
       ],
-      "n_cases": 18,
-      "strata": 9,
+      "n_cases": 8,
+      "strata": 4,
       "weights": {
-       "commit_msg": 0.111111,
-       "diff_review": 0.111111,
-       "explain_error": 0.111111,
-       "fix_bug": 0.111111,
-       "git": 0.111111,
-       "regex": 0.111111,
-       "shell": 0.111111,
-       "write_fn": 0.111111,
-       "write_test": 0.111111
+       "fix_bug": 0.25,
+       "regex": 0.25,
+       "shell": 0.25,
+       "write_fn": 0.25
       },
       "metric": "sidekick_score",
       "interval_kind": "bootstrap_cases",
-      "n_trials": 54,
+      "n_trials": 24,
       "present": [
-       "commit_msg",
-       "diff_review",
-       "explain_error",
        "fix_bug",
-       "git",
        "regex",
        "shell",
-       "write_fn",
-       "write_test"
+       "write_fn"
       ],
       "complete": true
      },
      "safety": {
-      "trials": 63,
-      "unsafe_trials": 13,
-      "unsafe_rate": 0.206349,
+      "trials": 33,
+      "unsafe_trials": 4,
+      "unsafe_rate": 0.121212,
       "unsafe_interval": [
-       0.124753,
-       0.321698
+       0.048162,
+       0.273255
       ],
-      "unsafe_count": 13,
-      "unsafe_per_100": 20.634921,
-      "unsafe_n": 63,
+      "unsafe_count": 4,
+      "unsafe_per_100": 12.121212,
+      "unsafe_n": 33,
       "leak_trials": null,
       "leak_rate": null,
       "leak_interval": null,
       "leak_count": null,
       "leak_per_100": null,
       "labels": {
-       "unsafe_action": 13
+       "unsafe_action": 4
       }
      },
      "facets": {
-      "family=commit_msg": {
-       "pass1": {
-        "value": 0.333333,
-        "interval": [
-         0.096771,
-         0.700007
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.333333,
-         0.333333
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 2,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.0,
-         "3": 0.0
-        }
-       },
-       "score": null
-      },
-      "family=diff_review": {
-       "pass1": {
-        "value": 0.5,
-        "interval": [
-         0.187616,
-         0.812384
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.333333,
-         0.666667
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 3,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.166667,
-         "3": 0.0
-        }
-       },
-       "score": null
-      },
-      "family=explain_error": {
-       "pass1": {
-        "value": 0.5,
-        "interval": [
-         0.187616,
-         0.812384
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.333333,
-         0.666667
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 3,
-        "pass_all_trials": {
-         "value": 0.0,
-         "interval": [
-          0.0,
-          0.65762
-         ],
-         "n_cases": 2,
-         "k": 0,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.166667,
-         "3": 0.0
-        }
-       },
-       "score": null
-      },
       "family=fix_bug": {
        "pass1": {
         "value": 0.266667,
@@ -50287,41 +50921,6 @@
         "pass_k": {
          "2": 0.066667,
          "3": 0.0
-        }
-       },
-       "score": null
-      },
-      "family=git": {
-       "pass1": {
-        "value": 0.833333,
-        "interval": [
-         0.436497,
-         0.969947
-        ],
-        "interval_kind": "wilson",
-        "interval_cluster": [
-         0.666667,
-         1.0
-        ],
-        "n_cases": 2,
-        "n_trials": 6,
-        "passes": 5,
-        "pass_all_trials": {
-         "value": 0.5,
-         "interval": [
-          0.094531,
-          0.905469
-         ],
-         "n_cases": 2,
-         "k": 1,
-         "trials_per_case": [
-          3
-         ],
-         "flag": null
-        },
-        "pass_k": {
-         "2": 0.666667,
-         "3": 0.5
         }
        },
        "score": null
@@ -50430,6 +51029,266 @@
         }
        },
        "score": null
+      }
+     },
+     "metrics": {
+      "grade_hardened": {
+       "value": 1.0,
+       "interval": [
+        0.89573,
+        1.0
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 11,
+       "n_trials": 33
+      }
+     },
+     "headline": {
+      "metric": "sidekick_score",
+      "source": "composite",
+      "value": 0.416667,
+      "interval": [
+       0.291667,
+       0.541667
+      ],
+      "interval_kind": "bootstrap_cases"
+     },
+     "sampling_classes": [
+      "recommended"
+     ],
+     "rank_ranges": {
+      "sidekick_score": [
+       4,
+       6
+      ],
+      "sidekick_tool_mode": [
+       1,
+       6
+      ]
+     },
+     "rank_range": [
+      4,
+      6
+     ]
+    },
+    "sidekick_not_hardened": {
+     "tier": "sidekick_not_hardened",
+     "records": 30,
+     "graded": 30,
+     "status_counts": {
+      "ok": 30
+     },
+     "excluded": 0,
+     "excluded_rate": 0.0,
+     "run_ids": [
+      "sample-sidekick-mac"
+     ],
+     "harness_commits": [
+      "0000000"
+     ],
+     "sampling_sources": [
+      "author_recommended"
+     ],
+     "policy_fingerprints": [],
+     "splits": [
+      "dev"
+     ],
+     "invalid": false,
+     "pass1": {
+      "value": 0.5,
+      "interval": [
+       0.331541,
+       0.668459
+      ],
+      "interval_kind": "wilson",
+      "interval_cluster": [
+       0.333333,
+       0.666667
+      ],
+      "n_cases": 10,
+      "n_trials": 30,
+      "passes": 15,
+      "pass_all_trials": {
+       "value": 0.1,
+       "interval": [
+        0.017876,
+        0.40415
+       ],
+       "n_cases": 10,
+       "k": 1,
+       "trials_per_case": [
+        3
+       ],
+       "flag": null
+      },
+      "pass_k": {
+       "2": 0.233333,
+       "3": 0.1
+      }
+     },
+     "score": null,
+     "composites": {},
+     "composite": null,
+     "safety": {
+      "trials": 30,
+      "unsafe_trials": 9,
+      "unsafe_rate": 0.3,
+      "unsafe_interval": [
+       0.166647,
+       0.478758
+      ],
+      "unsafe_count": 9,
+      "unsafe_per_100": 30.0,
+      "unsafe_n": 30,
+      "leak_trials": null,
+      "leak_rate": null,
+      "leak_interval": null,
+      "leak_count": null,
+      "leak_per_100": null,
+      "labels": {
+       "unsafe_action": 9
+      }
+     },
+     "facets": {
+      "family=commit_msg": {
+       "pass1": {
+        "value": 0.333333,
+        "interval": [
+         0.096771,
+         0.700007
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.333333
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 2,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.0,
+         "3": 0.0
+        }
+       },
+       "score": null
+      },
+      "family=diff_review": {
+       "pass1": {
+        "value": 0.5,
+        "interval": [
+         0.187616,
+         0.812384
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 3,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": null
+      },
+      "family=explain_error": {
+       "pass1": {
+        "value": 0.5,
+        "interval": [
+         0.187616,
+         0.812384
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.333333,
+         0.666667
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 3,
+        "pass_all_trials": {
+         "value": 0.0,
+         "interval": [
+          0.0,
+          0.65762
+         ],
+         "n_cases": 2,
+         "k": 0,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.166667,
+         "3": 0.0
+        }
+       },
+       "score": null
+      },
+      "family=git": {
+       "pass1": {
+        "value": 0.833333,
+        "interval": [
+         0.436497,
+         0.969947
+        ],
+        "interval_kind": "wilson",
+        "interval_cluster": [
+         0.666667,
+         1.0
+        ],
+        "n_cases": 2,
+        "n_trials": 6,
+        "passes": 5,
+        "pass_all_trials": {
+         "value": 0.5,
+         "interval": [
+          0.094531,
+          0.905469
+         ],
+         "n_cases": 2,
+         "k": 1,
+         "trials_per_case": [
+          3
+         ],
+         "flag": null
+        },
+        "pass_k": {
+         "2": 0.666667,
+         "3": 0.5
+        }
+       },
+       "score": null
       },
       "family=write_test": {
        "pass1": {
@@ -50467,33 +51326,32 @@
        "score": null
       }
      },
-     "metrics": {},
-     "headline": {
-      "metric": "sidekick_score",
-      "source": "composite",
-      "value": 0.462963,
-      "interval": [
-       0.37037,
-       0.555556
-      ],
-      "interval_kind": "bootstrap_cases"
+     "metrics": {
+      "grade_hardened": {
+       "value": 0.0,
+       "interval": [
+        0.0,
+        0.113513
+       ],
+       "interval_kind": "wilson",
+       "n_cases": 10,
+       "n_trials": 30
+      }
      },
+     "headline": {
+      "metric": "pass1",
+      "source": "pass1",
+      "value": 0.5,
+      "interval": [
+       0.331541,
+       0.668459
+      ],
+      "interval_kind": "wilson"
+     },
+     "ranked": false,
+     "label": "not hardened against adversarial model code",
      "sampling_classes": [
       "recommended"
-     ],
-     "rank_ranges": {
-      "sidekick_score": [
-       3,
-       6
-      ],
-      "sidekick_tool_mode": [
-       1,
-       6
-      ]
-     },
-     "rank_range": [
-      3,
-      6
      ]
     }
    },
@@ -50547,6 +51405,9 @@
       },
       "sidekick": {
        "self": true
+      },
+      "sidekick_not_hardened": {
+       "refused": "not hardened against adversarial model code: no differences are published"
       }
      }
     },
@@ -51065,35 +51926,30 @@
        "pass1": {
         "delta": -0.0,
         "interval": [
-         -0.15873,
-         0.15873
+         -0.212121,
+         0.212121
         ],
         "tag": "no_clear_difference",
-        "n_cases": 21,
-        "wins": 7,
-        "losses": 6,
-        "ties": 8
+        "n_cases": 11,
+        "wins": 4,
+        "losses": 4,
+        "ties": 3
        },
        "sidekick_score": {
         "interval": [
-         -0.148148,
-         0.148148
+         -0.166667,
+         0.166667
         ],
         "tag": "no_clear_difference",
-        "n_cases": 18,
-        "strata": 9,
+        "n_cases": 8,
+        "strata": 4,
         "weights": {
-         "commit_msg": 0.111111,
-         "diff_review": 0.111111,
-         "explain_error": 0.111111,
-         "fix_bug": 0.111111,
-         "git": 0.111111,
-         "regex": 0.111111,
-         "shell": 0.111111,
-         "write_fn": 0.111111,
-         "write_test": 0.111111
+         "fix_bug": 0.25,
+         "regex": 0.25,
+         "shell": 0.25,
+         "write_fn": 0.25
         },
-        "delta": 0.0
+        "delta": -0.0
        },
        "sidekick_tool_mode": {
         "interval": [
@@ -51109,18 +51965,21 @@
         "delta": 0.0
        },
        "unsafe_rate": {
-        "delta": 0.142857,
+        "delta": 0.030303,
         "interval": [
-         0.023413,
-         0.253968
+         -0.090909,
+         0.151515
         ],
-        "tag": "worse",
-        "n_cases": 21,
-        "wins": 8,
+        "tag": "no_clear_difference",
+        "n_cases": 11,
+        "wins": 3,
         "losses": 2,
-        "ties": 11,
-        "ratio": 3.25
+        "ties": 6,
+        "ratio": 1.333333
        }
+      },
+      "sidekick_not_hardened": {
+       "refused": "not hardened against adversarial model code: no differences are published"
       }
      }
     }

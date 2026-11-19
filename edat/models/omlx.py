@@ -10,7 +10,8 @@ Thinking is switched with oMLX's chat-template flag
 `chat_template_kwargs.enable_thinking`, the same flag Toolbench sends
 (scripts/toolbench/runner.py). Reasoning text arrives as `reasoning_content`.
 
-The client refuses any base URL that is not a loopback address. It never
+The client refuses any base URL that is not a loopback address; `api_key`
+(oMLX's own key, where the engine checks one) goes only to that address. It never
 loads, unloads or manages models; the run harness does that, one model
 resident at a time.
 """
@@ -46,7 +47,7 @@ class OmlxClient:
                  timeout_s: float = 300.0, transport: Transport | None = None,
                  runtime_version: str | None = None, weights_sha256: str | None = None,
                  quantization: str | None = None, template_sha256: str | None = None,
-                 now: Callable[[], float] = time.perf_counter) -> None:
+                 api_key: str | None = None, now: Callable[[], float] = time.perf_counter) -> None:
         if not model:
             raise ConfigurationError("an oMLX model id is required")
         self.host, self.port = assert_loopback(base_url)
@@ -59,6 +60,7 @@ class OmlxClient:
         self.weights_sha256 = weights_sha256
         self.quantization = quantization
         self.template_sha256 = template_sha256
+        self._api_key = api_key
         self._now = now
 
     def __repr__(self) -> str:
@@ -71,6 +73,12 @@ class OmlxClient:
                 "template_sha256": self.template_sha256, "tool_parser": "omlx-server",
                 "streaming": self.stream}
 
+    def _headers(self) -> dict:
+        h = {"Content-Type": "application/json"}
+        if self._api_key:
+            h["Authorization"] = f"Bearer {self._api_key}"
+        return h
+
     def chat(self, messages: list[dict], *, tools: list[dict] | None = None,
              sampling: Sampling | None = None, seed: int | None = None,
              max_tokens: int, thinking: bool) -> ChatResult:
@@ -78,7 +86,7 @@ class OmlxClient:
                                 max_tokens=max_tokens, stream=self.stream)
         payload["chat_template_kwargs"] = {"enable_thinking": bool(thinking)}
         result = run_request(transport=self.transport, url=f"{self.base_url}/v1/chat/completions",
-                             headers={"Content-Type": "application/json"}, payload=payload,
+                             headers=self._headers(), payload=payload,
                              stream=self.stream, timeout_s=self.timeout_s, now=self._now)
         result.request = {"model": self.model, "n_messages": len(messages),
                           "tools": tool_names(tools), "sampling": sampling.to_record() if sampling else None,

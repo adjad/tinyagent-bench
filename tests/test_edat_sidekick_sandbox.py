@@ -323,8 +323,8 @@ def test_the_snapshot_caps_what_it_reads(tmp_path, monkeypatch):
 
 
 def test_the_written_tests_cannot_turn_a_later_layout_into_a_host_write(iso, tmp_path):
-    """Written tests run once per mutant in the same area. A test file that replaces the module with a link
-    to a host file must not get the next mutant's source written into that host file."""
+    """Written tests run once per mutant, each in a fresh area now. A test file that replaces the module with
+    a link to a host file must not get the next mutant's source written into that host file."""
     import random
     from edat.sidekick.gen.registry import get
     from edat.sidekick.graders.write_test import grade_write_test
@@ -336,11 +336,10 @@ def test_the_written_tests_cannot_turn_a_later_layout_into_a_host_write(iso, tmp
              f"def test_plant():\n"
              f"    if os.path.lexists({mod!r}):\n        os.remove({mod!r})\n"
              f"    os.symlink({str(host)!r}, {mod!r})\n")
-    with TrialArea() as area:
-        try:
-            grade_write_test(iso, area, inst.check, tests)
-        except RuntimeError:
-            pass                                                 # refusing to lay out is fine
+    try:
+        grade_write_test(iso, TrialArea, inst.check, tests)
+    except RuntimeError:
+        pass                                                     # refusing to lay out is fine
     assert host.read_text() == SECRET + "\n"
 
 

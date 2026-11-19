@@ -100,6 +100,7 @@ def run_selftest(iso: Isolation | None = None) -> SelfTestReport:
             rep.probes.append(Probe("node runs", r.ok and r.stdout.strip() == "42", r.stderr.strip()[:120]))
             r = iso.run(area, "git init -q r && cd r && print a > f && git add f && git commit -qm init && git rev-list --count HEAD", limits=lim)
             rep.probes.append(Probe("git runs", r.ok and r.stdout.strip() == "1", r.stderr.strip()[:120]))
+            rep.probes.append(_git_grader_probe(iso))
             r = iso.run(area, "print -r -- $HOME; cat $HOME/.gitconfig | head -1", limits=lim)
             rep.probes.append(Probe("fake home in use", r.ok and r.stdout.splitlines()[0] == str(area.home), ""))
 
@@ -177,6 +178,24 @@ def run_selftest(iso: Isolation | None = None) -> SelfTestReport:
                 p.unlink()
             outside_dir.rmdir()
     return rep
+
+
+def _git_grader_probe(iso: Isolation) -> "Probe":
+    """The git grader, with the git it will use, reads a case's repository: one git case's reference answer
+    must pass and its first wrong answer must fail. Otherwise the host's git would fail every git answer."""
+    import random
+    try:
+        from edat.sidekick.gen.registry import get
+        from edat.sidekick.graders import grade_answer
+        from edat.sidekick.graders.git import git_version_text
+        inst = get("git_unstage_file").build(random.Random("edat-selftest-git"))
+        ok = grade_answer(inst, inst.references[0], iso=iso)
+        bad = grade_answer(inst, inst.wrong[0], iso=iso)
+        why = f"git {git_version_text()}" + ("" if ok.passed else f"; reference failed: {'; '.join(ok.reasons)[:120]}") \
+            + ("" if not bad.passed else "; a wrong answer passed")
+        return Probe("the git grader reads a case's repository", ok.passed and not bad.passed, why)
+    except Exception as exc:  # noqa: BLE001 - the git or the toolchain is missing: the probe fails, with why
+        return Probe("the git grader reads a case's repository", False, f"{exc.__class__.__name__}: {str(exc)[:160]}")
 
 
 _PASSED: SelfTestReport | None = None

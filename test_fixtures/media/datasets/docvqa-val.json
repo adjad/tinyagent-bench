@@ -19,7 +19,7 @@
   "repo": "lmms-lab/DocVQA"
  },
  "status": "fetch_at_run_time",
- "status_reason": "coordinator ruling: upstream licence unverified, fetch at run time, never commit",
+ "status_reason": "project rule: upstream licence unverified, fetch at run time, never commit",
  "needed_v1": "if_confirmed",
  "never_commit": true,
  "pinned_revision": "539088ef8a8ada01ac8e2e6d4e372586748a265e",

@@ -16,7 +16,7 @@
  "redistributable": "unverified",
  "access": "http",
  "status": "fetch_at_run_time",
- "status_reason": "coordinator ruling: licence unverified, fetch at run time, never commit",
+ "status_reason": "project rule: licence unverified, fetch at run time, never commit",
  "needed_v1": "if_confirmed",
  "never_commit": true,
  "bytes_total": 7075414132,

@@ -47,7 +47,7 @@ def test_no_url_is_a_local_path_or_plain_http():
                 assert bad not in u, (name, u)
 
 
-def test_run_time_only_sets_follow_the_coordinators_ruling():
+def test_run_time_only_sets_follow_the_project_rule():
     ms = ds.load_manifests()
     for name in ("edacc-test", "ocrbench-v1", "chartqapro", "textvqa-val", "docvqa-val", "visualwebbench", "screenspot-v2"):
         assert ms[name]["status"] == "fetch_at_run_time", name
@@ -79,7 +79,7 @@ def test_voice_files_match_the_voice_plan_and_no_banned_engine_is_approved():
 
 # The research (05-media-downloads, 2026-11-18) totals 20,620,527,015 bytes for v1. This repository's total is
 # 523,415 bytes more: the research planned Kokoro voices af_nicole and bm_fable, while
-# test_fixtures/media/tts/voices.json (the coordinator's decision) lists af_sarah, am_adam and bm_lewis instead
+# test_fixtures/media/tts/voices.json (the decision record) lists af_sarah, am_adam and bm_lewis instead
 # (five 523,4xx-byte voice files differ). Everything else is identical, file for file.
 V1_TOTAL_BYTES = 20_621_050_430
 RESEARCH_V1_TOTAL_BYTES = 20_620_527_015

@@ -19,7 +19,7 @@
   "repo": "ahmed-masry/ChartQAPro"
  },
  "status": "fetch_at_run_time",
- "status_reason": "coordinator ruling: image provenance unverified, fetch at run time, never commit",
+ "status_reason": "project rule: image provenance unverified, fetch at run time, never commit",
  "needed_v1": "yes",
  "never_commit": true,
  "pinned_revision": "e27c2874825874d6767d2bbc538ed4f0dc2c64c2",

@@ -20,7 +20,7 @@
   "split": "test"
  },
  "status": "fetch_at_run_time",
- "status_reason": "coordinator ruling: licence unverified, use locally, never commit",
+ "status_reason": "project rule: licence unverified, use locally, never commit",
  "needed_v1": "if_confirmed",
  "never_commit": true,
  "pinned_revision": "d9ae7bd344f0562b766ec93ee5ce8f2f9568ce66",

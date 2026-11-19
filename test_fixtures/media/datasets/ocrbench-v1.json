@@ -19,7 +19,7 @@
   "repo": "echo840/OCRBench"
  },
  "status": "fetch_at_run_time",
- "status_reason": "coordinator ruling: data licence unverified, fetch at run time, never commit the images",
+ "status_reason": "project rule: data licence unverified, fetch at run time, never commit the images",
  "needed_v1": "yes",
  "never_commit": true,
  "pinned_revision": "92a54bd1384387c178d5a07140a2d85e0a3d12e1",

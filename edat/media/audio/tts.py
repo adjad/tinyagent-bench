@@ -1,7 +1,7 @@
 """Speech engines: a pluggable seam, a stub that writes placeholder audio, and two real adapters.
 
 Version 1 renders spoken commands with synthetic speech (spec 05 §5 A3). The
-benchmark coordinator chose **Kokoro-82M** (Apache-2.0) as the main engine and
+benchmark uses **Kokoro-82M** (Apache-2.0) as the main engine and
 one **Piper** voice trained on a CC BY 4.0 dataset (``en_GB-cori``) as a second
 engine; macOS voices, XTTS and F5 are excluded. The 12-voice plan is in
 ``test_fixtures/media/tts/voices.json``.
@@ -135,9 +135,9 @@ class Candidate:
     approved: bool = False
 
 
-# From the licence check of 2026-11-18 (read from each project's own pages; see the
-# hand-over). Kokoro and Piper (CC BY 4.0 voices only) were approved by the
-# benchmark coordinator on 2026-11-18; the rest are kept for the record.
+# From the licence check of 2026-11-18 (read from each project's own pages).
+# Kokoro and Piper (CC BY 4.0 voices only) were approved for use on
+# 2026-11-18; the rest are kept for the record.
 CANDIDATES: tuple[Candidate, ...] = (
     Candidate("Kokoro-82M", "Apache-2.0", "Apache-2.0", "built-in English voicepacks (US, UK)",
               "yes", "About 330 MB, runs on a Mac CPU. Main engine.", approved=True),

@@ -1,6 +1,6 @@
 {
  "schema": "edat.media.voice-plan/1",
- "decided": "2026-11-18, benchmark coordinator: Kokoro-82M main engine, one Piper voice from a CC BY 4.0 dataset; no macOS voices, XTTS or F5",
+ "decided": "2026-11-18: Kokoro-82M main engine, one Piper voice from a CC BY 4.0 dataset; no macOS voices, XTTS or F5",
  "note": "Kokoro's English voices are US (a*) and UK (b*) only. Indian, Australian, Nigerian and other English accents have no voice with a clear licence here; A3 voice variance covers US and UK only until one is approved.",
  "voices": [
   {"id": "af_heart",    "engine": "kokoro-82m", "accent": "en-US", "gender": "female", "licence": "Apache-2.0", "redistributable": true},

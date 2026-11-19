@@ -21,7 +21,7 @@
   "commit": "c05ab6fd8b4b627d123c922a22a39e993dd37635"
  },
  "status": "blocked_licence",
- "status_reason": "licence file not opened; the coordinator ruled unverified sets are not used until confirmed",
+ "status_reason": "licence file not opened; unverified sets are not used until confirmed",
  "needed_v1": "if_confirmed",
  "pinned_revision": "c05ab6fd8b4b627d123c922a22a39e993dd37635",
  "bytes_total": 770121758,

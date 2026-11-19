@@ -11,7 +11,7 @@ adapter passes through unchanged.
 Until ``edat/models/`` is on ``main`` this module carries no import of it: the
 runner duck-types the result, and :class:`StubMediaClient` stands in for a model
 in tests. What the adapter still has to add for media is listed in
-:data:`ADAPTER_GAPS` (and in the hand-over).
+:data:`ADAPTER_GAPS`.
 """
 from __future__ import annotations
 

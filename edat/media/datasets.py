@@ -10,7 +10,7 @@ checksum (or ``checksum: none published``), and a status:
 
 * ``ready``: plain HTTP files, licence verified and redistributable;
 * ``fetch_at_run_time``: may be used on this machine but is never committed
-  (unverified licences, third-party screenshots; the coordinator's ruling);
+  (unverified licences, third-party screenshots; a project decision);
 * ``needs_loader``: fetched through a loader tinyagent-bench does not ship;
 * ``blocked_licence``: not used until the licence is confirmed (spec 05 §2.5).
 

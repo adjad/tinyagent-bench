@@ -19,7 +19,7 @@
   "repo": "visualwebbench/VisualWebBench"
  },
  "status": "fetch_at_run_time",
- "status_reason": "coordinator ruling: third-party screenshots, fetch at run time, never commit the images",
+ "status_reason": "project rule: third-party screenshots, fetch at run time, never commit the images",
  "needed_v1": "yes",
  "never_commit": true,
  "pinned_revision": "9dace8acebf210929bd47256d7ded44439377946",

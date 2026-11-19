@@ -21,7 +21,7 @@ Not covered here (said in the family report):
   checker (its seam covers items 1-9 only), so there is nothing deterministic to
   check it with yet;
 * item 24 (focused work in the morning, errands after 16:00) needs the Day
-  planner, which the product-eval chat owns; items 21-23 are covered only where a
+  planner, which the in-assistant evaluation covers; items 21-23 are covered only where a
   plain answer shows them (the order of items, the absence of newsletter senders).
 
 The lane helpers at the top (`call_*`, `who_*`) are shared with the long-session

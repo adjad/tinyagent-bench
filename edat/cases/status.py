@@ -35,7 +35,7 @@ BUILT = """\
 | B5 approver modes and bypass detection | Built | `edat/faults/approver.py`, grader |
 | B6 text-carrier injection | Built | runner (`plant_injection`), grader |
 | B8 pass^k, Wilson, bootstrap, paired Δ, Restraint panel | Built | `edat/grading/aggregate.py` |
-| B9 raw output kept per step | Built (reference loop keeps everything; Harbor-loop capture is the harness-fix chat's) | `edat/loop.py` |
+| B9 raw output kept per step | Built (reference loop keeps everything; Harbor-loop capture belongs to the Toolbench harness) | `edat/loop.py` |
 | B11 phone items, Mac single-step runner, re-grader | Built (prefix from the oracle trajectory; rendered prompt recorded at run time) | `edat/phone/` |
 | B14 references per board version, Δ refusal across pins | Partly: `assert_same_board`, `compare_to_reference`, `tuning_gain` | `edat/grading/aggregate.py` |
 | B17 hosted adapter | Built (client, catalog, held-out guard) | `edat/models/openrouter.py`, `edat/hosted/` |

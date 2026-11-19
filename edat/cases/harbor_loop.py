@@ -70,8 +70,8 @@ a turn the harness guards stopped (network or subprocess) likewise.
 Runtime patches (no Toolbench file is edited)
 ---------------------------------------------
 Three module attributes are swapped for the duration of one `run_case` call
-and restored after it; each would be cleaner as a keyword on the runner (the
-harness chat owns that file):
+and restored after it; each would be cleaner as a keyword on Toolbench's runner
+(a change for the Toolbench harness):
 * `world.make_fakes` -> the env-routing functions (wanted: `install_fakes(world, fakes=...)`);
 * `runner.Approver` -> an adapter over the trial's approver (wanted: `run_case(..., approver=...)`);
 * `world.effects.clear` -> a no-op, so a multi-turn case keeps earlier turns'

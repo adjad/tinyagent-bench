@@ -1,6 +1,6 @@
 """The six hosted cloud-reference models (spec 02 §4.4).
 
-Ids, accepted parameters and prices were verified by the benchmark coordinator
+Ids, accepted parameters and prices were verified
 from OpenRouter's public model list on 2026-11-18. `reasoning_off` records
 whether the model can switch reasoning off; where it cannot, the thinking-off
 entry uses the lowest effort and is labelled "minimal reasoning". That column

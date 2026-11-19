@@ -10,8 +10,9 @@ with/without-payload pair, all with `status: waiting_for_media`.
   `edat.cases.generators.restraint.write_media_specs("dev", ...)`. Do not edit
   by hand; change the generator and regenerate.
 - **Held-out split**: the other 50 image and 25 spoken pairs, from the private
-  seed (`write_media_specs("heldout", ...)`), written by the build outside the
-  repository. Never commit it.
+  seed (`write_media_specs("heldout", ...)`), kept at
+  `$EDAT_PRIVATE_DIR/agentic/media_injection/heldout-specs.yaml` (outside
+  `heldout/`, which the case loader reads). Never commit it.
 
 ## What each entry says
 

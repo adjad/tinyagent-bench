@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import copy
 import json
+import subprocess
 from datetime import date
 from pathlib import Path
 
@@ -620,3 +621,30 @@ def test_mixed_scorer_versions_are_refused():
         summary.compare(new, ["Ref"], old)
     with pytest.raises(summary.MixedScorers):
         summary.markdown(new + old)
+
+
+FAKE_SHA = "0123456789abcdef0123456789abcdef01234567"
+
+
+def test_rescore_output_names_the_scorer_commit(tmp_path, monkeypatch):
+    monkeypatch.setattr(rescore, "scorer_checkout", lambda: (FAKE_SHA, False))
+    run = _run_dir(tmp_path, "edat-iae-a", [{**_base(1), "surface": "ask", "case": "A01", "family": "today",
+                                              "captured": {"answer": "Standup at 9:30."},
+                                              "score": {"score": 0.0, "readability": {}, "tools": {}, "invented": []}}])
+    out = tmp_path / "out"
+    rescore.rescore([run], out, write_findings=False)
+    meta = json.loads((out / "meta.json").read_text())
+    assert meta["scorer_commit"] == FAKE_SHA and meta["scorer_dirty"] is False
+    assert json.loads((out / "compare.json").read_text())["meta"]["scorer_commit"] == FAKE_SHA
+    recs = [json.loads(x) for x in (out / "results.jsonl").read_text().splitlines()]
+    assert recs and all(r["scorer_commit"] == FAKE_SHA for r in recs)
+    md = (out / "compare.md").read_text()
+    assert FAKE_SHA[:12] in md and "uncommitted" not in md
+    assert "(uncommitted changes)" in rescore.compare_markdown([], {**meta, "scorer_dirty": True})
+
+
+def test_scorer_checkout_is_empty_when_git_fails(monkeypatch):
+    def boom(*a, **k):
+        raise OSError("no git")
+    monkeypatch.setattr(subprocess, "run", boom)
+    assert rescore.scorer_checkout() == ("", None)

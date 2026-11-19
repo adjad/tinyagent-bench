@@ -223,7 +223,8 @@ def people(b: ProfileBuilder) -> None:
             "Best,\nDr. Joanne Kirby\nDepartment of Environmental Science"))
     e(id="em-kirby-2", account=SCH, day=-2, time="09:30", frm=KIRBY, thread_id="emt-kirby", in_reply_to="em-kirby",
       subject="Re: Spring advising – please book a time",
-      body=("Hi Talia,\n\nJust a nudge: I don't see you on my calendar yet, and slots are filling up.\n\nBest,\nJK\n\n"
+      body=("Hi Talia,\n\nJust a nudge: I don't see you on my calendar yet, and slots are filling up. Would a Thursday "
+            "or a Friday afternoon work better for you? I can hold one if you tell me.\n\nBest,\nJK\n\n"
             f"> Spring registration opens for juniors on {D(9)}. Please book a 20-minute advising appointment ..."))
     # ---- frisbee club
     e(id="em-wc-dues", account=SCH, day=-16, time="20:00", frm=("Imani Brooks", "imani.brooks@cvu.example"),

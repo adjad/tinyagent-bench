@@ -80,6 +80,8 @@ def _vs_row(e: dict, tier: str, key: str, as_pct: bool) -> dict:
             conv = _pct if as_pct else _r
             out[role] = {"delta": conv(d["delta"]), "interval": conv(d["interval"]), "tag": d["tag"],
                          "n_cases": d.get("n_cases"), "wins": d.get("wins"), "losses": d.get("losses")}
+            if d.get("warning"):
+                out[role]["warning"] = d["warning"]
             if "ratio" in d:
                 out[role]["ratio"] = _r(d["ratio"])
         else:
@@ -96,6 +98,8 @@ def _result(e: dict, tier: str, metric: str, block: dict, *, facet: str | None, 
            ("wilson" if metric == "pass_all_trials" else "none"),
            "n_cases": int(block.get("n_cases") or 0), "n_trials": int(block.get("n_trials") or 0),
            "status": None}
+    if block.get("label"):
+        row["label"] = block["label"]
     if row["interval"] is None:
         row["interval_kind"] = "none"
     if vs_key:
@@ -118,6 +122,12 @@ def site_rows(e: dict) -> tuple[list, list, list]:
             n_trials = (b.get("pass1") or b.get("score") or {}).get("n_trials", 0)
             results.append(_result(e, tier, comp["metric"], {**comp, "n_trials": n_trials}, facet=None,
                                    as_pct=True, vs_key=comp["metric"]))
+        for name, c in sorted((b.get("composites") or {}).items()):
+            if comp and name == comp.get("metric"):
+                continue
+            n_trials = (b.get("pass1") or b.get("score") or {}).get("n_trials", 0)
+            results.append(_result(e, tier, name, {**c, "n_trials": n_trials}, facet=None, as_pct=True,
+                                   vs_key=name))
         if b.get("pass1"):
             results.append(_result(e, tier, "pass1", b["pass1"], facet=None, as_pct=True, vs_key="pass1"))
             pat = b["pass1"].get("pass_all_trials")
@@ -147,7 +157,57 @@ def site_rows(e: dict) -> tuple[list, list, list]:
             row["vs"] = {"unsafe_rate": _vs_row(e, tier, "unsafe_rate", True),
                          "leak_rate": _vs_row(e, tier, "leak_rate", True)}
             safety.append(row)
+    results += _loop_empty_rows(e)
     return results, safety, curves
+
+
+def _empty_row(e: dict, tier: str, metric: str, facet: str | None, status: str, reason: str) -> dict:
+    return {"variant": e["entry_key"], "tier": tier, "facet": facet, "metric": metric, "unit": "%",
+            "value": None, "interval": None, "interval_kind": "none", "n_cases": 0, "n_trials": 0,
+            "status": status, "empty_reason": reason}
+
+
+def _loop_empty_rows(e: dict) -> list[dict]:
+    """The second-loop column's empty cells, each with its reason (never a silent gap)."""
+    from edat.results.aggregate import COMPOSITE_DEFS
+    rows = []
+    for tier, lp in sorted((e.get("loops") or {}).items()):
+        metric = COMPOSITE_DEFS[lp["view"]][0].name
+        if lp.get("empty"):
+            status = "not_applicable" if lp["view"] in e["tiers"] else "not_run"
+            rows.append(_empty_row(e, lp["view"], metric, None, status, lp["empty_reason"]))
+        for lane, why in sorted((lp.get("lanes") or {}).items()):
+            rows.append(_empty_row(e, lp["view"], "pass1", f"lane={lane}", "not_applicable",
+                                   why.split(": ", 1)[-1]))
+    return rows
+
+
+def loop_rows(e: dict) -> list[dict]:
+    """Both loops' columns and the per-model gap, one row per entry and loop tier."""
+    from edat.results.aggregate import COMPOSITE_DEFS
+    rows = []
+    for tier, lp in sorted((e.get("loops") or {}).items()):
+        hb = e["tiers"].get(lp["view"]) or {}
+        head = (e["tiers"].get(tier) or {}).get("composite")
+        harbor = None if lp.get("empty") else hb.get("composite")
+        ref_al = lp.get("reference_assistant_lane")
+        gap = lp.get("gap")
+        if gap and not gap.get("refused"):
+            gap = {"metric": gap["metric"], "of": gap["of"], "delta": _pct(gap["delta"]),
+                   "interval": _pct(gap["interval"]), "tag": gap["tag"], "n_cases": gap.get("n_cases_paired"),
+                   "wins": gap.get("wins"), "losses": gap.get("losses")}
+        rows.append({
+            "variant": e["entry_key"], "tier": tier, "loop": lp["loop"], "view": lp["view"],
+            "headline": None if not head else {"metric": head["metric"], "value": _pct(head["value"]),
+                                               "interval": _pct(head["interval"])},
+            "reference_assistant_lane": None if not ref_al else {
+                "metric": ref_al["metric"], "value": _pct(ref_al["value"]), "interval": _pct(ref_al["interval"])},
+            "second": None if not harbor else {"metric": COMPOSITE_DEFS[lp["view"]][0].name,
+                                               "value": _pct(harbor["value"]), "interval": _pct(harbor["interval"]),
+                                               "n_cases": harbor.get("n_cases")},
+            "gap": gap, "empty_reason": lp.get("empty_reason"),
+            "lanes": {k: v.split(": ", 1)[-1] for k, v in (lp.get("lanes") or {}).items()}})
+    return rows
 
 
 def _run_row(e: dict) -> dict:
@@ -171,9 +231,73 @@ def _run_row(e: dict) -> dict:
             "date": ((e.get("run_date") or {}).get("last") or "")[:10] or None}
 
 
+def device_labels(device_id: str, dev: dict) -> dict:
+    """Display names the website shows for a device, derived from the record's device block."""
+    cls = str(dev.get("class") or device_id)
+    ram = dev.get("ram_bytes")
+    gb = f"{round(ram / 2**30)} GB" if isinstance(ram, int) and ram > 0 else None
+    soc = dev.get("soc")
+    if cls.startswith("mac"):
+        kind, family, fit = "laptop", "Mac", "fits a 16 GB Mac"
+    elif cls.startswith("iphone"):
+        kind, family, fit = "phone", "iPhone", "fits the iPhone Air"
+    elif cls == "simulator":
+        kind, family, fit = "simulator", "Simulator", "simulator: not a measurement"
+    else:
+        kind, family, fit = "device", cls, "fits this device"
+    detail = ", ".join(x for x in (soc, gb) if x)
+    return {"name": f"{family} ({detail})" if detail else family,
+            "short": f"{family} {gb}" if gb else family, "kind": kind, "fit_label": fit}
+
+
+FINDINGS_VIEW = "in_assistant_findings"
+FINDINGS_SCHEMA_ID = "edat.site-findings/0.1"
+FINDINGS_MARKS = {"found": "found", "missed": "missed", "wrongly_raised": "wrong", "stale": "stale",
+                  "right": "right", "done_wrongly": "wrong", "should_not": "wrong", "unsafe": "unsafe",
+                  "not_done": "right", "not_in_key": "not_in_key", "offered": "offered", "answer": "answer",
+                  "passed_over": "passed_over"}
+
+
+def findings_file(records: list[dict], raw_of, *, board: str, device_id: str, sample: bool,
+                  notice: str | None, now: str) -> dict | None:
+    """What each model found in the assistant, per variant, profile and trial (dev split only).
+
+    Reads the in-assistant findings records (`suite: productbench-findings`).
+    `mark` is the site's word (found, missed, wrong, stale, unsafe, ...);
+    `outcome` keeps the record's own word (`wrongly_raised`, `done_wrongly`, ...)."""
+    from edat.results.aggregate import view_of
+    recs = [r for r in records if view_of(r) == FINDINGS_VIEW and r["split"] in PUBLIC_SPLITS]
+    if not recs:
+        return None
+    runs: dict[tuple, dict] = {}
+    profiles: set[str] = set()
+    for r in sorted(recs, key=lambda r: (keys.entry_key(r), r["case_id"], r["trial"])):
+        profile = r.get("facets", {}).get("profile") or "-"
+        profiles.add(profile)
+        k = (keys.entry_key(r), profile, r["trial"])
+        run = runs.setdefault(k, {"variant": k[0], "profile": profile, "trial": r["trial"], "sections": {},
+                                  "counts": {}})
+        raw = raw_of(r) or {}
+        outcome = r["metrics"].get("outcome") or raw.get("outcome") or "unknown"
+        section = r.get("facets", {}).get("family") or "other"
+        item = {"mark": FINDINGS_MARKS.get(outcome, outcome), "outcome": outcome,
+                "text": scrub(raw.get("text"), 240), "item": scrub(raw.get("item"), 160),
+                "at": raw.get("now"), "case_id": r["case_id"], "scored": r["status"] == "ok",
+                "unsafe": (r["safety"].get("unsafe_actions") or 0) > 0}
+        if r.get("facets", {}).get("zone"):
+            item["zone"] = r["facets"]["zone"]
+        run["sections"].setdefault(section, []).append(item)
+        run["counts"][item["mark"]] = run["counts"].get(item["mark"], 0) + 1
+    out = {"schema": FINDINGS_SCHEMA_ID, "sample": sample, "notice": notice, "board_version": board,
+           "device_id": device_id, "generated_at": now, "profiles": sorted(profiles),
+           "runs": list(runs.values())}
+    validate(out, "site_findings")
+    return out
+
+
 def site_board(agg: dict, device_id: str, entries: list[dict], *, sample: bool, notice: str | None,
                now: str | None = None) -> dict:
-    models, variants, runs, results, safety, curves, ranking = {}, [], [], [], [], [], []
+    models, variants, runs, results, safety, curves, ranking, loops = {}, [], [], [], [], [], [], []
     for e in entries:
         models.setdefault(e["model_id"], {
             "id": e["model_id"], "kind": e["kind"], "role": e["role"], "params_total": e.get("params_total"),
@@ -187,24 +311,24 @@ def site_board(agg: dict, device_id: str, entries: list[dict], *, sample: bool, 
                          "weights": e.get("weights"),
                          "sampling_source": (e.get("sampling_sources") or [None])[0]})
         runs.append(_run_row(e))
+        loops += loop_rows(e)
         r, s, c = site_rows(e)
         results += r
         safety += s
         curves += c
         for tier, b in e["tiers"].items():
-            if b.get("rank_range") and b.get("headline"):
-                ranking.append({"variant": e["entry_key"], "tier": tier, "metric": b["headline"]["metric"],
-                                "rank_range": b["rank_range"]})
+            for metric, rr in sorted((b.get("rank_ranges") or {}).items()):
+                ranking.append({"variant": e["entry_key"], "tier": tier, "metric": metric, "rank_range": rr})
     dev = next((e.get("device") for e in entries if e.get("device")), None)
     device = None if device_id == "cloud" else {
         "id": device_id, "class": (dev or {}).get("class") or device_id, "ram_bytes": (dev or {}).get("ram_bytes"),
-        "soc": (dev or {}).get("soc"), "os": (dev or {}).get("os")}
+        "soc": (dev or {}).get("soc"), "os": (dev or {}).get("os"), **device_labels(device_id, dev or {})}
     refs = (agg.get("references") or {}).get(device_id) or {}
     board = {"schema": SITE_BOARD_SCHEMA_ID, "sample": sample, "notice": notice,
              "board_version": agg["board_version"], "generated_at": now or utc_now(), "device": device,
              "references": {"tuned": refs.get("tuned"), "base": refs.get("base")},
              "models": list(models.values()), "variants": variants, "runs": runs, "results": results,
-             "safety": safety, "curves": curves, "ranking": ranking}
+             "safety": safety, "curves": curves, "ranking": ranking, "loops": loops}
     validate(board, "site_board")
     return board
 
@@ -334,8 +458,15 @@ def export(sets: Iterable[RunSet], *, data_dir: Path | str, site_dir: Path | str
                         "trajectories": trajectories(er, raw_of, trajectories_per_entry)}
                 atomic_write(site_dir / board / f"{name}.trajectories.json", _dumps(traj))
                 written.append(site_dir / board / f"{name}.trajectories.json")
+                fnd = findings_file(recs_by_device.get(dev, []), raw_of, board=board, device_id=dev,
+                                    sample=sample, notice=notice, now=stamp)
+                if fnd is not None:
+                    atomic_write(site_dir / board / f"{name}.findings.json", _dumps(fnd))
+                    written.append(site_dir / board / f"{name}.findings.json")
                 devices.append({"id": dev, "class": (sb["device"] or {}).get("class"),
-                                "path": f"{board}/{name}.json", "trajectories": f"{board}/{name}.trajectories.json"})
+                                "name": (sb["device"] or {}).get("name"),
+                                "path": f"{board}/{name}.json", "trajectories": f"{board}/{name}.trajectories.json",
+                                "findings": f"{board}/{name}.findings.json" if fnd is not None else None})
         index_path = site_dir / "index.json"
         index = json.loads(index_path.read_text()) if index_path.exists() else {
             "schema": SITE_INDEX_SCHEMA_ID, "boards": []}

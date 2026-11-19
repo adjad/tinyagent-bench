@@ -1423,7 +1423,7 @@
      "unread": false
     },
     {
-     "id": "msg-hana-0078",
+     "id": "msg-hana-sweater",
      "day": 0,
      "time": "07:31",
      "from": "ct-hana",
@@ -1473,7 +1473,7 @@
      "day": -26,
      "time": "20:04",
      "from": "ct-jamal",
-     "text": "dates: nov 6-8. kofi's fiancée approved 🙏 cabin near leavenworth",
+     "text": "dates: {{date:+23:short}}-{{date:+25:short}}. kofi's fiancée approved 🙏 cabin near leavenworth",
      "unread": false
     },
     {
@@ -1845,7 +1845,7 @@
      "unread": false
     },
     {
-     "id": "msg-bach-0069",
+     "id": "msg-bach-driver-maybe",
      "day": -2,
      "time": "22:40",
      "from": "me",
@@ -1965,7 +1965,7 @@
      "unread": false
     },
     {
-     "id": "msg-bach-0064",
+     "id": "msg-bach-driver-ask",
      "day": 0,
      "time": "06:55",
      "from": "ct-ben",
@@ -1973,7 +1973,7 @@
      "unread": true
     },
     {
-     "id": "msg-bach-0065",
+     "id": "msg-bach-chess",
      "day": 0,
      "time": "07:30",
      "from": "ct-tom",
@@ -2307,15 +2307,15 @@
      "unread": false
     },
     {
-     "id": "msg-samuel-0009",
+     "id": "msg-samuel-call-ask",
      "day": -9,
      "time": "19:27",
      "from": "ct-samuel",
-     "text": "u call in during dinner? like 7 her time",
+     "text": "u call in during dinner on {{date:+5:short}}? like 7 her time",
      "unread": false
     },
     {
-     "id": "msg-samuel-0010",
+     "id": "msg-samuel-call-yes",
      "day": -9,
      "time": "19:40",
      "from": "me",
@@ -2355,7 +2355,7 @@
      "unread": false
     },
     {
-     "id": "msg-samuel-0015",
+     "id": "msg-samuel-flowers-promise",
      "day": -2,
      "time": "12:45",
      "from": "me",
@@ -2419,7 +2419,7 @@
      "unread": false
     },
     {
-     "id": "msg-samuel-0021",
+     "id": "msg-samuel-meme",
      "day": 0,
      "time": "07:15",
      "from": "ct-samuel",
@@ -2581,7 +2581,7 @@
      "day": -20,
      "time": "15:00",
      "from": "ct-rachel",
-     "text": "u primary week of oct 12 right? i'm your secondary",
+     "text": "u primary week of {{date:-2:short}} right? i'm your secondary",
      "unread": false
     },
     {
@@ -2812,7 +2812,7 @@
      "unread": false
     },
     {
-     "id": "msg-little-ferns-0010",
+     "id": "msg-little-ferns-close-reminder",
      "day": 0,
      "time": "07:05",
      "from": "ct-little-ferns-text",
@@ -3097,7 +3097,7 @@
      "unread": false
     },
     {
-     "id": "msg-striders-0035",
+     "id": "msg-striders-shirt-pay",
      "day": -1,
      "time": "21:05",
      "from": "me",
@@ -3188,7 +3188,7 @@
      "unread": false
     },
     {
-     "id": "msg-kofi-0007",
+     "id": "msg-kofi-tailor",
      "day": -3,
      "time": "16:00",
      "from": "ct-kofi",
@@ -3370,7 +3370,7 @@
      "unread": false
     },
     {
-     "id": "msg-gwen-0003",
+     "id": "msg-gwen-pickup-list",
      "day": -3,
      "time": "12:45",
      "from": "me",

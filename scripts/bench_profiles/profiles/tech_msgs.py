@@ -108,7 +108,7 @@ def _hana(b: ProfileBuilder) -> None:
                  ("06:23", h, "she gets sad when she's the last one"),
                  ("07:02", me, "Rough night, it's under control. Pickup 5:30, got it"),
                  ("07:03", h, "❤️ coffee is in the thermos"),
-                 ("07:31", h, "also picture day is tmrw, green sweater pls 💚 it's on the dresser", U)])
+                 ("07:31", h, "also picture day is tmrw, green sweater pls 💚 it's on the dresser", {"unread": True, "id": "msg-hana-sweater"})])
 
 
 def _bach(b: ProfileBuilder) -> None:
@@ -117,7 +117,7 @@ def _bach(b: ProfileBuilder) -> None:
     t.script(-26, [("20:01", j, "OK GENTLEMEN 🚨🚨 kofi bach planning starts NOW"),
                    ("20:02", tm, "🍻🍻🍻"),
                    ("20:02", l, "finally lmaooo"),
-                   ("20:04", j, "dates: nov 6-8. kofi's fiancée approved 🙏 cabin near leavenworth",
+                   ("20:04", j, "dates: {{date:+23:short}}-{{date:+25:short}}. kofi's fiancée approved 🙏 cabin near leavenworth",
                     _id("msg-bach-dates")),
                    ("20:05", bn, "i'm in. need to clear w the wife but in"),
                    ("20:07", me, "In. Hana's on board"),
@@ -183,8 +183,8 @@ def _bach(b: ProfileBuilder) -> None:
                   ("16:45", l, "he will kill us"),
                   ("16:46", tm, "worth it"),
                   ("22:50", j, "taking shirt sizes tmrw. marcus u still a M?")])
-    t.script(0, [("06:55", bn, "morning. still need a driver back sunday 👀", U),
-                 ("07:30", tm, "also kofi asked me what we're planning and i panicked and said 'chess tournament'", U),
+    t.script(0, [("06:55", bn, "morning. still need a driver back sunday 👀", {"unread": True, "id": "msg-bach-driver-ask"}),
+                 ("07:30", tm, "also kofi asked me what we're planning and i panicked and said 'chess tournament'", {"unread": True, "id": "msg-bach-chess"}),
                  ("07:31", l, "😂😂😂😂", U),
                  ("07:33", j, "CHESS TOURNAMENT 💀", U)])
 
@@ -234,19 +234,19 @@ def _samuel(b: ProfileBuilder) -> None:
     t.script(-9, [("19:00", s, "mom bday is {{date:+5:short}}, a {{dow:+5}}. what we doing"),
                   ("19:25", me, "I'll send flowers. You do the dinner?"),
                   ("19:26", s, "bet. taking her to that fish place she likes 🐟"),
-                  ("19:27", s, "u call in during dinner? like 7 her time"),
-                  ("19:40", me, "Yes, 4pm my time works")])
+                  ("19:27", s, "u call in during dinner on {{date:+5:short}}? like 7 her time", _id("msg-samuel-call-ask")),
+                  ("19:40", me, "Yes, 4pm my time works", _id("msg-samuel-call-yes"))])
     t.script(-5, [("17:30", s, "told mom ur going to denver. she's already worried abt ur coat lmao"),
                   ("17:35", me, "She texted me. Thanks a lot 🙄"),
                   ("17:36", s, "😂😂")])
     t.script(-2, [("12:00", s, "did u order the flowers yet. she said 'no fuss' which means fuss", _id("msg-samuel-flowers")),
-                  ("12:45", me, "Ordering this week. Saturday latest"),
+                  ("12:45", me, "Ordering this week. Saturday latest", _id("msg-samuel-flowers-promise")),
                   ("12:46", s, "saturday latest lol ok mr calendar")])
     t.script(-1, [("21:15", s, "also cousin tunde getting married in april. invite coming. heads up", _id("msg-samuel-tunde")),
                   ("21:16", s, "mom will want us all there 🙃"),
                   ("22:00", me, "Noted. April is far away"),
                   ("22:01", s, "it's not, she's already planning outfits")])
-    t.script(0, [("07:15", s, "u up? saw u liked a meme at 1am lmao on call?", U)])
+    t.script(0, [("07:15", s, "u up? saw u liked a meme at 1am lmao on call?", {"unread": True, "id": "msg-samuel-meme"})])
 
 
 def _priya(b: ProfileBuilder) -> None:
@@ -271,7 +271,7 @@ def _priya(b: ProfileBuilder) -> None:
 def _rachel(b: ProfileBuilder) -> None:
     r, me = "ct-rachel", "me"
     t = b.thread("rachel", [r])
-    t.script(-20, [("15:00", r, "u primary week of oct 12 right? i'm your secondary"),
+    t.script(-20, [("15:00", r, "u primary week of {{date:-2:short}} right? i'm your secondary"),
                    ("15:05", me, "Yep. Thanks for being my backup"),
                    ("15:05", r, "🫡")])
     t.script(-2, [("09:05", r, "on call starts. the disk alert on metrics-scraper-03 flaps, ignore it, ticket's open w infra",
@@ -309,7 +309,7 @@ def _little_ferns(b: ProfileBuilder) -> None:
     t.msg(-1, "17:40", lf, "Little Ferns: Zoe had a great day! She painted a pumpkin and ate all her lunch. – Ms. Rosa")
     t.msg(-1, "17:52", me, "Thank you Ms. Rosa!")
     t.msg(0, "07:05", lf, "Little Ferns: Reminder: early close this Friday at 3pm. A late pickup fee applies after close.",
-          unread=True)
+          unread=True, id="msg-little-ferns-close-reminder")
 
 
 def _striders(b: ProfileBuilder) -> None:
@@ -358,7 +358,7 @@ def _kofi(b: ProfileBuilder) -> None:
     t.script(-12, [("19:30", k, "what is jamal planning. be honest"),
                    ("19:35", me, "My lips are sealed"),
                    ("19:36", k, "that's what scares me")])
-    t.script(-3, [("16:00", k, "tailor for groomsmen is anytime before the wedding, they'll text u"),
+    t.script(-3, [("16:00", k, "tailor for groomsmen is anytime before the wedding, they'll text u", _id("msg-kofi-tailor")),
                   ("16:10", me, "Ok. Send me their info?"),
                   ("16:12", k, "will do")])
     t.script(-1, [("20:15", k, "everyone is being weird. what's going on"),
@@ -390,7 +390,7 @@ def _gwen(b: ProfileBuilder) -> None:
     t = b.thread("gwen", [g])
     t.script(-3, [("11:20", me, "Hi Gwen! Any chance you could do daycare pickup {{dow:+8}} {{date:+8:short}}? I'm in Denver and Hana's on shift"),
                   ("12:40", g, "Of course! Same place, by 5:30?"),
-                  ("12:45", me, "Yes, Little Ferns. I'll add you to the pickup list"),
+                  ("12:45", me, "Yes, Little Ferns. I'll add you to the pickup list", _id("msg-gwen-pickup-list")),
                   ("12:46", g, "Perfect. Zoe and Juniper can have a playdate after")])
     t.script(-1, [("17:00", g, "Also you have a package on my porch, delivered to the wrong house again 🙃"),
                   ("17:30", me, "Ha, thanks! Grabbing it tonight"),
@@ -426,11 +426,11 @@ def _extras(b: ProfileBuilder) -> None:
                   ("09:40", h, "😭 she's so dramatic. like u")])
     t = th["th-bach"]
     t.script(-2, [("21:20", "ct-tom", "marcus is typing... (he's not)"),
-                  ("22:40", me, "Sorry, on-call brain. Maybe? I'm secondary on-call that week, let me see if I can swap")])
+                  ("22:40", me, "Sorry, on-call brain. Maybe? I'm secondary on-call that week, let me see if I can swap", {"id": "msg-bach-driver-maybe"})])
     t = th["th-striders"]
     t.msg(-11, "06:10", "ct-jess", "is it raining or is it just my window")
     t.msg(-4, "07:50", "ct-aaron", "running 5 late, start without me")
-    t.msg(-1, "21:05", me, "M please. Will pay Saturday")
+    t.msg(-1, "21:05", me, "M please. Will pay Saturday", id="msg-striders-shirt-pay")
     t.msg(-1, "21:06", "ct-mel", "👍")
     th["th-gwen"].msg(-1, "19:20", me, "Got it, thank you!")
     th["th-kofi"].msg(-12, "19:40", "ct-kofi", "fine. just nothing that ends up online pls")

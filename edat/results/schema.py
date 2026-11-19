@@ -27,6 +27,7 @@ _FILES = {
     "manifest": "run-manifest.schema.json",
     "snapshot": "snapshot.schema.json",
     "site_board": "site-board.schema.json",
+    "site_findings": "site-findings.schema.json",
 }
 
 

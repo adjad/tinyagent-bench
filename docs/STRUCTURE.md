@@ -14,7 +14,7 @@ written only for this benchmark goes in the benchmark's own folders.
 | --- | --- | --- |
 | `README.md`, `IMPORT.md`, `NOTICE`, `LICENSE` | Overview, import provenance, attribution, licence | Benchmark (LICENSE from Harbor) |
 | `import/` | Machine-readable import definition and resolved file list | Benchmark |
-| `tools/` | The benchmark's own maintenance tools (`import_harbor.py`) | Benchmark |
+| `tools/` | The benchmark's own maintenance tools (`import_harbor.py`, `ci_test_files.py`) | Benchmark |
 | `docs/STRUCTURE.md` | This file | Benchmark |
 | `docs/benchmark/` | Design documents, all drafts (numbered `NN-name.md`) | Benchmark |
 | `site/` | Website mock-up with sample data | Benchmark |
@@ -46,9 +46,9 @@ written only for this benchmark goes in the benchmark's own folders.
 | Website | `site/` | Today a mock-up. The real site renders from `site/data/`. Design: [06-ui-design](benchmark/06-ui-design.md). |
 | Hosted reference (unranked, quality tests only) | `edat/hosted/`, reusing `service/inference/providers.py`, `remote_policy.py` and `service/config/endpoints.py` | Synthetic data only. Credentials come from the Keychain at run time and never enter the repository ([REMOTE_INFERENCE](REMOTE_INFERENCE.md)). |
 | Model adapters | `edat/models/` | One adapter per runtime or provider, so the harness talks to every model the same way. |
-| Sidekick tasks (light coding and terminal) | `edat/sidekick/`, cases in `test_fixtures/sidekick/` | Planned. |
-| On-screen app control | `edat/screen/`, cases in `test_fixtures/screen/` | Planned. |
-| Standing preferences, long sessions | Cases in `test_fixtures/` next to the harness that runs them; new harness code in `edat/` | [14-standing-preferences](benchmark/14-standing-preferences.md); long sessions are designed in a later document. |
+| Sidekick tasks (light coding and terminal) | `edat/sidekick/`, cases in `test_fixtures/sidekick/` | Planned. Design: [12-sidekick-coding-spec](benchmark/12-sidekick-coding-spec.md). |
+| On-screen app control | `edat/screen/`, cases in `test_fixtures/screen/` | Planned. Design: [11-screen-control-spec](benchmark/11-screen-control-spec.md). |
+| Standing preferences, long sessions | Cases in `test_fixtures/` next to the harness that runs them; new harness code in `edat/` | [14-standing-preferences](benchmark/14-standing-preferences.md); long sessions in [02-agentic-spec](benchmark/02-agentic-spec.md) §3.15. |
 | Tests for new benchmark code | `tests/test_edat_*.py` for `edat/`, next to the imported tests | Keeps one `pytest.ini`. |
 
 Rules for new work:
@@ -97,8 +97,9 @@ Recorded during the import on 2026-11-18. Each has the choice taken for now.
 8. **Simulation QA manifest.** The harness-fairness and product-eval branches
    both add their new tests to Harbor's `scripts/run_simulation_qa.py`. That is
    Harbor release tooling and is not imported. *Taken:* leave that file out when
-   applying those branches (see below). If this repository gets CI, list the
-   test files in its own workflow instead.
+   applying those branches (see below). This repository's workflow finds its
+   test files itself (`tools/ci_test_files.py`), so a merged branch's tests
+   join the gate without a list to edit.
 9. **One test needs the Mac app's source.**
    `tests/test_send_recipient_preflight.py::test_the_draft_cards_show_the_quiet_line_neutral_with_no_tick`
    reads `app/Sources/HarborApp/HarborClient.swift`. *Taken:* `app/` stays out;

@@ -248,6 +248,38 @@ def prepare_backend(*, user_name: str, stub_script: str | None, usage_log: Path 
         install_usage_tee(usage_log)
 
 
+def install_act_yes(yes_at: float) -> None:
+    """Bench only: the act-for-me gate's file reads as created at `yes_at` (bench clock).
+
+    The gate never counts a yes from before its file was created (acting._born: the later of
+    the file's birth and inode-change times). Those are real times, and the bench clock runs
+    weeks behind the real one, so without this nothing would ever be allowed. The harness
+    writes the file itself, standing in for the person's yes, before this backend starts; this
+    states that write's time on the bench clock. Every other check of the gate is unchanged."""
+    from service.proactive import acting
+    acting._born = lambda: float(yes_at)
+
+
+def install_act_notes(path: Path) -> None:
+    """Bench only, read-only: keep auto-add's own per-item notes (why each item was passed over,
+    the `debug` list autoadd.step already builds for its tests) as JSON lines at `path`.
+    Nothing it decides changes."""
+    from service.proactive import autoadd
+    real = autoadd.step
+
+    async def step(*args, debug=None, **kwargs):
+        notes = [] if debug is None else debug
+        try:
+            return await real(*args, debug=notes, **kwargs)
+        finally:
+            with Path(path).open("a", encoding="utf-8") as f:
+                for n in notes:
+                    f.write(json.dumps({"who": str(n.get("who") or ""), "item": str(n.get("item") or ""),
+                                        "reason": str(n.get("auto_add") or "")}) + "\n")
+
+    autoadd.step = step
+
+
 def main(argv: list[str] | None = None) -> None:
     global _escape_log
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
@@ -258,6 +290,8 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--stub-script", default=None)
     ap.add_argument("--cloud-host", default=None,
                     help="the one HTTPS host a cloud-reference backend may reach (openrouter.ai)")
+    ap.add_argument("--act-yes-at", type=float, default=None,
+                    help="bench-clock epoch of the act-for-me yes the harness wrote (see install_act_yes)")
     args = ap.parse_args(argv)
     if args.cloud_host and args.cloud_host != "openrouter.ai":
         sys.exit("cloud-reference runs go to openrouter.ai only")
@@ -291,6 +325,9 @@ def main(argv: list[str] | None = None) -> None:
     if args.which == "backend":
         prepare_backend(user_name=args.user_name, stub_script=args.stub_script,
                         usage_log=Path(home).resolve().parent / "usage.jsonl")
+        if args.act_yes_at is not None:
+            install_act_yes(args.act_yes_at)
+            install_act_notes(Path(home).resolve().parent / "act_notes.jsonl")
         app = "service.main:app"
     else:
         app = "sandbox.server:app"

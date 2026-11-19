@@ -78,6 +78,12 @@ config, and nine empty folders. `plan` prints the list as the run will see it. N
 
 - **SenseNova-Loop 9B** has no loader in the installed oMLX (it needs remote code). It is expected to
   be skipped as not servable; the probe records that.
+- **The shipped thinking mode** is the model author's default (for the tuned reference, the mode Harbor
+  ships it in: off), from the table in `models.py`, and the runner sends it with every request; it
+  never comes from oMLX's settings, so step 0 does not change it. Where the chat template's own default
+  differs, the run follows the author and records both (`ships_thinking`, `template_thinking_default` in
+  `progress.json` and `roster.json`). Today that is **Nemotron 3.5 Bolt E4B**: its card says thinking is
+  on by default; the template it ships with defaults to off.
 - **Qwen3.5 9B**: if its build cannot switch thinking on, the probe records it and its thinking-off
   entry runs instead.
 - **LFM3 Omni** and the greedy entries are deterministic, so their three trials can come out identical.
@@ -217,15 +223,18 @@ caffeinate -i .venv/bin/python -m edat.sidekick.ceiling run-all --plan quick --p
 ```
 
 - `--per-rung 3` or `4`: tasks a rung (rungs 1-3 spread across task types);
-- `--rungs`: which answer-only rungs, e.g. `1-8` (default) or `1-3,5-8`; rung 9 (tool mode) is not part
-  of a quick look;
+- `--rungs`: which rungs, e.g. `1-8` (the default: answer-only) or `1-3,5-8`; `1-9` adds the tool-mode
+  rung 9 (read, edit, run the tests, fix), one try per task;
 - `--thinking off` runs every model with thinking off (with the author's thinking-off sampling, or
   greedy where there is none); `--thinking shipped` runs each model in the mode it ships in.
 
 One entry a model (standard quantisations only), references first. Results go to `$OUT/quick/`, apart
 from the first pass, and the report is `report $OUT/quick`. Its page says plainly what a quick look
-cannot tell: no repeat tries, so a ceiling is good to about a rung; thinking off understates the models
-that ship with thinking (it names them); no tool mode; no safety set.
+cannot tell, at the top: a quick look with wide error bars, not a ranking. It gives counts ("2 of 4
+tasks, one try each") rather than shares, says "passed in this look" rather than "reliably does", and
+lists the models alphabetically. No repeat tries, so a ceiling is good to about a rung; thinking off
+understates the models that ship with thinking (it names them); no safety set. Without rung 9 it says
+there is no tool mode and writes a ceiling at the top rung run as "8 or higher (rung 9 not run)".
 
 **The first pass, one sitting at a time** (the sittings are listed by `plan`; `--max-minutes 720`
 stops a sitting cleanly at 12 hours and the next command resumes it):
@@ -271,7 +280,8 @@ Today's folder (14 standard entries, 13 in tier 1, 7 in tier 2, 6 in tier 3):
 | plan | what it runs | estimate |
 |---|---|---|
 | **quick look, thinking off** | 14 entries, every model with thinking off; answer-only rungs 1-8, 4 tasks a rung, 1 try | **about 2.5 hours** in one sitting, plus the smoke step (about 2.3 h if SenseNova is skipped); 3 tasks a rung: about 1.9 h |
-| **quick look, shipped mode** | the same, each model in the thinking mode it ships in | **about 6.6 hours** (about 5.7 h if SenseNova is skipped) |
+| **quick look, shipped mode** | the same, each model in the thinking mode it ships in | **about 6.6 hours** (about 5.7 h if SenseNova is skipped); 3 tasks a rung: about 5.0 h |
+| **quick look, shipped mode, with rung 9** | the same plus the tool-mode rung 9 (`--rungs 1-9`) | **about 8.4 hours** (+1.8 h; about 7.2 h if SenseNova is skipped); 3 tasks a rung: about 6.3 h (+1.3 h). The weakest estimate here: tool-mode output per call is a guess, and the smoke step corrects only the speed |
 | **first pass** | tier 0 (the standard entry of each model, in its shipped thinking mode); answer-only rungs 1-8; pass A: 12 cases a rung (the sidekick rungs spread evenly across task types), 1 trial, to find the ceiling; pass B: trials 2 and 3 on the ceiling rung and the rungs either side | **about 36 hours, in four sittings** (about 31 h if SenseNova is skipped) |
 | **full, all tiers** | per entry: the sidekick core set (112 answer-only cases incl. Restraint, 16 tool-mode cases) and rungs 4-9, 3 trials each; all 40 entries | **about 314 hours** (tier 0 118 h, tier 1 78 h, tier 2 77 h, tier 3 42 h) |
 

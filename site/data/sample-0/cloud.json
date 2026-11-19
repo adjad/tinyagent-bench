@@ -160,1017 +160,9 @@
    "facet": null,
    "metric": "agentic_score",
    "unit": "%",
-   "value": 71.43,
+   "value": 60.71,
    "interval": [
-    65.48,
-    77.38
-   ],
-   "interval_kind": "bootstrap_cases",
-   "n_cases": 28,
-   "n_trials": 84,
-   "status": null,
-   "vs": {
-    "tuned": {
-     "delta": 26.19,
-     "interval": [
-      15.48,
-      36.9
-     ],
-     "tag": "better",
-     "n_cases": 28,
-     "wins": null,
-     "losses": null
-    },
-    "base": {
-     "delta": 45.24,
-     "interval": [
-      35.71,
-      54.76
-     ],
-     "tag": "better",
-     "n_cases": 28,
-     "wins": null,
-     "losses": null
-    }
-   }
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
-   "tier": "agentic",
-   "facet": null,
-   "metric": "pass1",
-   "unit": "%",
-   "value": 71.43,
-   "interval": [
-    61.0,
-    79.98
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 28,
-   "n_trials": 84,
-   "status": null,
-   "vs": {
-    "tuned": {
-     "delta": 26.19,
-     "interval": [
-      10.71,
-      41.67
-     ],
-     "tag": "better",
-     "n_cases": 28,
-     "wins": 15,
-     "losses": 3
-    },
-    "base": {
-     "delta": 45.24,
-     "interval": [
-      30.95,
-      58.33
-     ],
-     "tag": "better",
-     "n_cases": 28,
-     "wins": 25,
-     "losses": 2
-    }
-   }
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
-   "tier": "agentic",
-   "facet": null,
-   "metric": "pass_all_trials",
-   "unit": "%",
-   "value": 32.14,
-   "interval": [
-    17.93,
-    50.66
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 28,
-   "n_trials": 84,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
-   "tier": "agentic",
-   "facet": null,
-   "metric": "score_mean",
-   "unit": "%",
-   "value": 83.95,
-   "interval": [
-    76.54,
-    90.26
-   ],
-   "interval_kind": "bootstrap_cases",
-   "n_cases": 28,
-   "n_trials": 84,
-   "status": null,
-   "vs": {
-    "tuned": {
-     "delta": 13.88,
-     "interval": [
-      3.98,
-      23.27
-     ],
-     "tag": "better",
-     "n_cases": 28,
-     "wins": 18,
-     "losses": 8
-    },
-    "base": {
-     "delta": 26.53,
-     "interval": [
-      17.13,
-      35.33
-     ],
-     "tag": "better",
-     "n_cases": 28,
-     "wins": 24,
-     "losses": 4
-    }
-   }
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
-   "tier": "agentic",
-   "facet": "family=abstain",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 66.67,
-   "interval": [
-    39.06,
-    86.19
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 4,
-   "n_trials": 12,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
-   "tier": "agentic",
-   "facet": "family=mixed",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 83.33,
-   "interval": [
-    55.2,
-    95.3
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 4,
-   "n_trials": 12,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
-   "tier": "agentic",
-   "facet": "family=parallel",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 66.67,
-   "interval": [
-    39.06,
-    86.19
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 4,
-   "n_trials": 12,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
-   "tier": "agentic",
-   "facet": "family=pev",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 50.0,
-   "interval": [
-    25.38,
-    74.62
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 4,
-   "n_trials": 12,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
-   "tier": "agentic",
-   "facet": "family=recovery",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 91.67,
-   "interval": [
-    64.61,
-    98.51
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 4,
-   "n_trials": 12,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
-   "tier": "agentic",
-   "facet": "family=select",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 75.0,
-   "interval": [
-    46.77,
-    91.11
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 4,
-   "n_trials": 12,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
-   "tier": "agentic",
-   "facet": "family=sequential",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 66.67,
-   "interval": [
-    39.06,
-    86.19
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 4,
-   "n_trials": 12,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
-   "tier": "agentic",
-   "facet": "lane=assistant",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 71.43,
-   "interval": [
-    56.43,
-    82.83
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 14,
-   "n_trials": 42,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
-   "tier": "agentic",
-   "facet": "lane=neutral",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 71.43,
-   "interval": [
-    56.43,
-    82.83
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 14,
-   "n_trials": 42,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
-   "tier": "agentic",
-   "facet": null,
-   "metric": "format_ok",
-   "unit": "%",
-   "value": 95.24,
-   "interval": [
-    88.39,
-    98.13
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 28,
-   "n_trials": 84,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
-   "tier": "agentic",
-   "facet": null,
-   "metric": "steps",
-   "unit": null,
-   "value": 2.4881,
-   "interval": [
-    2.2619,
-    2.7443
-   ],
-   "interval_kind": "bootstrap_cases",
-   "n_cases": 28,
-   "n_trials": 84,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
-   "tier": "agentic",
-   "facet": null,
-   "metric": "wall_s",
-   "unit": null,
-   "value": 6.2381,
-   "interval": [
-    5.7131,
-    6.8248
-   ],
-   "interval_kind": "bootstrap_cases",
-   "n_cases": 28,
-   "n_trials": 84,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
-   "tier": "quality",
-   "facet": null,
-   "metric": "pass1",
-   "unit": "%",
-   "value": 100.0,
-   "interval": [
-    87.54,
-    100.0
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 9,
-   "n_trials": 27,
-   "status": null,
-   "vs": {
-    "tuned": {
-     "delta": 29.63,
-     "interval": [
-      11.11,
-      48.15
-     ],
-     "tag": "better",
-     "n_cases": 9,
-     "wins": 5,
-     "losses": 0
-    },
-    "base": {
-     "delta": 62.96,
-     "interval": [
-      37.04,
-      85.19
-     ],
-     "tag": "better",
-     "n_cases": 9,
-     "wins": 8,
-     "losses": 0
-    }
-   }
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
-   "tier": "quality",
-   "facet": null,
-   "metric": "pass_all_trials",
-   "unit": "%",
-   "value": 100.0,
-   "interval": [
-    70.09,
-    100.0
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 9,
-   "n_trials": 27,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
-   "tier": "quality",
-   "facet": null,
-   "metric": "score_mean",
-   "unit": "%",
-   "value": 95.39,
-   "interval": [
-    93.42,
-    97.4
-   ],
-   "interval_kind": "bootstrap_cases",
-   "n_cases": 9,
-   "n_trials": 27,
-   "status": null,
-   "vs": {
-    "tuned": {
-     "delta": 18.77,
-     "interval": [
-      14.75,
-      23.26
-     ],
-     "tag": "better",
-     "n_cases": 9,
-     "wins": 9,
-     "losses": 0
-    },
-    "base": {
-     "delta": 29.04,
-     "interval": [
-      24.7,
-      33.34
-     ],
-     "tag": "better",
-     "n_cases": 9,
-     "wins": 9,
-     "losses": 0
-    }
-   }
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
-   "tier": "quality",
-   "facet": "family=email_summary",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 100.0,
-   "interval": [
-    70.09,
-    100.0
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 3,
-   "n_trials": 9,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
-   "tier": "quality",
-   "facet": "family=extraction",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 100.0,
-   "interval": [
-    70.09,
-    100.0
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 3,
-   "n_trials": 9,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
-   "tier": "quality",
-   "facet": "family=readability",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 100.0,
-   "interval": [
-    70.09,
-    100.0
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 3,
-   "n_trials": 9,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
-   "tier": "quality",
-   "facet": null,
-   "metric": "fabricated_atoms",
-   "unit": null,
-   "value": 0.0741,
-   "interval": [
-    0.0,
-    0.1852
-   ],
-   "interval_kind": "bootstrap_cases",
-   "n_cases": 9,
-   "n_trials": 27,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
-   "tier": "quality",
-   "facet": null,
-   "metric": "visible_tokens",
-   "unit": null,
-   "value": 239.1852,
-   "interval": [
-    219.4602,
-    257.9102
-   ],
-   "interval_kind": "bootstrap_cases",
-   "n_cases": 9,
-   "n_trials": 27,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
-   "tier": "agentic",
-   "facet": null,
-   "metric": "agentic_score",
-   "unit": "%",
-   "value": 72.62,
-   "interval": [
-    64.29,
-    80.95
-   ],
-   "interval_kind": "bootstrap_cases",
-   "n_cases": 28,
-   "n_trials": 84,
-   "status": null,
-   "vs": {
-    "tuned": {
-     "delta": 27.38,
-     "interval": [
-      16.67,
-      38.1
-     ],
-     "tag": "better",
-     "n_cases": 28,
-     "wins": null,
-     "losses": null
-    },
-    "base": {
-     "delta": 46.43,
-     "interval": [
-      35.71,
-      58.33
-     ],
-     "tag": "better",
-     "n_cases": 28,
-     "wins": null,
-     "losses": null
-    }
-   }
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
-   "tier": "agentic",
-   "facet": null,
-   "metric": "pass1",
-   "unit": "%",
-   "value": 72.62,
-   "interval": [
-    62.25,
-    81.01
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 28,
-   "n_trials": 84,
-   "status": null,
-   "vs": {
-    "tuned": {
-     "delta": 27.38,
-     "interval": [
-      14.29,
-      39.29
-     ],
-     "tag": "better",
-     "n_cases": 28,
-     "wins": 20,
-     "losses": 4
-    },
-    "base": {
-     "delta": 46.43,
-     "interval": [
-      32.14,
-      59.52
-     ],
-     "tag": "better",
-     "n_cases": 28,
-     "wins": 23,
-     "losses": 2
-    }
-   }
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
-   "tier": "agentic",
-   "facet": null,
-   "metric": "pass_all_trials",
-   "unit": "%",
-   "value": 46.43,
-   "interval": [
-    29.53,
-    64.19
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 28,
-   "n_trials": 84,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
-   "tier": "agentic",
-   "facet": null,
-   "metric": "score_mean",
-   "unit": "%",
-   "value": 86.31,
-   "interval": [
-    78.84,
-    92.74
-   ],
-   "interval_kind": "bootstrap_cases",
-   "n_cases": 28,
-   "n_trials": 84,
-   "status": null,
-   "vs": {
-    "tuned": {
-     "delta": 16.24,
-     "interval": [
-      8.26,
-      24.3
-     ],
-     "tag": "better",
-     "n_cases": 28,
-     "wins": 20,
-     "losses": 6
-    },
-    "base": {
-     "delta": 28.9,
-     "interval": [
-      20.33,
-      36.96
-     ],
-     "tag": "better",
-     "n_cases": 28,
-     "wins": 23,
-     "losses": 5
-    }
-   }
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
-   "tier": "agentic",
-   "facet": "family=abstain",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 83.33,
-   "interval": [
-    55.2,
-    95.3
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 4,
-   "n_trials": 12,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
-   "tier": "agentic",
-   "facet": "family=mixed",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 50.0,
-   "interval": [
-    25.38,
-    74.62
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 4,
-   "n_trials": 12,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
-   "tier": "agentic",
-   "facet": "family=parallel",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 83.33,
-   "interval": [
-    55.2,
-    95.3
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 4,
-   "n_trials": 12,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
-   "tier": "agentic",
-   "facet": "family=pev",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 66.67,
-   "interval": [
-    39.06,
-    86.19
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 4,
-   "n_trials": 12,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
-   "tier": "agentic",
-   "facet": "family=recovery",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 83.33,
-   "interval": [
-    55.2,
-    95.3
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 4,
-   "n_trials": 12,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
-   "tier": "agentic",
-   "facet": "family=select",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 66.67,
-   "interval": [
-    39.06,
-    86.19
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 4,
-   "n_trials": 12,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
-   "tier": "agentic",
-   "facet": "family=sequential",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 75.0,
-   "interval": [
-    46.77,
-    91.11
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 4,
-   "n_trials": 12,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
-   "tier": "agentic",
-   "facet": "lane=assistant",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 73.81,
-   "interval": [
-    58.93,
-    84.7
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 14,
-   "n_trials": 42,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
-   "tier": "agentic",
-   "facet": "lane=neutral",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 71.43,
-   "interval": [
-    56.43,
-    82.83
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 14,
-   "n_trials": 42,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
-   "tier": "agentic",
-   "facet": null,
-   "metric": "format_ok",
-   "unit": "%",
-   "value": 95.24,
-   "interval": [
-    88.39,
-    98.13
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 28,
-   "n_trials": 84,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
-   "tier": "agentic",
-   "facet": null,
-   "metric": "steps",
-   "unit": null,
-   "value": 2.5833,
-   "interval": [
-    2.381,
-    2.8158
-   ],
-   "interval_kind": "bootstrap_cases",
-   "n_cases": 28,
-   "n_trials": 84,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
-   "tier": "agentic",
-   "facet": null,
-   "metric": "wall_s",
-   "unit": null,
-   "value": 7.1663,
-   "interval": [
-    6.7239,
-    7.669
-   ],
-   "interval_kind": "bootstrap_cases",
-   "n_cases": 28,
-   "n_trials": 84,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
-   "tier": "quality",
-   "facet": null,
-   "metric": "pass1",
-   "unit": "%",
-   "value": 100.0,
-   "interval": [
-    87.54,
-    100.0
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 9,
-   "n_trials": 27,
-   "status": null,
-   "vs": {
-    "tuned": {
-     "delta": 29.63,
-     "interval": [
-      11.11,
-      48.15
-     ],
-     "tag": "better",
-     "n_cases": 9,
-     "wins": 5,
-     "losses": 0
-    },
-    "base": {
-     "delta": 62.96,
-     "interval": [
-      37.04,
-      85.19
-     ],
-     "tag": "better",
-     "n_cases": 9,
-     "wins": 8,
-     "losses": 0
-    }
-   }
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
-   "tier": "quality",
-   "facet": null,
-   "metric": "pass_all_trials",
-   "unit": "%",
-   "value": 100.0,
-   "interval": [
-    70.09,
-    100.0
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 9,
-   "n_trials": 27,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
-   "tier": "quality",
-   "facet": null,
-   "metric": "score_mean",
-   "unit": "%",
-   "value": 95.59,
-   "interval": [
-    93.31,
-    97.64
-   ],
-   "interval_kind": "bootstrap_cases",
-   "n_cases": 9,
-   "n_trials": 27,
-   "status": null,
-   "vs": {
-    "tuned": {
-     "delta": 18.97,
-     "interval": [
-      14.51,
-      23.51
-     ],
-     "tag": "better",
-     "n_cases": 9,
-     "wins": 9,
-     "losses": 0
-    },
-    "base": {
-     "delta": 29.25,
-     "interval": [
-      25.34,
-      32.46
-     ],
-     "tag": "better",
-     "n_cases": 9,
-     "wins": 9,
-     "losses": 0
-    }
-   }
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
-   "tier": "quality",
-   "facet": "family=email_summary",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 100.0,
-   "interval": [
-    70.09,
-    100.0
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 3,
-   "n_trials": 9,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
-   "tier": "quality",
-   "facet": "family=extraction",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 100.0,
-   "interval": [
-    70.09,
-    100.0
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 3,
-   "n_trials": 9,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
-   "tier": "quality",
-   "facet": "family=readability",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 100.0,
-   "interval": [
-    70.09,
-    100.0
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 3,
-   "n_trials": 9,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
-   "tier": "quality",
-   "facet": null,
-   "metric": "fabricated_atoms",
-   "unit": null,
-   "value": 0.2222,
-   "interval": [
-    0.1111,
-    0.2963
-   ],
-   "interval_kind": "bootstrap_cases",
-   "n_cases": 9,
-   "n_trials": 27,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
-   "tier": "quality",
-   "facet": null,
-   "metric": "visible_tokens",
-   "unit": null,
-   "value": 220.2963,
-   "interval": [
-    205.2519,
-    235.1343
-   ],
-   "interval_kind": "bootstrap_cases",
-   "n_cases": 9,
-   "n_trials": 27,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
-   "tier": "agentic",
-   "facet": null,
-   "metric": "agentic_score",
-   "unit": "%",
-   "value": 61.9,
-   "interval": [
-    55.95,
+    53.57,
     67.86
    ],
    "interval_kind": "bootstrap_cases",
@@ -1179,10 +171,10 @@
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 16.67,
+     "delta": 15.48,
      "interval": [
       9.52,
-      23.81
+      21.43
      ],
      "tag": "better",
      "n_cases": 28,
@@ -1190,10 +182,10 @@
      "losses": null
     },
     "base": {
-     "delta": 35.71,
+     "delta": 34.52,
      "interval": [
-      27.38,
-      44.05
+      26.19,
+      41.67
      ],
      "tag": "better",
      "n_cases": 28,
@@ -1203,15 +195,15 @@
    }
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
    "tier": "agentic",
    "facet": null,
    "metric": "pass1",
    "unit": "%",
-   "value": 61.9,
+   "value": 60.71,
    "interval": [
-    51.22,
-    71.55
+    50.02,
+    70.47
    ],
    "interval_kind": "wilson",
    "n_cases": 28,
@@ -1219,39 +211,39 @@
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 16.67,
+     "delta": 15.48,
      "interval": [
       4.76,
-      29.76
+      27.38
      ],
      "tag": "better",
      "n_cases": 28,
      "wins": 13,
-     "losses": 4
+     "losses": 5
     },
     "base": {
-     "delta": 35.71,
+     "delta": 34.52,
      "interval": [
-      23.81,
+      22.62,
       46.43
      ],
      "tag": "better",
      "n_cases": 28,
-     "wins": 21,
+     "wins": 19,
      "losses": 1
     }
    }
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
    "tier": "agentic",
    "facet": null,
    "metric": "pass_all_trials",
    "unit": "%",
-   "value": 25.0,
+   "value": 21.43,
    "interval": [
-    12.68,
-    43.36
+    10.21,
+    39.54
    ],
    "interval_kind": "wilson",
    "n_cases": 28,
@@ -1259,15 +251,15 @@
    "status": null
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
    "tier": "agentic",
    "facet": null,
    "metric": "score_mean",
    "unit": "%",
-   "value": 76.15,
+   "value": 76.88,
    "interval": [
-    69.22,
-    82.61
+    70.09,
+    83.11
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 28,
@@ -1275,31 +267,31 @@
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 6.08,
+     "delta": 6.81,
      "interval": [
-      -2.42,
-      14.97
+      -2.39,
+      15.32
      ],
      "tag": "no_clear_difference",
      "n_cases": 28,
-     "wins": 16,
-     "losses": 10
+     "wins": 19,
+     "losses": 8
     },
     "base": {
-     "delta": 18.73,
+     "delta": 19.46,
      "interval": [
-      10.23,
-      26.72
+      11.53,
+      27.16
      ],
      "tag": "better",
      "n_cases": 28,
-     "wins": 23,
-     "losses": 5
+     "wins": 22,
+     "losses": 6
     }
    }
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
    "tier": "agentic",
    "facet": "family=abstain",
    "metric": "pass1",
@@ -1315,7 +307,7 @@
    "status": null
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
    "tier": "agentic",
    "facet": "family=mixed",
    "metric": "pass1",
@@ -1331,7 +323,7 @@
    "status": null
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
    "tier": "agentic",
    "facet": "family=parallel",
    "metric": "pass1",
@@ -1347,7 +339,7 @@
    "status": null
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
    "tier": "agentic",
    "facet": "family=pev",
    "metric": "pass1",
@@ -1363,41 +355,9 @@
    "status": null
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
    "tier": "agentic",
    "facet": "family=recovery",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 58.33,
-   "interval": [
-    31.95,
-    80.67
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 4,
-   "n_trials": 12,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
-   "tier": "agentic",
-   "facet": "family=select",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 58.33,
-   "interval": [
-    31.95,
-    80.67
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 4,
-   "n_trials": 12,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
-   "tier": "agentic",
-   "facet": "family=sequential",
    "metric": "pass1",
    "unit": "%",
    "value": 50.0,
@@ -1411,15 +371,47 @@
    "status": null
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "agentic",
+   "facet": "family=select",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 41.67,
+   "interval": [
+    19.33,
+    68.05
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 4,
+   "n_trials": 12,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "agentic",
+   "facet": "family=sequential",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 66.67,
+   "interval": [
+    39.06,
+    86.19
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 4,
+   "n_trials": 12,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
    "tier": "agentic",
    "facet": "lane=assistant",
    "metric": "pass1",
    "unit": "%",
-   "value": 52.38,
+   "value": 59.52,
    "interval": [
-    37.72,
-    66.64
+    44.49,
+    72.96
    ],
    "interval_kind": "wilson",
    "n_cases": 14,
@@ -1427,15 +419,15 @@
    "status": null
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
    "tier": "agentic",
    "facet": "lane=neutral",
    "metric": "pass1",
    "unit": "%",
-   "value": 71.43,
+   "value": 61.9,
    "interval": [
-    56.43,
-    82.83
+    46.81,
+    75.0
    ],
    "interval_kind": "wilson",
    "n_cases": 14,
@@ -1443,15 +435,15 @@
    "status": null
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
    "tier": "agentic",
    "facet": null,
    "metric": "format_ok",
    "unit": "%",
-   "value": 100.0,
+   "value": 95.24,
    "interval": [
-    95.63,
-    100.0
+    88.39,
+    98.13
    ],
    "interval_kind": "wilson",
    "n_cases": 28,
@@ -1459,15 +451,15 @@
    "status": null
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
    "tier": "agentic",
    "facet": null,
    "metric": "steps",
    "unit": null,
-   "value": 2.2738,
+   "value": 2.2976,
    "interval": [
-    2.0952,
-    2.4524
+    2.0652,
+    2.5476
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 28,
@@ -1475,15 +467,15 @@
    "status": null
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
    "tier": "agentic",
    "facet": null,
    "metric": "wall_s",
    "unit": null,
-   "value": 6.505,
+   "value": 6.7601,
    "interval": [
-    6.1243,
-    6.9051
+    6.2795,
+    7.2824
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 28,
@@ -1491,119 +483,226 @@
    "status": null
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "text_understanding",
+   "unit": "%",
+   "value": 97.93,
+   "interval": [
+    97.34,
+    98.42
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 15,
+   "n_trials": 45,
+   "status": null,
+   "label": "full",
+   "vs": {
+    "tuned": {
+     "delta": 14.23,
+     "interval": [
+      9.84,
+      19.25
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": null,
+     "losses": null
+    },
+    "base": {
+     "delta": 22.55,
+     "interval": [
+      17.35,
+      27.01
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": null,
+     "losses": null
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "readability",
+   "unit": "%",
+   "value": 76.6,
+   "interval": [
+    76.5,
+    76.7
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 15,
+   "n_trials": 45,
+   "status": null,
+   "label": "judge",
+   "vs": {
+    "tuned": {
+     "delta": 12.44,
+     "interval": [
+      12.01,
+      12.87
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": null,
+     "losses": null
+    },
+    "base": {
+     "delta": 10.33,
+     "interval": [
+      10.07,
+      10.58
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": null,
+     "losses": null
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "writing",
+   "unit": "%",
+   "value": 91.19,
+   "interval": [
+    90.92,
+    97.34
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 15,
+   "n_trials": 45,
+   "status": null,
+   "label": "checks only",
+   "vs": {
+    "tuned": {
+     "delta": 28.21,
+     "interval": [
+      13.02,
+      33.51
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": null,
+     "losses": null
+    },
+    "base": {
+     "delta": 33.06,
+     "interval": [
+      16.15,
+      36.98
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": null,
+     "losses": null
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
    "tier": "quality",
    "facet": null,
    "metric": "pass1",
    "unit": "%",
    "value": 100.0,
    "interval": [
-    87.54,
+    92.13,
     100.0
    ],
    "interval_kind": "wilson",
-   "n_cases": 9,
-   "n_trials": 27,
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 29.63,
+     "delta": 24.44,
      "interval": [
-      11.11,
-      48.15
+      15.56,
+      33.33
      ],
      "tag": "better",
-     "n_cases": 9,
-     "wins": 5,
+     "n_cases": 15,
+     "wins": 10,
      "losses": 0
     },
     "base": {
-     "delta": 62.96,
+     "delta": 57.78,
      "interval": [
-      37.04,
-      85.19
+      42.22,
+      73.33
      ],
      "tag": "better",
-     "n_cases": 9,
-     "wins": 8,
+     "n_cases": 15,
+     "wins": 13,
      "losses": 0
     }
    }
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
    "tier": "quality",
    "facet": null,
    "metric": "pass_all_trials",
    "unit": "%",
    "value": 100.0,
    "interval": [
-    70.09,
+    79.61,
     100.0
    ],
    "interval_kind": "wilson",
-   "n_cases": 9,
-   "n_trials": 27,
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
    "tier": "quality",
    "facet": null,
    "metric": "score_mean",
    "unit": "%",
-   "value": 92.26,
+   "value": 95.97,
    "interval": [
-    89.66,
-    94.68
+    94.99,
+    96.98
    ],
    "interval_kind": "bootstrap_cases",
-   "n_cases": 9,
-   "n_trials": 27,
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 15.64,
+     "delta": 18.93,
      "interval": [
-      11.28,
-      19.73
+      16.26,
+      21.51
      ],
      "tag": "better",
-     "n_cases": 9,
-     "wins": 9,
+     "n_cases": 15,
+     "wins": 15,
      "losses": 0
     },
     "base": {
-     "delta": 25.91,
+     "delta": 28.97,
      "interval": [
-      22.61,
-      29.45
+      27.01,
+      30.83
      ],
      "tag": "better",
-     "n_cases": 9,
-     "wins": 9,
+     "n_cases": 15,
+     "wins": 15,
      "losses": 0
     }
    }
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
-   "tier": "quality",
-   "facet": "family=email_summary",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 100.0,
-   "interval": [
-    70.09,
-    100.0
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 3,
-   "n_trials": 9,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
    "tier": "quality",
    "facet": "family=extraction",
    "metric": "pass1",
@@ -1619,9 +718,9 @@
    "status": null
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
    "tier": "quality",
-   "facet": "family=readability",
+   "facet": "family=numeric",
    "metric": "pass1",
    "unit": "%",
    "value": 100.0,
@@ -1635,15 +734,127 @@
    "status": null
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "quality",
+   "facet": "family=point",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    70.09,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "quality",
+   "facet": "family=summary",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    70.09,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "quality",
+   "facet": "family=writing",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    70.09,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "atoms",
+   "unit": null,
+   "value": 9.0,
+   "interval": [
+    7.1667,
+    10.6667
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 12,
+   "n_trials": 36,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "constraint_ok",
+   "unit": null,
+   "value": 1.0,
+   "interval": [
+    1.0,
+    1.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "core_recall",
+   "unit": null,
+   "value": 0.9472,
+   "interval": [
+    0.9382,
+    0.9543
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 6,
+   "n_trials": 18,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "extraction_field_acc",
+   "unit": null,
+   "value": 0.9746,
+   "interval": [
+    0.959,
+    1.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
    "tier": "quality",
    "facet": null,
    "metric": "fabricated_atoms",
    "unit": null,
-   "value": 0.1481,
+   "value": 0.037,
    "interval": [
-    0.037,
-    0.2963
+    0.0,
+    0.1111
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 9,
@@ -1651,31 +862,223 @@
    "status": null
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "fact_keep_rate",
+   "unit": null,
+   "value": 0.916,
+   "interval": [
+    0.916,
+    0.916
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 1,
+   "n_trials": 3,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "fix_rate",
+   "unit": null,
+   "value": 1.0,
+   "interval": [
+    1.0,
+    1.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 1,
+   "n_trials": 3,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "flag_rate",
+   "unit": null,
+   "value": 0.9657,
+   "interval": [
+    0.9657,
+    0.9657
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 1,
+   "n_trials": 3,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "forbidden_rate",
+   "unit": null,
+   "value": 0.0,
+   "interval": [
+    0.0,
+    0.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "hygiene",
+   "unit": null,
+   "value": 99.263,
+   "interval": [
+    98.9778,
+    99.5281
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 9,
+   "n_trials": 27,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "invented_atoms",
+   "unit": null,
+   "value": 0.1111,
+   "interval": [
+    0.0,
+    0.3333
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "numeric_ok",
+   "unit": null,
+   "value": 1.0,
+   "interval": [
+    1.0,
+    1.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "overedit",
+   "unit": null,
+   "value": 0.0105,
+   "interval": [
+    0.0105,
+    0.0105
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 1,
+   "n_trials": 3,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "point_recall",
+   "unit": null,
+   "value": 0.9771,
+   "interval": [
+    0.9527,
+    1.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "schema_valid",
+   "unit": null,
+   "value": 1.0,
+   "interval": [
+    1.0,
+    1.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "trap_count",
+   "unit": null,
+   "value": 1.0,
+   "interval": [
+    1.0,
+    1.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 6,
+   "n_trials": 18,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "trap_failures",
+   "unit": null,
+   "value": 0.0,
+   "interval": [
+    0.0,
+    0.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 6,
+   "n_trials": 18,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
    "tier": "quality",
    "facet": null,
    "metric": "visible_tokens",
    "unit": null,
-   "value": 227.5185,
+   "value": 214.5556,
    "interval": [
-    203.4796,
-    251.1694
+    205.51,
+    223.6233
    ],
    "interval_kind": "bootstrap_cases",
-   "n_cases": 9,
-   "n_trials": 27,
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
    "tier": "agentic",
    "facet": null,
    "metric": "agentic_score",
    "unit": "%",
-   "value": 67.86,
+   "value": 65.48,
    "interval": [
-    59.52,
-    76.19
+    57.14,
+    72.62
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 28,
@@ -1683,10 +1086,10 @@
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 22.62,
+     "delta": 20.24,
      "interval": [
-      15.48,
-      29.76
+      13.1,
+      27.38
      ],
      "tag": "better",
      "n_cases": 28,
@@ -1694,10 +1097,10 @@
      "losses": null
     },
     "base": {
-     "delta": 41.67,
+     "delta": 39.29,
      "interval": [
-      32.14,
-      51.19
+      30.95,
+      47.62
      ],
      "tag": "better",
      "n_cases": 28,
@@ -1707,15 +1110,15 @@
    }
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
    "tier": "agentic",
    "facet": null,
    "metric": "pass1",
    "unit": "%",
-   "value": 67.86,
+   "value": 65.48,
    "interval": [
-    57.28,
-    76.87
+    54.83,
+    74.76
    ],
    "interval_kind": "wilson",
    "n_cases": 28,
@@ -1723,31 +1126,31 @@
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 22.62,
+     "delta": 20.24,
      "interval": [
-      11.9,
-      33.33
+      9.52,
+      30.95
      ],
      "tag": "better",
      "n_cases": 28,
-     "wins": 17,
+     "wins": 16,
      "losses": 3
     },
     "base": {
-     "delta": 41.67,
+     "delta": 39.29,
      "interval": [
-      29.76,
+      26.19,
       52.38
      ],
      "tag": "better",
      "n_cases": 28,
-     "wins": 22,
+     "wins": 20,
      "losses": 1
     }
    }
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
    "tier": "agentic",
    "facet": null,
    "metric": "pass_all_trials",
@@ -1763,15 +1166,15 @@
    "status": null
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
    "tier": "agentic",
    "facet": null,
    "metric": "score_mean",
    "unit": "%",
-   "value": 82.63,
+   "value": 79.52,
    "interval": [
-    75.18,
-    89.29
+    70.8,
+    87.46
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 28,
@@ -1779,39 +1182,39 @@
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 12.56,
+     "delta": 9.45,
      "interval": [
-      5.09,
-      20.14
+      2.1,
+      17.1
      ],
      "tag": "better",
      "n_cases": 28,
      "wins": 19,
-     "losses": 8
+     "losses": 7
     },
     "base": {
-     "delta": 25.21,
+     "delta": 22.1,
      "interval": [
-      17.26,
-      32.81
+      13.06,
+      30.78
      ],
      "tag": "better",
      "n_cases": 28,
-     "wins": 25,
-     "losses": 3
+     "wins": 23,
+     "losses": 5
     }
    }
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
    "tier": "agentic",
    "facet": "family=abstain",
    "metric": "pass1",
    "unit": "%",
-   "value": 83.33,
+   "value": 66.67,
    "interval": [
-    55.2,
-    95.3
+    39.06,
+    86.19
    ],
    "interval_kind": "wilson",
    "n_cases": 4,
@@ -1819,15 +1222,15 @@
    "status": null
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
    "tier": "agentic",
    "facet": "family=mixed",
    "metric": "pass1",
    "unit": "%",
-   "value": 66.67,
+   "value": 58.33,
    "interval": [
-    39.06,
-    86.19
+    31.95,
+    80.67
    ],
    "interval_kind": "wilson",
    "n_cases": 4,
@@ -1835,15 +1238,15 @@
    "status": null
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
    "tier": "agentic",
    "facet": "family=parallel",
    "metric": "pass1",
    "unit": "%",
-   "value": 66.67,
+   "value": 58.33,
    "interval": [
-    39.06,
-    86.19
+    31.95,
+    80.67
    ],
    "interval_kind": "wilson",
    "n_cases": 4,
@@ -1851,7 +1254,7 @@
    "status": null
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
    "tier": "agentic",
    "facet": "family=pev",
    "metric": "pass1",
@@ -1867,9 +1270,860 @@
    "status": null
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
    "tier": "agentic",
    "facet": "family=recovery",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 75.0,
+   "interval": [
+    46.77,
+    91.11
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 4,
+   "n_trials": 12,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "agentic",
+   "facet": "family=select",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 58.33,
+   "interval": [
+    31.95,
+    80.67
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 4,
+   "n_trials": 12,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "agentic",
+   "facet": "family=sequential",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 75.0,
+   "interval": [
+    46.77,
+    91.11
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 4,
+   "n_trials": 12,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "agentic",
+   "facet": "lane=assistant",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 61.9,
+   "interval": [
+    46.81,
+    75.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 14,
+   "n_trials": 42,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "agentic",
+   "facet": "lane=neutral",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 69.05,
+   "interval": [
+    53.97,
+    80.93
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 14,
+   "n_trials": 42,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "agentic",
+   "facet": null,
+   "metric": "format_ok",
+   "unit": "%",
+   "value": 97.62,
+   "interval": [
+    91.73,
+    99.34
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 28,
+   "n_trials": 84,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "agentic",
+   "facet": null,
+   "metric": "steps",
+   "unit": null,
+   "value": 2.4524,
+   "interval": [
+    2.1842,
+    2.7143
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 28,
+   "n_trials": 84,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "agentic",
+   "facet": null,
+   "metric": "wall_s",
+   "unit": null,
+   "value": 6.6515,
+   "interval": [
+    6.2047,
+    7.1467
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 28,
+   "n_trials": 84,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "text_understanding",
+   "unit": "%",
+   "value": 98.09,
+   "interval": [
+    96.74,
+    99.31
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 15,
+   "n_trials": 45,
+   "status": null,
+   "label": "full",
+   "vs": {
+    "tuned": {
+     "delta": 14.39,
+     "interval": [
+      10.55,
+      19.34
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": null,
+     "losses": null
+    },
+    "base": {
+     "delta": 22.71,
+     "interval": [
+      17.26,
+      27.29
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": null,
+     "losses": null
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "readability",
+   "unit": "%",
+   "value": 77.06,
+   "interval": [
+    76.91,
+    77.2
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 15,
+   "n_trials": 45,
+   "status": null,
+   "label": "judge",
+   "vs": {
+    "tuned": {
+     "delta": 12.89,
+     "interval": [
+      12.5,
+      13.32
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": null,
+     "losses": null
+    },
+    "base": {
+     "delta": 10.79,
+     "interval": [
+      10.48,
+      11.07
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": null,
+     "losses": null
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "writing",
+   "unit": "%",
+   "value": 92.2,
+   "interval": [
+    92.1,
+    98.08
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 15,
+   "n_trials": 45,
+   "status": null,
+   "label": "checks only",
+   "vs": {
+    "tuned": {
+     "delta": 29.21,
+     "interval": [
+      11.25,
+      36.28
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": null,
+     "losses": null
+    },
+    "base": {
+     "delta": 34.07,
+     "interval": [
+      13.3,
+      40.24
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": null,
+     "losses": null
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "pass1",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    92.13,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 15,
+   "n_trials": 45,
+   "status": null,
+   "vs": {
+    "tuned": {
+     "delta": 24.44,
+     "interval": [
+      15.56,
+      33.33
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": 10,
+     "losses": 0
+    },
+    "base": {
+     "delta": 57.78,
+     "interval": [
+      42.22,
+      73.33
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": 13,
+     "losses": 0
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "pass_all_trials",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    79.61,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 15,
+   "n_trials": 45,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "score_mean",
+   "unit": "%",
+   "value": 96.55,
+   "interval": [
+    95.03,
+    97.92
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 15,
+   "n_trials": 45,
+   "status": null,
+   "vs": {
+    "tuned": {
+     "delta": 19.52,
+     "interval": [
+      16.86,
+      22.11
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": 15,
+     "losses": 0
+    },
+    "base": {
+     "delta": 29.55,
+     "interval": [
+      26.58,
+      32.42
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": 15,
+     "losses": 0
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": "family=extraction",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    70.09,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": "family=numeric",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    70.09,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": "family=point",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    70.09,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": "family=summary",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    70.09,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": "family=writing",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    70.09,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "atoms",
+   "unit": null,
+   "value": 9.0,
+   "interval": [
+    7.1667,
+    10.6667
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 12,
+   "n_trials": 36,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "constraint_ok",
+   "unit": null,
+   "value": 1.0,
+   "interval": [
+    1.0,
+    1.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "core_recall",
+   "unit": null,
+   "value": 0.9521,
+   "interval": [
+    0.9215,
+    0.9814
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 6,
+   "n_trials": 18,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "extraction_field_acc",
+   "unit": null,
+   "value": 0.9759,
+   "interval": [
+    0.958,
+    0.9863
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "fabricated_atoms",
+   "unit": null,
+   "value": 0.037,
+   "interval": [
+    0.0,
+    0.1111
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 9,
+   "n_trials": 27,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "fact_keep_rate",
+   "unit": null,
+   "value": 0.9563,
+   "interval": [
+    0.9563,
+    0.9563
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 1,
+   "n_trials": 3,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "fix_rate",
+   "unit": null,
+   "value": 1.0,
+   "interval": [
+    1.0,
+    1.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 1,
+   "n_trials": 3,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "flag_rate",
+   "unit": null,
+   "value": 0.9303,
+   "interval": [
+    0.9303,
+    0.9303
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 1,
+   "n_trials": 3,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "forbidden_rate",
+   "unit": null,
+   "value": 0.0,
+   "interval": [
+    0.0,
+    0.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "hygiene",
+   "unit": null,
+   "value": 99.4556,
+   "interval": [
+    99.0109,
+    99.8427
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 9,
+   "n_trials": 27,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "invented_atoms",
+   "unit": null,
+   "value": 0.1111,
+   "interval": [
+    0.0,
+    0.3333
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "numeric_ok",
+   "unit": null,
+   "value": 1.0,
+   "interval": [
+    1.0,
+    1.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "overedit",
+   "unit": null,
+   "value": 0.0136,
+   "interval": [
+    0.0136,
+    0.0136
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 1,
+   "n_trials": 3,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "point_recall",
+   "unit": null,
+   "value": 0.9662,
+   "interval": [
+    0.9457,
+    0.9983
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "schema_valid",
+   "unit": null,
+   "value": 1.0,
+   "interval": [
+    1.0,
+    1.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "trap_count",
+   "unit": null,
+   "value": 1.0,
+   "interval": [
+    1.0,
+    1.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 6,
+   "n_trials": 18,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "trap_failures",
+   "unit": null,
+   "value": 0.0,
+   "interval": [
+    0.0,
+    0.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 6,
+   "n_trials": 18,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "visible_tokens",
+   "unit": null,
+   "value": 221.4444,
+   "interval": [
+    207.5172,
+    234.5622
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 15,
+   "n_trials": 45,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "agentic",
+   "facet": null,
+   "metric": "agentic_score",
+   "unit": "%",
+   "value": 60.71,
+   "interval": [
+    52.38,
+    69.05
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 28,
+   "n_trials": 84,
+   "status": null,
+   "vs": {
+    "tuned": {
+     "delta": 15.48,
+     "interval": [
+      3.57,
+      27.38
+     ],
+     "tag": "better",
+     "n_cases": 28,
+     "wins": null,
+     "losses": null
+    },
+    "base": {
+     "delta": 34.52,
+     "interval": [
+      22.62,
+      46.43
+     ],
+     "tag": "better",
+     "n_cases": 28,
+     "wins": null,
+     "losses": null
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "agentic",
+   "facet": null,
+   "metric": "pass1",
+   "unit": "%",
+   "value": 60.71,
+   "interval": [
+    50.02,
+    70.47
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 28,
+   "n_trials": 84,
+   "status": null,
+   "vs": {
+    "tuned": {
+     "delta": 15.48,
+     "interval": [
+      1.19,
+      30.95
+     ],
+     "tag": "better",
+     "n_cases": 28,
+     "wins": 15,
+     "losses": 6
+    },
+    "base": {
+     "delta": 34.52,
+     "interval": [
+      21.43,
+      47.62
+     ],
+     "tag": "better",
+     "n_cases": 28,
+     "wins": 20,
+     "losses": 3
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "agentic",
+   "facet": null,
+   "metric": "pass_all_trials",
+   "unit": "%",
+   "value": 28.57,
+   "interval": [
+    15.25,
+    47.06
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 28,
+   "n_trials": 84,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "agentic",
+   "facet": null,
+   "metric": "score_mean",
+   "unit": "%",
+   "value": 77.41,
+   "interval": [
+    70.56,
+    83.91
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 28,
+   "n_trials": 84,
+   "status": null,
+   "vs": {
+    "tuned": {
+     "delta": 7.34,
+     "interval": [
+      -2.95,
+      16.59
+     ],
+     "tag": "no_clear_difference",
+     "n_cases": 28,
+     "wins": 17,
+     "losses": 10
+    },
+    "base": {
+     "delta": 19.99,
+     "interval": [
+      11.07,
+      28.25
+     ],
+     "tag": "better",
+     "n_cases": 28,
+     "wins": 20,
+     "losses": 8
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "agentic",
+   "facet": "family=abstain",
    "metric": "pass1",
    "unit": "%",
    "value": 83.33,
@@ -1883,9 +2137,908 @@
    "status": null
   },
   {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "agentic",
+   "facet": "family=mixed",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 58.33,
+   "interval": [
+    31.95,
+    80.67
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 4,
+   "n_trials": 12,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "agentic",
+   "facet": "family=parallel",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 75.0,
+   "interval": [
+    46.77,
+    91.11
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 4,
+   "n_trials": 12,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "agentic",
+   "facet": "family=pev",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 50.0,
+   "interval": [
+    25.38,
+    74.62
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 4,
+   "n_trials": 12,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "agentic",
+   "facet": "family=recovery",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 50.0,
+   "interval": [
+    25.38,
+    74.62
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 4,
+   "n_trials": 12,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
    "tier": "agentic",
    "facet": "family=select",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 66.67,
+   "interval": [
+    39.06,
+    86.19
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 4,
+   "n_trials": 12,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "agentic",
+   "facet": "family=sequential",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 41.67,
+   "interval": [
+    19.33,
+    68.05
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 4,
+   "n_trials": 12,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "agentic",
+   "facet": "lane=assistant",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 54.76,
+   "interval": [
+    39.95,
+    68.78
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 14,
+   "n_trials": 42,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "agentic",
+   "facet": "lane=neutral",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 66.67,
+   "interval": [
+    51.55,
+    78.99
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 14,
+   "n_trials": 42,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "agentic",
+   "facet": null,
+   "metric": "format_ok",
+   "unit": "%",
+   "value": 96.43,
+   "interval": [
+    90.02,
+    98.78
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 28,
+   "n_trials": 84,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "agentic",
+   "facet": null,
+   "metric": "steps",
+   "unit": null,
+   "value": 2.381,
+   "interval": [
+    2.1548,
+    2.5952
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 28,
+   "n_trials": 84,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "agentic",
+   "facet": null,
+   "metric": "wall_s",
+   "unit": null,
+   "value": 7.1852,
+   "interval": [
+    6.7895,
+    7.6431
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 28,
+   "n_trials": 84,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "text_understanding",
+   "unit": "%",
+   "value": 97.67,
+   "interval": [
+    96.73,
+    98.63
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 15,
+   "n_trials": 45,
+   "status": null,
+   "label": "full",
+   "vs": {
+    "tuned": {
+     "delta": 13.97,
+     "interval": [
+      9.75,
+      19.15
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": null,
+     "losses": null
+    },
+    "base": {
+     "delta": 22.29,
+     "interval": [
+      16.96,
+      26.84
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": null,
+     "losses": null
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "readability",
+   "unit": "%",
+   "value": 76.74,
+   "interval": [
+    76.49,
+    77.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 15,
+   "n_trials": 45,
+   "status": null,
+   "label": "judge",
+   "vs": {
+    "tuned": {
+     "delta": 12.57,
+     "interval": [
+      12.06,
+      13.1
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": null,
+     "losses": null
+    },
+    "base": {
+     "delta": 10.47,
+     "interval": [
+      10.14,
+      10.82
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": null,
+     "losses": null
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "writing",
+   "unit": "%",
+   "value": 92.92,
+   "interval": [
+    92.4,
+    97.28
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 15,
+   "n_trials": 45,
+   "status": null,
+   "label": "checks only",
+   "vs": {
+    "tuned": {
+     "delta": 29.94,
+     "interval": [
+      12.76,
+      34.72
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": null,
+     "losses": null
+    },
+    "base": {
+     "delta": 34.79,
+     "interval": [
+      15.88,
+      39.32
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": null,
+     "losses": null
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "pass1",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    92.13,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 15,
+   "n_trials": 45,
+   "status": null,
+   "vs": {
+    "tuned": {
+     "delta": 24.44,
+     "interval": [
+      15.56,
+      33.33
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": 10,
+     "losses": 0
+    },
+    "base": {
+     "delta": 57.78,
+     "interval": [
+      42.22,
+      73.33
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": 13,
+     "losses": 0
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "pass_all_trials",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    79.61,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 15,
+   "n_trials": 45,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "score_mean",
+   "unit": "%",
+   "value": 93.72,
+   "interval": [
+    91.63,
+    95.72
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 15,
+   "n_trials": 45,
+   "status": null,
+   "vs": {
+    "tuned": {
+     "delta": 16.69,
+     "interval": [
+      13.12,
+      19.95
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": 15,
+     "losses": 0
+    },
+    "base": {
+     "delta": 26.72,
+     "interval": [
+      23.79,
+      29.5
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": 15,
+     "losses": 0
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": "family=extraction",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    70.09,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": "family=numeric",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    70.09,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": "family=point",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    70.09,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": "family=summary",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    70.09,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": "family=writing",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    70.09,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "atoms",
+   "unit": null,
+   "value": 9.0,
+   "interval": [
+    7.1667,
+    10.6667
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 12,
+   "n_trials": 36,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "constraint_ok",
+   "unit": null,
+   "value": 1.0,
+   "interval": [
+    1.0,
+    1.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "core_recall",
+   "unit": null,
+   "value": 0.9466,
+   "interval": [
+    0.9221,
+    0.9694
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 6,
+   "n_trials": 18,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "extraction_field_acc",
+   "unit": null,
+   "value": 0.9503,
+   "interval": [
+    0.8983,
+    1.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "fabricated_atoms",
+   "unit": null,
+   "value": 0.037,
+   "interval": [
+    0.0,
+    0.1111
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 9,
+   "n_trials": 27,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "fact_keep_rate",
+   "unit": null,
+   "value": 0.9593,
+   "interval": [
+    0.9593,
+    0.9593
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 1,
+   "n_trials": 3,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "fix_rate",
+   "unit": null,
+   "value": 0.896,
+   "interval": [
+    0.896,
+    0.896
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 1,
+   "n_trials": 3,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "flag_rate",
+   "unit": null,
+   "value": 0.988,
+   "interval": [
+    0.988,
+    0.988
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 1,
+   "n_trials": 3,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "forbidden_rate",
+   "unit": null,
+   "value": 0.0,
+   "interval": [
+    0.0,
+    0.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "hygiene",
+   "unit": null,
+   "value": 97.7963,
+   "interval": [
+    97.0647,
+    98.5006
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 9,
+   "n_trials": 27,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "invented_atoms",
+   "unit": null,
+   "value": 0.0,
+   "interval": [
+    0.0,
+    0.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "numeric_ok",
+   "unit": null,
+   "value": 1.0,
+   "interval": [
+    1.0,
+    1.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "overedit",
+   "unit": null,
+   "value": 0.01,
+   "interval": [
+    0.01,
+    0.01
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 1,
+   "n_trials": 3,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "point_recall",
+   "unit": null,
+   "value": 0.949,
+   "interval": [
+    0.9123,
+    1.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "schema_valid",
+   "unit": null,
+   "value": 1.0,
+   "interval": [
+    1.0,
+    1.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "trap_count",
+   "unit": null,
+   "value": 1.0,
+   "interval": [
+    1.0,
+    1.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 6,
+   "n_trials": 18,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "trap_failures",
+   "unit": null,
+   "value": 0.0,
+   "interval": [
+    0.0,
+    0.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 6,
+   "n_trials": 18,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "facet": null,
+   "metric": "visible_tokens",
+   "unit": null,
+   "value": 202.5778,
+   "interval": [
+    185.8544,
+    217.635
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 15,
+   "n_trials": 45,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "agentic",
+   "facet": null,
+   "metric": "agentic_score",
+   "unit": "%",
+   "value": 66.67,
+   "interval": [
+    60.71,
+    72.62
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 28,
+   "n_trials": 84,
+   "status": null,
+   "vs": {
+    "tuned": {
+     "delta": 21.43,
+     "interval": [
+      14.29,
+      28.57
+     ],
+     "tag": "better",
+     "n_cases": 28,
+     "wins": null,
+     "losses": null
+    },
+    "base": {
+     "delta": 40.48,
+     "interval": [
+      35.71,
+      45.24
+     ],
+     "tag": "better",
+     "n_cases": 28,
+     "wins": null,
+     "losses": null
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "agentic",
+   "facet": null,
+   "metric": "pass1",
+   "unit": "%",
+   "value": 66.67,
+   "interval": [
+    56.05,
+    75.82
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 28,
+   "n_trials": 84,
+   "status": null,
+   "vs": {
+    "tuned": {
+     "delta": 21.43,
+     "interval": [
+      11.9,
+      30.98
+     ],
+     "tag": "better",
+     "n_cases": 28,
+     "wins": 15,
+     "losses": 1
+    },
+    "base": {
+     "delta": 40.48,
+     "interval": [
+      32.14,
+      50.0
+     ],
+     "tag": "better",
+     "n_cases": 28,
+     "wins": 24,
+     "losses": 0
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "agentic",
+   "facet": null,
+   "metric": "pass_all_trials",
+   "unit": "%",
+   "value": 28.57,
+   "interval": [
+    15.25,
+    47.06
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 28,
+   "n_trials": 84,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "agentic",
+   "facet": null,
+   "metric": "score_mean",
+   "unit": "%",
+   "value": 80.4,
+   "interval": [
+    73.79,
+    86.85
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 28,
+   "n_trials": 84,
+   "status": null,
+   "vs": {
+    "tuned": {
+     "delta": 10.33,
+     "interval": [
+      1.95,
+      18.63
+     ],
+     "tag": "better",
+     "n_cases": 28,
+     "wins": 18,
+     "losses": 9
+    },
+    "base": {
+     "delta": 22.99,
+     "interval": [
+      16.37,
+      29.54
+     ],
+     "tag": "better",
+     "n_cases": 28,
+     "wins": 24,
+     "losses": 4
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "agentic",
+   "facet": "family=abstain",
    "metric": "pass1",
    "unit": "%",
    "value": 75.0,
@@ -1901,13 +3054,93 @@
   {
    "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
    "tier": "agentic",
+   "facet": "family=mixed",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 50.0,
+   "interval": [
+    25.38,
+    74.62
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 4,
+   "n_trials": 12,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "agentic",
+   "facet": "family=parallel",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 91.67,
+   "interval": [
+    64.61,
+    98.51
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 4,
+   "n_trials": 12,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "agentic",
+   "facet": "family=pev",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 58.33,
+   "interval": [
+    31.95,
+    80.67
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 4,
+   "n_trials": 12,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "agentic",
+   "facet": "family=recovery",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 66.67,
+   "interval": [
+    39.06,
+    86.19
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 4,
+   "n_trials": 12,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "agentic",
+   "facet": "family=select",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 66.67,
+   "interval": [
+    39.06,
+    86.19
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 4,
+   "n_trials": 12,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "agentic",
    "facet": "family=sequential",
    "metric": "pass1",
    "unit": "%",
-   "value": 33.33,
+   "value": 58.33,
    "interval": [
-    13.81,
-    60.94
+    31.95,
+    80.67
    ],
    "interval_kind": "wilson",
    "n_cases": 4,
@@ -1918,22 +3151,6 @@
    "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
    "tier": "agentic",
    "facet": "lane=assistant",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 71.43,
-   "interval": [
-    56.43,
-    82.83
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 14,
-   "n_trials": 42,
-   "status": null
-  },
-  {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
-   "tier": "agentic",
-   "facet": "lane=neutral",
    "metric": "pass1",
    "unit": "%",
    "value": 64.29,
@@ -1949,13 +3166,29 @@
   {
    "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
    "tier": "agentic",
+   "facet": "lane=neutral",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 69.05,
+   "interval": [
+    53.97,
+    80.93
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 14,
+   "n_trials": 42,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "agentic",
    "facet": null,
    "metric": "format_ok",
    "unit": "%",
-   "value": 98.81,
+   "value": 97.62,
    "interval": [
-    93.56,
-    99.79
+    91.73,
+    99.34
    ],
    "interval_kind": "wilson",
    "n_cases": 28,
@@ -1968,10 +3201,10 @@
    "facet": null,
    "metric": "steps",
    "unit": null,
-   "value": 2.4524,
+   "value": 2.5714,
    "interval": [
-    2.1786,
-    2.7262
+    2.3452,
+    2.7976
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 28,
@@ -1984,10 +3217,10 @@
    "facet": null,
    "metric": "wall_s",
    "unit": null,
-   "value": 6.7096,
+   "value": 6.202,
    "interval": [
-    6.2483,
-    7.2258
+    5.6628,
+    6.7897
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 28,
@@ -1998,38 +3231,161 @@
    "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
    "tier": "quality",
    "facet": null,
+   "metric": "text_understanding",
+   "unit": "%",
+   "value": 96.48,
+   "interval": [
+    95.11,
+    97.84
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 15,
+   "n_trials": 45,
+   "status": null,
+   "label": "full",
+   "vs": {
+    "tuned": {
+     "delta": 12.78,
+     "interval": [
+      8.15,
+      18.51
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": null,
+     "losses": null
+    },
+    "base": {
+     "delta": 21.1,
+     "interval": [
+      15.35,
+      26.38
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": null,
+     "losses": null
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "readability",
+   "unit": "%",
+   "value": 76.06,
+   "interval": [
+    75.74,
+    76.35
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 15,
+   "n_trials": 45,
+   "status": null,
+   "label": "judge",
+   "vs": {
+    "tuned": {
+     "delta": 11.89,
+     "interval": [
+      11.39,
+      12.39
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": null,
+     "losses": null
+    },
+    "base": {
+     "delta": 9.78,
+     "interval": [
+      9.34,
+      10.24
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": null,
+     "losses": null
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "writing",
+   "unit": "%",
+   "value": 90.13,
+   "interval": [
+    89.19,
+    96.58
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 15,
+   "n_trials": 45,
+   "status": null,
+   "label": "checks only",
+   "vs": {
+    "tuned": {
+     "delta": 27.14,
+     "interval": [
+      10.88,
+      31.58
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": null,
+     "losses": null
+    },
+    "base": {
+     "delta": 32.0,
+     "interval": [
+      13.41,
+      37.55
+     ],
+     "tag": "better",
+     "n_cases": 15,
+     "wins": null,
+     "losses": null
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
    "metric": "pass1",
    "unit": "%",
    "value": 100.0,
    "interval": [
-    87.54,
+    92.13,
     100.0
    ],
    "interval_kind": "wilson",
-   "n_cases": 9,
-   "n_trials": 27,
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 29.63,
+     "delta": 24.44,
      "interval": [
-      11.11,
-      48.15
+      15.56,
+      33.33
      ],
      "tag": "better",
-     "n_cases": 9,
-     "wins": 5,
+     "n_cases": 15,
+     "wins": 10,
      "losses": 0
     },
     "base": {
-     "delta": 62.96,
+     "delta": 57.78,
      "interval": [
-      37.04,
-      85.19
+      42.22,
+      73.33
      ],
      "tag": "better",
-     "n_cases": 9,
-     "wins": 8,
+     "n_cases": 15,
+     "wins": 13,
      "losses": 0
     }
    }
@@ -2042,12 +3398,12 @@
    "unit": "%",
    "value": 100.0,
    "interval": [
-    70.09,
+    79.61,
     100.0
    ],
    "interval_kind": "wilson",
-   "n_cases": 9,
-   "n_trials": 27,
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null
   },
   {
@@ -2056,55 +3412,39 @@
    "facet": null,
    "metric": "score_mean",
    "unit": "%",
-   "value": 93.66,
+   "value": 94.12,
    "interval": [
-    92.15,
-    95.33
+    92.55,
+    95.68
    ],
    "interval_kind": "bootstrap_cases",
-   "n_cases": 9,
-   "n_trials": 27,
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null,
    "vs": {
     "tuned": {
-     "delta": 17.04,
+     "delta": 17.09,
      "interval": [
-      12.86,
-      21.49
+      14.1,
+      19.92
      ],
      "tag": "better",
-     "n_cases": 9,
-     "wins": 9,
+     "n_cases": 15,
+     "wins": 15,
      "losses": 0
     },
     "base": {
-     "delta": 27.32,
+     "delta": 27.13,
      "interval": [
-      24.15,
-      29.92
+      24.98,
+      29.33
      ],
      "tag": "better",
-     "n_cases": 9,
-     "wins": 9,
+     "n_cases": 15,
+     "wins": 15,
      "losses": 0
     }
    }
-  },
-  {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
-   "tier": "quality",
-   "facet": "family=email_summary",
-   "metric": "pass1",
-   "unit": "%",
-   "value": 100.0,
-   "interval": [
-    70.09,
-    100.0
-   ],
-   "interval_kind": "wilson",
-   "n_cases": 3,
-   "n_trials": 9,
-   "status": null
   },
   {
    "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
@@ -2125,7 +3465,55 @@
   {
    "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
    "tier": "quality",
-   "facet": "family=readability",
+   "facet": "family=numeric",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    70.09,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "quality",
+   "facet": "family=point",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    70.09,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "quality",
+   "facet": "family=summary",
+   "metric": "pass1",
+   "unit": "%",
+   "value": 100.0,
+   "interval": [
+    70.09,
+    100.0
+   ],
+   "interval_kind": "wilson",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "quality",
+   "facet": "family=writing",
    "metric": "pass1",
    "unit": "%",
    "value": 100.0,
@@ -2142,12 +3530,76 @@
    "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
    "tier": "quality",
    "facet": null,
+   "metric": "atoms",
+   "unit": null,
+   "value": 9.0,
+   "interval": [
+    7.1667,
+    10.6667
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 12,
+   "n_trials": 36,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "constraint_ok",
+   "unit": null,
+   "value": 1.0,
+   "interval": [
+    1.0,
+    1.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "core_recall",
+   "unit": null,
+   "value": 0.9286,
+   "interval": [
+    0.9081,
+    0.9516
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 6,
+   "n_trials": 18,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "extraction_field_acc",
+   "unit": null,
+   "value": 0.9782,
+   "interval": [
+    0.964,
+    1.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
    "metric": "fabricated_atoms",
    "unit": null,
-   "value": 0.1111,
+   "value": 0.1852,
    "interval": [
     0.037,
-    0.2222
+    0.3333
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 9,
@@ -2158,16 +3610,208 @@
    "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
    "tier": "quality",
    "facet": null,
-   "metric": "visible_tokens",
+   "metric": "fact_keep_rate",
    "unit": null,
-   "value": 214.037,
+   "value": 0.955,
    "interval": [
-    189.8046,
-    238.2426
+    0.955,
+    0.955
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 1,
+   "n_trials": 3,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "fix_rate",
+   "unit": null,
+   "value": 0.9733,
+   "interval": [
+    0.9733,
+    0.9733
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 1,
+   "n_trials": 3,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "flag_rate",
+   "unit": null,
+   "value": 0.9393,
+   "interval": [
+    0.9393,
+    0.9393
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 1,
+   "n_trials": 3,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "forbidden_rate",
+   "unit": null,
+   "value": 0.0,
+   "interval": [
+    0.0,
+    0.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "hygiene",
+   "unit": null,
+   "value": 97.7,
+   "interval": [
+    96.8532,
+    98.491
    ],
    "interval_kind": "bootstrap_cases",
    "n_cases": 9,
    "n_trials": 27,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "invented_atoms",
+   "unit": null,
+   "value": 0.2222,
+   "interval": [
+    0.0,
+    0.6667
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "numeric_ok",
+   "unit": null,
+   "value": 1.0,
+   "interval": [
+    1.0,
+    1.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "overedit",
+   "unit": null,
+   "value": 0.0147,
+   "interval": [
+    0.0147,
+    0.0147
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 1,
+   "n_trials": 3,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "point_recall",
+   "unit": null,
+   "value": 0.9349,
+   "interval": [
+    0.918,
+    0.9583
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "schema_valid",
+   "unit": null,
+   "value": 1.0,
+   "interval": [
+    1.0,
+    1.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 3,
+   "n_trials": 9,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "trap_count",
+   "unit": null,
+   "value": 1.0,
+   "interval": [
+    1.0,
+    1.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 6,
+   "n_trials": 18,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "trap_failures",
+   "unit": null,
+   "value": 0.0,
+   "interval": [
+    0.0,
+    0.0
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 6,
+   "n_trials": 18,
+   "status": null
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "quality",
+   "facet": null,
+   "metric": "visible_tokens",
+   "unit": null,
+   "value": 226.9778,
+   "interval": [
+    210.5311,
+    241.8339
+   ],
+   "interval_kind": "bootstrap_cases",
+   "n_cases": 15,
+   "n_trials": 45,
    "status": null
   }
  ],
@@ -2248,7 +3892,7 @@
   {
    "variant": "cloud|sample-cloud/model-a|-|openrouter|off",
    "tier": "quality",
-   "trials": 27,
+   "trials": 45,
    "unsafe_trials": null,
    "unsafe_rate": null,
    "unsafe_interval": null,
@@ -2272,11 +3916,11 @@
    "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
    "tier": "agentic",
    "trials": 84,
-   "unsafe_trials": 3,
-   "unsafe_rate": 3.57,
+   "unsafe_trials": 4,
+   "unsafe_rate": 4.76,
    "unsafe_interval": [
-    1.22,
-    9.98
+    1.87,
+    11.61
    ],
    "leak_trials": 0,
    "leak_rate": 0.0,
@@ -2284,225 +3928,225 @@
     0.0,
     4.37
    ],
-   "unsafe_per_100": 3.5714,
+   "unsafe_per_100": 4.7619,
    "leaks_per_100": 0.0,
    "vs": {
     "unsafe_rate": {
      "tuned": {
-      "delta": -9.52,
+      "delta": -8.33,
       "interval": [
-       -19.05,
+       -19.67,
+       2.38
+      ],
+      "tag": "no_clear_difference",
+      "n_cases": 28,
+      "wins": 3,
+      "losses": 7,
+      "ratio": 0.3636
+     },
+     "base": {
+      "delta": 0.0,
+      "interval": [
+       -5.95,
+       5.95
+      ],
+      "tag": "no_clear_difference",
+      "n_cases": 28,
+      "wins": 3,
+      "losses": 3,
+      "ratio": 1.0
+     }
+    },
+    "leak_rate": {
+     "tuned": {
+      "delta": -11.9,
+      "interval": [
+       -17.86,
+       -5.95
+      ],
+      "tag": "better",
+      "n_cases": 28,
+      "wins": 0,
+      "losses": 10,
+      "ratio": 0.0
+     },
+     "base": {
+      "delta": -5.95,
+      "interval": [
+       -10.71,
+       -1.19
+      ],
+      "tag": "better",
+      "n_cases": 28,
+      "wins": 0,
+      "losses": 5,
+      "ratio": 0.0
+     }
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
+   "tier": "quality",
+   "trials": 45,
+   "unsafe_trials": null,
+   "unsafe_rate": null,
+   "unsafe_interval": null,
+   "leak_trials": null,
+   "leak_rate": null,
+   "leak_interval": null,
+   "unsafe_per_100": null,
+   "leaks_per_100": null,
+   "vs": {
+    "unsafe_rate": {
+     "tuned": null,
+     "base": null
+    },
+    "leak_rate": {
+     "tuned": null,
+     "base": null
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "agentic",
+   "trials": 84,
+   "unsafe_trials": 6,
+   "unsafe_rate": 7.14,
+   "unsafe_interval": [
+    3.31,
+    14.72
+   ],
+   "leak_trials": 0,
+   "leak_rate": 0.0,
+   "leak_interval": [
+    0.0,
+    4.37
+   ],
+   "unsafe_per_100": 7.1429,
+   "leaks_per_100": 0.0,
+   "vs": {
+    "unsafe_rate": {
+     "tuned": {
+      "delta": -5.95,
+      "interval": [
+       -17.86,
+       3.57
+      ],
+      "tag": "no_clear_difference",
+      "n_cases": 28,
+      "wins": 4,
+      "losses": 6,
+      "ratio": 0.5455
+     },
+     "base": {
+      "delta": 2.38,
+      "interval": [
+       -3.57,
+       9.52
+      ],
+      "tag": "no_clear_difference",
+      "n_cases": 28,
+      "wins": 5,
+      "losses": 3,
+      "ratio": 1.5
+     }
+    },
+    "leak_rate": {
+     "tuned": {
+      "delta": -11.9,
+      "interval": [
+       -17.86,
+       -5.95
+      ],
+      "tag": "better",
+      "n_cases": 28,
+      "wins": 0,
+      "losses": 10,
+      "ratio": 0.0
+     },
+     "base": {
+      "delta": -5.95,
+      "interval": [
+       -10.71,
+       -1.19
+      ],
+      "tag": "better",
+      "n_cases": 28,
+      "wins": 0,
+      "losses": 5,
+      "ratio": 0.0
+     }
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
+   "tier": "quality",
+   "trials": 45,
+   "unsafe_trials": null,
+   "unsafe_rate": null,
+   "unsafe_interval": null,
+   "leak_trials": null,
+   "leak_rate": null,
+   "leak_interval": null,
+   "unsafe_per_100": null,
+   "leaks_per_100": null,
+   "vs": {
+    "unsafe_rate": {
+     "tuned": null,
+     "base": null
+    },
+    "leak_rate": {
+     "tuned": null,
+     "base": null
+    }
+   }
+  },
+  {
+   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
+   "tier": "agentic",
+   "trials": 84,
+   "unsafe_trials": 4,
+   "unsafe_rate": 4.76,
+   "unsafe_interval": [
+    1.87,
+    11.61
+   ],
+   "leak_trials": 0,
+   "leak_rate": 0.0,
+   "leak_interval": [
+    0.0,
+    4.37
+   ],
+   "unsafe_per_100": 4.7619,
+   "leaks_per_100": 0.0,
+   "vs": {
+    "unsafe_rate": {
+     "tuned": {
+      "delta": -8.33,
+      "interval": [
+       -14.91,
        -2.38
       ],
       "tag": "better",
       "n_cases": 28,
-      "wins": 1,
-      "losses": 7,
-      "ratio": 0.2727
-     },
-     "base": {
-      "delta": -1.19,
-      "interval": [
-       -5.95,
-       3.57
-      ],
-      "tag": "no_clear_difference",
-      "n_cases": 28,
-      "wins": 2,
-      "losses": 3,
-      "ratio": 0.75
-     }
-    },
-    "leak_rate": {
-     "tuned": {
-      "delta": -11.9,
-      "interval": [
-       -17.86,
-       -5.95
-      ],
-      "tag": "better",
-      "n_cases": 28,
       "wins": 0,
-      "losses": 10,
-      "ratio": 0.0
-     },
-     "base": {
-      "delta": -5.95,
-      "interval": [
-       -10.71,
-       -1.19
-      ],
-      "tag": "better",
-      "n_cases": 28,
-      "wins": 0,
-      "losses": 5,
-      "ratio": 0.0
-     }
-    }
-   }
-  },
-  {
-   "variant": "cloud|sample-cloud/model-a|-|openrouter|on",
-   "tier": "quality",
-   "trials": 27,
-   "unsafe_trials": null,
-   "unsafe_rate": null,
-   "unsafe_interval": null,
-   "leak_trials": null,
-   "leak_rate": null,
-   "leak_interval": null,
-   "unsafe_per_100": null,
-   "leaks_per_100": null,
-   "vs": {
-    "unsafe_rate": {
-     "tuned": null,
-     "base": null
-    },
-    "leak_rate": {
-     "tuned": null,
-     "base": null
-    }
-   }
-  },
-  {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
-   "tier": "agentic",
-   "trials": 84,
-   "unsafe_trials": 0,
-   "unsafe_rate": 0.0,
-   "unsafe_interval": [
-    0.0,
-    4.37
-   ],
-   "leak_trials": 0,
-   "leak_rate": 0.0,
-   "leak_interval": [
-    0.0,
-    4.37
-   ],
-   "unsafe_per_100": 0.0,
-   "leaks_per_100": 0.0,
-   "vs": {
-    "unsafe_rate": {
-     "tuned": {
-      "delta": -13.1,
-      "interval": [
-       -22.62,
-       -5.95
-      ],
-      "tag": "better",
-      "n_cases": 28,
-      "wins": 0,
-      "losses": 8,
-      "ratio": 0.0
-     },
-     "base": {
-      "delta": -4.76,
-      "interval": [
-       -9.52,
-       -0.57
-      ],
-      "tag": "better",
-      "n_cases": 28,
-      "wins": 0,
-      "losses": 4,
-      "ratio": 0.0
-     }
-    },
-    "leak_rate": {
-     "tuned": {
-      "delta": -11.9,
-      "interval": [
-       -17.86,
-       -5.95
-      ],
-      "tag": "better",
-      "n_cases": 28,
-      "wins": 0,
-      "losses": 10,
-      "ratio": 0.0
-     },
-     "base": {
-      "delta": -5.95,
-      "interval": [
-       -10.71,
-       -1.19
-      ],
-      "tag": "better",
-      "n_cases": 28,
-      "wins": 0,
-      "losses": 5,
-      "ratio": 0.0
-     }
-    }
-   }
-  },
-  {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|off",
-   "tier": "quality",
-   "trials": 27,
-   "unsafe_trials": null,
-   "unsafe_rate": null,
-   "unsafe_interval": null,
-   "leak_trials": null,
-   "leak_rate": null,
-   "leak_interval": null,
-   "unsafe_per_100": null,
-   "leaks_per_100": null,
-   "vs": {
-    "unsafe_rate": {
-     "tuned": null,
-     "base": null
-    },
-    "leak_rate": {
-     "tuned": null,
-     "base": null
-    }
-   }
-  },
-  {
-   "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
-   "tier": "agentic",
-   "trials": 84,
-   "unsafe_trials": 3,
-   "unsafe_rate": 3.57,
-   "unsafe_interval": [
-    1.22,
-    9.98
-   ],
-   "leak_trials": 0,
-   "leak_rate": 0.0,
-   "leak_interval": [
-    0.0,
-    4.37
-   ],
-   "unsafe_per_100": 3.5714,
-   "leaks_per_100": 0.0,
-   "vs": {
-    "unsafe_rate": {
-     "tuned": {
-      "delta": -9.52,
-      "interval": [
-       -19.05,
-       -0.57
-      ],
-      "tag": "better",
-      "n_cases": 28,
-      "wins": 1,
       "losses": 6,
-      "ratio": 0.2727
+      "ratio": 0.3636
      },
      "base": {
-      "delta": -1.19,
+      "delta": 0.0,
       "interval": [
        -5.95,
-       3.57
+       5.95
       ],
       "tag": "no_clear_difference",
       "n_cases": 28,
-      "wins": 2,
-      "losses": 3,
-      "ratio": 0.75
+      "wins": 4,
+      "losses": 4,
+      "ratio": 1.0
      }
     },
     "leak_rate": {
@@ -2536,7 +4180,7 @@
   {
    "variant": "cloud|sample-cloud/model-b|-|openrouter|on",
    "tier": "quality",
-   "trials": 27,
+   "trials": 45,
    "unsafe_trials": null,
    "unsafe_rate": null,
    "unsafe_interval": null,

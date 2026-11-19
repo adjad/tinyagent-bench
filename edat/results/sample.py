@@ -124,21 +124,109 @@ def build_sample_store(store: Path) -> list[Path]:
             return w.dir
 
     def quality_run(run_id: str, entries, device, runtime, kind="local"):
+        """Spec 03 families with the inputs of the three headlines, plus one judge record per entry."""
         with RunWriter.open(store, run_id, tier="quality", suite="sample", sample=True) as w:
             recs = []
             for model, thinking, skill, _ in entries:
-                for fam in ("readability", "email_summary", "extraction"):
+                q = lambda spread=0.3: max(0.0, min(1.0, skill + 0.15 + (rng.random() - 0.5) * spread))
+                for fam in ("summary", "point", "extraction", "numeric", "writing"):
                     for c in range(3):
                         for t in (1, 2, 3):
                             rec = _base(model, kind=kind, tier="quality", run_id=run_id, device=device,
-                                        thinking=thinking, case_id=f"{fam}-{c + 1:02d}", trial=t, runtime=runtime)
-                            score = max(0.0, min(1.0, skill + 0.15 + (rng.random() - 0.5) * 0.3))
+                                        thinking=thinking, case_id=f"q.{fam}.{c + 1:02d}", trial=t, runtime=runtime)
                             rec["facets"] = {"family": fam}
-                            rec["metrics"] = {"score": round(score, 3), "pass": score >= 0.7,
-                                              "visible_tokens": int(120 + rng.random() * 200),
-                                              "fabricated_atoms": int(rng.random() < (1 - skill) * 0.5)}
+                            v = q()
+                            m = {"score": round(v, 3), "pass": v >= 0.7, "visible_tokens": int(120 + rng.random() * 200)}
+                            if fam in ("summary", "point"):
+                                m.update(core_recall=round(v, 3), atoms=10, fabricated_atoms=int(rng.random() < 1 - skill),
+                                         hygiene=round(60 + 40 * q(0.2), 1), trap_count=1,
+                                         trap_failures=int(rng.random() > skill + 0.2))
+                            elif fam == "extraction":
+                                m.update(extraction_field_acc=round(v, 3), schema_valid=float(rng.random() < skill + 0.3))
+                            elif fam == "numeric":
+                                m.update(numeric_ok=float(v >= 0.6), atoms=4, fabricated_atoms=0,
+                                         hygiene=round(60 + 40 * q(0.2), 1))
+                            else:
+                                rec["facets"]["category"] = ("W1", "W3", "W4")[c]
+                                m.update(point_recall=round(v, 3), atoms=12, invented_atoms=int(rng.random() < 1 - skill),
+                                         forbidden_rate=0.0, constraint_ok=float(rng.random() < skill + 0.2))
+                                if c == 1:
+                                    m["fact_keep_rate"] = round(q(), 3)
+                                if c == 2:
+                                    m.update(fix_rate=round(q(), 3), flag_rate=round(q(), 3),
+                                             overedit=round(rng.random() * 0.02, 4))
+                            rec["metrics"] = m
                             rec["safety"] = {"unsafe_actions": None, "privacy_leaks": None}
                             rec["raw"] = w.put_raw({"final": "Sample summary text."})
+                            recs.append(rec)
+                judge = _base(model, kind=kind, tier="quality", run_id=run_id, device=device, thinking=thinking,
+                              case_id="entry/readability_judge", trial=1, runtime=runtime)
+                pref = 50.0 if model["id"] == REFERENCES["tuned"][0] else round(30 + 40 * skill + rng.random() * 5, 1)
+                judge["facets"] = {"family": "judge"}
+                judge["metrics"] = {"score": pref / 100, "pref_style_ctrl": pref, "judge_validated": True}
+                judge["safety"] = {"unsafe_actions": None, "privacy_leaks": None}
+                judge["raw"] = w.put_raw({"judge": "sample judge summary"})
+                recs.append(judge)
+            w.append_many(recs)
+            return w.dir
+
+    def simple_run(run_id: str, tier: str, entries, device, runtime, cases, suite="sample", kind="local"):
+        """`cases` = [(case_id, facets, difficulty)]: one pass/fail record per trial."""
+        with RunWriter.open(store, run_id, tier=tier, suite=suite, sample=True) as w:
+            recs = []
+            for model, thinking, skill, safe in entries:
+                for case_id, facets, difficulty in cases:
+                    for t in (1, 2, 3):
+                        rec = _base(model, kind=kind, tier=tier, run_id=run_id, device=device, thinking=thinking,
+                                    case_id=case_id, trial=t, runtime=runtime)
+                        rec["suite"] = facets.get("_suite", suite)
+                        rec["facets"] = {k: v for k, v in facets.items() if k != "_suite"}
+                        unsafe = tier in ("app_control", "sidekick") and rng.random() > safe + 0.1
+                        ok = rng.random() < max(0.02, min(0.98, skill - difficulty)) and not unsafe
+                        rec["metrics"] = {"pass": ok}
+                        rec["safety"] = {"unsafe_actions": int(unsafe), "privacy_leaks": None,
+                                         "labels": ["unsafe_action"] if unsafe else []}
+                        rec["raw"] = w.put_raw({"final": "Sample output."})
+                        recs.append(rec)
+            w.append_many(recs)
+            return w.dir
+
+    def findings_run(run_id: str, entries, device, runtime):
+        """In-assistant findings (what the model found), one record per item and trial."""
+        items = [("brief", "card", "Sample dentist reminder", "found"), ("brief", "thread", "Sample rent email", "missed"),
+                 ("brief", "card", "Sample old newsletter", "wrongly_raised"), ("brief_todos", "todo", "Sample essay", "found"),
+                 ("act", None, "Sample calendar change", "right"), ("act", None, "Sample message sent", "unsafe"),
+                 ("window", None, "Sample 3 pm meeting", "found"), ("inbox", None, "Sample receipt", "stale")]
+        good = {"found", "right", "not_done"}
+        with RunWriter.open(store, run_id, tier="in_assistant", suite="productbench-findings", sample=True) as w:
+            recs = []
+            for model, thinking, skill, safe in entries:
+                for profile in ("student", "tech-worker"):
+                    for i, (section, zone, text, typical) in enumerate(items):
+                        for t in (1, 2, 3):
+                            outcome = typical if rng.random() > skill - 0.2 or typical == "unsafe" else (
+                                "found" if section not in ("act",) else "right")
+                            if typical == "unsafe" and rng.random() < safe:
+                                outcome = "not_done"
+                            rec = _base(model, kind="local", tier="in_assistant", run_id=run_id, device=device,
+                                        thinking=thinking, case_id=f"{profile}/findings/{section}/item{i}",
+                                        trial=t, runtime=runtime)
+                            rec["suite"] = "productbench-findings"
+                            rec["facets"] = {"surface": "brief" if section.startswith("brief") else
+                                             (None if section == "act" else "ask"), "profile": profile,
+                                             "family": section}
+                            if zone:
+                                rec["facets"]["zone"] = zone
+                            scored = outcome != "unsafe"
+                            rec["metrics"] = {"outcome": outcome, "found": outcome in good}
+                            if scored:
+                                rec["metrics"].update({"pass": outcome in good, "score": float(outcome in good)})
+                            else:
+                                rec["status"], rec["status_detail"] = "not_applicable", "unsafe: counted under safety"
+                            rec["safety"] = {"unsafe_actions": int(outcome == "unsafe"), "privacy_leaks": None,
+                                             "labels": ["beyond_act_for_me"] if outcome == "unsafe" else []}
+                            rec["raw"] = w.put_raw({"section": section, "item": f"item{i}", "outcome": outcome,
+                                                    "text": text, "now": "08:00"})
                             recs.append(rec)
             w.append_many(recs)
             return w.dir
@@ -226,6 +314,31 @@ def build_sample_store(store: Path) -> list[Path]:
     runs.append(quality_run("sample-quality-mac", local_entries, MAC, omlx))
     runs.append(assistant_run("sample-assistant-mac", local_entries, MAC, omlx))
     runs.append(perf_run("sample-perf-mac", MAC, omlx, 10.0))
+    pref_cases = [(f"pref_ast_{d}_{i}", {"lane": "assistant", "family": "preferences", "dimension": d},
+                   0.05 * k) for k, d in enumerate(("persistence", "override", "supersession", "scope", "no_waiver"))
+                  for i in range(2)]
+    runs.append(simple_run("sample-preferences-mac", "preferences", local_entries, MAC, omlx, pref_cases))
+    mem_cases = [(f"mem_ast_{kind_}_{i}", {"lane": "assistant", "family": "memory", "tags": [kind_]}, 0.1)
+                 for kind_ in ("remember", "update", "forget", "gate") for i in range(2)]
+    runs.append(simple_run("sample-memory-mac", "memory", local_entries, MAC, omlx, mem_cases))
+    long_cases = [(f"long_ast_{band}_{probe}_{i}", {"lane": "assistant", "family": "long_session", "band": band,
+                                                     "tags": [f"{probe}_probe"]}, 0.0 if band == "early" else 0.15)
+                  for band in ("early", "late") for probe in ("fact", "tool") for i in range(2)]
+    runs.append(simple_run("sample-long-mac", "long_session", local_entries, MAC, omlx, long_cases))
+    screen_cases = [(f"scr_{fam}_{track}_{i}", {"family": fam, "track": track, "category": track, "level": 1 + i,
+                                                "tags": [f"level-{1 + i}"]}, 0.1 * i + (0.1 if track == "screenshot_som" else 0))
+                    for fam in ("ground", "form", "flow", "read", "disrupt", "cross", "guard")
+                    for track in ("ax_text", "screenshot_som") for i in range(2)]
+    runs.append(simple_run("sample-screen-mac", "app_control", local_entries, MAC, omlx, screen_cases,
+                           suite="screen-world"))
+    side_cases = [(f"sk_{typ}_{i}", {"family": typ, "mode": "answer_only", "_suite": "answer_only"}, 0.05 * i)
+                  for typ in ("explain_error", "write_fn", "fix_bug", "shell", "git", "regex", "write_test",
+                              "commit_msg", "diff_review") for i in range(2)]
+    side_cases += [(f"sk_tool_{i}", {"family": "fix_bug", "mode": "tool_mode", "_suite": "tool_mode"}, 0.15)
+                   for i in range(3)]
+    runs.append(simple_run("sample-sidekick-mac", "sidekick", local_entries, MAC, omlx, side_cases,
+                           suite="answer_only"))
+    runs.append(findings_run("sample-findings-mac", local_entries, MAC, omlx))
     phone_entries = [(_local_model(m), "off", m[4] - 0.02, m[5]) for m in MODELS if m[6] <= 4.5]
     runs.append(agentic_run("sample-agentic-phone", phone_entries, PHONE, mlxs, n_cases=1))
     runs.append(perf_run("sample-perf-phone", PHONE, mlxs, 5.5, phone=True))

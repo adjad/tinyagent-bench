@@ -281,6 +281,7 @@ but must not be averaged into its score, so each is its own view
 |---|---|
 | `in_assistant`, `productbench-findings` | `in_assistant_findings` |
 | `agentic`, `toolbench` | `toolbench` |
+| `agentic`, `preferences`, `memory`, `long_session`, suite `harbor-loop` | `<tier>_harbor_loop` (§7.4) |
 
 `preferences`, `long_session`, `memory`, `app_control`, `sidekick` and `quality` are
 their own tiers and so their own columns: none of them feeds the Agentic Score.
@@ -361,6 +362,33 @@ Exporting a sample board into a site index that lists real boards (or the revers
 is refused: the synthetic `sample-0` must be removed from `site/data/` before the
 first real export.
 
+### 7.4 Two agent loops
+
+Agentic scores are published from both loops. The **reference loop** (suite
+`reference-loop`) is the headline. The same assistant-lane cases run through
+**Harbor's own loop** (suite `harbor-loop`, written by the agentic build) form a
+second column, `<tier>_harbor_loop`, for `agentic`, `preferences`, `memory` and
+`long_session`. Its composite is the tier's own, restricted to the assistant lane
+and named with the suffix (`agentic_score_harbor_loop`, …). It never feeds the
+headline. Cases Harbor's loop cannot run are recorded with status
+`not_applicable`: the neutral lane, and stored preferences without Harbor's
+settings fields.
+
+Each entry gets `loops[<tier>]`:
+
+- `reference_assistant_lane`: the reference loop's composite over the assistant lane
+  only (`agentic_score_assistant_lane`), the like-for-like counterpart;
+- `gap` (`loop_gap`, provisional name): Harbor loop minus reference loop, a paired
+  stratified bootstrap over the assistant-lane cases both loops graded, with tag, wins
+  and losses; `pass1_gap` is the same on plain pass^1;
+- refused (`{"refused": reason}`) unless both loops share the board version (always,
+  in one aggregate), the entry (model, quantisation, runtime, thinking), the device,
+  the sampling class, the harness commit, the sampling values and the run policy;
+- `empty` with `empty_reason` when there is no second column: "cloud references run
+  through the reference loop only", "the phone runs the single-step parity subset,
+  not Harbor's loop", or "not run through Harbor's loop". The neutral lane is always
+  empty in the second column, with `lanes.neutral` giving the reason.
+
 ## 8. Website files
 
 Shaped after 06 §4 so pages do not need to know about records:
@@ -386,6 +414,13 @@ Shaped after 06 §4 so pages do not need to know about records:
   `right`, `unsafe`, …), `outcome` (the record's word, e.g. `wrongly_raised`),
   `text` and `item` (scrubbed), `at`, `case_id`, `scored`, `unsafe`, and `zone`
   when the record has one; `counts` per mark. `dev` split only.
+
+`<board>/<device>.json` also has `loops[]`, one row per variant and loop tier, with
+`headline` (the reference-loop composite), `reference_assistant_lane`, `second` (the
+Harbor-loop composite, or null), `gap` (percentage points, or `{refused}`, or null),
+`empty_reason` and `lanes`. Empty second-column cells also appear in `results[]`
+with `value: null`, `status` (`not_run` or `not_applicable`) and `empty_reason`,
+never as a silent gap.
 
 Composite rows in `results[]` carry `label` (`partial`, `judge`, `structure only`,
 `checks only`) where there is one; `vs` rows carry `warning` when the two sides'
@@ -454,6 +489,7 @@ unless marked:
 | D26 | long-session band | 02 §3.15 and the website read a `band` per case; the long-session harness does not write it yet | Registered as facet `band` and tag `fact_probe`; `late_retention` stays empty until the harness writes them |
 | D27 | judge preferences | 03 §13.2 keeps the judge's style-controlled preference in a separate JSON file | Written as `entry/readability_judge` and `entry/writing_judge` records, so the headline is computed and compared inside the store |
 | D28 | sidekick writer | spec 12's harness writes through its own `LocalRunWriter` | Must produce `edat.result/1.0` runs (tier `sidekick`, suites `answer_only` / `tool_mode`); `RunWriter` recommended |
+| D29 | Harbor loop | 02 §2.1 "the Harbor loop is an internal track only"; the user's later decision: publish both loops, the reference loop as headline | Both published: `harbor-loop` is a second column with the gap (§7.4); 02 §2.1 needs updating |
 
 ## 11. How a tier writes records
 
@@ -520,6 +556,9 @@ parts listed may change in a later draft.
   `numeric`, `writing` with `W1`…`W7`) and the `entry/…_judge` records are this
   draft's proposal; the judge is not validated yet, so every published headline is
   `structure only` or `checks only` until it is.
+- **Two loops**: the suite value `harbor-loop` matches the agentic build's
+  writer, which is not on `main` yet. The gap's name (`loop_gap`) and its sign
+  (Harbor minus reference) are provisional until `02-agentic-spec.md` defines them.
 - **Sidekick**: the tier and suites are registered; its harness is uncommitted and
   writes through its own writer (D28).
 - **Website**: the site branch still uses `screen` and the older quality facets

@@ -11,9 +11,16 @@ Two inputs produce a plan:
 
 Rules (each evaluation is one check; a violation fails it):
 
-  R1 no_overlap       no two blocks overlap by more than 5 minutes
+  R1 no_overlap       no two blocks overlap by more than 5 minutes, among the overlaps the plan
+                      creates: two blocks that keep two fixed items already overlapping on the
+                      true schedule are an existing conflict (`existing_conflicts`, "existing
+                      conflict not resolved"), reported and not scored
   R2 fixed_kept       each fixed item of the day is in the plan at its own time (±10 min)
-  R3 change_honoured  a moved item sits at its new time, never at the old one
+  R3 change_honoured  a moved or cancelled item is never kept at its old slot
+
+One mistake counts once: a kept old slot is one R3 violation, and the other rules the same
+block trips (its item not at the new time, R2; overlaps of the old-slot block, R1) are listed in
+that violation's `also`, not scored.
   R4 deadline_block   a deadline due within 3 days gets a work block, ending before it falls due
   R5 working_hours    work blocks the plan chose sit inside working hours
   R6 travel_kept      nothing is planned in the travel time before an away event
@@ -152,7 +159,14 @@ def _phrases(item: dict) -> list[str]:
 
 
 def _maps(block: Block, item: dict) -> bool:
-    return any(matcher.phrase_hit(a, block.title) for a in _phrases(item))
+    """A key item ties to a block by any one of its phrases. A generated schedule item's words
+    are only its title, so it ties by most of them (more than half): "Reminder for Grandma's 80th
+    birthday" at 08:00 is not the 21:00 "Grandma's 80th birthday video call (from Lima)"."""
+    phrases = _phrases(item)
+    hits = sum(1 for a in phrases if matcher.phrase_hit(a, block.title))
+    if item.get("generated") == "schedule" and not item.get("plan_words"):
+        return hits * 2 > len(phrases)
+    return hits > 0
 
 
 @dataclass
@@ -161,6 +175,7 @@ class DayScore:
     validity: float | None = None
     coverage: dict = field(default_factory=dict)
     violations: list[dict] = field(default_factory=list)
+    existing_conflicts: list[str] = field(default_factory=list)
     checks: int = 0
     blocks: list[dict] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
@@ -189,37 +204,45 @@ def score_plan(blocks: list[Block], profile: Profile, rules: dict | None = None)
         if not ok:
             fail(rule, detail)
 
-    # R1
-    for i, a in enumerate(blocks):
-        for b in blocks[i + 1:]:
-            overlap = min(a.end, b.end) - max(a.start, b.start)
-            if overlap > OVERLAP_MIN:
-                fail("R1", f"{a.title!r} {_hm(a.start)} overlaps {b.title!r} {_hm(b.start)}")
-    s.checks += max(1, len(blocks) - 1)
-
     timed = [it for it in ledger if it.get("start") and profile.on_day(it["start"], day)
              and it["id"] not in superseded and it.get("fixed")]
     fixed_blocks: set[int] = set()
+    is_item: dict[int, str] = {}          # block -> the fixed item it keeps at that item's time
+    stale_of: dict[int, dict] = {}        # block -> the R3 violation of the old slot it keeps
+    deferred: list[tuple[str, str, str]] = []   # (rule, detail, item id): decided once R3 is known
     for it in timed:
         start = profile.minutes(it["start"])
+        # The old slot's words are a generated title, so they tie a block by most of them: a
+        # "DLQ replay" block is not the "Design review: ... (DLQ v2)" that moved.
         mapped = [i for i, b in enumerate(blocks) if _maps(b, it)
-                  or (it.get("supersedes") and any(matcher.phrase_hit(w, b.title)
-                                                   for w in _phrases(profile.item(it["supersedes"]))))]
+                  or (it.get("supersedes") and _maps(b, profile.item(it["supersedes"])))]
         at_time = [i for i in mapped if abs(blocks[i].start - start) <= TOLERANCE_MIN]
         if not mapped:
             # A block at the item's time with no matching words still keeps it.
             at_time = [i for i, b in enumerate(blocks) if abs(b.start - start) <= TOLERANCE_MIN]
         fixed_blocks.update(at_time or mapped)
+        for i in at_time:
+            is_item.setdefault(i, it["id"])
         rule = "R7" if it.get("personal") else "R2"
-        check(rule, bool(at_time), f"{it['id']} not at {_hm(start)}"
-              + (f" (planned at {_hm(blocks[mapped[0]].start)})" if mapped and not at_time else
-                 "" if mapped else " (missing)"))
+        s.checks += 1
+        if not at_time:
+            deferred.append((rule, f"{it['id']} not at {_hm(start)}"
+                             + (f" (planned at {_hm(blocks[mapped[0]].start)})" if mapped else " (missing)"), it["id"]))
         if it["type"] == "change" and it.get("supersedes"):
             old = profile.item(it["supersedes"])
             old_start = profile.minutes(old["start"])
             stale = [i for i in mapped if abs(blocks[i].start - old_start) <= TOLERANCE_MIN]
-            check("R3", not stale and bool(at_time), f"{it['id']} at old time {_hm(old_start)}"
-                  if stale else f"{it['id']} not at new time {_hm(start)}")
+            if not mapped and not at_time and not _phrases(it) and not _phrases(old):
+                # The key gives no words for it at all (times only): a block at its old time keeps
+                # the old slot. With words, only a block that shares them does (above).
+                stale = [i for i, b in enumerate(blocks) if abs(b.start - old_start) <= TOLERANCE_MIN]
+            s.checks += 1
+            if stale:
+                v = {"rule": "R3", "detail": f"{it['id']}: kept at the old time {_hm(old_start)} "
+                                             f"(moved to {_hm(start)} the same day)", "item": it["id"], "also": []}
+                s.violations.append(v)
+                for i in stale:
+                    stale_of.setdefault(i, v)     # the first old slot a block keeps owns its knock-ons
         if it.get("travel_min"):
             lead = start - int(it["travel_min"])
             clash = [b for i, b in enumerate(blocks) if i not in (at_time or mapped)
@@ -236,15 +259,54 @@ def score_plan(blocks: list[Block], profile: Profile, rules: dict | None = None)
         if not (old.get("start") and profile.on_day(old["start"], day)):
             continue
         if it.get("start") and profile.on_day(it["start"], day):
-            continue                          # moved within the day: checked with R2 above
+            continue                          # moved within the day: checked above
         old_start = profile.minutes(old["start"])
         own = {matcher.fold(w) for w in _phrases(old)}
         other = task_words - own              # "Lab 4 report" at 2:00 is a work block, not the old lab
-        kept = [b for b in blocks if abs(b.start - old_start) <= TOLERANCE_MIN
+        kept = [i for i, b in enumerate(blocks) if abs(b.start - old_start) <= TOLERANCE_MIN
                 and any(matcher.phrase_hit(w, b.title) for w in own)
                 and not any(matcher.phrase_hit(w, b.title) for w in other)]
-        check("R3", not kept, f"{it['id']}: kept at the old time {_hm(old_start)} "
-              f"({'moved to another day' if it.get('start') else 'cancelled'})")
+        s.checks += 1
+        if kept:
+            v = {"rule": "R3", "detail": f"{it['id']}: kept at the old time {_hm(old_start)} "
+                                         f"({'moved to another day' if it.get('start') else 'cancelled'})",
+                 "item": it["id"], "also": []}
+            s.violations.append(v)
+            for i in kept:
+                stale_of.setdefault(i, v)
+
+    # One mistake counts once: a kept old slot is scored under R3 (the most specific rule), and
+    # the other rules it also trips (its item not at the new time, overlaps of the old-slot block)
+    # are listed beside it, not scored.
+    stale_items = {v["item"] for v in stale_of.values()}
+    for rule, detail, lid in deferred:
+        owner = next((v for v in stale_of.values() if v["item"] == lid), None)
+        if owner is not None and lid in stale_items:
+            owner["also"].append(f"{rule}: {detail}")
+        else:
+            fail(rule, detail)
+
+    # R1: only overlaps the plan creates. Two blocks that keep two fixed items which already
+    # overlap on the true schedule are an existing conflict, reported apart and not scored.
+    true_slot = {it["id"]: (profile.minutes(it["start"]), profile.minutes(it["end"]))
+                 for it in timed if it.get("end") and profile.on_day(it["end"], day)}
+    for i, a in enumerate(blocks):
+        for j in range(i + 1, len(blocks)):
+            b = blocks[j]
+            overlap = min(a.end, b.end) - max(a.start, b.start)
+            if overlap <= OVERLAP_MIN:
+                continue
+            detail = f"{a.title!r} {_hm(a.start)} overlaps {b.title!r} {_hm(b.start)}"
+            owner = stale_of.get(i) or stale_of.get(j)
+            x, y = is_item.get(i), is_item.get(j)
+            if owner is not None:
+                owner["also"].append(f"R1: {detail}")
+            elif x and y and x != y and x in true_slot and y in true_slot and \
+                    min(true_slot[x][1], true_slot[y][1]) - max(true_slot[x][0], true_slot[y][0]) > OVERLAP_MIN:
+                s.existing_conflicts.append(f"existing conflict not resolved: {detail}")
+            else:
+                fail("R1", detail)
+    s.checks += max(1, len(blocks) - 1)
 
     tasks = rules.get("tasks") or [
         it["id"] for it in ledger

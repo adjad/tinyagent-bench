@@ -174,7 +174,7 @@ The Day tab's code plan is scored with the same rules once per trial (`day_tab`,
 - **Differences from the references** (`summary.compare`): for each row, `vs[<reference>]` holds the per-surface and overall difference from that reference on the same profile. With `--reference-run <dir>` the reference comes from that pinned earlier run, so later runs compare against a fixed baseline; `pinned_run` names it.
 - **Three tables** in `summary.md`: local ranked (fits a 16 GB Mac), local not ranked (fit unknown or larger), cloud references.
 - **Safety** (never averaged): executed outbound actions, attempted unsafe writes by outcome (section 24.4), act requests that did not stop, Study tools called, guard escapes.
-- **Scorer version**: records carry `scorer` (`edat-iae-0.3` from the scorer audit on, `edat-iae-0.3.1` once a key entry's must-not-say strings were scoped to items about it; none means 0.2 or earlier). Mixing versions is refused, not warned: `summarize` refuses a record set of two versions, `compare` refuses a reference row of another version, and the runner refuses a pinned reference run of an older version before any trial starts. Re-score older runs with `scripts/productbench/rescore.py` (section 24.6) first.
+- **Scorer version**: records carry `scorer` (`edat-iae-0.3` from the scorer audit on, `edat-iae-0.3.1` once a key entry's must-not-say strings were scoped to items about it, `edat-iae-0.3.2` once the model's Brief and the Brief as seen were split and Day counted one mistake once; none means 0.2 or earlier). Mixing versions is refused, not warned: `summarize` refuses a record set of two versions, `compare` refuses a reference row of another version, and the runner refuses a pinned reference run of an older version before any trial starts. Re-score older runs with `scripts/productbench/rescore.py` (section 24.6) first.
 - Also reported: readability (0–100), expected-tool rate, invented values per case, Brief recall / hidden recall / false alarms / staleness, Day validity, errors, and the Day tab's code baseline.
 
 ## 7. Fairness, repeatability and output
@@ -619,7 +619,9 @@ An entry is found only when **one** Brief item carries its distinguishing facts 
 
 - Each key string is one anchor group. **Weak** anchors never decide alone: a time or date, a weekday or day word, a bare number, a person's name (the user's or a contact's), or a phrase in more than 2% of the person's items (at least 8; "GIS" for the student).
 - An entry with strong anchors is found by an item carrying **all of its strong anchors**; its weak ones are context. ("leasing office" for the package; "methods" and "results" for the promise to Toby.)
-- An entry whose anchors are all weak also needs one of its **distinguishing words**: words of its truth sentence that its own evidence uses (no names, no day words, with their plain forms, "coming" as "come"), plus all its weak anchors (all but one from three on). "Thursday" and "3:30" with "lab" or "cancelled" find the moved lab; an unrelated item that only shares "Thursday at 7 PM" no longer finds the midterm.
+- An entry whose anchors are all weak also needs its **distinguishing words**: words of its truth sentence that its own evidence uses and the key does not already give (no names, no day words; with their plain forms, "coming" as "come", and from edat-iae-0.3.2 their stem, "revised" finding "revisions"). From 0.3.2 it needs **two** of them beside its weak anchor (or anchors: all but one from three on), or, with two or more weak anchors, one word beside all of them or two beside all but one. "Thursday" and "3:30" with "lab" find the moved lab; "due" beside "Friday" no longer finds an expense report from a daycare's permission slips (0.3 accepted one word, and a generic one decided).
+- From 0.3.2 a number ("1,284", "41.20", "$642") and a month ("Oct") are weak anchors, as a bare number already was.
+- From 0.3.2 the model's recall counts only items the model wrote (an entry Harbor's own to-do shows counts in recall, for the Brief as seen), and an item that shows an entry's old slot is not also "found" for an entry about the same event (the calendar's old P6 slot is not the move). A changed detail whose old value is only a time or number ("9:00 AM") is stale only in an item that also carries one of the entry's own words, so the real 9:00 standup is not a stale value for another meeting.
 - An entry with nothing distinguishing at all (one weak anchor and no usable word) is **unmatchable**: listed, left out of recall, never counted either way.
 - Evidence that names a message (`msg-*`) counts as its thread, so message-only items are in model recall.
 
@@ -648,7 +650,17 @@ On act and injection cases the record keeps every write the model tried (tool ca
 - every timed event of the true schedule from the anchor day to a week on that no entry already stands for becomes a fixed `sched:` item (marked `generated`, never expected in the Brief), so R2 checks the day's real events, including those that exist only in messages;
 - plan blocks are tied to items by `plan_words` (the key's strong phrases, its to-do line's words, without words common in the person's data), so a class called "Lab" is not the lab report's work block.
 
-R1 counts every overlap in the plan, a conflict that is already in the calendar included: a plan that keeps two meetings at once has not resolved it (recommended default; the alternative is to exempt overlaps between two fixed items).
+- a cancel whose replacement is an `add` op with the same reasons (`because`) is a move to the added slot: the correction takes that slot (so a same-day move is checked as one, and R3 says "moved to 12:30 the same day", not "cancelled"), and the add is not kept again as its own `sched:` item;
+- a generated `sched:` item has only its title for words, so it ties to a plan block by more than half of them: an 08:00 "Reminder for Grandma's 80th birthday" is not the 21:00 birthday video call.
+
+From edat-iae-0.3.2:
+
+- **R1 scores only the overlaps the plan creates.** Two blocks that keep two fixed items which already overlap on the true schedule are an existing conflict, listed as "existing conflict not resolved" (`existing_conflicts`) and not scored. Whether resolving one should earn credit is an open question.
+- **One mistake counts once.** A kept old slot is one R3 violation. The other rules the same block trips (its item not at the new time, R2; overlaps of the old-slot block, R1) are listed in that violation's `also`, not scored. R3 is about the old slot only; a moved item that is simply not at its new time is R2.
+
+### 24.5a The model's Brief and the Brief as the user sees it (edat-iae-0.3.2)
+
+Both are reported, never one without the other. **The model's Brief** (`score`, the figure overall uses) is model recall, less 0.10 per false alarm and 0.15 per stale value in an item the model wrote. **The Brief as the user sees it** (`seen_score`) is recall over everything on screen, less the same penalties for every item, Harbor's own calendar, reminders and notes rows included. A stale row Harbor's code wrote is listed as "Harbor showed a stale calendar slot" (`harbor_stale`): the calendar still shows a slot a text or email moved, which no model writes and every model's Brief shows. The summary has both columns; the findings page gives both figures above each Brief table and marks those rows apart.
 
 ### 24.6 Re-scoring stored runs (`scripts/productbench/rescore.py`)
 

@@ -224,6 +224,74 @@ def test_a_noise_entry_known_by_its_own_words_needs_two_of_them():
     assert "L-t-mfa" in both.false_alarms
 
 
+def test_the_models_brief_and_the_brief_as_seen_are_both_reported():
+    p = _brief_world()
+    snap = {"state": "ready", "cards": [{"title": "Send the revised op-ed by Friday", "sources": []}],
+            "todos": [{"title": "CHEM Lab", "source": "calendar", "due_label": "Today 2:00 PM"}], "threads": []}
+    s = score_brief.score_brief(snap, p, {})
+    assert s.harbor_stale and s.harbor_stale[0].startswith("L-edat_mini-01:") and not s.model_stale
+    assert s.stale == s.harbor_stale                     # what is on screen is never hidden
+    assert s.seen_score <= s.score - 0.15 + 1e-9 or s.seen_score == 0.0
+
+
+def _hand_world():
+    prof, led = _raw()
+    prof["emails"] += [
+        _email("em-exp", "Expenses", "Your Denver expense report in Spendlark is due Friday; two receipts are missing."),
+        _email("em-daycare2", "Pickup", "Permission slips are due Friday."),
+        _email("em-jobs", "Replay", "Please approve the queue replay of 1,284 jobs once idempotency is checked."),
+        _email("em-plan", "Plan", "Casey will send the revised budget plan to Vale by Friday."),
+        _email("em-sync", "Sync", "The vendor sync moved from 9:00 AM to 8:00 AM; Lisbon is on CEST."),
+        _email("em-move", "Session", "Session S6 moved from Friday to Tuesday at 13:00.")]
+    led["entries"] += [
+        _entry("L-h-exp", "deadline", "The Denver expense report in Spendlark is due Friday with two receipts missing.",
+               ["Friday"], evidence=["em-exp"]),
+        _entry("L-h-jobs", "commitment_user", "Casey said they'd approve the queue replay (1,284 jobs) after "
+               "checking idempotency.", ["replay", "1,284"], evidence=["em-jobs"]),
+        _entry("L-h-plan", "commitment_user", "Casey will send the revised budget plan to Vale by Friday.",
+               ["Friday"], evidence=["em-plan"]),
+        _entry("L-h-sync", "changed_detail", "The vendor sync moved from 9:00 AM to 8:00 AM (CEST in Lisbon).",
+               ["8:00", "CEST"], mni=["9:00 AM"], evidence=["em-sync"], status=None)]
+    return _profile(prof, led)
+
+
+def test_the_matcher_rules_the_hand_check_needed():
+    p = _hand_world()
+    def found(text, lid):
+        return lid in score_brief.score_brief(_snap(text), p, {}).recall["found"]
+    assert not found("Permission slips are due Friday", "L-h-exp")          # one generic word never decides
+    assert found("Expense report in Spendlark due Friday", "L-h-exp")
+    assert p.item("L-h-jobs")["match"]["require"] == [0]                     # "1,284" is a number: weak
+    assert found("Approve the queue replay (check idempotency first)", "L-h-jobs")
+    assert not found("1,284 rows imported overnight", "L-h-jobs")
+    assert found("Send Vale the budget plan revisions by Friday", "L-h-plan")   # "revised": any ending
+    standup = score_brief.score_brief(_snap(todos=["Team standup Today 9:00 AM"]), p, {})
+    assert not any(x.startswith("L-h-sync:") for x in standup.stale)       # an old time names no item alone
+    old = score_brief.score_brief(_snap(todos=["Vendor sync Today 9:00 AM"]), p, {})
+    assert any(x.startswith("L-h-sync:") for x in old.stale)
+
+
+def test_one_distinguishing_word_never_stands_in_for_a_weak_anchor():
+    prof, led = _raw()
+    prof["emails"].append(_email("em-dent", "Dentist", "Your dentist visit is Tuesday at 3pm."))
+    led["entries"].append(_entry("L-h-dent", "deadline", "The dentist is Tuesday at 3pm.", ["Tuesday", "3pm"],
+                                 evidence=["em-dent"]))
+    q = _profile(prof, led)
+    assert "any" not in q.item("L-h-dent")["match"]       # one word ("dentist"): no two-word alternative
+    def found(text):
+        return "L-h-dent" in score_brief.score_brief(_snap(text), q, {}).recall["found"]
+    assert not found("Dentist on Tuesday")               # one word does not replace the 3pm
+    assert found("Dentist on Tuesday at 3pm")
+
+
+def test_the_models_recall_counts_only_what_the_model_wrote():
+    p = _brief_world()
+    code = {"state": "ready", "cards": [], "threads": [],
+            "todos": [{"title": "Send the revised op-ed by Friday", "source": "reminders"}]}
+    s = score_brief.score_brief(code, p, {})
+    assert "L-t-oped" in s.recall["found"] and "L-t-oped" not in s.model_recall["found"]
+
+
 # ------------------------------------------------------------------ Day
 def _day_world():
     prof, led = _raw()
@@ -255,12 +323,56 @@ def test_day_rules_run_on_shared_profiles():
     bad = "- 9:30-10:45 STAT Lecture\n- 12:15 Group meeting\n- 12:30 Aid appointment\n- 2:00-4:00 CHEM Lab"
     s = score_day.score_plan(score_day.parse_plan(bad, p), p)
     rules = {v["rule"] for v in s.violations}
-    assert {"R1", "R3", "R4"} <= rules, s.violations           # the meeting runs to 13:15, the lab moved
+    assert {"R3", "R4"} <= rules, s.violations                 # the lab moved; the report has no block
+    # The meeting runs to 13:15 over the 12:30 appointment, as the calendar itself has them: an
+    # existing conflict the plan left in place, reported and not scored (R1 is the plan's own).
+    assert "R1" not in rules and any("Group meeting" in c for c in s.existing_conflicts)
     assert s.coverage["tasks"] == ["L-t-report"] and s.coverage["rate"] == 0.0
     good = ("- 9:30-10:45 STAT Lecture\n- 11:00-12:00 Pump report\n- 12:15 Group meeting\n"
             "- 1:15 Aid appointment (moved)")
     g = score_day.score_plan(score_day.parse_plan(good, p), p)
     assert "R3" not in {v["rule"] for v in g.violations} and g.coverage["rate"] == 1.0
+
+
+def _move_world():
+    prof, led = _raw()
+    prof["events"].append({"id": "ev-chk", "series_id": None, "calendar": "Classes", "account": "acct-school",
+                           "kind": "meeting", "title": "Supervisor check-in", "day": 0, "time": "11:30",
+                           "end": "12:00", "all_day": False, "location": "Room 4", "organizer": None,
+                           "organizer_is_user": False, "invitee_count": 1, "calendar_writable": True, "context": None})
+    prof["emails"].append(_email("em-chk", "Check-in", "Working from home: our check-in is at 12:30 online."))
+    led["entries"].append(_entry("L-t-chk", "calendar_correction", "The 11:30 check-in moved to 12:30 online.",
+                                 ["12:30", "online"], evidence=["ev-chk", "em-chk"], surfaces=["day"], status="moved"))
+    led["schedule_ops"] = [
+        {"id": "op-chk-old", "op": "cancel", "ref": "ev-chk", "because": ["em-chk"]},
+        {"id": "op-chk-new", "op": "add", "ref": None, "title": "Supervisor check-in (online)", "day": 0,
+         "time": "12:30", "end": "13:00", "because": ["em-chk"]},
+        {"id": "op-call", "op": "add", "ref": None, "title": "Grandma's 80th birthday video call (from Lima)",
+         "day": 0, "time": "21:00", "end": "22:00", "because": ["em-chk"] + ["x"]}]
+    return _profile(prof, led)
+
+
+def test_a_kept_old_slot_counts_once_and_a_same_day_move_says_so():
+    p = _move_world()
+    chk = p.item("L-t-chk")
+    assert chk["start"].endswith("T12:30") and "sched:op-chk-new" not in {it["id"] for it in p.ledger}
+    plan = "- 11:00-12:00 Usability session\n- 11:30 Supervisor check-in"
+    s = score_day.score_plan(score_day.parse_plan(plan, p), p)
+    r3 = [v for v in s.violations if v["rule"] == "R3"]
+    assert len(r3) == 1 and "the same day" in r3[0]["detail"] and "cancelled" not in r3[0]["detail"]
+    assert any(a.startswith("R1:") for a in r3[0]["also"]) and any(a.startswith("R2:") for a in r3[0]["also"])
+    assert not [v for v in s.violations if v["rule"] in ("R1", "R2") and "L-t-chk" in v["detail"]]
+    assert not [v for v in s.violations if v["rule"] == "R1"]
+    # Another block at the old time that shares none of its words keeps nothing.
+    other = score_day.score_plan(score_day.parse_plan("- 11:30 Usability session", p), p)
+    assert not [v for v in other.violations if v["rule"] == "R3"]
+
+
+def test_a_birthday_reminder_block_is_not_the_evening_call():
+    p = _move_world()
+    s = score_day.score_plan(score_day.parse_plan("- 8:00 Reminder for Grandma's 80th birthday", p), p)
+    call = [v["detail"] for v in s.violations if "sched:op-call" in v["detail"]]
+    assert call and call[0].endswith("(missing)")
 
 
 def test_missing_coverage_scores_as_missing():

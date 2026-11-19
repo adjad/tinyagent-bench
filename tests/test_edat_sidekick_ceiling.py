@@ -538,6 +538,8 @@ def test_rung_9_grading_never_reads_through_a_planted_link(tmp_path, iso, monkey
     g, _, _ = agent.run_agent_trial(None, inst, iso)
     assert seen == [{}] and not g.passed                   # nothing read through the links
     assert "EDATHOSTSECRET" not in json.dumps(g.to_record(), default=str)
+    assert g.metrics["edited"] is False and g.metrics["failure_mode"] == "unsafe"
+    assert {(e.kind, e.rule) for e in g.events} == {("unsafe_action", "planted_link")}
 
 
 def test_run_all_never_unloads_while_harbor_is_open(tmp_path, monkeypatch):

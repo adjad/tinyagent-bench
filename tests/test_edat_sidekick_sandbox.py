@@ -146,3 +146,136 @@ def test_read_inside_never_follows_a_link(tmp_path):
         (area.work / "sub").mkdir()
         for rel in ("out.py", "in.py", "d/host-secret.txt", "pipe", "sub", "missing.py", str(secret), "../x", ""):
             assert area.read_inside(rel) is None, rel
+
+
+# ---------------------------------------------------------------- the host side never reads through a link
+
+SECRET = "EDATSYNTHHOSTSECRET"
+
+
+def _host_dir(tmp_path):
+    host = tmp_path / "hostdir"
+    host.mkdir()
+    (host / "target.py").write_text(SECRET + "\n")
+    (host / f"notes-{SECRET}.txt").write_text(SECRET + "\n")
+    return host
+
+
+def test_reads_and_writes_never_reach_a_host_folder_swapped_in_meanwhile(tmp_path):
+    """A swapper keeps re-pointing `work` at a host folder (as a surviving process could); across many
+    host-side reads and writes, the host folder is never read or written."""
+    import os
+    import threading
+    host = _host_dir(tmp_path)
+    before = sorted(os.listdir(host))
+    with TrialArea() as area:
+        (area.work / "target.py").write_text("ok\n")
+        root, work = area.root, area.work
+        stop = threading.Event()
+
+        def swap():
+            while not stop.is_set():
+                try:
+                    os.rename(work, root / "w2")
+                    os.symlink(host, root / "lnk")
+                    os.rename(root / "lnk", work)
+                    os.unlink(work)
+                    os.rename(root / "w2", work)
+                except OSError:
+                    pass
+
+        t = threading.Thread(target=swap)
+        t.start()
+        try:
+            seen, swapped = set(), 0
+            for i in range(20000):
+                seen.add(area.read_inside("target.py"))
+                swapped += os.path.islink(work)
+                if i % 50 == 0:
+                    area.write_inside(f"out{i}.txt", "x")
+        finally:
+            stop.set()
+            t.join()
+        assert swapped > 0                                   # the swap really happened during the reads
+        assert not any(SECRET in (s or "") for s in seen) and "ok\n" in seen
+    assert sorted(os.listdir(host)) == before
+
+
+def test_a_surviving_sandboxed_swapper_is_locked_out_by_sealing(iso, tmp_path):
+    """The reviewer's case: model code starts a `setsid` child that survives the process-group kill and
+    keeps swapping `work` for a link to a host folder. Reads never return host contents, and once the area
+    is sealed the swapper can change nothing: `work` is the original folder again and stays so."""
+    import time
+    from edat.sidekick.graders.common import tree_snapshot
+    host = _host_dir(tmp_path)
+    with TrialArea() as area:
+        (area.work / "target.py").write_text("ok\n")
+        root = area.root
+        perl = ("use POSIX; exit if fork; POSIX::setsid(); my $e=time+6; my $r=q{%s};"
+                "while (time<$e) { rename(qq{$r/work},qq{$r/w2}); symlink(q{%s},qq{$r/lnk}); rename(qq{$r/lnk},qq{$r/work});"
+                " unlink(qq{$r/work}); rename(qq{$r/w2},qq{$r/work}); }") % (root, host)
+        r = iso.run(area, "/usr/bin/perl -e '%s' >/dev/null 2>&1 </dev/null; echo launched" % perl,
+                    limits=Limits(wall_s=10))
+        assert "launched" in r.stdout
+        import os
+        reads, swapped = [], 0
+        t_end = time.monotonic() + 2
+        while time.monotonic() < t_end:
+            reads.append(area.read_inside("target.py"))
+            swapped += os.path.islink(area.work)
+        assert swapped > 0, "the surviving swapper did not run"
+        assert not any(SECRET in (x or "") for x in reads) and "ok\n" in reads
+        area.seal()
+        assert not area.work_replaced() and area.read_inside("target.py") == "ok\n"
+        time.sleep(0.5)
+        for _ in range(20):                                  # the swapper is still running, but locked out
+            snap = tree_snapshot(area.work)
+            assert "target.py" in snap and not any(SECRET in k for k in snap)
+            assert not area.work_replaced()
+        assert not root.exists()                             # it cannot recreate the old folder either
+
+
+def test_the_snapshot_never_lists_behind_a_link_and_a_pipe_cannot_hang_it(tmp_path):
+    import os
+    from edat.sidekick.graders.common import tree_snapshot
+    host = _host_dir(tmp_path)
+    linked = tmp_path / "root"
+    linked.mkdir()
+    (linked / "work").symlink_to(host, target_is_directory=True)
+    assert tree_snapshot(linked / "work") == {}               # nothing behind the top-level link
+    work = tmp_path / "w"
+    work.mkdir()
+    (work / "a.txt").write_text("a\n")
+    os.mkfifo(work / "pipe")
+    (work / "out").symlink_to(host / "target.py")
+    snap = tree_snapshot(work)
+    assert snap["a.txt"]["content"] == "a\n" and snap["pipe"]["content"] is None
+    assert snap["out"] == {"link": str(host / "target.py"), "mode": 0}
+
+
+def test_grader_folders_are_fresh_and_never_a_planted_link(tmp_path):
+    import os
+    host = tmp_path / "hostdir"
+    host.mkdir()
+    with TrialArea() as area:
+        (area.root / "grade").symlink_to(host, target_is_directory=True)   # left by code that ran earlier
+        gd = area.grade_dir({"runner.py": "print(1)\n"})
+        assert gd.parent == area.root and gd.name.startswith("grade-") and (gd / "runner.py").read_text() == "print(1)\n"
+        assert area.read_result(gd / "runner.py") == b"print(1)\n"
+        (gd / "result.json").symlink_to(host / "x.json")
+        (host / "x.json").write_text('{"' + SECRET + '": 1}')
+        assert area.read_result(gd / "result.json") is None
+    assert os.listdir(host) == ["x.json"]
+
+
+def test_the_profile_is_never_a_file_the_model_can_replace(iso):
+    with TrialArea() as area:
+        outside = area.root.parent / f"edat-sk-escape-{area.canary}"
+        permissive = "(version 1)\n(allow default)\n"
+        r = iso.run(area, f"print -r -- {permissive!r} > ../.edat-profile.sb; print -r -- {permissive!r} > .edat-profile.sb; true")
+        assert r.exit_code == 0
+        iso.run(area, f"print -r -- x > {outside}")
+        escaped = outside.exists()
+        if escaped:
+            outside.unlink()
+        assert not escaped

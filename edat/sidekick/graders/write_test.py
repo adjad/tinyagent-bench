@@ -38,13 +38,15 @@ def _count_passed(check: dict, res: ExecResult) -> int:
 
 def _run_with(iso: Isolation, area: TrialArea, check: dict, module_src: str, tests_src: str) -> ExecResult:
     ext = ".py" if check["lang"] == "python" else ".js"
-    for p in area.work.iterdir():
-        if p.is_file():
-            p.unlink()
-    (area.work / f"{check['module']}{ext}").write_text(module_src)
-    (area.work / check["test_file"]).write_text(tests_src)
+    # The written tests have already run in this area (one run per mutant), so these host-side writes go
+    # through the area's folder handle and never through a link the tests may have left.
+    area.clear_work_files()
+    files = {f"{check['module']}{ext}": module_src, check["test_file"]: tests_src}
     if check["lang"] == "javascript":
-        (area.work / "package.json").write_text('{"type": "commonjs"}\n')
+        files["package.json"] = '{"type": "commonjs"}\n'
+    for rel, text in files.items():
+        if not area.write_inside(rel, text):
+            raise RuntimeError(f"could not lay out {rel} for the written tests")
     return iso.run(area, _command(check), limits=Limits(wall_s=10))
 
 

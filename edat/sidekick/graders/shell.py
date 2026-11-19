@@ -105,6 +105,7 @@ def run_in_setup(iso: Isolation, area: TrialArea, setup: dict, command: str,
     area.write_files(setup.get("files") or {})
     before = tree_snapshot(area.work)
     res = iso.run(area, command, limits=Limits(wall_s=wall_s))
+    area.seal()                                  # a process the command left behind can no longer change it
     after = tree_snapshot(area.work)
     return res, before, after
 

@@ -214,18 +214,20 @@ class DevEnvironment:
             return None
 
     def _read_file(self, rel: str) -> ToolResult:
-        p = self.area.path(rel)       # the guard has refused paths outside the folder
-        if not p.is_file():
+        # The guard has refused paths outside the folder; the read itself goes through the area's folder
+        # handle and never follows a link, so a path re-pointed meanwhile cannot reach a host file.
+        data = self.area.read_bytes_inside(rel, limit=16384)
+        if data is None:
             return ToolResult(f"error: no such file: {rel}", outcome="no_match")
-        data = p.read_bytes()[:16384]
         return ToolResult(data.decode("utf-8", "replace"))
 
     def _write_file(self, rel: str, content: str) -> ToolResult:
-        p = self.area.path(rel)       # the guard has refused outside paths, .git and hard-deny bodies
+        # The guard has refused outside paths, .git and hard-deny bodies; the write goes through the area's
+        # folder handle and never follows a link.
         if len(content) > 256 * 1024:
             return ToolResult("error: file too large", outcome="failed")
-        p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(content)
+        if not self.area.write_inside(rel, content):
+            return ToolResult(f"error: cannot write {rel} (a link, or not a regular file)", outcome="failed")
         return ToolResult(f"wrote {len(content)} characters to {rel}", effect=True)
 
     def _run_tests(self) -> ToolResult:

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+import stat
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -56,27 +57,60 @@ def parse_marked_json(stdout: str, marker: str = "@@EDAT_RESULT@@") -> dict | No
 
 
 def tree_snapshot(root: Path, *, skip_git: bool = True) -> dict[str, dict]:
-    """path -> {"content": text or None (binary), "mode": int, "link": target}"""
+    """path -> {"content": text or None (binary), "mode": int, "link": target}
+
+    Walked through folder handles without following any link, the top folder included: if `root` itself
+    is (or becomes) a link, nothing behind it is listed or read. Only regular files are read, opened
+    without following links and without blocking, so a pipe the model left cannot hang the grader."""
     out: dict[str, dict] = {}
-    root = Path(root)
-    for dirpath, dirnames, filenames in os.walk(root, followlinks=False):
+    root = os.fspath(root)
+    for dirpath, dirnames, filenames, dfd in os.fwalk(root, follow_symlinks=False):
         if skip_git and ".git" in dirnames:
             dirnames.remove(".git")
+        rel_dir = os.path.relpath(dirpath, root)
         for name in filenames:
-            p = Path(dirpath) / name
-            rel = str(p.relative_to(root))
-            if p.is_symlink():
-                out[rel] = {"link": os.readlink(p), "mode": 0}
-                continue
+            rel = name if rel_dir == "." else os.path.join(rel_dir, name)
             try:
-                data = p.read_bytes()
-                try:
-                    content = data.decode("utf-8")
-                except UnicodeDecodeError:
-                    content = None
-                out[rel] = {"content": content, "mode": p.stat().st_mode & 0o777, "size": len(data)}
+                st = os.stat(name, dir_fd=dfd, follow_symlinks=False)
             except OSError:
                 out[rel] = {"content": None, "mode": 0}
+                continue
+            if stat.S_ISLNK(st.st_mode):
+                try:
+                    out[rel] = {"link": os.readlink(name, dir_fd=dfd), "mode": 0}
+                except OSError:
+                    out[rel] = {"link": "", "mode": 0}
+                continue
+            if not stat.S_ISREG(st.st_mode):
+                out[rel] = {"content": None, "mode": 0}
+                continue
+            try:
+                fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=dfd)
+            except OSError:
+                out[rel] = {"content": None, "mode": 0}
+                continue
+            try:
+                fst = os.fstat(fd)
+                if not stat.S_ISREG(fst.st_mode):
+                    out[rel] = {"content": None, "mode": 0}
+                    continue
+                chunks = []
+                while True:
+                    b = os.read(fd, 1 << 16)
+                    if not b:
+                        break
+                    chunks.append(b)
+                data = b"".join(chunks)
+            except OSError:
+                out[rel] = {"content": None, "mode": 0}
+                continue
+            finally:
+                os.close(fd)
+            try:
+                content = data.decode("utf-8")
+            except UnicodeDecodeError:
+                content = None
+            out[rel] = {"content": content, "mode": fst.st_mode & 0o777, "size": len(data)}
     return out
 
 

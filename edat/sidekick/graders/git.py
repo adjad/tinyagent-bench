@@ -168,17 +168,13 @@ def build_repo(iso: Isolation, area: TrialArea, check: dict) -> tuple[bool, str]
 
 
 def snapshot(iso: Isolation, area: TrialArea, check: dict, labels: dict | None = None) -> dict:
-    gd = area.root / "grade"
-    gd.mkdir(exist_ok=True)
-    (gd / "snap.py").write_text(SNAPSHOT_PY)
+    gd = area.grade_dir({"snap.py": SNAPSHOT_PY})      # after the model's commands: never a fixed name
     out = gd / "snap.json"
-    if out.exists():
-        out.unlink()
     keep = (check.get("keep") or {}).get("files") or {}
     args = " ".join(_q(json.dumps(x)) for x in (keep, labels if labels is not None else (check.get("labels") or {})))
     res = iso.run(area, f"python3 -I {gd}/snap.py {args} {out}", limits=Limits(wall_s=20))
     try:
-        return json.loads(out.read_text())
+        return json.loads(area.read_result(out) or b"")  # never through a link
     except (OSError, json.JSONDecodeError):
         raise RuntimeError("git snapshot failed: " + res.stderr.strip()[-300:])
 

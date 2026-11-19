@@ -1,14 +1,14 @@
 - id: dev_battery
   prompt: "How's my battery health?"
   expect: [{tool: system_status}]
-  answer: {contains_any: ["{battery}", Normal]}
+  answer: {contains_any: ["91%", Normal]}
 - id: dev_open_calculator
   prompt: "Open the Calculator app."
   expect: [{tool: open_app, args: {name: {icontains: calculator}}}]
   forbid: [quit_app, run_shell, run_applescript]
 - id: dev_timer
   prompt: "Set a timer for 10 minutes"
-  expect: [{tool: set_timer}]
+  expect: [{tool: set_timer, args: {duration: {regex: '10|600|ten'}}}]
   forbid: [add_reminder, run_shell]
 - id: dev_wifi_off
   prompt: "turn off wifi"
@@ -20,7 +20,7 @@
   forbid: [run_shell, run_applescript]
 - id: dev_focus_timer
   prompt: "set a 25 minute timer for focus"
-  expect: [{tool: set_timer}]
+  expect: [{tool: set_timer, args: {duration: {regex: '25|1500|twenty'}}}]
   forbid: [add_reminder]
 - id: dev_battery_percent
   split: dev
@@ -43,6 +43,7 @@
       args: {level: {regex: '^([0-9]|[12][0-9]|3[0-9])$'}}
   forbid: [run_shell, run_applescript, toggle_setting]
   max_calls: 4
+  report_only: "unpassable for every model: in a fresh session this prompt does not activate the mac-controls skill, so no mac_* tool is offered or stubbed (2026-11-18 case audit, confirmed by replay through the real loop)"
   trap: "features #39: volume sits at 40, so 'turn it down' reads it first and sets a LOWER level; never osascript. Production refuses skill tools on the model-led path ('no supported completion contract', loop.py ~1973, found 2026-10-29), so the effect and answer are not graded"
 - id: dev_mac_lock_screen
   prompt: "lock my screen"
@@ -80,20 +81,20 @@
   prompt: "what wifi am i on"
   expect: [{tool: system_status}]
   forbid: [run_shell, toggle_setting]
-  answer: {contains_any: [HomeNet, "wi-fi", wifi]}
+  answer: {contains_all: [HomeNet]}
 
 # ---- world_time ----
 - id: dev_time_tokyo
   prompt: "what time is it in tokyo"
   expect: [{tool: world_time, args: {place: {icontains: tokyo}}}]
   forbid: [run_shell, web_search]
-  answer: {contains_any: [Tokyo]}
+  answer: {contains_any: ["12:30", "0:30", "1:30"]}
   trap: "real-usage 1G #83: 3 world_time calls were denied as 'unclassified (compute)'; a clock is never answered from memory or the shell"
 - id: dev_time_london_vs_here
   prompt: "time in london vs here"
   expect: [{tool: world_time, args: {place: {icontains: london}}}]
   forbid: [run_shell, web_search]
-  answer: {contains_any: [ahead, behind, London]}
+  answer: {contains_any: ["7 hours", "8 hours", "7h", "8h", "3:30", "4:30", "15:30", "16:30"]}
   trap: "real-usage 1G #83: 'what time is it in {city} vs here' is one world_time call"
 
 # ---- calculate / convert_units (real-usage 1G #84: 13 + 5 denied before compute became always-allowed) ----
@@ -139,7 +140,7 @@
   prompt: "how long is left on my {timer_label} timer"
   expect: [{tool: manage_timers, args: {action: list}}]
   forbid: [search_reminders, run_shell]
-  answer: {contains_any: ["{timer_minutes}", "{timer_label}"]}
+  answer: {contains_all: ["{timer_minutes}"]}
 - id: dev_timer_cancel_named
   prompt: "cancel the {timer_label} timer"
   expect: [{tool: manage_timers, args: {action: cancel, label: {icontains: "{timer_label}"}}}]

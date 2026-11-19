@@ -59,6 +59,8 @@ class ProfileBuilder:
     browser: list = field(default_factory=list)
     memory: list = field(default_factory=list)
     ledger: list = field(default_factory=list)
+    schedule_ops: list = field(default_factory=list)
+    window_points: list = field(default_factory=lambda: [(0, "07:45", 3), (0, "11:30", 3), (0, "15:00", 3)])
     _seq: dict = field(default_factory=dict, repr=False)
     _ids: set = field(default_factory=set, repr=False)
 
@@ -251,6 +253,25 @@ class ProfileBuilder:
                             "difficulty": difficulty})
         return lid
 
+    def schedule(self, op: str, *, because: list[str], ref: str | None = None,
+                 title: str | None = None, day: int | None = None, time: str | None = None,
+                 end: str | None = None, location: str | None = None, kind: str = "event",
+                 reason: str | None = None, id: str | None = None) -> str:
+        """Record how the TRUE schedule differs from the calendar (see windows.py).
+
+        op = "move" | "relocate" | "cancel" (ref = the calendar event), "add" (an event that
+        exists only in mail or messages: title/day/time/end/location), or "exclude" (ref is on
+        the calendar but is not the person's own plan, e.g. a partner's shift calendar).
+        ``because`` = the items that prove it. Returns the op id (``op-<slug>``)."""
+        if op not in ("move", "relocate", "cancel", "add", "exclude"):
+            raise ValueError(op)
+        n = len(self.schedule_ops) + 1
+        oid = id if id and id.startswith("op-") else f"op-{id or n:0>2}"
+        self.schedule_ops.append({"id": oid, "op": op, "ref": ref, "title": title, "day": day,
+                                  "time": time, "end": end, "location": location, "kind": kind,
+                                  "because": because, "reason": reason})
+        return oid
+
     # ----------------------------------------------------------------- output
     def profile_dict(self) -> dict[str, Any]:
         def _sorted(rows, key=lambda r: (r["day"] if r.get("day") is not None else 10**6,
@@ -273,7 +294,7 @@ class ProfileBuilder:
 
     def ledger_dict(self) -> dict[str, Any]:
         return {"schema_version": SCHEMA_VERSION, "profile_id": self.profile_id,
-                "synthetic": True, "entries": self.ledger}
+                "synthetic": True, "schedule_ops": self.schedule_ops, "entries": self.ledger}
 
 
 class Thread:

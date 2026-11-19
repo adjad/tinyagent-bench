@@ -1,0 +1,100 @@
+{
+  "_about": "tinyagent-bench cloud references (OpenRouter). Per exact model id (never a :batch variant or a -latest alias): accepts = the request keys the model takes (temperature, top_p, top_k, seed; tinyagent-bench decision 2026-11-18: Haiku 5.5 and GPT-6 Luna take no temperature or top_p, Haiku 5.5 no seed, the Gemini models and DeepSeek all three); price_per_mtok = USD per million tokens in/out, used only when a response carries no usage.cost and for the dry-run estimate (recorded 2026-11-18; re-read OpenRouter's model list before a real run); provider = an upstream slug to pin with no fallback, or null for Harbor's latency routing (the provider that answered is recorded either way); reasoning_off = the reasoning option sent for the 'off' thinking variant, or null when the model cannot stop reasoning; replay_reasoning = send a reply's reasoning_details back with its tool calls even if Harbor's REPLAY_REASONING_MODELS lacks the model; context_window = the window the profile is saved with (Harbor's REMOTE_CONTEXT_WINDOWS where it lists the model).",
+  "anthropic/claude-haiku-5.5": {
+    "accepts": [],
+    "price_per_mtok": {
+      "in": 0.1,
+      "out": 0.5
+    },
+    "price_source": "recorded 2026-11-18, unverified",
+    "provider": null,
+    "reasoning_off": {
+      "enabled": false
+    },
+    "replay_reasoning": true,
+    "context_window": 1000000
+  },
+  "openai/gpt-6-luna": {
+    "accepts": [
+      "seed"
+    ],
+    "price_per_mtok": {
+      "in": 0.1,
+      "out": 0.5
+    },
+    "price_source": "recorded 2026-11-18, unverified",
+    "provider": null,
+    "reasoning_off": {
+      "effort": "none"
+    },
+    "replay_reasoning": false,
+    "context_window": 1000000
+  },
+  "deepseek/deepseek-v4.1-flash-1017": {
+    "accepts": [
+      "temperature",
+      "top_p",
+      "seed"
+    ],
+    "price_per_mtok": {
+      "in": 0.3,
+      "out": 1.2
+    },
+    "price_source": "recorded 2026-11-18, unverified",
+    "provider": null,
+    "reasoning_off": {
+      "enabled": false
+    },
+    "replay_reasoning": false,
+    "context_window": 128000,
+    "id_source": "confirmed 2026-11-18"
+  },
+  "google/gemini-4-argon": {
+    "accepts": [
+      "temperature",
+      "top_p",
+      "seed"
+    ],
+    "price_per_mtok": {
+      "in": 2.0,
+      "out": 10.0
+    },
+    "price_source": "recorded 2026-11-18, unverified",
+    "provider": null,
+    "reasoning_off": null,
+    "replay_reasoning": true,
+    "context_window": 1000000
+  },
+  "google/gemini-4-carbon": {
+    "accepts": [
+      "temperature",
+      "top_p",
+      "seed"
+    ],
+    "price_per_mtok": {
+      "in": 2.0,
+      "out": 10.0
+    },
+    "price_source": "recorded 2026-11-18, unverified",
+    "provider": null,
+    "reasoning_off": null,
+    "replay_reasoning": true,
+    "context_window": 1000000
+  },
+  "google/gemini-4-neon": {
+    "accepts": [
+      "temperature",
+      "top_p",
+      "seed"
+    ],
+    "price_per_mtok": {
+      "in": 3.0,
+      "out": 15.0
+    },
+    "price_source": "recorded 2026-11-18, unverified",
+    "provider": null,
+    "reasoning_off": null,
+    "replay_reasoning": true,
+    "context_window": 1000000
+  }
+}

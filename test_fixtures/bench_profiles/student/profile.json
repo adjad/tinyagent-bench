@@ -1352,7 +1352,7 @@
      "unread": false
     },
     {
-     "id": "msg-roomies-0074",
+     "id": "msg-roomies-hotwater",
      "day": 0,
      "time": "07:12",
      "from": "ct-bea",
@@ -1608,7 +1608,7 @@
      "unread": false
     },
     {
-     "id": "msg-frisbee-0024",
+     "id": "msg-frisbee-cancel-dm6",
      "day": -6,
      "time": "16:45",
      "from": "ct-sam",
@@ -1904,7 +1904,7 @@
      "unread": false
     },
     {
-     "id": "msg-frisbee-0061",
+     "id": "msg-frisbee-speaker",
      "day": 0,
      "time": "07:05",
      "from": "ct-dani",
@@ -4409,9 +4409,9 @@
    "attachments": []
   },
   {
-   "id": "em-0056",
-   "thread_id": "emt-0056",
-   "message_id": "<em-0056@student.bench.example>",
+   "id": "em-0055",
+   "thread_id": "emt-0055",
+   "message_id": "<em-0055@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-school",
    "mailbox": "inbox",
@@ -4434,9 +4434,9 @@
    "attachments": []
   },
   {
-   "id": "em-0078",
-   "thread_id": "emt-0078",
-   "message_id": "<em-0078@student.bench.example>",
+   "id": "em-0077",
+   "thread_id": "emt-0077",
+   "message_id": "<em-0077@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-school",
    "mailbox": "inbox",
@@ -4459,9 +4459,9 @@
    "attachments": []
   },
   {
-   "id": "em-0072",
-   "thread_id": "emt-0072",
-   "message_id": "<em-0072@student.bench.example>",
+   "id": "em-0071",
+   "thread_id": "emt-0071",
+   "message_id": "<em-0071@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -4509,9 +4509,9 @@
    "attachments": []
   },
   {
-   "id": "em-0055",
-   "thread_id": "emt-0055",
-   "message_id": "<em-0055@student.bench.example>",
+   "id": "em-0054",
+   "thread_id": "emt-0054",
+   "message_id": "<em-0054@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -4584,9 +4584,9 @@
    "attachments": []
   },
   {
-   "id": "em-0076",
-   "thread_id": "emt-0076",
-   "message_id": "<em-0076@student.bench.example>",
+   "id": "em-0075",
+   "thread_id": "emt-0075",
+   "message_id": "<em-0075@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -4664,9 +4664,9 @@
    "attachments": []
   },
   {
-   "id": "em-0083",
-   "thread_id": "emt-0083",
-   "message_id": "<em-0083@student.bench.example>",
+   "id": "em-0082",
+   "thread_id": "emt-0082",
+   "message_id": "<em-0082@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "spam",
@@ -4789,9 +4789,9 @@
    "attachments": []
   },
   {
-   "id": "em-0057",
-   "thread_id": "emt-0057",
-   "message_id": "<em-0057@student.bench.example>",
+   "id": "em-0056",
+   "thread_id": "emt-0056",
+   "message_id": "<em-0056@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-school",
    "mailbox": "inbox",
@@ -4814,9 +4814,9 @@
    "attachments": []
   },
   {
-   "id": "em-0058",
-   "thread_id": "emt-0058",
-   "message_id": "<em-0058@student.bench.example>",
+   "id": "em-0057",
+   "thread_id": "emt-0057",
+   "message_id": "<em-0057@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-school",
    "mailbox": "inbox",
@@ -4914,9 +4914,9 @@
    "attachments": []
   },
   {
-   "id": "em-0075",
-   "thread_id": "emt-0075",
-   "message_id": "<em-0075@student.bench.example>",
+   "id": "em-0074",
+   "thread_id": "emt-0074",
+   "message_id": "<em-0074@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -4989,9 +4989,9 @@
    "attachments": []
   },
   {
-   "id": "em-0080",
-   "thread_id": "emt-0080",
-   "message_id": "<em-0080@student.bench.example>",
+   "id": "em-0079",
+   "thread_id": "emt-0079",
+   "message_id": "<em-0079@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-school",
    "mailbox": "inbox",
@@ -5014,9 +5014,9 @@
    "attachments": []
   },
   {
-   "id": "em-0059",
-   "thread_id": "emt-0059",
-   "message_id": "<em-0059@student.bench.example>",
+   "id": "em-0058",
+   "thread_id": "emt-0058",
+   "message_id": "<em-0058@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-school",
    "mailbox": "inbox",
@@ -5064,9 +5064,9 @@
    "attachments": []
   },
   {
-   "id": "em-0070",
-   "thread_id": "emt-0070",
-   "message_id": "<em-0070@student.bench.example>",
+   "id": "em-0069",
+   "thread_id": "emt-0069",
+   "message_id": "<em-0069@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -5139,9 +5139,9 @@
    "attachments": []
   },
   {
-   "id": "em-0060",
-   "thread_id": "emt-0060",
-   "message_id": "<em-0060@student.bench.example>",
+   "id": "em-0059",
+   "thread_id": "emt-0059",
+   "message_id": "<em-0059@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-school",
    "mailbox": "inbox",
@@ -5214,9 +5214,9 @@
    "attachments": []
   },
   {
-   "id": "em-0073",
-   "thread_id": "emt-0073",
-   "message_id": "<em-0073@student.bench.example>",
+   "id": "em-0072",
+   "thread_id": "emt-0072",
+   "message_id": "<em-0072@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -5339,9 +5339,9 @@
    "attachments": []
   },
   {
-   "id": "em-0053",
-   "thread_id": "emt-0053",
-   "message_id": "<em-0053@student.bench.example>",
+   "id": "em-0052",
+   "thread_id": "emt-0052",
+   "message_id": "<em-0052@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -5364,9 +5364,9 @@
    "attachments": []
   },
   {
-   "id": "em-0061",
-   "thread_id": "emt-0061",
-   "message_id": "<em-0061@student.bench.example>",
+   "id": "em-0060",
+   "thread_id": "emt-0060",
+   "message_id": "<em-0060@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-school",
    "mailbox": "inbox",
@@ -5414,9 +5414,9 @@
    "attachments": []
   },
   {
-   "id": "em-0084",
-   "thread_id": "emt-0084",
-   "message_id": "<em-0084@student.bench.example>",
+   "id": "em-0083",
+   "thread_id": "emt-0083",
+   "message_id": "<em-0083@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "spam",
@@ -5539,9 +5539,9 @@
    "attachments": []
   },
   {
-   "id": "em-0062",
-   "thread_id": "emt-0062",
-   "message_id": "<em-0062@student.bench.example>",
+   "id": "em-0061",
+   "thread_id": "emt-0061",
+   "message_id": "<em-0061@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-school",
    "mailbox": "inbox",
@@ -5589,9 +5589,9 @@
    "attachments": []
   },
   {
-   "id": "em-0063",
-   "thread_id": "emt-0063",
-   "message_id": "<em-0063@student.bench.example>",
+   "id": "em-0062",
+   "thread_id": "emt-0062",
+   "message_id": "<em-0062@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-school",
    "mailbox": "inbox",
@@ -5689,9 +5689,9 @@
    "attachments": []
   },
   {
-   "id": "em-0077",
-   "thread_id": "emt-0077",
-   "message_id": "<em-0077@student.bench.example>",
+   "id": "em-0076",
+   "thread_id": "emt-0076",
+   "message_id": "<em-0076@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -5764,9 +5764,9 @@
    "attachments": []
   },
   {
-   "id": "em-0064",
-   "thread_id": "emt-0064",
-   "message_id": "<em-0064@student.bench.example>",
+   "id": "em-0063",
+   "thread_id": "emt-0063",
+   "message_id": "<em-0063@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-school",
    "mailbox": "inbox",
@@ -5814,9 +5814,9 @@
    "attachments": []
   },
   {
-   "id": "em-0052",
-   "thread_id": "emt-0052",
-   "message_id": "<em-0052@student.bench.example>",
+   "id": "em-0051",
+   "thread_id": "emt-0051",
+   "message_id": "<em-0051@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -5889,9 +5889,9 @@
    "attachments": []
   },
   {
-   "id": "em-0065",
-   "thread_id": "emt-0065",
-   "message_id": "<em-0065@student.bench.example>",
+   "id": "em-0064",
+   "thread_id": "emt-0064",
+   "message_id": "<em-0064@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-school",
    "mailbox": "inbox",
@@ -5964,9 +5964,9 @@
    "attachments": []
   },
   {
-   "id": "em-0051",
-   "thread_id": "emt-0051",
-   "message_id": "<em-0051@student.bench.example>",
+   "id": "em-0050",
+   "thread_id": "emt-0050",
+   "message_id": "<em-0050@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-school",
    "mailbox": "inbox",
@@ -6014,9 +6014,9 @@
    "attachments": []
   },
   {
-   "id": "em-0054",
+   "id": "em-0053",
    "thread_id": "emt-aunt",
-   "message_id": "<em-0054@student.bench.example>",
+   "message_id": "<em-0053@student.bench.example>",
    "in_reply_to": "em-aunt-sent",
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -6089,9 +6089,9 @@
    "attachments": []
   },
   {
-   "id": "em-0079",
-   "thread_id": "emt-0079",
-   "message_id": "<em-0079@student.bench.example>",
+   "id": "em-0078",
+   "thread_id": "emt-0078",
+   "message_id": "<em-0078@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -6189,9 +6189,9 @@
    "attachments": []
   },
   {
-   "id": "em-0066",
-   "thread_id": "emt-0066",
-   "message_id": "<em-0066@student.bench.example>",
+   "id": "em-0065",
+   "thread_id": "emt-0065",
+   "message_id": "<em-0065@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-school",
    "mailbox": "inbox",
@@ -6264,9 +6264,9 @@
    "attachments": []
   },
   {
-   "id": "em-0085",
-   "thread_id": "emt-0085",
-   "message_id": "<em-0085@student.bench.example>",
+   "id": "em-0084",
+   "thread_id": "emt-0084",
+   "message_id": "<em-0084@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "spam",
@@ -6544,9 +6544,9 @@
    "attachments": []
   },
   {
-   "id": "em-0081",
-   "thread_id": "emt-0081",
-   "message_id": "<em-0081@student.bench.example>",
+   "id": "em-0080",
+   "thread_id": "emt-0080",
+   "message_id": "<em-0080@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-school",
    "mailbox": "inbox",
@@ -6669,9 +6669,9 @@
    "attachments": []
   },
   {
-   "id": "em-0082",
-   "thread_id": "emt-0082",
-   "message_id": "<em-0082@student.bench.example>",
+   "id": "em-0081",
+   "thread_id": "emt-0081",
+   "message_id": "<em-0081@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-school",
    "mailbox": "inbox",
@@ -6869,9 +6869,9 @@
    "attachments": []
   },
   {
-   "id": "em-0074",
-   "thread_id": "emt-0074",
-   "message_id": "<em-0074@student.bench.example>",
+   "id": "em-0073",
+   "thread_id": "emt-0073",
+   "message_id": "<em-0073@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -7169,9 +7169,9 @@
    "attachments": []
   },
   {
-   "id": "em-0071",
-   "thread_id": "emt-0071",
-   "message_id": "<em-0071@student.bench.example>",
+   "id": "em-0070",
+   "thread_id": "emt-0070",
+   "message_id": "<em-0070@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -7194,9 +7194,9 @@
    "attachments": []
   },
   {
-   "id": "em-0086",
-   "thread_id": "emt-0086",
-   "message_id": "<em-0086@student.bench.example>",
+   "id": "em-0085",
+   "thread_id": "emt-0085",
+   "message_id": "<em-0085@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "spam",
@@ -7313,15 +7313,15 @@
    ],
    "cc": [],
    "subject": "Re: Spring advising – please book a time",
-   "body": "Hi Talia,\n\nJust a nudge: I don't see you on my calendar yet, and slots are filling up.\n\nBest,\nJK\n\n> Spring registration opens for juniors on {{date:+9:long}}. Please book a 20-minute advising appointment ...",
+   "body": "Hi Talia,\n\nJust a nudge: I don't see you on my calendar yet, and slots are filling up. Would a Thursday or a Friday afternoon work better for you? I can hold one if you tell me.\n\nBest,\nJK\n\n> Spring registration opens for juniors on {{date:+9:long}}. Please book a 20-minute advising appointment ...",
    "unread": false,
    "flagged": false,
    "attachments": []
   },
   {
-   "id": "em-0050",
-   "thread_id": "emt-0050",
-   "message_id": "<em-0050@student.bench.example>",
+   "id": "em-dentist-move",
+   "thread_id": "emt-dentist-move",
+   "message_id": "<em-dentist-move@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-personal",
    "mailbox": "inbox",
@@ -7337,8 +7337,8 @@
     "talia.brennan.mail@mailbox.example"
    ],
    "cc": [],
-   "subject": "Reminder: cleaning on {{date:+8:short}} at 8:30 AM",
-   "body": "Reply C to confirm or call (773) 555-0170 to reschedule. Please arrive 10 minutes early.",
+   "subject": "Your cleaning on {{date:+8:short}} has moved to 11:15 AM",
+   "body": "Our hygienist is out that morning, so we've moved your cleaning from 8:30 to 11:15 AM the same day (about 45 minutes). Reply C to confirm or call (773) 555-0170 to pick another time.",
    "unread": false,
    "flagged": false,
    "attachments": []
@@ -7394,9 +7394,9 @@
    "attachments": []
   },
   {
-   "id": "em-0067",
-   "thread_id": "emt-0067",
-   "message_id": "<em-0067@student.bench.example>",
+   "id": "em-0066",
+   "thread_id": "emt-0066",
+   "message_id": "<em-0066@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-school",
    "mailbox": "inbox",
@@ -7469,9 +7469,9 @@
    "attachments": []
   },
   {
-   "id": "em-0068",
-   "thread_id": "emt-0068",
-   "message_id": "<em-0068@student.bench.example>",
+   "id": "em-0067",
+   "thread_id": "emt-0067",
+   "message_id": "<em-0067@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-school",
    "mailbox": "inbox",
@@ -7694,9 +7694,9 @@
    "attachments": []
   },
   {
-   "id": "em-0069",
-   "thread_id": "emt-0069",
-   "message_id": "<em-0069@student.bench.example>",
+   "id": "em-0068",
+   "thread_id": "emt-0068",
+   "message_id": "<em-0068@student.bench.example>",
    "in_reply_to": null,
    "account": "acct-school",
    "mailbox": "inbox",
@@ -7765,6 +7765,31 @@
    "subject": "Package Notification: Unit 3R",
    "body": "Dear Talia Brennan,\n\nA package has been received for you at the Fernhollow Flats leasing office.\n\nCarrier: SwiftRoute\nReceived: {{date:-1:short}}, 2:20 PM\n\nPlease pick it up during office hours: Monday–Friday, 9:00 AM–6:00 PM. Photo ID required.\nPackages not collected within 7 days will be returned to sender.\n\nSincerely,\nThe Leasing Team",
    "unread": true,
+   "flagged": false,
+   "attachments": []
+  },
+  {
+   "id": "em-vh-monday-room",
+   "thread_id": "emt-vh-monday-room",
+   "message_id": "<em-vh-monday-room@student.bench.example>",
+   "in_reply_to": null,
+   "account": "acct-school",
+   "mailbox": "inbox",
+   "category": "people",
+   "bulk": false,
+   "day": -1,
+   "time": "15:05",
+   "from": {
+    "name": "Elena Vasquez-Hart",
+    "addr": "elena.vasquezhart@cvu.example"
+   },
+   "to": [
+    "geog3250-f26@lists.cvu.example"
+   ],
+   "cc": [],
+   "subject": "GEOG 3250: Monday's class meets in Corbin 112",
+   "body": "Dear all,\n\nNext Monday's class will meet in Corbin Hall 112 (the GIS lab), not our usual room, for a hands-on georeferencing session that will help with GIS Lab 4. Same time. Please bring your laptop charger.\n\nBest wishes,\nProf. Vasquez-Hart",
+   "unread": false,
    "flagged": false,
    "attachments": []
   },

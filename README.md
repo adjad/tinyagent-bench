@@ -90,6 +90,15 @@ An audit of the imported Toolbench cases is summarised in
 [docs/STRUCTURE.md](docs/STRUCTURE.md) says where each piece lives and where the
 upcoming ones will go.
 
+## Known limits
+
+- **Sidekick coding grades can be forged by adversarial model code** until the
+  sidekick grade-integrity repair merges. The sandbox keeps model-written code
+  away from the host (the host isolation repair, pull request 9, is merged and held up
+  under an adversarial review), but code under test can still make its own grade read as
+  a pass. No coding run may start until that repair merges and passes its own
+  adversarial review. No coding results exist, so nothing needs retracting.
+
 ## Running the offline checks
 
 Nothing below loads a model or needs network access after installing packages.

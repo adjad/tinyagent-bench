@@ -25,8 +25,8 @@ What it guarantees:
 * **Engine state saved fresh.** At each start it saves the engine's state:
   loaded, pinned and default model, with a token and a timestamp. The save
   goes to `<lock>.engine-save.json`, a host-wide path, so a leftover from any
-  harness is seen. A leftover save that was never restored refuses the start
-  and prints how to restore it.
+  harness is seen. The save is removed after a restore that matches it, so a
+  save still present refuses the next start and prints how to restore it.
 * **Restore on every exit.** That covers a normal end, a stop, an exception,
   Ctrl-C, SIGTERM, SIGHUP and SIGQUIT. Those signals (and SIGINT) are ignored
   while the restore runs. A restore error is recorded and re-raised. The run
@@ -107,10 +107,15 @@ def loopback_base_url(url: str) -> str:
     """`http://<loopback>:<port>` or GuardError. Checked before any header or client exists."""
     parts = urlsplit(url or "")
     host = (parts.hostname or "").lower()
-    if parts.scheme != "http" or host not in LOOPBACK_HOSTS or parts.port is None \
-            or parts.path not in ("", "/") or parts.username or parts.password or parts.query:
+    try:
+        port = parts.port
+    except ValueError:
+        port = None
+    if parts.scheme != "http" or host not in LOOPBACK_HOSTS or port is None \
+            or parts.path not in ("", "/") or parts.username or parts.password or parts.query or parts.fragment \
+            or "\\" in url:
         raise GuardError(f"the engine URL must be plain http on a loopback address with a port, got {url!r}")
-    return f"http://{'[::1]' if host == '::1' else host}:{parts.port}"
+    return f"http://{'[::1]' if host == '::1' else host}:{port}"
 
 
 def port_of(base_url: str) -> int:
@@ -388,18 +393,16 @@ class RunGuard:
             raise GuardError(f"Harbor appears to be running ({h}); not {before}. Close it first.")
 
     def _save_fresh(self) -> None:
-        if self.save_path.exists():
+        if self.save_path.exists():                     # removed after every successful restore
             try:
                 old = json.loads(self.save_path.read_text())
             except (OSError, ValueError):
                 old = {}
-            if not old.get("restored_at"):
-                raise GuardError(f"an earlier run's engine state was never restored ({self.save_path}, "
-                                 f"saved {old.get('created_at', '?')}): {self.restore_hint()}; then start again")
+            raise GuardError(f"an earlier run's engine state was never restored ({self.save_path}, "
+                             f"saved {old.get('created_at', '?')}): {self.restore_hint()}; then start again")
         self._token = secrets.token_hex(8)
         state = {"schema": SAVE_SCHEMA, "token": self._token, "created_at": utc_now(), "pid": os.getpid(),
-                 "base_url": self.engine.base_url, "out": str(self.out), **self.engine.snapshot(),
-                 "restored_at": None}
+                 "base_url": self.engine.base_url, "out": str(self.out), **self.engine.snapshot()}
         _write_json(self.save_path, state)
         self.report["engine_before"] = {k: state[k] for k in ("token", "created_at", "loaded", "pinned",
                                                                 "default_model")}
@@ -445,14 +448,12 @@ class RunGuard:
 
 def restore(engine: Engine, save_path: Path, *, harbor=harbor_running, token: str | None = None) -> str:
     """Return the engine to the saved state: unload what was not loaded then, load what was. Harbor is
-    checked before every call (failing closed). Marks the save restored only when the state matches."""
+    checked before every call (failing closed). The save is removed only when the state matches it."""
     saved = json.loads(Path(save_path).read_text())
     if token is not None and saved.get("token") != token:
         raise GuardError(f"{save_path} belongs to another run (token mismatch); not restoring from it")
     if loopback_base_url(saved["base_url"]) != engine.base_url:
         raise GuardError(f"{save_path} was saved from {saved['base_url']}, not {engine.base_url}")
-    if saved.get("restored_at"):
-        return "engine already restored"
     want = list(saved.get("loaded") or [])
 
     def check(before: str) -> None:
@@ -473,9 +474,7 @@ def restore(engine: Engine, save_path: Path, *, harbor=harbor_running, token: st
     extra = [m for m in now["loaded"] if m not in want]
     if missing or extra:
         raise GuardError(f"engine state differs after restore: missing {missing}, extra {extra}")
-    saved["restored_at"] = utc_now()
-    saved["after"] = now
-    _write_json(Path(save_path), saved)
+    Path(save_path).unlink()
     note = "" if now.get("default_model") == saved.get("default_model") else \
         f"; default model is {now.get('default_model')!r}, was {saved.get('default_model')!r}"
     return f"engine restored ({', '.join(want) or 'nothing loaded'}){note}"

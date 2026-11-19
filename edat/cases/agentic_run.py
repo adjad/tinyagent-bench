@@ -343,10 +343,7 @@ def preflight(out: Path, *, engine: bool = False, weights: bool = False, lock: s
     add("held-out cases present", bool(hd and hd.is_dir() and any(hd.rglob("*.yaml"))), "")
     add("heavy-job lock free", bool(lock) and not Path(lock).exists(), lock or "no lock path")
     save = Path(f"{lock}.engine-save.json")
-    try:
-        leftover = save.exists() and not json.loads(save.read_text() or "{}").get("restored_at")
-    except (OSError, ValueError):
-        leftover = True
+    leftover = save.exists()                    # the guard removes it after every successful restore
     add("no unrestored engine save from an earlier run", not leftover, str(save) if leftover else "")
     h = (harbor or rg.harbor_running)()
     add("Harbor is closed (app, swift-run build, backend, ports 8765/8791)", not h, h or "")
@@ -402,8 +399,8 @@ def run(out: Path, *, plan: str, board_version: str, trials=None, splits: tuple[
         base_url: str = DEFAULT_URL, progress=print, harbor=None, free_pct=None,
         loops: dict | None = None, column=None) -> dict:
     """The run, inside `edat.runtime.run_guard.RunGuard`. `clients(model, loop_name)` returns the model
-    client for a loop (tests pass stubs) and then `engine` may be None (no engine is touched); by default
-    oMLX for the reference loop and Harbor's own client for the Harbor loop, on one loopback `base_url`."""
+    client for a loop (tests pass stubs); by default oMLX for the reference loop and Harbor's own client for
+    the Harbor loop. Every engine call, the guard's and the clients', uses the one loopback `base_url`."""
     from edat.runtime import run_guard as rg
     out = Path(out).expanduser().resolve()
     base_url = rg.loopback_base_url(base_url)
@@ -412,9 +409,8 @@ def run(out: Path, *, plan: str, board_version: str, trials=None, splits: tuple[
     smoke = plan.startswith("smoke")
     trials = trials or (1 if smoke else TRIALS)
     models = models or (references()[:1] if smoke else references())
-    key = rg.read_engine_key() if clients is None else None
-    if clients is None and engine is None:
-        engine = rg.Engine(base_url, api_key=key)
+    key = rg.read_engine_key()
+    engine = engine or rg.Engine(base_url, api_key=key)   # the guard always holds the engine
     folder = out / plan
     guard = rg.RunGuard(folder, lock=lock, engine=engine, max_minutes=max_minutes,
                         harbor=harbor or rg.harbor_running, free_pct=free_pct or rg.memory_free_pct)
@@ -613,6 +609,9 @@ def main(argv: list[str] | None = None) -> int:
     except RunInterrupted as exc:
         print(f"interrupted by {exc}; the engine restore and the report are in {out / a.plan}", file=sys.stderr)
         return 128 + exc.signum
+    except Exception as exc:  # noqa: BLE001  (the guard has restored, or recorded why not, and written the report)
+        print(f"failed: {type(exc).__name__}: {exc}; see {out / a.plan / 'run-report.json'}", file=sys.stderr)
+        return 1
     print(json.dumps({k: v for k, v in rep.items() if k != "models"}, indent=1, default=str))
     return EXIT[rep["outcome"]]
 

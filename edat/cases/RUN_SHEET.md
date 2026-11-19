@@ -124,7 +124,7 @@ All of it goes under `OUT` (private; held-out records refuse to be written anywh
 | `OUT/<plan>/timing.jsonl` | Seconds, user turns and family per trial: the measured speed. |
 | `OUT/<plan>/errors.jsonl` | Trials that raised an error. They are not recorded, so a resume runs them again. |
 | `OUT/<plan>/run-report.json` | Start, finish, outcome and exit code, counts, why it stopped, the engine state before, the restore result. Written on every exit, also when the restore fails. |
-| `/private/tmp/claude-501/wisp-heavy.lock.engine-save.json` | The engine state saved at this start: loaded, pinned and default model, with a token and a timestamp. It is marked `restored_at` once the restore matches it. It sits beside the lock, so any harness using the guard sees an unrestored one. |
+| `/private/tmp/claude-501/wisp-heavy.lock.engine-save.json` | The engine state saved at this start: loaded, pinned and default model, with a token and a timestamp. It is removed once a restore matches it (the report keeps the state as `engine_before`). It sits beside the lock, so any harness using the guard sees one left unrestored. |
 | `OUT/weights.json` | The weights hash cache. |
 
 Every record carries:
@@ -138,15 +138,16 @@ The store never pools records of different selections or manifests.
 
 ## Safety
 
-The run guard (`edat/runtime/run_guard.py`) does all of this. Its tests
-(`tests/test_edat_runtime_run_guard.py`) check every exit path against a fake
-engine. One test sends SIGHUP to a real child process.
+The run guard (`edat/runtime/run_guard.py`) does all of this. Two test files
+cover it:
+- `tests/test_edat_runtime_run_guard.py` checks every exit path against a fake engine. One of its tests sends SIGHUP to a real child process.
+- `tests/test_edat_runtime_run_guard_probes.py` keeps the safety review's probes. They run this CLI against a fake oMLX over real loopback HTTP with a fake key, and cover the signals, a stale state, a failed restore, all-fault smoke, the STOP file, the lock, the key, proxies, redirects, URL tricks and the single URL. They skip where a loopback port cannot be bound.
 
 | Rule | How |
 |---|---|
 | Output folder | A folder inside the repository is refused before anything is written. A held-out run must be under `$EDAT_PRIVATE_DIR`. |
 | Shared heavy-job lock | `mkdir /private/tmp/claude-501/wisp-heavy.lock`. An empty lock path is refused. If the lock exists, nothing starts. It is removed only by the run that made it, on every exit. |
-| Engine state | Saved fresh at each start: loaded, pinned and default model, with a token and a timestamp. A leftover save that was never restored refuses the start and prints the restore command. |
+| Engine state | Saved fresh at each start: loaded, pinned and default model, with a token and a timestamp. The save is removed after a restore that matches it, so one still present refuses the next start and prints the restore command. |
 | One model at a time | Before each model the run unloads every other chat model (helper models such as embedders stay), waiting out a queued unload. It stops if any stays loaded, then loads the model. |
 | Restore | Unloads what was not loaded before and loads what was, pinned models included, then checks that the state matches. It runs on every exit: normal end, stop, exception, Ctrl-C, SIGTERM, SIGHUP, SIGQUIT. Those signals and Ctrl-C are ignored while it runs. A restore error is recorded in the report and re-raised; the report is written either way. The pinned flags and the default model are oMLX settings that the run never changes. |
 | Harbor | Checked at start, before every unload, load and restore, and every 10 trials. The checks cover the app (`/MacOS/Harbor` or `/MacOS/Wisp`), a `swift run` build (`.build/.../Harbor`), a standalone backend (`-m service` or `uvicorn service`), and anything listening on 8765 or 8791. A check that errors counts as Harbor running. While Harbor runs, nothing is unloaded, loaded or restored. |
@@ -187,5 +188,5 @@ What the host sees:
 
 ## After the run
 
-- The run restores the engine itself. Check that the printed line says `engine restored`, and that the report's `outcome` is the one expected. `python -m edat.runtime.run_guard show` prints the saved state and when it was restored.
+- The run restores the engine itself. Check that the printed line says `engine restored`, and that the report's `outcome` is the one expected. If the save file is still there, the restore did not finish: `python -m edat.runtime.run_guard show` prints it.
 - Nothing is published. Records stay in OUT until the results chat imports them.

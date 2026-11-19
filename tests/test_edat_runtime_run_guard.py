@@ -97,9 +97,10 @@ def report(tmp_path):
 def back_as_before(fake, tmp_path):
     assert fake.loaded() == ["user-model", "user-pinned"]
     assert not (tmp_path / "heavy.lock").exists()
-    save = json.loads((tmp_path / "heavy.lock.engine-save.json").read_text())
-    assert save["restored_at"] and save["loaded"] == ["user-model", "user-pinned"]
-    assert save["pinned"] == ["user-pinned"] and save["default_model"] == "user-model"
+    assert not (tmp_path / "heavy.lock.engine-save.json").exists()      # removed once restored
+    before = report(tmp_path)["engine_before"]
+    assert before["loaded"] == ["user-model", "user-pinned"]
+    assert before["pinned"] == ["user-pinned"] and before["default_model"] == "user-model"
 
 
 # ------------------------------------------------------------------ exit paths
@@ -202,7 +203,7 @@ def test_restore_failure_is_recorded_reraised_and_still_reported(env):
     assert "run_guard restore" in r["restore_with"]
     assert not (tmp_path / "heavy.lock").exists()
     save = json.loads((tmp_path / "heavy.lock.engine-save.json").read_text())
-    assert save["restored_at"] is None
+    assert save["loaded"] == ["user-model", "user-pinned"]
     # the leftover save refuses the next start and says how to restore
     fake.fail = None
     with pytest.raises(rg.GuardError, match="never restored.*run_guard restore"):
@@ -211,6 +212,7 @@ def test_restore_failure_is_recorded_reraised_and_still_reported(env):
     assert rg.restore(rg.Engine(URL, transport=fake.transport), tmp_path / "heavy.lock.engine-save.json",
                       harbor=lambda: None).startswith("engine restored")
     assert fake.loaded() == ["user-model", "user-pinned"]
+    assert not (tmp_path / "heavy.lock.engine-save.json").exists()
     with guard():
         pass                                               # a restored save allows the next start
 
@@ -230,12 +232,12 @@ def test_each_start_saves_fresh_state(env):
     fake, guard, tmp_path, _ = env
     with guard() as g:
         g.prepare("gemma-a")
-    first = json.loads((tmp_path / "heavy.lock.engine-save.json").read_text())
+    first = report(tmp_path)["engine_before"]
     fake.models["user-model"]["loaded"] = False             # the user changes what is loaded between runs
     fake.models["gemma-b"]["loaded"] = True
     with guard() as g:
         g.prepare("gemma-a")
-    second = json.loads((tmp_path / "heavy.lock.engine-save.json").read_text())
+    second = report(tmp_path)["engine_before"]
     assert second["token"] != first["token"] and second["loaded"] == ["gemma-b", "user-pinned"]
     assert fake.loaded() == ["gemma-b", "user-pinned"]
 
@@ -409,12 +411,12 @@ def test_not_applicable_only_is_finished(env):
 
 def test_restore_cli_refuses_another_runs_save(env, tmp_path):
     fake, guard, _, _ = env
-    with guard() as g:
-        g.prepare("gemma-a")
+    with pytest.raises(httpx.HTTPStatusError):
+        with guard() as g:
+            g.prepare("gemma-a")
+            fake.fail = ("POST", "/load")
+    fake.fail = None
     save = tmp_path / "heavy.lock.engine-save.json"
-    data = json.loads(save.read_text())
-    data["restored_at"] = None
-    save.write_text(json.dumps(data))
     with pytest.raises(rg.GuardError, match="token"):
         rg.restore(rg.Engine(URL, transport=fake.transport), save, harbor=lambda: None, token="other")
     with pytest.raises(rg.GuardError, match="saved from"):

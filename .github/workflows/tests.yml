@@ -7,6 +7,11 @@
 #
 # Each test file runs in its own pytest process, as the README recommends:
 # some imported tests reload modules or patch process-wide state.
+#
+# The files are discovered, not listed here: tools/ci_test_files.py prints
+# every tracked tests/test_*.py and ios-bench/tools/test_*.py except the
+# exclusions it names with their reasons, so a merged branch's new test
+# files join the gate on their own. A file that collects no tests fails.
 
 name: tests
 
@@ -24,34 +29,6 @@ concurrency:
 
 env:
   PYTHONDONTWRITEBYTECODE: "1"
-  # The 15 offline test files that pass on main. Named one by one: a bare
-  # `pytest` also collects paths this repository does not have (air/tests).
-  #
-  # Left out on purpose (see IMPORT.md):
-  # - tests/test_send_recipient_preflight.py: one test reads the Mac app's Swift
-  #   source (app/), which is not imported.
-  # - tests/test_local_provider_tools.py, test_power_tier.py,
-  #   test_effect_refusal_no_lock.py, test_harbor_self_reference.py,
-  #   test_long_email_digest.py, test_model_only_quality.py,
-  #   test_model_led_integration.py, test_model_led_entrypoint.py: pass
-  #   locally, but cover Harbor's backend rather than a benchmark harness;
-  #   not yet part of the benchmark's gate.
-  TEST_FILES: >-
-    tests/test_toolbench.py
-    tests/test_toolbench_world.py
-    tests/test_rc3_toolbench_scorer.py
-    tests/test_eval_planner_dry_run.py
-    tests/test_sandbox_world.py
-    tests/test_reply_bridge_simulation.py
-    tests/test_backend_identity_and_sandbox_isolation.py
-    tests/test_memory_eval_scorer.py
-    tests/test_edat_results_aggregate.py
-    tests/test_edat_results_convert.py
-    tests/test_edat_results_export.py
-    tests/test_edat_results_stats.py
-    tests/test_edat_results_writer.py
-    tests/test_bench_profiles.py
-    tests/test_productbench.py
 
 jobs:
   macos:
@@ -77,8 +54,10 @@ jobs:
           python scripts/run_toolbench.py --dry-run | tail -1
       - name: Run the offline test files
         run: |
+          files=$(python tools/ci_test_files.py --why) || exit 1
+          echo "$(echo "$files" | wc -l | tr -d ' ') test files"
           status=0
-          for f in $TEST_FILES; do
+          for f in $files; do
             echo "::group::$f"
             python -m pytest -q --no-header "$f" || status=1
             echo "::endgroup::"
@@ -105,7 +84,8 @@ jobs:
         run: python -m pip install -r requirements-dev.txt
       - name: Run the offline test files, one result line per file
         run: |
-          for f in $TEST_FILES; do
+          files=$(python tools/ci_test_files.py) || exit 1
+          for f in $files; do
             line=$(python -m pytest -q --no-header "$f" 2>&1 | tail -1)
             echo "$f :: $line"
           done

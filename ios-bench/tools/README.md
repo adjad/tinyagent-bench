@@ -7,12 +7,14 @@ see `Sources/EdgeBenchCore/PhoneItems.swift`. The published 120-item parity subs
 agentic harness's exporter on the Mac (02 §6, B11). Until it exists, the app bundles a stand-in:
 
 ```
-python3 ios-bench/tools/export_phone_items.py --today 2026-11-18
-python3 -m pytest ios-bench/tools/test_export_phone_items.py -q
+python3 ios-bench/tools/export_phone_items.py
+python3 -m pytest ios-bench/tools/test_export_phone_items.py ios-bench/tools/test_export_portable_cases.py -q
 ```
 
 This writes `Resources/phone-items-standin.jsonl` and `.manifest.json` from `Resources/portable-cases.json`:
-35 items, `thinking: true`, author-recommended sampling with seed `1000 + index`, `rendered_prompt: null`.
+32 items, `thinking: true`, author-recommended sampling with seed `1000 + index`, `rendered_prompt: null`.
+Every item's `today` is the bundle's `source.bound_today`; a different `--today` is refused, because the
+bundle's date facts were bound for that day.
 The manifest says it is NOT the published subset.
 
 - `check.kind` is `calls`, `no_call`, `text` or `either`. `either` takes `options`, a list of full checks,
@@ -26,10 +28,19 @@ The manifest says it is NOT the published subset.
 longer scores it. Regenerate it with
 
 ```
-python ios-bench/tools/export_portable_cases.py --exported-at 2026-11-18T00:00:00Z
+python ios-bench/tools/export_portable_cases.py --today 2026-11-18 --exported-at 2026-11-18T00:00:00Z
 ```
 
-It needs PyYAML and Harbor's `service.*` imports (repo venv), points `HOME` at an empty temp directory
+- **Development split only.** The 25 Toolbench cases are all `split: dev` (case set version 2); the exporter
+  refuses a held-out `gate` or `voice` case, so held-out cases live only in Toolbench's own case files.
+- **Facts are bound like Toolbench's loader binds them:** `Case.bind(world.make_facts(None, today))`, the
+  canonical world's facts with the date facts for `--today`. The exporter stops if any `{fact}` is left.
+- A case's `forbid` list is carried into the item's check. Only the first call is graded (there is no world
+  to run tools against), so a case's `answer` checks are not carried.
+- `source.repo_commit` is the last commit that changed `scripts/toolbench/cases`, with the case set's
+  version and hash.
+
+It needs PyYAML and the repository's `service.*` imports, points `HOME` at an empty temp directory
 first so nothing reads user data, and takes tool schemas from `service.tools.registry.tool_schemas` with
 `HARBOR_TERSE_TOOL_SCHEMAS=1`. Authored text uses the persona "Test User" at `test.user@example.com` and
 `.example` / `.invalid` domains only.

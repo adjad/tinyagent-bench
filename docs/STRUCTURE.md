@@ -14,7 +14,7 @@ written only for this benchmark goes in the benchmark's own folders.
 | --- | --- | --- |
 | `README.md`, `IMPORT.md`, `NOTICE`, `LICENSE` | Overview, import provenance, attribution, licence | Benchmark (LICENSE from Harbor) |
 | `import/` | Machine-readable import definition and resolved file list | Benchmark |
-| `tools/` | The benchmark's own maintenance tools (`import_harbor.py`) | Benchmark |
+| `tools/` | The benchmark's own maintenance tools (`import_harbor.py`, `ci_test_files.py`) | Benchmark |
 | `docs/STRUCTURE.md` | This file | Benchmark |
 | `docs/benchmark/` | Design documents, all drafts (numbered `NN-name.md`) | Benchmark |
 | `site/` | Website mock-up with sample data | Benchmark |
@@ -97,8 +97,9 @@ Recorded during the import on 2026-11-18. Each has the choice taken for now.
 8. **Simulation QA manifest.** The harness-fairness and product-eval branches
    both add their new tests to Harbor's `scripts/run_simulation_qa.py`. That is
    Harbor release tooling and is not imported. *Taken:* leave that file out when
-   applying those branches (see below). If this repository gets CI, list the
-   test files in its own workflow instead.
+   applying those branches (see below). This repository's workflow finds its
+   test files itself (`tools/ci_test_files.py`), so a merged branch's tests
+   join the gate without a list to edit.
 9. **One test needs the Mac app's source.**
    `tests/test_send_recipient_preflight.py::test_the_draft_cards_show_the_quiet_line_neutral_with_no_tick`
    reads `app/Sources/HarborApp/HarborClient.swift`. *Taken:* `app/` stays out;

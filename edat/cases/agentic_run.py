@@ -1,8 +1,9 @@
 """The routine agentic run on this Mac: both loops, one model resident at a time.
 
-    python -m edat.cases.agentic_run plan      --out OUT [--plan smoke|routine] [--measured DIR]
+    python -m edat.cases.agentic_run plan      --out OUT [--plan smoke|smoke-long|routine] [--measured DIR]
     python -m edat.cases.agentic_run preflight --out OUT [--engine] [--weights]
-    python -m edat.cases.agentic_run run       --out OUT --plan smoke|routine --board-version V
+    python -m edat.cases.agentic_run run       --out OUT --plan smoke|smoke-long|routine --board-version V
+                                               [--splits dev,heldout] [--trials N] [--heldout-trials N]
                                                [--lock DIR] [--max-minutes N]
 
 What a run does (docs: edat/cases/RUN_SHEET.md):
@@ -12,7 +13,10 @@ What a run does (docs: edat/cases/RUN_SHEET.md):
   (the 7 headline families, privacy, preferences, memory, date-time,
   oversized results and the long sessions), plus the noisy variants of each
   split's 30 core seeds. English only. The scaling probe is not in it.
-  `smoke` is 9 development cases (`smoke_cases`), one trial, on the first model.
+  `smoke` is 9 development cases (`smoke_cases`), one trial, on the first model;
+  `smoke-long` is one long session (60 user turns), one trial. `plan` prints
+  the routine run at three sizes: (a) both splits at 3 trials, (b) the
+  development split at 3 and the held-out split at 1, (c) development only.
   Every record carries `selection` {tier, manifest_sha256, n_items,
   ci95_half_width_pts}; the manifest (the sorted case ids) is written to
   OUT/<plan>/selection.json.
@@ -144,16 +148,40 @@ def smoke_cases() -> list[dict]:
     return out
 
 
-def select(plan: str) -> list[dict]:
+def smoke_long_cases() -> list[dict]:
+    """One long session (assistant lane, development split): its turns measure long-history speed."""
+    return [next(c for c in sorted(core_cases("dev"), key=lambda c: c["id"])
+                 if c["family"] == "long_session" and c["lane"] == "assistant")]
+
+
+PLANS = ("smoke", "smoke-long", "routine")
+SPLITS = ("dev", "heldout")
+
+
+def select(plan: str, splits: tuple[str, ...] = SPLITS) -> list[dict]:
     if plan == "smoke":
         return smoke_cases()
+    if plan == "smoke-long":
+        return smoke_long_cases()
     if plan != "routine":
         raise ValueError(f"unknown plan {plan!r}")
     out = []
-    for split in ("dev", "heldout"):
+    for split in splits:
         out.extend(core_cases(split))
         out.extend(noisy_core(split))
     return out
+
+
+def trials_for(trials, split: str) -> int:
+    """`trials` is one count for every split or {split: count} (e.g. development 3, held-out 1)."""
+    return trials.get(split, 0) if isinstance(trials, dict) else int(trials)
+
+
+def scenarios(trials: int = 3) -> dict[str, dict]:
+    """The coordinator's three sizes for the routine run (selection, trials per split)."""
+    return {"a_both_splits": {"splits": SPLITS, "trials": {"dev": trials, "heldout": trials}},
+            "b_dev3_heldout1": {"splits": SPLITS, "trials": {"dev": trials, "heldout": 1}},
+            "c_dev_only": {"splits": ("dev",), "trials": {"dev": trials}}}
 
 
 def interleave(cases: list[dict]) -> list[dict]:
@@ -205,11 +233,11 @@ def harbor_column(case: dict) -> bool:
     return in_column(case) and not case.get("variant_of")
 
 
-def units(cases: list[dict], models: list[ModelEntry], trials: int, *, column=None) -> list[Unit]:
+def units(cases: list[dict], models: list[ModelEntry], trials, *, column=None) -> list[Unit]:
     column = column or harbor_column
     return [Unit(m.engine_id, suite, c.get("split", "dev"), c["id"], t)
-            for m in models for c in cases for t in range(1, trials + 1) for suite in SUITE_ORDER
-            if suite == "reference-loop" or column(c)]
+            for m in models for c in cases for t in range(1, trials_for(trials, c.get("split", "dev")) + 1)
+            for suite in SUITE_ORDER if suite == "reference-loop" or column(c)]
 
 
 def done_keys(store: Path) -> set[tuple]:
@@ -222,26 +250,37 @@ def done_keys(store: Path) -> set[tuple]:
     return out
 
 
+def rate_key(suite: str, family: str | None) -> str:
+    """Long sessions carry long histories and are timed apart: `<suite>:long_session`."""
+    return f"{suite}:long_session" if family == "long_session" else suite
+
+
 def measured_rates(folder: Path) -> dict[str, float]:
-    """Seconds per user turn, per suite, from a run's timing.jsonl (trials that called the model)."""
+    """Seconds per user turn, per suite (long sessions apart), from every timing.jsonl under `folder`
+    (trials that called the model)."""
     sums: dict[str, list[float]] = {}
     for f in Path(folder).rglob("timing.jsonl"):
         for line in f.read_text().splitlines():
             if line.strip():
                 t = json.loads(line)
                 if t.get("status") == "ok":
-                    s = sums.setdefault(t["suite"], [0.0, 0.0])
+                    s = sums.setdefault(rate_key(t["suite"], t.get("family")), [0.0, 0.0])
                     s[0] += t["seconds"]
                     s[1] += t["turns"]
     return {k: v[0] / v[1] for k, v in sums.items() if v[1]}
 
 
-def estimate(cases: list[dict], models: list[ModelEntry], trials: int, *, rates: dict[str, float] | None = None,
+def rate_for(rates: dict[str, float], suite: str, family: str | None) -> float:
+    return rates.get(rate_key(suite, family), rates.get(suite, ASSUMED_S_PER_TURN))
+
+
+def estimate(cases: list[dict], models: list[ModelEntry], trials, *, rates: dict[str, float] | None = None,
              harbor_applicable=None, done: set[tuple] = frozenset(), column=None) -> dict:
     """Hours per model and suite (and per split): user turns x trials x seconds per turn (measured,
     else 10 s). A column case Harbor's host refuses (recorded not_applicable) costs nothing."""
     rates = rates or {}
     turns = {(c.get("split", "dev"), c["id"]): user_turns(c) for c in cases}
+    family = {(c.get("split", "dev"), c["id"]): c["family"] for c in cases}
     applicable = {(c.get("split", "dev"), c["id"]): (harbor_applicable(c) if harbor_applicable else True)
                   for c in cases}
     rows: dict[str, dict] = {}
@@ -253,7 +292,7 @@ def estimate(cases: list[dict], models: list[ModelEntry], trials: int, *, rates:
         if u.suite == "harbor-loop" and not applicable[(u.split, u.case_id)]:
             continue
         n = turns[(u.split, u.case_id)]
-        h = n * rates.get(u.suite, ASSUMED_S_PER_TURN) / 3600
+        h = n * rate_for(rates, u.suite, family[(u.split, u.case_id)]) / 3600
         m[u.suite]["case_trials"] += 1
         m[u.suite]["turns"] += n
         m[u.suite]["hours"] += h
@@ -263,7 +302,9 @@ def estimate(cases: list[dict], models: list[ModelEntry], trials: int, *, rates:
             m[k]["hours"] = round(m[k]["hours"], 2)
         m["by_split_hours"] = {k: round(v, 2) for k, v in m["by_split_hours"].items()}
         m["total_hours"] = round(sum(m[k]["hours"] for k in SUITE_ORDER), 2)
-    return {"seconds_per_turn": {s: rates.get(s, ASSUMED_S_PER_TURN) for s in SUITE_ORDER},
+    keys = [*SUITE_ORDER, *(rate_key(s, "long_session") for s in SUITE_ORDER[:1])]
+    return {"seconds_per_turn": {k: round(rates.get(k, rates.get(k.split(":")[0], ASSUMED_S_PER_TURN)), 2)
+                                 for k in keys},
             "rates_source": "measured" if rates else "assumed (spec 02: 10 s per case-trial)",
             "models": rows, "total_hours": round(sum(m["total_hours"] for m in rows.values()), 2)}
 
@@ -426,7 +467,8 @@ def device_block(device_id: str) -> dict:
     return db(device_id)
 
 
-def run(out: Path, *, plan: str, board_version: str, trials: int | None = None, lock: str | None = LOCK,
+def run(out: Path, *, plan: str, board_version: str, trials=None, splits: tuple[str, ...] = SPLITS,
+        lock: str | None = LOCK,
         max_minutes: float | None = None, models: list[ModelEntry] | None = None, clients=None,
         engine: Engine | None = None, isolate: bool = True, weights=None, device_id: str = "this-mac",
         port: int = 8000, progress=print, host_free=memory_free_pct, host_app=app_running,
@@ -438,8 +480,9 @@ def run(out: Path, *, plan: str, board_version: str, trials: int | None = None, 
         raise SystemExit("results go to a private folder outside the repository")
     if plan == "routine" and not under_private(out):
         raise SystemExit("the routine run includes held-out cases: OUT must be under $EDAT_PRIVATE_DIR")
-    trials = trials or (1 if plan == "smoke" else TRIALS)
-    models = models or (references()[:1] if plan == "smoke" else references())
+    smoke = plan.startswith("smoke")
+    trials = trials or (1 if smoke else TRIALS)
+    models = models or (references()[:1] if smoke else references())
     if clients is None and host_app():
         raise SystemExit(f"{host_app()} is running (it shares oMLX): close it first; nothing was touched")
     folder = out / plan
@@ -448,7 +491,7 @@ def run(out: Path, *, plan: str, board_version: str, trials: int | None = None, 
     with heavy_lock(lock):
         if isolate:
             _isolate(folder, port)
-        cases = interleave(select(plan))
+        cases = interleave(select(plan, splits))
         man = manifest(cases, plan)
         (folder / "selection.json").write_text(json.dumps(man, indent=1))
         engine = engine or (Engine(out) if clients is None else Engine(out, prep=lambda argv: 0))
@@ -553,7 +596,7 @@ def _run_models(folder: Path, cases, man, models, trials, *, board_version, max_
                     if rec["status"] != "not_applicable":
                         statuses.append(rec["status"])
                     timing.write(json.dumps({**u.__dict__, "status": rec["status"], "seconds": round(secs, 3),
-                                             "turns": user_turns(case)}) + "\n")
+                                             "turns": user_turns(case), "family": case["family"]}) + "\n")
                     timing.flush()
                     n += 1
                     counts["ran"] += 1
@@ -593,8 +636,10 @@ def main(argv: list[str] | None = None) -> int:
     sub = ap.add_subparsers(dest="cmd", required=True)
     p = sub.add_parser("plan", help="the selection and its time (no model, no engine)")
     p.add_argument("--out", required=True)
-    p.add_argument("--plan", choices=("smoke", "routine"), default="routine")
-    p.add_argument("--measured", help="a folder with timing.jsonl (the smoke run): re-estimate from measured speed")
+    p.add_argument("--plan", choices=PLANS, default="routine")
+    p.add_argument("--measured", help="a folder holding timing.jsonl files (OUT, after the smoke steps): "
+                                      "re-estimate from measured speed")
+    p.add_argument("--detail", action="store_true", help="routine: every suite and split of size (a)")
     f = sub.add_parser("preflight", help="read-only checks before a run")
     f.add_argument("--out", required=True)
     f.add_argument("--engine", action="store_true", help="also list the engine's models (GET only)")
@@ -602,9 +647,11 @@ def main(argv: list[str] | None = None) -> int:
     f.add_argument("--lock", default=LOCK)
     r = sub.add_parser("run", help="run a plan on oMLX (needs the go-ahead)")
     r.add_argument("--out", required=True)
-    r.add_argument("--plan", choices=("smoke", "routine"), required=True)
+    r.add_argument("--plan", choices=PLANS, required=True)
     r.add_argument("--board-version", required=True)
-    r.add_argument("--trials", type=int)
+    r.add_argument("--trials", type=int, help="trials per case (default: 3; 1 for the smoke plans)")
+    r.add_argument("--heldout-trials", type=int, help="routine: trials per held-out case, if not --trials")
+    r.add_argument("--splits", default="dev,heldout", help="routine: dev,heldout (default) or dev")
     r.add_argument("--lock", default=LOCK)
     r.add_argument("--max-minutes", type=float)
     r.add_argument("--port", type=int, default=int(os.environ.get("TINYAGENT_ENGINE_PORT", "8000")))
@@ -618,19 +665,37 @@ def main(argv: list[str] | None = None) -> int:
         return 0 if all(ok for _, ok, _ in rows) else 1
     if a.cmd == "plan":
         _isolate(Path(tempfile.mkdtemp(prefix="edat-agentic-plan-")), 8000)   # no request is sent
+        smoke = a.plan.startswith("smoke")
         cases = select(a.plan)
-        models = references()[:1] if a.plan == "smoke" else references()
-        trials = 1 if a.plan == "smoke" else TRIALS
+        models = references()[:1] if smoke else references()
         rates = measured_rates(Path(a.measured)) if a.measured else None
         done = done_keys(out / a.plan / "store") if (out / a.plan / "store").exists() else set()
-        man = manifest(cases, a.plan)
-        est = estimate(cases, models, trials, rates=rates, harbor_applicable=_harbor_applicable(), done=done)
-        print(json.dumps({"cases": man["n_cases"], "manifest_sha256": man["manifest_sha256"],
-                          "already_recorded": len(done), **est}, indent=1))
+        applicable = _harbor_applicable()
+        if smoke or a.detail:
+            man = manifest(cases, a.plan)
+            est = estimate(cases, models, 1 if smoke else TRIALS, rates=rates, harbor_applicable=applicable,
+                           done=done)
+            print(json.dumps({"cases": man["n_cases"], "already_recorded": len(done), **est}, indent=1))
+            return 0
+        out_rows = {}
+        for name, sc in scenarios().items():
+            sel = [c for c in cases if c.get("split", "dev") in sc["splits"]]
+            est = estimate(sel, models, sc["trials"], rates=rates, harbor_applicable=applicable, done=done)
+            out_rows[name] = {"cases": len(sel), "trials": sc["trials"],
+                              "hours_per_model": {k: v["total_hours"] for k, v in est["models"].items()},
+                              "total_hours": est["total_hours"]}
+        print(json.dumps({"seconds_per_turn": est["seconds_per_turn"], "rates_source": est["rates_source"],
+                          "already_recorded": len(done), "sizes": out_rows}, indent=1))
         return 0
     import signal
     signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))     # a kill still restores the engine and the lock
-    rep = run(out, plan=a.plan, board_version=a.board_version, trials=a.trials, lock=a.lock,
+    splits = tuple(x for x in a.splits.split(",") if x)
+    if any(x not in SPLITS for x in splits):
+        ap.error(f"--splits takes {', '.join(SPLITS)}")
+    trials = a.trials
+    if a.heldout_trials is not None:
+        trials = {"dev": a.trials or TRIALS, "heldout": a.heldout_trials}
+    rep = run(out, plan=a.plan, board_version=a.board_version, trials=trials, splits=splits, lock=a.lock,
               max_minutes=a.max_minutes, port=a.port, device_id=a.device_id)
     print(json.dumps({k: v for k, v in rep.items() if k != "models"}, indent=1, default=str))
     return 0 if not rep.get("failed") else 1

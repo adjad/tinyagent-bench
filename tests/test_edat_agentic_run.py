@@ -36,7 +36,7 @@ class FakePrep:
 @pytest.fixture
 def stubbed(monkeypatch, tmp_path):
     cases = neutral_cases()
-    monkeypatch.setattr(ar, "select", lambda plan: list(cases))
+    monkeypatch.setattr(ar, "select", lambda plan, splits=ar.SPLITS: list(cases))
     prep = FakePrep()
     out = tmp_path / "out"
 
@@ -244,3 +244,41 @@ def test_preflight_rows_without_engine(tmp_path, monkeypatch):
     assert rows["held-out cases present"] is False
     assert rows["heavy-job lock free"] is True
     assert not any(k.startswith("engine") for k in rows)
+
+
+def test_trials_per_split_and_the_three_sizes():
+    cs = [{"id": "d1", "lane": "neutral", "family": "select", "split": "dev"},
+          {"id": "h1", "lane": "neutral", "family": "select", "split": "heldout"}]
+    m = ar.references()[:1]
+    us = ar.units(cs, m, {"dev": 3, "heldout": 1}, column=lambda c: False)
+    assert sorted((u.split, u.trial) for u in us) == [("dev", 1), ("dev", 2), ("dev", 3), ("heldout", 1)]
+    sc = ar.scenarios()
+    assert sc["a_both_splits"]["trials"] == {"dev": 3, "heldout": 3}
+    assert sc["b_dev3_heldout1"]["trials"] == {"dev": 3, "heldout": 1}
+    assert sc["c_dev_only"]["splits"] == ("dev",)
+    assert [(u.split, u.trial) for u in ar.units(cs, m, sc["c_dev_only"]["trials"], column=lambda c: False)] == \
+        [("dev", 1), ("dev", 2), ("dev", 3)]
+
+
+def test_long_sessions_are_timed_and_estimated_apart(tmp_path):
+    (tmp_path / "timing.jsonl").write_text("\n".join(json.dumps(t) for t in [
+        {"suite": "reference-loop", "status": "ok", "seconds": 3.0, "turns": 1, "family": "select"},
+        {"suite": "reference-loop", "status": "ok", "seconds": 300.0, "turns": 60, "family": "long_session"}]))
+    rates = ar.measured_rates(tmp_path)
+    assert rates == {"reference-loop": 3.0, "reference-loop:long_session": 5.0}
+    assert ar.rate_for(rates, "reference-loop", "long_session") == 5.0
+    assert ar.rate_for(rates, "reference-loop", "select") == 3.0
+    assert ar.rate_for({}, "harbor-loop", "select") == ar.ASSUMED_S_PER_TURN
+
+
+def test_smoke_long_is_one_assistant_long_session():
+    (c,) = ar.smoke_long_cases()
+    assert c["family"] == "long_session" and c["lane"] == "assistant" and ar.user_turns(c) > 10
+    assert not ar.harbor_column(c)          # reference loop only
+
+
+def test_timing_rows_carry_the_family(stubbed):
+    go, out, prep, cases = stubbed
+    go()
+    rows = [json.loads(x) for x in (out / "smoke" / "timing.jsonl").read_text().splitlines()]
+    assert {r["family"] for r in rows} == {"select"}

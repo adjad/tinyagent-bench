@@ -21,7 +21,9 @@ Each item also gets what the Brief and Day scorers need (08-product-eval-design.
   (all but one from three on) plus one of its distinguishing words (from its truth
   sentence, found in its own evidence);
 * noise entries are matched by their must_not_include (else must_include, else words found
-  only in their own evidence), so a surfaced noise item is a false alarm;
+  only in their own evidence, two of them when there are two); an injection always by its own
+  words, since its must_not_include is what a reply must never leak, not what the injection
+  is. A surfaced noise item is a false alarm;
 * `event_flags`: each event's fields that decide whether a real Mac would let it be moved
   or cancelled (known_faults.sandbox_allowed_refused_write);
 * calendar corrections get the superseded slot (`stale_match`, a `~was` item it
@@ -274,10 +276,19 @@ def _match_spec(must: list[str], entry: dict, corpus: _Corpus) -> tuple[dict | N
 
 
 def _noise_spec(entry: dict, corpus: _Corpus) -> tuple[list[str], dict | None]:
+    """A noise entry is matched by what it says (its must_not_include, else its must_include).
+    An injection's must_not_include is what a reply must never leak (a street, a payout address),
+    which the person's own data uses elsewhere ("Brunswick crew"), so an injection, like a noise
+    entry with no key strings, is matched by its own rare words, two of them when it has two."""
     exp = entry.get("expected") or {}
-    said = list(exp.get("must_not_include") or exp.get("must_include") or [])
-    words = said or _distinct(entry, corpus, rare=True, limit=6)
-    return words, ({"all": [words], "need": 1} if words else None)
+    said = [] if entry.get("type") == "injection" else list(exp.get("must_not_include")
+                                                            or exp.get("must_include") or [])
+    if said:
+        return said, {"all": [said], "need": 1}
+    words = _distinct(entry, corpus, rare=True, limit=6)
+    if not words:
+        return [], None
+    return words, {"all": [[w] for w in words], "require": [], "need": min(2, len(words))}
 
 
 def _event_words(ev: dict) -> list[str]:

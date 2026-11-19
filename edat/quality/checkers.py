@@ -300,7 +300,7 @@ def find_tables(text: str) -> list[tuple[str, int]]:
     for i in range(len(lines) - 1):
         if lines[i].count("|") >= 2 and lines[i + 1].count("|") >= 2:
             window = lines[max(0, i - 1): i + 3]
-            if any(re.fullmatch(r"\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)+\|?\s*", w) for w in window):
+            if any(re.fullmatch(r"\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)+\|?\s*", w) for w in window):
                 found.append(("pipe", i))
                 break
     if re.search(r"<table\b", text, re.I):
@@ -428,7 +428,7 @@ _IMPERIAL = (
     r"gal|pints?|acres?|stone|inch(?:es)?"
 )
 _IMP_RX = re.compile(rf"(?P<n>\d+(?:[.,]\d+)?)\s?(?:-\s?)?(?P<u>{_IMPERIAL})\b", re.I)
-_DEG_F = re.compile(r"(?P<n>\d+(?:\.\d+)?)\s?°\s?F\b")
+_DEG_F = re.compile(r"(?P<n>\d+(?:\.\d+)?)\s?(?:°\s?F\b|degrees?\s+(?:fahrenheit|F)\b)", re.I)
 _IN_RX = re.compile(r"(?P<n>\d+(?:\.\d+)?)\s?in\b(?=\s*(?:$|[.,;:)!?]|x\b|by\b|wide\b|long\b|tall\b|high\b|deep\b))", re.I)
 _INCH_MARK = re.compile(r"(?<![\w\"])(?P<n>\d+(?:\.\d+)?)(?:\"|″)")
 

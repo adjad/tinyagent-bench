@@ -74,7 +74,7 @@ _DATE_PATTERNS: list[tuple[str, re.Pattern]] = [
     ("mon-d", re.compile(rf"\b({_MON_RX})\.?\s+(\d{{1,2}})({_ORD})?(?![\d:])(?:,?\s+(\d{{4}}))?\b", re.I)),
     # Numeric day-first: "12/03", "12/03/2027", "12.03.2027"
     ("dmy-slash", re.compile(r"(?<![\d/.:])(\d{1,2})/(\d{1,2})(?:/(\d{2,4}))?(?![\d/])")),
-    ("dmy-dot", re.compile(r"(?<![\d.:])(\d{1,2})\.(\d{1,2})\.(\d{4})(?![\d.])")),
+    ("dmy-dot", re.compile(r"(?<![\d.:])(\d{1,2})\.(\d{1,2})\.(\d{4})(?!\d)(?!\.\d)")),
     # Bare ordinal day: "the 21st", "on the 12th"
     ("ordinal", re.compile(rf"\b(\d{{1,2}})({_ORD})\b", re.I)),
 ]
@@ -624,4 +624,15 @@ def parse_anchor(anchor) -> tuple[str, object, tuple]:
         return anchor.get("type") or infer_anchor_type(str(anchor["value"])), anchor["value"], tuple(anchor.get("aliases", ()))
     if isinstance(anchor, (tuple, list)) and len(anchor) >= 2:
         return anchor[0], anchor[1], tuple(anchor[2]) if len(anchor) > 2 else ()
-    return infer_anchor_type(str(anchor)), anchor, ()
+    text = str(anchor)
+    atype = infer_anchor_type(text)
+    if atype == "text":
+        # a bare "3 pm" or "12 March 2027" key is compared by value, not by spelling
+        times = find_times(text)
+        if len(times) == 1 and times[0].value and len(text.strip()) - len(times[0].surface.strip()) <= 1:
+            return "time", times[0].value, (text,)
+        dates = [d for d in find_dates(text) if d.value[1] is not None and d.value[0] is not None]
+        if len(dates) == 1 and len(dates[0].surface) >= len(text.strip()) - 1:
+            y, m, d = dates[0].value[:3]
+            return "date", _dt.date(y, m, d).isoformat(), (text,)
+    return atype, anchor, ()

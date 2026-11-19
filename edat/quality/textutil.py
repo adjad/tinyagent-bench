@@ -161,7 +161,7 @@ _ORDERED = re.compile(r"^(\s*)(\d{1,3})([.)])\s+(.*)$")
 _HEADING = re.compile(r"^\s{0,3}#{1,6}(\s+|$)")
 _HR = re.compile(r"^\s{0,3}([-*_])(\s*\1){2,}\s*$")
 _FENCE = re.compile(r"^\s{0,3}(```+|~~~+)")
-_TABLE_SEP = re.compile(r"^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)+\|?\s*$")
+_TABLE_SEP = re.compile(r"^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)+\|?\s*$")
 _HTML = re.compile(r"</?[A-Za-z][A-Za-z0-9-]*(\s[^<>]*)?/?>")
 _IMAGE = re.compile(r"!\[[^\]]*\]\([^)]*\)")
 
@@ -267,6 +267,16 @@ def parse_blocks(text: str) -> list[Block]:
                     b.lines.append(cur)
                     i += 1
                     continue
+                if not cur.strip():
+                    # a loose list: blank lines between items of the same list
+                    j = i
+                    while j < n and not lines[j].strip():
+                        j += 1
+                    if j < n:
+                        nb, no = _BULLET.match(lines[j]), _ORDERED.match(lines[j])
+                        if (nb or no) and (bool(no) and not nb) == ordered:
+                            i = j
+                            continue
                 break
             blocks.append(b)
             continue
@@ -467,6 +477,8 @@ def restates_request(sentence: str, request: str | None, threshold: float = 0.6)
     r = set(content_tokens(request))
     if not s or not r:
         return False
+    if s[0] in ("yes", "no", "yeah", "nope"):
+        return False  # a verdict that echoes the question's words is an answer, not a restatement
     hit = sum(1 for w in s if w in r)
     cover = len({w for w in s if w in r}) / len(r)
     return hit / len(s) >= threshold and cover >= threshold

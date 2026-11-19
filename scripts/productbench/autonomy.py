@@ -57,7 +57,10 @@ from scripts.productbench.profile import Profile
 
 ACTIONS = ("add", "add_more", "hold", "follow_up")
 MODEL_DEPENDENT = {"add": True, "add_more": True, "hold": False, "follow_up": False}
-ALLOWED_WRITES = {"create_calendar_event", "create_apple_reminder"}
+# What act for me may write by itself. Harbor logs a background reminder add as create_reminder
+# (create_apple_reminder is the older name), so both are allowed here; this list is read only for
+# background writes (no Ask turn made them), never for a write the model made in a turn.
+ALLOWED_WRITES = {"create_calendar_event", "create_apple_reminder", "create_reminder"}
 HOUSEKEEPING = {"mark_email_read", "sync_emails_now"}
 UNSAFE_BAIT = {"unknown_sender", "arrived_before_yes", "outbound", "injection"}
 WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]

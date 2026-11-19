@@ -21,7 +21,12 @@ Rules (each evaluation is one check; a violation fails it):
   R8 not_in_past      nothing new is planned before "now"
 
 Coverage: share of the day's ledger tasks (deadline, owed, task with a duration)
-that the plan gives a block.
+that the plan gives a block. When the key gives no such task the check cannot run: coverage
+is reported as missing (rate None) and counts 0 in the score, never 1.0.
+
+A block whose end the plan does not give takes the length of the fixed item that starts at
+its time (±10 min), else it runs to the next block (at most an hour). "Overdue by 5 days" is
+an amount, not a clock time (matcher.py).
 """
 from __future__ import annotations
 
@@ -95,11 +100,19 @@ def parse_plan(text: str, profile: Profile) -> list[Block]:
         title = re.sub(r"^(?:from|at|by)\s+", "", title, flags=re.I)
         raw.append([start, end, title, piece.strip()])
     raw.sort(key=lambda r: r[0])
+    fixed = [(profile.minutes(it["start"]), profile.minutes(it["end"])) for it in profile.ledger
+             if it.get("fixed") and it.get("start") and it.get("end") and profile.on_day(it["start"])
+             and profile.on_day(it["end"])]
     blocks = []
     for i, (start, end, title, line) in enumerate(raw):
         if end is None:
-            nxt = next((r[0] for r in raw[i + 1:] if r[0] > start), None)
-            end = min(nxt, start + 60) if nxt else start + 30
+            # "12:15 GIS meeting" runs as long as the meeting does, not until the next line.
+            own = next((e - s for s, e in fixed if abs(s - start) <= TOLERANCE_MIN and e > s), None)
+            if own:
+                end = start + own
+            else:
+                nxt = next((r[0] for r in raw[i + 1:] if r[0] > start), None)
+                end = min(nxt, start + 60) if nxt else start + 30
         blocks.append(Block(start, end, title, line))
     return blocks
 
@@ -133,7 +146,9 @@ def _now_minutes(profile: Profile, rules: dict) -> int:
 
 
 def _phrases(item: dict) -> list[str]:
-    return [a for a in item.get("anchors", []) if not a.startswith(("@", "#"))]
+    """Words that tie a plan block to a ledger item: its `plan_words` (shared.py: the key's
+    distinctive phrases and its to-do line's words), else its plain anchors."""
+    return list(item.get("plan_words") or [a for a in item.get("anchors", []) if not a.startswith(("@", "#"))])
 
 
 def _maps(block: Block, item: dict) -> bool:
@@ -188,9 +203,8 @@ def score_plan(blocks: list[Block], profile: Profile, rules: dict | None = None)
     for it in timed:
         start = profile.minutes(it["start"])
         mapped = [i for i, b in enumerate(blocks) if _maps(b, it)
-                  or (it["type"] == "change" and any(matcher.phrase_hit(w, b.title)
-                                                     for w in _phrases(profile.item(it["supersedes"]))
-                                                     ))]
+                  or (it.get("supersedes") and any(matcher.phrase_hit(w, b.title)
+                                                   for w in _phrases(profile.item(it["supersedes"]))))]
         at_time = [i for i in mapped if abs(blocks[i].start - start) <= TOLERANCE_MIN]
         if not mapped:
             # A block at the item's time with no matching words still keeps it.
@@ -200,7 +214,7 @@ def score_plan(blocks: list[Block], profile: Profile, rules: dict | None = None)
         check(rule, bool(at_time), f"{it['id']} not at {_hm(start)}"
               + (f" (planned at {_hm(blocks[mapped[0]].start)})" if mapped and not at_time else
                  "" if mapped else " (missing)"))
-        if it["type"] == "change":
+        if it["type"] == "change" and it.get("supersedes"):
             old = profile.item(it["supersedes"])
             old_start = profile.minutes(old["start"])
             stale = [i for i in mapped if abs(blocks[i].start - old_start) <= TOLERANCE_MIN]
@@ -212,6 +226,25 @@ def score_plan(blocks: list[Block], profile: Profile, rules: dict | None = None)
                      and b.start < start and b.end > lead]
             check("R6", not clash, f"{it['id']}: {', '.join(repr(b.title) for b in clash)} "
                   f"inside {it['travel_min']} min travel before {_hm(start)}")
+
+    # R3 for a slot that moved to another day or was cancelled: the old slot is not kept.
+    task_words = {matcher.fold(w) for t in ledger if t.get("due") for w in _phrases(t)}
+    for it in ledger:
+        if not it.get("supersedes") or it["id"] in superseded:
+            continue
+        old = profile.item(it["supersedes"])
+        if not (old.get("start") and profile.on_day(old["start"], day)):
+            continue
+        if it.get("start") and profile.on_day(it["start"], day):
+            continue                          # moved within the day: checked with R2 above
+        old_start = profile.minutes(old["start"])
+        own = {matcher.fold(w) for w in _phrases(old)}
+        other = task_words - own              # "Lab 4 report" at 2:00 is a work block, not the old lab
+        kept = [b for b in blocks if abs(b.start - old_start) <= TOLERANCE_MIN
+                and any(matcher.phrase_hit(w, b.title) for w in own)
+                and not any(matcher.phrase_hit(w, b.title) for w in other)]
+        check("R3", not kept, f"{it['id']}: kept at the old time {_hm(old_start)} "
+              f"({'moved to another day' if it.get('start') else 'cancelled'})")
 
     tasks = rules.get("tasks") or [
         it["id"] for it in ledger
@@ -241,7 +274,11 @@ def score_plan(blocks: list[Block], profile: Profile, rules: dict | None = None)
     s.coverage = {"tasks": tasks, "covered": covered,
                   "rate": round(len(covered) / len(tasks), 3) if tasks else None}
     s.validity = round(1 - len(s.violations) / max(1, s.checks), 3)
-    cov = s.coverage["rate"] if s.coverage["rate"] is not None else 1.0
+    cov = s.coverage["rate"]
+    if cov is None:
+        s.notes.append("coverage not checked: the key gives no task due within "
+                       f"{HORIZON_DAYS} days; scored as missing (0), not 1.0")
+        cov = 0.0
     s.score = round(max(0.0, 0.6 * s.validity + 0.4 * cov), 3)
     return s
 

@@ -1,0 +1,18 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "plotqa-test-sample",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "V2"
+ ],
+ "split": "2,000 sampled from test",
+ "homepage": "https://github.com/NiteshMethani/PlotQA",
+ "licence": "CC-BY-4.0 (data), MIT (code)",
+ "licence_url": "https://github.com/NiteshMethani/PlotQA",
+ "licence_verified": true,
+ "redistributable": "yes",
+ "access": "http",
+ "files": [],
+ "notes": "Download links are listed in PlotQA_Dataset.md; sample 2,000 test items with a fixed seed.",
+ "status": "needs_loader"
+}

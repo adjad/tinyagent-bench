@@ -1,0 +1,21 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "big-bench-audio",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "A7"
+ ],
+ "split": "1,000 clips",
+ "homepage": "https://huggingface.co/datasets/ArtificialAnalysis/big_bench_audio",
+ "licence": "MIT (tag)",
+ "licence_url": "https://huggingface.co/datasets/ArtificialAnalysis/big_bench_audio",
+ "licence_verified": false,
+ "redistributable": "unverified",
+ "access": "huggingface",
+ "hf": {
+  "repo": "ArtificialAnalysis/big_bench_audio"
+ },
+ "files": [],
+ "notes": "Clips were voiced by commercial TTS providers whose terms the card does not address.",
+ "status": "blocked_licence"
+}

@@ -1,0 +1,25 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "earnings22",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "A1",
+  "A8"
+ ],
+ "split": "short-form 5 h subset; full set for long-form",
+ "homepage": "https://github.com/revdotcom/speech-datasets",
+ "licence": "CC-BY-SA-4.0",
+ "licence_url": "https://github.com/revdotcom/speech-datasets",
+ "licence_verified": true,
+ "redistributable": "share-alike",
+ "attribution": "Earnings-22, Rev.com, CC BY-SA 4.0",
+ "access": "git_lfs",
+ "git": {
+  "repo": "https://github.com/revdotcom/speech-datasets",
+  "sparse_path": "earnings22"
+ },
+ "files": [],
+ "notes": "One Hugging Face copy says CC BY 4.0; the source repository's CC BY-SA 4.0 is used. Derived clips must carry the same licence.",
+ "eval_size": "5 h / 119 h",
+ "status": "needs_loader"
+}

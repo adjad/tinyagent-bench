@@ -1,0 +1,25 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "rirs-noises",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "A4"
+ ],
+ "split": "simulated and real RIRs",
+ "homepage": "https://www.openslr.org/28/",
+ "licence": "Apache-2.0 (bundle)",
+ "licence_url": "https://www.openslr.org/28/",
+ "licence_verified": false,
+ "redistributable": "unverified",
+ "access": "http",
+ "files": [
+  {
+   "url": "https://openslr.trmal.net/resources/28/rirs_noises.zip",
+   "md5": null,
+   "checksum_source": null,
+   "approx_bytes": 1300000000
+  }
+ ],
+ "notes": "The bundle is Apache-2.0 but includes RWCP, REVERB and AIR responses whose own licences were not checked. Blocked until they are; version 1 uses simulated room responses.",
+ "status": "blocked_licence"
+}

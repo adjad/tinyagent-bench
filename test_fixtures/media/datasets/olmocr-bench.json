@@ -1,0 +1,21 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "olmocr-bench",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "V2"
+ ],
+ "split": "7,010 tests",
+ "homepage": "https://huggingface.co/datasets/allenai/olmOCR-bench",
+ "licence": "ODC-BY-1.0",
+ "licence_url": "https://huggingface.co/datasets/allenai/olmOCR-bench",
+ "licence_verified": true,
+ "redistributable": "yes",
+ "access": "huggingface",
+ "hf": {
+  "repo": "allenai/olmOCR-bench"
+ },
+ "files": [],
+ "notes": "AI2 responsible-use guidelines apply; check the PDFs' origin.",
+ "status": "needs_loader"
+}

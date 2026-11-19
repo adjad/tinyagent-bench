@@ -1,0 +1,25 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "esc10",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "A7"
+ ],
+ "split": "ESC-10 subset (400 clips) of ESC-50",
+ "homepage": "https://github.com/karolpiczak/ESC-50",
+ "licence": "CC-BY-3.0 for ESC-10 per README; full ESC-50 is CC BY-NC 3.0",
+ "licence_url": "https://github.com/karolpiczak/ESC-50",
+ "licence_verified": false,
+ "redistributable": "unverified",
+ "access": "http",
+ "files": [
+  {
+   "url": "https://github.com/karoldvl/ESC-50/archive/master.zip",
+   "md5": null,
+   "checksum_source": null,
+   "approx_bytes": 600000000
+  }
+ ],
+ "notes": "Per-clip Freesound licences vary; every ESC-10 clip must be checked before use. Only the esc10 rows of meta/esc50.csv are kept.",
+ "status": "blocked_licence"
+}

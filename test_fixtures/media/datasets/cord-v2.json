@@ -1,0 +1,21 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "cord-v2",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "V2"
+ ],
+ "split": "test (100)",
+ "homepage": "https://huggingface.co/datasets/naver-clova-ix/cord-v2",
+ "licence": "CC-BY-4.0",
+ "licence_url": "https://huggingface.co/datasets/naver-clova-ix/cord-v2",
+ "licence_verified": true,
+ "redistributable": "yes",
+ "access": "huggingface",
+ "hf": {
+  "repo": "naver-clova-ix/cord-v2",
+  "split": "test"
+ },
+ "files": [],
+ "status": "needs_loader"
+}

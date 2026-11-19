@@ -1,0 +1,21 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "crema-d",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "A7"
+ ],
+ "split": "all 7,442 clips",
+ "homepage": "https://github.com/CheyneyComputerScience/CREMA-D",
+ "licence": "ODbL-1.0 (database), DbCL-1.0 (contents)",
+ "licence_url": "https://github.com/CheyneyComputerScience/CREMA-D",
+ "licence_verified": true,
+ "redistributable": "share-alike",
+ "access": "git_lfs",
+ "git": {
+  "repo": "https://github.com/CheyneyComputerScience/CREMA-D"
+ },
+ "files": [],
+ "notes": "About 7.55 GB through git LFS.",
+ "status": "needs_loader"
+}

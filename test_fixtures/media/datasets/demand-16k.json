@@ -1,0 +1,32 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "demand-16k",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "A4"
+ ],
+ "split": "16 kHz environments",
+ "homepage": "https://zenodo.org/records/1227121",
+ "licence": "CC-BY-SA-3.0 (description; the rights field says CC BY 4.0)",
+ "licence_url": "https://zenodo.org/records/1227121",
+ "licence_verified": true,
+ "redistributable": "share-alike",
+ "attribution": "DEMAND, Thiemann et al.",
+ "access": "http",
+ "files": [
+  {
+   "url": "https://zenodo.org/records/1227121/files/DKITCHEN_16k.zip",
+   "md5": "7ffbf52d7f4699f96927846103dc8788",
+   "checksum_source": "https://zenodo.org/records/1227121",
+   "approx_bytes": 110500000
+  },
+  {
+   "url": "https://zenodo.org/records/1227121/files/OOFFICE_16k.zip",
+   "md5": "7b61cc2d182d5a654cb9c3101ddd4041",
+   "checksum_source": "https://zenodo.org/records/1227121",
+   "approx_bytes": null
+  }
+ ],
+ "notes": "Cafe, street and other environments: add each 16k zip with the md5 listed on the record page.",
+ "status": "ready"
+}

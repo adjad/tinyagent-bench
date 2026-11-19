@@ -1,0 +1,23 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "earnings21",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "A8"
+ ],
+ "split": "full (44 files)",
+ "homepage": "https://github.com/revdotcom/speech-datasets",
+ "licence": "CC-BY-SA-4.0 (per repository badge)",
+ "licence_url": "https://github.com/revdotcom/speech-datasets",
+ "licence_verified": false,
+ "redistributable": "unverified",
+ "access": "git_lfs",
+ "git": {
+  "repo": "https://github.com/revdotcom/speech-datasets",
+  "sparse_path": "earnings21"
+ },
+ "files": [],
+ "notes": "Spec 05 lists Earnings-21's licence as unverified; its own LICENSE file was not opened.",
+ "eval_size": "39 h",
+ "status": "blocked_licence"
+}

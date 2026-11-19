@@ -1,0 +1,22 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "edacc-test",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "A1"
+ ],
+ "split": "test",
+ "homepage": "https://groups.inf.ed.ac.uk/edacc/",
+ "licence": "unverified (Hugging Face card says 'Public Domain, CC-BY-SA')",
+ "licence_url": "https://huggingface.co/datasets/edinburghcstr/edacc",
+ "licence_verified": false,
+ "redistributable": "unverified",
+ "access": "huggingface",
+ "hf": {
+  "repo": "edinburghcstr/edacc",
+  "split": "test"
+ },
+ "files": [],
+ "notes": "Official page states no licence. Full download about 6.95 GB.",
+ "status": "blocked_licence"
+}

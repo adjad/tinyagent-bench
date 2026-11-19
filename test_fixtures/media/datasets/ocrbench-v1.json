@@ -1,0 +1,17 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "ocrbench-v1",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "V2"
+ ],
+ "homepage": "https://huggingface.co/datasets/echo840/OCRBench",
+ "licence": "unverified",
+ "licence_url": "https://huggingface.co/datasets/echo840/OCRBench",
+ "licence_verified": false,
+ "redistributable": "unverified",
+ "access": "huggingface",
+ "files": [],
+ "notes": "repository MIT, data card states no licence",
+ "status": "blocked_licence"
+}

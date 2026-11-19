@@ -1,0 +1,17 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "visualwebbench",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "V2"
+ ],
+ "homepage": "https://huggingface.co/datasets/visualwebbench/VisualWebBench",
+ "licence": "unverified",
+ "licence_url": "https://huggingface.co/datasets/visualwebbench/VisualWebBench",
+ "licence_verified": false,
+ "redistributable": "unverified",
+ "access": "huggingface",
+ "files": [],
+ "notes": "Apache-2.0 tag, but screenshots of third-party sites",
+ "status": "blocked_licence"
+}

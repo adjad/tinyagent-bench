@@ -1,0 +1,17 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "chartqapro",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "V2"
+ ],
+ "homepage": "https://github.com/vis-nlp/ChartQAPro",
+ "licence": "unverified",
+ "licence_url": "https://github.com/vis-nlp/ChartQAPro",
+ "licence_verified": false,
+ "redistributable": "unverified",
+ "access": "huggingface",
+ "files": [],
+ "notes": "no licence line found",
+ "status": "blocked_licence"
+}

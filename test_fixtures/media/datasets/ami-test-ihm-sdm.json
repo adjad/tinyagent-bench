@@ -1,0 +1,30 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "ami-test-ihm-sdm",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "A1",
+  "A4",
+  "A7"
+ ],
+ "split": "test (ihm, sdm)",
+ "homepage": "https://groups.inf.ed.ac.uk/ami/corpus/",
+ "licence": "CC-BY-4.0",
+ "licence_url": "https://groups.inf.ed.ac.uk/ami/corpus/license.shtml",
+ "licence_verified": true,
+ "redistributable": "yes",
+ "attribution": "AMI Meeting Corpus, CC BY 4.0",
+ "access": "huggingface",
+ "hf": {
+  "repo": "edinburghcstr/ami",
+  "config": [
+   "ihm",
+   "sdm"
+  ],
+  "split": "test"
+ },
+ "files": [],
+ "notes": "ihm test has 12,643 segments. No checksum published.",
+ "eval_size": "about 9 h each",
+ "status": "needs_loader"
+}

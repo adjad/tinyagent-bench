@@ -1,0 +1,24 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "notsofar1-eval-small",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "A1",
+  "A4"
+ ],
+ "split": "eval-small (240629.1_eval_small_with_GT)",
+ "homepage": "https://github.com/microsoft/NOTSOFAR1-Challenge",
+ "licence": "CC-BY-4.0 (data)",
+ "licence_url": "https://huggingface.co/datasets/microsoft/NOTSOFAR",
+ "licence_verified": false,
+ "redistributable": "unverified",
+ "access": "huggingface",
+ "hf": {
+  "repo": "microsoft/NOTSOFAR",
+  "path": "benchmark-datasets/eval_set/240629.1_eval_small_with_GT"
+ },
+ "files": [],
+ "notes": "The DATA_LICENSE file was not opened and the listing flags gated access. Blocked until both are confirmed.",
+ "eval_size": "80 meetings, about 6 min each",
+ "status": "blocked_licence"
+}

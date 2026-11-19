@@ -1,0 +1,25 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "voxpopuli-en-test",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "A1"
+ ],
+ "split": "en test",
+ "homepage": "https://github.com/facebookresearch/voxpopuli",
+ "licence": "CC0-1.0 (data)",
+ "licence_url": "https://huggingface.co/datasets/facebook/voxpopuli",
+ "licence_verified": true,
+ "redistributable": "yes",
+ "attribution": "VoxPopuli, Wang et al.; European Parliament legal notice for raw data",
+ "access": "huggingface",
+ "hf": {
+  "repo": "facebook/voxpopuli",
+  "config": "en",
+  "split": "test"
+ },
+ "files": [],
+ "notes": "No direct file URL or checksum is published; fetch through a Hugging Face loader and record the sha256 of what was fetched. The repository's code and models are CC BY-NC; only the data is used.",
+ "eval_size": "about 5 h",
+ "status": "needs_loader"
+}

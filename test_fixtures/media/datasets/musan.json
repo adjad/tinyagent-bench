@@ -1,0 +1,27 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "musan",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "A4",
+  "A5"
+ ],
+ "split": "noise, music, speech",
+ "homepage": "https://www.openslr.org/17/",
+ "licence": "CC-BY-4.0",
+ "licence_url": "https://www.openslr.org/17/",
+ "licence_verified": true,
+ "redistributable": "yes",
+ "attribution": "MUSAN, Snyder et al., CC BY 4.0",
+ "access": "http",
+ "files": [
+  {
+   "url": "https://openslr.trmal.net/resources/17/musan.tar.gz",
+   "md5": null,
+   "checksum_source": null,
+   "approx_bytes": 11000000000
+  }
+ ],
+ "notes": "No checksum published: the fetch records the sha256 it got. Supplies the recorded noise types (music, babble/TV speech, ambient).",
+ "status": "ready"
+}

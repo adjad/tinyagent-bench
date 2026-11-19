@@ -1,0 +1,17 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "docvqa-val",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "V2"
+ ],
+ "homepage": "https://huggingface.co/datasets/lmms-lab/DocVQA",
+ "licence": "unverified",
+ "licence_url": "https://huggingface.co/datasets/lmms-lab/DocVQA",
+ "licence_verified": false,
+ "redistributable": "unverified",
+ "access": "huggingface",
+ "files": [],
+ "notes": "mirror tagged Apache-2.0; upstream licence page not reachable",
+ "status": "blocked_licence"
+}

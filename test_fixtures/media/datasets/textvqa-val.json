@@ -1,0 +1,17 @@
+{
+ "schema": "edat.media.dataset/1",
+ "name": "textvqa-val",
+ "licence_checked": "2026-11-18",
+ "suites": [
+  "V2"
+ ],
+ "homepage": "https://textvqa.org",
+ "licence": "unverified",
+ "licence_url": "https://textvqa.org",
+ "licence_verified": false,
+ "redistributable": "unverified",
+ "access": "huggingface",
+ "files": [],
+ "notes": "licence page empty; images from Open Images with mixed licences",
+ "status": "blocked_licence"
+}

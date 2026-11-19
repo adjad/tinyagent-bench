@@ -150,10 +150,14 @@ def amounts(text: str) -> set[str]:
 
 
 def phrase_hit(phrase: str, text: str) -> bool:
-    p = fold(phrase)
+    """The phrase as whole words; a phrase ending in "*" is a word stem ("revis*": revised,
+    revisions, revising)."""
+    stem = phrase.endswith("*")
+    p = fold(phrase[:-1] if stem else phrase)
     if not p:
         return False
-    return re.search(rf"(?<![a-z0-9]){re.escape(p)}(?![a-z0-9])", fold(text)) is not None
+    tail = "" if stem else "(?![a-z0-9])"
+    return re.search(rf"(?<![a-z0-9]){re.escape(p)}{tail}", fold(text)) is not None
 
 
 def anchor_minutes(anchor: str) -> list[int]:
@@ -189,10 +193,16 @@ def groups_hit(groups: list[list[str]], text: str, today: date) -> list[int]:
 def spec_hit(spec: dict | None, text: str, today: date) -> bool:
     """Whether one piece of text carries a match spec {"all": [[anchor, ...], ...], "require":
     [group indexes], "need": n}: every required group (default: all of them) hits, each by any
-    one of its anchors, and at least `need` groups hit in all (default: 0)."""
+    one of its anchors, and at least `need` groups hit in all (default: 0). `least`: [[indexes, n],
+    ...], at least n of each set of groups hit. {"any": [spec, ...]}: any one of the specs."""
+    if spec and spec.get("any"):          # alternatives: any one of these specs
+        return any(spec_hit(x, text, today) for x in spec["any"])
     if not spec or not spec.get("all"):
         return False
     hits = set(groups_hit(spec["all"], text, today))
+    for idx, n in spec.get("least") or []:      # at least n of these groups hit
+        if len(hits & set(idx)) < n:
+            return False
     require = spec.get("require")
     if not set(range(len(spec["all"])) if require is None else require) <= hits:
         return False

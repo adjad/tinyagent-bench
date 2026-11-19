@@ -8,11 +8,10 @@ write one result record, its restraint events and a perf task sample.
     python -m edat.screen.runner --stub oracle --cases test_fixtures/screen/dev --out <store dir>
     python -m edat.screen.runner --stub null   --cases test_fixtures/screen/dev --family ground
 
-Only stub clients are wired to the command line (oracle, null, random). A
-real model is run from Python with a client from `edat.models` (`OmlxClient`,
-`OpenRouterClient`) and an `Entry` describing it; that needs the user's
-go-ahead, as every real run does. Held-out cases are refused for a
-`cloud_reference` entry.
+Only stub clients are wired to this command line (oracle, null, random). Real
+runs on this Mac's oMLX go through `edat.screen.live` (see RUN_SHEET.md), which
+wraps these trials in the safety checks; every real run needs the user's
+go-ahead. Held-out cases are refused for a `cloud_reference` entry.
 """
 from __future__ import annotations
 

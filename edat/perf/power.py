@@ -209,8 +209,10 @@ class PowerSampler:
 
     ``now_ns`` is any callable returning mach_continuous_time ns (the integrator passes
     ``edat.perf.clock.now_ns``). The rate may be switched at runtime (20 Hz during events, 1 Hz in idle
-    windows, spec 04 section 9.1); the first reading after a switch carries ``rate_hz``. A read error
-    (exception or a non-finite value) is counted as a gap and never stops the run.
+    windows, spec 04 section 9.1); the first reading written after a switch carries ``rate_hz``. A
+    reading whose read began before the switch is not marked, and a failed read or write leaves the
+    mark for the next reading. A read error (exception or a non-finite value) is counted as a gap and
+    never stops the run.
     """
 
     def __init__(self, read_watts: Callable[[], float], writer: Any, *,
@@ -223,7 +225,7 @@ class PowerSampler:
         self._now_ns = now_ns
         self._mono = monotonic
         self._rate = float(rate_hz)
-        self._rate_pending: float | None = None
+        self._rate_pending: tuple[float] | None = None   # a fresh tuple per switch, compared by identity
         self._cond = threading.Condition()
         self._thread: threading.Thread | None = None
         self._stopping = False
@@ -242,11 +244,13 @@ class PowerSampler:
             raise ValueError("rate_hz must be positive")
         with self._cond:
             self._rate = float(rate_hz)
-            self._rate_pending = float(rate_hz)
+            self._rate_pending = (float(rate_hz),)
             self._cond.notify_all()
 
     def sample_once(self) -> bool:
         """One read and one write. Returns True when a reading was written."""
+        with self._cond:
+            pending = self._rate_pending      # only a switch made before this read is marked on it
         try:
             value = float(self._read())
             t = int(self._now_ns())
@@ -260,17 +264,17 @@ class PowerSampler:
             except Exception:  # noqa: BLE001
                 pass
             return False
-        extra: dict[str, Any] = {}
-        with self._cond:
-            if self._rate_pending is not None:
-                extra["rate_hz"] = self._rate_pending
-                self._rate_pending = None
+        extra: dict[str, Any] = {} if pending is None else {"rate_hz": pending[0]}
         try:
             self._writer.append(t, value, **extra)
         except Exception as exc:  # noqa: BLE001
             self.n_write_errors += 1
             self.last_error = repr(exc)
-            return False
+            return False                      # the mark stays pending for the next reading
+        if pending is not None:
+            with self._cond:
+                if self._rate_pending is pending:   # a later switch keeps its own mark
+                    self._rate_pending = None
         self.n_samples += 1
         return True
 

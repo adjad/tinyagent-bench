@@ -101,36 +101,92 @@ def test_question_order_is_a_prefix_order():
 
 def stamped_records():
     run = T.TierRun("core", "a" * 64, {"v1/charts": 50, "v1": 550, "a3": 195})
-    return run, [{"metrics": run.stamp("v1", "charts")}, {"metrics": run.stamp("a3", None)}]
+    return run, [{"selection": run.selection("v1", "charts")}, {"selection": run.selection("a3", None)}]
 
 
-def test_stamps_carry_tier_n_and_interval():
+def test_selection_carries_tier_n_and_interval():
     run, (a, b) = stamped_records()
-    assert a["metrics"] == {"media_tier": "core", "manifest_sha256": "a" * 64, "tier_n": 50,
-                            "ci95_half_width_pts": T.half_width(50)}
-    assert b["metrics"]["tier_n"] == 195
+    assert a["selection"] == {"tier": "core", "manifest_sha256": "a" * 64, "n_items": 50,
+                              "ci95_half_width_pts": T.half_width(50)}
+    assert b["selection"]["n_items"] == 195
+    assert run.selection("v9", None)["n_items"] is None
     assert T.assert_one_tier([a, b]) == "core"
-    other = {"metrics": T.TierRun("extended", "b" * 64, {}).stamp("v1", None)}
+    other = {"selection": T.TierRun("extended", "b" * 64, {}).selection("v1", None)}
     with pytest.raises(ValueError):
         T.assert_one_tier([a, other])
 
 
-def test_runner_stamps_pass_the_results_schema():
+def legacy(tier="core", sha="a" * 64, n=50):
+    """A record as the media runner wrote it before the store's selection field existed."""
+    return {"metrics": {"pass": True, "media_tier": tier, "manifest_sha256": sha, "tier_n": n,
+                        "ci95_half_width_pts": T.half_width(n)}}
+
+
+def test_older_records_with_metrics_media_tier_are_still_read():
+    run, (new, _) = stamped_records()
+    assert T.selection_of(legacy()) == new["selection"]
+    assert T.assert_one_tier([new, legacy()]) == "core"
+    with pytest.raises(ValueError):
+        T.assert_one_tier([new, legacy(sha="b" * 64)])
+    with pytest.raises(ValueError):
+        T.assert_one_tier([new, {"metrics": {"pass": True}}])
+    assert T.selection_of({"metrics": {"pass": True}}) is None
+
+
+def cfg_for(run):
+    from edat.media.runner import RunConfig
+    return RunConfig(model={"id": "stub", "role": "candidate", "weights_fingerprint": "0" * 64},
+                     runtime={"name": "stub", "version": "0"}, thinking=False,
+                     board_version="2027.1", harness_commit="abc1234",
+                     run_id="2027-01-01T00-00-00Z-0000", tier_run=run,
+                     device={"id": "mac-ref", "class": "mac-ref", "ram_bytes": 1, "os": "test"})
+
+
+def test_runner_writes_the_selection_field_not_metrics():
     pytest.importorskip("numpy")
     pytest.importorskip("PIL")
-    from edat.media.runner import RunConfig, base_record
+    from edat.media.runner import base_record
     from edat.results.schema import validate_record
     run, _ = stamped_records()
-    cfg = RunConfig(model={"id": "stub", "role": "candidate", "weights_fingerprint": "0" * 64},
-                    runtime={"name": "stub", "version": "0"}, thinking=False,
-                    board_version="2027.1", harness_commit="abc1234",
-                    run_id="2027-01-01T00-00-00Z-0000", tier_run=run,
-                    device={"id": "mac-ref", "class": "mac-ref", "ram_bytes": 1, "os": "test"})
-    rec = base_record(cfg, tier="vision", suite="v1", case_id="c", trial=1, status="ok",
+    rec = base_record(cfg_for(run), tier="vision", suite="v1", case_id="c", trial=1, status="ok",
                       facets={"family": "v1", "category": "charts", "tags": ["bar"]},
                       metrics={"pass": True, "score": 1.0})
     validate_record(rec)
-    assert rec["metrics"]["tier_n"] == 50 and "tier-core" in rec["facets"]["tags"]
+    assert rec["selection"]["n_items"] == 50 and "tier-core" in rec["facets"]["tags"]
+    assert not {"media_tier", "manifest_sha256", "tier_n", "ci95_half_width_pts"} & set(rec["metrics"])
+
+
+def test_selection_round_trips_through_the_results_store(tmp_path):
+    """Records the runner stamps are written, read back and keyed by the store as one selection;
+    an older record with metrics.media_tier reads as the same selection."""
+    pytest.importorskip("numpy")
+    pytest.importorskip("PIL")
+    from edat.media.runner import base_record, open_sink
+    from edat.results import keys
+    from edat.results.reader import read_set
+    run, _ = stamped_records()
+    cfg = cfg_for(run)
+    written = []
+    with open_sink(tmp_path, cfg.run_id, tier="vision", suite="v1") as sink:
+        assert type(sink).__name__ == "RunWriter"
+        for i, cat in enumerate(("charts", "tables")):
+            rec = base_record(cfg, tier="vision", suite="v1", case_id=f"v1-{i}", trial=1,
+                              status="ok", facets={"family": "v1", "category": cat},
+                              metrics={"pass": True, "score": 1.0})
+            sink.append(rec)
+            written.append(rec)
+    rs = read_set(tmp_path / "runs" / cfg.run_id)
+    assert rs.manifest["comparison_key"]["selection"] == "core/" + "a" * 64
+    back = rs.records
+    assert [r["selection"] for r in back] == [r["selection"] for r in written]
+    assert [r["selection"]["n_items"] for r in back] == [50, 550]     # tables falls back to v1
+    assert {keys.selection_key(r) for r in back} == {"core/" + "a" * 64}
+    assert T.assert_one_tier(back) == "core"
+    old = dict(back[0], selection=None, metrics=dict(back[0]["metrics"], **legacy()["metrics"]))
+    del old["selection"]
+    assert keys.selection_key(old) == keys.selection_key(back[0])
+    assert T.selection_of(old) == back[0]["selection"]
+    assert T.assert_one_tier([*back, old]) == "core"
 
 
 # ---------------------------------------------------------------- selections (need the generators)

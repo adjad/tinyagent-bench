@@ -68,12 +68,13 @@ code, say) is recorded as skipped and the run goes on. A thinking-on entry whose
 carry no reasoning is recorded as "thinking forced off in this build" and its thinking-off entry runs
 in its place. Only host-level reasons stop the whole run (section 5).
 
-**What the folder holds today** (the scan on the day this sheet was written; the run re-reads it): 15
-chat models, the two Gemma references among them: Gemma 4 E2B, E4B (base reference), Gemma-Wisp r5
-(tuned reference), Gemma 4 12B, Nemotron 3.5 Bolt E4B (with and without its MTP head, so the MTP build
-is the standard entry), Qwen3.5 4B and 9B, Phi-4-mini, LFM3 1.7B, LFM3 Omni 2B, Spark X2.6 4B (4-bit
-standard, 6-bit after), SenseNova-Loop 9B, and Ornith 1.5 9B. Left out: a reranker, two drafters, two
-folders with no model config, one model still downloading, and nine empty folders. Notes:
+**What the folder holds today** (the scan on the day this sheet was written; the run re-reads it): 17
+chat models, 14 of them standard entries, the two Gemma references among them: Gemma 4 E2B (4-bit
+standard, 6-bit after), E4B (base reference), Gemma-Wisp r5 (tuned reference), Gemma 4 12B, Nemotron
+3.5 Bolt E4B (with and without its MTP head, so the MTP build is the standard entry), Qwen3.5 4B and
+9B, Phi-4-mini, Ling 3.0 tiny, LFM3 1.7B, LFM3 Omni 2B, Spark X2.6 4B (4-bit standard, 6-bit after),
+SenseNova-Loop 9B, and Ornith 1.5 9B. Left out: a reranker, two drafters, two folders with no model
+config, and nine empty folders. `plan` prints the list as the run will see it. Notes:
 
 - **SenseNova-Loop 9B** has no loader in the installed oMLX (it needs remote code). It is expected to
   be skipped as not servable; the probe records that.
@@ -190,7 +191,7 @@ One model resident at a time: `run-all` unloads the other chat models (`engine_p
 was loaded to `$OUT/resident-before.json` once) whenever the model changes, and finishes all of a
 model's entries in a tier before the next model. It takes `$LOCK` once for the whole run.
 
-**Smoke, about 5-10 minutes:** base Gemma, thinking off, two cases from every rung, one trial.
+**Smoke, about 5-10 minutes** (before any of the passes below, the quick look included): base Gemma, thinking off, two cases from every rung, one trial.
 
 ```bash
 caffeinate -i .venv/bin/python -m edat.sidekick.ceiling run-all --plan smoke --tiers 0 --only gemma-4-E4B-it-oQ4e-mtp --out $OUT --lock $LOCK
@@ -202,6 +203,29 @@ Check the printed lines: 18 trial lines, each `PASS` or a failure kind with its 
 ```bash
 .venv/bin/python -m edat.sidekick.ceiling plan --measured $OUT
 ```
+
+**Or a quick look, one sitting:** answer-only rungs, one try each, a few tasks a rung, to see every
+model's rough ceiling the same night. The choices are flags; `plan` shows the models, the entries and
+the estimate for any combination before anything runs:
+
+```bash
+.venv/bin/python -m edat.sidekick.ceiling plan --plan quick --per-rung 4 --rungs 1-8 --thinking off
+```
+
+```bash
+caffeinate -i .venv/bin/python -m edat.sidekick.ceiling run-all --plan quick --per-rung 4 --rungs 1-8 --thinking off --out $OUT --lock $LOCK
+```
+
+- `--per-rung 3` or `4`: tasks a rung (rungs 1-3 spread across task types);
+- `--rungs`: which answer-only rungs, e.g. `1-8` (default) or `1-3,5-8`; rung 9 (tool mode) is not part
+  of a quick look;
+- `--thinking off` runs every model with thinking off (with the author's thinking-off sampling, or
+  greedy where there is none); `--thinking shipped` runs each model in the mode it ships in.
+
+One entry a model (standard quantisations only), references first. Results go to `$OUT/quick/`, apart
+from the first pass, and the report is `report $OUT/quick`. Its page says plainly what a quick look
+cannot tell: no repeat tries, so a ceiling is good to about a rung; thinking off understates the models
+that ship with thinking (it names them); no tool mode; no safety set.
 
 **The first pass, one sitting at a time** (the sittings are listed by `plan`; `--max-minutes 720`
 stops a sitting cleanly at 12 hours and the next command resumes it):
@@ -218,6 +242,8 @@ caffeinate -i .venv/bin/python -m edat.sidekick.ceiling run-all --plan first-pas
 ```bash
 .venv/bin/python -m edat.sidekick.ceiling report $OUT
 ```
+
+(`report $OUT/quick` for a quick look, `report $OUT/smoke` for the smoke step.)
 
 **Put things back:** `engine_prep restore $OUT/resident-before.json`. Harbor stays closed unless the
 person running it says otherwise.
@@ -240,24 +266,26 @@ trial and a minute each time the model changes. `plan --measured` replaces the t
 every speed by what the smoke step measured. These are guesses until the smoke step has run; thinking-on
 entries carry most of the uncertainty.
 
-Today's folder (13 standard entries, 12 in tier 1, 6 in tier 2, 4 in tier 3):
+Today's folder (14 standard entries, 13 in tier 1, 7 in tier 2, 6 in tier 3):
 
 | plan | what it runs | estimate |
 |---|---|---|
-| **full, all tiers** | per entry: the sidekick core set (112 answer-only cases incl. Restraint, 16 tool-mode cases) and rungs 4-9, 3 trials each; all 35 entries | **about 284 hours** (tier 0 105 h, tier 1 75 h, tier 2 74 h, tier 3 29 h) |
-| **first pass** (proposed) | tier 0 only (the standard entry of each model, in its shipped thinking mode); answer-only rungs 1-8; pass A: 12 cases a rung (the sidekick rungs spread evenly across task types), 1 trial, to find the ceiling; pass B: trials 2 and 3 on the ceiling rung and the rungs either side | **about 32 hours, in four sittings** |
+| **quick look, thinking off** | 14 entries, every model with thinking off; answer-only rungs 1-8, 4 tasks a rung, 1 try | **about 2.5 hours** in one sitting, plus the smoke step (about 2.3 h if SenseNova is skipped); 3 tasks a rung: about 1.9 h |
+| **quick look, shipped mode** | the same, each model in the thinking mode it ships in | **about 6.6 hours** (about 5.7 h if SenseNova is skipped) |
+| **first pass** | tier 0 (the standard entry of each model, in its shipped thinking mode); answer-only rungs 1-8; pass A: 12 cases a rung (the sidekick rungs spread evenly across task types), 1 trial, to find the ceiling; pass B: trials 2 and 3 on the ceiling rung and the rungs either side | **about 36 hours, in four sittings** (about 31 h if SenseNova is skipped) |
+| **full, all tiers** | per entry: the sidekick core set (112 answer-only cases incl. Restraint, 16 tool-mode cases) and rungs 4-9, 3 trials each; all 40 entries | **about 314 hours** (tier 0 118 h, tier 1 78 h, tier 2 77 h, tier 3 42 h) |
 
 The first pass by sitting (each under 12 hours; an entry is its own resumable unit, so a sitting can
 stop between entries):
 
 | sitting | entries | hours |
 |---|---|---|
-| 1 | base Gemma 0.9, Gemma-Wisp 0.9, LFM3 1.7B 1.3, Phi-4-mini 0.6, Spark 4B 1.9, LFM3 Omni 0.7, Qwen3.5 4B 2.6, Gemma 4 E2B 0.7 | 9.6 |
-| 2 | Nemotron Bolt 3.5, Qwen3.5 9B 4.9 | 8.3 |
-| 3 | SenseNova-Loop 5.0 (expected to be skipped within minutes), Gemma 4 12B 1.3 | 6.3 (about 1.5 if SenseNova is skipped) |
+| 1 | base Gemma 0.9, Gemma-Wisp 1.0, LFM3 1.7B 1.3, Phi-4-mini 0.6, Spark 4B 1.9, LFM3 Omni 0.7, Qwen3.5 4B 2.6, Gemma 4 E2B 0.7 | 9.6 |
+| 2 | Ling 3.0 tiny 3.7, Nemotron Bolt 3.5 | 7.2 |
+| 3 | Qwen3.5 9B 4.9, SenseNova-Loop 5.0 (expected to be skipped within minutes), Gemma 4 12B 1.3 | 11.2 (about 6.3 if SenseNova is skipped) |
 | 4 | Ornith 9B | 8.2 |
 
-So about 27-32 hours in practice, depending on SenseNova and on whether Qwen3.5 9B runs with thinking
+So about 31-36 hours in practice, depending on SenseNova and on whether Qwen3.5 9B runs with thinking
 on (thinking off is much shorter).
 
 **What the first pass leaves out:**

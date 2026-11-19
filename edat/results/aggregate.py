@@ -21,7 +21,8 @@ Rules (docs/benchmark/results-record.md sections 6 and 7):
 from __future__ import annotations
 
 from collections import defaultdict
-from dataclasses import dataclass, field
+import json
+from dataclasses import dataclass, field, replace
 from typing import Callable, Iterable
 
 from edat.results import composites, keys, stats
@@ -199,6 +200,31 @@ COMPOSITE_DEFS: dict[str, tuple[Composite, ...]] = {
                            lambda r: "all" if (_facet("mode")(r) or r.get("suite")) == "tool_mode" else None,
                            _equal)),
 }
+
+# --- the second agent loop ---------------------------------------------------
+#
+# The reference loop is the headline. The same assistant-lane cases run through
+# Harbor's own loop (suite `harbor-loop`) are a second column per tier, never
+# averaged into the first, with the per-model gap between the two loops.
+
+LOOP_SUITES = {"harbor-loop": "harbor_loop"}           # suite -> view suffix
+LOOP_TIERS = ("agentic", "preferences", "memory", "long_session")
+LOOP_LANE = "assistant"
+GAP_METRIC = "loop_gap"     # provisional: 02 names the gap metric; Harbor loop minus reference loop
+
+
+def _assistant_lane(c: Composite) -> Composite:
+    def stratum(r: dict, inner=c.stratum) -> str | None:
+        lane = r.get("facets", {}).get("lane")
+        return inner(r) if lane in (None, LOOP_LANE) else None
+    return replace(c, stratum=stratum)
+
+
+for _t in LOOP_TIERS:
+    for _suffix in LOOP_SUITES.values():
+        COMPOSITE_DEFS[f"{_t}_{_suffix}"] = tuple(replace(_assistant_lane(c), name=f"{c.name}_{_suffix}")
+                                                  for c in COMPOSITE_DEFS[_t])
+
 COMPOSITES = {view: (defs[0].name, defs[0].metric) for view, defs in COMPOSITE_DEFS.items()}
 
 
@@ -353,7 +379,77 @@ SUITE_VIEWS = {("in_assistant", "productbench-findings"): "in_assistant_findings
 
 
 def view_of(rec: dict) -> str:
-    return SUITE_VIEWS.get((rec["tier"], rec.get("suite")), rec["tier"])
+    view = SUITE_VIEWS.get((rec["tier"], rec.get("suite")))
+    if view:
+        return view
+    loop = LOOP_SUITES.get(rec.get("suite"))
+    return f"{rec['tier']}_{loop}" if loop and rec["tier"] in LOOP_TIERS else rec["tier"]
+
+
+def _loop_empty_reason(e: dict) -> str:
+    """Why an entry has no Harbor-loop column."""
+    if e["kind"] == "cloud_reference":
+        return "cloud references run through the reference loop only"
+    cls = str((e.get("device") or {}).get("class") or e["device_id"])
+    if cls.startswith("iphone"):
+        return "the phone runs the single-step parity subset, not Harbor's loop"
+    return "not run through Harbor's loop"
+
+
+def _sampling_values(recs: list[dict]) -> set[str]:
+    return {json.dumps(r["settings"].get("sampling") or {}, sort_keys=True) for r in recs}
+
+
+def _loop_gaps(e: dict, views: dict[str, list[dict]], opts: Options) -> dict:
+    """tier -> the Harbor-loop column's state and its paired gap to the reference loop.
+
+    Same entry (model, quantisation, runtime, thinking), same device and sampling
+    class by construction; refused unless the harness commit, the sampling values
+    and the run policy are also the same. The gap is computed on the assistant-lane
+    cases both loops graded: Harbor loop minus reference loop."""
+    out = {}
+    for tier in LOOP_TIERS:
+        if tier not in e["tiers"]:
+            continue
+        for suite, suffix in LOOP_SUITES.items():
+            view = f"{tier}_{suffix}"
+            row: dict = {"loop": suite, "view": view, "reference_view": tier,
+                         "lanes": {"neutral": "not_applicable: Harbor's loop has no neutral lane"}
+                         if tier == "agentic" else {}}
+            hb, rb = e["tiers"].get(view), e["tiers"][tier]
+            if hb is None or not hb.get("graded"):
+                row.update(empty=True, empty_reason=_loop_empty_reason(e) if hb is None
+                           else "every case was not applicable in Harbor's loop", gap=None)
+                out[tier] = row
+                continue
+            row["empty"] = False
+            ref = [r for r in views.get(tier, []) if r["status"] == "ok"
+                   and r.get("facets", {}).get("lane") in (None, LOOP_LANE)]
+            har = [r for r in views.get(view, []) if r["status"] == "ok"]
+            why = _comparable(hb, rb)
+            if why is None and _sampling_values(ref) != _sampling_values(har):
+                why = "different sampling values"
+            if why:
+                row["gap"] = {"refused": why}
+                out[tier] = row
+                continue
+            primary = COMPOSITE_DEFS[view][0]
+            ref_comp = _one_composite(ref, primary, opts)
+            if ref_comp is not None:
+                ref_comp["metric"] = f"{COMPOSITE_DEFS[tier][0].name}_{LOOP_LANE}_lane"
+            row["reference_assistant_lane"] = ref_comp
+            gap = _composite_deltas(har, ref, view, opts).get(primary.name)
+            pa, pb = _case_means(_per_case(har, primary.metric)), _case_means(_per_case(ref, primary.metric))
+            paired = stats.paired_bootstrap(pa, pb, resamples=opts.resamples, seed=opts.seed)
+            if gap is not None:
+                gap = {**gap, "metric": GAP_METRIC, "of": primary.name, "interval_kind": "bootstrap_cases",
+                       "n_cases_paired": paired["n_cases"] if paired else 0}
+                if paired:
+                    gap.update(wins=paired["wins"], losses=paired["losses"], ties=paired["ties"])
+            row["gap"] = gap
+            row["pass1_gap"] = paired
+            out[tier] = row
+    return out
 
 
 def _tier_block(records: list[dict], tier: str, opts: Options) -> dict:
@@ -556,6 +652,7 @@ def aggregate(records: list[dict], options: Options | None = None) -> dict:
         for role, ref_key in refs.get(_ref_device(e, refs), {}).items():
             e["vs"][role] = _vs(e, entries.get(ref_key), tier_recs, opts)
         e["sampling_sensitivity"] = _sensitivity(ek, dev, tier_recs, opts)
+        e["loops"] = _loop_gaps(e, tier_recs.get((ek, dev, "recommended"), {}), opts)
     _rank(entries)
     return {"board_version": boards[0], "sample": bool(records[0].get("sample")),
             "references": {dev: {role: k[0] for role, k in r.items()} for dev, r in refs.items()},

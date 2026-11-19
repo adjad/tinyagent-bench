@@ -994,3 +994,64 @@ def test_findings_and_toolbench_suites_are_their_own_views():
     assert tiers["agentic"]["pass1"]["value"] == pytest.approx(0.5)
     assert tiers["toolbench"]["pass1"]["value"] == pytest.approx(0.0)
     assert "in_assistant" not in tiers and tiers["in_assistant_findings"]["records"] == 1
+
+
+# --- two agent loops: reference-loop headline, Harbor-loop column, the gap ----
+
+def loop_records(harbor_pass=True, *, model="cand", harbor_commit="90e3e9f", harbor_temp=None,
+                 device="mac-ref"):
+    recs = []
+    for fam in ("select", "parallel"):
+        for c in range(3):
+            for lane in ("assistant", "neutral"):
+                recs.append(rec(model=model, case=f"{fam}-{lane}-{c}", family=fam, lane=lane, passed=(c != 0),
+                                device=device))
+            h = rec(model=model, case=f"{fam}-assistant-{c}", family=fam, lane="assistant", passed=harbor_pass,
+                    commit=harbor_commit, device=device)
+            h["suite"] = "harbor-loop"
+            if harbor_temp is not None:
+                h["settings"]["sampling"] = {"temperature": harbor_temp}
+            recs.append(h)
+        n = rec(model=model, case=f"{fam}-neutral-0", family=fam, lane="neutral", passed=None,
+                status="not_applicable", device=device)
+        n["suite"], n["status_detail"], n["metrics"] = "harbor-loop", "neutral lane", {}
+        recs.append(n)
+    return recs
+
+
+def test_harbor_loop_is_its_own_column_and_never_in_the_agentic_score():
+    e = entry(agg(loop_records()))
+    assert e["tiers"]["agentic"]["pass1"]["value"] == pytest.approx(2 / 3)     # reference loop only
+    hb = e["tiers"]["agentic_harbor_loop"]
+    assert hb["graded"] == 6 and hb["status_counts"]["not_applicable"] == 2
+    assert hb["composite"]["metric"] == "agentic_score_harbor_loop"
+    assert hb["composite"]["value"] == pytest.approx(1.0)
+
+
+def test_loop_gap_is_paired_on_assistant_lane_cases():
+    lp = entry(agg(loop_records()))["loops"]["agentic"]
+    assert lp["empty"] is False and lp["view"] == "agentic_harbor_loop"
+    assert lp["reference_assistant_lane"]["value"] == pytest.approx(2 / 3)
+    gap = lp["gap"]
+    assert gap["metric"] == "loop_gap" and gap["delta"] == pytest.approx(1 / 3)
+    assert gap["n_cases_paired"] == 6 and gap["wins"] == 2 and gap["losses"] == 0
+    assert gap["interval"][0] <= gap["delta"] <= gap["interval"][1]
+    assert "neutral" in lp["lanes"]
+
+
+def test_loop_gap_refused_when_settings_differ():
+    lp = entry(agg(loop_records(harbor_temp=0.2)))["loops"]["agentic"]
+    assert lp["gap"] == {"refused": "different sampling values"}
+    lp = entry(agg(loop_records(harbor_commit="1234567")))["loops"]["agentic"]
+    assert "harness commit" in lp["gap"]["refused"]
+
+
+def test_second_loop_column_empty_with_a_reason():
+    plain = [r for r in loop_records() if r["suite"] != "harbor-loop"]
+    lp = entry(agg(plain))["loops"]["agentic"]
+    assert lp["empty"] and lp["gap"] is None and lp["empty_reason"] == "not run through Harbor's loop"
+    phone = [rec(case="c1", device="iphone-ref"), rec(case="c2", device="iphone-ref", passed=False)]
+    for r in phone:
+        r["device"] = {"id": "iphone-ref", "class": "iphone-ref", "ram_bytes": 12 * 2**30, "os": "iOS 27"}
+    lp = entry(agg(phone), device="iphone-ref")["loops"]["agentic"]
+    assert "phone" in lp["empty_reason"]

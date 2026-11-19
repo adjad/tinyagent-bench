@@ -35,7 +35,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scripts.productbench import matcher, score_brief  # noqa: E402
+from scripts.productbench import matcher, score_brief, summary  # noqa: E402
 from scripts.productbench.profile import Profile, load as load_profile  # noqa: E402
 
 REFERENCES = ("Gemma-Wisp", "gemma-4-E4B-it-oQ4e-mtp")   # models.json "references", in order
@@ -335,7 +335,7 @@ def _md_escape(text: str) -> str:
 
 def markdown(views: list[dict], rep: Report, run_ids: list[str]) -> str:
     out = ["# What the model found", "",
-           f"EDAT in-assistant evaluation. Run{'s' if len(run_ids) > 1 else ''}: {', '.join(run_ids)}.", ""]
+           f"{summary.TITLE}. Run{'s' if len(run_ids) > 1 else ''}: {', '.join(run_ids)}.", ""]
     if rep.stub:
         out += [f"> {STUB_NOTE}", ""]
     if rep.dropped:
@@ -428,7 +428,7 @@ def html_page(views: list[dict], rep: Report, run_ids: list[str]) -> str:
              '<meta name="viewport" content="width=device-width,initial-scale=1">',
              f"<title>What it found</title><style>{CSS}</style></head><body><main>",
              "<h1>What the model found</h1>",
-             f'<p class="muted">EDAT in-assistant evaluation · run{"s" if len(run_ids) > 1 else ""} '
+             f'<p class="muted">{e(summary.TITLE)} · run{"s" if len(run_ids) > 1 else ""} '
              f'{e(", ".join(run_ids))}</p>']
     if rep.stub:
         parts.append(f'<div class="banner">{e(STUB_NOTE)}</div>')

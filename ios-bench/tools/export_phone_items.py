@@ -5,7 +5,10 @@ The real 120-item parity subset is exported by the Mac harness (spec 02 §6). Th
 only gives the app a file in the same format so the phone code can be built and tested.
 It is NOT the published parity subset. Standard library only.
 
-    python3 ios-bench/tools/export_phone_items.py --today 2026-11-18
+    python3 ios-bench/tools/export_phone_items.py
+
+The items' `today` is the bundle's `source.bound_today` (the day its date facts were bound
+for); a different `--today` is refused, since the bound dates would no longer match.
 
 Stand-in notes: `json` cases become `no_call` with the weak text regex `\\{` (the field
 matchers are not expressible in the item format); `max_words` is dropped.
@@ -53,22 +56,22 @@ def walk_regexes(node, where: str) -> None:
             walk_regexes(v, where)
 
 
-def calls_check(name: str, args: dict | None) -> dict:
+def calls_check(name: str, args: dict | None, forbid: list[str] | None = None) -> dict:
     spec = {"name": name}
     if args:
         spec["args"] = args
     return {"kind": "calls", "same_step": True, "match": "all_any_order", "extra_calls": "allowed",
-            "calls": [spec], "forbid": []}
+            "calls": [spec], "forbid": list(forbid or [])}
 
 
 def build_check(expect: dict) -> tuple[dict, dict | None]:
     kind = expect["kind"]
     if kind == "tool_call":
         names = [expect["tool"]] if "tool" in expect else list(expect["any_of"])
-        args = expect.get("args")
+        args, forbid = expect.get("args"), expect.get("forbid")
         if len(names) == 1:
-            return calls_check(names[0], args), None
-        return {"kind": "either", "options": [calls_check(n, args) for n in names]}, None
+            return calls_check(names[0], args, forbid), None
+        return {"kind": "either", "options": [calls_check(n, args, forbid) for n in names]}, None
     if kind == "no_tool":
         return {"kind": "no_call"}, None
     if kind == "text":
@@ -77,6 +80,16 @@ def build_check(expect: dict) -> tuple[dict, dict | None]:
     if kind == "json":
         return {"kind": "no_call"}, {"regex": r"\{"}
     raise SystemExit(f"unknown expectation kind {kind!r}")
+
+
+def bundle_today(bundle: dict, requested: str | None = None) -> date:
+    bound = (bundle.get("source") or {}).get("bound_today")
+    if bound is None:
+        raise SystemExit("the bundle has no source.bound_today; re-export it with export_portable_cases.py")
+    if requested is not None and requested != bound:
+        raise SystemExit(f"--today {requested} differs from the bundle's bound_today {bound}; "
+                         "re-export the bundle for that day instead")
+    return date.fromisoformat(bound)
 
 
 def build_items(bundle: dict, today: date) -> list[dict]:
@@ -123,10 +136,10 @@ def main(argv=None) -> int:
     ap.add_argument("--cases", default=str(RES / "portable-cases.json"))
     ap.add_argument("--out", default=str(RES / "phone-items-standin.jsonl"))
     ap.add_argument("--manifest", default=None, help="default: <out stem>.manifest.json next to --out")
-    ap.add_argument("--today", default="2026-11-18", help="YYYY-MM-DD, fixed into every prompt and item")
+    ap.add_argument("--today", default=None, help="YYYY-MM-DD; default and only accepted value: the bundle's bound_today")
     args = ap.parse_args(argv)
     bundle = json.loads(Path(args.cases).read_text(encoding="utf-8"))
-    items = build_items(bundle, date.fromisoformat(args.today))
+    items = build_items(bundle, bundle_today(bundle, args.today))
     jsonl = render_jsonl(items)
     out = Path(args.out)
     manifest_path = Path(args.manifest) if args.manifest else out.with_name(out.stem + ".manifest.json")

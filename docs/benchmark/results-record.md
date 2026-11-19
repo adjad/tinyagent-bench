@@ -71,6 +71,7 @@ a reader would expect to be filled carries a reason (`raw_reason`, `device_reaso
 | `raw` | object \| null | `{path: "raw/<sha256>.json", sha256, bytes}`. `null` needs `raw_reason` |
 | `sample` | bool, optional | `true` on invented sample data. A snapshot never mixes sample and real records |
 | `source` | object, optional | `{converter, format, row}`: provenance when a converter wrote the record |
+| `selection` | object, optional | Which selection of the suite's items produced the record (05 §17): `{tier, manifest_sha256, n_items?, ci95_half_width_pts?}`, e.g. `{"tier": "core", "manifest_sha256": "…", "n_items": 50, "ci95_half_width_pts": 13.9}`. `tier` is `core`, `extended` or `full`; `n_items` counts the items in the record's group (family or family/category); the half-width is the worst case (p = 0.5) in percentage points. Absent: the whole suite as written, which is every record before this field (§6.1) |
 
 ### 2.1 `model`
 
@@ -241,6 +242,31 @@ that carries two different `weights_sha256` values or two different
    reference's thinking-off entry, as 02 §5.5 and 03 §13.2 do.
 4. **Duplicate trials** (same entry, device, case, trial) are refused on merge.
 5. **Sample and real records** never share a snapshot.
+6. **Selections are never pooled** (§6.1).
+
+### 6.1 Selection tiers
+
+A suite may run on a nested selection of its items: `core`, `extended` or `full`
+(the vision and audio tiers of 05 §17). The record says which in `selection`; the
+run manifest's `comparison_key.selection` is `<tier>/<manifest sha256>`.
+
+- **One run, one selection.** The writer refuses a record whose selection differs from
+  the run's; runs of different selections, or of one selection with two manifests, do
+  not merge.
+- **Never pooled.** The aggregator keys an entry's block `<view>@<selection>`
+  (`vision@core`, `vision@full`), so two selections are never averaged, ranked or
+  differenced together. Two manifests under one selection name in one board version
+  are refused. Records without `selection` keep the plain view name and behave as
+  before.
+- **Compared only when asked, and then labelled.** A difference from a reference that
+  has the view only on another selection is refused ("selections are not compared
+  unless asked"). `Options(cross_selection=True)`, or `compare --cross-selection` on
+  the command line, allows it and labels the difference `cross_selection: "core vs
+  full"`; the two are still never pooled.
+- **Transition.** Records the media runner wrote before the field existed carry the same
+  values in `metrics` (`media_tier`, `manifest_sha256`, `tier_n`,
+  `ci95_half_width_pts`); the store reads them as a selection, so they are not pooled
+  either. New records should use the field.
 
 **Run directory** (written by `edat.results.writer`):
 
@@ -422,6 +448,12 @@ Harbor-loop composite, or null), `gap` (percentage points, or `{refused}`, or nu
 with `value: null`, `status` (`not_run` or `not_applicable`) and `empty_reason`,
 never as a silent gap.
 
+Rows of a selection block keep the plain `tier` (`vision`) and carry `selection`
+`{tier, manifest (12 hex), n_items, ci95_half_width_pts}`, in `results[]`,
+`safety[]` and `ranking[]`, so the board can print "core, ±13.9 points" beside a
+number. `vs` rows of a difference asked for across selections carry
+`cross_selection`.
+
 Composite rows in `results[]` carry `label` (`partial`, `judge`, `structure only`,
 `checks only`) where there is one; `vs` rows carry `warning` when the two sides'
 labels differ.
@@ -434,6 +466,11 @@ unit. [`site/data/`](../../site/data/) holds a synthetic sample export, labelled
 
 The provisional envelope the build chats were given is kept. Changes, all additive
 unless marked:
+
+**Versioning.** An optional field that leaves every existing record valid, and that
+older records simply lack, is added under `edat.result/1.0` (as `selection` was, on
+2026-11-19). A new required field, a changed meaning, unit or vocabulary of an existing
+field, or a removed field needs a new version id.
 
 1. `schema` is `"edat.result/1.0"`.
 2. **Added:** `lang`; `model.role`; `facets` (grouping keys); `safety` (its own block,

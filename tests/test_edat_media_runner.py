@@ -218,7 +218,22 @@ def test_workloads_are_complete_and_paired():
     assert sorted({w["level"]["long_side"] for w in tokens}) == list(wl.LONG_SIDES)
     assert sorted({w["level"]["images"] for w in ws if w["test"] == "ttft_images"}) == [1, 2, 4, 8, 9]
     assert sorted({w["level"]["audio_s"] for w in ws if w["test"] == "ttft_audio"}) == list(wl.AUDIO_LENGTHS_S)
+    rungs = [w for w in ws if w["test"] == "max_images"]
+    assert [w["level"]["images"] for w in rungs] == [1, 2, 4, 8, 9, 12, 16]
+    assert all(w["cases"] == 100 for w in rungs)
+    assert len([w for w in ws if w["test"] == "resolution_accuracy"]) == len(wl.LONG_SIDES)
+    assert len([w for w in ws if w["test"] == "token_budget"]) == 5
     json.loads(wl.dump(ws))
+
+
+def test_max_images_case_asks_about_one_image_by_position():
+    w = next(w for w in wl.vision_workloads() if w["id"] == "v4/max_images/n4")
+    case = wl.case_request(w, 2)
+    assert len(case["images"]) == 4 and case["target_image"] == 3
+    assert "In image 3 of 4" in case["prompt"]
+    assert case["question"]["kind"] in ("field", "anls", "relaxed")
+    with pytest.raises(IndexError):
+        wl.case_request(w, 100)
 
 
 def test_workload_images_materialize_with_harbor_tiling():
@@ -227,3 +242,43 @@ def test_workload_images_materialize_with_harbor_tiling():
     assert 2 <= len(imgs) <= 9                      # overview + up to 8 sections
     two = next(w for w in wl.vision_workloads() if w["id"] == "v4/ttft_images/n2")
     assert len(wl.materialize_images(two)) == 2
+
+
+# ---------------------------------------------------------------- V7, V5, V3 runners
+
+def test_run_reasoning_sends_every_image_and_scores_points(tmp_path):
+    from edat.media.runner import run_reasoning
+    from edat.media.vision import reasoning
+    items = [reasoning.build("multi_image", 0, split="dev"), reasoning.build("counting", 0, split="dev")]
+    gold = {m["prompt"]: m["question"]["answer"] for m, _ in items}
+
+    def answer(messages, tools, i):
+        text = messages[0]["content"][-1]["text"]
+        return {"text": next(v for k, v in gold.items() if text.endswith(k))}
+    client = StubMediaClient(answer)
+    recs = run_reasoning(client, items, cfg(trials=1), JsonlSink(tmp_path, "r7", tier="vision", suite="v7"))
+    assert [r["metrics"]["pass"] for r in recs] == [True, True]
+    assert client.requests[0]["images"] == len(items[0][1]) >= 2
+    for r in recs:
+        check_envelope(r)
+        assert r["facets"]["family"] == "v7"
+    none = run_reasoning(StubMediaClient(answer, accepts_image=False), items[:1], cfg(trials=2),
+                         JsonlSink(tmp_path, "r7b", tier="vision", suite="v7"))
+    assert [r["status"] for r in none] == ["not_applicable"] * 2
+
+
+def test_run_robustness_and_actions(tmp_path):
+    from edat.media.runner import run_actions, run_robustness
+    from edat.media.vision import actions, robustness
+    meta, data = robustness.build_unreadable(1, split="dev")
+    client = StubMediaClient(lambda m, t, i: {"text": "not shown"})
+    recs = run_robustness(client, [(meta, data)], cfg(trials=1),
+                          JsonlSink(tmp_path, "r5", tier="vision", suite="v5"))
+    assert recs[0]["metrics"]["pass"] and recs[0]["facets"]["category"].startswith("unreadable")
+    v3 = [actions.build(i, split="dev") for i in range(3)]
+    replies = ["Sure.\n" + json.dumps({"proposal": m["expect"]}) if m["expect"] else "No event."
+               for m, _ in v3]
+    client = StubMediaClient(lambda m, t, i: {"text": replies[i]})
+    recs = run_actions(client, v3, cfg(trials=1), JsonlSink(tmp_path, "r3", tier="vision", suite="v3"))
+    assert all(r["metrics"]["pass"] for r in recs)
+    assert client.requests[0]["messages"][0]["role"] == "system"

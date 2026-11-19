@@ -253,6 +253,117 @@ def run_vision(client, items: Iterable[tuple[dict, bytes]], cfg: RunConfig, sink
     return out
 
 
+def _image_case(client, cfg: RunConfig, sink, *, suite: str, case_id: str, facets: dict,
+                messages_for: Callable[[str], list[dict]], max_tokens: int,
+                score: Callable[[str], dict], out: list[dict]) -> None:
+    """One image request ``cfg.trials`` times: not_applicable, excluded or scored."""
+    caps = capabilities_for(client, declared=cfg.capabilities)
+    for trial in range(1, cfg.trials + 1):
+        if not caps.image:
+            rec = base_record(cfg, tier="vision", suite=suite, case_id=case_id, trial=trial,
+                              status="not_applicable", facets=facets,
+                              status_detail="no image input")
+            sink.append(rec)
+            out.append(rec)
+            continue
+        messages = messages_for(f"[{_nonce(cfg.run_id, case_id, trial)}] ")
+        started = _now()
+        result, err = call_with_retry(lambda: client.chat(
+            messages, tools=None, sampling=cfg.sampling, seed=cfg.base_seed + trial,
+            max_tokens=max_tokens, thinking=cfg.thinking))
+        if result is None:
+            rec = base_record(cfg, tier="vision", suite=suite, case_id=case_id, trial=trial,
+                              status="excluded", facets=facets, status_detail=err,
+                              started_at=started)
+            sink.append(rec)
+            out.append(rec)
+            continue
+        s = score(result.text)
+        pt, ct = _usage(result)
+        metrics = {"pass": bool(s["passed"]), "score": 1.0 if s["passed"] else 0.0,
+                   "prompt_tokens": pt, "completion_tokens": ct,
+                   "ttft_s": result.timing.ttft_s, "total_s": result.timing.total_s}
+        for k in ("abs_error", "iou", "false_answer", "abstained", "proposed", "no_proposal_ok"):
+            if s.get(k) is not None:
+                metrics[k] = s[k]
+        detail = None
+        if _truncated_empty(result):
+            metrics["pass"], metrics["score"] = False, 0.0
+            detail = "truncated_empty"
+        raw = sink.put_raw({"case_id": case_id, "output": result.to_record(), "score": s})
+        rec = base_record(cfg, tier="vision", suite=suite, case_id=case_id, trial=trial,
+                          status="ok", facets=facets, metrics=metrics, status_detail=detail,
+                          raw=raw, started_at=started)
+        sink.append(rec)
+        out.append(rec)
+
+
+def _mime(fmt: str) -> str:
+    return {"jpeg": "image/jpeg", "jpg": "image/jpeg"}.get(fmt, "image/png")
+
+
+def run_reasoning(client, items: Iterable[tuple[dict, list[bytes]]], cfg: RunConfig, sink
+                  ) -> list[dict]:
+    """V7: one question per item, with 1–4 images in one request."""
+    from edat.media.vision.reasoning import score_question
+    out: list[dict] = []
+    for meta, blobs in items:
+        q = meta["question"]
+        facets = {"family": "v7", "category": meta["skill"],
+                  "tags": [meta["template"], q["kind"], f"images{len(blobs)}"]}
+
+        def messages_for(prefix, blobs=blobs, meta=meta):
+            return [{"role": "user", "content": [*(image_part(b) for b in blobs),
+                                                 {"type": "text", "text": prefix + meta["prompt"]}]}]
+        _image_case(client, cfg, sink, suite="v7", case_id=meta["item_id"], facets=facets,
+                    messages_for=messages_for, max_tokens=cfg.max_tokens["vision"],
+                    score=lambda text, q=q, meta=meta: score_question(
+                        q, text, default_year=meta.get("default_year")), out=out)
+    return out
+
+
+def run_robustness(client, items: Iterable[tuple[dict, bytes]], cfg: RunConfig, sink
+                   ) -> list[dict]:
+    """V5: the base item's questions under one condition (``facets.category`` = condition)."""
+    out: list[dict] = []
+    for meta, data in items:
+        for q in meta["questions"]:
+            facets = {"family": "v5", "category": meta["condition"],
+                      "tags": [meta["family"], meta["group"], q["kind"]]}
+
+            def messages_for(prefix, data=data, meta=meta, q=q):
+                return [{"role": "user", "content": [
+                    image_part(data, _mime(meta["image"]["format"])),
+                    {"type": "text", "text": prefix + score_prompt(q)}]}]
+
+            def score(text, q=q, meta=meta):
+                s = score_answer(q, text, default_year=meta.get("default_year"))
+                return s.to_json()
+            _image_case(client, cfg, sink, suite="v5", case_id=f"{meta['item_id']}/{q['qid']}",
+                        facets=facets, messages_for=messages_for,
+                        max_tokens=cfg.max_tokens["vision"], score=score, out=out)
+    return out
+
+
+def run_actions(client, items: Iterable[tuple[dict, bytes]], cfg: RunConfig, sink
+                ) -> list[dict]:
+    """V3: Harbor's own vision request; the reply's proposal is scored by Harbor's parser."""
+    from edat.media.vision import actions
+    out: list[dict] = []
+    for meta, data in items:
+        facets = {"family": "v3", "category": meta["template"], "tags": [meta["case"]]}
+
+        def messages_for(prefix, meta=meta, data=data):
+            msgs = actions.harbor_messages(meta, data)
+            parts = msgs[1]["content"]
+            parts[-1] = {"type": "text", "text": prefix + parts[-1]["text"]}
+            return msgs
+        _image_case(client, cfg, sink, suite="v3", case_id=meta["item_id"], facets=facets,
+                    messages_for=messages_for, max_tokens=cfg.max_tokens["reading"],
+                    score=lambda text, meta=meta: actions.score_reply(meta, text), out=out)
+    return out
+
+
 def score_prompt(q: dict) -> str:
     from edat.media.vision.items import ANSWER_INSTRUCTION, READING_INSTRUCTION
     if q["kind"] == "reading":

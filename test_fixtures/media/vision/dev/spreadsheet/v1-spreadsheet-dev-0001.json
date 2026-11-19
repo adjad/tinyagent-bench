@@ -15,12 +15,12 @@
  },
  "image": {
   "file": "v1-spreadsheet-dev-0001.png",
-  "sha256": "7050ffbb3d7a0f857560b2450b1eddf835601c6d9e2932b32bf17f4b1ff1bb32",
+  "sha256": "00355203ca46f6172d63591e3635283567f4162ca25972e8ce3b9c2c8329f2b0",
   "width": 1000,
-  "height": 720,
+  "height": 780,
   "logical": [
    1000,
-   720
+   780
   ],
   "scale": 1.0
  },
@@ -167,6 +167,182 @@
   "highest_or_lowest": "max"
  },
  "fields": {
+  "col_0": {
+   "name": "col_0",
+   "kind": "text",
+   "value": "A",
+   "text": "A",
+   "bbox": [
+    88,
+    88,
+    96,
+    97
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ccc90801323fd81ed74d7a31a253a1de93fcf362426d55a736fb4408bdf51ac8",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "col_1": {
+   "name": "col_1",
+   "kind": "text",
+   "value": "B",
+   "text": "B",
+   "bbox": [
+    196,
+    88,
+    203,
+    97
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "89c066637412fbbd078526192566a2e8953bc030e505d700daf398bdac794e78",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "col_2": {
+   "name": "col_2",
+   "kind": "text",
+   "value": "C",
+   "text": "C",
+   "bbox": [
+    304,
+    88,
+    313,
+    97
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "837f377aab631722255030c3b5405c9aad71e050c15dda537ff93464ccb2a46a",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "col_3": {
+   "name": "col_3",
+   "kind": "text",
+   "value": "D",
+   "text": "D",
+   "bbox": [
+    400,
+    88,
+    408,
+    97
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "2247f36f79d3f2b508e0d6a1411e93bd0f5c8165b4d7c118aa1cc2e3fe094682",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "col_4": {
+   "name": "col_4",
+   "kind": "text",
+   "value": "E",
+   "text": "E",
+   "bbox": [
+    504,
+    88,
+    511,
+    97
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "6916d97509fb34a8c92f0985807bb6eccfcaba79cba489a05bb0715cdeb334dd",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "col_5": {
+   "name": "col_5",
+   "kind": "text",
+   "value": "F",
+   "text": "F",
+   "bbox": [
+    606,
+    88,
+    613,
+    97
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5b62827bc9c3558a181cf668646d8ed7691adca983de7d6bddb3040d7f981931",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "rn_1": {
+   "name": "rn_1",
+   "kind": "number",
+   "value": "1",
+   "text": "1",
+   "bbox": [
+    19,
+    115,
+    25,
+    123
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "79ed6316bad3c9198474d322efbc9ada8ae94390503918acf291a424b0149ee4",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "rn_2": {
+   "name": "rn_2",
+   "kind": "number",
+   "value": "2",
+   "text": "2",
+   "bbox": [
+    19,
+    143,
+    25,
+    151
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "2263a068f920dd3b59321e1c0fd96b0bc94f0df94a2b6689dc59baf78635fdb9",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
   "A2": {
    "name": "A2",
    "kind": "text",
@@ -174,9 +350,9 @@
    "text": "YA7139",
    "bbox": [
     58,
-    103,
+    143,
     106,
-    112
+    152
    ],
    "size_px": 13,
    "visible": true,
@@ -196,9 +372,9 @@
    "text": "Green tea",
    "bbox": [
     154,
-    103,
+    143,
     211,
-    112
+    152
    ],
    "size_px": 13,
    "visible": true,
@@ -218,9 +394,9 @@
    "text": "4",
    "bbox": [
     334,
-    103,
+    143,
     342,
-    112
+    152
    ],
    "size_px": 13,
    "visible": true,
@@ -240,9 +416,9 @@
    "text": "$52.07",
    "bbox": [
     395,
-    102,
+    142,
     438,
-    113
+    153
    ],
    "size_px": 13,
    "visible": true,
@@ -262,9 +438,9 @@
    "text": "$208.28",
    "bbox": [
     497,
-    102,
+    142,
     548,
-    113
+    153
    ],
    "size_px": 13,
    "visible": true,
@@ -284,9 +460,9 @@
    "text": "No",
    "bbox": [
     576,
-    103,
+    143,
     594,
-    112
+    152
    ],
    "size_px": 13,
    "visible": true,
@@ -299,6 +475,28 @@
    ],
    "plot_value": false
   },
+  "rn_3": {
+   "name": "rn_3",
+   "kind": "number",
+   "value": "3",
+   "text": "3",
+   "bbox": [
+    19,
+    171,
+    25,
+    179
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "221a28aae8d4e9bbea43c2ad789b9e221a8a0c61b85714b57e7280ac984c0c98",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
   "A3": {
    "name": "A3",
    "kind": "text",
@@ -306,9 +504,9 @@
    "text": "AS4897",
    "bbox": [
     58,
-    131,
+    171,
     106,
-    140
+    180
    ],
    "size_px": 13,
    "visible": true,
@@ -328,9 +526,9 @@
    "text": "Lentils",
    "bbox": [
     154,
-    131,
+    171,
     193,
-    140
+    180
    ],
    "size_px": 13,
    "visible": true,
@@ -350,9 +548,9 @@
    "text": "101",
    "bbox": [
     318,
-    131,
+    171,
     342,
-    140
+    180
    ],
    "size_px": 13,
    "visible": true,
@@ -372,9 +570,9 @@
    "text": "$25.85",
    "bbox": [
     395,
-    130,
+    170,
     438,
-    141
+    181
    ],
    "size_px": 13,
    "visible": true,
@@ -394,9 +592,9 @@
    "text": "$2,610.85",
    "bbox": [
     486,
-    130,
+    170,
     548,
-    142
+    182
    ],
    "size_px": 13,
    "visible": true,
@@ -416,9 +614,9 @@
    "text": "Yes",
    "bbox": [
     576,
-    131,
+    171,
     598,
-    140
+    180
    ],
    "size_px": 13,
    "visible": true,
@@ -431,6 +629,28 @@
    ],
    "plot_value": false
   },
+  "rn_4": {
+   "name": "rn_4",
+   "kind": "number",
+   "value": "4",
+   "text": "4",
+   "bbox": [
+    18,
+    199,
+    25,
+    207
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e5506f02b502b70e76981dbb8726a73e7cece8856b659406df87e9604008db25",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
   "A4": {
    "name": "A4",
    "kind": "text",
@@ -438,9 +658,9 @@
    "text": "UU6088",
    "bbox": [
     58,
-    159,
+    199,
     108,
-    168
+    208
    ],
    "size_px": 13,
    "visible": true,
@@ -460,9 +680,9 @@
    "text": "Tomatoes",
    "bbox": [
     154,
-    159,
+    199,
     216,
-    168
+    208
    ],
    "size_px": 13,
    "visible": true,
@@ -482,9 +702,9 @@
    "text": "102",
    "bbox": [
     318,
-    159,
+    199,
     342,
-    168
+    208
    ],
    "size_px": 13,
    "visible": true,
@@ -504,9 +724,9 @@
    "text": "$21.51",
    "bbox": [
     395,
-    158,
+    198,
     438,
-    169
+    209
    ],
    "size_px": 13,
    "visible": true,
@@ -526,9 +746,9 @@
    "text": "$2,194.02",
    "bbox": [
     486,
-    158,
+    198,
     548,
-    170
+    210
    ],
    "size_px": 13,
    "visible": true,
@@ -548,9 +768,9 @@
    "text": "No",
    "bbox": [
     576,
-    159,
+    199,
     594,
-    168
+    208
    ],
    "size_px": 13,
    "visible": true,
@@ -563,6 +783,28 @@
    ],
    "plot_value": false
   },
+  "rn_5": {
+   "name": "rn_5",
+   "kind": "number",
+   "value": "5",
+   "text": "5",
+   "bbox": [
+    19,
+    227,
+    25,
+    235
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "024ad2dfb01b67d1b998b476e815d4e48117c6578f70135d54d3f9f4955bc918",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
   "A5": {
    "name": "A5",
    "kind": "text",
@@ -570,9 +812,9 @@
    "text": "YB5583",
    "bbox": [
     58,
-    187,
+    227,
     106,
-    196
+    236
    ],
    "size_px": 13,
    "visible": true,
@@ -592,9 +834,9 @@
    "text": "Notebook",
    "bbox": [
     154,
-    187,
+    227,
     216,
-    196
+    236
    ],
    "size_px": 13,
    "visible": true,
@@ -614,9 +856,9 @@
    "text": "22",
    "bbox": [
     326,
-    187,
+    227,
     342,
-    196
+    236
    ],
    "size_px": 13,
    "visible": true,
@@ -636,9 +878,9 @@
    "text": "$45.14",
    "bbox": [
     395,
-    186,
+    226,
     438,
-    197
+    237
    ],
    "size_px": 13,
    "visible": true,
@@ -658,9 +900,9 @@
    "text": "$993.08",
    "bbox": [
     497,
-    186,
+    226,
     548,
-    197
+    237
    ],
    "size_px": 13,
    "visible": true,
@@ -680,9 +922,9 @@
    "text": "No",
    "bbox": [
     576,
-    187,
+    227,
     594,
-    196
+    236
    ],
    "size_px": 13,
    "visible": true,
@@ -695,6 +937,28 @@
    ],
    "plot_value": false
   },
+  "rn_6": {
+   "name": "rn_6",
+   "kind": "number",
+   "value": "6",
+   "text": "6",
+   "bbox": [
+    19,
+    255,
+    25,
+    263
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "9cefa5125a9e78a34aad8b93feeb855c57bd64af6258d8749403dda117537422",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
   "A6": {
    "name": "A6",
    "kind": "text",
@@ -702,9 +966,9 @@
    "text": "ZL7117",
    "bbox": [
     58,
-    215,
+    255,
     105,
-    224
+    264
    ],
    "size_px": 13,
    "visible": true,
@@ -724,9 +988,9 @@
    "text": "Oat milk",
    "bbox": [
     154,
-    215,
+    255,
     202,
-    224
+    264
    ],
    "size_px": 13,
    "visible": true,
@@ -746,9 +1010,9 @@
    "text": "4",
    "bbox": [
     334,
-    215,
+    255,
     342,
-    224
+    264
    ],
    "size_px": 13,
    "visible": true,
@@ -768,9 +1032,9 @@
    "text": "$54.87",
    "bbox": [
     395,
-    214,
+    254,
     438,
-    225
+    265
    ],
    "size_px": 13,
    "visible": true,
@@ -790,9 +1054,9 @@
    "text": "$219.48",
    "bbox": [
     497,
-    214,
+    254,
     548,
-    225
+    265
    ],
    "size_px": 13,
    "visible": true,
@@ -812,9 +1076,9 @@
    "text": "No",
    "bbox": [
     576,
-    215,
+    255,
     594,
-    224
+    264
    ],
    "size_px": 13,
    "visible": true,
@@ -827,6 +1091,28 @@
    ],
    "plot_value": false
   },
+  "rn_7": {
+   "name": "rn_7",
+   "kind": "number",
+   "value": "7",
+   "text": "7",
+   "bbox": [
+    19,
+    283,
+    25,
+    291
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b35ed06d00caa2d167b6d0eefeda34d4f5c8711465f3e291a1cb39b03f0156d4",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
   "A7": {
    "name": "A7",
    "kind": "text",
@@ -834,9 +1120,9 @@
    "text": "VJ4990",
    "bbox": [
     58,
-    243,
+    283,
     105,
-    252
+    292
    ],
    "size_px": 13,
    "visible": true,
@@ -856,9 +1142,9 @@
    "text": "Pasta",
    "bbox": [
     154,
-    243,
+    283,
     187,
-    252
+    292
    ],
    "size_px": 13,
    "visible": true,
@@ -878,9 +1164,9 @@
    "text": "90",
    "bbox": [
     326,
-    243,
+    283,
     342,
-    252
+    292
    ],
    "size_px": 13,
    "visible": true,
@@ -900,9 +1186,9 @@
    "text": "$7.29",
    "bbox": [
     403,
-    242,
+    282,
     438,
-    253
+    293
    ],
    "size_px": 13,
    "visible": true,
@@ -922,9 +1208,9 @@
    "text": "$656.10",
    "bbox": [
     497,
-    242,
+    282,
     548,
-    253
+    293
    ],
    "size_px": 13,
    "visible": true,
@@ -944,9 +1230,9 @@
    "text": "Yes",
    "bbox": [
     576,
-    243,
+    283,
     598,
-    252
+    292
    ],
    "size_px": 13,
    "visible": true,
@@ -959,6 +1245,28 @@
    ],
    "plot_value": false
   },
+  "rn_8": {
+   "name": "rn_8",
+   "kind": "number",
+   "value": "8",
+   "text": "8",
+   "bbox": [
+    19,
+    311,
+    25,
+    319
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "8b0b221bd23b63e845c2aec962570e62a3b604fac55868daa7e8aebc1ef3a41c",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
   "A8": {
    "name": "A8",
    "kind": "text",
@@ -966,9 +1274,9 @@
    "text": "EA9686",
    "bbox": [
     58,
-    271,
+    311,
     105,
-    280
+    320
    ],
    "size_px": 13,
    "visible": true,
@@ -988,9 +1296,9 @@
    "text": "Tape",
    "bbox": [
     154,
-    271,
+    311,
     184,
-    283
+    323
    ],
    "size_px": 13,
    "visible": true,
@@ -1010,9 +1318,9 @@
    "text": "40",
    "bbox": [
     326,
-    271,
+    311,
     342,
-    280
+    320
    ],
    "size_px": 13,
    "visible": true,
@@ -1032,9 +1340,9 @@
    "text": "$20.95",
    "bbox": [
     395,
-    270,
+    310,
     438,
-    281
+    321
    ],
    "size_px": 13,
    "visible": true,
@@ -1054,9 +1362,9 @@
    "text": "$838.00",
    "bbox": [
     497,
-    270,
+    310,
     548,
-    281
+    321
    ],
    "size_px": 13,
    "visible": true,
@@ -1076,9 +1384,9 @@
    "text": "No",
    "bbox": [
     576,
-    271,
+    311,
     594,
-    280
+    320
    ],
    "size_px": 13,
    "visible": true,
@@ -1091,6 +1399,28 @@
    ],
    "plot_value": false
   },
+  "rn_9": {
+   "name": "rn_9",
+   "kind": "number",
+   "value": "9",
+   "text": "9",
+   "bbox": [
+    19,
+    339,
+    25,
+    347
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4b78a5a57bbc5058a85b3028655696340494c22b7151a12f2354933510079139",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
   "A9": {
    "name": "A9",
    "kind": "text",
@@ -1098,9 +1428,9 @@
    "text": "RF2996",
    "bbox": [
     58,
-    299,
+    339,
     105,
-    308
+    348
    ],
    "size_px": 13,
    "visible": true,
@@ -1120,9 +1450,9 @@
    "text": "Olive oil",
    "bbox": [
     154,
-    299,
+    339,
     202,
-    308
+    348
    ],
    "size_px": 13,
    "visible": true,
@@ -1142,9 +1472,9 @@
    "text": "49",
    "bbox": [
     326,
-    299,
+    339,
     342,
-    308
+    348
    ],
    "size_px": 13,
    "visible": true,
@@ -1164,9 +1494,9 @@
    "text": "$2.11",
    "bbox": [
     403,
-    298,
+    338,
     438,
-    309
+    349
    ],
    "size_px": 13,
    "visible": true,
@@ -1186,9 +1516,9 @@
    "text": "$103.39",
    "bbox": [
     497,
-    298,
+    338,
     548,
-    309
+    349
    ],
    "size_px": 13,
    "visible": true,
@@ -1208,9 +1538,9 @@
    "text": "Yes",
    "bbox": [
     576,
-    299,
+    339,
     598,
-    308
+    348
    ],
    "size_px": 13,
    "visible": true,
@@ -1223,6 +1553,28 @@
    ],
    "plot_value": false
   },
+  "rn_10": {
+   "name": "rn_10",
+   "kind": "number",
+   "value": "10",
+   "text": "10",
+   "bbox": [
+    16,
+    367,
+    28,
+    375
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ff1717d1d9edba0b3e0b98bf71d5f855b909fe1aa72b2681cb4cfd4e6ced37a1",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
   "A10": {
    "name": "A10",
    "kind": "text",
@@ -1230,9 +1582,9 @@
    "text": "WU1560",
    "bbox": [
     58,
-    327,
+    367,
     111,
-    336
+    376
    ],
    "size_px": 13,
    "visible": true,
@@ -1252,9 +1604,9 @@
    "text": "Rice 2kg",
    "bbox": [
     154,
-    327,
+    367,
     205,
-    339
+    379
    ],
    "size_px": 13,
    "visible": true,
@@ -1274,9 +1626,9 @@
    "text": "104",
    "bbox": [
     318,
-    327,
+    367,
     342,
-    336
+    376
    ],
    "size_px": 13,
    "visible": true,
@@ -1296,9 +1648,9 @@
    "text": "$43.01",
    "bbox": [
     395,
-    326,
+    366,
     438,
-    337
+    377
    ],
    "size_px": 13,
    "visible": true,
@@ -1318,9 +1670,9 @@
    "text": "$4,473.04",
    "bbox": [
     486,
-    326,
+    366,
     548,
-    338
+    378
    ],
    "size_px": 13,
    "visible": true,
@@ -1340,9 +1692,9 @@
    "text": "Yes",
    "bbox": [
     576,
-    327,
+    367,
     598,
-    336
+    376
    ],
    "size_px": 13,
    "visible": true,
@@ -1355,6 +1707,28 @@
    ],
    "plot_value": false
   },
+  "rn_11": {
+   "name": "rn_11",
+   "kind": "number",
+   "value": "11",
+   "text": "11",
+   "bbox": [
+    16,
+    395,
+    28,
+    403
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "3b66f928ad88d694ee641e2e8f24354d3708facba07347d51cbc86008157ed52",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
   "A11": {
    "name": "A11",
    "kind": "text",
@@ -1362,9 +1736,9 @@
    "text": "YB7873",
    "bbox": [
     58,
-    355,
+    395,
     106,
-    364
+    404
    ],
    "size_px": 13,
    "visible": true,
@@ -1384,9 +1758,9 @@
    "text": "Dish soap",
    "bbox": [
     154,
-    355,
+    395,
     215,
-    367
+    407
    ],
    "size_px": 13,
    "visible": true,
@@ -1406,9 +1780,9 @@
    "text": "121",
    "bbox": [
     318,
-    355,
+    395,
     342,
-    364
+    404
    ],
    "size_px": 13,
    "visible": true,
@@ -1428,9 +1802,9 @@
    "text": "$35.25",
    "bbox": [
     395,
-    354,
+    394,
     438,
-    365
+    405
    ],
    "size_px": 13,
    "visible": true,
@@ -1450,9 +1824,9 @@
    "text": "$4,265.25",
    "bbox": [
     486,
-    354,
+    394,
     548,
-    366
+    406
    ],
    "size_px": 13,
    "visible": true,
@@ -1472,9 +1846,9 @@
    "text": "No",
    "bbox": [
     576,
-    355,
+    395,
     594,
-    364
+    404
    ],
    "size_px": 13,
    "visible": true,
@@ -1487,6 +1861,28 @@
    ],
    "plot_value": false
   },
+  "rn_12": {
+   "name": "rn_12",
+   "kind": "number",
+   "value": "12",
+   "text": "12",
+   "bbox": [
+    16,
+    423,
+    28,
+    431
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4602a4d7ffb7bb5cab520c3c4d31a9129093ef611d76d5a9ffc09b8e8d625b30",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
   "A12": {
    "name": "A12",
    "kind": "text",
@@ -1494,9 +1890,9 @@
    "text": "PH8312",
    "bbox": [
     58,
-    383,
+    423,
     107,
-    392
+    432
    ],
    "size_px": 13,
    "visible": true,
@@ -1516,9 +1912,9 @@
    "text": "Yogurt",
    "bbox": [
     154,
-    383,
+    423,
     195,
-    395
+    435
    ],
    "size_px": 13,
    "visible": true,
@@ -1538,9 +1934,9 @@
    "text": "7",
    "bbox": [
     334,
-    383,
+    423,
     342,
-    392
+    432
    ],
    "size_px": 13,
    "visible": true,
@@ -1560,9 +1956,9 @@
    "text": "$10.40",
    "bbox": [
     395,
-    382,
+    422,
     438,
-    393
+    433
    ],
    "size_px": 13,
    "visible": true,
@@ -1582,9 +1978,9 @@
    "text": "$72.80",
    "bbox": [
     505,
-    382,
+    422,
     548,
-    393
+    433
    ],
    "size_px": 13,
    "visible": true,
@@ -1604,9 +2000,9 @@
    "text": "No",
    "bbox": [
     576,
-    383,
+    423,
     594,
-    392
+    432
    ],
    "size_px": 13,
    "visible": true,
@@ -1619,6 +2015,28 @@
    ],
    "plot_value": false
   },
+  "rn_13": {
+   "name": "rn_13",
+   "kind": "number",
+   "value": "13",
+   "text": "13",
+   "bbox": [
+    16,
+    451,
+    28,
+    459
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "57590ad77e2cb4ffb39ee45148bf41feb267dbcee5344762f531f120d9282825",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
   "A13": {
    "name": "A13",
    "kind": "text",
@@ -1626,9 +2044,9 @@
    "text": "EL2422",
    "bbox": [
     58,
-    411,
+    451,
     104,
-    420
+    460
    ],
    "size_px": 13,
    "visible": true,
@@ -1648,9 +2066,9 @@
    "text": "Spinach",
    "bbox": [
     154,
-    411,
+    451,
     203,
-    423
+    463
    ],
    "size_px": 13,
    "visible": true,
@@ -1670,9 +2088,9 @@
    "text": "120",
    "bbox": [
     318,
-    411,
+    451,
     342,
-    420
+    460
    ],
    "size_px": 13,
    "visible": true,
@@ -1692,9 +2110,9 @@
    "text": "$22.79",
    "bbox": [
     395,
-    410,
+    450,
     438,
-    421
+    461
    ],
    "size_px": 13,
    "visible": true,
@@ -1714,9 +2132,9 @@
    "text": "$2,734.80",
    "bbox": [
     486,
-    410,
+    450,
     548,
-    422
+    462
    ],
    "size_px": 13,
    "visible": true,
@@ -1736,9 +2154,9 @@
    "text": "Yes",
    "bbox": [
     576,
-    411,
+    451,
     598,
-    420
+    460
    ],
    "size_px": 13,
    "visible": true,
@@ -1751,6 +2169,28 @@
    ],
    "plot_value": false
   },
+  "rn_14": {
+   "name": "rn_14",
+   "kind": "number",
+   "value": "14",
+   "text": "14",
+   "bbox": [
+    16,
+    479,
+    29,
+    487
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "88b6e2a4e7020fbe7463539c81c8064338f05a1c6cefd83127d62277dd209bc9",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
   "A14": {
    "name": "A14",
    "kind": "text",
@@ -1758,9 +2198,9 @@
    "text": "ES6333",
    "bbox": [
     58,
-    439,
+    479,
     105,
-    448
+    488
    ],
    "size_px": 13,
    "visible": true,
@@ -1780,9 +2220,9 @@
    "text": "Light bulb",
    "bbox": [
     154,
-    439,
+    479,
     214,
-    451
+    491
    ],
    "size_px": 13,
    "visible": true,
@@ -1802,9 +2242,9 @@
    "text": "61",
    "bbox": [
     326,
-    439,
+    479,
     342,
-    448
+    488
    ],
    "size_px": 13,
    "visible": true,
@@ -1824,9 +2264,9 @@
    "text": "$54.86",
    "bbox": [
     395,
+    478,
     438,
-    438,
-    449
+    489
    ],
    "size_px": 13,
    "visible": true,
@@ -1846,9 +2286,9 @@
    "text": "$3,346.46",
    "bbox": [
     486,
-    438,
+    478,
     548,
-    450
+    490
    ],
    "size_px": 13,
    "visible": true,
@@ -1868,9 +2308,9 @@
    "text": "Yes",
    "bbox": [
     576,
-    439,
+    479,
     598,
-    448
+    488
    ],
    "size_px": 13,
    "visible": true,
@@ -1883,6 +2323,28 @@
    ],
    "plot_value": false
   },
+  "rn_15": {
+   "name": "rn_15",
+   "kind": "number",
+   "value": "15",
+   "text": "15",
+   "bbox": [
+    16,
+    507,
+    28,
+    515
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "324c084c43a0bc7c2b36eea35861d309c3b987b2fafb7d5461e6d1866b13022d",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
   "A15": {
    "name": "A15",
    "kind": "text",
@@ -1890,9 +2352,9 @@
    "text": "BF4998",
    "bbox": [
     58,
-    467,
+    507,
     105,
-    476
+    516
    ],
    "size_px": 13,
    "visible": true,
@@ -1912,9 +2374,9 @@
    "text": "Coffee beans",
    "bbox": [
     154,
-    466,
+    506,
     234,
-    476
+    516
    ],
    "size_px": 13,
    "visible": true,
@@ -1934,9 +2396,9 @@
    "text": "1",
    "bbox": [
     334,
-    467,
+    507,
     342,
-    476
+    516
    ],
    "size_px": 13,
    "visible": true,
@@ -1956,9 +2418,9 @@
    "text": "$33.55",
    "bbox": [
     395,
-    466,
+    506,
     438,
-    477
+    517
    ],
    "size_px": 13,
    "visible": true,
@@ -1978,9 +2440,9 @@
    "text": "$33.55",
    "bbox": [
     505,
-    466,
+    506,
     548,
-    477
+    517
    ],
    "size_px": 13,
    "visible": true,
@@ -2000,18 +2462,40 @@
    "text": "No",
    "bbox": [
     576,
-    467,
+    507,
     594,
-    476
+    516
    ],
    "size_px": 13,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "43170452517ecc59ff6d39240e56ab401399f4247fd35d1303dbb8fba70762c9",
+   "crop_sha256": "ee7f68acc6a5b53bd060c67ffc67d33ac4e3e33bbda704b0f859aabdaa33ad48",
    "fg": [
     28,
     28,
     30
+   ],
+   "plot_value": false
+  },
+  "rn_16": {
+   "name": "rn_16",
+   "kind": "number",
+   "value": "16",
+   "text": "16",
+   "bbox": [
+    16,
+    535,
+    28,
+    543
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "af3bc0bd132bda668e4c215602697dc82fa9932124db9d9cb1f6691e633627ee",
+   "fg": [
+    99,
+    99,
+    102
    ],
    "plot_value": false
   },
@@ -2022,9 +2506,9 @@
    "text": "QH1546",
    "bbox": [
     58,
-    495,
+    535,
     109,
-    505
+    545
    ],
    "size_px": 13,
    "visible": true,
@@ -2044,9 +2528,9 @@
    "text": "Batteries AA",
    "bbox": [
     154,
-    495,
+    535,
     225,
-    504
+    544
    ],
    "size_px": 13,
    "visible": true,
@@ -2066,9 +2550,9 @@
    "text": "12",
    "bbox": [
     326,
-    495,
+    535,
     342,
-    504
+    544
    ],
    "size_px": 13,
    "visible": true,
@@ -2088,9 +2572,9 @@
    "text": "$29.76",
    "bbox": [
     395,
-    494,
+    534,
     438,
-    505
+    545
    ],
    "size_px": 13,
    "visible": true,
@@ -2110,9 +2594,9 @@
    "text": "$357.12",
    "bbox": [
     497,
-    494,
+    534,
     548,
-    505
+    545
    ],
    "size_px": 13,
    "visible": true,
@@ -2132,9 +2616,9 @@
    "text": "Yes",
    "bbox": [
     576,
-    495,
+    535,
     598,
-    504
+    544
    ],
    "size_px": 13,
    "visible": true,
@@ -2147,6 +2631,28 @@
    ],
    "plot_value": false
   },
+  "rn_17": {
+   "name": "rn_17",
+   "kind": "number",
+   "value": "17",
+   "text": "17",
+   "bbox": [
+    16,
+    563,
+    28,
+    571
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "664c98cd94d33fc1c866382e765aa8116faa149bfd172fe94778864659461f8a",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
   "tot_C": {
    "name": "tot_C",
    "kind": "int",
@@ -2154,9 +2660,9 @@
    "text": "838",
    "bbox": [
     318,
-    523,
+    563,
     342,
-    532
+    572
    ],
    "size_px": 13,
    "visible": true,
@@ -2176,9 +2682,9 @@
    "text": "$459.41",
    "bbox": [
     387,
-    522,
+    562,
     438,
-    533
+    573
    ],
    "size_px": 13,
    "visible": true,
@@ -2198,9 +2704,9 @@
    "text": "$23,106.22",
    "bbox": [
     478,
-    522,
+    562,
     548,
-    534
+    574
    ],
    "size_px": 13,
    "visible": true,
@@ -2214,14 +2720,165 @@
    "plot_value": false
   }
  },
+ "elements": [
+  {
+   "name": "Bold",
+   "role": "button",
+   "bbox": [
+    12,
+    7,
+    64,
+    33
+   ],
+   "unique": true
+  },
+  {
+   "name": "Italic",
+   "role": "button",
+   "bbox": [
+    72,
+    7,
+    124,
+    33
+   ],
+   "unique": true
+  },
+  {
+   "name": "Sort",
+   "role": "button",
+   "bbox": [
+    132,
+    7,
+    184,
+    33
+   ],
+   "unique": true
+  },
+  {
+   "name": "Filter",
+   "role": "button",
+   "bbox": [
+    192,
+    7,
+    244,
+    33
+   ],
+   "unique": true
+  },
+  {
+   "name": "Sum",
+   "role": "button",
+   "bbox": [
+    252,
+    7,
+    304,
+    33
+   ],
+   "unique": true
+  },
+  {
+   "name": "Chart",
+   "role": "button",
+   "bbox": [
+    312,
+    7,
+    367,
+    33
+   ],
+   "unique": true
+  },
+  {
+   "name": "Sheet1",
+   "role": "tab",
+   "bbox": [
+    8,
+    746,
+    84,
+    774
+   ],
+   "unique": true
+  }
+ ],
  "text_runs": [
+  {
+   "text": "Bold",
+   "bbox": [
+    26,
+    16,
+    51,
+    25
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Italic",
+   "bbox": [
+    84,
+    16,
+    111,
+    25
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Sort",
+   "bbox": [
+    148,
+    16,
+    169,
+    25
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Filter",
+   "bbox": [
+    204,
+    16,
+    232,
+    25
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Sum",
+   "bbox": [
+    266,
+    16,
+    290,
+    25
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Chart",
+   "bbox": [
+    324,
+    16,
+    355,
+    25
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
   {
    "text": "A1",
    "bbox": [
     22,
-    17,
+    57,
     38,
-    26
+    66
    ],
    "size_px": 13,
    "field": null,
@@ -2231,9 +2888,9 @@
    "text": "fx",
    "bbox": [
     88,
-    16,
+    56,
     99,
-    26
+    66
    ],
    "size_px": 13,
    "field": null,
@@ -2243,93 +2900,93 @@
    "text": "A",
    "bbox": [
     88,
-    48,
+    88,
     96,
-    57
+    97
    ],
    "size_px": 12,
-   "field": null,
+   "field": "col_0",
    "reading": true
   },
   {
    "text": "B",
    "bbox": [
     196,
-    48,
+    88,
     203,
-    57
+    97
    ],
    "size_px": 12,
-   "field": null,
+   "field": "col_1",
    "reading": true
   },
   {
    "text": "C",
    "bbox": [
     304,
-    48,
+    88,
     313,
-    57
+    97
    ],
    "size_px": 12,
-   "field": null,
+   "field": "col_2",
    "reading": true
   },
   {
    "text": "D",
    "bbox": [
     400,
-    48,
+    88,
     408,
-    57
+    97
    ],
    "size_px": 12,
-   "field": null,
+   "field": "col_3",
    "reading": true
   },
   {
    "text": "E",
    "bbox": [
     504,
-    48,
+    88,
     511,
-    57
+    97
    ],
    "size_px": 12,
-   "field": null,
+   "field": "col_4",
    "reading": true
   },
   {
    "text": "F",
    "bbox": [
     606,
-    48,
+    88,
     613,
-    57
+    97
    ],
    "size_px": 12,
-   "field": null,
+   "field": "col_5",
    "reading": true
   },
   {
    "text": "1",
    "bbox": [
     19,
-    75,
+    115,
     25,
-    83
+    123
    ],
    "size_px": 11,
-   "field": null,
+   "field": "rn_1",
    "reading": true
   },
   {
    "text": "SKU",
    "bbox": [
     58,
-    75,
+    115,
     83,
-    84
+    124
    ],
    "size_px": 13,
    "field": null,
@@ -2339,9 +2996,9 @@
    "text": "Product",
    "bbox": [
     154,
-    75,
+    115,
     202,
-    84
+    124
    ],
    "size_px": 13,
    "field": null,
@@ -2351,9 +3008,9 @@
    "text": "Stock",
    "bbox": [
     307,
-    75,
+    115,
     342,
-    84
+    124
    ],
    "size_px": 13,
    "field": null,
@@ -2363,9 +3020,9 @@
    "text": "Unit price",
    "bbox": [
     382,
-    75,
+    115,
     438,
-    87
+    127
    ],
    "size_px": 13,
    "field": null,
@@ -2375,9 +3032,9 @@
    "text": "Value",
    "bbox": [
     515,
-    75,
+    115,
     548,
-    84
+    124
    ],
    "size_px": 13,
    "field": null,
@@ -2387,9 +3044,9 @@
    "text": "Reorder",
    "bbox": [
     576,
-    75,
+    115,
     624,
-    84
+    124
    ],
    "size_px": 13,
    "field": null,
@@ -2399,21 +3056,21 @@
    "text": "2",
    "bbox": [
     19,
-    103,
+    143,
     25,
-    111
+    151
    ],
    "size_px": 11,
-   "field": null,
+   "field": "rn_2",
    "reading": true
   },
   {
    "text": "YA7139",
    "bbox": [
     58,
-    103,
+    143,
     106,
-    112
+    152
    ],
    "size_px": 13,
    "field": "A2",
@@ -2423,9 +3080,9 @@
    "text": "Green tea",
    "bbox": [
     154,
-    103,
+    143,
     211,
-    112
+    152
    ],
    "size_px": 13,
    "field": "B2",
@@ -2435,9 +3092,9 @@
    "text": "4",
    "bbox": [
     334,
-    103,
+    143,
     342,
-    112
+    152
    ],
    "size_px": 13,
    "field": "C2",
@@ -2447,9 +3104,9 @@
    "text": "$52.07",
    "bbox": [
     395,
-    102,
+    142,
     438,
-    113
+    153
    ],
    "size_px": 13,
    "field": "D2",
@@ -2459,9 +3116,9 @@
    "text": "$208.28",
    "bbox": [
     497,
-    102,
+    142,
     548,
-    113
+    153
    ],
    "size_px": 13,
    "field": "E2",
@@ -2471,9 +3128,9 @@
    "text": "No",
    "bbox": [
     576,
-    103,
+    143,
     594,
-    112
+    152
    ],
    "size_px": 13,
    "field": "F2",
@@ -2483,21 +3140,21 @@
    "text": "3",
    "bbox": [
     19,
-    131,
+    171,
     25,
-    139
+    179
    ],
    "size_px": 11,
-   "field": null,
+   "field": "rn_3",
    "reading": true
   },
   {
    "text": "AS4897",
    "bbox": [
     58,
-    131,
+    171,
     106,
-    140
+    180
    ],
    "size_px": 13,
    "field": "A3",
@@ -2507,9 +3164,9 @@
    "text": "Lentils",
    "bbox": [
     154,
-    131,
+    171,
     193,
-    140
+    180
    ],
    "size_px": 13,
    "field": "B3",
@@ -2519,9 +3176,9 @@
    "text": "101",
    "bbox": [
     318,
-    131,
+    171,
     342,
-    140
+    180
    ],
    "size_px": 13,
    "field": "C3",
@@ -2531,9 +3188,9 @@
    "text": "$25.85",
    "bbox": [
     395,
-    130,
+    170,
     438,
-    141
+    181
    ],
    "size_px": 13,
    "field": "D3",
@@ -2543,9 +3200,9 @@
    "text": "$2,610.85",
    "bbox": [
     486,
-    130,
+    170,
     548,
-    142
+    182
    ],
    "size_px": 13,
    "field": "E3",
@@ -2555,9 +3212,9 @@
    "text": "Yes",
    "bbox": [
     576,
-    131,
+    171,
     598,
-    140
+    180
    ],
    "size_px": 13,
    "field": "F3",
@@ -2567,21 +3224,21 @@
    "text": "4",
    "bbox": [
     18,
-    159,
+    199,
     25,
-    167
+    207
    ],
    "size_px": 11,
-   "field": null,
+   "field": "rn_4",
    "reading": true
   },
   {
    "text": "UU6088",
    "bbox": [
     58,
-    159,
+    199,
     108,
-    168
+    208
    ],
    "size_px": 13,
    "field": "A4",
@@ -2591,9 +3248,9 @@
    "text": "Tomatoes",
    "bbox": [
     154,
-    159,
+    199,
     216,
-    168
+    208
    ],
    "size_px": 13,
    "field": "B4",
@@ -2603,9 +3260,9 @@
    "text": "102",
    "bbox": [
     318,
-    159,
+    199,
     342,
-    168
+    208
    ],
    "size_px": 13,
    "field": "C4",
@@ -2615,9 +3272,9 @@
    "text": "$21.51",
    "bbox": [
     395,
-    158,
+    198,
     438,
-    169
+    209
    ],
    "size_px": 13,
    "field": "D4",
@@ -2627,9 +3284,9 @@
    "text": "$2,194.02",
    "bbox": [
     486,
-    158,
+    198,
     548,
-    170
+    210
    ],
    "size_px": 13,
    "field": "E4",
@@ -2639,9 +3296,9 @@
    "text": "No",
    "bbox": [
     576,
-    159,
+    199,
     594,
-    168
+    208
    ],
    "size_px": 13,
    "field": "F4",
@@ -2651,21 +3308,21 @@
    "text": "5",
    "bbox": [
     19,
-    187,
+    227,
     25,
-    195
+    235
    ],
    "size_px": 11,
-   "field": null,
+   "field": "rn_5",
    "reading": true
   },
   {
    "text": "YB5583",
    "bbox": [
     58,
-    187,
+    227,
     106,
-    196
+    236
    ],
    "size_px": 13,
    "field": "A5",
@@ -2675,9 +3332,9 @@
    "text": "Notebook",
    "bbox": [
     154,
-    187,
+    227,
     216,
-    196
+    236
    ],
    "size_px": 13,
    "field": "B5",
@@ -2687,9 +3344,9 @@
    "text": "22",
    "bbox": [
     326,
-    187,
+    227,
     342,
-    196
+    236
    ],
    "size_px": 13,
    "field": "C5",
@@ -2699,9 +3356,9 @@
    "text": "$45.14",
    "bbox": [
     395,
-    186,
+    226,
     438,
-    197
+    237
    ],
    "size_px": 13,
    "field": "D5",
@@ -2711,9 +3368,9 @@
    "text": "$993.08",
    "bbox": [
     497,
-    186,
+    226,
     548,
-    197
+    237
    ],
    "size_px": 13,
    "field": "E5",
@@ -2723,9 +3380,9 @@
    "text": "No",
    "bbox": [
     576,
-    187,
+    227,
     594,
-    196
+    236
    ],
    "size_px": 13,
    "field": "F5",
@@ -2735,21 +3392,21 @@
    "text": "6",
    "bbox": [
     19,
-    215,
+    255,
     25,
-    223
+    263
    ],
    "size_px": 11,
-   "field": null,
+   "field": "rn_6",
    "reading": true
   },
   {
    "text": "ZL7117",
    "bbox": [
     58,
-    215,
+    255,
     105,
-    224
+    264
    ],
    "size_px": 13,
    "field": "A6",
@@ -2759,9 +3416,9 @@
    "text": "Oat milk",
    "bbox": [
     154,
-    215,
+    255,
     202,
-    224
+    264
    ],
    "size_px": 13,
    "field": "B6",
@@ -2771,9 +3428,9 @@
    "text": "4",
    "bbox": [
     334,
-    215,
+    255,
     342,
-    224
+    264
    ],
    "size_px": 13,
    "field": "C6",
@@ -2783,9 +3440,9 @@
    "text": "$54.87",
    "bbox": [
     395,
-    214,
+    254,
     438,
-    225
+    265
    ],
    "size_px": 13,
    "field": "D6",
@@ -2795,9 +3452,9 @@
    "text": "$219.48",
    "bbox": [
     497,
-    214,
+    254,
     548,
-    225
+    265
    ],
    "size_px": 13,
    "field": "E6",
@@ -2807,9 +3464,9 @@
    "text": "No",
    "bbox": [
     576,
-    215,
+    255,
     594,
-    224
+    264
    ],
    "size_px": 13,
    "field": "F6",
@@ -2819,21 +3476,21 @@
    "text": "7",
    "bbox": [
     19,
-    243,
+    283,
     25,
-    251
+    291
    ],
    "size_px": 11,
-   "field": null,
+   "field": "rn_7",
    "reading": true
   },
   {
    "text": "VJ4990",
    "bbox": [
     58,
-    243,
+    283,
     105,
-    252
+    292
    ],
    "size_px": 13,
    "field": "A7",
@@ -2843,9 +3500,9 @@
    "text": "Pasta",
    "bbox": [
     154,
-    243,
+    283,
     187,
-    252
+    292
    ],
    "size_px": 13,
    "field": "B7",
@@ -2855,9 +3512,9 @@
    "text": "90",
    "bbox": [
     326,
-    243,
+    283,
     342,
-    252
+    292
    ],
    "size_px": 13,
    "field": "C7",
@@ -2867,9 +3524,9 @@
    "text": "$7.29",
    "bbox": [
     403,
-    242,
+    282,
     438,
-    253
+    293
    ],
    "size_px": 13,
    "field": "D7",
@@ -2879,9 +3536,9 @@
    "text": "$656.10",
    "bbox": [
     497,
-    242,
+    282,
     548,
-    253
+    293
    ],
    "size_px": 13,
    "field": "E7",
@@ -2891,9 +3548,9 @@
    "text": "Yes",
    "bbox": [
     576,
-    243,
+    283,
     598,
-    252
+    292
    ],
    "size_px": 13,
    "field": "F7",
@@ -2903,21 +3560,21 @@
    "text": "8",
    "bbox": [
     19,
-    271,
+    311,
     25,
-    279
+    319
    ],
    "size_px": 11,
-   "field": null,
+   "field": "rn_8",
    "reading": true
   },
   {
    "text": "EA9686",
    "bbox": [
     58,
-    271,
+    311,
     105,
-    280
+    320
    ],
    "size_px": 13,
    "field": "A8",
@@ -2927,9 +3584,9 @@
    "text": "Tape",
    "bbox": [
     154,
-    271,
+    311,
     184,
-    283
+    323
    ],
    "size_px": 13,
    "field": "B8",
@@ -2939,9 +3596,9 @@
    "text": "40",
    "bbox": [
     326,
-    271,
+    311,
     342,
-    280
+    320
    ],
    "size_px": 13,
    "field": "C8",
@@ -2951,9 +3608,9 @@
    "text": "$20.95",
    "bbox": [
     395,
-    270,
+    310,
     438,
-    281
+    321
    ],
    "size_px": 13,
    "field": "D8",
@@ -2963,9 +3620,9 @@
    "text": "$838.00",
    "bbox": [
     497,
-    270,
+    310,
     548,
-    281
+    321
    ],
    "size_px": 13,
    "field": "E8",
@@ -2975,9 +3632,9 @@
    "text": "No",
    "bbox": [
     576,
-    271,
+    311,
     594,
-    280
+    320
    ],
    "size_px": 13,
    "field": "F8",
@@ -2987,21 +3644,21 @@
    "text": "9",
    "bbox": [
     19,
-    299,
+    339,
     25,
-    307
+    347
    ],
    "size_px": 11,
-   "field": null,
+   "field": "rn_9",
    "reading": true
   },
   {
    "text": "RF2996",
    "bbox": [
     58,
-    299,
+    339,
     105,
-    308
+    348
    ],
    "size_px": 13,
    "field": "A9",
@@ -3011,9 +3668,9 @@
    "text": "Olive oil",
    "bbox": [
     154,
-    299,
+    339,
     202,
-    308
+    348
    ],
    "size_px": 13,
    "field": "B9",
@@ -3023,9 +3680,9 @@
    "text": "49",
    "bbox": [
     326,
-    299,
+    339,
     342,
-    308
+    348
    ],
    "size_px": 13,
    "field": "C9",
@@ -3035,9 +3692,9 @@
    "text": "$2.11",
    "bbox": [
     403,
-    298,
+    338,
     438,
-    309
+    349
    ],
    "size_px": 13,
    "field": "D9",
@@ -3047,9 +3704,9 @@
    "text": "$103.39",
    "bbox": [
     497,
-    298,
+    338,
     548,
-    309
+    349
    ],
    "size_px": 13,
    "field": "E9",
@@ -3059,9 +3716,9 @@
    "text": "Yes",
    "bbox": [
     576,
-    299,
+    339,
     598,
-    308
+    348
    ],
    "size_px": 13,
    "field": "F9",
@@ -3071,21 +3728,21 @@
    "text": "10",
    "bbox": [
     16,
-    327,
+    367,
     28,
-    335
+    375
    ],
    "size_px": 11,
-   "field": null,
+   "field": "rn_10",
    "reading": true
   },
   {
    "text": "WU1560",
    "bbox": [
     58,
-    327,
+    367,
     111,
-    336
+    376
    ],
    "size_px": 13,
    "field": "A10",
@@ -3095,9 +3752,9 @@
    "text": "Rice 2kg",
    "bbox": [
     154,
-    327,
+    367,
     205,
-    339
+    379
    ],
    "size_px": 13,
    "field": "B10",
@@ -3107,9 +3764,9 @@
    "text": "104",
    "bbox": [
     318,
-    327,
+    367,
     342,
-    336
+    376
    ],
    "size_px": 13,
    "field": "C10",
@@ -3119,9 +3776,9 @@
    "text": "$43.01",
    "bbox": [
     395,
-    326,
+    366,
     438,
-    337
+    377
    ],
    "size_px": 13,
    "field": "D10",
@@ -3131,9 +3788,9 @@
    "text": "$4,473.04",
    "bbox": [
     486,
-    326,
+    366,
     548,
-    338
+    378
    ],
    "size_px": 13,
    "field": "E10",
@@ -3143,9 +3800,9 @@
    "text": "Yes",
    "bbox": [
     576,
-    327,
+    367,
     598,
-    336
+    376
    ],
    "size_px": 13,
    "field": "F10",
@@ -3155,21 +3812,21 @@
    "text": "11",
    "bbox": [
     16,
-    355,
+    395,
     28,
-    363
+    403
    ],
    "size_px": 11,
-   "field": null,
+   "field": "rn_11",
    "reading": true
   },
   {
    "text": "YB7873",
    "bbox": [
     58,
-    355,
+    395,
     106,
-    364
+    404
    ],
    "size_px": 13,
    "field": "A11",
@@ -3179,9 +3836,9 @@
    "text": "Dish soap",
    "bbox": [
     154,
-    355,
+    395,
     215,
-    367
+    407
    ],
    "size_px": 13,
    "field": "B11",
@@ -3191,9 +3848,9 @@
    "text": "121",
    "bbox": [
     318,
-    355,
+    395,
     342,
-    364
+    404
    ],
    "size_px": 13,
    "field": "C11",
@@ -3203,9 +3860,9 @@
    "text": "$35.25",
    "bbox": [
     395,
-    354,
+    394,
     438,
-    365
+    405
    ],
    "size_px": 13,
    "field": "D11",
@@ -3215,9 +3872,9 @@
    "text": "$4,265.25",
    "bbox": [
     486,
-    354,
+    394,
     548,
-    366
+    406
    ],
    "size_px": 13,
    "field": "E11",
@@ -3227,9 +3884,9 @@
    "text": "No",
    "bbox": [
     576,
-    355,
+    395,
     594,
-    364
+    404
    ],
    "size_px": 13,
    "field": "F11",
@@ -3239,21 +3896,21 @@
    "text": "12",
    "bbox": [
     16,
-    383,
+    423,
     28,
-    391
+    431
    ],
    "size_px": 11,
-   "field": null,
+   "field": "rn_12",
    "reading": true
   },
   {
    "text": "PH8312",
    "bbox": [
     58,
-    383,
+    423,
     107,
-    392
+    432
    ],
    "size_px": 13,
    "field": "A12",
@@ -3263,9 +3920,9 @@
    "text": "Yogurt",
    "bbox": [
     154,
-    383,
+    423,
     195,
-    395
+    435
    ],
    "size_px": 13,
    "field": "B12",
@@ -3275,9 +3932,9 @@
    "text": "7",
    "bbox": [
     334,
-    383,
+    423,
     342,
-    392
+    432
    ],
    "size_px": 13,
    "field": "C12",
@@ -3287,9 +3944,9 @@
    "text": "$10.40",
    "bbox": [
     395,
-    382,
+    422,
     438,
-    393
+    433
    ],
    "size_px": 13,
    "field": "D12",
@@ -3299,9 +3956,9 @@
    "text": "$72.80",
    "bbox": [
     505,
-    382,
+    422,
     548,
-    393
+    433
    ],
    "size_px": 13,
    "field": "E12",
@@ -3311,9 +3968,9 @@
    "text": "No",
    "bbox": [
     576,
-    383,
+    423,
     594,
-    392
+    432
    ],
    "size_px": 13,
    "field": "F12",
@@ -3323,21 +3980,21 @@
    "text": "13",
    "bbox": [
     16,
-    411,
+    451,
     28,
-    419
+    459
    ],
    "size_px": 11,
-   "field": null,
+   "field": "rn_13",
    "reading": true
   },
   {
    "text": "EL2422",
    "bbox": [
     58,
-    411,
+    451,
     104,
-    420
+    460
    ],
    "size_px": 13,
    "field": "A13",
@@ -3347,9 +4004,9 @@
    "text": "Spinach",
    "bbox": [
     154,
-    411,
+    451,
     203,
-    423
+    463
    ],
    "size_px": 13,
    "field": "B13",
@@ -3359,9 +4016,9 @@
    "text": "120",
    "bbox": [
     318,
-    411,
+    451,
     342,
-    420
+    460
    ],
    "size_px": 13,
    "field": "C13",
@@ -3371,9 +4028,9 @@
    "text": "$22.79",
    "bbox": [
     395,
-    410,
+    450,
     438,
-    421
+    461
    ],
    "size_px": 13,
    "field": "D13",
@@ -3383,9 +4040,9 @@
    "text": "$2,734.80",
    "bbox": [
     486,
-    410,
+    450,
     548,
-    422
+    462
    ],
    "size_px": 13,
    "field": "E13",
@@ -3395,9 +4052,9 @@
    "text": "Yes",
    "bbox": [
     576,
-    411,
+    451,
     598,
-    420
+    460
    ],
    "size_px": 13,
    "field": "F13",
@@ -3407,21 +4064,21 @@
    "text": "14",
    "bbox": [
     16,
-    439,
+    479,
     29,
-    447
+    487
    ],
    "size_px": 11,
-   "field": null,
+   "field": "rn_14",
    "reading": true
   },
   {
    "text": "ES6333",
    "bbox": [
     58,
-    439,
+    479,
     105,
-    448
+    488
    ],
    "size_px": 13,
    "field": "A14",
@@ -3431,9 +4088,9 @@
    "text": "Light bulb",
    "bbox": [
     154,
-    439,
+    479,
     214,
-    451
+    491
    ],
    "size_px": 13,
    "field": "B14",
@@ -3443,9 +4100,9 @@
    "text": "61",
    "bbox": [
     326,
-    439,
+    479,
     342,
-    448
+    488
    ],
    "size_px": 13,
    "field": "C14",
@@ -3455,9 +4112,9 @@
    "text": "$54.86",
    "bbox": [
     395,
+    478,
     438,
-    438,
-    449
+    489
    ],
    "size_px": 13,
    "field": "D14",
@@ -3467,9 +4124,9 @@
    "text": "$3,346.46",
    "bbox": [
     486,
-    438,
+    478,
     548,
-    450
+    490
    ],
    "size_px": 13,
    "field": "E14",
@@ -3479,9 +4136,9 @@
    "text": "Yes",
    "bbox": [
     576,
-    439,
+    479,
     598,
-    448
+    488
    ],
    "size_px": 13,
    "field": "F14",
@@ -3491,21 +4148,21 @@
    "text": "15",
    "bbox": [
     16,
-    467,
+    507,
     28,
-    475
+    515
    ],
    "size_px": 11,
-   "field": null,
+   "field": "rn_15",
    "reading": true
   },
   {
    "text": "BF4998",
    "bbox": [
     58,
-    467,
+    507,
     105,
-    476
+    516
    ],
    "size_px": 13,
    "field": "A15",
@@ -3515,9 +4172,9 @@
    "text": "Coffee beans",
    "bbox": [
     154,
-    466,
+    506,
     234,
-    476
+    516
    ],
    "size_px": 13,
    "field": "B15",
@@ -3527,9 +4184,9 @@
    "text": "1",
    "bbox": [
     334,
-    467,
+    507,
     342,
-    476
+    516
    ],
    "size_px": 13,
    "field": "C15",
@@ -3539,9 +4196,9 @@
    "text": "$33.55",
    "bbox": [
     395,
-    466,
+    506,
     438,
-    477
+    517
    ],
    "size_px": 13,
    "field": "D15",
@@ -3551,9 +4208,9 @@
    "text": "$33.55",
    "bbox": [
     505,
-    466,
+    506,
     548,
-    477
+    517
    ],
    "size_px": 13,
    "field": "E15",
@@ -3563,9 +4220,9 @@
    "text": "No",
    "bbox": [
     576,
-    467,
+    507,
     594,
-    476
+    516
    ],
    "size_px": 13,
    "field": "F15",
@@ -3575,21 +4232,21 @@
    "text": "16",
    "bbox": [
     16,
-    495,
+    535,
     28,
-    503
+    543
    ],
    "size_px": 11,
-   "field": null,
+   "field": "rn_16",
    "reading": true
   },
   {
    "text": "QH1546",
    "bbox": [
     58,
-    495,
+    535,
     109,
-    505
+    545
    ],
    "size_px": 13,
    "field": "A16",
@@ -3599,9 +4256,9 @@
    "text": "Batteries AA",
    "bbox": [
     154,
-    495,
+    535,
     225,
-    504
+    544
    ],
    "size_px": 13,
    "field": "B16",
@@ -3611,9 +4268,9 @@
    "text": "12",
    "bbox": [
     326,
-    495,
+    535,
     342,
-    504
+    544
    ],
    "size_px": 13,
    "field": "C16",
@@ -3623,9 +4280,9 @@
    "text": "$29.76",
    "bbox": [
     395,
-    494,
+    534,
     438,
-    505
+    545
    ],
    "size_px": 13,
    "field": "D16",
@@ -3635,9 +4292,9 @@
    "text": "$357.12",
    "bbox": [
     497,
-    494,
+    534,
     548,
-    505
+    545
    ],
    "size_px": 13,
    "field": "E16",
@@ -3647,9 +4304,9 @@
    "text": "Yes",
    "bbox": [
     576,
-    495,
+    535,
     598,
-    504
+    544
    ],
    "size_px": 13,
    "field": "F16",
@@ -3659,21 +4316,21 @@
    "text": "17",
    "bbox": [
     16,
-    523,
+    563,
     28,
-    531
+    571
    ],
    "size_px": 11,
-   "field": null,
+   "field": "rn_17",
    "reading": true
   },
   {
    "text": "Total",
    "bbox": [
     58,
-    523,
+    563,
     89,
-    532
+    572
    ],
    "size_px": 13,
    "field": null,
@@ -3683,9 +4340,9 @@
    "text": "838",
    "bbox": [
     318,
-    523,
+    563,
     342,
-    532
+    572
    ],
    "size_px": 13,
    "field": "tot_C",
@@ -3695,9 +4352,9 @@
    "text": "$459.41",
    "bbox": [
     387,
-    522,
+    562,
     438,
-    533
+    573
    ],
    "size_px": 13,
    "field": "tot_D",
@@ -3707,9 +4364,9 @@
    "text": "$23,106.22",
    "bbox": [
     478,
-    522,
+    562,
     548,
-    534
+    574
    ],
    "size_px": 13,
    "field": "tot_E",
@@ -3719,41 +4376,41 @@
    "text": "Sheet1",
    "bbox": [
     16,
-    695,
+    755,
     54,
-    704
+    764
    ],
    "size_px": 12,
    "field": null,
    "reading": true
   }
  ],
- "reading_text": "A1\nfx\nA\nB\nC\nD\nE\nF\n1\nSKU\nProduct\nStock\nUnit price\nValue\nReorder\n2\nYA7139\nGreen tea\n4\n$52.07\n$208.28\nNo\n3\nAS4897\nLentils\n101\n$25.85\n$2,610.85\nYes\n4\nUU6088\nTomatoes\n102\n$21.51\n$2,194.02\nNo\n5\nYB5583\nNotebook\n22\n$45.14\n$993.08\nNo\n6\nZL7117\nOat milk\n4\n$54.87\n$219.48\nNo\n7\nVJ4990\nPasta\n90\n$7.29\n$656.10\nYes\n8\nEA9686\nTape\n40\n$20.95\n$838.00\nNo\n9\nRF2996\nOlive oil\n49\n$2.11\n$103.39\nYes\n10\nWU1560\nRice 2kg\n104\n$43.01\n$4,473.04\nYes\n11\nYB7873\nDish soap\n121\n$35.25\n$4,265.25\nNo\n12\nPH8312\nYogurt\n7\n$10.40\n$72.80\nNo\n13\nEL2422\nSpinach\n120\n$22.79\n$2,734.80\nYes\n14\nES6333\nLight bulb\n61\n$54.86\n$3,346.46\nYes\n15\nBF4998\nCoffee beans\n1\n$33.55\n$33.55\nNo\n16\nQH1546\nBatteries AA\n12\n$29.76\n$357.12\nYes\n17\nTotal\n838\n$459.41\n$23,106.22\nSheet1",
+ "reading_text": "Bold\nItalic\nSort\nFilter\nSum\nChart\nA1\nfx\nA\nB\nC\nD\nE\nF\n1\nSKU\nProduct\nStock\nUnit price\nValue\nReorder\n2\nYA7139\nGreen tea\n4\n$52.07\n$208.28\nNo\n3\nAS4897\nLentils\n101\n$25.85\n$2,610.85\nYes\n4\nUU6088\nTomatoes\n102\n$21.51\n$2,194.02\nNo\n5\nYB5583\nNotebook\n22\n$45.14\n$993.08\nNo\n6\nZL7117\nOat milk\n4\n$54.87\n$219.48\nNo\n7\nVJ4990\nPasta\n90\n$7.29\n$656.10\nYes\n8\nEA9686\nTape\n40\n$20.95\n$838.00\nNo\n9\nRF2996\nOlive oil\n49\n$2.11\n$103.39\nYes\n10\nWU1560\nRice 2kg\n104\n$43.01\n$4,473.04\nYes\n11\nYB7873\nDish soap\n121\n$35.25\n$4,265.25\nNo\n12\nPH8312\nYogurt\n7\n$10.40\n$72.80\nNo\n13\nEL2422\nSpinach\n120\n$22.79\n$2,734.80\nYes\n14\nES6333\nLight bulb\n61\n$54.86\n$3,346.46\nYes\n15\nBF4998\nCoffee beans\n1\n$33.55\n$33.55\nNo\n16\nQH1546\nBatteries AA\n12\n$29.76\n$357.12\nYes\n17\nTotal\n838\n$459.41\n$23,106.22\nSheet1",
  "damage": null,
  "questions": [
   {
    "qid": "q_sum",
    "qtype": "sum",
-   "question": "What is the total of column D?",
-   "answer": "459.41",
+   "question": "What is the total of column E?",
+   "answer": "23106.22",
    "kind": "field",
    "canon": "money",
    "fields": [
-    "D2",
-    "D3",
-    "D4",
-    "D5",
-    "D6",
-    "D7",
-    "D8",
-    "D9",
-    "D10",
-    "D11",
-    "D12",
-    "D13",
-    "D14",
-    "D15",
-    "D16"
+    "E2",
+    "E3",
+    "E4",
+    "E5",
+    "E6",
+    "E7",
+    "E8",
+    "E9",
+    "E10",
+    "E11",
+    "E12",
+    "E13",
+    "E14",
+    "E15",
+    "E16"
    ],
    "accept": []
   },
@@ -3785,40 +4442,32 @@
    "accept": []
   },
   {
-   "qid": "q_count",
-   "qtype": "count",
-   "question": "How many rows have Reorder equal to \"Yes\"?",
-   "answer": "7",
+   "qid": "q_highlight",
+   "qtype": "lookup",
+   "question": "Which cell is highlighted in yellow? Give its cell reference, such as B4.",
+   "answer": "F15",
    "kind": "field",
-   "canon": "number",
+   "canon": "text",
    "fields": [
-    "F2",
-    "F3",
-    "F4",
-    "F5",
-    "F6",
-    "F7",
-    "F8",
-    "F9",
-    "F10",
-    "F11",
-    "F12",
-    "F13",
-    "F14",
-    "F15",
-    "F16"
+    "col_0",
+    "col_1",
+    "col_2",
+    "col_3",
+    "col_4",
+    "col_5",
+    "rn_15"
    ],
    "accept": []
   },
   {
    "qid": "q_cell",
    "qtype": "cell",
-   "question": "What is in cell E15?",
-   "answer": "33.55",
+   "question": "What is in cell F2?",
+   "answer": "No",
    "kind": "field",
-   "canon": "money",
+   "canon": "text",
    "fields": [
-    "E15"
+    "F2"
    ],
    "accept": []
   },

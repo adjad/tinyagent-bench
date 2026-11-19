@@ -16,7 +16,7 @@
  },
  "image": {
   "file": "v1-photo_text-dev-0000.png",
-  "sha256": "68df65e794735d794facb3457945a046eb50623c0354f744f3f7bd45894316c9",
+  "sha256": "d90fb33041600bb13625f68f5dc17fe6ff8f3d46307726b65d2fd52e85b77b6e",
   "width": 525,
   "height": 742,
   "logical": [
@@ -161,6 +161,7 @@
    "plot_value": false
   }
  },
+ "elements": [],
  "text_runs": [
   {
    "text": "Yarrar Guild presents",
@@ -294,28 +295,28 @@
      742
     ],
     "offset": [
-     61.28,
-     69.66
+     45.0,
+     90.15
     ]
    },
    {
     "op": "perspective",
     "corners": [
      [
-      75.12,
-      59.55
+      34.73,
+      103.7
      ],
      [
-      476.78,
-      55.5
+      477.99,
+      104.51
      ],
      [
-      485.34,
-      671.24
+      453.88,
+      698.29
      ],
      [
-      50.23,
-      650.86
+      44.55,
+      680.03
      ]
     ]
    },
@@ -326,34 +327,34 @@
   ],
   "field_boxes": {
    "title": [
-    133,
-    131,
-    411,
-    161
+    104,
+    186,
+    402,
+    220
    ],
    "date": [
-    211,
-    258,
-    327,
-    280
+    190,
+    319,
+    311,
+    342
    ],
    "time": [
-    209,
-    293,
-    328,
-    309
+    188,
+    355,
+    311,
+    371
    ],
    "venue": [
-    188,
-    336,
-    348,
-    358
+    168,
+    397,
+    331,
+    419
    ],
    "price": [
-    205,
-    409,
-    326,
-    435
+    187,
+    466,
+    308,
+    492
    ]
   }
  },
@@ -391,18 +392,6 @@
    "canon": "time",
    "fields": [
     "time"
-   ],
-   "accept": []
-  },
-  {
-   "qid": "q_venue",
-   "qtype": "event",
-   "question": "Where is the event held? Give the venue name.",
-   "answer": "Corvan Hills Library",
-   "kind": "field",
-   "canon": "text",
-   "fields": [
-    "venue"
    ],
    "accept": []
   },

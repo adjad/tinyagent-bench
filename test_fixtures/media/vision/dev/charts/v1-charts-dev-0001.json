@@ -1,0 +1,788 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-charts-dev-0001",
+ "family": "charts",
+ "template": "hbar",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 1,
+ "variant": {
+  "theme": "light",
+  "dpr": 1,
+  "abstain": false,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-charts-dev-0001.png",
+  "sha256": "1ecfd968d288381ab1696066aef2e44344f8dc2b2c782f415b1ffe078ca8d678",
+  "width": 640,
+  "height": 480,
+  "logical": [
+   640,
+   480
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "kind": "hbar",
+  "subject": "Repairs",
+  "word": "store",
+  "x": [
+   "Yarrelle",
+   "Gildelle",
+   "Sorrelle",
+   "Oakenane",
+   "Corvent",
+   "Brenent"
+  ],
+  "series": {
+   "Repairs": [
+    141,
+    147,
+    179,
+    97,
+    119,
+    70
+   ]
+  },
+  "tick_step": 50,
+  "y_max": 250,
+  "data_labels": true
+ },
+ "fields": {
+  "x_0": {
+   "name": "x_0",
+   "kind": "text",
+   "value": "Yarrelle",
+   "text": "Yarrelle",
+   "bbox": [
+    77,
+    108,
+    120,
+    117
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ce7758b9217d6278743efbf944c1d4a744e557a6b7cc6a847dff7a6ba380e70e",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "x_1": {
+   "name": "x_1",
+   "kind": "text",
+   "value": "Gildelle",
+   "text": "Gildelle",
+   "bbox": [
+    77,
+    163,
+    120,
+    172
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d3c5707a64b6d01d2a79f8948554a6a5f08c007c33ba4f607f86088dd86fafe7",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "x_2": {
+   "name": "x_2",
+   "kind": "text",
+   "value": "Sorrelle",
+   "text": "Sorrelle",
+   "bbox": [
+    79,
+    218,
+    120,
+    227
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "9c40bbc1eaefd4e2f805d2e8f60cde45ec411ab283e7d7e54af15b8c250b1b4c",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "x_3": {
+   "name": "x_3",
+   "kind": "text",
+   "value": "Oakenane",
+   "text": "Oakenane",
+   "bbox": [
+    63,
+    274,
+    120,
+    283
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c287ccf223830696732caf6fe86e882e47a865b53961c22f6b7f7c62940c3a25",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "x_4": {
+   "name": "x_4",
+   "kind": "text",
+   "value": "Corvent",
+   "text": "Corvent",
+   "bbox": [
+    76,
+    329,
+    120,
+    338
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e6f0fa61403721a16397b309d119149e973ef1e979e6544a9ef73d4536955763",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "x_5": {
+   "name": "x_5",
+   "kind": "text",
+   "value": "Brenent",
+   "text": "Brenent",
+   "bbox": [
+    77,
+    384,
+    120,
+    393
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "07973ba3a32685be1b5e642d9bc049f52c829881198098591da3e54b24ab0802",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "val_0": {
+   "name": "val_0",
+   "kind": "number",
+   "value": "141",
+   "text": "141",
+   "bbox": [
+    403,
+    108,
+    424,
+    117
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0b7b975bd6329ac5e652097c1c5ca0460423f8be9565b6b6dbd86f8c6daa9e23",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "val_1": {
+   "name": "val_1",
+   "kind": "number",
+   "value": "147",
+   "text": "147",
+   "bbox": [
+    415,
+    163,
+    436,
+    172
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "bd413d32dbb2b65e5031bd2c59202e5afa6fc3b12d489a3c406ba97024eb2519",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "val_2": {
+   "name": "val_2",
+   "kind": "number",
+   "value": "179",
+   "text": "179",
+   "bbox": [
+    475,
+    218,
+    496,
+    227
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "42008bf524706d57e45780b92cdcb97ec4a4733391c2ebd35335dff28ea41682",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "val_3": {
+   "name": "val_3",
+   "kind": "number",
+   "value": "97",
+   "text": "97",
+   "bbox": [
+    320,
+    274,
+    334,
+    283
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5fab25fb9fe66c4036f9890f7366ab34582b7f7ce1fb6610dbdcf057b34299c2",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "val_4": {
+   "name": "val_4",
+   "kind": "number",
+   "value": "119",
+   "text": "119",
+   "bbox": [
+    362,
+    329,
+    383,
+    338
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "3ef48b32323070907368c8fb8cdd7d5a272b28a5e50d1f7c45fe9fc44caa3b79",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "val_5": {
+   "name": "val_5",
+   "kind": "number",
+   "value": "70",
+   "text": "70",
+   "bbox": [
+    269,
+    384,
+    283,
+    393
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5b2ef17d607a8187a4c9c31c14f2d64bc62d07b5cae8f9b048b4ad22f6b7bb11",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "pt_0_0": {
+   "name": "pt_0_0",
+   "kind": "number",
+   "value": "141",
+   "text": "",
+   "bbox": [
+    130,
+    96,
+    397,
+    127
+   ],
+   "size_px": 267,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "cabcbe40820378ff1799553560178182207860bddb32911ea95f40533aeb093d",
+   "fg": [
+    0,
+    92,
+    197
+   ],
+   "plot_value": true
+  },
+  "pt_0_1": {
+   "name": "pt_0_1",
+   "kind": "number",
+   "value": "147",
+   "text": "",
+   "bbox": [
+    130,
+    152,
+    409,
+    182
+   ],
+   "size_px": 279,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "112a06df07dfec65bbfb4a6cd76f3bae509d3a8bcb233fc499c4ed3240e6c229",
+   "fg": [
+    0,
+    92,
+    197
+   ],
+   "plot_value": true
+  },
+  "pt_0_2": {
+   "name": "pt_0_2",
+   "kind": "number",
+   "value": "179",
+   "text": "",
+   "bbox": [
+    130,
+    207,
+    469,
+    238
+   ],
+   "size_px": 339,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "9ae5df705c4685dc99e9c35c0b1f35b226526970273b23ef444e52e168b1ebc0",
+   "fg": [
+    0,
+    92,
+    197
+   ],
+   "plot_value": true
+  },
+  "pt_0_3": {
+   "name": "pt_0_3",
+   "kind": "number",
+   "value": "97",
+   "text": "",
+   "bbox": [
+    130,
+    262,
+    314,
+    293
+   ],
+   "size_px": 184,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "8c5dea9a0fa824f6ebe1cf21daeadc903e453afc6751e9761bd0a2510aedcfdb",
+   "fg": [
+    0,
+    92,
+    197
+   ],
+   "plot_value": true
+  },
+  "pt_0_4": {
+   "name": "pt_0_4",
+   "kind": "number",
+   "value": "119",
+   "text": "",
+   "bbox": [
+    130,
+    318,
+    356,
+    348
+   ],
+   "size_px": 226,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "9dee5cf8d97827e3395f1850afbf3351a1874ed6f703dc5ce051de7a69be27fd",
+   "fg": [
+    0,
+    92,
+    197
+   ],
+   "plot_value": true
+  },
+  "pt_0_5": {
+   "name": "pt_0_5",
+   "kind": "number",
+   "value": "70",
+   "text": "",
+   "bbox": [
+    130,
+    373,
+    263,
+    404
+   ],
+   "size_px": 133,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "fd994794ae8c7c0da239309918636612708c8a85149a7b9ca5ca9370e719dd8c",
+   "fg": [
+    0,
+    92,
+    197
+   ],
+   "plot_value": true
+  }
+ },
+ "elements": [],
+ "text_runs": [
+  {
+   "text": "Repairs by store, 2027",
+   "bbox": [
+    23,
+    21,
+    205,
+    41
+   ],
+   "size_px": 18,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Repairs per store",
+   "bbox": [
+    24,
+    47,
+    111,
+    57
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "0",
+   "bbox": [
+    127,
+    427,
+    133,
+    435
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "50",
+   "bbox": [
+    219,
+    427,
+    231,
+    435
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "100",
+   "bbox": [
+    311,
+    427,
+    329,
+    435
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "150",
+   "bbox": [
+    405,
+    427,
+    423,
+    435
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "200",
+   "bbox": [
+    500,
+    427,
+    518,
+    435
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "250",
+   "bbox": [
+    595,
+    427,
+    613,
+    435
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Yarrelle",
+   "bbox": [
+    77,
+    108,
+    120,
+    117
+   ],
+   "size_px": 12,
+   "field": "x_0",
+   "reading": true
+  },
+  {
+   "text": "Gildelle",
+   "bbox": [
+    77,
+    163,
+    120,
+    172
+   ],
+   "size_px": 12,
+   "field": "x_1",
+   "reading": true
+  },
+  {
+   "text": "Sorrelle",
+   "bbox": [
+    79,
+    218,
+    120,
+    227
+   ],
+   "size_px": 12,
+   "field": "x_2",
+   "reading": true
+  },
+  {
+   "text": "Oakenane",
+   "bbox": [
+    63,
+    274,
+    120,
+    283
+   ],
+   "size_px": 12,
+   "field": "x_3",
+   "reading": true
+  },
+  {
+   "text": "Corvent",
+   "bbox": [
+    76,
+    329,
+    120,
+    338
+   ],
+   "size_px": 12,
+   "field": "x_4",
+   "reading": true
+  },
+  {
+   "text": "Brenent",
+   "bbox": [
+    77,
+    384,
+    120,
+    393
+   ],
+   "size_px": 12,
+   "field": "x_5",
+   "reading": true
+  },
+  {
+   "text": "141",
+   "bbox": [
+    403,
+    108,
+    424,
+    117
+   ],
+   "size_px": 12,
+   "field": "val_0",
+   "reading": true
+  },
+  {
+   "text": "147",
+   "bbox": [
+    415,
+    163,
+    436,
+    172
+   ],
+   "size_px": 12,
+   "field": "val_1",
+   "reading": true
+  },
+  {
+   "text": "179",
+   "bbox": [
+    475,
+    218,
+    496,
+    227
+   ],
+   "size_px": 12,
+   "field": "val_2",
+   "reading": true
+  },
+  {
+   "text": "97",
+   "bbox": [
+    320,
+    274,
+    334,
+    283
+   ],
+   "size_px": 12,
+   "field": "val_3",
+   "reading": true
+  },
+  {
+   "text": "119",
+   "bbox": [
+    362,
+    329,
+    383,
+    338
+   ],
+   "size_px": 12,
+   "field": "val_4",
+   "reading": true
+  },
+  {
+   "text": "70",
+   "bbox": [
+    269,
+    384,
+    283,
+    393
+   ],
+   "size_px": 12,
+   "field": "val_5",
+   "reading": true
+  }
+ ],
+ "reading_text": "Repairs by store, 2027\nRepairs per store\n0\n50\n100\n150\n200\n250\nYarrelle\nGildelle\nSorrelle\nOakenane\nCorvent\nBrenent\n141\n147\n179\n97\n119\n70",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_value",
+   "qtype": "lookup",
+   "question": "What value is shown for Sorrelle?",
+   "answer": "179",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "val_2"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_max",
+   "qtype": "max",
+   "question": "Which store has the longest bar?",
+   "answer": "Sorrelle",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "x_0",
+    "x_1",
+    "x_2",
+    "x_3",
+    "x_4",
+    "x_5",
+    "val_0",
+    "val_1",
+    "val_2",
+    "val_3",
+    "val_4",
+    "val_5"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_min",
+   "qtype": "min",
+   "question": "Which store has the shortest bar?",
+   "answer": "Brenent",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "x_0",
+    "x_1",
+    "x_2",
+    "x_3",
+    "x_4",
+    "x_5",
+    "val_0",
+    "val_1",
+    "val_2",
+    "val_3",
+    "val_4",
+    "val_5"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_diff",
+   "qtype": "difference",
+   "question": "How much longer is the bar for Sorrelle than the bar for Corvent, in value?",
+   "answer": "60",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "x_2",
+    "x_4",
+    "val_2",
+    "val_4"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the chart.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

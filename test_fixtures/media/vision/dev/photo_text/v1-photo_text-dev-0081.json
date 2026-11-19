@@ -1,11 +1,11 @@
 {
  "schema": "edat.media.vision-item/1",
- "item_id": "v1-photo_text-dev-0036",
+ "item_id": "v1-photo_text-dev-0081",
  "family": "photo_text",
  "template": "flyer",
  "split": "dev",
  "seed": "edat-media-dev-2027.1",
- "index": 36,
+ "index": 81,
  "variant": {
   "theme": "dark",
   "dpr": 1,
@@ -15,8 +15,8 @@
   "damage": 0
  },
  "image": {
-  "file": "v1-photo_text-dev-0036.png",
-  "sha256": "83fac4f7390b22466acada374bdf69fb342700ce6bd5a9b94f27d82ce2111db0",
+  "file": "v1-photo_text-dev-0081.png",
+  "sha256": "f93d2e3956b2f7f1bd21756e84b31ff373eb0cfcfeb9fc74249424a4630ee934",
   "width": 525,
   "height": 742,
   "logical": [
@@ -33,38 +33,38 @@
  },
  "default_year": 2027,
  "data": {
-  "title": "Open Air Jazz Night",
-  "date": "2027-05-31",
-  "date_text": "Monday, May 31, 2027",
-  "start": "19:45",
-  "end": "21:45",
-  "time_text": "Starts 7:45 PM",
-  "venue": "The Brenella Room",
-  "address": "8 Marquist Rd, Tavistead",
+  "title": "Autumn Plant Sale",
+  "date": "2027-01-28",
+  "date_text": "THU JAN 28",
+  "start": "18:30",
+  "end": "21:30",
+  "time_text": "Starts 6:30 PM",
+  "venue": "Jarstead Hall",
+  "address": "586 Bradane Rd, Fenwick Bay",
   "price": 18,
   "price_text": "Entry $18",
-  "phone": "(808) 555-0164",
-  "tagline": "Bring a friend",
-  "note": "Limited seats",
-  "host": "Sorrova Collective",
+  "phone": "(617) 555-0168",
+  "tagline": "Free for members",
+  "note": "All ages welcome",
+  "host": "Quilix Guild",
   "dishes": []
  },
  "fields": {
   "title": {
    "name": "title",
    "kind": "text",
-   "value": "Open Air Jazz Night",
-   "text": "Open Air Jazz Night",
+   "value": "Autumn Plant Sale",
+   "text": "Autumn Plant Sale",
    "bbox": [
-    75,
-    78,
-    343,
-    108
+    85,
+    79,
+    334,
+    102
    ],
    "size_px": 30,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "0587bf2765e5908efa21d9228b7d7204841bc6dc10c027247b6b559fd6541d6d",
+   "crop_sha256": "5604de01fbff3f3330c868fec2fc766ac90ed46fff8fe36504ee6ca6a8d4055c",
    "fg": [
     10,
     10,
@@ -75,18 +75,18 @@
   "date": {
    "name": "date",
    "kind": "date",
-   "value": "2027-05-31",
-   "text": "Monday, May 31, 2027",
+   "value": "2027-01-28",
+   "text": "THU JAN 28",
    "bbox": [
-    106,
-    208,
-    312,
-    229
+    153,
+    209,
+    266,
+    225
    ],
    "size_px": 20,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "442ebdb7ee4f1b35740f744d9d0b93732df36a5b33b72413b58683ed2364b29c",
+   "crop_sha256": "052e5045f61db700cc0e51fed7fae4d97c21a1948d90883bd905b9c349e0e7ec",
    "fg": [
     242,
     242,
@@ -97,8 +97,8 @@
   "time": {
    "name": "time",
    "kind": "time",
-   "value": "19:45",
-   "text": "Starts 7:45 PM",
+   "value": "18:30",
+   "text": "Starts 6:30 PM",
    "bbox": [
     150,
     245,
@@ -108,7 +108,7 @@
    "size_px": 18,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "87514fd8febc49e8fb9f41d49592cec4aea1297092b2509a9c47690bb6ee8c64",
+   "crop_sha256": "11fb086908786a86d32ee09f5abd7473213c0d90731f09516b6bced2438f3f4c",
    "fg": [
     242,
     242,
@@ -119,18 +119,18 @@
   "venue": {
    "name": "venue",
    "kind": "text",
-   "value": "The Brenella Room",
-   "text": "The Brenella Room",
+   "value": "Jarstead Hall",
+   "text": "Jarstead Hall",
    "bbox": [
-    134,
+    156,
     289,
-    286,
+    264,
     302
    ],
    "size_px": 18,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "9a4a4fdc03d30d5f0b4aaa9b4eefd1595700a3536ba43680726ab42a862e048a",
+   "crop_sha256": "b05af1e72de36e2783ed58e64fd6540534222eead650998476d0df66ee64f97b",
    "fg": [
     242,
     242,
@@ -161,13 +161,14 @@
    "plot_value": false
   }
  },
+ "elements": [],
  "text_runs": [
   {
-   "text": "Sorrova Collective presents",
+   "text": "Quilix Guild presents",
    "bbox": [
-    134,
+    152,
     41,
-    285,
+    267,
     53
    ],
    "size_px": 12,
@@ -175,43 +176,43 @@
    "reading": true
   },
   {
-   "text": "Open Air Jazz Night",
+   "text": "Autumn Plant Sale",
    "bbox": [
-    75,
-    78,
-    343,
-    108
+    85,
+    79,
+    334,
+    102
    ],
    "size_px": 30,
    "field": "title",
    "reading": true
   },
   {
-   "text": "Bring a friend",
+   "text": "Free for members",
    "bbox": [
-    171,
+    158,
     143,
-    249,
-    156
+    261,
+    153
    ],
    "size_px": 13,
    "field": null,
    "reading": true
   },
   {
-   "text": "Monday, May 31, 2027",
+   "text": "THU JAN 28",
    "bbox": [
-    106,
-    208,
-    312,
-    229
+    153,
+    209,
+    266,
+    225
    ],
    "size_px": 20,
    "field": "date",
    "reading": true
   },
   {
-   "text": "Starts 7:45 PM",
+   "text": "Starts 6:30 PM",
    "bbox": [
     150,
     245,
@@ -223,11 +224,11 @@
    "reading": true
   },
   {
-   "text": "The Brenella Room",
+   "text": "Jarstead Hall",
    "bbox": [
-    134,
+    156,
     289,
-    286,
+    264,
     302
    ],
    "size_px": 18,
@@ -235,11 +236,11 @@
    "reading": true
   },
   {
-   "text": "8 Marquist Rd, Tavistead",
+   "text": "586 Bradane Rd, Fenwick Bay",
    "bbox": [
-    140,
+    128,
     315,
-    279,
+    293,
     327
    ],
    "size_px": 12,
@@ -259,12 +260,12 @@
    "reading": false
   },
   {
-   "text": "Limited seats",
+   "text": "All ages welcome",
    "bbox": [
-    172,
+    160,
     405,
-    248,
-    414
+    259,
+    417
    ],
    "size_px": 12,
    "field": null,
@@ -283,7 +284,7 @@
    "reading": true
   }
  ],
- "reading_text": "Sorrova Collective presents\nOpen Air Jazz Night\nBring a friend\nMonday, May 31, 2027\nStarts 7:45 PM\nThe Brenella Room\n8 Marquist Rd, Tavistead\nLimited seats\nPlease recycle this flyer",
+ "reading_text": "Quilix Guild presents\nAutumn Plant Sale\nFree for members\nTHU JAN 28\nStarts 6:30 PM\nJarstead Hall\n586 Bradane Rd, Fenwick Bay\nAll ages welcome\nPlease recycle this flyer",
  "damage": {
   "level": 0,
   "ops": [
@@ -294,62 +295,62 @@
      742
     ],
     "offset": [
-     59.8,
-     84.01
+     63.74,
+     82.69
     ]
    },
    {
     "op": "perspective",
     "corners": [
      [
-      51.52,
-      79.9
+      55.81,
+      90.37
      ],
      [
-      466.73,
-      82.8
+      473.98,
+      70.94
      ],
      [
-      467.43,
-      687.37
+      496.82,
+      664.91
      ],
      [
-      67.45,
-      692.19
+      50.82,
+      675.61
      ]
     ]
    }
   ],
   "field_boxes": {
    "title": [
-    128,
-    163,
-    393,
-    196
+    139,
+    149,
+    391,
+    183
    ],
    "date": [
-    161,
-    299,
-    363,
-    322
+    208,
+    277,
+    324,
+    298
    ],
    "time": [
     205,
-    337,
-    322,
-    352
+    312,
+    328,
+    330
    ],
    "venue": [
-    190,
-    382,
-    339,
-    397
+    211,
+    356,
+    324,
+    373
    ],
    "price": [
-    216,
-    454,
-    314,
-    480
+    215,
+    426,
+    320,
+    454
    ]
   }
  },
@@ -358,7 +359,7 @@
    "qid": "q_title",
    "qtype": "event",
    "question": "What is the name of the event?",
-   "answer": "Open Air Jazz Night",
+   "answer": "Autumn Plant Sale",
    "kind": "field",
    "canon": "text",
    "fields": [
@@ -370,7 +371,7 @@
    "qid": "q_date",
    "qtype": "event",
    "question": "On what date is the event? Give the date.",
-   "answer": "2027-05-31",
+   "answer": "2027-01-28",
    "kind": "field",
    "canon": "date",
    "fields": [
@@ -379,22 +380,10 @@
    "accept": []
   },
   {
-   "qid": "q_time",
-   "qtype": "event",
-   "question": "What time does the event start?",
-   "answer": "19:45",
-   "kind": "field",
-   "canon": "time",
-   "fields": [
-    "time"
-   ],
-   "accept": []
-  },
-  {
    "qid": "q_venue",
    "qtype": "event",
    "question": "Where is the event held? Give the venue name.",
-   "answer": "The Brenella Room",
+   "answer": "Jarstead Hall",
    "kind": "field",
    "canon": "text",
    "fields": [

@@ -16,7 +16,7 @@
  },
  "image": {
   "file": "v1-photo_text-dev-0001.png",
-  "sha256": "efc8fea8fbddba641511b478effb8bd59866dd7b6ea5eb6b11423877f74d059f",
+  "sha256": "3a20327923cbba0b4ad0ef327014e535dbd0dbba220f58e866b06dbe3cb4455b",
   "width": 600,
   "height": 800,
   "logical": [
@@ -161,6 +161,7 @@
    "plot_value": false
   }
  },
+ "elements": [],
  "text_runs": [
   {
    "text": "Midweek Dance Social",
@@ -375,18 +376,6 @@
    "canon": "date",
    "fields": [
     "date"
-   ],
-   "accept": []
-  },
-  {
-   "qid": "q_time",
-   "qtype": "event",
-   "question": "What time does the event start?",
-   "answer": "16:30",
-   "kind": "field",
-   "canon": "time",
-   "fields": [
-    "time"
    ],
    "accept": []
   },

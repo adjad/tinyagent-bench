@@ -15,7 +15,7 @@
  },
  "image": {
   "file": "v1-calendar-dev-0001.png",
-  "sha256": "4f4b605364f69096ce2a8382c9479135b464a22a03b7cc42a2ace9a918352e45",
+  "sha256": "725385c19e75e403357b788daaa3ed29aecec882d5c450a519a138ff4857150d",
   "width": 1120,
   "height": 640,
   "logical": [
@@ -917,6 +917,74 @@
    "plot_value": false
   }
  },
+ "elements": [
+  {
+   "name": "Month",
+   "role": "button",
+   "bbox": [
+    1032,
+    14,
+    1096,
+    46
+   ],
+   "unique": true
+  },
+  {
+   "name": "Week",
+   "role": "button",
+   "bbox": [
+    968,
+    14,
+    1026,
+    46
+   ],
+   "unique": true
+  },
+  {
+   "name": "Day",
+   "role": "button",
+   "bbox": [
+    904,
+    14,
+    962,
+    46
+   ],
+   "unique": true
+  },
+  {
+   "name": "Next",
+   "role": "button",
+   "bbox": [
+    856,
+    14,
+    890,
+    46
+   ],
+   "unique": true
+  },
+  {
+   "name": "Previous",
+   "role": "button",
+   "bbox": [
+    816,
+    14,
+    850,
+    46
+   ],
+   "unique": true
+  },
+  {
+   "name": "Today",
+   "role": "button",
+   "bbox": [
+    736,
+    14,
+    806,
+    46
+   ],
+   "unique": true
+  }
+ ],
  "text_runs": [
   {
    "text": "Apr 26 - May 2, 2027",
@@ -927,6 +995,54 @@
     47
    ],
    "size_px": 22,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Month",
+   "bbox": [
+    1044,
+    26,
+    1084,
+    35
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Week",
+   "bbox": [
+    980,
+    26,
+    1013,
+    35
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Day",
+   "bbox": [
+    922,
+    26,
+    945,
+    38
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Today",
+   "bbox": [
+    752,
+    26,
+    791,
+    38
+   ],
+   "size_px": 13,
    "field": null,
    "reading": true
   },
@@ -1387,7 +1503,7 @@
    "reading": true
   }
  ],
- "reading_text": "Apr 26 - May 2, 2027\nMonday\nApr 26\nTuesday\nApr 27\nWednesday\nApr 28\nThursday\nApr 29\nFriday\nApr 30\nSaturday\nMay 1\nSunday\nMay 2\n8 AM\n9 AM\n10 AM\n11 AM\n12 PM\n1 PM\n2 PM\n3 PM\n4 PM\n5 PM\nStandup with Farah\n8:30 AM\nBook club with Jonas\n8:00 AM\nLunch\n10:00 AM\nRecital\n8:30 AM\nPlanning with Gita\n8:00 AM\nTeam dinner\n9:00 AM\nBook club with Gita\n9:00 AM",
+ "reading_text": "Apr 26 - May 2, 2027\nMonth\nWeek\nDay\nToday\nMonday\nApr 26\nTuesday\nApr 27\nWednesday\nApr 28\nThursday\nApr 29\nFriday\nApr 30\nSaturday\nMay 1\nSunday\nMay 2\n8 AM\n9 AM\n10 AM\n11 AM\n12 PM\n1 PM\n2 PM\n3 PM\n4 PM\n5 PM\nStandup with Farah\n8:30 AM\nBook club with Jonas\n8:00 AM\nLunch\n10:00 AM\nRecital\n8:30 AM\nPlanning with Gita\n8:00 AM\nTeam dinner\n9:00 AM\nBook club with Gita\n9:00 AM",
  "damage": null,
  "questions": [
   {

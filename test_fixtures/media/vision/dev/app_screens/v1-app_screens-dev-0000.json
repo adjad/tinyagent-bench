@@ -15,7 +15,7 @@
  },
  "image": {
   "file": "v1-app_screens-dev-0000.png",
-  "sha256": "ab09609ee801714e854cd003f8b9a2d646dae59524cf854cf030245aef410455",
+  "sha256": "3eff0dd9858c5cffad6b39edb389d1bc92c08b2b956fb08e223c583d9922b5ff",
   "width": 390,
   "height": 844,
   "logical": [
@@ -78,9 +78,9 @@
    "value": "Quillton Crew",
    "text": "Quillton Crew",
    "bbox": [
-    15,
+    71,
     26,
-    124,
+    180,
     41
    ],
    "size_px": 17,
@@ -557,17 +557,87 @@
    "plot_value": false
   }
  },
+ "elements": [
+  {
+   "name": "Back",
+   "role": "link",
+   "bbox": [
+    10,
+    21,
+    52,
+    44
+   ],
+   "unique": true
+  },
+  {
+   "name": "Call",
+   "role": "button",
+   "bbox": [
+    348,
+    21,
+    380,
+    44
+   ],
+   "unique": true
+  },
+  {
+   "name": "Message",
+   "role": "field",
+   "bbox": [
+    12,
+    784,
+    294,
+    824
+   ],
+   "unique": true
+  },
+  {
+   "name": "Send",
+   "role": "button",
+   "bbox": [
+    302,
+    788,
+    372,
+    820
+   ],
+   "unique": true
+  }
+ ],
  "text_runs": [
+  {
+   "text": "Back",
+   "bbox": [
+    14,
+    27,
+    48,
+    38
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  },
   {
    "text": "Quillton Crew",
    "bbox": [
-    15,
+    71,
     26,
-    124,
+    180,
     41
    ],
    "size_px": 17,
    "field": "chat_title",
+   "reading": true
+  },
+  {
+   "text": "Call",
+   "bbox": [
+    352,
+    27,
+    376,
+    38
+   ],
+   "size_px": 14,
+   "field": null,
    "reading": true
   },
   {
@@ -833,9 +903,21 @@
    "size_px": 14,
    "field": null,
    "reading": true
+  },
+  {
+   "text": "Send",
+   "bbox": [
+    322,
+    800,
+    353,
+    809
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
   }
  ],
- "reading_text": "Quillton Crew\nNoor\nCan we move it to Friday?\n5:34 PM\nNoor\nThanks for the ride\n5:40 PM\nNoor\nI will bring extra chairs\n5:53 PM\nNoor\nDinner is on me tonight\n5:56 PM\nTomas\nCount me in for Saturday\n6:09 PM\nGita\nWho has the spare key?\n6:20 PM\nNoor\nI left my umbrella there\n6:23 PM\nMessage",
+ "reading_text": "Back\nQuillton Crew\nCall\nNoor\nCan we move it to Friday?\n5:34 PM\nNoor\nThanks for the ride\n5:40 PM\nNoor\nI will bring extra chairs\n5:53 PM\nNoor\nDinner is on me tonight\n5:56 PM\nTomas\nCount me in for Saturday\n6:09 PM\nGita\nWho has the spare key?\n6:20 PM\nNoor\nI left my umbrella there\n6:23 PM\nMessage\nSend",
  "damage": null,
  "questions": [
   {

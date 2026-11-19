@@ -15,7 +15,7 @@
  },
  "image": {
   "file": "v1-web_pages-dev-0001.png",
-  "sha256": "b1517cdca191d609110382160da26b9d1e292a942602e5ac10dcdc55e82c48f3",
+  "sha256": "4b37d7887f3a55fa69df2cef19d6bf73c59a18e7000d88079036d3d56b09cc9f",
   "width": 1280,
   "height": 800,
   "logical": [
@@ -366,6 +366,96 @@
    "plot_value": false
   }
  },
+ "elements": [
+  {
+   "name": "Pellix",
+   "role": "link",
+   "bbox": [
+    34,
+    76,
+    110,
+    114
+   ],
+   "unique": true
+  },
+  {
+   "name": "Shop",
+   "role": "link",
+   "bbox": [
+    932,
+    82,
+    982,
+    112
+   ],
+   "unique": true
+  },
+  {
+   "name": "Deals",
+   "role": "link",
+   "bbox": [
+    1016,
+    82,
+    1069,
+    112
+   ],
+   "unique": true
+  },
+  {
+   "name": "Support",
+   "role": "link",
+   "bbox": [
+    1100,
+    82,
+    1168,
+    112
+   ],
+   "unique": true
+  },
+  {
+   "name": "Account",
+   "role": "link",
+   "bbox": [
+    1184,
+    82,
+    1255,
+    112
+   ],
+   "unique": true
+  },
+  {
+   "name": "Check in online",
+   "role": "button",
+   "bbox": [
+    40,
+    724,
+    240,
+    768
+   ],
+   "unique": true
+  },
+  {
+   "name": "Manage booking",
+   "role": "button",
+   "bbox": [
+    260,
+    724,
+    460,
+    768
+   ],
+   "unique": true
+  },
+  {
+   "name": "Download receipt",
+   "role": "link",
+   "bbox": [
+    496,
+    733,
+    636,
+    759
+   ],
+   "unique": true
+  }
+ ],
  "text_runs": [
   {
    "text": "Pellix",
@@ -750,9 +840,45 @@
    "size_px": 14,
    "field": null,
    "reading": true
+  },
+  {
+   "text": "Check in online",
+   "bbox": [
+    85,
+    740,
+    195,
+    752
+   ],
+   "size_px": 16,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Manage booking",
+   "bbox": [
+    298,
+    740,
+    422,
+    755
+   ],
+   "size_px": 16,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Download receipt",
+   "bbox": [
+    500,
+    740,
+    632,
+    755
+   ],
+   "size_px": 16,
+   "field": null,
+   "reading": true
   }
  ],
- "reading_text": "Pellix\nhttps://pellix.example/trips/confirmation\nPellix\nShop\nDeals\nSupport\nAccount\nBooking confirmed\nBooking reference\nW4Y85S\nOutbound\nFlight VM 4463\nOstervale to Quillton\nSunday, January 31, 2027\nDeparts\nArrives\n5:00 AM\n7:27 AM\nGate D9\nSeat 12C\nPassenger Priya Calrow\nReturn\nFlight KM 6125\nQuillton to Ostervale\nSunday, February 7, 2027\nDeparts\nArrives\n11:45 AM\n1:10 PM\nGate B4\nSeat 31B\nPassenger Bram Kelova",
+ "reading_text": "Pellix\nhttps://pellix.example/trips/confirmation\nPellix\nShop\nDeals\nSupport\nAccount\nBooking confirmed\nBooking reference\nW4Y85S\nOutbound\nFlight VM 4463\nOstervale to Quillton\nSunday, January 31, 2027\nDeparts\nArrives\n5:00 AM\n7:27 AM\nGate D9\nSeat 12C\nPassenger Priya Calrow\nReturn\nFlight KM 6125\nQuillton to Ostervale\nSunday, February 7, 2027\nDeparts\nArrives\n11:45 AM\n1:10 PM\nGate B4\nSeat 31B\nPassenger Bram Kelova\nCheck in online\nManage booking\nDownload receipt",
  "damage": null,
  "questions": [
   {

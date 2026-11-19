@@ -24,8 +24,8 @@ FAMILIES = gen.available_families()
 PER_FAMILY = 16          # items checked per family here (the generator checks every item it writes)
 
 
-def test_all_seven_families_are_present():
-    assert sorted(FAMILIES) == sorted(gen.FAMILY_MODULES)
+def test_all_eleven_families_are_present():
+    assert sorted(FAMILIES) == sorted(gen.FAMILY_MODULES) and len(FAMILIES) == 11
 
 
 # ------------------------------------------------------------------ canonical forms

@@ -2,7 +2,7 @@
  "schema": "edat.media.vision-item/1",
  "item_id": "v1-documents-dev-0001",
  "family": "documents",
- "template": "invoice",
+ "template": "report",
  "split": "dev",
  "seed": "edat-media-dev-2027.1",
  "index": 1,
@@ -15,7 +15,7 @@
  },
  "image": {
   "file": "v1-documents-dev-0001.png",
-  "sha256": "edea8d9fa2b4fa184356cd4f7df7c17414d84c6fdb7797897a31427ce14ed116",
+  "sha256": "c9a6507a1deac14fc0038e9963fee7e8547414b28cd4c786b8f04096c39c4bc7",
   "width": 612,
   "height": 792,
   "logical": [
@@ -32,45 +32,90 @@
  },
  "default_year": 2027,
  "data": {
-  "seller": "Yarrura Cafe",
-  "buyer": "Dalia Kelford",
-  "number": "INV-9275",
-  "issued": "2027-10-23",
-  "due": "2027-11-06",
-  "lines": [
+  "template": "report",
+  "meta": {
+   "org": "Corvan Hills Water Users Group",
+   "date": "2027-04-01",
+   "author": "Amara Telham",
+   "title": "Quarterly Report 2027"
+  },
+  "words": 120,
+  "sections": [
    {
-    "name": "Olive oil",
-    "qty": 3,
-    "unit": 14.58,
-    "amount": 43.74
+    "heading": "1. Background",
+    "facts": [
+     {
+      "topic": "the hall refurbishment",
+      "kind": "count",
+      "shown": "399",
+      "value": "399"
+     }
+    ]
    },
    {
-    "name": "Coffee beans",
-    "qty": 3,
-    "unit": 5.25,
-    "amount": 15.75
+    "heading": "2. Staffing",
+    "facts": [
+     {
+      "topic": "the seed library",
+      "kind": "person",
+      "shown": "Oskar Holby",
+      "value": "Oskar Holby"
+     }
+    ]
+   },
+   {
+    "heading": "3. Timeline",
+    "facts": [
+     {
+      "topic": "the tree planting day",
+      "kind": "days",
+      "shown": "7",
+      "value": "7"
+     }
+    ]
    }
   ],
-  "subtotal": 59.49,
-  "tax": 4.76,
-  "total": 64.25
+  "clauses": [],
+  "columns": 1
  },
  "fields": {
-  "seller": {
-   "name": "seller",
+  "org": {
+   "name": "org",
    "kind": "text",
-   "value": "Yarrura Cafe",
-   "text": "Yarrura Cafe",
+   "value": "Corvan Hills Water Users Group",
+   "text": "Corvan Hills Water Users Group",
    "bbox": [
-    47,
-    52,
-    175,
-    71
+    54,
+    37,
+    217,
+    47
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1e8419f744c9d8835d8408e72e2a49a448ce5ea2cd4fa72a581788cf46e507aa",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "title": {
+   "name": "title",
+   "kind": "text",
+   "value": "Quarterly Report 2027",
+   "text": "Quarterly Report 2027",
+   "bbox": [
+    53,
+    59,
+    281,
+    81
    ],
    "size_px": 22,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "5b1c5379b16dcd998a04125b0553288b47684fbfe6a64e99ffefe8bc8a9d22f9",
+   "crop_sha256": "8c948122e2acc00311fdb11481a1e1ea68b67a60dae1891c5c01e3d57c10bfe7",
    "fg": [
     28,
     28,
@@ -78,21 +123,21 @@
    ],
    "plot_value": false
   },
-  "invoice_number": {
-   "name": "invoice_number",
+  "author": {
+   "name": "author",
    "kind": "text",
-   "value": "INV-9275",
-   "text": "INV-9275",
+   "value": "Amara Telham",
+   "text": "Amara Telham",
    "bbox": [
-    508,
-    86,
-    564,
-    95
+    124,
+    95,
+    207,
+    104
    ],
-   "size_px": 13,
+   "size_px": 12,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "2701d33cc2f3590abf8d29d0628a7bf2bb4539303b33fb37aaeb93ca0047faf0",
+   "crop_sha256": "b3096f96b1104158ad69d4b7b7eb7d353d1f3fa1a65c10c359fb44bb68da311a",
    "fg": [
     28,
     28,
@@ -100,43 +145,109 @@
    ],
    "plot_value": false
   },
-  "buyer": {
-   "name": "buyer",
-   "kind": "text",
-   "value": "Dalia Kelford",
-   "text": "Dalia Kelford",
-   "bbox": [
-    48,
-    145,
-    123,
-    155
-   ],
-   "size_px": 13,
-   "visible": true,
-   "obscured": null,
-   "crop_sha256": "430294390c5f81a51f1ab2e80bb648d6f2b51baba5260473b3be1f03a30079fb",
-   "fg": [
-    28,
-    28,
-    30
-   ],
-   "plot_value": false
-  },
-  "issued": {
-   "name": "issued",
+  "date": {
+   "name": "date",
    "kind": "date",
-   "value": "2027-10-23",
-   "text": "Oct 23, 2027",
+   "value": "2027-04-01",
+   "text": "April 1, 2027",
    "bbox": [
-    360,
-    146,
+    124,
+    115,
+    193,
+    127
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "678c8968ff9b1dfdc891485337940f8517ce5f900c87afe1eeb99c529e2be5aa",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "heading_0": {
+   "name": "heading_0",
+   "kind": "text",
+   "value": "1. Background",
+   "text": "1. Background",
+   "bbox": [
+    53,
+    173,
+    143,
+    187
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "7893efa9a001e17936b78c9d3bb94211abba9db70fbe2bf35388f8e124e73401",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "fact_0": {
+   "name": "fact_0",
+   "kind": "number",
+   "value": "399",
+   "text": "399",
+   "bbox": [
+    192,
+    212,
+    213,
+    221
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4f3eee4f803860bd3ef069a3728db8643bbb0bac2a75838b93e1ee1bf21626ab",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "heading_1": {
+   "name": "heading_1",
+   "kind": "text",
+   "value": "2. Staffing",
+   "text": "2. Staffing",
+   "bbox": [
+    53,
+    242,
+    115,
+    257
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0c83b986f55ed7a230e7be82ccddd2aef5fc837d55c6f29e48c13179bac08ab2",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "fact_1": {
+   "name": "fact_1",
+   "kind": "text",
+   "value": "Oskar Holby",
+   "text": "Oskar Holby,",
+   "bbox": [
+    368,
+    338,
     438,
-    157
+    350
    ],
-   "size_px": 13,
+   "size_px": 12,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "f358daa7265e9c913e74d92ed7840622e6cfa6cd8634abc5a143751ba782816f",
+   "crop_sha256": "b0f6ca5c268402a24c75f1b666dd8b2b5d1b86147f03bc05f6aceaf4eb81087d",
    "fg": [
     28,
     28,
@@ -144,175 +255,43 @@
    ],
    "plot_value": false
   },
-  "due": {
-   "name": "due",
-   "kind": "date",
-   "value": "2027-11-06",
-   "text": "Nov 6, 2027",
-   "bbox": [
-    470,
-    146,
-    544,
-    157
-   ],
-   "size_px": 13,
-   "visible": true,
-   "obscured": null,
-   "crop_sha256": "09339dd05d1235621bcace415757fe7244caaa9e9f89b0ac431f77981810873b",
-   "fg": [
-    28,
-    28,
-    30
-   ],
-   "plot_value": false
-  },
-  "item_0_name": {
-   "name": "item_0_name",
+  "heading_2": {
+   "name": "heading_2",
    "kind": "text",
-   "value": "Olive oil",
-   "text": "Olive oil",
+   "value": "3. Timeline",
+   "text": "3. Timeline",
    "bbox": [
-    56,
-    227,
-    100,
-    236
-   ],
-   "size_px": 12,
-   "visible": true,
-   "obscured": null,
-   "crop_sha256": "5dae9d005ba4cfb4d6062895d2d0786c17911657f3e6b95e8137797b2be31563",
-   "fg": [
-    28,
-    28,
-    30
-   ],
-   "plot_value": false
-  },
-  "item_0_amount": {
-   "name": "item_0_amount",
-   "kind": "money",
-   "value": "43.74",
-   "text": "$43.74",
-   "bbox": [
-    490,
-    226,
-    529,
-    237
-   ],
-   "size_px": 12,
-   "visible": true,
-   "obscured": null,
-   "crop_sha256": "1b3c6d56cf91a0acc78aefed893e730b607ba8ec1b6b9609323954e9df997bd1",
-   "fg": [
-    28,
-    28,
-    30
-   ],
-   "plot_value": false
-  },
-  "item_1_name": {
-   "name": "item_1_name",
-   "kind": "text",
-   "value": "Coffee beans",
-   "text": "Coffee beans",
-   "bbox": [
-    56,
-    248,
-    129,
-    258
-   ],
-   "size_px": 12,
-   "visible": true,
-   "obscured": null,
-   "crop_sha256": "5636b1a47737150e13dd1534958a0dc9639ac1eea01f4b6f918c0788cc62cca1",
-   "fg": [
-    28,
-    28,
-    30
-   ],
-   "plot_value": false
-  },
-  "item_1_amount": {
-   "name": "item_1_amount",
-   "kind": "money",
-   "value": "15.75",
-   "text": "$15.75",
-   "bbox": [
-    490,
-    248,
-    528,
-    259
-   ],
-   "size_px": 12,
-   "visible": true,
-   "obscured": null,
-   "crop_sha256": "87eee0a37eb0bd74e7f55d76f013706871d408c8eb922f25cdd064f2979be8a5",
-   "fg": [
-    28,
-    28,
-    30
-   ],
-   "plot_value": false
-  },
-  "subtotal": {
-   "name": "subtotal",
-   "kind": "money",
-   "value": "59.49",
-   "text": "$59.49",
-   "bbox": [
-    490,
-    286,
-    528,
-    297
-   ],
-   "size_px": 12,
-   "visible": true,
-   "obscured": null,
-   "crop_sha256": "ca6ce6309a7d00b2a8ffc0523e63b8caf7710db15a73fad9ea789cab44a68d9a",
-   "fg": [
-    28,
-    28,
-    30
-   ],
-   "plot_value": false
-  },
-  "tax": {
-   "name": "tax",
-   "kind": "money",
-   "value": "4.76",
-   "text": "$4.76",
-   "bbox": [
-    490,
-    308,
-    521,
-    319
-   ],
-   "size_px": 12,
-   "visible": true,
-   "obscured": null,
-   "crop_sha256": "840527e344b4dd2c1bc1078c59950bcf15ef4ebb89f31c75939f3206bbb7789f",
-   "fg": [
-    28,
-    28,
-    30
-   ],
-   "plot_value": false
-  },
-  "total": {
-   "name": "total",
-   "kind": "money",
-   "value": "64.25",
-   "text": "$64.25",
-   "bbox": [
-    489,
-    330,
-    534,
-    343
+    53,
+    368,
+    119,
+    379
    ],
    "size_px": 13,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "88c3857fa9151811098f1f466065fd0198dd6f98569a88bee2407699e800d691",
+   "crop_sha256": "091306ec1e9d589f622f9eaa8aa44f0f42ad55e2d475db348c3c219638fcbcb3",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "fact_2": {
+   "name": "fact_2",
+   "kind": "number",
+   "value": "7",
+   "text": "7",
+   "bbox": [
+    373,
+    392,
+    380,
+    401
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "09b5830dac7fd7ba495393db05a5fd9c45ffaaa29b684f1627e43e03b3c2bc38",
    "fg": [
     28,
     28,
@@ -321,301 +300,182 @@
    "plot_value": false
   }
  },
+ "elements": [],
  "text_runs": [
   {
-   "text": "Yarrura Cafe",
+   "text": "Corvan Hills Water Users Group",
    "bbox": [
-    47,
-    52,
-    175,
-    71
-   ],
-   "size_px": 22,
-   "field": "seller",
-   "reading": true
-  },
-  {
-   "text": "534 Braanu Court, Tavistead",
-   "bbox": [
-    48,
-    83,
-    194,
-    92
-   ],
-   "size_px": 11,
-   "field": null,
-   "reading": true
-  },
-  {
-   "text": "INVOICE",
-   "bbox": [
-    475,
     54,
-    563,
-    71
+    37,
+    217,
+    47
+   ],
+   "size_px": 11,
+   "field": "org",
+   "reading": true
+  },
+  {
+   "text": "Quarterly Report 2027",
+   "bbox": [
+    53,
+    59,
+    281,
+    81
    ],
    "size_px": 22,
+   "field": "title",
+   "reading": true
+  },
+  {
+   "text": "Prepared by",
+   "bbox": [
+    54,
+    95,
+    119,
+    105
+   ],
+   "size_px": 11,
    "field": null,
    "reading": true
   },
   {
-   "text": "INV-9275",
+   "text": "Amara Telham",
    "bbox": [
-    508,
-    86,
-    564,
-    95
+    124,
+    95,
+    207,
+    104
+   ],
+   "size_px": 12,
+   "field": "author",
+   "reading": true
+  },
+  {
+   "text": "Date",
+   "bbox": [
+    54,
+    115,
+    78,
+    123
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "April 1, 2027",
+   "bbox": [
+    124,
+    115,
+    193,
+    127
+   ],
+   "size_px": 12,
+   "field": "date",
+   "reading": true
+  },
+  {
+   "text": "1. Background",
+   "bbox": [
+    53,
+    173,
+    143,
+    187
    ],
    "size_px": 13,
-   "field": "invoice_number",
+   "field": "heading_0",
    "reading": true
   },
   {
-   "text": "Bill to",
+   "text": "Early results on the complaints procedure are clear, and work will continue before the",
    "bbox": [
-    48,
-    127,
-    75,
-    135
+    54,
+    195,
+    526,
+    208
    ],
-   "size_px": 11,
+   "size_px": 12,
    "field": null,
    "reading": true
   },
   {
-   "text": "Dalia Kelford",
+   "text": "spring session. A total of",
    "bbox": [
-    48,
-    145,
-    123,
-    155
+    54,
+    211,
+    190,
+    224
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "399",
+   "bbox": [
+    192,
+    212,
+    213,
+    221
+   ],
+   "size_px": 12,
+   "field": "fact_0",
+   "reading": true
+  },
+  {
+   "text": "households took part in the hall refurbishment.",
+   "bbox": [
+    216,
+    211,
+    473,
+    224
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "2. Staffing",
+   "bbox": [
+    53,
+    242,
+    115,
+    257
    ],
    "size_px": 13,
-   "field": "buyer",
+   "field": "heading_1",
    "reading": true
   },
   {
-   "text": "Issued",
+   "text": "The records office recommends changes to the cleaning rota once the survey results are",
    "bbox": [
-    360,
-    127,
-    395,
-    135
-   ],
-   "size_px": 11,
-   "field": null,
-   "reading": true
-  },
-  {
-   "text": "Oct 23, 2027",
-   "bbox": [
-    360,
-    146,
-    438,
-    157
-   ],
-   "size_px": 13,
-   "field": "issued",
-   "reading": true
-  },
-  {
-   "text": "Due",
-   "bbox": [
-    470,
-    127,
-    491,
-    135
-   ],
-   "size_px": 11,
-   "field": null,
-   "reading": true
-  },
-  {
-   "text": "Nov 6, 2027",
-   "bbox": [
-    470,
-    146,
-    544,
-    157
-   ],
-   "size_px": 13,
-   "field": "due",
-   "reading": true
-  },
-  {
-   "text": "Description",
-   "bbox": [
-    55,
-    199,
-    116,
-    211
-   ],
-   "size_px": 11,
-   "field": null,
-   "reading": true
-  },
-  {
-   "text": "Qty",
-   "bbox": [
-    329,
-    199,
-    348,
-    211
-   ],
-   "size_px": 11,
-   "field": null,
-   "reading": true
-  },
-  {
-   "text": "Unit",
-   "bbox": [
-    399,
-    199,
-    422,
-    209
-   ],
-   "size_px": 11,
-   "field": null,
-   "reading": true
-  },
-  {
-   "text": "Amount",
-   "bbox": [
-    489,
-    199,
-    531,
-    209
-   ],
-   "size_px": 11,
-   "field": null,
-   "reading": true
-  },
-  {
-   "text": "Olive oil",
-   "bbox": [
-    56,
-    227,
-    100,
-    236
-   ],
-   "size_px": 12,
-   "field": "item_0_name",
-   "reading": true
-  },
-  {
-   "text": "3",
-   "bbox": [
-    330,
-    227,
-    337,
-    236
+    54,
+    265,
+    549,
+    278
    ],
    "size_px": 12,
    "field": null,
    "reading": true
   },
   {
-   "text": "$14.58",
+   "text": "in.",
    "bbox": [
-    400,
-    226,
-    438,
-    237
+    54,
+    282,
+    67,
+    291
    ],
    "size_px": 12,
    "field": null,
    "reading": true
   },
   {
-   "text": "$43.74",
+   "text": "Further details on the records retention process will be shared over the next two quarters.",
    "bbox": [
-    490,
-    226,
-    529,
-    237
-   ],
-   "size_px": 12,
-   "field": "item_0_amount",
-   "reading": true
-  },
-  {
-   "text": "Coffee beans",
-   "bbox": [
-    56,
-    248,
-    129,
-    258
-   ],
-   "size_px": 12,
-   "field": "item_1_name",
-   "reading": true
-  },
-  {
-   "text": "3",
-   "bbox": [
-    330,
-    249,
-    337,
-    258
-   ],
-   "size_px": 12,
-   "field": null,
-   "reading": true
-  },
-  {
-   "text": "$5.25",
-   "bbox": [
-    400,
-    248,
-    431,
-    259
-   ],
-   "size_px": 12,
-   "field": null,
-   "reading": true
-  },
-  {
-   "text": "$15.75",
-   "bbox": [
-    490,
-    248,
-    528,
-    259
-   ],
-   "size_px": 12,
-   "field": "item_1_amount",
-   "reading": true
-  },
-  {
-   "text": "Subtotal",
-   "bbox": [
-    400,
-    287,
-    445,
-    296
-   ],
-   "size_px": 12,
-   "field": null,
-   "reading": true
-  },
-  {
-   "text": "$59.49",
-   "bbox": [
-    490,
-    286,
-    528,
-    297
-   ],
-   "size_px": 12,
-   "field": "subtotal",
-   "reading": true
-  },
-  {
-   "text": "Tax 8%",
-   "bbox": [
-    400,
-    309,
-    440,
+    54,
+    306,
+    550,
     318
    ],
    "size_px": 12,
@@ -623,114 +483,206 @@
    "reading": true
   },
   {
-   "text": "$4.76",
+   "text": "The staff council continues to monitor the maintenance budget after consultation with",
    "bbox": [
-    490,
-    308,
-    521,
-    319
+    54,
+    321,
+    532,
+    334
    ],
    "size_px": 12,
-   "field": "tax",
-   "reading": true
-  },
-  {
-   "text": "Total due",
-   "bbox": [
-    399,
-    331,
-    458,
-    342
-   ],
-   "size_px": 13,
    "field": null,
    "reading": true
   },
   {
-   "text": "$64.25",
+   "text": "residents. Questions about the seed library should go to",
    "bbox": [
-    489,
-    330,
-    534,
-    343
+    54,
+    338,
+    365,
+    350
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Oskar Holby,",
+   "bbox": [
+    368,
+    338,
+    438,
+    350
+   ],
+   "size_px": 12,
+   "field": "fact_1",
+   "reading": true
+  },
+  {
+   "text": "the program lead.",
+   "bbox": [
+    440,
+    338,
+    541,
+    350
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "3. Timeline",
+   "bbox": [
+    53,
+    368,
+    119,
+    379
    ],
    "size_px": 13,
-   "field": "total",
+   "field": "heading_2",
+   "reading": true
+  },
+  {
+   "text": "Requests for the tree planting day must be made at least",
+   "bbox": [
+    54,
+    391,
+    370,
+    404
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "7",
+   "bbox": [
+    373,
+    392,
+    380,
+    401
+   ],
+   "size_px": 12,
+   "field": "fact_2",
+   "reading": true
+  },
+  {
+   "text": "days in advance. Further",
+   "bbox": [
+    383,
+    392,
+    521,
+    404
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "details on the maintenance budget will be shared so that requests are handled more",
+   "bbox": [
+    54,
+    408,
+    527,
+    420
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "quickly.",
+   "bbox": [
+    54,
+    424,
+    97,
+    436
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Page 2",
+   "bbox": [
+    290,
+    766,
+    321,
+    776
+   ],
+   "size_px": 10,
+   "field": null,
    "reading": true
   }
  ],
- "reading_text": "Yarrura Cafe\n534 Braanu Court, Tavistead\nINVOICE\nINV-9275\nBill to\nDalia Kelford\nIssued\nOct 23, 2027\nDue\nNov 6, 2027\nDescription\nQty\nUnit\nAmount\nOlive oil\n3\n$14.58\n$43.74\nCoffee beans\n3\n$5.25\n$15.75\nSubtotal\n$59.49\nTax 8%\n$4.76\nTotal due\n$64.25",
+ "reading_text": "Corvan Hills Water Users Group\nQuarterly Report 2027\nPrepared by\nAmara Telham\nDate\nApril 1, 2027\n1. Background\nEarly results on the complaints procedure are clear, and work will continue before the\nspring session. A total of\n399\nhouseholds took part in the hall refurbishment.\n2. Staffing\nThe records office recommends changes to the cleaning rota once the survey results are\nin.\nFurther details on the records retention process will be shared over the next two quarters.\nThe staff council continues to monitor the maintenance budget after consultation with\nresidents. Questions about the seed library should go to\nOskar Holby,\nthe program lead.\n3. Timeline\nRequests for the tree planting day must be made at least\n7\ndays in advance. Further\ndetails on the maintenance budget will be shared so that requests are handled more\nquickly.\nPage 2",
  "damage": null,
  "questions": [
   {
-   "qid": "q_number",
+   "qid": "q_section_fact_0",
    "qtype": "lookup",
-   "question": "What is the invoice number?",
-   "answer": "INV-9275",
+   "question": "Under which heading does the document mention the hall refurbishment? Give the heading text.",
+   "answer": "1. Background",
    "kind": "field",
    "canon": "text",
    "fields": [
-    "invoice_number"
+    "heading_0",
+    "fact_0",
+    "heading_1",
+    "heading_2"
    ],
-   "accept": []
+   "accept": [
+    "Background"
+   ]
   },
   {
-   "qid": "q_due",
+   "qid": "q_date",
    "qtype": "lookup",
-   "question": "When is payment due? Give the date.",
-   "answer": "2027-11-06",
+   "question": "What date is on the document?",
+   "answer": "2027-04-01",
    "kind": "field",
    "canon": "date",
    "fields": [
-    "due"
+    "date"
    ],
    "accept": []
   },
   {
-   "qid": "q_max",
-   "qtype": "max",
-   "question": "Which line item has the largest amount?",
-   "answer": "Olive oil",
+   "qid": "q_heading",
+   "qtype": "lookup",
+   "question": "What is the heading of the third section?",
+   "answer": "3. Timeline",
    "kind": "field",
    "canon": "text",
    "fields": [
-    "item_0_amount",
-    "item_1_amount"
+    "heading_0",
+    "heading_1",
+    "heading_2"
    ],
-   "accept": []
+   "accept": [
+    "Timeline"
+   ]
   },
   {
-   "qid": "q_total",
+   "qid": "q_fact_2",
    "qtype": "lookup",
-   "question": "What is the total due?",
-   "answer": "64.25",
+   "question": "How many days in advance must requests for the tree planting day be made?",
+   "answer": "7",
    "kind": "field",
-   "canon": "money",
+   "canon": "number",
    "fields": [
-    "total"
+    "fact_2"
    ],
    "accept": []
   },
   {
    "qid": "q_reading",
    "qtype": "reading",
-   "question": "Read the invoice.",
+   "question": "Read the document.",
    "answer": "",
    "kind": "reading",
    "canon": "text",
    "fields": [],
-   "accept": []
-  },
-  {
-   "qid": "q_buyer",
-   "qtype": "lookup",
-   "question": "Who is the invoice billed to?",
-   "answer": "Dalia Kelford",
-   "kind": "field",
-   "canon": "text",
-   "fields": [
-    "buyer"
-   ],
    "accept": []
   }
  ]

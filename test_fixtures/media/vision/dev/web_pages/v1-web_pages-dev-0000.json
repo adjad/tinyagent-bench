@@ -15,7 +15,7 @@
  },
  "image": {
   "file": "v1-web_pages-dev-0000.png",
-  "sha256": "ec5f702a72c248ca2cee7cae9ebdacf63a4783e75963cdd5a564d10b65879f1e",
+  "sha256": "33edeec9c5ad164abc77628778fc96224943bbc0753d6b9193b2c4d1aff148c9",
   "width": 1280,
   "height": 800,
   "logical": [
@@ -197,6 +197,96 @@
    "plot_value": false
   }
  },
+ "elements": [
+  {
+   "name": "Pellura",
+   "role": "link",
+   "bbox": [
+    34,
+    76,
+    130,
+    114
+   ],
+   "unique": true
+  },
+  {
+   "name": "Shop",
+   "role": "link",
+   "bbox": [
+    932,
+    82,
+    982,
+    112
+   ],
+   "unique": true
+  },
+  {
+   "name": "Deals",
+   "role": "link",
+   "bbox": [
+    1016,
+    82,
+    1069,
+    112
+   ],
+   "unique": true
+  },
+  {
+   "name": "Support",
+   "role": "link",
+   "bbox": [
+    1100,
+    82,
+    1168,
+    112
+   ],
+   "unique": true
+  },
+  {
+   "name": "Account",
+   "role": "link",
+   "bbox": [
+    1184,
+    82,
+    1255,
+    112
+   ],
+   "unique": true
+  },
+  {
+   "name": "Add to cart",
+   "role": "button",
+   "bbox": [
+    620,
+    540,
+    900,
+    596
+   ],
+   "unique": true
+  },
+  {
+   "name": "Add to wishlist",
+   "role": "button",
+   "bbox": [
+    920,
+    540,
+    1140,
+    596
+   ],
+   "unique": true
+  },
+  {
+   "name": "Shipping and returns",
+   "role": "link",
+   "bbox": [
+    616,
+    627,
+    756,
+    650
+   ],
+   "unique": true
+  }
+ ],
  "text_runs": [
   {
    "text": "Pellura",
@@ -357,17 +447,41 @@
   {
    "text": "Add to cart",
    "bbox": [
-    707,
-    560,
-    810,
-    577
+    710,
+    561,
+    811,
+    576
    ],
    "size_px": 20,
    "field": null,
    "reading": true
+  },
+  {
+   "text": "Add to wishlist",
+   "bbox": [
+    976,
+    562,
+    1084,
+    574
+   ],
+   "size_px": 16,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Shipping and returns",
+   "bbox": [
+    620,
+    633,
+    752,
+    647
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
   }
  ],
- "reading_text": "Pellura\nhttps://pellura.example/product/p/4821\nPellura\nShop\nDeals\nSupport\nAccount\nZellura Kettle\n3.4 out of 5\n865 reviews\n$39.64\nList price $55.43\n17 left in stock\nAdd to cart",
+ "reading_text": "Pellura\nhttps://pellura.example/product/p/4821\nPellura\nShop\nDeals\nSupport\nAccount\nZellura Kettle\n3.4 out of 5\n865 reviews\n$39.64\nList price $55.43\n17 left in stock\nAdd to cart\nAdd to wishlist\nShipping and returns",
  "damage": null,
  "questions": [
   {

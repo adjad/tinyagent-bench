@@ -1,11 +1,11 @@
 {
  "schema": "edat.media.vision-item/1",
- "item_id": "v1-web_pages-dev-0063",
+ "item_id": "v1-web_pages-dev-0099",
  "family": "web_pages",
  "template": "product",
  "split": "dev",
  "seed": "edat-media-dev-2027.1",
- "index": 63,
+ "index": 99,
  "variant": {
   "theme": "dark",
   "dpr": 1,
@@ -14,8 +14,8 @@
   "scale": 1.0
  },
  "image": {
-  "file": "v1-web_pages-dev-0063.png",
-  "sha256": "4cca938b8ebefebfb2630fcab3fc1fecdd486e3d3413c599bd67c87a71b3f08b",
+  "file": "v1-web_pages-dev-0099.png",
+  "sha256": "03d5e070cb46f2fc70677ec160131943aaf4f7fb62a6b2421d18ec023809535a",
   "width": 1280,
   "height": 800,
   "logical": [
@@ -32,31 +32,31 @@
  },
  "default_year": 2027,
  "data": {
-  "site": "Gildum",
-  "domain": "gildum.example",
-  "product": "Vantaura Speaker",
-  "price": 168.61,
-  "list_price": 189.1,
-  "rating": "4.3",
-  "reviews": 756,
-  "stock": 38
+  "site": "Tavane",
+  "domain": "tavane.example",
+  "product": "Corvum Notebook set",
+  "price": 29.31,
+  "list_price": 39.85,
+  "rating": "4.0",
+  "reviews": 797,
+  "stock": 13
  },
  "fields": {
   "url": {
    "name": "url",
    "kind": "text",
-   "value": "gildum.example",
-   "text": "https://gildum.example/product/p/4821",
+   "value": "tavane.example",
+   "text": "https://tavane.example/product/p/4821",
    "bbox": [
     44,
     52,
-    279,
+    278,
     64
    ],
    "size_px": 13,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "e0e43551ab1eb3ee9b64b57034a861f0d2fe109163cb746e678ada727c3f5786",
+   "crop_sha256": "bc657a896a542729fa12a6e5677a58e339fde663858770549de082dd0f2cb311",
    "fg": [
     242,
     242,
@@ -67,18 +67,18 @@
   "product": {
    "name": "product",
    "kind": "text",
-   "value": "Vantaura Speaker",
-   "text": "Vantaura Speaker",
+   "value": "Corvum Notebook set",
+   "text": "Corvum Notebook set",
    "bbox": [
     619,
     166,
-    895,
-    201
+    958,
+    194
    ],
    "size_px": 34,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "529ef02bef8c7a50fe4713be399a222397d7ca976895ec282033404f62c3e59b",
+   "crop_sha256": "40bb8f3e4c3ba1bc71ec0f1f827384ccaf3b8d44d7fe14b28744bd22aa3e4f89",
    "fg": [
     242,
     242,
@@ -89,8 +89,8 @@
   "rating": {
    "name": "rating",
    "kind": "number",
-   "value": "4.3",
-   "text": "4.3 out of 5",
+   "value": "4.0",
+   "text": "4.0 out of 5",
    "bbox": [
     620,
     224,
@@ -100,7 +100,7 @@
    "size_px": 18,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "bab4cbfaa4ad483cd4c7f5d6982cbaaa37ff67d1c9a1b3670f45b41b83022f3e",
+   "crop_sha256": "cf265536fa4a68e1f6a403b37c8dafc48f89723a459cd0b406514d11b227f16f",
    "fg": [
     255,
     190,
@@ -111,8 +111,8 @@
   "reviews": {
    "name": "reviews",
    "kind": "number",
-   "value": "756",
-   "text": "756 reviews",
+   "value": "797",
+   "text": "797 reviews",
    "bbox": [
     800,
     226,
@@ -122,7 +122,7 @@
    "size_px": 15,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "dfe90776663b2bacf29a89b4ef948530a6898cc7cc51fc841b538db0ae1fe8d8",
+   "crop_sha256": "4e7327955be4689a8cca29ebb78c15d93cee4bad375172030adc49468b583de5",
    "fg": [
     174,
     174,
@@ -133,18 +133,18 @@
   "price": {
    "name": "price",
    "kind": "money",
-   "value": "168.61",
-   "text": "$168.61",
+   "value": "29.31",
+   "text": "$29.31",
    "bbox": [
     619,
     283,
-    786,
+    760,
     324
    ],
    "size_px": 44,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "0019b7f1fc3f7e609b637a397037366f764ed6219998c75d0023d6e438634590",
+   "crop_sha256": "395968f4986df3f2b75cc8d147bb7e873f0f27e54ebfa039e7e65bdda0171852",
    "fg": [
     242,
     242,
@@ -155,18 +155,18 @@
   "list_price": {
    "name": "list_price",
    "kind": "money",
-   "value": "189.10",
-   "text": "List price $189.10",
+   "value": "39.85",
+   "text": "List price $39.85",
    "bbox": [
     620,
     343,
-    740,
+    731,
     358
    ],
    "size_px": 15,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "3bd4fd6b885cedc62b6f72f770922454509b3c6eeb1f50bb7ee86310d77f43f5",
+   "crop_sha256": "f84a443e7a88ef29ada0351c2b33d373721b73fcdeb1ab4cfbaccb5675fee325",
    "fg": [
     174,
     174,
@@ -177,8 +177,8 @@
   "stock": {
    "name": "stock",
    "kind": "number",
-   "value": "38",
-   "text": "38 left in stock",
+   "value": "13",
+   "text": "13 left in stock",
    "bbox": [
     620,
     394,
@@ -186,24 +186,127 @@
     407
    ],
    "size_px": 17,
-   "visible": false,
-   "obscured": "blur",
-   "crop_sha256": "8b4dd98a592bffa619fe6f031053415f90834b308c0daed2cea55b6ca3bc2fe9",
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "45b88ad111f259ec932b76ab5c8e17f2bf7960e9458a0f9fa6f068b5b894434c",
    "fg": [
     90,
     210,
     120
    ],
    "plot_value": false
+  },
+  "shipping": {
+   "name": "shipping",
+   "kind": "money",
+   "value": "4.19 USD",
+   "text": "",
+   "bbox": null,
+   "size_px": 0,
+   "visible": false,
+   "obscured": "absent",
+   "crop_sha256": null,
+   "fg": null,
+   "plot_value": false
   }
  },
+ "elements": [
+  {
+   "name": "Tavane",
+   "role": "link",
+   "bbox": [
+    34,
+    76,
+    134,
+    114
+   ],
+   "unique": true
+  },
+  {
+   "name": "Shop",
+   "role": "link",
+   "bbox": [
+    932,
+    82,
+    982,
+    112
+   ],
+   "unique": true
+  },
+  {
+   "name": "Deals",
+   "role": "link",
+   "bbox": [
+    1016,
+    82,
+    1069,
+    112
+   ],
+   "unique": true
+  },
+  {
+   "name": "Support",
+   "role": "link",
+   "bbox": [
+    1100,
+    82,
+    1168,
+    112
+   ],
+   "unique": true
+  },
+  {
+   "name": "Account",
+   "role": "link",
+   "bbox": [
+    1184,
+    82,
+    1255,
+    112
+   ],
+   "unique": true
+  },
+  {
+   "name": "Add to cart",
+   "role": "button",
+   "bbox": [
+    620,
+    540,
+    900,
+    596
+   ],
+   "unique": true
+  },
+  {
+   "name": "Add to wishlist",
+   "role": "button",
+   "bbox": [
+    920,
+    540,
+    1140,
+    596
+   ],
+   "unique": true
+  },
+  {
+   "name": "Shipping and returns",
+   "role": "link",
+   "bbox": [
+    616,
+    627,
+    756,
+    650
+   ],
+   "unique": true
+  }
+ ],
  "text_runs": [
   {
-   "text": "Gildum",
+   "text": "Tavane",
    "bbox": [
     116,
     18,
-    157,
+    158,
     27
    ],
    "size_px": 12,
@@ -211,11 +314,11 @@
    "reading": true
   },
   {
-   "text": "https://gildum.example/product/p/4821",
+   "text": "https://tavane.example/product/p/4821",
    "bbox": [
     44,
     52,
-    279,
+    278,
     64
    ],
    "size_px": 13,
@@ -223,11 +326,11 @@
    "reading": true
   },
   {
-   "text": "Gildum",
+   "text": "Tavane",
    "bbox": [
     39,
-    86,
-    127,
+    87,
+    129,
     107
    ],
    "size_px": 26,
@@ -283,19 +386,19 @@
    "reading": true
   },
   {
-   "text": "Vantaura Speaker",
+   "text": "Corvum Notebook set",
    "bbox": [
     619,
     166,
-    895,
-    201
+    958,
+    194
    ],
    "size_px": 34,
    "field": "product",
    "reading": true
   },
   {
-   "text": "4.3 out of 5",
+   "text": "4.0 out of 5",
    "bbox": [
     620,
     224,
@@ -307,7 +410,7 @@
    "reading": true
   },
   {
-   "text": "756 reviews",
+   "text": "797 reviews",
    "bbox": [
     800,
     226,
@@ -319,11 +422,11 @@
    "reading": true
   },
   {
-   "text": "$168.61",
+   "text": "$29.31",
    "bbox": [
     619,
     283,
-    786,
+    760,
     324
    ],
    "size_px": 44,
@@ -331,11 +434,11 @@
    "reading": true
   },
   {
-   "text": "List price $189.10",
+   "text": "List price $39.85",
    "bbox": [
     620,
     343,
-    740,
+    731,
     358
    ],
    "size_px": 15,
@@ -343,7 +446,7 @@
    "reading": true
   },
   {
-   "text": "38 left in stock",
+   "text": "13 left in stock",
    "bbox": [
     620,
     394,
@@ -352,29 +455,53 @@
    ],
    "size_px": 17,
    "field": "stock",
-   "reading": false
+   "reading": true
   },
   {
    "text": "Add to cart",
    "bbox": [
-    707,
-    560,
-    810,
-    577
+    710,
+    561,
+    811,
+    576
    ],
    "size_px": 20,
    "field": null,
    "reading": true
+  },
+  {
+   "text": "Add to wishlist",
+   "bbox": [
+    976,
+    562,
+    1084,
+    574
+   ],
+   "size_px": 16,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Shipping and returns",
+   "bbox": [
+    620,
+    633,
+    752,
+    647
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
   }
  ],
- "reading_text": "Gildum\nhttps://gildum.example/product/p/4821\nGildum\nShop\nDeals\nSupport\nAccount\nVantaura Speaker\n4.3 out of 5\n756 reviews\n$168.61\nList price $189.10\nAdd to cart",
+ "reading_text": "Tavane\nhttps://tavane.example/product/p/4821\nTavane\nShop\nDeals\nSupport\nAccount\nCorvum Notebook set\n4.0 out of 5\n797 reviews\n$29.31\nList price $39.85\n13 left in stock\nAdd to cart\nAdd to wishlist\nShipping and returns",
  "damage": null,
  "questions": [
   {
    "qid": "q_price",
    "qtype": "lookup",
    "question": "What is the current price of the product?",
-   "answer": "168.61",
+   "answer": "29.31",
    "kind": "field",
    "canon": "money",
    "fields": [
@@ -386,7 +513,7 @@
    "qid": "q_rating",
    "qtype": "lookup",
    "question": "What is the customer rating out of 5?",
-   "answer": "4.3",
+   "answer": "4.0",
    "kind": "field",
    "canon": "number",
    "fields": [
@@ -398,7 +525,7 @@
    "qid": "q_save",
    "qtype": "difference",
    "question": "How much cheaper is the current price than the list price?",
-   "answer": "20.49",
+   "answer": "10.54",
    "kind": "field",
    "canon": "money",
    "fields": [
@@ -408,14 +535,14 @@
    "accept": []
   },
   {
-   "qid": "q_stock",
+   "qid": "q_ship",
    "qtype": "absence",
-   "question": "How many units are left in stock?",
+   "question": "What is the shipping fee?",
    "answer": "not shown",
    "kind": "abstain",
    "canon": "text",
    "fields": [
-    "stock"
+    "shipping"
    ],
    "accept": []
   },

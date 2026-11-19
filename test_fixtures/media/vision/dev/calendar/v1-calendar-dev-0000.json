@@ -15,12 +15,12 @@
  },
  "image": {
   "file": "v1-calendar-dev-0000.png",
-  "sha256": "52e4dcadbd0e5a002e71a0c2856c7e7cd3a1ed05bb96bd8d9639feb2a8cd338f",
+  "sha256": "3fa77bf6d927a49d92fbd7c77732f3b373de648a0d3fcf76c3eed6c1a91da10d",
   "width": 520,
-  "height": 740,
+  "height": 800,
   "logical": [
    520,
-   740
+   800
   ],
   "scale": 1.0
  },
@@ -69,9 +69,9 @@
    "text": "Friday, October 1, 2027",
    "bbox": [
     23,
-    27,
+    19,
     262,
-    49
+    41
    ],
    "size_px": 22,
    "visible": true,
@@ -91,9 +91,9 @@
    "text": "Sync with Priya",
    "bbox": [
     92,
-    154,
+    198,
     182,
-    166
+    210
    ],
    "size_px": 13,
    "visible": true,
@@ -113,9 +113,9 @@
    "text": "9:00 AM",
    "bbox": [
     92,
-    172,
+    216,
     132,
-    180
+    224
    ],
    "size_px": 11,
    "visible": true,
@@ -135,9 +135,9 @@
    "text": "11:00 AM",
    "bbox": [
     148,
-    172,
+    216,
     194,
-    180
+    224
    ],
    "size_px": 11,
    "visible": true,
@@ -157,9 +157,9 @@
    "text": "Studio 1",
    "bbox": [
     92,
-    190,
+    234,
     134,
-    198
+    242
    ],
    "size_px": 11,
    "visible": true,
@@ -179,9 +179,9 @@
    "text": "Workshop",
    "bbox": [
     92,
-    282,
+    326,
     156,
-    294
+    338
    ],
    "size_px": 13,
    "visible": true,
@@ -201,9 +201,9 @@
    "text": "11:00 AM",
    "bbox": [
     92,
-    300,
+    344,
     138,
-    308
+    352
    ],
    "size_px": 11,
    "visible": true,
@@ -223,9 +223,9 @@
    "text": "12:00 PM",
    "bbox": [
     154,
-    300,
+    344,
     199,
-    308
+    352
    ],
    "size_px": 11,
    "visible": true,
@@ -245,9 +245,9 @@
    "text": "Trelock Pharmacy",
    "bbox": [
     92,
-    318,
+    362,
     186,
-    328
+    372
    ],
    "size_px": 11,
    "visible": true,
@@ -267,9 +267,9 @@
    "text": "Dentist with Oskar",
    "bbox": [
     92,
-    378,
+    422,
     201,
-    387
+    431
    ],
    "size_px": 13,
    "visible": true,
@@ -289,9 +289,9 @@
    "text": "12:30 PM",
    "bbox": [
     92,
-    396,
+    440,
     137,
-    404
+    448
    ],
    "size_px": 11,
    "visible": true,
@@ -311,9 +311,9 @@
    "text": "2:30 PM",
    "bbox": [
     153,
-    396,
+    440,
     192,
-    404
+    448
    ],
    "size_px": 11,
    "visible": true,
@@ -333,9 +333,9 @@
    "text": "Online",
    "bbox": [
     92,
-    414,
+    458,
     127,
-    422
+    466
    ],
    "size_px": 11,
    "visible": true,
@@ -355,9 +355,9 @@
    "text": "Sync",
    "bbox": [
     92,
-    570,
+    614,
     122,
-    582
+    626
    ],
    "size_px": 13,
    "visible": true,
@@ -377,9 +377,9 @@
    "text": "3:30 PM",
    "bbox": [
     92,
-    588,
+    632,
     131,
-    596
+    640
    ],
    "size_px": 11,
    "visible": true,
@@ -399,9 +399,9 @@
    "text": "5:00 PM",
    "bbox": [
     147,
-    588,
+    632,
     186,
-    596
+    640
    ],
    "size_px": 11,
    "visible": true,
@@ -421,9 +421,9 @@
    "text": "Studio 1",
    "bbox": [
     92,
-    606,
+    650,
     134,
-    614
+    658
    ],
    "size_px": 11,
    "visible": true,
@@ -437,26 +437,142 @@
    "plot_value": false
   }
  },
+ "elements": [
+  {
+   "name": "Month",
+   "role": "button",
+   "bbox": [
+    432,
+    54,
+    496,
+    86
+   ],
+   "unique": true
+  },
+  {
+   "name": "Week",
+   "role": "button",
+   "bbox": [
+    368,
+    54,
+    426,
+    86
+   ],
+   "unique": true
+  },
+  {
+   "name": "Day",
+   "role": "button",
+   "bbox": [
+    304,
+    54,
+    362,
+    86
+   ],
+   "unique": true
+  },
+  {
+   "name": "Next",
+   "role": "button",
+   "bbox": [
+    256,
+    54,
+    290,
+    86
+   ],
+   "unique": true
+  },
+  {
+   "name": "Previous",
+   "role": "button",
+   "bbox": [
+    216,
+    54,
+    250,
+    86
+   ],
+   "unique": true
+  },
+  {
+   "name": "Today",
+   "role": "button",
+   "bbox": [
+    136,
+    54,
+    206,
+    86
+   ],
+   "unique": true
+  }
+ ],
  "text_runs": [
   {
    "text": "Friday, October 1, 2027",
    "bbox": [
     23,
-    27,
+    19,
     262,
-    49
+    41
    ],
    "size_px": 22,
    "field": "day_date",
    "reading": true
   },
   {
+   "text": "Month",
+   "bbox": [
+    444,
+    66,
+    484,
+    75
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Week",
+   "bbox": [
+    380,
+    66,
+    413,
+    75
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Day",
+   "bbox": [
+    322,
+    66,
+    345,
+    78
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Today",
+   "bbox": [
+    152,
+    66,
+    191,
+    78
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
    "text": "8 AM",
    "bbox": [
     16,
-    76,
+    120,
     41,
-    84
+    128
    ],
    "size_px": 11,
    "field": null,
@@ -466,9 +582,9 @@
    "text": "9 AM",
    "bbox": [
     16,
-    140,
+    184,
     41,
-    148
+    192
    ],
    "size_px": 11,
    "field": null,
@@ -478,9 +594,9 @@
    "text": "10 AM",
    "bbox": [
     16,
-    204,
+    248,
     47,
-    212
+    256
    ],
    "size_px": 11,
    "field": null,
@@ -490,9 +606,9 @@
    "text": "11 AM",
    "bbox": [
     16,
-    268,
+    312,
     47,
-    276
+    320
    ],
    "size_px": 11,
    "field": null,
@@ -502,9 +618,9 @@
    "text": "12 PM",
    "bbox": [
     16,
-    332,
+    376,
     46,
-    340
+    384
    ],
    "size_px": 11,
    "field": null,
@@ -514,9 +630,9 @@
    "text": "1 PM",
    "bbox": [
     16,
-    396,
+    440,
     40,
-    404
+    448
    ],
    "size_px": 11,
    "field": null,
@@ -526,9 +642,9 @@
    "text": "2 PM",
    "bbox": [
     16,
-    460,
+    504,
     40,
-    468
+    512
    ],
    "size_px": 11,
    "field": null,
@@ -538,9 +654,9 @@
    "text": "3 PM",
    "bbox": [
     16,
-    524,
+    568,
     40,
-    532
+    576
    ],
    "size_px": 11,
    "field": null,
@@ -550,9 +666,9 @@
    "text": "4 PM",
    "bbox": [
     16,
-    588,
+    632,
     40,
-    596
+    640
    ],
    "size_px": 11,
    "field": null,
@@ -562,9 +678,9 @@
    "text": "5 PM",
    "bbox": [
     16,
-    652,
+    696,
     40,
-    660
+    704
    ],
    "size_px": 11,
    "field": null,
@@ -574,9 +690,9 @@
    "text": "6 PM",
    "bbox": [
     16,
-    716,
+    760,
     40,
-    724
+    768
    ],
    "size_px": 11,
    "field": null,
@@ -586,9 +702,9 @@
    "text": "Sync with Priya",
    "bbox": [
     92,
-    154,
+    198,
     182,
-    166
+    210
    ],
    "size_px": 13,
    "field": "title_0",
@@ -598,9 +714,9 @@
    "text": "9:00 AM",
    "bbox": [
     92,
-    172,
+    216,
     132,
-    180
+    224
    ],
    "size_px": 11,
    "field": "start_0",
@@ -610,9 +726,9 @@
    "text": "-",
    "bbox": [
     138,
-    176,
+    220,
     141,
-    180
+    224
    ],
    "size_px": 11,
    "field": null,
@@ -622,9 +738,9 @@
    "text": "11:00 AM",
    "bbox": [
     148,
-    172,
+    216,
     194,
-    180
+    224
    ],
    "size_px": 11,
    "field": "end_0",
@@ -634,9 +750,9 @@
    "text": "Studio 1",
    "bbox": [
     92,
-    190,
+    234,
     134,
-    198
+    242
    ],
    "size_px": 11,
    "field": "loc_0",
@@ -646,9 +762,9 @@
    "text": "Workshop",
    "bbox": [
     92,
-    282,
+    326,
     156,
-    294
+    338
    ],
    "size_px": 13,
    "field": "title_1",
@@ -658,9 +774,9 @@
    "text": "11:00 AM",
    "bbox": [
     92,
-    300,
+    344,
     138,
-    308
+    352
    ],
    "size_px": 11,
    "field": "start_1",
@@ -670,9 +786,9 @@
    "text": "-",
    "bbox": [
     144,
-    304,
+    348,
     147,
-    308
+    352
    ],
    "size_px": 11,
    "field": null,
@@ -682,9 +798,9 @@
    "text": "12:00 PM",
    "bbox": [
     154,
-    300,
+    344,
     199,
-    308
+    352
    ],
    "size_px": 11,
    "field": "end_1",
@@ -694,9 +810,9 @@
    "text": "Trelock Pharmacy",
    "bbox": [
     92,
-    318,
+    362,
     186,
-    328
+    372
    ],
    "size_px": 11,
    "field": "loc_1",
@@ -706,9 +822,9 @@
    "text": "Dentist with Oskar",
    "bbox": [
     92,
-    378,
+    422,
     201,
-    387
+    431
    ],
    "size_px": 13,
    "field": "title_2",
@@ -718,9 +834,9 @@
    "text": "12:30 PM",
    "bbox": [
     92,
-    396,
+    440,
     137,
-    404
+    448
    ],
    "size_px": 11,
    "field": "start_2",
@@ -730,9 +846,9 @@
    "text": "-",
    "bbox": [
     143,
-    400,
+    444,
     146,
-    404
+    448
    ],
    "size_px": 11,
    "field": null,
@@ -742,9 +858,9 @@
    "text": "2:30 PM",
    "bbox": [
     153,
-    396,
+    440,
     192,
-    404
+    448
    ],
    "size_px": 11,
    "field": "end_2",
@@ -754,9 +870,9 @@
    "text": "Online",
    "bbox": [
     92,
-    414,
+    458,
     127,
-    422
+    466
    ],
    "size_px": 11,
    "field": "loc_2",
@@ -766,9 +882,9 @@
    "text": "Sync",
    "bbox": [
     92,
-    570,
+    614,
     122,
-    582
+    626
    ],
    "size_px": 13,
    "field": "title_3",
@@ -778,9 +894,9 @@
    "text": "3:30 PM",
    "bbox": [
     92,
-    588,
+    632,
     131,
-    596
+    640
    ],
    "size_px": 11,
    "field": "start_3",
@@ -790,9 +906,9 @@
    "text": "-",
    "bbox": [
     137,
-    592,
+    636,
     140,
-    596
+    640
    ],
    "size_px": 11,
    "field": null,
@@ -802,9 +918,9 @@
    "text": "5:00 PM",
    "bbox": [
     147,
-    588,
+    632,
     186,
-    596
+    640
    ],
    "size_px": 11,
    "field": "end_3",
@@ -814,16 +930,16 @@
    "text": "Studio 1",
    "bbox": [
     92,
-    606,
+    650,
     134,
-    614
+    658
    ],
    "size_px": 11,
    "field": "loc_3",
    "reading": true
   }
  ],
- "reading_text": "Friday, October 1, 2027\n8 AM\n9 AM\n10 AM\n11 AM\n12 PM\n1 PM\n2 PM\n3 PM\n4 PM\n5 PM\n6 PM\nSync with Priya\n9:00 AM\n-\n11:00 AM\nStudio 1\nWorkshop\n11:00 AM\n-\n12:00 PM\nTrelock Pharmacy\nDentist with Oskar\n12:30 PM\n-\n2:30 PM\nOnline\nSync\n3:30 PM\n-\n5:00 PM\nStudio 1",
+ "reading_text": "Friday, October 1, 2027\nMonth\nWeek\nDay\nToday\n8 AM\n9 AM\n10 AM\n11 AM\n12 PM\n1 PM\n2 PM\n3 PM\n4 PM\n5 PM\n6 PM\nSync with Priya\n9:00 AM\n-\n11:00 AM\nStudio 1\nWorkshop\n11:00 AM\n-\n12:00 PM\nTrelock Pharmacy\nDentist with Oskar\n12:30 PM\n-\n2:30 PM\nOnline\nSync\n3:30 PM\n-\n5:00 PM\nStudio 1",
  "damage": null,
  "questions": [
   {

@@ -15,7 +15,7 @@
  },
  "image": {
   "file": "v1-app_screens-dev-0001.png",
-  "sha256": "4b667a9adac1800ca5f7781a3cec3d639d764dbbfebf665fc2211f8a8dc92c6e",
+  "sha256": "2cbd92e34b23ca3004c71f27721c9e9601b5014dd7204a0cc1decf2c4a6b1399",
   "width": 390,
   "height": 844,
   "logical": [
@@ -492,6 +492,63 @@
    "plot_value": false
   }
  },
+ "elements": [
+  {
+   "name": "Compose",
+   "role": "button",
+   "bbox": [
+    118,
+    24,
+    210,
+    54
+   ],
+   "unique": true
+  },
+  {
+   "name": "Inbox",
+   "role": "tab",
+   "bbox": [
+    5,
+    784,
+    93,
+    836
+   ],
+   "unique": true
+  },
+  {
+   "name": "Sent",
+   "role": "tab",
+   "bbox": [
+    102,
+    784,
+    190,
+    836
+   ],
+   "unique": true
+  },
+  {
+   "name": "Drafts",
+   "role": "tab",
+   "bbox": [
+    200,
+    784,
+    288,
+    836
+   ],
+   "unique": true
+  },
+  {
+   "name": "Search",
+   "role": "tab",
+   "bbox": [
+    298,
+    784,
+    386,
+    836
+   ],
+   "unique": true
+  }
+ ],
  "text_runs": [
   {
    "text": "Inbox",
@@ -502,6 +559,18 @@
     49
    ],
    "size_px": 26,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Compose",
+   "bbox": [
+    134,
+    35,
+    194,
+    47
+   ],
+   "size_px": 13,
    "field": null,
    "reading": true
   },
@@ -816,9 +885,57 @@
    "size_px": 11,
    "field": null,
    "reading": true
+  },
+  {
+   "text": "Inbox",
+   "bbox": [
+    34,
+    796,
+    64,
+    805
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Sent",
+   "bbox": [
+    134,
+    796,
+    158,
+    805
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Drafts",
+   "bbox": [
+    228,
+    795,
+    260,
+    805
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Search",
+   "bbox": [
+    322,
+    796,
+    360,
+    805
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
   }
  ],
- "reading_text": "Inbox\nUnread\n5\nMateo Verstead\n5:13 PM\nShipping confirmation\nHi there, following up on our last conversation about ...\nPriya Verard\n4:44 PM\nUpdated agenda\nJust a quick note to say ...\nPriya Morham\n3:47 PM\nLunch on Friday?\nHi there, following up on our last conversation about ...\nKofi Fensen\n3:09 PM\nPhotos from the trip\nHi there, following up on our last conversation about ...\nNoor Telstead\n2:29 PM\nQuestion about the draft\nHi there, following up on our last conversation about ...\nEmeka Wyndane\n1:51 PM\nWelcome to the team\nLooking forward to hearing your thoughts about ...",
+ "reading_text": "Inbox\nCompose\nUnread\n5\nMateo Verstead\n5:13 PM\nShipping confirmation\nHi there, following up on our last conversation about ...\nPriya Verard\n4:44 PM\nUpdated agenda\nJust a quick note to say ...\nPriya Morham\n3:47 PM\nLunch on Friday?\nHi there, following up on our last conversation about ...\nKofi Fensen\n3:09 PM\nPhotos from the trip\nHi there, following up on our last conversation about ...\nNoor Telstead\n2:29 PM\nQuestion about the draft\nHi there, following up on our last conversation about ...\nEmeka Wyndane\n1:51 PM\nWelcome to the team\nLooking forward to hearing your thoughts about ...\nInbox\nSent\nDrafts\nSearch",
  "damage": null,
  "questions": [
   {

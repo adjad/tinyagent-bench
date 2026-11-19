@@ -1,11 +1,11 @@
 {
  "schema": "edat.media.vision-item/1",
- "item_id": "v1-calendar-dev-0027",
+ "item_id": "v1-calendar-dev-0063",
  "family": "calendar",
  "template": "day",
  "split": "dev",
  "seed": "edat-media-dev-2027.1",
- "index": 27,
+ "index": 63,
  "variant": {
   "theme": "dark",
   "dpr": 1,
@@ -14,13 +14,13 @@
   "scale": 1.0
  },
  "image": {
-  "file": "v1-calendar-dev-0027.png",
-  "sha256": "71a502158ee6ce38dbc978a2f2445afdd2fcc5f5f465558cf870e7995334ccdb",
+  "file": "v1-calendar-dev-0063.png",
+  "sha256": "557776eae6facd068579c0487973adf7e46de36b2a193adf574fd7a92ec99a83",
   "width": 520,
-  "height": 740,
+  "height": 800,
   "logical": [
    520,
-   740
+   800
   ],
   "scale": 1.0
  },
@@ -32,32 +32,38 @@
  },
  "default_year": 2027,
  "data": {
-  "date": "2027-03-03",
-  "free_hour_start": "16:00",
+  "date": "2027-05-19",
+  "free_hour_start": "10:00",
   "events": [
    {
-    "title": "Interview with Rafael",
-    "start": "09:30",
-    "end": "11:00",
-    "location": "Online"
+    "title": "Yoga",
+    "start": "09:00",
+    "end": "10:00",
+    "location": "Studio 3"
    },
    {
-    "title": "Lunch",
+    "title": "Demo",
     "start": "11:00",
-    "end": "13:00",
+    "end": "12:00",
+    "location": "Studio 2"
+   },
+   {
+    "title": "Recital",
+    "start": "12:30",
+    "end": "14:00",
     "location": "Online"
    },
    {
-    "title": "Standup",
-    "start": "13:30",
-    "end": "15:00",
+    "title": "Sync with Priya",
+    "start": "14:00",
+    "end": "15:30",
     "location": "Online"
    },
    {
-    "title": "Standup with Nadia",
-    "start": "15:00",
-    "end": "16:00",
-    "location": "Room C6"
+    "title": "Review with Bram",
+    "start": "15:30",
+    "end": "17:00",
+    "location": "Online"
    }
   ]
  },
@@ -65,18 +71,18 @@
   "day_date": {
    "name": "day_date",
    "kind": "date",
-   "value": "2027-03-03",
-   "text": "Wednesday, March 3, 2027",
+   "value": "2027-05-19",
+   "text": "Wednesday, May 19, 2027",
    "bbox": [
     23,
-    27,
-    300,
-    49
+    19,
+    290,
+    41
    ],
    "size_px": 22,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "3c888341a71ba730513e5794b6799933142cacdfaa654fc7b08f7860a1a05f33",
+   "crop_sha256": "b5439a420062f4cba43d16969d50809ffc09bb267049017cec3deb020ce92e21",
    "fg": [
     242,
     242,
@@ -87,18 +93,18 @@
   "title_0": {
    "name": "title_0",
    "kind": "text",
-   "value": "Interview with Rafael",
-   "text": "Interview with Rafael",
+   "value": "Yoga",
+   "text": "Yoga",
    "bbox": [
     92,
-    185,
-    212,
-    195
+    198,
+    124,
+    210
    ],
    "size_px": 13,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "a3fb5060f9dedec279b404aeaff2a20d7847b29258e417feffa45e7afc1b1cf8",
+   "crop_sha256": "fef52c96cfde7a1f28d00e55c57bafe8d779c4baccc9e3f8128b2762d5858f8d",
    "fg": [
     242,
     242,
@@ -109,18 +115,18 @@
   "start_0": {
    "name": "start_0",
    "kind": "time",
-   "value": "09:30",
-   "text": "9:30 AM",
+   "value": "09:00",
+   "text": "9:00 AM",
    "bbox": [
     92,
-    204,
+    216,
     132,
-    212
+    224
    ],
    "size_px": 11,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "6b1b0c29589b834733179bd3b6b22389a09011a6d86878c37ea380bf48ce4d16",
+   "crop_sha256": "8642268240cc1ef4ea6aa538e68d5f634ab426f27890037794af5388064f7043",
    "fg": [
     242,
     242,
@@ -131,18 +137,18 @@
   "end_0": {
    "name": "end_0",
    "kind": "time",
-   "value": "11:00",
-   "text": "11:00 AM",
+   "value": "10:00",
+   "text": "10:00 AM",
    "bbox": [
     148,
-    204,
+    216,
     194,
-    212
+    224
    ],
    "size_px": 11,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "f36f3a61ff5fb66be77dc275c01d5fd0dbd16a78e1e05193d9f5780b925d7210",
+   "crop_sha256": "d93d5bf69f460b9bb651c98050566610694149f825a27626ea1f160d232e11b9",
    "fg": [
     242,
     242,
@@ -153,18 +159,18 @@
   "loc_0": {
    "name": "loc_0",
    "kind": "text",
-   "value": "Online",
-   "text": "Online",
+   "value": "Studio 3",
+   "text": "Studio 3",
    "bbox": [
     92,
-    222,
-    127,
-    230
+    234,
+    134,
+    242
    ],
    "size_px": 11,
-   "visible": false,
-   "obscured": "blur",
-   "crop_sha256": "ec1ae513a613346a61426cd00b8d130a4f4b7e3474001259397f3471ead676ca",
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f31b9e4be764fa98a0d414c0b5c14c3e3fcf46858a4aa2c8768f4433539a55fa",
    "fg": [
     174,
     174,
@@ -175,18 +181,18 @@
   "title_1": {
    "name": "title_1",
    "kind": "text",
-   "value": "Lunch",
-   "text": "Lunch",
+   "value": "Demo",
+   "text": "Demo",
    "bbox": [
     92,
-    282,
-    130,
-    291
+    326,
+    128,
+    335
    ],
    "size_px": 13,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "6beb558f891de28cd3ba71de00d292a6218ab936e4c96200517f263bcb5dfe8d",
+   "crop_sha256": "f3dcb00d3a097ba8f88a1ee9081071bfd23df208706e9bf7b9c1e43136af3cdc",
    "fg": [
     242,
     242,
@@ -201,9 +207,9 @@
    "text": "11:00 AM",
    "bbox": [
     92,
-    300,
+    344,
     138,
-    308
+    352
    ],
    "size_px": 11,
    "visible": true,
@@ -219,18 +225,18 @@
   "end_1": {
    "name": "end_1",
    "kind": "time",
-   "value": "13:00",
-   "text": "1:00 PM",
+   "value": "12:00",
+   "text": "12:00 PM",
    "bbox": [
     154,
-    300,
-    193,
-    308
+    344,
+    199,
+    352
    ],
    "size_px": 11,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "c50407a930b7defbcfc000a5d2b38b8e9ab6d1af24078de11c182c617b7f7c3e",
+   "crop_sha256": "44ac925fa4ded13c5a9ac0ec8c51b2c5f4209322b7816cc96e5f540ebfa79c16",
    "fg": [
     242,
     242,
@@ -241,18 +247,18 @@
   "loc_1": {
    "name": "loc_1",
    "kind": "text",
-   "value": "Online",
-   "text": "Online",
+   "value": "Studio 2",
+   "text": "Studio 2",
    "bbox": [
     92,
-    318,
-    127,
-    326
+    362,
+    134,
+    370
    ],
    "size_px": 11,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "4f781e54f70653dcf73135c2eeea71041a186f46a7aff1c62e3076129fa6ebb6",
+   "crop_sha256": "005fb05dd2330905dfa2b7f207a0f7b46bb275aca8c22545fe1a296dd500679a",
    "fg": [
     174,
     174,
@@ -263,18 +269,18 @@
   "title_2": {
    "name": "title_2",
    "kind": "text",
-   "value": "Standup",
-   "text": "Standup",
+   "value": "Recital",
+   "text": "Recital",
    "bbox": [
     92,
-    442,
-    143,
-    454
+    422,
+    131,
+    431
    ],
    "size_px": 13,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "4df30b913cb52d0b7345400c9745b8e816bc164cd57beb5a6c01922b4c8be1b5",
+   "crop_sha256": "085fcdfaa01a9518c06f645873af0cd64703417a9dcdb37812e468f9659d1438",
    "fg": [
     242,
     242,
@@ -285,18 +291,18 @@
   "start_2": {
    "name": "start_2",
    "kind": "time",
-   "value": "13:30",
-   "text": "1:30 PM",
+   "value": "12:30",
+   "text": "12:30 PM",
    "bbox": [
     92,
-    460,
-    131,
-    468
+    440,
+    137,
+    448
    ],
    "size_px": 11,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "d1ce7957807c2e224b10da079acf41afb21d3b046bcf8c69d5bddacec9980388",
+   "crop_sha256": "bb9732f83712cc6a3fb7e9b5c5605b10a0d8ac0c64157f8febdd3a6024c16854",
    "fg": [
     242,
     242,
@@ -307,18 +313,18 @@
   "end_2": {
    "name": "end_2",
    "kind": "time",
-   "value": "15:00",
-   "text": "3:00 PM",
+   "value": "14:00",
+   "text": "2:00 PM",
    "bbox": [
-    147,
-    460,
-    186,
-    468
+    153,
+    440,
+    192,
+    448
    ],
    "size_px": 11,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "2610f23cd4cf4684c6b2b55ce6ce2a1752e26a7bb9502d2ad3111bf9dbc25eaa",
+   "crop_sha256": "ce87b1ad070f6c80a91c16d87ff2dc9bc2978ee1e8f32615893804d5391f9016",
    "fg": [
     242,
     242,
@@ -333,9 +339,9 @@
    "text": "Online",
    "bbox": [
     92,
-    478,
+    458,
     127,
-    486
+    466
    ],
    "size_px": 11,
    "visible": true,
@@ -351,18 +357,18 @@
   "title_3": {
    "name": "title_3",
    "kind": "text",
-   "value": "Standup with Nadia",
-   "text": "Standup with Nadia",
+   "value": "Sync with Priya",
+   "text": "Sync with Priya",
    "bbox": [
     92,
-    538,
-    208,
-    550
+    518,
+    182,
+    530
    ],
    "size_px": 13,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "874a84b1ae6d983112e44c6265e9d8985fd22ba7ff37cb6dee878322e2cabce1",
+   "crop_sha256": "074397fa4da9d943ba5cd95ca774f71e8f110d3a4ee1dc408071defeecb2ea10",
    "fg": [
     242,
     242,
@@ -373,18 +379,18 @@
   "start_3": {
    "name": "start_3",
    "kind": "time",
-   "value": "15:00",
-   "text": "3:00 PM",
+   "value": "14:00",
+   "text": "2:00 PM",
    "bbox": [
     92,
-    556,
+    536,
     131,
-    564
+    544
    ],
    "size_px": 11,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "2610f23cd4cf4684c6b2b55ce6ce2a1752e26a7bb9502d2ad3111bf9dbc25eaa",
+   "crop_sha256": "ce87b1ad070f6c80a91c16d87ff2dc9bc2978ee1e8f32615893804d5391f9016",
    "fg": [
     242,
     242,
@@ -395,18 +401,18 @@
   "end_3": {
    "name": "end_3",
    "kind": "time",
-   "value": "16:00",
-   "text": "4:00 PM",
+   "value": "15:30",
+   "text": "3:30 PM",
    "bbox": [
     147,
-    556,
+    536,
     186,
-    564
+    544
    ],
    "size_px": 11,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "8b08b11e0050f24916f56ad36fc1f168cf7807a225597a701bf46a96a0129155",
+   "crop_sha256": "53183fdfd7f9b32be8bb224a96fb3ef43e213d0dc1437c15624091c7f1b424e4",
    "fg": [
     242,
     242,
@@ -417,46 +423,263 @@
   "loc_3": {
    "name": "loc_3",
    "kind": "text",
-   "value": "Room C6",
-   "text": "Room C6",
+   "value": "Online",
+   "text": "Online",
    "bbox": [
     92,
-    574,
-    137,
-    582
+    554,
+    127,
+    562
    ],
    "size_px": 11,
    "visible": true,
    "obscured": null,
-   "crop_sha256": "d490bb9c4c8f25b64581c14d3c44c69bca04813466caa88a2d5ad94d968abc63",
+   "crop_sha256": "4f781e54f70653dcf73135c2eeea71041a186f46a7aff1c62e3076129fa6ebb6",
    "fg": [
     174,
     174,
     178
    ],
    "plot_value": false
+  },
+  "title_4": {
+   "name": "title_4",
+   "kind": "text",
+   "value": "Review with Bram",
+   "text": "Review with Bram",
+   "bbox": [
+    92,
+    614,
+    195,
+    623
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "03633b5f482cab05a632e8308fac3099749025026163116cd5df2b9b712f6c48",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "start_4": {
+   "name": "start_4",
+   "kind": "time",
+   "value": "15:30",
+   "text": "3:30 PM",
+   "bbox": [
+    92,
+    632,
+    131,
+    640
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "53183fdfd7f9b32be8bb224a96fb3ef43e213d0dc1437c15624091c7f1b424e4",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "end_4": {
+   "name": "end_4",
+   "kind": "time",
+   "value": "17:00",
+   "text": "5:00 PM",
+   "bbox": [
+    147,
+    632,
+    186,
+    640
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "5a586b24fceb7f1abd5408c50d2ba212244d424b66875a868b51fc342c78ded5",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "loc_4": {
+   "name": "loc_4",
+   "kind": "text",
+   "value": "Online",
+   "text": "Online",
+   "bbox": [
+    92,
+    650,
+    127,
+    658
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4f781e54f70653dcf73135c2eeea71041a186f46a7aff1c62e3076129fa6ebb6",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "host": {
+   "name": "host",
+   "kind": "text",
+   "value": "Priya Rosero",
+   "text": "",
+   "bbox": null,
+   "size_px": 0,
+   "visible": false,
+   "obscured": "absent",
+   "crop_sha256": null,
+   "fg": null,
+   "plot_value": false
   }
  },
+ "elements": [
+  {
+   "name": "Month",
+   "role": "button",
+   "bbox": [
+    432,
+    54,
+    496,
+    86
+   ],
+   "unique": true
+  },
+  {
+   "name": "Week",
+   "role": "button",
+   "bbox": [
+    368,
+    54,
+    426,
+    86
+   ],
+   "unique": true
+  },
+  {
+   "name": "Day",
+   "role": "button",
+   "bbox": [
+    304,
+    54,
+    362,
+    86
+   ],
+   "unique": true
+  },
+  {
+   "name": "Next",
+   "role": "button",
+   "bbox": [
+    256,
+    54,
+    290,
+    86
+   ],
+   "unique": true
+  },
+  {
+   "name": "Previous",
+   "role": "button",
+   "bbox": [
+    216,
+    54,
+    250,
+    86
+   ],
+   "unique": true
+  },
+  {
+   "name": "Today",
+   "role": "button",
+   "bbox": [
+    136,
+    54,
+    206,
+    86
+   ],
+   "unique": true
+  }
+ ],
  "text_runs": [
   {
-   "text": "Wednesday, March 3, 2027",
+   "text": "Wednesday, May 19, 2027",
    "bbox": [
     23,
-    27,
-    300,
-    49
+    19,
+    290,
+    41
    ],
    "size_px": 22,
    "field": "day_date",
    "reading": true
   },
   {
+   "text": "Month",
+   "bbox": [
+    444,
+    66,
+    484,
+    75
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Week",
+   "bbox": [
+    380,
+    66,
+    413,
+    75
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Day",
+   "bbox": [
+    322,
+    66,
+    345,
+    78
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Today",
+   "bbox": [
+    152,
+    66,
+    191,
+    78
+   ],
+   "size_px": 13,
+   "field": null,
+   "reading": true
+  },
+  {
    "text": "8 AM",
    "bbox": [
     16,
-    76,
+    120,
     41,
-    84
+    128
    ],
    "size_px": 11,
    "field": null,
@@ -466,9 +689,9 @@
    "text": "9 AM",
    "bbox": [
     16,
-    140,
+    184,
     41,
-    148
+    192
    ],
    "size_px": 11,
    "field": null,
@@ -478,9 +701,9 @@
    "text": "10 AM",
    "bbox": [
     16,
-    204,
+    248,
     47,
-    212
+    256
    ],
    "size_px": 11,
    "field": null,
@@ -490,9 +713,9 @@
    "text": "11 AM",
    "bbox": [
     16,
-    268,
+    312,
     47,
-    276
+    320
    ],
    "size_px": 11,
    "field": null,
@@ -502,9 +725,9 @@
    "text": "12 PM",
    "bbox": [
     16,
-    332,
+    376,
     46,
-    340
+    384
    ],
    "size_px": 11,
    "field": null,
@@ -514,9 +737,9 @@
    "text": "1 PM",
    "bbox": [
     16,
-    396,
+    440,
     40,
-    404
+    448
    ],
    "size_px": 11,
    "field": null,
@@ -526,9 +749,9 @@
    "text": "2 PM",
    "bbox": [
     16,
-    460,
+    504,
     40,
-    468
+    512
    ],
    "size_px": 11,
    "field": null,
@@ -538,9 +761,9 @@
    "text": "3 PM",
    "bbox": [
     16,
-    524,
+    568,
     40,
-    532
+    576
    ],
    "size_px": 11,
    "field": null,
@@ -550,9 +773,9 @@
    "text": "4 PM",
    "bbox": [
     16,
-    588,
+    632,
     40,
-    596
+    640
    ],
    "size_px": 11,
    "field": null,
@@ -562,9 +785,9 @@
    "text": "5 PM",
    "bbox": [
     16,
-    652,
+    696,
     40,
-    660
+    704
    ],
    "size_px": 11,
    "field": null,
@@ -574,33 +797,33 @@
    "text": "6 PM",
    "bbox": [
     16,
-    716,
+    760,
     40,
-    724
+    768
    ],
    "size_px": 11,
    "field": null,
    "reading": true
   },
   {
-   "text": "Interview with Rafael",
+   "text": "Yoga",
    "bbox": [
     92,
-    185,
-    212,
-    195
+    198,
+    124,
+    210
    ],
    "size_px": 13,
    "field": "title_0",
    "reading": true
   },
   {
-   "text": "9:30 AM",
+   "text": "9:00 AM",
    "bbox": [
     92,
-    204,
+    216,
     132,
-    212
+    224
    ],
    "size_px": 11,
    "field": "start_0",
@@ -610,45 +833,45 @@
    "text": "-",
    "bbox": [
     138,
-    208,
+    220,
     141,
-    212
+    224
    ],
    "size_px": 11,
    "field": null,
    "reading": true
   },
   {
-   "text": "11:00 AM",
+   "text": "10:00 AM",
    "bbox": [
     148,
-    204,
+    216,
     194,
-    212
+    224
    ],
    "size_px": 11,
    "field": "end_0",
    "reading": true
   },
   {
-   "text": "Online",
+   "text": "Studio 3",
    "bbox": [
     92,
-    222,
-    127,
-    230
+    234,
+    134,
+    242
    ],
    "size_px": 11,
    "field": "loc_0",
-   "reading": false
+   "reading": true
   },
   {
-   "text": "Lunch",
+   "text": "Demo",
    "bbox": [
     92,
-    282,
-    130,
-    291
+    326,
+    128,
+    335
    ],
    "size_px": 13,
    "field": "title_1",
@@ -658,9 +881,9 @@
    "text": "11:00 AM",
    "bbox": [
     92,
-    300,
+    344,
     138,
-    308
+    352
    ],
    "size_px": 11,
    "field": "start_1",
@@ -670,57 +893,57 @@
    "text": "-",
    "bbox": [
     144,
-    304,
+    348,
     147,
-    308
+    352
    ],
    "size_px": 11,
    "field": null,
    "reading": true
   },
   {
-   "text": "1:00 PM",
+   "text": "12:00 PM",
    "bbox": [
     154,
-    300,
-    193,
-    308
+    344,
+    199,
+    352
    ],
    "size_px": 11,
    "field": "end_1",
    "reading": true
   },
   {
-   "text": "Online",
+   "text": "Studio 2",
    "bbox": [
     92,
-    318,
-    127,
-    326
+    362,
+    134,
+    370
    ],
    "size_px": 11,
    "field": "loc_1",
    "reading": true
   },
   {
-   "text": "Standup",
+   "text": "Recital",
    "bbox": [
     92,
-    442,
-    143,
-    454
+    422,
+    131,
+    431
    ],
    "size_px": 13,
    "field": "title_2",
    "reading": true
   },
   {
-   "text": "1:30 PM",
+   "text": "12:30 PM",
    "bbox": [
     92,
-    460,
-    131,
-    468
+    440,
+    137,
+    448
    ],
    "size_px": 11,
    "field": "start_2",
@@ -729,22 +952,22 @@
   {
    "text": "-",
    "bbox": [
-    137,
-    464,
-    140,
-    468
+    143,
+    444,
+    146,
+    448
    ],
    "size_px": 11,
    "field": null,
    "reading": true
   },
   {
-   "text": "3:00 PM",
+   "text": "2:00 PM",
    "bbox": [
-    147,
-    460,
-    186,
-    468
+    153,
+    440,
+    192,
+    448
    ],
    "size_px": 11,
    "field": "end_2",
@@ -754,33 +977,33 @@
    "text": "Online",
    "bbox": [
     92,
-    478,
+    458,
     127,
-    486
+    466
    ],
    "size_px": 11,
    "field": "loc_2",
    "reading": true
   },
   {
-   "text": "Standup with Nadia",
+   "text": "Sync with Priya",
    "bbox": [
     92,
-    538,
-    208,
-    550
+    518,
+    182,
+    530
    ],
    "size_px": 13,
    "field": "title_3",
    "reading": true
   },
   {
-   "text": "3:00 PM",
+   "text": "2:00 PM",
    "bbox": [
     92,
-    556,
+    536,
     131,
-    564
+    544
    ],
    "size_px": 11,
    "field": "start_3",
@@ -790,47 +1013,107 @@
    "text": "-",
    "bbox": [
     137,
-    560,
+    540,
     140,
-    564
+    544
    ],
    "size_px": 11,
    "field": null,
    "reading": true
   },
   {
-   "text": "4:00 PM",
+   "text": "3:30 PM",
    "bbox": [
     147,
-    556,
+    536,
     186,
-    564
+    544
    ],
    "size_px": 11,
    "field": "end_3",
    "reading": true
   },
   {
-   "text": "Room C6",
+   "text": "Online",
    "bbox": [
     92,
-    574,
-    137,
-    582
+    554,
+    127,
+    562
    ],
    "size_px": 11,
    "field": "loc_3",
    "reading": true
+  },
+  {
+   "text": "Review with Bram",
+   "bbox": [
+    92,
+    614,
+    195,
+    623
+   ],
+   "size_px": 13,
+   "field": "title_4",
+   "reading": true
+  },
+  {
+   "text": "3:30 PM",
+   "bbox": [
+    92,
+    632,
+    131,
+    640
+   ],
+   "size_px": 11,
+   "field": "start_4",
+   "reading": true
+  },
+  {
+   "text": "-",
+   "bbox": [
+    137,
+    636,
+    140,
+    640
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "5:00 PM",
+   "bbox": [
+    147,
+    632,
+    186,
+    640
+   ],
+   "size_px": 11,
+   "field": "end_4",
+   "reading": true
+  },
+  {
+   "text": "Online",
+   "bbox": [
+    92,
+    650,
+    127,
+    658
+   ],
+   "size_px": 11,
+   "field": "loc_4",
+   "reading": true
   }
  ],
- "reading_text": "Wednesday, March 3, 2027\n8 AM\n9 AM\n10 AM\n11 AM\n12 PM\n1 PM\n2 PM\n3 PM\n4 PM\n5 PM\n6 PM\nInterview with Rafael\n9:30 AM\n-\n11:00 AM\nLunch\n11:00 AM\n-\n1:00 PM\nOnline\nStandup\n1:30 PM\n-\n3:00 PM\nOnline\nStandup with Nadia\n3:00 PM\n-\n4:00 PM\nRoom C6",
+ "reading_text": "Wednesday, May 19, 2027\nMonth\nWeek\nDay\nToday\n8 AM\n9 AM\n10 AM\n11 AM\n12 PM\n1 PM\n2 PM\n3 PM\n4 PM\n5 PM\n6 PM\nYoga\n9:00 AM\n-\n10:00 AM\nStudio 3\nDemo\n11:00 AM\n-\n12:00 PM\nStudio 2\nRecital\n12:30 PM\n-\n2:00 PM\nOnline\nSync with Priya\n2:00 PM\n-\n3:30 PM\nOnline\nReview with Bram\n3:30 PM\n-\n5:00 PM\nOnline",
  "damage": null,
  "questions": [
   {
    "qid": "q_slot",
    "qtype": "free_slot",
    "question": "Between 9 AM and 5 PM on Wednesday, there is exactly one free hour with no events. At what time does it start?",
-   "answer": "16:00",
+   "answer": "10:00",
    "kind": "field",
    "canon": "time",
    "fields": [
@@ -838,49 +1121,51 @@
     "start_1",
     "start_2",
     "start_3",
+    "start_4",
     "end_0",
     "end_1",
     "end_2",
-    "end_3"
+    "end_3",
+    "end_4"
    ],
    "accept": []
   },
   {
    "qid": "q_at",
    "qtype": "event",
-   "question": "What event is scheduled at 12:00 PM on Wednesday?",
-   "answer": "Lunch",
+   "question": "What event is scheduled at 1:00 PM on Wednesday?",
+   "answer": "Recital",
    "kind": "field",
    "canon": "text",
    "fields": [
-    "title_1",
-    "start_1",
-    "end_1"
+    "title_2",
+    "start_2",
+    "end_2"
    ],
    "accept": []
   },
   {
    "qid": "q_start",
    "qtype": "lookup",
-   "question": "At what time does \"Standup with Nadia\" start?",
-   "answer": "15:00",
+   "question": "At what time does \"Demo\" start?",
+   "answer": "11:00",
    "kind": "field",
    "canon": "time",
    "fields": [
-    "title_3",
-    "start_3"
+    "title_1",
+    "start_1"
    ],
    "accept": []
   },
   {
-   "qid": "q_loc",
+   "qid": "q_host",
    "qtype": "absence",
-   "question": "Where is the event \"Interview with Rafael\" held?",
+   "question": "Who is hosting the event \"Review with Bram\"?",
    "answer": "not shown",
    "kind": "abstain",
    "canon": "text",
    "fields": [
-    "loc_0"
+    "host"
    ],
    "accept": []
   },

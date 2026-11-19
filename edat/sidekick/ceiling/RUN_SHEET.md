@@ -200,6 +200,14 @@ Written tests run once per module (the correct one and each mutant), each in a f
 order, and each run counts by its exit code alone. File metadata (sizes, dates, names by exact path) is
 readable anywhere on the Mac by design: path lookup needs it, and contents stay denied.
 
+**Rungs 4 to 9 are not hardened against adversarial model code.** Their hidden tests run in the same
+pytest process as the model's code, so a model that attacks the grader on purpose (reads the reference
+from the test process, patches pytest, fakes the exit code) could pass one; an honest wrong answer cannot
+pass by accident. Their rows carry the tag `grade-not-hardened`, the report marks them, and they stay out
+of any published or ranked score until they are rebuilt. A tripwire flags answers on those rungs whose
+code touches the test machinery or the process (`tripwire` in the row's metrics, listed in the report)
+for a person to read; it never changes a grade, and an answer it does not flag is not thereby honest.
+
 `--weights` prints each model's `weights_sha256` for the records (cached in `$OUT/weights.json`;
 `run-all` computes any missing one itself); it reads about 75 GB in all. If a host check fails, the run
 does not start; a model the engine cannot serve only means that model is skipped.

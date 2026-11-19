@@ -35,6 +35,20 @@ class Rung:
     level: str | None = None
     mode: str = "answer_only"   # answer_only | tool
 
+    @property
+    def hardened(self) -> bool:
+        """Whether this rung's grading holds against code written to attack the grader. The probe rungs do
+        not yet: see NOT_HARDENED."""
+        return self.source == "sidekick"
+
+
+NOT_HARDENED = "not hardened against adversarial model code"
+NOT_HARDENED_WHY = ("Rungs 4 to 9 are " + NOT_HARDENED + ": their hidden tests run in the same process as the "
+                    "model's code, so a model would have to attack the grader on purpose (read the reference "
+                    "from the test process, patch pytest, fake the exit code) to pass one. An honest wrong "
+                    "answer cannot pass by accident. Until they are rebuilt they stay out of any published or "
+                    "ranked score; code that touches the test machinery is flagged for a person to read.")
+
 
 RUNGS = (
     Rung(1, "sk-l1", "Simple one-step tasks: a short function, one shell command, read an error", "sidekick", "L1"),

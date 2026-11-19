@@ -331,7 +331,7 @@ def answer_trial(client, inst, *, suite: str, seed: int, thinking: bool, samplin
          "reasoning_tokens": usage.get("reasoning_tokens"), "max_tokens": budget, "model_calls": 1,
          "reasoned": bool((res.reasoning or "").strip() or (usage.get("reasoning_tokens") or 0) > 0
                           or re.search(r"<(think|thinking|reasoning)>", text, re.I))}
-    for k in ("partial", "hidden_passed", "hidden_total"):
+    for k in ("partial", "hidden_passed", "hidden_total", "grade_hardened", "tripwire"):
         if k in g.metrics:
             m[k] = g.metrics[k]
     raw = {"prompt_head": inst.prompt[:600], "answer": visible_answer(text)[:20000],
@@ -378,7 +378,8 @@ def tool_trial(client, inst, *, suite: str, seed: int, thinking: bool, sampling,
     steps = sum(len(t.steps) for t in tt.turns)
     m = {"pass": g.passed, "failure_mode": classify(g), "time_s": round(wall, 3), "model_calls": steps,
          "max_tokens": budget}
-    for k in ("tool_calls", "refused_calls", "malformed_calls", "hallucinated_tools", "partial", "hidden_total"):
+    for k in ("tool_calls", "refused_calls", "malformed_calls", "hallucinated_tools", "partial", "hidden_total",
+              "grade_hardened", "tripwire"):
         if k in g.metrics:
             m[k] = g.metrics[k]
     raw = {"prompt_head": inst.prompt[:600], "final_text": tt.final_text[:5000],
@@ -633,6 +634,8 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
                                   started_at=started, seed=seed, raw_ref=w.put_raw(json.loads(json.dumps(raw, default=str))),
                                   commit=commit, dirty=dirty)
                 rec["facets"]["tags"] += [f"rung-{u.case.rung.n}", f"sampling-{profile.name}"]
+                if not u.case.rung.hardened:
+                    rec["facets"]["tags"].append("grade-not-hardened")
                 if status == "ok" and model.bits_per_weight is not None:
                     rec["metrics"]["bits_per_weight"] = model.bits_per_weight
                 w.append(rec)

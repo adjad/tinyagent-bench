@@ -15,7 +15,7 @@ import json
 from collections import Counter, defaultdict
 from pathlib import Path
 
-from edat.sidekick.ceiling.rungs import RUNG_BY_ID, RUNGS
+from edat.sidekick.ceiling.rungs import NOT_HARDENED, NOT_HARDENED_WHY, RUNG_BY_ID, RUNGS
 
 FAILURE_WORDS = {
     "no_code": "gave no usable code (ignored the answer format or only talked about the task)",
@@ -84,7 +84,12 @@ def entry_summary(records: list[dict]) -> dict:
     restraint = [r for r in records if r.get("status") == "ok" and (r.get("facets") or {}).get("category") == "restraint"]
     tool = [r for r in records if r.get("status") == "ok" and r.get("suite") == "tool_mode"]
     unsafe = sum(1 for r in records if r.get("status") == "ok" and (r.get("safety") or {}).get("labels"))
+    hardened = [rungs[r.id]["n"] for r in RUNGS if r.hardened and rungs[r.id]["holds"]]
+    flagged = [{"case": r["case_id"], "rung": rung_of(r), "trial": r.get("trial"),
+                "pass": bool((r.get("metrics") or {}).get("pass")), "tripwire": r["metrics"]["tripwire"]}
+               for r in records if r.get("status") == "ok" and (r.get("metrics") or {}).get("tripwire")]
     return {"rungs": rungs, "ceiling": ceiling, "solid": solid,
+            "hardened_ceiling": max(hardened) if hardened else 0, "tripwire": flagged,
             "excluded": sum(1 for r in records if r.get("status") == "excluded"),
             "trials": sum(1 for r in records if r.get("status") == "ok"),
             "restraint_pass_rate": (sum(1 for r in restraint if r["metrics"].get("pass")) / len(restraint)) if restraint else None,
@@ -219,7 +224,8 @@ def build_report(out: Path) -> tuple[str, str]:
            + "The **ceiling** is the highest rung that holds; "
            "**solid up to** is how far it holds with no gap below. Every answer was checked by hidden tests in a "
            "sealed sandbox.", "", "## The rungs", ""]
-    md += [f"{r.n}. {r.title}" for r in RUNGS]
+    md += [f"{r.n}. {r.title}" + ("" if r.hardened else f" ({NOT_HARDENED})") for r in RUNGS]
+    md += ["", NOT_HARDENED_WHY]
     md += _quick_limits(entries)
     for name, e in entries.items():
         s = summaries[name]
@@ -248,7 +254,13 @@ def build_report(out: Path) -> tuple[str, str]:
                       f"{_pct(x['pass_rate'])} of tries")
             md.append(f"**Starts failing at** rung {first_bad.n} ({first_bad.title.lower()}): it solves "
                       f"{solved}. Mostly it {how}.")
-        md.append(f"**Ceiling:** {_ceiling_words(s['ceiling'], s['solid'], top_run)}.")
+        md.append(f"**Ceiling:** {_ceiling_words(s['ceiling'], s['solid'], top_run)}"
+                  + (f"; on the hardened rungs 1 to 3 it is rung {s['hardened_ceiling']}." if s["ceiling"] > 3 else "."))
+        if s["tripwire"]:
+            md.append(f"**Tripwire** (for a person to read; the grade is unchanged): {len(s['tripwire'])} "
+                      "answers on rungs 4 to 9 touch the test machinery or the process: "
+                      + "; ".join(f"{x['case']} t{x['trial']} ({'passed' if x['pass'] else 'failed'}): {x['tripwire']}"
+                                  for x in s["tripwire"][:8]) + ".")
         if s["unsafe_trials"]:
             md.append(f"**Safety:** {s['unsafe_trials']} answers proposed something unsafe or destructive (blocked).")
         if s["excluded"]:
@@ -272,12 +284,14 @@ def build_report(out: Path) -> tuple[str, str]:
         for n in names:
             x = summaries[n]["rungs"][r.id]
             cells.append(_cell(x, bool(q)))
-        md.append(f"| {r.n}. {r.title.split(':')[0]} | " + " | ".join(cells) + " |")
+        md.append(f"| {r.n}. {r.title.split(':')[0]}{'' if r.hardened else ' †'} | " + " | ".join(cells) + " |")
     capped = lambda c: f"{c}+" if top_run is not None and c == top_run and top_run < RUNGS[-1].n else str(c)  # noqa: E731
     md.append("| **Ceiling** | " + " | ".join(capped(summaries[n]["ceiling"]) for n in names) + " |"
               + (f"\n\n{top_run}+ means at least rung {top_run}: nothing higher was run." if q and top_run < RUNGS[-1].n
                  and any(summaries[n]["ceiling"] == top_run for n in names) else ""))
     md.append("| Solid up to | " + " | ".join(str(summaries[n]["solid"]) for n in names) + " |")
+    md.append("| Ceiling on rungs 1 to 3 | " + " | ".join(str(summaries[n]["hardened_ceiling"]) for n in names) + " |")
+    md += ["", f"† {NOT_HARDENED[0].upper() + NOT_HARDENED[1:]} (see The rungs); not for publishing or ranking."]
     skipped = _skipped(out)
     if skipped:
         md += ["", "## Not run", ""]

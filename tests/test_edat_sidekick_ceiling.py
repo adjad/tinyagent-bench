@@ -421,7 +421,7 @@ def test_quick_look_runs_apart_and_its_report_says_what_it_cannot_tell(tmp_path,
     # quick-look wording: plain about its limits, counts not shares, a capped ceiling
     assert md.split("\n")[2].startswith("**A quick look with wide error bars, not a ranking.**")
     assert "Passed in this look** rungs 1 to 1" in md and "Reliably does" not in md
-    assert "**Ceiling:** rung 4 or higher (rungs 5-9 not run; a pass higher up than its solid range)." in md
+    assert "**Ceiling:** rung 4 or higher (rungs 5-9 not run; a pass higher up than its solid range); on the hardened rungs 1 to 3 it is rung " in md
     assert "the top rung was not run" in md
     table_part = md.split("## Rung by model")[1].split("## Not run")[0]
     assert "tasks solved, one try each" in table_part and "not ranked" in table_part
@@ -464,7 +464,7 @@ def test_quick_look_with_rung_9_runs_tool_mode_and_says_so(tmp_path, iso, privat
     assert [r["result"] for r in log["entries"]] == ["done"]
     md, _ = build_report(tmp_path / "out" / "quick")
     assert "Tool mode on a single try" in md and "the top rung was not run" not in md
-    assert "**Ceiling:** rung 9 (a pass higher up than its solid range)." in md and "or higher" not in md
+    assert "**Ceiling:** rung 9 (a pass higher up than its solid range); on the hardened rungs 1 to 3 it is rung " in md and "or higher" not in md
 
 
 class _Unservable:

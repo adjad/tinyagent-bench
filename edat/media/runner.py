@@ -25,9 +25,11 @@ Rules applied to every record:
 """
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import json
 import os
+import re
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -108,12 +110,22 @@ class JsonlSink:
         pass
 
 
+@contextlib.contextmanager
 def open_sink(root: Path, run_id: str, *, tier: str, suite: str):
+    """The record sink for a run: the shared results store's ``RunWriter`` when it is
+    importable (it validates every record and holds the run's lock), else a plain
+    :class:`JsonlSink`. Use it as ``with open_sink(...) as sink:``."""
     try:
         from edat.results.writer import RunWriter  # type: ignore[import-not-found]
     except ImportError:
-        return JsonlSink(root, run_id, tier=tier, suite=suite)
-    return RunWriter.open(root, run_id, tier=tier, suite=suite)
+        sink = JsonlSink(root, run_id, tier=tier, suite=suite)
+        try:
+            yield sink
+        finally:
+            sink.close()
+        return
+    with RunWriter.open(root, run_id, tier=tier, suite=suite) as writer:
+        yield writer
 
 
 # ------------------------------------------------------------------ helpers
@@ -133,6 +145,25 @@ def _settings(cfg: RunConfig, seed: int | None) -> dict:
             "sampling_source": cfg.sampling_source, "seed": seed}
 
 
+_TAG_BAD = re.compile(r"[^a-z0-9_-]+")
+
+
+def _tag(value: object) -> str | None:
+    """A tag in the results store's form (``^[a-z][a-z0-9_-]{0,63}$``), or None."""
+    t = _TAG_BAD.sub("-", str(value).lower()).strip("-_")
+    if t and not t[0].isalpha():
+        t = "t" + t
+    return t[:64] or None
+
+
+def _clean_facets(facets: dict) -> dict:
+    out = dict(facets)
+    if "tags" in out:
+        tags = [t for t in (_tag(x) for x in out["tags"]) if t]
+        out["tags"] = list(dict.fromkeys(tags))[:32]
+    return out
+
+
 def base_record(cfg: RunConfig, *, tier: str, suite: str, case_id: str, trial: int,
                 status: str, facets: dict, metrics: dict | None = None,
                 status_detail: str | None = None, raw: dict | None = None,
@@ -144,7 +175,7 @@ def base_record(cfg: RunConfig, *, tier: str, suite: str, case_id: str, trial: i
         "settings": _settings(cfg, cfg.base_seed + trial),
         "harness_commit": cfg.harness_commit, "started_at": started_at or _now(),
         "case_id": case_id, "split": cfg.split, "trial": trial, "status": status,
-        "facets": facets, "metrics": metrics or {},
+        "facets": _clean_facets(facets), "metrics": metrics or {},
         "safety": {"unsafe_actions": None, "privacy_leaks": None, "labels": []},
         "raw": raw,
     }
@@ -455,7 +486,7 @@ def run_spoken_commands(client, cases: Iterable[tuple[cmd.CommandCase, Clip]], c
     caps = capabilities_for(client, declared=cfg.capabilities)
     out = []
     for case, clip in cases:
-        facets = {"family": "a3", "lane": configuration,
+        facets = {"family": "a3", "test": configuration,
                   "tags": list(case.tags) + [clip.meta.get("condition", {}).get("type", "clean"),
                                              clip.meta.get("voice", "")]}
         endpoint = reference_endpoint_delay(clip)
@@ -535,7 +566,7 @@ def run_spoken_commands(client, cases: Iterable[tuple[cmd.CommandCase, Clip]], c
                     thinking=cfg.thinking, agent_max_tokens=cfg.max_tokens["agent"],
                     nonce=nonce + "t"))
                 tid = f"{case.case_id}/typed"
-                tf = {"family": "a3", "lane": "typed", "tags": list(case.tags)}
+                tf = {"family": "a3", "test": "typed", "tags": list(case.tags)}
                 if typed is None:
                     trec = base_record(cfg, tier="audio", suite="a3", case_id=tid, trial=trial,
                                        status="excluded", facets=tf, status_detail=terr)

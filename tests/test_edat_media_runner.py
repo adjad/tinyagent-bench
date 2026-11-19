@@ -158,8 +158,8 @@ def test_spoken_commands_two_pass_with_typed_twin(tmp_path):
     client = StubMediaClient(_command_model(case))
     recs = run_spoken_commands(client, [(case, clip)], cfg(), JsonlSink(tmp_path, "a3", tier="audio", suite="a3"),
                                matcher=cmd.ToolbenchMatcher())
-    spoken = [r for r in recs if r["facets"]["lane"] == "two_pass"]
-    typed = [r for r in recs if r["facets"]["lane"] == "typed"]
+    spoken = [r for r in recs if r["facets"]["test"] == "two_pass"]
+    typed = [r for r in recs if r["facets"]["test"] == "typed"]
     assert len(spoken) == 3 and len(typed) == 3
     for r in spoken:
         check_envelope(r)
@@ -282,3 +282,33 @@ def test_run_robustness_and_actions(tmp_path):
     recs = run_actions(client, v3, cfg(trials=1), JsonlSink(tmp_path, "r3", tier="vision", suite="v3"))
     assert all(r["metrics"]["pass"] for r in recs)
     assert client.requests[0]["messages"][0]["role"] == "system"
+
+
+def test_records_pass_the_results_store_schema(tmp_path):
+    """Every media runner's records are accepted by the shared results store's writer."""
+    pytest.importorskip("edat.results.writer")
+    from edat.media.runner import open_sink, run_actions, run_reasoning, run_robustness
+    from edat.media.vision import actions, reasoning, robustness
+    c = cfg(trials=1, model={"id": "stub-media", "role": "candidate",
+                             "weights_fingerprint": "0" * 64})
+    meta, png, _ = build("tables", 0, split="dev")
+    talk = StubMediaClient(lambda *a: {"text": "42"})
+    blind = StubMediaClient(lambda *a: {"text": "42"}, accepts_image=False)
+    runs = [("vision", "v1", run_vision, [(meta, png)], talk),
+            ("vision", "v1", run_vision, [(meta, png)], blind),
+            ("vision", "v7", run_reasoning, [reasoning.build("counting", 0, split="dev")], talk),
+            ("vision", "v3", run_actions, [actions.build(0, split="dev")], talk),
+            ("vision", "v5", run_robustness, [robustness.build_unreadable(0, split="dev")], talk)]
+    case = cmd.entity_commands(8)[4]
+    clip = cmd.render_clip(case, StubEngine(), "stub-02")
+    speech = StubEngine().synthesize("set a timer for ten minutes", "stub-00")
+    utts = [Utterance("ls-1", speech, "set a timer for ten minutes")]
+    for k, (tier, suite, fn, items, client) in enumerate(runs):
+        with open_sink(tmp_path / str(k), c.run_id, tier=tier, suite=suite) as sink:
+            assert type(sink).__name__ == "RunWriter"
+            assert fn(client, items, c, sink)
+    with open_sink(tmp_path / "a1", c.run_id, tier="audio", suite="a1") as sink:
+        assert run_transcription(StubMediaClient(lambda *a: {"text": "set a timer"}), utts, c, sink)
+    with open_sink(tmp_path / "a3", c.run_id, tier="audio", suite="a3") as sink:
+        assert run_spoken_commands(StubMediaClient(_command_model(case)), [(case, clip)], c, sink,
+                                   matcher=cmd.ToolbenchMatcher())

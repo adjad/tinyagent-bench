@@ -11,6 +11,17 @@ outbox.DEFAULT_TIMEOUT_S is 45.0 — so every result-bearing handler here is
 wrapped to ALWAYS post exactly one result, including when it raises
 internally. A silent handler bug should look like "the app didn't respond
 for 45s", not hang the agent turn forever with no result at all.
+
+Calendar and Reminders writes take a different, durable path (NATIVE_ACTIONS),
+the one the app's AssistantDelivery.handle takes for an event that carries an
+`event_id`: claim it (POST /assistant/events/{id}/claim), run the write only
+when the claim says `execute`, read the item back from the world, post the
+read-back receipt ({"event_id", "action_id", "kind", "claim_token", "result"})
+to /assistant/action_result, then acknowledge the event. The result has the
+exact fields the native writers return (RemindersWriter: source_id, title and
+the due minute; Calendar: source_id, or the read-back start and end of a move),
+so the backend's receipt checks apply unchanged. A replayed event whose claim
+is already recorded is only acknowledged, never written again.
 """
 from __future__ import annotations
 
@@ -29,6 +40,12 @@ FIRE_AND_FORGET = {"create_calendar_event", "delete_calendar_event",
                    "create_apple_reminder", "delete_apple_reminder", "sync_emails_now"}
 NOTIFY_ONLY = {"reminder", "scheduled_send_result", "scheduled_send_missed",
                "email_summary", "daily_brief"}
+# Durable native writes (service/assistant/outbox.py publishes them with an
+# event_id and waits for a claimed, read-back receipt).
+REMINDER_ACTIONS = {"create_reminder", "update_reminder", "complete_reminder", "delete_reminder"}
+CALENDAR_ACTIONS = {"create_calendar_event", "delete_calendar_event", "move_calendar_event",
+                    "cancel_calendar_event"}
+NATIVE_ACTIONS = REMINDER_ACTIONS | CALENDAR_ACTIONS
 
 _ACTION_LOG_MAX = 500
 
@@ -83,6 +100,9 @@ class OutboundConsumer:
     async def _dispatch(self, ev: dict) -> None:
         etype = ev.get("type", "")
         action_id = ev.get("action_id")
+        if etype in NATIVE_ACTIONS and ev.get("event_id"):
+            await self._handle_native(etype, ev)
+            return
         started = time.time()
         ok, error = True, ""
         extra: dict = {}
@@ -314,6 +334,239 @@ class OutboundConsumer:
             return {"email_headers", "email_raw"}
         await self.world.mutate(_do)
         return True, ""
+
+    # --- durable native writes (Calendar, Reminders) ------------------------
+
+    async def _post_json(self, path: str, body: dict) -> dict | None:
+        try:
+            resp = await self.client.post(path, json=body)
+            data = resp.json()
+        except Exception:  # noqa: BLE001 — backend mid-restart: the event stays pending and replays
+            return None
+        return data if isinstance(data, dict) else None
+
+    async def _ack(self, event_id: str, kind: str) -> None:
+        await self._post_json(f"/assistant/events/{event_id}/ack", {"kind": kind, "state": "handled"})
+
+    async def _handle_native(self, etype: str, ev: dict) -> None:
+        """One durable Calendar/Reminders event, the way AssistantDelivery.handle runs it."""
+        event_id = str(ev["event_id"])
+        payload = {k: v for k, v in ev.items() if k != "event_id"}
+        action_id = payload.get("action_id")
+        claim = await self._post_json(f"/assistant/events/{event_id}/claim",
+                                      {"kind": etype, "action_id": action_id, "payload": payload})
+        if (not claim or claim.get("event_id") != event_id or claim.get("action_id") != action_id
+                or claim.get("kind") != etype):
+            return  # not claimed: left pending, so the next stream replays it
+        if claim.get("recorded") is True:
+            # Already has a result (an earlier delivery, or expired before it ran).
+            await self._ack(event_id, etype)
+            return
+        token = claim.get("claim_token")
+        if claim.get("execute") is not True or not isinstance(token, str) or not token:
+            return  # claimed earlier with no recorded result: never write it a second time
+        started = time.time()
+        forced = inject.get_fail(self.world.state, etype)
+        if forced:
+            result = {"ok": False, "status": "failed", "error": forced}
+        else:
+            rev = self.world.state.get("rev", 0)
+            try:
+                result = await getattr(self, f"_n_{etype}")(payload)
+            except Exception as e:  # noqa: BLE001 — a handler bug must still settle the claim
+                # Nothing changed in the world: a verified failure. Otherwise unknown.
+                changed = self.world.state.get("rev", 0) != rev
+                result = {"ok": False, "status": "unknown" if changed else "failed",
+                          "error": f"sandbox handler error: {e}"}
+        await self._log_action(etype, payload, result["ok"], result["error"], started)
+        stall = inject.get_stall_ms(self.world.state, etype)
+        if stall:
+            await asyncio.sleep(stall / 1000.0)
+        if inject.is_dropped(self.world.state, etype):
+            return  # the app never answered: the backend's wait ends as unknown
+        response = await self._post_json("/assistant/action_result", {
+            "event_id": event_id, "action_id": action_id, "kind": etype,
+            "claim_token": token, "result": result})
+        if response and response.get("recorded") is True:
+            await self._ack(event_id, etype)
+
+    @staticmethod
+    def _failed(error: str) -> dict:
+        return {"ok": False, "status": "failed", "error": error}
+
+    @staticmethod
+    def _due_minute(ts: float) -> float:
+        # EventKit keeps a reminder's due date to the minute (RemindersWriter).
+        return float(int(ts // 60) * 60)
+
+    async def _write(self, fn) -> object:
+        """Run `fn(state) -> (dirty, value)` under the world lock; kick sync for what changed."""
+        box: dict = {}
+
+        async def _do(state: dict) -> set[str]:
+            dirty, box["value"] = fn(state)
+            return dirty
+        dirty = await self.world.mutate(_do)
+        if self.sync and dirty:
+            self.sync.kick(*dirty)
+        return box.get("value")
+
+    def _reminder_readback(self, row: dict) -> dict:
+        receipt = {"ok": True, "status": "succeeded", "error": "", "source_id": row["source_id"],
+                   "title": row["title"]}
+        if row.get("all_day"):
+            return {**receipt, "all_day": True, "due_date": row["due_date"]}
+        return {**receipt, "due_ts": self._due_minute(self.world.abs_ts(row["ts_off"]))}
+
+    def _reminder_due(self, payload: dict) -> dict:
+        from service.assistant.verified_reminders import due_timestamp
+        if payload.get("all_day") is True:
+            return {"all_day": True, "due_date": payload["due_date"],
+                    "ts_off": self.world.rel_ts(due_timestamp(payload))}
+        return {"all_day": False, "due_date": None,
+                "ts_off": self.world.rel_ts(self._due_minute(float(payload["due_ts"])))}
+
+    def _reminder_target(self, state: dict, payload: dict) -> tuple[str, dict] | str:
+        """The one incomplete reminder the payload names, still as Harbor last read it."""
+        sid = str(payload.get("source_id") or "")
+        rows = [(key, row) for key, row in state["reminders"].items() if row.get("source_id") == sid]
+        if len(rows) != 1:
+            return "That reminder was not found in Reminders"
+        key, row = rows[0]
+        expected_due = payload.get("expected_due_ts")
+        if row.get("title") != payload.get("expected_title"):
+            return "That reminder changed in Reminders; nothing was changed"
+        if payload.get("expected_due_date"):
+            if not row.get("all_day") or row.get("due_date") != payload["expected_due_date"]:
+                return "That reminder changed in Reminders; nothing was changed"
+        elif expected_due is None or row.get("all_day") or (
+                int(self.world.abs_ts(row["ts_off"]) // 60) != int(float(expected_due) // 60)):
+            return "That reminder changed in Reminders; nothing was changed"
+        return key, row
+
+    async def _n_create_reminder(self, payload: dict) -> dict:
+        title = str(payload.get("title") or "").strip()
+        if not title:
+            return self._failed("Reminder title is required")
+
+        def fn(state: dict):
+            rid = self.world.new_id("sbx")
+            row = {"id": rid, "source_id": rid, "kind": payload.get("commitment_kind") or "reminder",
+                   "title": title, "context": None, "organizer": None, "account": None,
+                   "location": None, **self._reminder_due(payload)}
+            state["reminders"][rid] = row
+            return {"reminders"}, self._reminder_readback(row)
+        return await self._write(fn)
+
+    async def _n_update_reminder(self, payload: dict) -> dict:
+        def fn(state: dict):
+            found = self._reminder_target(state, payload)
+            if isinstance(found, str):
+                return set(), self._failed(found)
+            _, row = found
+            row.update(title=str(payload["title"]), **self._reminder_due(payload))
+            return {"reminders"}, self._reminder_readback(row)
+        return await self._write(fn)
+
+    async def _n_complete_reminder(self, payload: dict) -> dict:
+        def fn(state: dict):
+            found = self._reminder_target(state, payload)
+            if isinstance(found, str):
+                return set(), self._failed(found)
+            key, row = found
+            # The reminders feed lists incomplete reminders only, as the real reader does.
+            state.setdefault("completed_reminders", {})[key] = {**state["reminders"].pop(key),
+                                                                 "completed": True}
+            return {"reminders"}, {"ok": True, "status": "succeeded", "error": "",
+                                   "source_id": row["source_id"], "is_completed": True}
+        return await self._write(fn)
+
+    async def _n_delete_reminder(self, payload: dict) -> dict:
+        def fn(state: dict):
+            found = self._reminder_target(state, payload)
+            if isinstance(found, str):
+                return set(), self._failed(found)
+            key, row = found
+            del state["reminders"][key]
+            return {"reminders"}, {"ok": True, "status": "succeeded", "error": "",
+                                   "source_id": row["source_id"], "is_absent": True}
+        return await self._write(fn)
+
+    def _calendar_target(self, state: dict, payload: dict) -> tuple[str, dict] | str:
+        """The one occurrence a move or cancel names: identifier, start and title."""
+        sid = str(payload.get("source_id") or "")
+        expected = float(payload["expected_start_ts"])
+        rows = [(key, row) for key, row in state["calendar"].items()
+                if row.get("source_id") == sid and abs(self.world.abs_ts(row["ts_off"]) - expected) < 1]
+        if len(rows) != 1:
+            return "That event was not found in Calendar"
+        key, row = rows[0]
+        if row.get("title") != payload.get("expected_title"):
+            return "That event changed in Calendar; nothing was changed"
+        if int(row.get("invitee_count") or 0) != payload.get("invitee_count"):
+            return "That event's invitees changed; nothing was changed"
+        return key, row
+
+    async def _n_create_calendar_event(self, payload: dict) -> dict:
+        title = str(payload.get("title") or "").strip()
+        if not title:
+            return self._failed("Calendar creation payload is invalid")
+        when = float(payload["when_ts"])
+        duration = int(payload["duration_min"])
+
+        def fn(state: dict):
+            cid = self.world.new_id("sbx")
+            ts_off = self.world.rel_ts(when)
+            state["calendar"][f"{cid}@{ts_off}"] = {
+                "id": f"{cid}@{ts_off}", "source_id": cid, "kind": "event", "title": title,
+                "context": None, "organizer": None, "account": None, "ts_off": ts_off,
+                "end_ts_off": self.world.rel_ts(when + duration * 60),
+                "all_day": payload.get("all_day") is True, "location": payload.get("location") or None,
+                "duration_min": duration}
+            return {"calendar"}, {"ok": True, "status": "succeeded", "error": "", "source_id": cid}
+        return await self._write(fn)
+
+    async def _n_delete_calendar_event(self, payload: dict) -> dict:
+        sid, when = str(payload.get("source_id") or ""), float(payload["when_ts"])
+
+        def fn(state: dict):
+            keys = [k for k, row in state["calendar"].items() if row.get("source_id") == sid
+                    and abs(self.world.abs_ts(row["ts_off"]) - when) < 60]
+            if not keys:
+                return set(), self._failed("That event was not found in Calendar")
+            for k in keys:
+                del state["calendar"][k]
+            return {"calendar"}, {"ok": True, "status": "succeeded", "error": ""}
+        return await self._write(fn)
+
+    async def _n_move_calendar_event(self, payload: dict) -> dict:
+        def fn(state: dict):
+            found = self._calendar_target(state, payload)
+            if isinstance(found, str):
+                return set(), self._failed(found)
+            _, row = found
+            if payload.get("duration_min") is not None:
+                length = int(payload["duration_min"]) * 60
+            elif row.get("end_ts_off") is not None:
+                length = row["end_ts_off"] - row["ts_off"]
+            else:
+                length = int(row.get("duration_min") or 60) * 60
+            when = float(payload["when_ts"])
+            row.update(ts_off=self.world.rel_ts(when), end_ts_off=self.world.rel_ts(when + length))
+            return {"calendar"}, {"ok": True, "status": "succeeded", "error": "",
+                                  "when_ts": self.world.abs_ts(row["ts_off"]),
+                                  "end_ts": self.world.abs_ts(row["end_ts_off"])}
+        return await self._write(fn)
+
+    async def _n_cancel_calendar_event(self, payload: dict) -> dict:
+        def fn(state: dict):
+            found = self._calendar_target(state, payload)
+            if isinstance(found, str):
+                return set(), self._failed(found)
+            key, _ = found
+            del state["calendar"][key]
+            return {"calendar"}, {"ok": True, "status": "succeeded", "error": "", "is_absent": True}
+        return await self._write(fn)
 
     # --- fire-and-forget ---------------------------------------------------
 

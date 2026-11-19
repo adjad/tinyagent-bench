@@ -118,6 +118,10 @@ def _calendar_events(world: World, coll: dict) -> list[dict]:
         # (benchmark worlds) send it, so the seeded world's payload is unchanged.
         if row.get("end_ts_off") is not None:
             event["end_ts"] = world.abs_ts(row["end_ts_off"])
+        # An all-day reminder's floating date, as RemindersWriter sends it: only rows
+        # Harbor wrote as all-day carry `due_date`.
+        if row.get("all_day") and row.get("due_date"):
+            event["due_date"] = row["due_date"]
         out.append(event)
     return out
 

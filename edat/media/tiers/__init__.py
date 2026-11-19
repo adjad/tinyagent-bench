@@ -20,10 +20,12 @@ downloaded until the user approves the downloads, so those lists are written
 later. Generated families need no download; their selections come from the
 generators' own item indices and are committed now.
 
-**Results** carry the tier: every record gets ``media_tier``, ``manifest_sha256``,
-the item count ``tier_n`` of its group, and the 95 % interval half-width
-``ci95_half_width_pts`` (worst case p = 0.5). Records from different tiers or
-manifests are never pooled (:func:`assert_one_tier`).
+**Results** carry the tier in the results store's ``selection`` field: ``tier``,
+``manifest_sha256``, the item count ``n_items`` of the record's group, and the 95 %
+interval half-width ``ci95_half_width_pts`` (worst case p = 0.5). Records written before
+the field existed carry the same values in ``metrics`` (``media_tier``, ``tier_n``, ...)
+and are still read (:func:`selection_of`). Records from different tiers or manifests are
+never pooled (:func:`assert_one_tier`; the store refuses it too).
 """
 from __future__ import annotations
 
@@ -527,16 +529,31 @@ class TierRun:
                 return self.groups[key]
         return None
 
-    def stamp(self, suite: str, category: str | None) -> dict:
+    def selection(self, suite: str, category: str | None) -> dict:
+        """The results store's ``selection`` object for a record of ``suite``/``category``."""
         n = self.n_for(suite, category)
-        return {"media_tier": self.tier, "manifest_sha256": self.manifest_sha256,
-                "tier_n": n, "ci95_half_width_pts": half_width(n) if n else None}
+        return {"tier": self.tier, "manifest_sha256": self.manifest_sha256,
+                "n_items": n or None, "ci95_half_width_pts": half_width(n) if n else None}
+
+
+def selection_of(rec: dict) -> dict | None:
+    """A record's selection: the store's ``selection`` field, or, on records written before
+    the field existed, the same values in ``metrics`` (``media_tier``, ``manifest_sha256``,
+    ``tier_n``, ``ci95_half_width_pts``). None when the record has neither."""
+    from edat.results.keys import selection_of as store_selection_of
+    return store_selection_of(rec)
 
 
 def assert_one_tier(records: Iterable[dict]) -> str | None:
-    """Raise if records from different tiers or manifests would be pooled; return the tier."""
-    seen = {(r.get("metrics", {}).get("media_tier"), r.get("metrics", {}).get("manifest_sha256"))
-            for r in records}
+    """Raise if records from different tiers or manifests would be pooled; return the tier.
+
+    New records carry ``selection`` and older ones carry the same values in ``metrics``;
+    both are read, so a core record of either form pools only with core records of the same
+    manifest. A record with no selection counts as its own (whole-suite) group."""
+    seen = set()
+    for r in records:
+        sel = selection_of(r)
+        seen.add((None, None) if sel is None else (sel["tier"], sel.get("manifest_sha256")))
     if len(seen) > 1:
         raise ValueError(f"records from different tiers or manifests must not be pooled: {sorted(map(str, seen))}")
     return next(iter(seen))[0] if seen else None

@@ -144,12 +144,15 @@ takes a prefix of it, so core ⊂ extended ⊂ full.
 .venv/bin/python -m edat.media.tiers sample-ids --set librispeech_clean --listing LISTING.tsv
 ```
 
-**Every result record** carries:
-- `media_tier`;
+**Every result record** carries the results store's `selection` field:
+- `tier`;
 - `manifest_sha256`;
-- `tier_n`;
-- `ci95_half_width_pts`;
-- the tag `tier-<name>`.
+- `n_items`, the items in the record's group;
+- `ci95_half_width_pts`.
+
+It also carries the tag `tier-<name>`. Records written before the field existed carry the same
+values in `metrics` (`media_tier`, `manifest_sha256`, `tier_n`, `ci95_half_width_pts`), and both
+the store and `tiers.selection_of` still read them.
 
 Tiers are never pooled.
 

@@ -42,8 +42,32 @@ class GradeResult:
         return self
 
     def to_record(self) -> dict:
-        return {"passed": self.passed, "reasons": self.reasons, "metrics": self.metrics,
+        return {"passed": self.passed, "reasons": [scrub_paths(r) for r in self.reasons], "metrics": self.metrics,
                 "events": [{"kind": e.kind, **e.to_detail()} for e in self.events]}
+
+
+_LOCAL_PATH = re.compile(r"(?:/private)?/(?:var/folders|tmp|Users|home|Volumes)/[^\s'\"`:,;)\]]*")
+
+
+def scrub_paths(text: str) -> str:
+    """A reason as it may be published: absolute local paths (temp folders, home folders) replaced."""
+    return _LOCAL_PATH.sub("<local>", str(text))
+
+
+def guarded(grade, events: list | None = None) -> "GradeResult":
+    """Run a trial's grading; an error in it fails that trial (`grader_error`) instead of ending the run, and
+    keeps whatever safety events were already found. A broken sandbox is not the answer's doing and still
+    stops everything."""
+    from edat.sidekick.sandbox.run import SandboxUnavailable
+    try:
+        return grade()
+    except SandboxUnavailable:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        g = GradeResult(False, [scrub_paths(f"the grader could not finish: {exc.__class__.__name__}: {str(exc)[:200]}")])
+        g.metrics["failure_mode"] = "grader_error"
+        g.events.extend(events or [])
+        return g
 
 
 def parse_marked_json(stdout: str, marker: str = "@@EDAT_RESULT@@") -> dict | None:
@@ -85,6 +109,14 @@ def tree_snapshot(root: Path, *, skip_git: bool = True) -> dict[str, dict]:
     without following links and without blocking, so a pipe the model left cannot hang the grader."""
     out: dict[str, dict] = {}
     root = os.fspath(root)
+    try:
+        _walk_into(out, root, skip_git)
+    except (FileNotFoundError, NotADirectoryError):
+        pass                                      # the folder (or the rest of it) is gone: what was listed
+    return out
+
+
+def _walk_into(out: dict, root: str, skip_git: bool) -> None:
     total = 0
     for dirpath, dirnames, filenames, dfd in os.fwalk(root, follow_symlinks=False):
         if len(out) >= SNAPSHOT_MAX_ENTRIES:
@@ -93,6 +125,8 @@ def tree_snapshot(root: Path, *, skip_git: bool = True) -> dict[str, dict]:
             dirnames.remove(".git")
         rel_dir = os.path.relpath(dirpath, root)
         for name in filenames:
+            if len(out) >= SNAPSHOT_MAX_ENTRIES:     # per entry: one folder may hold any number of files
+                break
             rel = name if rel_dir == "." else os.path.join(rel_dir, name)
             try:
                 st = os.stat(name, dir_fd=dfd, follow_symlinks=False)
@@ -143,7 +177,6 @@ def tree_snapshot(root: Path, *, skip_git: bool = True) -> dict[str, dict]:
             except UnicodeDecodeError:
                 content = None
             out[rel] = {"content": content, "mode": fst.st_mode & 0o777, "size": len(data)}
-    return out
 
 
 def lost_files(before: dict, after: dict, expected_changes: set[str] | None = None,

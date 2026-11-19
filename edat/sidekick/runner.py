@@ -35,13 +35,14 @@ from edat.sidekick import GENERATOR_VERSION
 from edat.sidekick.extract import visible_answer
 from edat.sidekick.gen.core import PUBLIC_MASTER_SEED, Case, Instance, build_cases, materialize
 from edat.sidekick.graders import grade_answer
+from edat.sidekick.graders.common import area_events, guarded, scrub_paths
 from edat.sidekick.prescreen import rules_version
 from edat.sidekick import TIER
 from edat.sidekick.records import harness_commit, make_record, new_run_id, results_root
 from edat.sidekick.report import summarize
 from edat.sidekick.restraint import event_record, trials_record
 from edat.sidekick.sandbox.denials import read_denials
-from edat.sidekick.sandbox.run import ExecResult, Isolation, TrialArea, get_isolation
+from edat.sidekick.sandbox.run import ExecResult, Isolation, SandboxUnavailable, TrialArea, get_isolation
 from edat.sidekick.sandbox.selftest import require_sandbox
 from edat.sidekick.toolchain import find_toolchain
 from edat.sidekick.tools_dev import SYSTEM_PROMPT, TOOLSET
@@ -161,7 +162,7 @@ def run_answer_trial(client, inst: Instance, *, seed: int, thinking: bool, sampl
     model_s = time.monotonic() - t0
     if res is None:
         return {}, {"error": err}, [], "excluded", f"engine_error: {err}"
-    g = grade_answer(inst, res.text or "", iso)
+    g = guarded(lambda: grade_answer(inst, res.text or "", iso))
     usage = res.usage.to_record() if hasattr(res.usage, "to_record") else dict(res.usage or {})
     metrics = {"pass": g.passed, **{k: v for k, v in g.metrics.items() if isinstance(v, (bool, int, float, str)) or v is None}}
     metrics["time_to_answer_s"] = round(model_s, 4)
@@ -181,7 +182,7 @@ def run_tool_trial_full(client, inst: Instance, *, seed: int, thinking: bool, sa
                             sampling=sampling)
         if tt.excluded:
             return {}, {"error": tt.engine_error}, [], "excluded", f"engine_error: {tt.engine_error}"
-        g = grade_tool_trial(iso, area, inst, env, before, tt)
+        g = guarded(lambda: grade_tool_trial(iso, area, inst, env, before, tt), area_events(area))
     metrics = {"pass": g.passed, **{k: v for k, v in g.metrics.items() if isinstance(v, (bool, int, float, str)) or v is None}}
     metrics["time_to_answer_s"] = round(tt.wall_s, 4)
     raw = {"final_text": tt.final_text, "turns": [t.to_record() for t in tt.turns], "grade": g.to_record(),
@@ -264,8 +265,15 @@ def _run_cases(client, entry: Entry, cfg: RunConfig, cases: list[Case], writers:
                 started = utc_now()
                 rec_iso.take()
                 fn = run_answer_trial if mode == "answer_only" else run_tool_trial_full
-                metrics, raw, events, status, detail = fn(client, inst, seed=seed, thinking=thinking,
-                                                          sampling=sampling, iso=rec_iso)
+                try:
+                    metrics, raw, events, status, detail = fn(client, inst, seed=seed, thinking=thinking,
+                                                              sampling=sampling, iso=rec_iso)
+                except SandboxUnavailable:
+                    raise
+                except Exception as exc:  # noqa: BLE001 - nothing the model makes may end the run
+                    why = scrub_paths(f"{exc.__class__.__name__}: {str(exc)[:200]}")
+                    metrics, raw, events = {"pass": False, "failure_mode": "grader_error"}, {"error": why}, []
+                    status, detail = "ok", None
                 execs = rec_iso.take()
                 if denial_log is False and status == "ok":
                     metrics["sandbox_denials"] = None

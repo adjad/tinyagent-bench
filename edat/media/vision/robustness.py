@@ -326,9 +326,16 @@ def _rerender(cond: str, family: str, index: int, *, split: str, seed: str, base
 RERENDERED = ("small_text_", "lowres_", "dark")
 
 
-def build_base(family: str, index: int, *, split: str, seed: str | None = None
+def build_base(family: str, index: int, *, split: str, seed: str | None = None,
+               conditions=None, questions_per_image: int | None = None
                ) -> list[tuple[dict, bytes]]:
-    """Every condition for one base image, or :class:`Ineligible`."""
+    """Every condition for one base image, or :class:`Ineligible`.
+
+    ``conditions`` and ``questions_per_image`` cut the output for a tier (spec 05 §17). Every
+    condition is still built and checked, so which bases are eligible does not depend on the
+    tier and a smaller tier's bases are always the first ones of a larger tier. A cut
+    question (``crop_cut``) comes first, so one question per image keeps the abstention item.
+    """
     seed = seed if seed is not None else gen.seed_for(split)
     base_meta, rendered = _base(family, index, split=split, seed=seed)
     rng = rng_for(seed, "v5", family, index)
@@ -386,19 +393,30 @@ def build_base(family: str, index: int, *, split: str, seed: str | None = None
             "render": render_stamp(), "default_year": default_year,
             "field_boxes": boxes, "questions": questions,
         }
+        if questions_per_image is not None:
+            order = sorted(questions, key=lambda q: "cut_from" not in q)
+            meta_out["questions"] = order[:questions_per_image]
         out.append((meta_out, data))
+    if conditions is not None:
+        keep = set(conditions)
+        unknown = keep - set(CONDITIONS)
+        if unknown:
+            raise ValueError(f"unknown V5 conditions: {sorted(unknown)}")
+        out = [(m, d) for m, d in out if m["condition"] in keep]
     return out
 
 
 def base_indices(family: str, *, split: str, seed: str | None = None, count: int = BASE_PER_FAMILY,
-                 start: int = 0, limit: int = 4000):
+                 start: int = 0, limit: int = 4000, conditions=None,
+                 questions_per_image: int | None = None):
     """Yield (index, items) for the first ``count`` eligible base images of ``family``."""
     got = 0
     for index in range(start, start + limit):
         if got == count:
             return
         try:
-            items = build_base(family, index, split=split, seed=seed)
+            items = build_base(family, index, split=split, seed=seed, conditions=conditions,
+                               questions_per_image=questions_per_image)
         except Ineligible:
             continue
         got += 1
@@ -473,20 +491,27 @@ def _write(out_dir: Path, meta: dict, data: bytes) -> None:
     (out_dir / f"{meta['item_id']}.json").write_text(json.dumps(meta, indent=1) + "\n")
 
 
-def generate(out: Path, *, split: str, families=BASE_FAMILIES, per_family: int = BASE_PER_FAMILY,
-             unreadable: int = UNREADABLE_TOTAL) -> dict:
+def generate(out: Path, *, split: str, families=BASE_FAMILIES, per_family=BASE_PER_FAMILY,
+             unreadable=UNREADABLE_TOTAL, conditions=None,
+             questions_per_image: int | None = None) -> dict:
+    """Write V5 items. ``per_family`` is a count or a {family: count} map, ``unreadable`` a count
+    or a list of unreadable-image numbers; both maps come from a tier's selection."""
     if split == "heldout" and gen._inside_repo(out):
         raise RuntimeError("held-out items must not be written inside the repository")
     counts: dict = {"base": {}, "requests": 0, "unreadable": 0}
     for fam in families:
         n = 0
-        for _, items in base_indices(fam, split=split, count=per_family):
+        k = per_family.get(fam, 0) if isinstance(per_family, dict) else per_family
+        if not k:
+            continue
+        for _, items in base_indices(fam, split=split, count=k, conditions=conditions,
+                                     questions_per_image=questions_per_image):
             for meta, data in items:
                 _write(out / fam / meta["condition"], meta, data)
                 counts["requests"] += len(meta["questions"])
             n += 1
         counts["base"][fam] = n
-    for i in range(unreadable):
+    for i in (range(unreadable) if isinstance(unreadable, int) else unreadable):
         meta, data = build_unreadable(i, split=split)
         _write(out / "unreadable", meta, data)
         counts["unreadable"] += 1
@@ -501,14 +526,26 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--family", action="append")
     g.add_argument("--per-family", type=int, default=BASE_PER_FAMILY)
     g.add_argument("--unreadable", type=int, default=UNREADABLE_TOTAL)
+    g.add_argument("--tier", choices=("core", "extended", "full"),
+                   help="take bases, conditions and questions from a tier manifest")
     g.add_argument("--out", required=True)
     sub.add_parser("conditions")
     args = ap.parse_args(argv)
     if args.cmd == "conditions":
         print("\n".join(CONDITIONS))
         return 0
-    counts = generate(Path(args.out), split=args.split, families=args.family or BASE_FAMILIES,
-                      per_family=args.per_family, unreadable=args.unreadable)
+    if args.tier:
+        from edat.media import tiers
+        v5 = tiers.select_vision(tiers.load_manifest(args.tier))["v5"]
+        counts = generate(Path(args.out), split=args.split,
+                          families=args.family or BASE_FAMILIES,
+                          per_family=v5["bases_per_family"], unreadable=v5["unreadable"],
+                          conditions=v5["conditions"],
+                          questions_per_image=v5["questions_per_image"])
+    else:
+        counts = generate(Path(args.out), split=args.split,
+                          families=args.family or BASE_FAMILIES,
+                          per_family=args.per_family, unreadable=args.unreadable)
     json.dump(counts, sys.stdout, indent=1)
     print()
     return 0

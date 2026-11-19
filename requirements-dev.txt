@@ -3,3 +3,7 @@
 
 pytest==9.1.1
 pytest-asyncio==1.4.0
+
+# The media tests (edat/media): image generation and audio arrays.
+Pillow==13.0.0
+numpy==2.1.3

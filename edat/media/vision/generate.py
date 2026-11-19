@@ -165,8 +165,22 @@ def _inside_repo(path: Path) -> bool:
         return False
 
 
+def tier_questions(meta: dict, *, questions_per_image: int, reading: bool, seed: int) -> dict:
+    """Cut an item's questions to a tier's: the first ``questions_per_image`` scored questions in
+    the tier's seeded order, plus the full reading only when the item is one of the tier's
+    readings. The order does not depend on k, so a smaller tier's questions are a prefix."""
+    from edat.media.tiers import question_order
+    scored = [q for q in meta["questions"] if q["kind"] != "reading"]
+    keep = set(question_order([q["qid"] for q in scored], seed=seed,
+                              item_id=meta["item_id"])[:questions_per_image])
+    qs = [q for q in meta["questions"]
+          if (q["kind"] == "reading" and reading) or q["qid"] in keep]
+    return dict(meta, questions=qs)
+
+
 def write_items(family: str, indices, out_dir: Path, *, split: str,
-                long_side: int | None = None, validate: bool = True) -> list[dict]:
+                long_side: int | None = None, validate: bool = True,
+                trim=None) -> list[dict]:
     if split == "heldout" and _inside_repo(out_dir):
         raise RuntimeError("held-out items must not be written inside the repository")
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -178,6 +192,8 @@ def write_items(family: str, indices, out_dir: Path, *, split: str,
             problems = validate_item(meta, rendered.image, clean_image=rendered.clean_image)
             if problems:
                 raise RuntimeError(f"{meta['item_id']} failed validation: {problems}")
+        if trim is not None:
+            meta = trim(index, meta)
         (out_dir / meta["image"]["file"]).write_bytes(data)
         (out_dir / f"{meta['item_id']}.json").write_text(json.dumps(meta, indent=1) + "\n")
         written.append(meta)
@@ -193,6 +209,8 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--count", type=int, default=FULL_SET_PER_FAMILY)
     g.add_argument("--start", type=int, default=0)
     g.add_argument("--long-side", type=int, default=None)
+    g.add_argument("--tier", choices=("core", "extended", "full"),
+                   help="write the tier's images, questions and readings instead of --start/--count")
     g.add_argument("--out", required=True)
     sub.add_parser("init-heldout-seed", help="create the private held-out seed")
     sub.add_parser("families", help="list families")
@@ -215,9 +233,23 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     fams = args.family or available_families()
     out = Path(args.out)
+    v1 = None
+    if args.tier:
+        from edat.media import tiers
+        m = tiers.load_manifest(args.tier)
+        v1 = tiers.select_vision(m)["v1"]
     for fam in fams:
-        metas = write_items(fam, range(args.start, args.start + args.count), out / fam,
-                            split=args.split, long_side=args.long_side)
+        if v1 is None:
+            indices, trim = range(args.start, args.start + args.count), None
+        else:
+            sel = v1.get(fam, {"indices": [], "readings": [], "questions_per_image": 0})
+            indices, readings = sel["indices"], set(sel["readings"])
+
+            def trim(index, meta, sel=sel, readings=readings):
+                return tier_questions(meta, questions_per_image=sel["questions_per_image"],
+                                      reading=index in readings, seed=m.seed)
+        metas = write_items(fam, indices, out / fam, split=args.split,
+                            long_side=args.long_side, trim=trim)
         nq = sum(len(m["questions"]) for m in metas)
         print(f"{fam}: {len(metas)} images, {nq} questions")
     return 0

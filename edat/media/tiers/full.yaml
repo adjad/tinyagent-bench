@@ -1,0 +1,27 @@
+# tinyagent-bench media tier 3 ("full"): the full design, spec 05 §3-§12. Not scheduled;
+# run only on the user's word. "all" means every item of the set or generator.
+tier: full
+seed: 20261119
+a1:  {librispeech_clean: all, librispeech_other: all, ami_sdm: all, earnings22: all, earnings22_longform_files: all,
+      voxpopuli: all, ami_ihm: all, notsofar: all, strata: [speaker, meeting, file]}
+a4:  {base: a1.librispeech_clean, n: all, conditions: all, noise_source: generated}
+a3:  {single: all, entity_dense: all, single_sources: [agentic, toolbench], followups: all, corrections: all,
+      disfluency: all, noise: {n: all, snr_db: [20, 10, 5]}, voice_variance: {commands: 200, voices: 12},
+      configurations: [two_pass, native, pipeline], native_one_call: where_supported}
+a5:  {non_speech: all, trailing_silence: all, answer_leak: all, speech_inside_noise: all}
+a7:  {conversations: all, cremad: all, esc10: all, generated_sounds: all, urgency: all,
+      recordings: {memos: all, meetings: all, talks: all, questions: all}, der: {source: ami_sdm, hours: all},
+      big_bench_audio: all}
+a8:  {rungs_s: [5, 15, 30, 31, 45, 60, 120, 300, 600, 1800, 3600], clips_per_rung: 20}
+a9:  {runs_min: [1, 10, 60], source: a8, idle_baselines_min: [5, 5]}
+a2:  {lengths_s: [2, 5, 10, 20, 30], clips_per_length: 20}
+v1:  {families: all, images_per_family: all, questions_per_image: 4, readings_per_family: all}
+v2:  {ocrbench: all, chartqapro: all, visualwebbench: all, cord: all, plotqa: 5000, olmocr: all}
+v3:  {n: all}
+v5:  {images: all, conditions: all, unreadable: all, questions_per_image: 2}
+v7:  {counting: all, spatial: all, control_location: all, multi_image: all, chart_trend: all, screenspot: all}
+v4:  {images_per_request: [1, 2, 4, 8, 9, 12, 16], per_rung: 100, long_side_px: [384, 512, 768, 1024, 1568, 2048, 3000],
+      tiling_at: [3000], per_size: 200, token_budgets: [70, 140, 280, 560, 1120], per_budget: 200}
+strip: {measures: [M1, M2, M3, M4, M4b, M5, M6, M7, M8], m4_prompts: 500}
+thinking_entries: ["off", "on"]
+trials: 3

@@ -65,6 +65,9 @@ class RunConfig:
     recogniser: dict | None = None            # {"id": ...} of the shared recogniser, if used
     max_tokens: dict = field(default_factory=lambda: dict(MAX_TOKENS))
     run_id: str = ""
+    # The selection tier (spec 05 §17): core, extended or full. Every record carries its
+    # name, the manifest's sha256, the item n and the 95 % half-width; tiers never pool.
+    tier_run: Any = None                      # edat.media.tiers.TierRun
 
     def __post_init__(self) -> None:
         if self.trials < 1:
@@ -175,10 +178,14 @@ def base_record(cfg: RunConfig, *, tier: str, suite: str, case_id: str, trial: i
         "settings": _settings(cfg, cfg.base_seed + trial),
         "harness_commit": cfg.harness_commit, "started_at": started_at or _now(),
         "case_id": case_id, "split": cfg.split, "trial": trial, "status": status,
-        "facets": _clean_facets(facets), "metrics": metrics or {},
+        "facets": _clean_facets(facets), "metrics": dict(metrics or {}),
         "safety": {"unsafe_actions": None, "privacy_leaks": None, "labels": []},
         "raw": raw,
     }
+    if cfg.tier_run is not None:
+        rec["metrics"].update(cfg.tier_run.stamp(facets.get("family", suite), facets.get("category")))
+        rec["facets"]["tags"] = list(dict.fromkeys(
+            rec["facets"].get("tags", []) + [f"tier-{cfg.tier_run.tier}"]))[:32]
     if cfg.device is None:
         rec["device_reason"] = "cloud" if cfg.kind == "cloud_reference" else "not recorded"
     if raw is None:
@@ -583,3 +590,22 @@ def run_spoken_commands(client, cases: Iterable[tuple[cmd.CommandCase, Clip]], c
                 sink.append(trec)
                 out.append(trec)
     return out
+
+
+def main(argv: list[str] | None = None) -> int:
+    """``python -m edat.media.runner --tier core plan``: what a tier runs and what it costs.
+
+    The runner itself is driven by the harness; this entry point plans and selects. The
+    default tier is ``core``."""
+    import argparse
+    from edat.media.tiers.__main__ import main as tiers_main
+    from edat.media.tiers import DEFAULT_TIER, TIERS
+    ap = argparse.ArgumentParser(prog="python -m edat.media.runner")
+    ap.add_argument("--tier", default=DEFAULT_TIER, choices=TIERS)
+    ap.add_argument("cmd", nargs="?", default="plan", choices=("plan", "select"))
+    a = ap.parse_args(argv)
+    return tiers_main([a.cmd, "--tier", a.tier])
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

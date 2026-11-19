@@ -480,7 +480,7 @@ def adapt(profile: dict, ledger: dict | None) -> tuple[dict, dict]:
             item.update({"start": ev["start"], "end": ev["end"], "fixed": True})
             corrected.add(ev["id"])
         if etype in ("calendar_correction", "changed_detail"):
-            _correction(item, entry, events, ops_by_ref, anchor_date, out["ledger"], corrected, corpus)
+            _correction(item, entry, events, ops_by_ref, anchor_date, out["ledger"], corrected, corpus, ops)
         if etype == "deadline" and exp.get("status") in (None, "open"):
             due = due_of(entry)
             if due:
@@ -516,10 +516,12 @@ def adapt(profile: dict, ledger: dict | None) -> tuple[dict, dict]:
 
 
 def _correction(item: dict, entry: dict, events: dict, ops_by_ref: dict, anchor_date: date,
-                ledger: list[dict], corrected: set[str], corpus: _Corpus) -> None:
+                ledger: list[dict], corrected: set[str], corpus: _Corpus, ops: list[dict] | None = None) -> None:
     """A calendar correction from its schedule op: the superseded slot becomes a `~was` item
     the correction supersedes (with `stale_match`: the event's words and its old start, or its
-    old place), and the correction takes the new start, so Day rules R2 and R3 can run."""
+    old place), and the correction takes the new start, so Day rules R2 and R3 can run. A cancel
+    whose replacement is an `add` op with the same reasons (`because`) is a move to that slot: the
+    correction takes the added slot, and the add is not kept again as its own `sched:` item."""
     for ref in entry.get("evidence") or []:
         if ref not in events or ref not in ops_by_ref:
             continue
@@ -545,6 +547,14 @@ def _correction(item: dict, entry: dict, events: dict, ops_by_ref: dict, anchor_
         old = datetime.fromisoformat(ev["start"])
         if words:
             item["stale_match"] = {"all": [words, [f"@{old.hour:02d}:{old.minute:02d}"]]}
+        if op["op"] == "cancel" and op.get("because"):
+            add = next((o for o in ops or [] if o["op"] == "add" and o.get("time") and o.get("day") is not None
+                        and set(o.get("because") or []) == set(op["because"])), None)
+            if add:
+                item["start"] = _iso(anchor_date, add["day"], add["time"])
+                if add.get("end"):
+                    item["end"] = _iso(anchor_date, add["day"], add["end"])
+                corrected.add(add["id"])
         if op["op"] == "move":
             d0 = (old.date() - anchor_date).days
             day = op["day"] if op.get("day") is not None else d0
@@ -586,6 +596,8 @@ def _schedule_items(out: dict, ops: list[dict], ops_by_ref: dict, events: dict, 
             continue          # a move no entry explains is left out rather than guessed
         add(ev["id"], ev["title"], ev["start"], ev.get("end"), [ev["id"]])
     for op in ops:
+        if op["id"] in corrected:
+            continue          # an add that a correction already took as its new slot
         if op["op"] == "add" and op.get("time") and op.get("end") and op.get("day") is not None:
             add(op["id"], op.get("title") or op["id"], _iso(anchor_date, op["day"], op["time"]),
                 _iso(anchor_date, op["day"], op["end"]), [])

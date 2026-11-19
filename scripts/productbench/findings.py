@@ -138,6 +138,7 @@ class Report:
         self.faults: dict = defaultdict(lambda: defaultdict(set))   # (entry, profile) -> fault -> case ids
         self.gaps: dict = {}                                        # run-level known gaps, from meta
         self.superseded = 0
+        self.brief_figs: dict = defaultdict(list)   # (entry, profile) -> [(model's, as seen, Harbor stale rows)]
 
     def fault_notes(self, entry: str, profile: str) -> list[str]:
         out = []
@@ -205,8 +206,17 @@ def _brief(rep: Report, key, r: dict, prof: Profile) -> None:
         rep.label(pid, "brief", lid, f"(noise) {prof.item(lid)['title']}")
         cells[lid].add("wrongly_raised", items[pos]["text"], ZONE_NAMES[items[pos]["zone"]])
     for lid, pos in c["stale"]:
-        rep.label(pid, "brief", lid + ":stale", f"(old value) {prof.item(lid)['title']}")
-        cells[lid + ":stale"].add("stale", items[pos]["text"], ZONE_NAMES[items[pos]["zone"]])
+        if items[pos]["source"] == "model":
+            rep.label(pid, "brief", lid + ":stale", f"(old value) {prof.item(lid)['title']}")
+            cells[lid + ":stale"].add("stale", items[pos]["text"], ZONE_NAMES[items[pos]["zone"]])
+        else:       # Harbor's own calendar/reminders/notes row: never charged to the model's Brief
+            rep.label(pid, "brief", lid + ":harbor-stale",
+                      f"(Harbor showed a stale calendar slot) {prof.item(lid)['title']}")
+            cells[lid + ":harbor-stale"].add("stale", items[pos]["text"], ZONE_NAMES[items[pos]["zone"]])
+    sc = r.get("score") or {}
+    if sc.get("seen_score") is None:        # a record scored before the two figures were split
+        sc = score_brief.score_brief(snap, prof, {}).as_dict()
+    rep.brief_figs[key].append((sc["score"], sc["seen_score"], len(sc.get("harbor_stale") or [])))
     if r.get("trial", 1) == min(rep.trials[key]):
         rep.shown[key] = [{"zone": ZONE_NAMES[x["zone"]], "text": _cut(x["text"]),
                            "source": x["source"], "marks": c["marks"][i] or [("not_in_key", None)]}
@@ -344,8 +354,26 @@ def comparisons(rep: Report, references=REFERENCES) -> list[dict]:
                           "meta": {c: rep.meta.get((c, pid)) for c in cols},
                           "trials": {c: len(rep.trials[(c, pid)]) for c in cols},
                           "shown": rep.shown.get((entry, pid), []), "notes": rep.notes.get((entry, pid), []) + [n for c in cols for n in rep.fault_notes(c, pid)],
+                          "brief_figures": {c: brief_figures(rep, c, pid) for c in cols},
                           "sections": sections})
     return views
+
+
+def brief_figures(rep: Report, entry: str, pid: str) -> dict | None:
+    """Both Brief figures, mean over trials x100: the model's Brief (items the model wrote) and
+    the Brief as the user sees it (everything on screen), with Harbor's stale calendar rows."""
+    figs = rep.brief_figs.get((entry, pid))
+    if not figs:
+        return None
+    n = len(figs)
+    return {"model": round(100 * sum(f[0] for f in figs) / n, 1), "seen": round(100 * sum(f[1] for f in figs) / n, 1),
+            "harbor_stale": round(sum(f[2] for f in figs) / n, 1), "trials": n}
+
+
+def brief_figure_line(entry: str, f: dict) -> str:
+    return (f"Brief score, {entry}: the model's Brief {f['model']} · the Brief as the user sees it {f['seen']} · "
+            f"Harbor showed a stale calendar slot: {f['harbor_stale']:g} row(s) per trial "
+            f"(counted in the Brief as seen, not in the model's Brief)")
 
 
 def _section_order(s: str) -> tuple:
@@ -419,6 +447,12 @@ def markdown(views: list[dict], rep: Report, run_ids: list[str]) -> str:
             out.append("")
         for s in v["sections"]:
             out += [f"### {s['title']}", ""]
+            if s["id"] == "brief":
+                for c in v["columns"]:
+                    f = (v.get("brief_figures") or {}).get(c)
+                    if f:
+                        out += [f"- {brief_figure_line(c, f)}"]
+                out.append("")
             head = ["Item"] + v["columns"] + [f"What {main} said"]
             out += ["| " + " | ".join(head) + " |", "|" + "---|" * len(head)]
             for row in s["rows"]:
@@ -513,7 +547,13 @@ def html_page(views: list[dict], rep: Report, run_ids: list[str]) -> str:
         for n in v["notes"]:
             parts.append(f'<p class="banner">{e(n)}</p>')
         for s in v["sections"]:
-            parts.append(f"<h3>{e(s['title'])}</h3><div class=\"wrap\"><table><thead><tr><th>Item</th>")
+            parts.append(f"<h3>{e(s['title'])}</h3>")
+            if s["id"] == "brief":
+                for c in v["columns"]:
+                    f = (v.get("brief_figures") or {}).get(c)
+                    if f:
+                        parts.append(f'<p class="figure">{e(brief_figure_line(c, f))}</p>')
+            parts.append("<div class=\"wrap\"><table><thead><tr><th>Item</th>")
             parts += [f"<th>{e(c)}</th>" for c in v["columns"]]
             parts.append(f"<th>What {e(main)} said</th></tr></thead><tbody>")
             for row in s["rows"]:

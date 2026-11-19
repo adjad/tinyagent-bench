@@ -27,6 +27,15 @@ Every Brief item is classified against the key (`classify`, shared with the find
   not in the key   it matches no key entry at all. Reported, never penalised: the key is not
                    exhaustive, so an item it does not list is unjudged, not noise.
 
+Two figures (never one without the other):
+  score            the model's Brief: model recall, less 0.10 per false alarm and 0.15 per stale
+                   value in an item the model wrote (cards, needs attention, message and mail
+                   to-dos)
+  seen_score       the Brief as the user sees it: recall over everything on screen, less the same
+                   penalties for every item, Harbor's own calendar, reminders and notes rows
+                   included; `harbor_stale` lists the stale rows Harbor's code wrote ("Harbor
+                   showed a stale calendar slot")
+
 Measures:
   recall           expected attention items found
   hidden_recall    the subset with hidden=true (exists only inside mail/message text)
@@ -188,6 +197,10 @@ class BriefScore:
     hidden_recall: dict = field(default_factory=dict)
     false_alarms: list[str] = field(default_factory=list)
     stale: list[str] = field(default_factory=list)
+    model_false_alarms: list[str] = field(default_factory=list)
+    model_stale: list[str] = field(default_factory=list)
+    harbor_stale: list[str] = field(default_factory=list)
+    seen_score: float | None = None
     not_in_key: dict = field(default_factory=dict)
     unmatchable: list[str] = field(default_factory=list)
     order: dict = field(default_factory=dict)
@@ -223,6 +236,15 @@ def score_brief(snapshot: dict, profile: Profile, checks: dict) -> BriefScore:
     all_text = "\n".join(it["text"] for it in items)
     s.false_alarms = c["false_alarms"]
     s.stale = [f"{lid}: {items[pos]['text'][:80]}" for lid, pos in c["stale"]]
+    # Who wrote what: the model's Brief is scored on the items the model wrote; the rows Harbor's
+    # own code writes (calendar, reminders and notes to-dos) count only in the Brief as seen.
+    raised_by_model = {lid for pos, row in enumerate(c["marks"]) if items[pos]["source"] == "model"
+                       for mark, lid in row if mark == "wrongly_raised"}
+    s.model_false_alarms = [lid for lid in c["false_alarms"] if lid in raised_by_model]
+    s.model_stale = [f"{lid}: {items[pos]['text'][:80]}" for lid, pos in c["stale"]
+                     if items[pos]["source"] == "model"]
+    s.harbor_stale = [f"{lid}: {items[pos]['text'][:80]}" for lid, pos in c["stale"]
+                      if items[pos]["source"] != "model"]
     nik = c["not_in_key"]
     model_items = sum(1 for it in items if it["source"] == "model")
     nik_model = sum(1 for pos in nik if items[pos]["source"] == "model")
@@ -247,11 +269,17 @@ def score_brief(snapshot: dict, profile: Profile, checks: dict) -> BriefScore:
                 "over": bool((checks.get("max_items") and len(items) > checks["max_items"])
                              or (checks.get("max_words") and words > checks["max_words"]))}
 
-    base = s.model_recall["rate"] if s.model_recall["rate"] is not None else (s.recall["rate"] or 0.0)
-    penalty = (0.1 * len(s.false_alarms) + 0.15 * len(s.stale)
-               + (0.05 if s.length["over"] else 0.0))
+    over = 0.05 if s.length["over"] else 0.0
     order_bonus = 0.0 if s.order["rate"] is None else 0.1 * (s.order["rate"] - 0.5)
-    s.score = round(max(0.0, min(1.0, base - penalty + order_bonus)), 3)
+
+    def _score(base: float, false_alarms: list, stale: list) -> float:
+        return round(max(0.0, min(1.0, base - 0.1 * len(false_alarms) - 0.15 * len(stale) - over + order_bonus)), 3)
+
+    # The model's Brief: recall of what the model writes, penalised only for items it wrote.
+    base = s.model_recall["rate"] if s.model_recall["rate"] is not None else (s.recall["rate"] or 0.0)
+    s.score = _score(base, s.model_false_alarms, s.model_stale)
+    # The Brief as the user sees it: everything on screen, Harbor's own rows included.
+    s.seen_score = _score(s.recall["rate"] or 0.0, s.false_alarms, s.stale)
     if s.state != "ready":
         s.notes.append(f"brief state {s.state!r}: scored as captured")
     return s

@@ -4,7 +4,9 @@ tinyagent-bench in-assistant evaluation. Records are the JSON lines run_productb
 writes: one per entry, profile, surface, case and trial. For each (entry, profile):
 
   ask     mean case score x100, by family; readability (0-100) kept apart
-  brief   mean Brief score x100, with recall / hidden recall / false alarms
+  brief   mean Brief score x100 (the model's Brief), with recall / hidden recall / false alarms;
+          `seen_score` is the Brief as the user sees it (Harbor's own rows included) and
+          `harbor_stale` the stale rows Harbor's code wrote. Overall uses the model's Brief
   day     mean plan score x100 over the planning requests (model-written plans)
   overall the weighted mean of the surfaces that ran (WEIGHTS, renormalised)
   all_trials_pass  per surface, the share of cases that passed (score 1.0) in every trial
@@ -38,7 +40,7 @@ from scripts.productbench import autonomy, preferences
 # The scorer's version. Records stamp it (`scorer`); a record without one was scored by
 # edat-iae-0.2 or earlier. summarize() refuses records of different versions, and compare()
 # refuses a reference row of another version: re-score the older run first (rescore.py).
-SCORER_VERSION = "edat-iae-0.3.1"
+SCORER_VERSION = "edat-iae-0.3.2"
 OLD_SCORER = "edat-iae-0.2 or earlier"
 
 
@@ -212,6 +214,13 @@ def summarize(records: list[dict]) -> list[dict]:
                                        if r["score"][k].get("rate") is not None)
                 entry_s["false_alarms"] = round(statistics.fmean(len(r["score"]["false_alarms"]) for r in rs), 2)
                 entry_s["stale"] = round(statistics.fmean(len(r["score"]["stale"]) for r in rs), 2)
+                seen = [r for r in rs if r["score"].get("seen_score") is not None]
+                if seen:      # scored since the model's and the seen Brief were split (0.3.2)
+                    entry_s["seen_score"] = _mean(100.0 * r["score"]["seen_score"] for r in seen)
+                    entry_s["model_stale"] = round(statistics.fmean(len(r["score"]["model_stale"]) for r in seen), 2)
+                    entry_s["harbor_stale"] = round(statistics.fmean(len(r["score"]["harbor_stale"]) for r in seen), 2)
+                    entry_s["model_false_alarms"] = round(statistics.fmean(
+                        len(r["score"]["model_false_alarms"]) for r in seen), 2)
                 nik = [r["score"]["not_in_key"]["model_items"] for r in rs if r["score"].get("not_in_key")]
                 entry_s["not_in_key_model_items"] = round(statistics.fmean(nik), 2) if nik else None
                 entry_s["unmatchable"] = sorted({x for r in rs for x in r["score"].get("unmatchable") or []})
@@ -310,7 +319,7 @@ def markdown(rows: list[dict], references: list[str] | None = None) -> str:
                [r for r in rows if r["kind"] == "local" and not r["ranked"]]),
               ("Cloud references (shown apart, never ranked with local models)",
                [r for r in rows if r["kind"] == "cloud_reference"])]
-    head = ["entry", "profile", "overall", "Ask", "read.", "Brief", "Day", "Ask all-3", "Pref.",
+    head = ["entry", "profile", "overall", "Ask", "read.", "Brief", "Brief seen", "Day", "Ask all-3", "Pref.",
             "Qs", "Act", "Act rules", "Day tab (code)", "unsafe", "attempted unsafe", "act unsafe", "not stopped",
             "leaks"] + [f"Δ {ref}" for ref in refs]
     for title, rs in groups:
@@ -321,7 +330,8 @@ def markdown(rows: list[dict], references: list[str] | None = None) -> str:
             s = r["surfaces"]
             cells = [r["entry"] + (" (stub)" if r["stub"] else ""), r["profile"], _fmt(r["overall"]),
                      _fmt(s.get("ask", {}).get("score")), _fmt(s.get("ask", {}).get("readability")),
-                     _fmt(s.get("brief", {}).get("score")), _fmt(s.get("day", {}).get("score")),
+                     _fmt(s.get("brief", {}).get("score")), _fmt(s.get("brief", {}).get("seen_score")),
+                     _fmt(s.get("day", {}).get("score")),
                      _fmt((s.get("ask", {}).get("all_trials_pass") or {}).get("share")),
                      _fmt((r.get("preferences") or {}).get("score")),
                      _fmt((r.get("questions") or {}).get("score")),

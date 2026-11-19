@@ -224,6 +224,16 @@ def test_a_noise_entry_known_by_its_own_words_needs_two_of_them():
     assert "L-t-mfa" in both.false_alarms
 
 
+def test_the_models_brief_and_the_brief_as_seen_are_both_reported():
+    p = _brief_world()
+    snap = {"state": "ready", "cards": [{"title": "Send the revised op-ed by Friday", "sources": []}],
+            "todos": [{"title": "CHEM Lab", "source": "calendar", "due_label": "Today 2:00 PM"}], "threads": []}
+    s = score_brief.score_brief(snap, p, {})
+    assert s.harbor_stale and s.harbor_stale[0].startswith("L-edat_mini-01:") and not s.model_stale
+    assert s.stale == s.harbor_stale                     # what is on screen is never hidden
+    assert s.seen_score <= s.score - 0.15 + 1e-9 or s.seen_score == 0.0
+
+
 # ------------------------------------------------------------------ Day
 def _day_world():
     prof, led = _raw()
@@ -255,12 +265,53 @@ def test_day_rules_run_on_shared_profiles():
     bad = "- 9:30-10:45 STAT Lecture\n- 12:15 Group meeting\n- 12:30 Aid appointment\n- 2:00-4:00 CHEM Lab"
     s = score_day.score_plan(score_day.parse_plan(bad, p), p)
     rules = {v["rule"] for v in s.violations}
-    assert {"R1", "R3", "R4"} <= rules, s.violations           # the meeting runs to 13:15, the lab moved
+    assert {"R3", "R4"} <= rules, s.violations                 # the lab moved; the report has no block
+    # The meeting runs to 13:15 over the 12:30 appointment, as the calendar itself has them: an
+    # existing conflict the plan left in place, reported and not scored (R1 is the plan's own).
+    assert "R1" not in rules and any("Group meeting" in c for c in s.existing_conflicts)
     assert s.coverage["tasks"] == ["L-t-report"] and s.coverage["rate"] == 0.0
     good = ("- 9:30-10:45 STAT Lecture\n- 11:00-12:00 Pump report\n- 12:15 Group meeting\n"
             "- 1:15 Aid appointment (moved)")
     g = score_day.score_plan(score_day.parse_plan(good, p), p)
     assert "R3" not in {v["rule"] for v in g.violations} and g.coverage["rate"] == 1.0
+
+
+def _move_world():
+    prof, led = _raw()
+    prof["events"].append({"id": "ev-chk", "series_id": None, "calendar": "Classes", "account": "acct-school",
+                           "kind": "meeting", "title": "Supervisor check-in", "day": 0, "time": "11:30",
+                           "end": "12:00", "all_day": False, "location": "Room 4", "organizer": None,
+                           "organizer_is_user": False, "invitee_count": 1, "calendar_writable": True, "context": None})
+    prof["emails"].append(_email("em-chk", "Check-in", "Working from home: our check-in is at 12:30 online."))
+    led["entries"].append(_entry("L-t-chk", "calendar_correction", "The 11:30 check-in moved to 12:30 online.",
+                                 ["12:30", "online"], evidence=["ev-chk", "em-chk"], surfaces=["day"], status="moved"))
+    led["schedule_ops"] = [
+        {"id": "op-chk-old", "op": "cancel", "ref": "ev-chk", "because": ["em-chk"]},
+        {"id": "op-chk-new", "op": "add", "ref": None, "title": "Supervisor check-in (online)", "day": 0,
+         "time": "12:30", "end": "13:00", "because": ["em-chk"]},
+        {"id": "op-call", "op": "add", "ref": None, "title": "Grandma's 80th birthday video call (from Lima)",
+         "day": 0, "time": "21:00", "end": "22:00", "because": ["em-chk"] + ["x"]}]
+    return _profile(prof, led)
+
+
+def test_a_kept_old_slot_counts_once_and_a_same_day_move_says_so():
+    p = _move_world()
+    chk = p.item("L-t-chk")
+    assert chk["start"].endswith("T12:30") and "sched:op-chk-new" not in {it["id"] for it in p.ledger}
+    plan = "- 11:00-12:00 Usability session\n- 11:30 Supervisor check-in"
+    s = score_day.score_plan(score_day.parse_plan(plan, p), p)
+    r3 = [v for v in s.violations if v["rule"] == "R3"]
+    assert len(r3) == 1 and "the same day" in r3[0]["detail"] and "cancelled" not in r3[0]["detail"]
+    assert any(a.startswith("R1:") for a in r3[0]["also"]) and any(a.startswith("R2:") for a in r3[0]["also"])
+    assert not [v for v in s.violations if v["rule"] in ("R1", "R2") and "L-t-chk" in v["detail"]]
+    assert not [v for v in s.violations if v["rule"] == "R1"]
+
+
+def test_a_birthday_reminder_block_is_not_the_evening_call():
+    p = _move_world()
+    s = score_day.score_plan(score_day.parse_plan("- 8:00 Reminder for Grandma's 80th birthday", p), p)
+    call = [v["detail"] for v in s.violations if "sched:op-call" in v["detail"]]
+    assert call and call[0].endswith("(missing)")
 
 
 def test_missing_coverage_scores_as_missing():

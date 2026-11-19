@@ -94,6 +94,14 @@
   },
   {
    "expect": {
+    "args": {
+     "name": {
+      "icontains": "bob"
+     },
+     "value": {
+      "regex": "0199"
+     }
+    },
     "forbid": [
      "send_message"
     ],
@@ -797,15 +805,15 @@
  "source": {
   "bound_today": "2026-11-18",
   "case_set": {
-   "sha256": "1f37da63915c3f63",
-   "version": 2
+   "sha256": "e64ae8e9f55faaa5",
+   "version": 4
   },
   "exported_at": "2026-11-18T00:00:00Z",
   "exporter": "ios-bench/tools/export_portable_cases.py",
   "facts": "scripts.toolbench.world.make_facts(seed=None, today=bound_today), via Case.bind",
   "harness": "toolbench",
   "note": "Portable subset: single-step select and abstain cases from Toolbench's development split, plus authored extract and summary cases. One neutral system prompt and one fixed tool menu (terse schemas); scores are comparable phone-vs-Mac, not with full Toolbench numbers.",
-  "repo_commit": "166f06b",
+  "repo_commit": "c3f5592",
   "split": "dev"
  },
  "system_prompt": "Today is {today}. You are a helpful assistant on the user's own device. When a request needs one of the provided tools, call the single best tool with accurate arguments; use ISO 8601 for dates and times. When no tool fits, answer directly and briefly. When asked for JSON only, reply with just the JSON object.",

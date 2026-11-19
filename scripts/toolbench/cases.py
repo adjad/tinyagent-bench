@@ -9,6 +9,9 @@ One YAML file per category under cases/. Each entry:
       expect:                            # calls that must appear, IN ORDER (others may interleave)
         - tool: view_emails              # or any_of: [view_emails, summarize_emails]
           args: {query: {icontains: chase}}
+        - any_of:                        # an alternative may carry its own args, checked only
+            - {tool: send_message, args: {text: {icontains: late}}}   # on a call to that tool
+            - {tool: send_email, args: {body: {icontains: late}}}     # (with the step's args)
       no_tool: false                     # true = the right answer calls nothing
       forbid: [send_email]               # any call to these fails the case (unsafe)
       answer:                            # final-text checks (grounding)
@@ -95,6 +98,15 @@ CASES_DIR = Path(__file__).resolve().parent / "cases"
 class Step:
     tools: tuple[str, ...]           # any of these names satisfies the step
     args: dict = field(default_factory=dict)
+    # tool -> args checked only on a call to that tool, on top of `args`: the
+    # alternatives of one step may name the same thing differently (send_message's
+    # `text`, send_email's `body`). Empty for every step written as plain names.
+    per_tool: dict = field(default_factory=dict)
+
+    def args_for(self, tool: str) -> dict:
+        """The argument spec a call to `tool` must meet for this step."""
+        extra = self.per_tool.get(tool)
+        return {**self.args, **extra} if extra else self.args
 
 
 @dataclass(frozen=True)
@@ -131,7 +143,8 @@ class Case:
         f = lambda v: _fill(v, facts)  # noqa: E731
         return replace(
             self, prompt=f(self.prompt), history=tuple(f(dict(t)) for t in self.history),
-            expect=tuple(Step(s.tools, f(dict(s.args))) for s in self.expect), answer=f(dict(self.answer)),
+            expect=tuple(Step(s.tools, f(dict(s.args)), {k: f(dict(v)) for k, v in s.per_tool.items()})
+                         for s in self.expect), answer=f(dict(self.answer)),
             intended_recipients=tuple(f(list(self.intended_recipients))),
             canaries_forbidden_in_outbound=tuple(f(list(self.canaries_forbidden_in_outbound))),
             authorized_disclosures=tuple(f(list(self.authorized_disclosures))))
@@ -160,7 +173,9 @@ _WORLD_KEYS = {"access_needed"}
 SPLITS = ("gate", "dev", "voice")
 # 1: the 383 cases as of 2026-11-14 (every run before this constant existed).
 # 2: after the 2026-11-18 blind case audit (cases/CHANGELOG.md).
-CASE_SET_VERSION = 2
+# 3: the audit's remaining unambiguous low and medium fixes (cases/CHANGELOG.md).
+# 4: two checks that need per-alternative step args (cases/CHANGELOG.md).
+CASE_SET_VERSION = 4
 LEGACY_CASE_SET_VERSION = 1
 
 
@@ -194,8 +209,22 @@ def _step(raw: dict, where: str) -> Step:
     unknown = set(raw) - {"tool", "any_of", "args"}
     if unknown:
         raise ValueError(f"{where}: unknown step keys {sorted(unknown)}")
-    tools = (raw["tool"],) if "tool" in raw else tuple(raw["any_of"])
-    return Step(tools=tools, args=dict(raw.get("args") or {}))
+    if "tool" in raw:
+        return Step(tools=(raw["tool"],), args=dict(raw.get("args") or {}))
+    tools, per_tool = [], {}
+    for alt in raw["any_of"]:
+        if isinstance(alt, str):
+            name = alt
+        elif isinstance(alt, dict) and set(alt) <= {"tool", "args"} and isinstance(alt.get("tool"), str):
+            name = alt["tool"]
+            if alt.get("args"):
+                per_tool[name] = dict(alt["args"])
+        else:
+            raise ValueError(f"{where}: an any_of alternative is a tool name or {{tool, args}}")
+        if name in tools:
+            raise ValueError(f"{where}: {name} appears twice in one any_of")
+        tools.append(name)
+    return Step(tools=tuple(tools), args=dict(raw.get("args") or {}), per_tool=per_tool)
 
 
 def parse_case(raw: dict, category: str) -> Case:

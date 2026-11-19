@@ -25,6 +25,9 @@ Conventions:
   `sidekick_score`, `sidekick_tool_mode`, `text_understanding`, `readability`, `writing`)
   are **percentages**; differences in `vs` are
   percentage points. Memory is bytes, times are seconds.
+- `selection` on a row (absent on rows of the whole suite) names the selection tier
+  that produced it: print it beside the number as `"<tier>, ±<ci95_half_width_pts> points"`,
+  e.g. "core, ±13.9 points"; rows of different selections are never pooled.
 - `facet` is `null` for a tier total, or `lane=assistant`, `family=select`,
   `surface=ask`, `profile=student` for a breakdown.
 - `vs.<role>` is `{delta, interval, tag, n_cases, wins, losses}`, `{self: true}` on

@@ -55,7 +55,7 @@ def test_held_out_cases_are_refused(monkeypatch):
 
 def test_every_bundled_case_binds_completely():
     cases, stamp = ex._toolbench_cases(TODAY)
-    assert stamp["version"] == 2
+    assert stamp["version"] == COMMITTED["source"]["case_set"]["version"]  # the bundle names the case set it binds
     for cid in ex.SELECT_IDS:
         ex._check_portable(cases[cid], False)
     for cid in ex.ABSTAIN_IDS:

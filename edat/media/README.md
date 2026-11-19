@@ -121,6 +121,50 @@ tones, not speech**, so the whole pipeline can be tested; its clips are marked
   - `fetch`, which refuses anything not approved, any destination inside the repository and any
     call without `--yes`.
 
+## Tiers: core, extended, full (spec 05 §17)
+
+There is one manifest per tier in `tiers/`. Each sets the item counts, conditions, trials and
+thinking entries per suite and family; the suites, generators and scorers are the same at every
+tier. **`core` is the default.**
+
+| | Core | Extended | Full |
+| --- | --- | --- | --- |
+| Hours per model (§17.3 pace) | 7.9 | 70 | everything in the tables above |
+| Thinking | off | off and on | off and on |
+
+Selection is nested. Each family has one seeded, stratified order of its items, and a tier
+takes a prefix of it, so core ⊂ extended ⊂ full.
+
+**Generated families** (V1, V3, V5, V7, A3, A5, A7) are committed in
+`tiers/ids/selection.<tier>.json`.
+
+**Public sets** use id lists that the sampler writes from a listing of the downloaded set:
+
+```bash
+.venv/bin/python -m edat.media.tiers sample-ids --set librispeech_clean --listing LISTING.tsv
+```
+
+**Every result record** carries:
+- `media_tier`;
+- `manifest_sha256`;
+- `tier_n`;
+- `ci95_half_width_pts`;
+- the tag `tier-<name>`.
+
+Tiers are never pooled.
+
+To see what a tier runs, with the n, interval and hours of each group:
+
+```bash
+.venv/bin/python -m edat.media.runner --tier core plan
+```
+
+To write a tier's items, add `--tier core` to a generator. For example:
+
+```bash
+.venv/bin/python -m edat.media.vision.robustness generate --split dev --tier core --out OUT/v5
+```
+
 ## Tests
 
 ```bash

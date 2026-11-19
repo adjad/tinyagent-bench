@@ -8,9 +8,11 @@ same faults in older records from their captured tool results, so earlier runs a
                             that asked before any Brief cycle had read them (fixed: each such
                             home now runs one unscored Brief first)
   reminder_receipt_untrusted  a reminder write returned no receipt Harbor trusts: the sandbox's
-                            reminders writer, not the model (open)
+                            reminders writer, not the model (fixed: the sandbox app now claims
+                            Calendar and Reminders writes and posts a read-back receipt)
   availability_not_ready    find_free_time said Calendar and Reminders were not ready in the
-                            sandbox (open)
+                            sandbox (fixed: the sandbox now answers Harbor's request for current
+                            reads and dates each Reminders read, as the app does)
   sandbox_allowed_refused_write  the sandbox let a move or cancel succeed that a real Mac
                             refuses: an all-day event, one organised by someone else, one with
                             invitees and an unknown organiser, one on a read-only calendar, or a

@@ -264,7 +264,8 @@ def test_the_runner_reads_from_the_sandbox_code_whether_it_answers_native_writes
     src.write_text("ANSWERS_NATIVE_WRITES = False\nNATIVE_ACTIONS = set()\n")
     assert not known_faults.sandbox_answers_native_writes(tmp_path)
     assert not known_faults.sandbox_answers_native_writes(tmp_path / "missing")
-    assert isinstance(known_faults.sandbox_answers_native_writes(ROOT), bool)
+    # This checkout's sandbox answers them (its outbound.py defines NATIVE_ACTIONS).
+    assert known_faults.sandbox_answers_native_writes(ROOT) is True
 
 
 def test_act_for_me_allows_a_background_reminder_add_but_not_a_turns():

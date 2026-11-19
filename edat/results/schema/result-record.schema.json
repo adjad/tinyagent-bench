@@ -190,6 +190,18 @@
     },
     "raw_reason": {"type": "string", "maxLength": 64},
     "sample": {"type": "boolean"},
+    "selection": {
+      "type": "object",
+      "description": "Which selection of the suite's items produced this record (spec 05 s17: core, extended or full). Records of different selections, or of different manifests, are never pooled or compared. Absent: the whole suite as written (every record before this field).",
+      "additionalProperties": false,
+      "required": ["tier", "manifest_sha256"],
+      "properties": {
+        "tier": {"type": "string", "pattern": "^[a-z][a-z0-9_-]{0,31}$", "description": "core, extended or full"},
+        "manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "n_items": {"type": ["integer", "null"], "minimum": 1, "description": "Items in this record's group (family or family/category) in the selection"},
+        "ci95_half_width_pts": {"type": ["number", "null"], "minimum": 0, "maximum": 100, "description": "Worst-case (p = 0.5) 95 % half-width of a rate over n_items, in percentage points"}
+      }
+    },
     "source": {
       "type": "object",
       "additionalProperties": false,

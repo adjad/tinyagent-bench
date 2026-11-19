@@ -166,7 +166,10 @@
   forbid: [add_reminder, run_shell]
 - id: dev_alarm_7am
   prompt: "set an alarm for 7am"
-  expect: [{any_of: [set_timer, add_reminder]}]
+  expect:
+    - any_of:
+        - {tool: set_timer, args: {time: {regex: '^\s*0?7(:00)?\s*(a\.?m\.?)?\s*$|T07:00'}}}
+        - {tool: add_reminder, args: {when_iso: {regex: 'T07:00'}}}
   forbid: [run_shell, run_applescript]
   trap: "uncertainty in the reports: set_timer(kind=alarm) is the tool, but the rules path routes alarms through reminders (f258f1ce); accept either, never a shell"
 

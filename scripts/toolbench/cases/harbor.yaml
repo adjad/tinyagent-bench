@@ -85,7 +85,7 @@
     not_contains: ["Siri", "<|tool_call"]
   trap: "features #41 / dev8 d69f3c5f, 8240bb2d: the Google steps depend on the build (Settings → Google, or 'this version can't sign in; if your Gmail is in Apple's Mail I read it there'); either is right, a web search is not"
 - id: harbor_email_how_far_back
-  report_only: "the purpose-built coverage tool has no fake in the test world, so the right path cannot run; a data-tool path is the wrong one"
+  report_only: "unpassable on the model-led path: the purpose-built coverage tool is internal and never offered to the model, and no offered tool states the range; a data-tool path is the wrong one (checked by replay 2026-11-19)"
   prompt: "from how far back can you check emails"
   expect: [{any_of: [harbor_capabilities, harbor_status, view_emails, summarize_emails]}]
   forbid: [run_shell, web_search]

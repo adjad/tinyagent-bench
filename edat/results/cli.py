@@ -37,7 +37,8 @@ def _options(args) -> Options:
         refs["tuned"] = tuple(args.tuned)
     if getattr(args, "base", None):
         refs["base"] = tuple(args.base)
-    return Options(references=refs, resamples=getattr(args, "resamples", 10_000))
+    return Options(references=refs, resamples=getattr(args, "resamples", 10_000),
+                   cross_selection=bool(getattr(args, "cross_selection", False)))
 
 
 def _sets(paths) -> list:
@@ -107,8 +108,14 @@ def cmd_compare(args) -> int:
     a, b = _sets([args.a, args.b])
     if not a.records or not b.records:
         raise keys.IncompatibleResults("refusing to compare: one of the runs has no records")
+    cross = bool(getattr(args, "cross_selection", False))
     keys.check_same(a.comparison_key, b.comparison_key, what="compare these runs",
+                    fields=keys.WITHOUT_SELECTION if cross else keys._HARD,
                     a_name=Path(args.a).name, b_name=Path(args.b).name)
+    sa, sb = a.comparison_key.get("selection"), b.comparison_key.get("selection")
+    if cross and sa != sb:
+        print(f"CROSS-SELECTION comparison (asked for): {Path(args.a).name} {sa or 'whole suite'} vs "
+              f"{Path(args.b).name} {sb or 'whole suite'}; the two are shown side by side, never pooled")
     ta, tb = thinking_by_model(a.records), thinking_by_model(b.records)
     for model in set(ta) & set(tb):
         keys.check_same_thinking(ta[model], tb[model], what=f"compare runs of {model}")
@@ -216,6 +223,8 @@ def parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("compare", help="two runs side by side; refuses incomparable runs")
     sp.add_argument("a")
     sp.add_argument("b")
+    sp.add_argument("--cross-selection", action="store_true",
+                    help="allow runs of different selection tiers (core, extended, full); labelled, never pooled")
     refs(sp)
     sp.set_defaults(fn=cmd_compare)
 

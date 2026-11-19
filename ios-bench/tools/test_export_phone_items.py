@@ -65,7 +65,9 @@ def test_expectation_mapping():
 def test_bundle_is_development_split_and_bound():
     src = BUNDLE["source"]
     assert src["split"] == "dev" and src["bound_today"] == TODAY.isoformat()
-    assert src["case_set"]["version"] == 2
+    # A versioned case set; that it is the current one is checked by test_export_portable_cases
+    # (the committed bundle must equal a fresh export).
+    assert isinstance(src["case_set"]["version"], int) and src["case_set"]["version"] >= 2
     toolbench = [c for c in BUNDLE["cases"] if c["source"] != "authored"]
     assert len(toolbench) == 25 and all(c["source"].endswith("(dev)") for c in toolbench)
     assert not re.search(r"\{[a-z_][a-z_0-9]*\}", json.dumps(BUNDLE["cases"]))

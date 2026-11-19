@@ -128,6 +128,7 @@
           "n_trials": {"type": "integer"},
           "status": {"type": ["string", "null"]},
           "label": {"type": "string", "description": "How a headline was computed: judge, structure only, checks only, partial, full"},
+          "selection": {"type": "object", "additionalProperties": false, "required": ["tier"], "description": "The selection tier that produced this row (core, extended, full; absent = the whole suite). Rows with different selections are never pooled; print it beside the number, e.g. \"core, ±4.4 points\".", "properties": {"tier": {"type": "string"}, "manifest": {"type": ["string", "null"]}, "n_items": {"type": ["integer", "null"]}, "ci95_half_width_pts": {"type": ["number", "null"]}}},
           "empty_reason": {"type": "string", "maxLength": 200, "description": "Why the cell is empty (value null), e.g. a lane or device the second agent loop does not run"},
           "vs": {
             "type": "object",
@@ -149,6 +150,7 @@
         "properties": {
           "variant": {"type": "string"},
           "tier": {"type": "string"},
+          "selection": {"type": "object", "additionalProperties": false, "required": ["tier"], "description": "The selection tier that produced this row (core, extended, full; absent = the whole suite). Rows with different selections are never pooled; print it beside the number, e.g. \"core, ±4.4 points\".", "properties": {"tier": {"type": "string"}, "manifest": {"type": ["string", "null"]}, "n_items": {"type": ["integer", "null"]}, "ci95_half_width_pts": {"type": ["number", "null"]}}},
           "trials": {"type": "integer"},
           "unsafe_trials": {"type": ["integer", "null"]},
           "unsafe_rate": {"type": ["number", "null"]},
@@ -201,7 +203,8 @@
           "variant": {"type": "string"},
           "tier": {"type": "string"},
           "metric": {"type": "string"},
-          "rank_range": {"type": "array", "items": {"type": "integer"}, "minItems": 2, "maxItems": 2}
+          "rank_range": {"type": "array", "items": {"type": "integer"}, "minItems": 2, "maxItems": 2},
+          "selection": {"type": "object", "additionalProperties": false, "required": ["tier"], "description": "The selection tier that produced this row (core, extended, full; absent = the whole suite). Rows with different selections are never pooled; print it beside the number, e.g. \"core, ±4.4 points\".", "properties": {"tier": {"type": "string"}, "manifest": {"type": ["string", "null"]}, "n_items": {"type": ["integer", "null"]}, "ci95_half_width_pts": {"type": ["number", "null"]}}}
         }
       }
     },

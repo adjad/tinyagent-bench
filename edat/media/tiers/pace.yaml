@@ -1,0 +1,26 @@
+# Seconds-per-item assumptions shared by the plan (spec 05 §17.3) and the runner's estimate.
+# Only Harbor's own records are measured; the rest are assumptions. Change them here once the
+# first run measures them, and the runner's estimate follows.
+rtf: 0.15                       # transcription time / audio time (assumed; Harbor measured 0.18 on one 5 s clip)
+a1_utterance_s: 7.8             # average utterance length over the four A1 sets
+a4_utterance_s: 7.4             # average test-clean utterance
+command_two_pass_s: 7.5         # 1 s transcription (assumed) + 6.5 s agent turn (Harbor's recorded median)
+command_native_s: 6.5
+a5_non_speech_s: 10.0
+a5_overhead_s: 0.5
+a5_trailing_s: 22.0
+a5_answer_leak_s: 1.5
+a7_conversation_s: 45.0
+a7_short_question_s: 1.0        # tone (CREMA-D), sound class (ESC-10)
+a7_urgency_s: 1.5
+a7_memo_s: 150.0
+a7_recording_question_s: 3.0
+a2_overhead_s: 0.5
+image_question_s: 1.5
+reading_s: 8.0
+public_image_s: 2.0
+action_image_s: 3.0
+multi_image_s: 3.0
+v4_rung_s: 4.0
+strip_hours: 0.7                # stripping once per model (assumed)
+overhead_fraction: 0.10         # loads, cold-start probes, retries (assumed)

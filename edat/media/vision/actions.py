@@ -110,6 +110,12 @@ def _draw_event_block(c: Canvas, x, y, ev, rng, *, prefix="", title_size=24, tag
     return y + title_size + 104
 
 
+def case_for(index: int) -> str:
+    """"one", "none" or "several" events for item ``index`` (3 in 20 none, 3 in 20 several)."""
+    slot = (index // len(TEMPLATES)) % 20
+    return "none" if slot in (2, 9, 16) else "several" if slot in (5, 12, 19) else "one"
+
+
 def build_item(index: int, *, seed: str) -> dict:
     """Draw one item; returns {canvas, template, expect, events, title_keys, request}."""
     rng = rng_for(seed, "v3", index)
@@ -117,8 +123,7 @@ def build_item(index: int, *, seed: str) -> dict:
     template = TEMPLATES[index % len(TEMPLATES)]
     k = index // len(TEMPLATES)
     theme, dpr = ("light", "dark")[k % 2], (1, 2)[(k // 2) % 2]
-    slot = k % 20                   # 3 in 20 none, 3 in 20 several
-    case = "none" if slot in (2, 9, 16) else "several" if slot in (5, 12, 19) else "one"
+    case = case_for(index)
     W, H = LOGICAL[template]
     c = Canvas(W, H, scale=dpr, theme=theme)
     events: list[dict] = []
@@ -406,12 +411,14 @@ def build(index: int, *, split: str, seed: str | None = None) -> tuple[dict, byt
     return meta, data
 
 
-def generate(out: Path, *, split: str, count: int = TOTAL, start: int = 0) -> dict:
+def generate(out: Path, *, split: str, count: int = TOTAL, start: int = 0,
+             indices=None) -> dict:
+    """Write V3 items ``start`` .. ``start + count``, or exactly ``indices`` (a tier's list)."""
     if split == "heldout" and gen._inside_repo(out):
         raise RuntimeError("held-out items must not be written inside the repository")
     out.mkdir(parents=True, exist_ok=True)
     counts: dict = {}
-    for i in range(start, start + count):
+    for i in (range(start, start + count) if indices is None else indices):
         meta, data = build(i, split=split)
         (out / meta["image"]["file"]).write_bytes(data)
         (out / f"{meta['item_id']}.json").write_text(json.dumps(meta, indent=1) + "\n")
@@ -426,10 +433,16 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--split", default="dev", choices=("dev", "heldout"))
     g.add_argument("--count", type=int, default=TOTAL)
     g.add_argument("--start", type=int, default=0)
+    g.add_argument("--tier", choices=("core", "extended", "full"),
+                   help="write the tier's items instead of --start/--count")
     g.add_argument("--out", required=True)
     args = ap.parse_args(argv)
+    indices = None
+    if args.tier:
+        from edat.media import tiers
+        indices = tiers.select_vision(tiers.load_manifest(args.tier))["v3"]
     print(json.dumps(generate(Path(args.out), split=args.split, count=args.count,
-                              start=args.start)))
+                              start=args.start, indices=indices)))
     return 0
 
 

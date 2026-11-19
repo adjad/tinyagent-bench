@@ -29,7 +29,9 @@
         "sampling_class": {"enum": ["recommended", "fixed_sensitivity"]},
         "lang": {"const": "en"},
         "tier": {"type": "string"},
-        "policy_fingerprint": {"type": ["string", "null"]}
+        "policy_fingerprint": {"type": ["string", "null"]},
+        "selection": {"type": ["string", "null"], "pattern": "^[a-z][a-z0-9_-]{0,31}/[0-9a-f]{64}$",
+                      "description": "<selection tier>/<manifest sha256>; absent when the records carry no selection"}
       }
     },
     "entries": {

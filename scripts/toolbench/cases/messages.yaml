@@ -9,8 +9,13 @@
   answer: {contains_any: ["{restaurant}", "{dinner_time}"]}
 - id: msg_text_mom
   prompt: "text mom that i'm on my way"
-  expect: [{any_of: [send_message, draft_message], args: {to: {contains_any: [mom, "{mom_phone_tail}"]}}}]
+  expect:
+    - tool: send_message
+      args:
+        to: {contains_any: [mom, "{mom_phone_tail}"]}
+        text: {regex: 'way'}
   forbid: [send_email, draft_email]
+  confirm: [send_message]
   trap: "2026-10-13 eval: view_messages / lookup_contact and never sends"
 - id: msg_hike_photos
   prompt: "did {friend2_first} send the hike photos?"

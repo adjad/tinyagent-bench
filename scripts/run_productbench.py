@@ -66,7 +66,7 @@ from scripts.productbench.profile import load as load_profile  # noqa: E402
 
 SURFACES = ("ask", "brief", "day", "pref", "long", "act")
 DEFAULT_SURFACES = "ask,brief,day,pref,act"
-HARNESS_VERSION = "edat-iae-0.2"
+HARNESS_VERSION = summary.SCORER_VERSION     # edat-iae-0.3: the scorer audit fixes
 RUN_PREFIX = "edat-iae"
 
 
@@ -194,6 +194,7 @@ def runtime_info(entry, *, stub: bool, engine_port: int) -> dict:
 
 def _record(out: Path, rec: dict) -> None:
     known_faults.stamp(rec)          # inputs the harness or sandbox got wrong, from the record's own tool results
+    rec.setdefault("scorer", summary.SCORER_VERSION)     # never mix old and new scores silently
     with out.open("a", encoding="utf-8") as f:
         f.write(json.dumps(rec, ensure_ascii=False) + "\n")
 
@@ -265,6 +266,7 @@ async def run_trial(bench: Bench, cases: dict, surfaces: list[str], base: dict, 
 
     def write(rec: dict) -> None:
         nonlocal n
+        known_faults.stamp_writes(rec, profile)      # a move or cancel a real Mac would refuse
         _record(log, rec)
         n += 1
         usage = (rec.get("captured") or {}).get("usage") or rec.get("usage") or {}
@@ -427,12 +429,12 @@ async def run_act_trial(bench: Bench, plan: dict, base: dict, log: Path, spend: 
     result.update({"mode": plan["mode"], "expectations": len(plan["expectations"]), "passed_over": passed_over})
     cards = [{"title": c.get("title"), "kind": (c.get("action") or {}).get("method")}
              for c in (cap["snapshot"].get("cards") or [])]
-    _record(log, {**rec_base, "surface": "act", "case": "act-for-me", "family": "act_for_me",
+    _record(log, known_faults.stamp_writes({**rec_base, "surface": "act", "case": "act-for-me", "family": "act_for_me",
                   "captured": {"mode": plan["mode"], "yes_at": plan["yes_at"], "arrivals": autonomy.arrival_posts(
                       plan["expectations"]), "posted": posted, "done": done, "act_state": state,
                       "background_writes": writes, "brief_cards": cards, "brief_elapsed_s": cap["elapsed_s"],
                       "usage": cap.get("usage")},
-                  "score": result})
+                  "score": result}, profile))
     c = result["counts"]
     print(f"  act    {'—' if result['score'] is None else round(100 * result['score'], 1)}  right={c['right']} "
           f"wrong={c['done_wrongly']} should_not={c['should_not']} missed={c['missed']} "

@@ -12,11 +12,26 @@ to-dos and thread summaries come from the model's triage and judge. Recall is
 reported for both, and the model score uses only ledger items whose sources
 are mail or messages (the part a model can win or lose).
 
+Every Brief item is classified against the key (`classify`, shared with the findings page):
+
+  found            it shows an expected attention item: ONE Brief item carries that entry's
+                   facts together (its `match` spec; a productbench/1 item without one: any
+                   one of its anchors)
+  wrongly raised   it shows a planted noise item (a key entry of type noise): a false alarm
+  stale            it shows a superseded value (`stale_match`, or any `stale_anchors`) without
+                   the current one
+  in the key       it matches some other key entry (an Ask-only fact, a done or superseded item)
+  not in the key   it matches no key entry at all. Reported, never penalised: the key is not
+                   exhaustive, so an item it does not list is unjudged, not noise.
+
 Measures:
-  recall           expected attention items found (any anchor in any item)
+  recall           expected attention items found
   hidden_recall    the subset with hidden=true (exists only inside mail/message text)
   false_alarms     planted noise items surfaced
   stale            superseded values shown without the current one
+  not_in_key       Brief items that match no key entry (all, and model-written)
+  unmatchable      expected entries the key gives nothing distinguishing to match on: left
+                   out of recall and listed, never silently counted either way
   order            share of correctly ordered pairs (by ledger priority) among found items
   length           items shown and visible words
 """
@@ -63,6 +78,90 @@ def _source_kinds(profile: Profile, item: dict) -> set[str]:
     return kinds
 
 
+def match_of(it: dict) -> dict | None:
+    """What one Brief item must carry to show this ledger item (None: nothing to match on)."""
+    if it.get("match"):
+        return it["match"]
+    if it.get("match_note"):
+        return None
+    anchors = list(it.get("anchors") or [])
+    return {"all": [anchors], "need": 1} if anchors else None
+
+
+def shows(it: dict, text: str, today) -> bool:
+    return matcher.spec_hit(match_of(it), text, today)
+
+
+# An item that says the old slot changed is not showing it as current ("the library cancelled 2B").
+_CHANGED = re.compile(r"\b(moved|cancel+ed|cancels|instead|no longer|rescheduled|swapped|not the|"
+                      r"now (?:at|on|in))\b", re.I)
+
+
+def shows_stale(it: dict, text: str, today) -> bool:
+    """The superseded value shown without the current one ("moved from 2pm to 3pm" is right).
+    A superseded calendar slot (`stale_match`) also needs no word saying it changed."""
+    slot = bool(it.get("stale_match")) and matcher.spec_hit(it["stale_match"], text, today) \
+        and not _CHANGED.search(text)
+    old = slot or matcher.any_hit(it.get("stale_anchors") or [], text, today) is not None
+    return old and matcher.any_hit(it.get("current_anchors") or it.get("anchors", []), text, today) is None
+
+
+def expected_ids(profile: Profile, checks: dict) -> tuple[list[str], list[str]]:
+    """(expected attention ids, unmatchable ids) for this Brief."""
+    superseded = {it["supersedes"] for it in profile.ledger if it.get("supersedes")}
+    expect = checks.get("expect") or [it["id"] for it in profile.ledger
+                                      if it.get("attention") and it["id"] not in superseded]
+    unmatchable = [lid for lid in expect if match_of(profile.item(lid)) is None]
+    return [lid for lid in expect if lid not in unmatchable], unmatchable
+
+
+def classify(items: list[dict], profile: Profile, checks: dict | None = None) -> dict:
+    """Mark every Brief item against the key (see the module doc). Returns expect, unmatchable,
+    first_pos {lid: position}, false_alarms [lid], stale [(lid, position)], marks (per item, a list
+    of (mark, lid)) and not_in_key [positions]."""
+    checks = checks or {}
+    today = profile.anchor.date()
+    expect, unmatchable = expected_ids(profile, checks)
+    noise = checks.get("noise") or [it["id"] for it in profile.ledger if it["type"] == "noise"]
+    keyed = [it for it in profile.ledger if not it.get("generated")]
+    marks: list[list[tuple[str, str | None]]] = [[] for _ in items]
+    first_pos: dict[str, int] = {}
+    for lid in expect:
+        it = profile.item(lid)
+        for pos, row in enumerate(items):
+            if shows(it, row["text"], today):
+                first_pos[lid] = pos
+                marks[pos].append(("found", lid))
+                break
+    false_alarms = []
+    for lid in noise:
+        it = profile.item(lid)
+        hit = [pos for pos, row in enumerate(items) if shows(it, row["text"], today)]
+        if hit:
+            false_alarms.append(lid)
+            for pos in hit:
+                marks[pos].append(("wrongly_raised", lid))
+    stale = []
+    for it in keyed:
+        if it["type"] == "noise" or not (it.get("stale_match") or it.get("stale_anchors")):
+            continue
+        for pos, row in enumerate(items):
+            if shows_stale(it, row["text"], today):
+                stale.append((it["id"], pos))
+                marks[pos].append(("stale", it["id"]))
+                break
+    taken = set(expect) | set(noise)
+    for it in keyed:
+        if it["id"] in taken or it["id"] in unmatchable:
+            continue
+        for pos, row in enumerate(items):
+            if not marks[pos] and shows(it, row["text"], today):
+                marks[pos].append(("in_key", it["id"]))
+    return {"expect": expect, "unmatchable": unmatchable, "first_pos": first_pos,
+            "false_alarms": false_alarms, "stale": stale, "marks": marks,
+            "not_in_key": [pos for pos, m in enumerate(marks) if not m]}
+
+
 @dataclass
 class BriefScore:
     score: float = 0.0
@@ -71,6 +170,8 @@ class BriefScore:
     hidden_recall: dict = field(default_factory=dict)
     false_alarms: list[str] = field(default_factory=list)
     stale: list[str] = field(default_factory=list)
+    not_in_key: dict = field(default_factory=dict)
+    unmatchable: list[str] = field(default_factory=list)
     order: dict = field(default_factory=dict)
     length: dict = field(default_factory=dict)
     state: str = ""
@@ -88,21 +189,11 @@ def _rate(found: list[str], expected: list[str]) -> dict:
 def score_brief(snapshot: dict, profile: Profile, checks: dict) -> BriefScore:
     """`checks`: {"expect": [ledger ids] (default: attention items not superseded),
     "noise": [ids] (default: type noise), "max_items": int, "max_words": int}."""
-    today = profile.anchor.date()
     items = items_from_snapshot(snapshot)
     s = BriefScore(state=str(snapshot.get("state") or ""))
-    superseded = {it["supersedes"] for it in profile.ledger if it.get("supersedes")}
-    expect = checks.get("expect") or [it["id"] for it in profile.ledger
-                                      if it.get("attention") and it["id"] not in superseded]
-    noise = checks.get("noise") or [it["id"] for it in profile.ledger if it["type"] == "noise"]
-
-    first_pos: dict[str, int] = {}
-    for lid in expect:
-        anchors = profile.item(lid).get("anchors", [])
-        for pos, it in enumerate(items):
-            if matcher.any_hit(anchors, it["text"], today):
-                first_pos[lid] = pos
-                break
+    c = classify(items, profile, checks)
+    expect, first_pos = c["expect"], c["first_pos"]
+    s.unmatchable = c["unmatchable"]
     found = [lid for lid in expect if lid in first_pos]
     s.recall = _rate(found, expect)
     model_expect = [lid for lid in expect
@@ -112,18 +203,13 @@ def score_brief(snapshot: dict, profile: Profile, checks: dict) -> BriefScore:
     s.hidden_recall = _rate([lid for lid in found if lid in hidden], hidden)
 
     all_text = "\n".join(it["text"] for it in items)
-    s.false_alarms = [lid for lid in noise
-                      if matcher.any_hit(profile.item(lid).get("anchors", []), all_text, today)]
-    for it in profile.ledger:
-        stale = it.get("stale_anchors") or []
-        if not stale:
-            continue
-        for row in items:
-            if (matcher.any_hit(stale, row["text"], today)
-                    and not matcher.any_hit(it.get("current_anchors") or it.get("anchors", []),
-                                            row["text"], today)):
-                s.stale.append(f"{it['id']}: {row['text'][:80]}")
-                break
+    s.false_alarms = c["false_alarms"]
+    s.stale = [f"{lid}: {items[pos]['text'][:80]}" for lid, pos in c["stale"]]
+    nik = c["not_in_key"]
+    model_items = sum(1 for it in items if it["source"] == "model")
+    nik_model = sum(1 for pos in nik if items[pos]["source"] == "model")
+    s.not_in_key = {"items": len(nik), "model_items": nik_model,
+                    "model_share": round(nik_model / model_items, 3) if model_items else None}
 
     pairs = ok = 0
     for i, a in enumerate(found):

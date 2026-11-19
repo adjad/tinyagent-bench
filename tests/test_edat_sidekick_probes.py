@@ -109,7 +109,8 @@ def test_the_candidates_process_holds_no_expected_value(iso):
            "    for p in glob.glob(pat):\n"
            "        try: take(open(p).read())\n"
            "        except Exception: pass\n"
-           "with open('found.json', 'w') as fh: json.dump(sorted(found), fh)\n"
+           "with open('found.tmp', 'w') as fh: json.dump(sorted(found), fh)\n"
+           "os.replace('found.tmp', 'found.json')\n"                    # each probe run rewrites it whole
            "print('no sales')\n")
     check = inst.check
     with TrialArea(keep=False) as area:

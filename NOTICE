@@ -13,7 +13,8 @@ imported from Harbor commit 46da8eb5c9ed42219a946422789e9b3f1d3bd3a6
   tests/    (the test files listed in IMPORT.md, tests/conftest.py, tests/fixtures/)
   build-support/engine_guard/
   docs/ASSISTANT_ARCHITECTURE.md, docs/technical-overview.md,
-  docs/inference-providers.md, docs/HARBOR_TOOL_ACTIVATION_INVENTORY.json,
+  docs/inference-providers.md, docs/REMOTE_INFERENCE.md,
+  docs/HARBOR_TOOL_ACTIVATION_INVENTORY.json,
   docs/routing_stress/
   ios/Packages/HarborLing/
   conftest.py, pytest.ini, requirements-runtime.txt, requirements-dev.txt,

@@ -1,5 +1,7 @@
 # Repository structure
 
+The layout of EDAT (Edge Device Agentic Testing).
+
 Where each kind of thing lives, and where the pieces still being built will go.
 The rule that shapes the layout: **files imported from Harbor keep their Harbor
 paths** (see [IMPORT.md](../IMPORT.md)). Work that changes an imported harness
@@ -40,6 +42,8 @@ written only for this benchmark goes in the benchmark's own folders.
 | Vision and audio tests | `edat/media/`, synthetic items in `test_fixtures/media/` | Design: [05-vision-audio-spec](benchmark/05-vision-audio-spec.md). Rendered items only; no personal media. |
 | Results store | `results/` is git-ignored for local runs. Published results go in `data/results/` as reviewed, versioned files, one folder per benchmark version and device. | Nothing is published yet. Each published run needs its exact model, quantisation, runtime version, device and harness commit. |
 | Website | `site/` | Today a mock-up. The real site renders from `data/results/`. Design: [06-ui-design](benchmark/06-ui-design.md). |
+| Hosted reference (unranked, quality tests only) | `edat/hosted/`, reusing `service/inference/providers.py`, `remote_policy.py` and `service/config/endpoints.py` | Synthetic data only. Credentials come from the Keychain at run time and never enter the repository ([REMOTE_INFERENCE](REMOTE_INFERENCE.md)). |
+| Standing preferences, long sessions, on-screen app control, sidekick (coding and terminal) tasks | Cases in `test_fixtures/` next to the harness that runs them; new harness code in `edat/` | [14-standing-preferences](benchmark/14-standing-preferences.md); the others are designed in later documents. |
 | Tests for new benchmark code | `tests/test_edat_*.py` for `edat/`, next to the imported tests | Keeps one `pytest.ini`. |
 
 Rules for new work:
@@ -75,9 +79,11 @@ Recorded during the import on 2026-11-18. Each has the choice taken for now.
 4. **iOS scope.** Only `ios/Packages/HarborLing/` was imported. *Taken:* bring
    in `ios/App/OnDeviceModel.swift` or `ios/Sources/HarborCore/` only if the
    iPhone runner needs them.
-5. **Default Toolbench model.** `scripts/run_toolbench.py` defaults to a plain
-   Gemma 4 E4B engine id, not the baseline `Gemma-Wisp`. *Taken:* left as is;
-   the harness fixes or the run scripts should pass the baseline explicitly.
+5. **Default Toolbench model.** `scripts/run_toolbench.py` defaults to
+   `gemma-4-E4B-it-oQ4e-mtp`, the untuned second reference, not the primary
+   baseline `Gemma-Wisp`. *Taken:* left as is. Runs must pass both references
+   explicitly (`--models Gemma-Wisp,gemma-4-E4B-it-oQ4e-mtp`), since every
+   model is reported as a difference from both.
 6. **One dry-run warning.** `--dry-run` reports `mail_water_shutoff` as
    `host-forbids` (the host withholds the mail tools that case expects). It is
    the same at the source commit. *Taken:* left for the harness fairness work.
@@ -92,12 +98,20 @@ Recorded during the import on 2026-11-18. Each has the choice taken for now.
    `tests/test_send_recipient_preflight.py::test_the_draft_cards_show_the_quiet_line_neutral_with_no_tick`
    reads `app/Sources/HarborApp/HarborClient.swift`. *Taken:* `app/` stays out;
    deselect that test (see IMPORT.md).
+10. **Remote-inference module path.** The cloud-reference lane was described as
+   reusing `service/inference/endpoints.py`. No such file exists in Harbor; the
+   endpoint code is `service/config/endpoints.py`, which is imported. *Taken:*
+   that file.
+11. **Naming.** The benchmark is EDAT. Imported code keeps Harbor's identifiers,
+   paths and environment variables (`HARBOR_*`, `Toolbench`, `ios/Packages/HarborLing/`).
+   *Taken:* no renames inside imported code.
 
 ## Bringing in the in-progress branches
 
 Four branches in a Harbor checkout hold benchmark work that belongs here. They
 were cut from Harbor `01f8651` and keep Harbor's paths. Bring each one in as a
-patch, once it is finished and has passed its own review:
+patch, once it is finished and has passed its own review, and only when the
+benchmark's coordinator says so:
 
 ```bash
 git -C <harbor> diff 01f8651 <branch> --binary -- . ':(exclude)scripts/run_simulation_qa.py' > branch.patch

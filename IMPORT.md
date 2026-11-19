@@ -10,7 +10,7 @@ written against Harbor (patches, branches) applies here without path changes.
 | Source repository | https://github.com/adjad/Harbor |
 | Branch | `main` (public) |
 | Commit | `46da8eb5c9ed42219a946422789e9b3f1d3bd3a6` |
-| Imported files | 546 |
+| Imported files | 547 |
 | Import date | 2026-11-18 |
 
 Every imported file is byte-identical to Harbor's public `main` at that commit.
@@ -75,7 +75,7 @@ reports those files as differing; that is expected.
 | `tests/` (17 test files, `tests/__init__.py`, `tests/conftest.py`, `tests/fixtures/`) | The tests that cover the imported harnesses, plus the test modules they import (listed below). |
 | `conftest.py`, `tests/conftest.py`, `pytest.ini`, `requirements-runtime.txt`, `requirements-dev.txt`, `TESTING.md` | Test bootstrap, dependencies, testing notes. The two `conftest.py` files keep every test away from real Harbor state and the real login Keychain. Never run the tests without them. |
 | `build-support/engine_guard/` | The patches Harbor applies to oMLX, the engine the baseline runs on. The perf work needs to know them, and `tests/test_power_tier.py` reads them. The rest of `build-support/` is not imported. |
-| `docs/ASSISTANT_ARCHITECTURE.md`, `docs/technical-overview.md`, `docs/inference-providers.md` | How the imported backend works. |
+| `docs/ASSISTANT_ARCHITECTURE.md`, `docs/technical-overview.md`, `docs/inference-providers.md`, `docs/REMOTE_INFERENCE.md` | How the imported backend works, including the remote-inference client the hosted reference uses (`service/inference/providers.py`, `service/inference/remote_policy.py`, `service/config/endpoints.py`). |
 | `ios/Packages/HarborLing/` | Harbor's MLX Swift package (on-device model runtime and parity checks), for the iPhone runner to reuse. |
 | `LICENSE` | Harbor's Apache-2.0 licence. |
 

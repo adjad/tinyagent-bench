@@ -64,6 +64,7 @@
     "docs/ASSISTANT_ARCHITECTURE.md",
     "docs/technical-overview.md",
     "docs/inference-providers.md",
+    "docs/REMOTE_INFERENCE.md",
     "docs/HARBOR_TOOL_ACTIVATION_INVENTORY.json",
     "docs/routing_stress/",
 

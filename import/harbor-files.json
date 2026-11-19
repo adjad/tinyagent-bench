@@ -2,7 +2,7 @@
  "schema": 1,
  "source_repository": "https://github.com/adjad/Harbor",
  "source_commit": "46da8eb5c9ed42219a946422789e9b3f1d3bd3a6",
- "count": 546,
+ "count": 547,
  "files": [
   {
    "path": "LICENSE",
@@ -88,6 +88,11 @@
    "path": "docs/HARBOR_TOOL_ACTIVATION_INVENTORY.json",
    "mode": "100644",
    "blob": "fd8292e2c8e36f8b5cd3bba0600adae197c6da50"
+  },
+  {
+   "path": "docs/REMOTE_INFERENCE.md",
+   "mode": "100644",
+   "blob": "0b4c7dd04cc5a53bb9e2e06a9f4a590bb9401b9a"
   },
   {
    "path": "docs/inference-providers.md",

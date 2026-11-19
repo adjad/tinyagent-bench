@@ -1,0 +1,560 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-web_pages-dev-0099",
+ "family": "web_pages",
+ "template": "product",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 99,
+ "variant": {
+  "theme": "dark",
+  "dpr": 1,
+  "abstain": true,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-web_pages-dev-0099.png",
+  "sha256": "03d5e070cb46f2fc70677ec160131943aaf4f7fb62a6b2421d18ec023809535a",
+  "width": 1280,
+  "height": 800,
+  "logical": [
+   1280,
+   800
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "site": "Tavane",
+  "domain": "tavane.example",
+  "product": "Corvum Notebook set",
+  "price": 29.31,
+  "list_price": 39.85,
+  "rating": "4.0",
+  "reviews": 797,
+  "stock": 13
+ },
+ "fields": {
+  "url": {
+   "name": "url",
+   "kind": "text",
+   "value": "tavane.example",
+   "text": "https://tavane.example/product/p/4821",
+   "bbox": [
+    44,
+    52,
+    278,
+    64
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "bc657a896a542729fa12a6e5677a58e339fde663858770549de082dd0f2cb311",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "product": {
+   "name": "product",
+   "kind": "text",
+   "value": "Corvum Notebook set",
+   "text": "Corvum Notebook set",
+   "bbox": [
+    619,
+    166,
+    958,
+    194
+   ],
+   "size_px": 34,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "40bb8f3e4c3ba1bc71ec0f1f827384ccaf3b8d44d7fe14b28744bd22aa3e4f89",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "rating": {
+   "name": "rating",
+   "kind": "number",
+   "value": "4.0",
+   "text": "4.0 out of 5",
+   "bbox": [
+    620,
+    224,
+    712,
+    238
+   ],
+   "size_px": 18,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "cf265536fa4a68e1f6a403b37c8dafc48f89723a459cd0b406514d11b227f16f",
+   "fg": [
+    255,
+    190,
+    80
+   ],
+   "plot_value": false
+  },
+  "reviews": {
+   "name": "reviews",
+   "kind": "number",
+   "value": "797",
+   "text": "797 reviews",
+   "bbox": [
+    800,
+    226,
+    881,
+    237
+   ],
+   "size_px": 15,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4e7327955be4689a8cca29ebb78c15d93cee4bad375172030adc49468b583de5",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "price": {
+   "name": "price",
+   "kind": "money",
+   "value": "29.31",
+   "text": "$29.31",
+   "bbox": [
+    619,
+    283,
+    760,
+    324
+   ],
+   "size_px": 44,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "395968f4986df3f2b75cc8d147bb7e873f0f27e54ebfa039e7e65bdda0171852",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "list_price": {
+   "name": "list_price",
+   "kind": "money",
+   "value": "39.85",
+   "text": "List price $39.85",
+   "bbox": [
+    620,
+    343,
+    731,
+    358
+   ],
+   "size_px": 15,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "f84a443e7a88ef29ada0351c2b33d373721b73fcdeb1ab4cfbaccb5675fee325",
+   "fg": [
+    174,
+    174,
+    178
+   ],
+   "plot_value": false
+  },
+  "stock": {
+   "name": "stock",
+   "kind": "number",
+   "value": "13",
+   "text": "13 left in stock",
+   "bbox": [
+    620,
+    394,
+    735,
+    407
+   ],
+   "size_px": 17,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "45b88ad111f259ec932b76ab5c8e17f2bf7960e9458a0f9fa6f068b5b894434c",
+   "fg": [
+    90,
+    210,
+    120
+   ],
+   "plot_value": false
+  },
+  "shipping": {
+   "name": "shipping",
+   "kind": "money",
+   "value": "4.19 USD",
+   "text": "",
+   "bbox": null,
+   "size_px": 0,
+   "visible": false,
+   "obscured": "absent",
+   "crop_sha256": null,
+   "fg": null,
+   "plot_value": false
+  }
+ },
+ "elements": [
+  {
+   "name": "Tavane",
+   "role": "link",
+   "bbox": [
+    34,
+    76,
+    134,
+    114
+   ],
+   "unique": true
+  },
+  {
+   "name": "Shop",
+   "role": "link",
+   "bbox": [
+    932,
+    82,
+    982,
+    112
+   ],
+   "unique": true
+  },
+  {
+   "name": "Deals",
+   "role": "link",
+   "bbox": [
+    1016,
+    82,
+    1069,
+    112
+   ],
+   "unique": true
+  },
+  {
+   "name": "Support",
+   "role": "link",
+   "bbox": [
+    1100,
+    82,
+    1168,
+    112
+   ],
+   "unique": true
+  },
+  {
+   "name": "Account",
+   "role": "link",
+   "bbox": [
+    1184,
+    82,
+    1255,
+    112
+   ],
+   "unique": true
+  },
+  {
+   "name": "Add to cart",
+   "role": "button",
+   "bbox": [
+    620,
+    540,
+    900,
+    596
+   ],
+   "unique": true
+  },
+  {
+   "name": "Add to wishlist",
+   "role": "button",
+   "bbox": [
+    920,
+    540,
+    1140,
+    596
+   ],
+   "unique": true
+  },
+  {
+   "name": "Shipping and returns",
+   "role": "link",
+   "bbox": [
+    616,
+    627,
+    756,
+    650
+   ],
+   "unique": true
+  }
+ ],
+ "text_runs": [
+  {
+   "text": "Tavane",
+   "bbox": [
+    116,
+    18,
+    158,
+    27
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "https://tavane.example/product/p/4821",
+   "bbox": [
+    44,
+    52,
+    278,
+    64
+   ],
+   "size_px": 13,
+   "field": "url",
+   "reading": true
+  },
+  {
+   "text": "Tavane",
+   "bbox": [
+    39,
+    87,
+    129,
+    107
+   ],
+   "size_px": 26,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Shop",
+   "bbox": [
+    940,
+    91,
+    974,
+    105
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Deals",
+   "bbox": [
+    1024,
+    91,
+    1061,
+    102
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Support",
+   "bbox": [
+    1108,
+    92,
+    1160,
+    105
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Account",
+   "bbox": [
+    1192,
+    92,
+    1247,
+    102
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Corvum Notebook set",
+   "bbox": [
+    619,
+    166,
+    958,
+    194
+   ],
+   "size_px": 34,
+   "field": "product",
+   "reading": true
+  },
+  {
+   "text": "4.0 out of 5",
+   "bbox": [
+    620,
+    224,
+    712,
+    238
+   ],
+   "size_px": 18,
+   "field": "rating",
+   "reading": true
+  },
+  {
+   "text": "797 reviews",
+   "bbox": [
+    800,
+    226,
+    881,
+    237
+   ],
+   "size_px": 15,
+   "field": "reviews",
+   "reading": true
+  },
+  {
+   "text": "$29.31",
+   "bbox": [
+    619,
+    283,
+    760,
+    324
+   ],
+   "size_px": 44,
+   "field": "price",
+   "reading": true
+  },
+  {
+   "text": "List price $39.85",
+   "bbox": [
+    620,
+    343,
+    731,
+    358
+   ],
+   "size_px": 15,
+   "field": "list_price",
+   "reading": true
+  },
+  {
+   "text": "13 left in stock",
+   "bbox": [
+    620,
+    394,
+    735,
+    407
+   ],
+   "size_px": 17,
+   "field": "stock",
+   "reading": true
+  },
+  {
+   "text": "Add to cart",
+   "bbox": [
+    710,
+    561,
+    811,
+    576
+   ],
+   "size_px": 20,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Add to wishlist",
+   "bbox": [
+    976,
+    562,
+    1084,
+    574
+   ],
+   "size_px": 16,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Shipping and returns",
+   "bbox": [
+    620,
+    633,
+    752,
+    647
+   ],
+   "size_px": 14,
+   "field": null,
+   "reading": true
+  }
+ ],
+ "reading_text": "Tavane\nhttps://tavane.example/product/p/4821\nTavane\nShop\nDeals\nSupport\nAccount\nCorvum Notebook set\n4.0 out of 5\n797 reviews\n$29.31\nList price $39.85\n13 left in stock\nAdd to cart\nAdd to wishlist\nShipping and returns",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_price",
+   "qtype": "lookup",
+   "question": "What is the current price of the product?",
+   "answer": "29.31",
+   "kind": "field",
+   "canon": "money",
+   "fields": [
+    "price"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_rating",
+   "qtype": "lookup",
+   "question": "What is the customer rating out of 5?",
+   "answer": "4.0",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "rating"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_save",
+   "qtype": "difference",
+   "question": "How much cheaper is the current price than the list price?",
+   "answer": "10.54",
+   "kind": "field",
+   "canon": "money",
+   "fields": [
+    "price",
+    "list_price"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_ship",
+   "qtype": "absence",
+   "question": "What is the shipping fee?",
+   "answer": "not shown",
+   "kind": "abstain",
+   "canon": "text",
+   "fields": [
+    "shipping"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the screen.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

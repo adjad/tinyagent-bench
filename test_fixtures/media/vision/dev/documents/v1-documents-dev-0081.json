@@ -1,0 +1,736 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-documents-dev-0081",
+ "family": "documents",
+ "template": "letter",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 81,
+ "variant": {
+  "theme": "dark",
+  "dpr": 1,
+  "abstain": true,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-documents-dev-0081.png",
+  "sha256": "220819b2bb4dbe8a1320e4b5d188563f0984e07b7862c9dd805cc5b55827c04d",
+  "width": 612,
+  "height": 792,
+  "logical": [
+   612,
+   792
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2028,
+ "data": {
+  "template": "letter",
+  "meta": {
+   "org": "Fenwick Bay Housing Cooperative",
+   "date": "2028-01-18",
+   "sender": "Lena Mormore",
+   "recipient": "Jonas Salova",
+   "ref": "HU-302",
+   "role": "Treasurer"
+  },
+  "words": 208,
+  "sections": [
+   {
+    "heading": null,
+    "facts": [
+     {
+      "topic": "the green waste collection",
+      "kind": "percent",
+      "shown": "97%",
+      "value": "97"
+     },
+     {
+      "topic": "the open studio weekend",
+      "kind": "place",
+      "shown": "Braero Library",
+      "value": "Braero Library"
+     }
+    ]
+   }
+  ],
+  "clauses": [],
+  "columns": 1,
+  "abstain": {
+   "absent": "fax"
+  }
+ },
+ "fields": {
+  "org": {
+   "name": "org",
+   "kind": "text",
+   "value": "Fenwick Bay Housing Cooperative",
+   "text": "Fenwick Bay Housing Cooperative",
+   "bbox": [
+    53,
+    43,
+    335,
+    63
+   ],
+   "size_px": 18,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "e6fbd1f3621a1cb8415d829ebe5a9c3b245f857a831ae17870e0af6867ccd958",
+   "fg": [
+    100,
+    170,
+    255
+   ],
+   "plot_value": false
+  },
+  "date": {
+   "name": "date",
+   "kind": "date",
+   "value": "2028-01-18",
+   "text": "18 January 2028",
+   "bbox": [
+    54,
+    123,
+    147,
+    135
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "90f31eb9fdb3c7030183f20f1a56a918661a9d672c9dc0b004afd23e4e59f9fb",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "ref": {
+   "name": "ref",
+   "kind": "text",
+   "value": "HU-302",
+   "text": "Ref: HU-302",
+   "bbox": [
+    494,
+    122,
+    558,
+    132
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b511ec384dbeccd4b00c7f3c0adc22c7b5d07d95959d079d081414d2b0a9ec6c",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "recipient": {
+   "name": "recipient",
+   "kind": "text",
+   "value": "Jonas Salova",
+   "text": "Jonas Salova",
+   "bbox": [
+    54,
+    153,
+    127,
+    162
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ae612636291431fda9059b47e9568c2fa92650788e0eacff3aaf9ed3309fe2c8",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "fact_0": {
+   "name": "fact_0",
+   "kind": "number",
+   "value": "97",
+   "text": "97%",
+   "bbox": [
+    347,
+    308,
+    370,
+    317
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "05bfc33f40896f2446c6674ecbfc1e61c38d69ac3e8c5d755166645228a72283",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "fact_1": {
+   "name": "fact_1",
+   "kind": "text",
+   "value": "Braero Library",
+   "text": "Braero Library.",
+   "bbox": [
+    257,
+    518,
+    337,
+    530
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d1f6705ba87a5cdd05951bab157e2491ce5a41216b3a09bdad39bcc134c953ac",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "sender": {
+   "name": "sender",
+   "kind": "text",
+   "value": "Lena Mormore",
+   "text": "Lena Mormore",
+   "bbox": [
+    53,
+    639,
+    142,
+    650
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "602476cc9c162f1b4e355c6112e7d7c58439cdf2e81a9140fa9bf0f19aeb4bc5",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "fax": {
+   "name": "fax",
+   "kind": "phone",
+   "value": "(503) 555-0142",
+   "text": "",
+   "bbox": null,
+   "size_px": 0,
+   "visible": false,
+   "obscured": "absent",
+   "crop_sha256": null,
+   "fg": null,
+   "plot_value": false
+  }
+ },
+ "elements": [],
+ "text_runs": [
+  {
+   "text": "Fenwick Bay Housing Cooperative",
+   "bbox": [
+    53,
+    43,
+    335,
+    63
+   ],
+   "size_px": 18,
+   "field": "org",
+   "reading": true
+  },
+  {
+   "text": "147 Holsen Ave, Ostervale",
+   "bbox": [
+    54,
+    67,
+    187,
+    76
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "(919) 555-0103  |  office@example.com",
+   "bbox": [
+    54,
+    82,
+    247,
+    93
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "18 January 2028",
+   "bbox": [
+    54,
+    123,
+    147,
+    135
+   ],
+   "size_px": 12,
+   "field": "date",
+   "reading": true
+  },
+  {
+   "text": "Ref: HU-302",
+   "bbox": [
+    494,
+    122,
+    558,
+    132
+   ],
+   "size_px": 12,
+   "field": "ref",
+   "reading": true
+  },
+  {
+   "text": "Jonas Salova",
+   "bbox": [
+    54,
+    153,
+    127,
+    162
+   ],
+   "size_px": 12,
+   "field": "recipient",
+   "reading": true
+  },
+  {
+   "text": "513 Orlin Lane",
+   "bbox": [
+    54,
+    169,
+    128,
+    177
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Brindlemoor",
+   "bbox": [
+    54,
+    185,
+    119,
+    193
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Dear Jonas,",
+   "bbox": [
+    54,
+    223,
+    120,
+    234
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Re: Records retention process",
+   "bbox": [
+    53,
+    246,
+    221,
+    260
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "No changes to the updated travel guidelines are expected once the survey results are in.",
+   "bbox": [
+    54,
+    274,
+    548,
+    286
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Feedback from members suggests that the updated travel guidelines is working well.",
+   "bbox": [
+    54,
+    290,
+    529,
+    303
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Satisfaction with the green waste collection stood at",
+   "bbox": [
+    54,
+    307,
+    344,
+    320
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "97%",
+   "bbox": [
+    347,
+    308,
+    370,
+    317
+   ],
+   "size_px": 12,
+   "field": "fact_0",
+   "reading": true
+  },
+  {
+   "text": "in the latest survey. Feedback",
+   "bbox": [
+    373,
+    308,
+    540,
+    320
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "from tenants suggests that the storage arrangements is working well. Further details on",
+   "bbox": [
+    54,
+    324,
+    541,
+    337
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "the new intake procedure will be shared pending a final vote.",
+   "bbox": [
+    53,
+    341,
+    392,
+    354
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Feedback from tenants suggests that the noise reduction measures is working well. Early",
+   "bbox": [
+    54,
+    366,
+    550,
+    379
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "results on the complaints procedure are encouraging, and work will continue before the",
+   "bbox": [
+    54,
+    383,
+    540,
+    396
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "spring session.",
+   "bbox": [
+    54,
+    401,
+    137,
+    413
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Early results on the quarterly safety audit are steady, and work will continue without",
+   "bbox": [
+    54,
+    425,
+    516,
+    438
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "changing current opening hours. Feedback from visitors suggests that the noise reduction",
+   "bbox": [
+    54,
+    442,
+    557,
+    455
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "measures is working well. The program lead is preparing the new intake procedure to",
+   "bbox": [
+    54,
+    460,
+    528,
+    472
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "reduce delays for visitors.",
+   "bbox": [
+    54,
+    476,
+    196,
+    489
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Further details on the supplier contracts will be shared as resources allow. Sessions for the",
+   "bbox": [
+    54,
+    500,
+    554,
+    513
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "open studio weekend will be held at",
+   "bbox": [
+    54,
+    518,
+    254,
+    530
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Braero Library.",
+   "bbox": [
+    257,
+    518,
+    337,
+    530
+   ],
+   "size_px": 12,
+   "field": "fact_1",
+   "reading": true
+  },
+  {
+   "text": "Early results on the noise reduction",
+   "bbox": [
+    340,
+    518,
+    535,
+    530
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "measures are clear, and work will continue without changing current opening hours. The",
+   "bbox": [
+    54,
+    535,
+    546,
+    547
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "planning desk has postponed the quarterly safety audit in line with earlier",
+   "bbox": [
+    54,
+    551,
+    461,
+    564
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "recommendations. The finance office recommends changes to the shared parking",
+   "bbox": [
+    54,
+    568,
+    514,
+    581
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "schedule over the next two quarters.",
+   "bbox": [
+    54,
+    586,
+    257,
+    598
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Sincerely,",
+   "bbox": [
+    54,
+    617,
+    107,
+    629
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Lena Mormore",
+   "bbox": [
+    53,
+    639,
+    142,
+    650
+   ],
+   "size_px": 13,
+   "field": "sender",
+   "reading": true
+  },
+  {
+   "text": "Treasurer, Fenwick Bay Housing Cooperative",
+   "bbox": [
+    54,
+    657,
+    290,
+    667
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Page 2",
+   "bbox": [
+    290,
+    766,
+    321,
+    776
+   ],
+   "size_px": 10,
+   "field": null,
+   "reading": true
+  }
+ ],
+ "reading_text": "Fenwick Bay Housing Cooperative\n147 Holsen Ave, Ostervale\n(919) 555-0103  |  office@example.com\n18 January 2028\nRef: HU-302\nJonas Salova\n513 Orlin Lane\nBrindlemoor\nDear Jonas,\nRe: Records retention process\nNo changes to the updated travel guidelines are expected once the survey results are in.\nFeedback from members suggests that the updated travel guidelines is working well.\nSatisfaction with the green waste collection stood at\n97%\nin the latest survey. Feedback\nfrom tenants suggests that the storage arrangements is working well. Further details on\nthe new intake procedure will be shared pending a final vote.\nFeedback from tenants suggests that the noise reduction measures is working well. Early\nresults on the complaints procedure are encouraging, and work will continue before the\nspring session.\nEarly results on the quarterly safety audit are steady, and work will continue without\nchanging current opening hours. Feedback from visitors suggests that the noise reduction\nmeasures is working well. The program lead is preparing the new intake procedure to\nreduce delays for visitors.\nFurther details on the supplier contracts will be shared as resources allow. Sessions for the\nopen studio weekend will be held at\nBraero Library.\nEarly results on the noise reduction\nmeasures are clear, and work will continue without changing current opening hours. The\nplanning desk has postponed the quarterly safety audit in line with earlier\nrecommendations. The finance office recommends changes to the shared parking\nschedule over the next two quarters.\nSincerely,\nLena Mormore\nTreasurer, Fenwick Bay Housing Cooperative\nPage 2",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_ref",
+   "qtype": "lookup",
+   "question": "What is the reference number?",
+   "answer": "HU-302",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "ref"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_sender",
+   "qtype": "lookup",
+   "question": "Who signed the letter?",
+   "answer": "Lena Mormore",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "sender"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_fact_1",
+   "qtype": "lookup",
+   "question": "Where will sessions for the open studio weekend be held?",
+   "answer": "Braero Library",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "fact_1"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_fax",
+   "qtype": "absence",
+   "question": "What fax number is given in the document?",
+   "answer": "not shown",
+   "kind": "abstain",
+   "canon": "text",
+   "fields": [
+    "fax"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the document.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

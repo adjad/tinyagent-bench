@@ -1,0 +1,689 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-documents-dev-0001",
+ "family": "documents",
+ "template": "report",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 1,
+ "variant": {
+  "theme": "light",
+  "dpr": 1,
+  "abstain": false,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-documents-dev-0001.png",
+  "sha256": "c9a6507a1deac14fc0038e9963fee7e8547414b28cd4c786b8f04096c39c4bc7",
+  "width": 612,
+  "height": 792,
+  "logical": [
+   612,
+   792
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "template": "report",
+  "meta": {
+   "org": "Corvan Hills Water Users Group",
+   "date": "2027-04-01",
+   "author": "Amara Telham",
+   "title": "Quarterly Report 2027"
+  },
+  "words": 120,
+  "sections": [
+   {
+    "heading": "1. Background",
+    "facts": [
+     {
+      "topic": "the hall refurbishment",
+      "kind": "count",
+      "shown": "399",
+      "value": "399"
+     }
+    ]
+   },
+   {
+    "heading": "2. Staffing",
+    "facts": [
+     {
+      "topic": "the seed library",
+      "kind": "person",
+      "shown": "Oskar Holby",
+      "value": "Oskar Holby"
+     }
+    ]
+   },
+   {
+    "heading": "3. Timeline",
+    "facts": [
+     {
+      "topic": "the tree planting day",
+      "kind": "days",
+      "shown": "7",
+      "value": "7"
+     }
+    ]
+   }
+  ],
+  "clauses": [],
+  "columns": 1
+ },
+ "fields": {
+  "org": {
+   "name": "org",
+   "kind": "text",
+   "value": "Corvan Hills Water Users Group",
+   "text": "Corvan Hills Water Users Group",
+   "bbox": [
+    54,
+    37,
+    217,
+    47
+   ],
+   "size_px": 11,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "1e8419f744c9d8835d8408e72e2a49a448ce5ea2cd4fa72a581788cf46e507aa",
+   "fg": [
+    99,
+    99,
+    102
+   ],
+   "plot_value": false
+  },
+  "title": {
+   "name": "title",
+   "kind": "text",
+   "value": "Quarterly Report 2027",
+   "text": "Quarterly Report 2027",
+   "bbox": [
+    53,
+    59,
+    281,
+    81
+   ],
+   "size_px": 22,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "8c948122e2acc00311fdb11481a1e1ea68b67a60dae1891c5c01e3d57c10bfe7",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "author": {
+   "name": "author",
+   "kind": "text",
+   "value": "Amara Telham",
+   "text": "Amara Telham",
+   "bbox": [
+    124,
+    95,
+    207,
+    104
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b3096f96b1104158ad69d4b7b7eb7d353d1f3fa1a65c10c359fb44bb68da311a",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "date": {
+   "name": "date",
+   "kind": "date",
+   "value": "2027-04-01",
+   "text": "April 1, 2027",
+   "bbox": [
+    124,
+    115,
+    193,
+    127
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "678c8968ff9b1dfdc891485337940f8517ce5f900c87afe1eeb99c529e2be5aa",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "heading_0": {
+   "name": "heading_0",
+   "kind": "text",
+   "value": "1. Background",
+   "text": "1. Background",
+   "bbox": [
+    53,
+    173,
+    143,
+    187
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "7893efa9a001e17936b78c9d3bb94211abba9db70fbe2bf35388f8e124e73401",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "fact_0": {
+   "name": "fact_0",
+   "kind": "number",
+   "value": "399",
+   "text": "399",
+   "bbox": [
+    192,
+    212,
+    213,
+    221
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "4f3eee4f803860bd3ef069a3728db8643bbb0bac2a75838b93e1ee1bf21626ab",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "heading_1": {
+   "name": "heading_1",
+   "kind": "text",
+   "value": "2. Staffing",
+   "text": "2. Staffing",
+   "bbox": [
+    53,
+    242,
+    115,
+    257
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "0c83b986f55ed7a230e7be82ccddd2aef5fc837d55c6f29e48c13179bac08ab2",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "fact_1": {
+   "name": "fact_1",
+   "kind": "text",
+   "value": "Oskar Holby",
+   "text": "Oskar Holby,",
+   "bbox": [
+    368,
+    338,
+    438,
+    350
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b0f6ca5c268402a24c75f1b666dd8b2b5d1b86147f03bc05f6aceaf4eb81087d",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "heading_2": {
+   "name": "heading_2",
+   "kind": "text",
+   "value": "3. Timeline",
+   "text": "3. Timeline",
+   "bbox": [
+    53,
+    368,
+    119,
+    379
+   ],
+   "size_px": 13,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "091306ec1e9d589f622f9eaa8aa44f0f42ad55e2d475db348c3c219638fcbcb3",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  },
+  "fact_2": {
+   "name": "fact_2",
+   "kind": "number",
+   "value": "7",
+   "text": "7",
+   "bbox": [
+    373,
+    392,
+    380,
+    401
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "09b5830dac7fd7ba495393db05a5fd9c45ffaaa29b684f1627e43e03b3c2bc38",
+   "fg": [
+    28,
+    28,
+    30
+   ],
+   "plot_value": false
+  }
+ },
+ "elements": [],
+ "text_runs": [
+  {
+   "text": "Corvan Hills Water Users Group",
+   "bbox": [
+    54,
+    37,
+    217,
+    47
+   ],
+   "size_px": 11,
+   "field": "org",
+   "reading": true
+  },
+  {
+   "text": "Quarterly Report 2027",
+   "bbox": [
+    53,
+    59,
+    281,
+    81
+   ],
+   "size_px": 22,
+   "field": "title",
+   "reading": true
+  },
+  {
+   "text": "Prepared by",
+   "bbox": [
+    54,
+    95,
+    119,
+    105
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Amara Telham",
+   "bbox": [
+    124,
+    95,
+    207,
+    104
+   ],
+   "size_px": 12,
+   "field": "author",
+   "reading": true
+  },
+  {
+   "text": "Date",
+   "bbox": [
+    54,
+    115,
+    78,
+    123
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "April 1, 2027",
+   "bbox": [
+    124,
+    115,
+    193,
+    127
+   ],
+   "size_px": 12,
+   "field": "date",
+   "reading": true
+  },
+  {
+   "text": "1. Background",
+   "bbox": [
+    53,
+    173,
+    143,
+    187
+   ],
+   "size_px": 13,
+   "field": "heading_0",
+   "reading": true
+  },
+  {
+   "text": "Early results on the complaints procedure are clear, and work will continue before the",
+   "bbox": [
+    54,
+    195,
+    526,
+    208
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "spring session. A total of",
+   "bbox": [
+    54,
+    211,
+    190,
+    224
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "399",
+   "bbox": [
+    192,
+    212,
+    213,
+    221
+   ],
+   "size_px": 12,
+   "field": "fact_0",
+   "reading": true
+  },
+  {
+   "text": "households took part in the hall refurbishment.",
+   "bbox": [
+    216,
+    211,
+    473,
+    224
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "2. Staffing",
+   "bbox": [
+    53,
+    242,
+    115,
+    257
+   ],
+   "size_px": 13,
+   "field": "heading_1",
+   "reading": true
+  },
+  {
+   "text": "The records office recommends changes to the cleaning rota once the survey results are",
+   "bbox": [
+    54,
+    265,
+    549,
+    278
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "in.",
+   "bbox": [
+    54,
+    282,
+    67,
+    291
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Further details on the records retention process will be shared over the next two quarters.",
+   "bbox": [
+    54,
+    306,
+    550,
+    318
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "The staff council continues to monitor the maintenance budget after consultation with",
+   "bbox": [
+    54,
+    321,
+    532,
+    334
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "residents. Questions about the seed library should go to",
+   "bbox": [
+    54,
+    338,
+    365,
+    350
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Oskar Holby,",
+   "bbox": [
+    368,
+    338,
+    438,
+    350
+   ],
+   "size_px": 12,
+   "field": "fact_1",
+   "reading": true
+  },
+  {
+   "text": "the program lead.",
+   "bbox": [
+    440,
+    338,
+    541,
+    350
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "3. Timeline",
+   "bbox": [
+    53,
+    368,
+    119,
+    379
+   ],
+   "size_px": 13,
+   "field": "heading_2",
+   "reading": true
+  },
+  {
+   "text": "Requests for the tree planting day must be made at least",
+   "bbox": [
+    54,
+    391,
+    370,
+    404
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "7",
+   "bbox": [
+    373,
+    392,
+    380,
+    401
+   ],
+   "size_px": 12,
+   "field": "fact_2",
+   "reading": true
+  },
+  {
+   "text": "days in advance. Further",
+   "bbox": [
+    383,
+    392,
+    521,
+    404
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "details on the maintenance budget will be shared so that requests are handled more",
+   "bbox": [
+    54,
+    408,
+    527,
+    420
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "quickly.",
+   "bbox": [
+    54,
+    424,
+    97,
+    436
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Page 2",
+   "bbox": [
+    290,
+    766,
+    321,
+    776
+   ],
+   "size_px": 10,
+   "field": null,
+   "reading": true
+  }
+ ],
+ "reading_text": "Corvan Hills Water Users Group\nQuarterly Report 2027\nPrepared by\nAmara Telham\nDate\nApril 1, 2027\n1. Background\nEarly results on the complaints procedure are clear, and work will continue before the\nspring session. A total of\n399\nhouseholds took part in the hall refurbishment.\n2. Staffing\nThe records office recommends changes to the cleaning rota once the survey results are\nin.\nFurther details on the records retention process will be shared over the next two quarters.\nThe staff council continues to monitor the maintenance budget after consultation with\nresidents. Questions about the seed library should go to\nOskar Holby,\nthe program lead.\n3. Timeline\nRequests for the tree planting day must be made at least\n7\ndays in advance. Further\ndetails on the maintenance budget will be shared so that requests are handled more\nquickly.\nPage 2",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_section_fact_0",
+   "qtype": "lookup",
+   "question": "Under which heading does the document mention the hall refurbishment? Give the heading text.",
+   "answer": "1. Background",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "heading_0",
+    "fact_0",
+    "heading_1",
+    "heading_2"
+   ],
+   "accept": [
+    "Background"
+   ]
+  },
+  {
+   "qid": "q_date",
+   "qtype": "lookup",
+   "question": "What date is on the document?",
+   "answer": "2027-04-01",
+   "kind": "field",
+   "canon": "date",
+   "fields": [
+    "date"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_heading",
+   "qtype": "lookup",
+   "question": "What is the heading of the third section?",
+   "answer": "3. Timeline",
+   "kind": "field",
+   "canon": "text",
+   "fields": [
+    "heading_0",
+    "heading_1",
+    "heading_2"
+   ],
+   "accept": [
+    "Timeline"
+   ]
+  },
+  {
+   "qid": "q_fact_2",
+   "qtype": "lookup",
+   "question": "How many days in advance must requests for the tree planting day be made?",
+   "answer": "7",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "fact_2"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the document.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

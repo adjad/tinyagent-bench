@@ -1,0 +1,1063 @@
+{
+ "schema": "edat.media.vision-item/1",
+ "item_id": "v1-tables-dev-0063",
+ "family": "tables",
+ "template": "plain",
+ "split": "dev",
+ "seed": "edat-media-dev-2027.1",
+ "index": 63,
+ "variant": {
+  "theme": "dark",
+  "dpr": 1,
+  "abstain": true,
+  "long_side": null,
+  "scale": 1.0
+ },
+ "image": {
+  "file": "v1-tables-dev-0063.png",
+  "sha256": "fe964cc24082e4cbe0b6487691c373835609454a1fe03f8347ca865470a1dd71",
+  "width": 600,
+  "height": 440,
+  "logical": [
+   600,
+   440
+  ],
+  "scale": 1.0
+ },
+ "render": {
+  "renderer": "edat-media-canvas/1",
+  "pillow": "13.0.0",
+  "freetype": "2.14.3",
+  "font": "Pillow embedded Aileron Regular (CC0)"
+ },
+ "default_year": 2027,
+ "data": {
+  "columns": [
+   "Parcel",
+   "Depot",
+   "Weight",
+   "Fee"
+  ],
+  "rows": [
+   "VM3792",
+   "SH1263",
+   "SD9897",
+   "AT6715",
+   "WN6788",
+   "LB9161"
+  ],
+  "values": [
+   [
+    "VM3792",
+    "South",
+    "39",
+    "79.31"
+   ],
+   [
+    "SH1263",
+    "South",
+    "28",
+    "65.78"
+   ],
+   [
+    "SD9897",
+    "North",
+    "34",
+    "75.00"
+   ],
+   [
+    "AT6715",
+    "South",
+    "5",
+    "51.28"
+   ],
+   [
+    "WN6788",
+    "South",
+    "29",
+    "33.67"
+   ],
+   [
+    "LB9161",
+    "East",
+    "13",
+    "56.56"
+   ]
+  ],
+  "groups": [],
+  "totals": null,
+  "zebra": false,
+  "month": "December",
+  "year": 2027
+ },
+ "fields": {
+  "row_0": {
+   "name": "row_0",
+   "kind": "text",
+   "value": "VM3792",
+   "text": "VM3792",
+   "bbox": [
+    34,
+    112,
+    79,
+    121
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "945c319f18d3247876fa7d4dca6aba362078d18cb36e3b7a799b27a406f28854",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_0_1": {
+   "name": "cell_0_1",
+   "kind": "text",
+   "value": "South",
+   "text": "South",
+   "bbox": [
+    180,
+    112,
+    211,
+    121
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ee0a0bfca9f1d9e270e2ec131b54a42528f80cf9ed47ac4eb3ffaff30d696d06",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_0_2": {
+   "name": "cell_0_2",
+   "kind": "number",
+   "value": "39",
+   "text": "39",
+   "bbox": [
+    416,
+    112,
+    430,
+    121
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "9d8b946e94d0fcc11cbb3fe5a5f37384e07a8f670654849a182683df85e8104e",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_0_3": {
+   "name": "cell_0_3",
+   "kind": "money",
+   "value": "79.31",
+   "text": "$79.31",
+   "bbox": [
+    528,
+    111,
+    566,
+    122
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "92e60abad534a342e682352f920763ec477ff4f831a03c2e031f89665138f87b",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "row_1": {
+   "name": "row_1",
+   "kind": "text",
+   "value": "SH1263",
+   "text": "SH1263",
+   "bbox": [
+    34,
+    140,
+    77,
+    149
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "39aa407252604d99c7879f9e09d3d8c3baca3c33b7d1d9db64090d2737fa2d80",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_1_1": {
+   "name": "cell_1_1",
+   "kind": "text",
+   "value": "South",
+   "text": "South",
+   "bbox": [
+    180,
+    140,
+    211,
+    149
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ee0a0bfca9f1d9e270e2ec131b54a42528f80cf9ed47ac4eb3ffaff30d696d06",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_1_2": {
+   "name": "cell_1_2",
+   "kind": "number",
+   "value": "28",
+   "text": "28",
+   "bbox": [
+    416,
+    140,
+    430,
+    149
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "791add8f86c6e82f8b310a0b0fe4b99efaec6b0dc0e62a33f064d6f682371d31",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_1_3": {
+   "name": "cell_1_3",
+   "kind": "money",
+   "value": "65.78",
+   "text": "$65.78",
+   "bbox": [
+    528,
+    139,
+    566,
+    150
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "c6318ec259a4331f48aa54a8b0784838c0c3bc7f5ab2db14af3ac2c401db129e",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "row_2": {
+   "name": "row_2",
+   "kind": "text",
+   "value": "SD9897",
+   "text": "SD9897",
+   "bbox": [
+    34,
+    168,
+    76,
+    177
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b8414e9025bcfaa98464b259e85688a40529a9d6b45c10243c5c51452f27f4e3",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_2_1": {
+   "name": "cell_2_1",
+   "kind": "text",
+   "value": "North",
+   "text": "North",
+   "bbox": [
+    180,
+    168,
+    210,
+    177
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "fcdafa3de9ddcb40267ea152b870ad64e198d72c62aa0875e89e8c661402eec7",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_2_2": {
+   "name": "cell_2_2",
+   "kind": "number",
+   "value": "34",
+   "text": "34",
+   "bbox": [
+    416,
+    168,
+    431,
+    177
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "91067316e19f89a460b7f045a7c5f42402b3b442ab9a2598d04719515249c83b",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_2_3": {
+   "name": "cell_2_3",
+   "kind": "money",
+   "value": "75.00",
+   "text": "$75.00",
+   "bbox": [
+    528,
+    167,
+    566,
+    178
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "d1662ce878879b3e9b72952cc5e2a50433d2d708d491fa05910cfecc05bbfef9",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "row_3": {
+   "name": "row_3",
+   "kind": "text",
+   "value": "AT6715",
+   "text": "AT6715",
+   "bbox": [
+    34,
+    196,
+    78,
+    205
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "71afff5497e6be958b639705d8f40184e34ab61bd67f9ec1698beb0a06722035",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_3_1": {
+   "name": "cell_3_1",
+   "kind": "text",
+   "value": "South",
+   "text": "South",
+   "bbox": [
+    180,
+    196,
+    211,
+    205
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ee0a0bfca9f1d9e270e2ec131b54a42528f80cf9ed47ac4eb3ffaff30d696d06",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_3_2": {
+   "name": "cell_3_2",
+   "kind": "number",
+   "value": "5",
+   "text": "5",
+   "bbox": [
+    423,
+    196,
+    430,
+    205
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "6be4439141696f28e7564bb776cbc5b09d50c2a72a07826fd68fe87c320a0652",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_3_3": {
+   "name": "cell_3_3",
+   "kind": "money",
+   "value": "51.28",
+   "text": "$51.28",
+   "bbox": [
+    528,
+    195,
+    566,
+    206
+   ],
+   "size_px": 12,
+   "visible": false,
+   "obscured": "blur",
+   "crop_sha256": "e78a2edd23dbfa05e7d812da07499fc6a8c43c65f6749b8e83e874ad242fe604",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "row_4": {
+   "name": "row_4",
+   "kind": "text",
+   "value": "WN6788",
+   "text": "WN6788",
+   "bbox": [
+    34,
+    224,
+    81,
+    233
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "8649754d89e6b82440a5c1ceff1101de22ecad82766dc3fd4ebbb328d906d860",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_4_1": {
+   "name": "cell_4_1",
+   "kind": "text",
+   "value": "South",
+   "text": "South",
+   "bbox": [
+    180,
+    224,
+    211,
+    233
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ee0a0bfca9f1d9e270e2ec131b54a42528f80cf9ed47ac4eb3ffaff30d696d06",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_4_2": {
+   "name": "cell_4_2",
+   "kind": "number",
+   "value": "29",
+   "text": "29",
+   "bbox": [
+    416,
+    224,
+    430,
+    233
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "ab35c6c13b2ba9ffc36e806b814c8a6f27bf8bc908ae1472a2cb8befb36119b9",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_4_3": {
+   "name": "cell_4_3",
+   "kind": "money",
+   "value": "33.67",
+   "text": "$33.67",
+   "bbox": [
+    528,
+    223,
+    566,
+    234
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "789924b058320be234a82b331557fb2400d88c0d7ebe4102d9503c98bc171cb4",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "row_5": {
+   "name": "row_5",
+   "kind": "text",
+   "value": "LB9161",
+   "text": "LB9161",
+   "bbox": [
+    34,
+    252,
+    76,
+    261
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "3d49d2577f625782ff2a566ae047e0ffe5b11a4fe9a6d79f624c8cf7f7a7add6",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_5_1": {
+   "name": "cell_5_1",
+   "kind": "text",
+   "value": "East",
+   "text": "East",
+   "bbox": [
+    180,
+    252,
+    204,
+    261
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "221d4bfa476b299d8ee6a34648ae567636f43c06ab347ecd6877b945b1489cfa",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_5_2": {
+   "name": "cell_5_2",
+   "kind": "number",
+   "value": "13",
+   "text": "13",
+   "bbox": [
+    416,
+    252,
+    430,
+    261
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "b08bf3c7549535d611eaeba7e3b91fe0a7a4ce432290465b0b6c9f54baff92cb",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  },
+  "cell_5_3": {
+   "name": "cell_5_3",
+   "kind": "money",
+   "value": "56.56",
+   "text": "$56.56",
+   "bbox": [
+    528,
+    251,
+    566,
+    262
+   ],
+   "size_px": 12,
+   "visible": true,
+   "obscured": null,
+   "crop_sha256": "2809e831efc193a81b3a64174a4b65503e0c570b32794dadc1a80afbc3ea0643",
+   "fg": [
+    242,
+    242,
+    247
+   ],
+   "plot_value": false
+  }
+ },
+ "elements": [],
+ "text_runs": [
+  {
+   "text": "Tavum parcel report",
+   "bbox": [
+    23,
+    22,
+    190,
+    41
+   ],
+   "size_px": 18,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Figures for December 2027",
+   "bbox": [
+    24,
+    46,
+    162,
+    57
+   ],
+   "size_px": 11,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Parcel",
+   "bbox": [
+    34,
+    84,
+    69,
+    93
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Depot",
+   "bbox": [
+    180,
+    84,
+    213,
+    96
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Weight",
+   "bbox": [
+    390,
+    84,
+    430,
+    96
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "Fee",
+   "bbox": [
+    545,
+    84,
+    566,
+    93
+   ],
+   "size_px": 12,
+   "field": null,
+   "reading": true
+  },
+  {
+   "text": "VM3792",
+   "bbox": [
+    34,
+    112,
+    79,
+    121
+   ],
+   "size_px": 12,
+   "field": "row_0",
+   "reading": true
+  },
+  {
+   "text": "South",
+   "bbox": [
+    180,
+    112,
+    211,
+    121
+   ],
+   "size_px": 12,
+   "field": "cell_0_1",
+   "reading": true
+  },
+  {
+   "text": "39",
+   "bbox": [
+    416,
+    112,
+    430,
+    121
+   ],
+   "size_px": 12,
+   "field": "cell_0_2",
+   "reading": true
+  },
+  {
+   "text": "$79.31",
+   "bbox": [
+    528,
+    111,
+    566,
+    122
+   ],
+   "size_px": 12,
+   "field": "cell_0_3",
+   "reading": true
+  },
+  {
+   "text": "SH1263",
+   "bbox": [
+    34,
+    140,
+    77,
+    149
+   ],
+   "size_px": 12,
+   "field": "row_1",
+   "reading": true
+  },
+  {
+   "text": "South",
+   "bbox": [
+    180,
+    140,
+    211,
+    149
+   ],
+   "size_px": 12,
+   "field": "cell_1_1",
+   "reading": true
+  },
+  {
+   "text": "28",
+   "bbox": [
+    416,
+    140,
+    430,
+    149
+   ],
+   "size_px": 12,
+   "field": "cell_1_2",
+   "reading": true
+  },
+  {
+   "text": "$65.78",
+   "bbox": [
+    528,
+    139,
+    566,
+    150
+   ],
+   "size_px": 12,
+   "field": "cell_1_3",
+   "reading": true
+  },
+  {
+   "text": "SD9897",
+   "bbox": [
+    34,
+    168,
+    76,
+    177
+   ],
+   "size_px": 12,
+   "field": "row_2",
+   "reading": true
+  },
+  {
+   "text": "North",
+   "bbox": [
+    180,
+    168,
+    210,
+    177
+   ],
+   "size_px": 12,
+   "field": "cell_2_1",
+   "reading": true
+  },
+  {
+   "text": "34",
+   "bbox": [
+    416,
+    168,
+    431,
+    177
+   ],
+   "size_px": 12,
+   "field": "cell_2_2",
+   "reading": true
+  },
+  {
+   "text": "$75.00",
+   "bbox": [
+    528,
+    167,
+    566,
+    178
+   ],
+   "size_px": 12,
+   "field": "cell_2_3",
+   "reading": true
+  },
+  {
+   "text": "AT6715",
+   "bbox": [
+    34,
+    196,
+    78,
+    205
+   ],
+   "size_px": 12,
+   "field": "row_3",
+   "reading": true
+  },
+  {
+   "text": "South",
+   "bbox": [
+    180,
+    196,
+    211,
+    205
+   ],
+   "size_px": 12,
+   "field": "cell_3_1",
+   "reading": true
+  },
+  {
+   "text": "5",
+   "bbox": [
+    423,
+    196,
+    430,
+    205
+   ],
+   "size_px": 12,
+   "field": "cell_3_2",
+   "reading": true
+  },
+  {
+   "text": "$51.28",
+   "bbox": [
+    528,
+    195,
+    566,
+    206
+   ],
+   "size_px": 12,
+   "field": "cell_3_3",
+   "reading": false
+  },
+  {
+   "text": "WN6788",
+   "bbox": [
+    34,
+    224,
+    81,
+    233
+   ],
+   "size_px": 12,
+   "field": "row_4",
+   "reading": true
+  },
+  {
+   "text": "South",
+   "bbox": [
+    180,
+    224,
+    211,
+    233
+   ],
+   "size_px": 12,
+   "field": "cell_4_1",
+   "reading": true
+  },
+  {
+   "text": "29",
+   "bbox": [
+    416,
+    224,
+    430,
+    233
+   ],
+   "size_px": 12,
+   "field": "cell_4_2",
+   "reading": true
+  },
+  {
+   "text": "$33.67",
+   "bbox": [
+    528,
+    223,
+    566,
+    234
+   ],
+   "size_px": 12,
+   "field": "cell_4_3",
+   "reading": true
+  },
+  {
+   "text": "LB9161",
+   "bbox": [
+    34,
+    252,
+    76,
+    261
+   ],
+   "size_px": 12,
+   "field": "row_5",
+   "reading": true
+  },
+  {
+   "text": "East",
+   "bbox": [
+    180,
+    252,
+    204,
+    261
+   ],
+   "size_px": 12,
+   "field": "cell_5_1",
+   "reading": true
+  },
+  {
+   "text": "13",
+   "bbox": [
+    416,
+    252,
+    430,
+    261
+   ],
+   "size_px": 12,
+   "field": "cell_5_2",
+   "reading": true
+  },
+  {
+   "text": "$56.56",
+   "bbox": [
+    528,
+    251,
+    566,
+    262
+   ],
+   "size_px": 12,
+   "field": "cell_5_3",
+   "reading": true
+  }
+ ],
+ "reading_text": "Tavum parcel report\nFigures for December 2027\nParcel\nDepot\nWeight\nFee\nVM3792\nSouth\n39\n$79.31\nSH1263\nSouth\n28\n$65.78\nSD9897\nNorth\n34\n$75.00\nAT6715\nSouth\n5\nWN6788\nSouth\n29\n$33.67\nLB9161\nEast\n13\n$56.56",
+ "damage": null,
+ "questions": [
+  {
+   "qid": "q_cell_abstain",
+   "qtype": "absence",
+   "question": "What is the Fee for AT6715?",
+   "answer": "not shown",
+   "kind": "abstain",
+   "canon": "text",
+   "fields": [
+    "cell_3_3"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_count",
+   "qtype": "count",
+   "question": "How many data rows does the table have (not counting the header rows or the Total row)?",
+   "answer": "6",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "row_0",
+    "row_1",
+    "row_2",
+    "row_3",
+    "row_4",
+    "row_5"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_sum",
+   "qtype": "sum",
+   "question": "What is the sum of the Weight column (the data rows only)?",
+   "answer": "148",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "cell_0_2",
+    "cell_1_2",
+    "cell_2_2",
+    "cell_3_2",
+    "cell_4_2",
+    "cell_5_2"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_filter",
+   "qtype": "count",
+   "question": "How many rows have Depot = South?",
+   "answer": "4",
+   "kind": "field",
+   "canon": "number",
+   "fields": [
+    "cell_0_1",
+    "cell_1_1",
+    "cell_2_1",
+    "cell_3_1",
+    "cell_4_1",
+    "cell_5_1"
+   ],
+   "accept": []
+  },
+  {
+   "qid": "q_reading",
+   "qtype": "reading",
+   "question": "Read the table.",
+   "answer": "",
+   "kind": "reading",
+   "canon": "text",
+   "fields": [],
+   "accept": []
+  }
+ ]
+}

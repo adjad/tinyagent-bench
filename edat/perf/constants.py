@@ -130,14 +130,14 @@ TESTS = ("level", "energy_pair", "load_warm", "load_cold", "first_token", "agent
 PHASES = ("warmup", "measured")
 STATUSES = ("ok", "oom_killed", "oom_killed_at_load", "killed_unknown", "not_run_above_oom",
             "exceeds_native_window", "ok_extended", "engine_refused", "memory_pressure", "truncated",
-            "timeout", "unsupported_by_runtime", "voided_backgrounded", "voided_foreign_work",
+            "timeout", "unsupported_by_runtime", "voided_backgrounded", "voided_foreign_work", "voided_not_on_battery",
             "provider_error", "rate_limited", "voided_response_cache", "provider_fallback")
 # Statuses whose numbers count as measurements (kept, possibly flagged).
 OK_STATUSES = ("ok", "ok_extended", "memory_pressure")
 # Worst-first order used when a cell's status is "the worst over its samples" (§3.9).
 STATUS_SEVERITY = ("oom_killed_at_load", "oom_killed", "killed_unknown", "engine_refused",
                    "unsupported_by_runtime", "exceeds_native_window", "not_run_above_oom", "timeout",
-                   "truncated", "voided_foreign_work", "voided_backgrounded", "voided_response_cache",
+                   "truncated", "voided_foreign_work", "voided_backgrounded", "voided_not_on_battery", "voided_response_cache",
                    "provider_error", "rate_limited", "memory_pressure", "provider_fallback",
                    "ok_extended", "ok")
 EVENT_KINDS = ("thermal_change", "memory_warning", "relaunch_after_kill", "cooldown_timeout",

@@ -26,18 +26,10 @@ from edat.sidekick.sandbox.run import Isolation, TrialArea, get_isolation
 EXEC_GRADERS = {"code", "shell", "git", "regex_write", "write_test"}
 COMMAND_GRADERS = {"shell", "git"}
 
-NOT_HARDENED = "not hardened against adversarial model code"
-# Graders whose verdict a model could shape on purpose, by how they grade. A row is labelled from its case's
-# grader (set by the runner before grading, so an error in grading cannot strip it), and every case of a
-# type in LABELLED_TYPES uses one of these graders (tests check both ways). Such rows stay out of every
-# ranked score until the grader is rebuilt. Git: real git reads a repository the model controls.
-NOT_HARDENED_GRADERS = {"git": "git_on_copy"}
-LABELLED_TYPES = ("git",)
+# Which cases are labelled not hardened, and the one decision on which rows may be scored: labels.py.
+from edat.sidekick.labels import LABELLED_GRADERS, LABELLED_TYPES, NOT_HARDENED, grading_label  # noqa: E402,F401
 
-
-def grading_label(grader: str) -> dict:
-    """How a case's answer is graded and whether that grading holds against code written to attack it."""
-    return {"grading": NOT_HARDENED_GRADERS.get(grader, grader), "grade_hardened": grader not in NOT_HARDENED_GRADERS}
+NOT_HARDENED_GRADERS = {g: how for g, (how, _) in LABELLED_GRADERS.items()}
 
 
 @contextmanager

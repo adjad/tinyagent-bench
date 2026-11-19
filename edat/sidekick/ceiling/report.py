@@ -51,7 +51,7 @@ def rung_of(rec: dict) -> str | None:
 def entry_summary(records: list[dict]) -> dict:
     """Per-rung pass rates, which rungs hold, the ceiling and 'solid up to' for one entry."""
     by_rung: dict[str, dict[str, list[bool]]] = defaultdict(lambda: defaultdict(list))
-    left_out = 0                                          # labelled rows on rungs 1 to 3 (the git tasks)
+    left_out = 0                                          # labelled rows on rungs 1 to 3 (labels.may_score)
     modes: dict[str, Counter] = defaultdict(Counter)
     for r in records:
         if r.get("status") != "ok":
@@ -298,7 +298,8 @@ def build_report(out: Path) -> tuple[str, str]:
     md.append("| Solid up to | " + " | ".join(str(summaries[n]["solid"]) for n in names) + " |")
     md.append("| Ceiling on rungs 1 to 3 | " + " | ".join(str(summaries[n]["hardened_ceiling"]) for n in names) + " |")
     md += ["", f"† {NOT_HARDENED[0].upper() + NOT_HARDENED[1:]} (see The rungs); not for publishing or ranking. "
-           "Rungs 1 to 3, the ceiling and \"solid up to\" count no git task: those are labelled too, and left out."]
+           "Rungs 1 to 3, the ceiling and \"solid up to\" count no labelled task (git, written tests, key-fact "
+           "explanations and the shell and diff cases the run sheet names): those are left out."]
     skipped = _skipped(out)
     if skipped:
         md += ["", "## Not run", ""]

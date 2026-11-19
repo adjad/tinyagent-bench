@@ -25,6 +25,7 @@ import json
 from dataclasses import dataclass, field, replace
 from typing import Callable, Iterable
 
+from edat.sidekick.labels import LABELLED_TYPES, NOT_HARDENED, may_score
 from edat.results import composites, keys, stats
 
 DEFAULT_REFERENCES = {
@@ -124,21 +125,13 @@ def _rate_block(records: list[dict], metric: str) -> dict | None:
 # the strata are weighted (`weights`, renormalised over the strata present).
 
 SCREEN_FAMILIES = ("ground", "form", "flow", "read", "disrupt", "cross")      # spec 11 SC1; guard, pixel apart
-SIDEKICK_TYPES = ("explain_error", "write_fn", "fix_bug", "shell", "regex", "write_test",
-                  "commit_msg", "diff_review")                  # spec 12 SK-1, the ranked (hardened) types
-# Sidekick rows whose grading is not hardened against adversarial model code (edat.sidekick.records
-# .is_hardened, the same three marks; a test keeps the type list equal to edat.sidekick.graders'): their
-# own view, never pooled with the sidekick tier, never ranked.
-SIDEKICK_LABELLED_TYPES = ("git",)
-NOT_HARDENED_TAG = "grade-not-hardened"
+# Sidekick rows labels.may_score refuses (not hardened against adversarial model code) go to their own
+# view, never pooled with the sidekick tier, never ranked, with no published difference or site figure.
+SIDEKICK_LABELLED_TYPES = LABELLED_TYPES
+SIDEKICK_TYPES = tuple(t for t in ("explain_error", "write_fn", "fix_bug", "shell", "git", "regex", "write_test",
+                                   "commit_msg", "diff_review") if t not in LABELLED_TYPES)   # spec 12 SK-1, ranked
 SIDEKICK_NOT_HARDENED_VIEW = "sidekick_not_hardened"
 UNRANKED_VIEWS = {SIDEKICK_NOT_HARDENED_VIEW}
-
-
-def sidekick_hardened(rec: dict) -> bool:
-    f = rec.get("facets") or {}
-    return (NOT_HARDENED_TAG not in (f.get("tags") or ()) and (rec.get("metrics") or {}).get("grade_hardened") is not False
-            and f.get("family") not in SIDEKICK_LABELLED_TYPES)
 PREFERENCE_DIMENSIONS = ("persistence", "override", "supersession", "scope", "no_waiver")   # spec 02 #57
 
 
@@ -395,7 +388,7 @@ SUITE_VIEWS = {("in_assistant", "productbench-findings"): "in_assistant_findings
 
 
 def view_of(rec: dict) -> str:
-    if rec["tier"] == "sidekick" and not sidekick_hardened(rec):
+    if rec["tier"] == "sidekick" and not may_score(rec):
         return SIDEKICK_NOT_HARDENED_VIEW
     view = SUITE_VIEWS.get((rec["tier"], rec.get("suite")))
     if view:
@@ -550,7 +543,7 @@ def _tier_block(records: list[dict], key: str, opts: Options) -> dict:
     block["headline"] = _headline(block)
     if tier in UNRANKED_VIEWS:
         block["ranked"] = False
-        block["label"] = "not hardened against adversarial model code"
+        block["label"] = NOT_HARDENED
     return block
 
 

@@ -403,3 +403,34 @@ def test_sample_loops_export_both_columns_the_gap_and_empty_reasons(sample_expor
         board = json.loads((root / "site" / "sample-0" / f"{name}.json").read_text())
         rows = [r for r in board["loops"] if r["tier"] == "agentic"]
         assert rows and all(r["second"] is None and r["gap"] is None and word in r["empty_reason"] for r in rows)
+
+
+def test_labelled_sidekick_rows_never_reach_a_site_figure(tmp_path):
+    """Git rows (labelled) that all pass beside shell rows that pass 1 in 2: no site result, delta or
+    trajectory comes from them; the snapshot keeps them in their own marked, unranked block."""
+    from edat.results.export import trajectories
+    recs = []
+    for m in ("ref-tuned", "ref-base", "cand-a"):
+        for c in range(6):
+            for t in (1, 2, 3):
+                recs.append(rec(m, f"s{c}", t, ok=c % 2 == 0, tier="sidekick", family="shell"))
+                g = rec(m, f"g{c}", t, ok=True, tier="sidekick", family="git")
+                g["facets"]["tags"] = ["grade-not-hardened"]
+                g["metrics"].update(grade_hardened=False, not_hardened_reason="git_view")
+                recs.append(g)
+    run = write_run(tmp_path / "store", "run-a", recs, tier="sidekick")
+    export([read_set(run)], data_dir=tmp_path / "data", site_dir=tmp_path / "site", options=FAST)
+    board = json.loads((tmp_path / "site" / "b1" / "mac-ref.json").read_text())
+    assert board["results"] and all(r["tier"] != "sidekick_not_hardened" for r in board["results"])
+    row = next(r for r in board["results"] if r["variant"].startswith("local|cand-a") and r["tier"] == "sidekick"
+               and r["metric"] == "pass1" and r["facet"] is None)
+    assert row["value"] == 50.0
+    snap = load_snapshot(tmp_path / "data" / "b1" / "mac-ref")
+    e = next(e for e in snap["entries"] if e["model_id"] == "cand-a")
+    nh = e["tiers"]["sidekick_not_hardened"]
+    assert nh["ranked"] is False and nh["label"] == "not hardened against adversarial model code"
+    assert "refused" in e["vs"]["tuned"]["tiers"]["sidekick_not_hardened"]
+    for r in recs:
+        r["raw"] = {"path": "raw/x.json"}
+    picked = trajectories({"e": recs}, lambda r: {"final": "x"}, 1000)
+    assert picked and all(t["case_id"].startswith("s") for t in picked)

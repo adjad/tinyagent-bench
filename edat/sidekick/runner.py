@@ -165,7 +165,7 @@ def run_answer_trial(client, inst: Instance, *, seed: int, thinking: bool, sampl
     g = guarded(lambda: grade_answer(inst, res.text or "", iso))
     usage = res.usage.to_record() if hasattr(res.usage, "to_record") else dict(res.usage or {})
     metrics = {"pass": g.passed, **{k: v for k, v in g.metrics.items() if isinstance(v, (bool, int, float, str)) or v is None}}
-    metrics.update(grading_label(inst.grader))
+    metrics.update(grading_label(inst.grader, inst.check))
     metrics["time_to_answer_s"] = round(model_s, 4)
     metrics["visible_tokens"] = _visible_tokens(usage)
     metrics["reasoning_tokens"] = usage.get("reasoning_tokens")
@@ -185,7 +185,7 @@ def run_tool_trial_full(client, inst: Instance, *, seed: int, thinking: bool, sa
             return {}, {"error": tt.engine_error}, [], "excluded", f"engine_error: {tt.engine_error}"
         g = guarded(lambda: grade_tool_trial(iso, area, inst, env, before, tt), area_events(area))
     metrics = {"pass": g.passed, **{k: v for k, v in g.metrics.items() if isinstance(v, (bool, int, float, str)) or v is None}}
-    metrics.update(grading_label(inst.grader))
+    metrics.update(grading_label(inst.grader, inst.check))
     metrics["time_to_answer_s"] = round(tt.wall_s, 4)
     raw = {"final_text": tt.final_text, "turns": [t.to_record() for t in tt.turns], "grade": g.to_record(),
            "commands": [c.__dict__ for c in env.commands], "loop": tt.turns[0].loop if tt.turns else None}
@@ -275,7 +275,7 @@ def _run_cases(client, entry: Entry, cfg: RunConfig, cases: list[Case], writers:
                 except Exception as exc:  # noqa: BLE001 - nothing the model makes may end the run
                     why = scrub_paths(f"{exc.__class__.__name__}: {str(exc)[:200]}")
                     metrics, raw, events = {"pass": False, "failure_mode": "grader_error",
-                                            **grading_label(inst.grader)}, {"error": why}, []
+                                            **grading_label(inst.grader, inst.check)}, {"error": why}, []
                     status, detail = "ok", None
                 execs = rec_iso.take()
                 if denial_log is False and status == "ok":
@@ -300,7 +300,7 @@ def _run_cases(client, entry: Entry, cfg: RunConfig, cases: list[Case], writers:
                                   status_detail=detail, metrics=metrics if status == "ok" else {},
                                   events=[{"kind": e["kind"]} for e in ev], started_at=started, seed=seed,
                                   raw_ref=raw_ref, commit=commit, dirty=dirty,
-                                  hardened=grading_label(inst.grader)["grade_hardened"])
+                                  hardened=grading_label(inst.grader, inst.check)["grade_hardened"])
                 writer.append(rec)
                 records.append(rec)
                 if progress:

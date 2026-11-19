@@ -220,15 +220,28 @@ folder, in a random order, and each run counts by its exit code alone. A folder 
 entries (files, links and folders all count); a folder past that is not graded, so a file past the cap
 can never pass for a deleted one.
 
-**What is hardened, and what is labelled.** Hardened against adversarial model code: the code,
-write_test, shell and regex graders and the text graders (key facts, commit messages, Yes/No diff bugs).
-Labelled `not hardened against adversarial model code`: the git tasks (every case graded by the git
-grader, on any rung or tier) and rungs 4 to 9 until their conversion lands. A labelled row carries the tag
-`grade-not-hardened` and `grade_hardened: false`, set from how its case is graded before grading starts,
-so an error in grading cannot strip it; the scoring also leaves out every row of a labelled type. Labelled
-rows stay out of the Sidekick Score, every ranked or published number, and rungs 1 to 3 of the ceiling
-(their cells, the ceiling and "solid up to" are worked out without them);
-the summary reports them apart, under `not_hardened`. A sandboxed test program cannot read other
+**What is hardened, and what is labelled.** Hardened against adversarial model code: the code and regex
+graders, the shell cases with an exact or forbidding output check, the commit-message grader and the
+Yes/No diff cases without a bug. Labelled `not hardened against adversarial model code` are
+the labelled task types and cases, each with its reason (the row's `not_hardened_reason`):
+- git (`git_view`): graded by real git reading a repository the model controls;
+- write_test (`source_compare`): a test that compares the module against the shown source passes;
+- explanations matched by key facts, every explain_error case and the diff "what" cases (`prompt_echo`):
+  echoing the prompt can pass;
+- the Yes/No diff cases that have a bug (`prompt_echo`): their facts are matched by the same matcher;
+- the shell cases whose output check takes any line holding a name and its number, with no forbidden
+  output (`task_blind_output`): task-blind output can pass;
+- the ceiling ladder's rungs 4 to 9 (`probe_in_process`) until their conversion lands.
+
+A labelled row carries the tag `grade-not-hardened`, `grade_hardened: false` and its reason, set from how
+its case is graded before grading starts, so an error in grading cannot strip it. One function
+(`labels.may_score`) decides whether a row may be scored, and every scorer uses it: the runner's summary,
+the results aggregate (labelled rows go to their own `sidekick_not_hardened` view, never ranked, with no
+difference from a reference), the export and the site data (no site figure or trajectory), and the
+ceiling report (rungs 1 to 3, the ceiling and "solid up to" are worked out without them). Labelled rows
+stay out of the Sidekick Score and every ranked or published number; the summary reports them apart,
+under `not_hardened`, with their reasons. Each is to be hardened in a small change of its own, and its
+label comes off only after that change has had its own adversarial pass. A sandboxed test program cannot read other
 processes or devices (see "What model code can reach").
 
 **How the git grader reads a repository: real git, on a sanitised copy, labelled.** The harness copies
@@ -303,8 +316,8 @@ pass by accident. Their rows carry the tag `grade-not-hardened`, the report mark
 of any published or ranked score until they are rebuilt. A tripwire flags answers on those rungs whose
 code touches the test machinery or the process (`tripwire` in the row's metrics, listed in the report)
 for a person to read; it never changes a grade, and an answer it does not flag is not thereby honest.
-The git tasks of levels 1 to 3 carry the same label: rungs 1 to 3, the ceiling and "solid up to" are
-worked out without them.
+The labelled sidekick tasks on rungs 1 to 3 (above) carry the same label: rungs 1 to 3, the ceiling and
+"solid up to" are worked out without them.
 
 **Hardening the git tasks** is a later change, designed first: the host would rebuild what it grades
 from the candidate's objects into a fresh host-owned repository through a narrow, validated import,

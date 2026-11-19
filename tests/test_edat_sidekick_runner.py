@@ -76,12 +76,14 @@ def test_reference_client_passes_and_records_validate(tmp_path, iso):
                                                            "restraint-trials.jsonl", "sidekick-summary.json"}
     assert out["events"] == 0
     for r in recs:                                      # labelled by how the case is graded
-        git = r["facets"]["family"] == "git"
-        assert ("grade-not-hardened" in r["facets"]["tags"]) == git, r["case_id"]
-        assert r["metrics"]["grade_hardened"] is (not git)
-        assert r["metrics"]["grading"] == ("git_on_copy" if git else r["metrics"]["grading"])
+        labelled = r["metrics"]["grade_hardened"] is False
+        assert ("grade-not-hardened" in r["facets"]["tags"]) == labelled, r["case_id"]
+        assert labelled == bool(r["metrics"].get("not_hardened_reason"))
+        if r["facets"]["family"] == "git":
+            assert labelled and r["metrics"]["grading"] == "git_on_copy" and r["metrics"]["not_hardened_reason"] == "git_view"
     assert {t for t in out["summary"]["SK-2_type_pass_rate"]} == {"shell", "fix_bug", "commit_msg"}
-    assert out["summary"]["not_hardened"]["type_pass_rate"]["git"]["rate"] == 1.0
+    nh = out["summary"]["not_hardened"]
+    assert nh["type_pass_rate"]["git"]["rate"] == 1.0 and nh["reasons"]["git_view"]["trials"] > 0
 
 
 def test_null_model_fails_everything(tmp_path, iso):
@@ -172,7 +174,7 @@ def _rec(case, typ, trial, ok, suite="answer_only", level="L1", **metrics):
 def test_sidekick_score_is_macro_over_the_ranked_types():
     from edat.sidekick.gen.core import TASK_TYPES
     from edat.sidekick.report import RANKED_TYPES
-    assert set(TASK_TYPES) - set(RANKED_TYPES) == {"git"}
+    assert set(TASK_TYPES) - set(RANKED_TYPES) == {"git", "write_test", "explain_error"}
     recs = []
     for i, t in enumerate(TASK_TYPES):
         for tr in (1, 2, 3):
@@ -192,7 +194,8 @@ def test_labelled_rows_never_reach_a_ranked_metric():
     the labelled rows are reported apart."""
     from edat.sidekick.gen.core import TASK_TYPES
     from edat.sidekick.records import is_hardened
-    base = [_rec(f"{t}_a", t, 1, True) for t in TASK_TYPES if t != "git"]
+    from edat.sidekick.labels import LABELLED_TYPES
+    base = [_rec(f"{t}_a", t, 1, True) for t in TASK_TYPES if t not in LABELLED_TYPES]
     s0 = summarize(base)
     tagged = dict(_rec("shell_z", "shell", 1, False)); tagged["facets"]["tags"] = ["grade-not-hardened"]
     marked = _rec("shell_y", "shell", 1, False, grade_hardened=False)
@@ -205,16 +208,31 @@ def test_labelled_rows_never_reach_a_ranked_metric():
     assert s["not_hardened"]["trials"] == 3 and s["not_hardened"]["type_pass_rate"]["git"]["rate"] == 0.0
 
 
-def test_the_label_is_keyed_on_the_grader_both_ways():
-    """Every case of a labelled type is graded by a not-hardened grader, and no other case is."""
+def test_the_label_is_keyed_on_how_a_case_is_graded():
+    """Every case of a labelled type is labelled; a labelled grader labels every case it grades; the shell
+    and Yes/No diff labels fall on exactly the cases their reasons name; each label is the same on every
+    seed and carries a reason the report can explain."""
     import random
     from edat.sidekick.gen.registry import all_templates
-    from edat.sidekick.graders import LABELLED_TYPES, NOT_HARDENED_GRADERS, grading_label
+    from edat.sidekick.labels import LABELLED_GRADERS, LABELLED_TYPES, REASONS, grading_label
+    labelled = {}
     for t in all_templates():
-        g = t.build(random.Random("label")).grader
-        assert (t.type in LABELLED_TYPES) == (g in NOT_HARDENED_GRADERS), t.id
-        assert grading_label(g)["grade_hardened"] is (g not in NOT_HARDENED_GRADERS)
-    assert grading_label("git") == {"grading": "git_on_copy", "grade_hardened": False}
+        marks = []
+        for seed in range(3):
+            inst = t.build(random.Random(f"label{seed}"))
+            lab = grading_label(inst.grader, inst.check)
+            marks.append(lab["grade_hardened"])
+            if inst.grader in LABELLED_GRADERS or t.type in LABELLED_TYPES:
+                assert lab["grade_hardened"] is False, t.id
+            if not lab["grade_hardened"]:
+                assert lab["not_hardened_reason"] in REASONS, t.id
+                labelled[t.id] = lab["not_hardened_reason"]
+        assert len(set(marks)) == 1, t.id
+    shell = {k for k, v in labelled.items() if v == "task_blind_output"}
+    assert shell == {"shell_wc_csv", "shell_grep_count_errors"}
+    diff = {k for k in labelled if k.startswith("diff_")}
+    assert diff == {k for k in labelled if k.startswith("diff_what_")} | {k for k in labelled if k.startswith("diff_bug_")}
+    assert grading_label("git") == {"grading": "git_on_copy", "grade_hardened": False, "not_hardened_reason": "git_view"}
 
 
 def test_missing_type_gives_no_headline():

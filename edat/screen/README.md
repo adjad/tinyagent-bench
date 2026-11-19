@@ -23,8 +23,9 @@ the authoring guide for the code.
 | `loop.py` | The screen loop (stubbed history, per-case step budget) |
 | `user.py` | The scripted user behind `ask_user` |
 | `grade/` | Matchers, answer normalisers, the grader and Guard rules (restraint events) |
-| `render/som.py` | Screenshot track: set-of-marks layout, HTML, scoring; rasterising is a stub |
+| `render/som.py`, `render/raster.py` | Screenshot track: set-of-marks layout, HTML, scoring; the PNG drawn with Pillow from the simulated screen (never a capture of the real one) |
 | `runner.py`, `records.py`, `report.py` | Trials through the model adapter, result records, Screen Score |
+| `live.py`, `RUN_SHEET.md` | Real runs on oMLX: preflight, smoke step, estimate, resumable core run with the safety wrapper |
 | `phone_export.py` | The 40 phone parity items (`edat-phone-item/v1`) |
 
 ## Writing an app

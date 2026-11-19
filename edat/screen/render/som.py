@@ -1,41 +1,37 @@
 """The screenshot track (spec 11 §3.1, S6): set-of-marks layout, HTML, scoring.
 
-Design-complete stub. What is built:
-
 * `layout(vis)`: a deterministic 1,280 × 800 layout of the current screen —
   a header bar, the visible element lines (17 px rows, 13 px text, 24 px per
   indent level), a centred dialog box over a dimmed window when one is open,
   and the Dock along the bottom. Every actionable element gets a box and a
   numbered mark carrying its per-trial id.
-* `to_html(vis, boxes, marks=True)`: a self-contained HTML page of that
-  layout (no network, no external fonts; the font stack names a bundled font
-  the renderer must ship). `marks=False` gives the unmarked page family P uses.
+* `to_html(vis, boxes, marks=True)`: the same layout as a self-contained HTML
+  page (no network, no external fonts), kept as the readable description of
+  the picture and for a browser renderer later. `marks=False` gives the
+  unmarked page family P uses.
+* `raster.draw(vis, boxes, marks=True)` (render/raster.py): the PNG the model
+  sees, drawn with Pillow from the simulated layout. It is never a capture of
+  the real screen: nothing in the screen tier can read the Mac's display.
 * `hit(boxes, x, y)` and `score_point(...)`: family P's check (a
   `click_point(x, y)` is correct when it falls inside the target's box).
 * `SomObserver`: the loop's observer for `screenshot_som` and
   `ax_plus_screenshot`. Its tool result is the status line plus the one-line
   header (and, for `ax_plus_screenshot`, the text list); the image goes in a
   user message right after it, as OpenAI-style tool messages cannot carry
-  images.
+  images. Only the latest screenshot is sent; earlier ones become stubs.
 
-What is NOT built, and what it needs:
-
-* `rasterise(html) -> PNG bytes`: needs a pinned headless Chromium (or
-  WebKit) run offline with networking disabled and a bundled font, plus golden
-  image hashes. It raises `RasterNotAvailable` until then.
-* the image part of the message: needs the vision build's image path
-  (`edat/media/`, spec 05) — how an image is attached for each runtime
-  (oMLX's vision models, the hosted adapter), and spec 05 V4's image-token
-  measurement for the 1,280 × 800 screenshot (Gemma 4 at 560 tokens is the
-  reference budget).
+Not built: a browser renderer (`rasterise(html)`, which still raises), golden
+image hashes across Pillow versions (the renderer and Pillow/FreeType
+versions go into every trial's raw record instead), and spec 05 V4's measured
+image-token cost of a 1,280 × 800 screenshot.
 """
 from __future__ import annotations
 
 import base64
+import hashlib
 import html as _html
 from dataclasses import dataclass
 
-from edat.screen.world.core import sha
 from edat.screen.world.render_text import _q
 
 WIDTH, HEIGHT = 1280, 800
@@ -181,24 +177,27 @@ def score_point(boxes: list[Box], target_key: str, x: float, y: float) -> bool:
 
 
 class SomObserver:
-    """Observer for the screenshot tracks. Rasterising raises until S6 is built."""
+    """Observer for the screenshot tracks: the simulated screen drawn as a PNG with numbered marks."""
 
     def __init__(self, with_text: bool = False, rasteriser=None) -> None:
         self.with_text = with_text
         self.track = "ax_plus_screenshot" if with_text else "screenshot_som"
-        self.rasteriser = rasteriser or rasterise
+        self.rasteriser = rasteriser          # callable(vis, boxes) -> PNG bytes; default: raster.draw
 
     def render(self, world):
         vis = world.observe()
         boxes = layout(vis)
-        page = to_html(vis, boxes, marks=True)
-        png = self.rasteriser(page)
+        if self.rasteriser is None:
+            from edat.screen.render.raster import draw
+            png = draw(vis, boxes, marks=True)
+        else:
+            png = self.rasteriser(vis, boxes)
         text = vis.text if self.with_text else header_line(vis) + " · Screenshot follows with numbered marks"
         url = "data:image/png;base64," + base64.b64encode(png).decode()
         extra = {"role": "user", "content": [{"type": "text", "text": "Screenshot:"},
                                              {"type": "image_url", "image_url": {"url": url}}]}
         tokens = len(text) // 3 + 1
-        return text, extra, tokens, sha(page)
+        return text, extra, tokens, hashlib.sha256(png).hexdigest()
 
 
 def window_label(vis) -> str:

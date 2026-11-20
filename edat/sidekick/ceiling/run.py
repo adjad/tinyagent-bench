@@ -549,6 +549,12 @@ def run_entry(entry: Entry | str, out: Path, *, plan: str, client_kind: str = "o
     out = Path(out).expanduser().resolve()
     if inside_repo(out):
         raise RuntimeError("results go to a private folder outside the repository")
+    if lock and inside_repo(Path(lock)):
+        raise RuntimeError("the heavy-job lock goes outside the repository")
+    if client_kind == "omlx":
+        return _run_entry_guarded(entry, out, plan=plan, base_url=base_url, device_id=device_id,
+                                  weights_sha256=weights_sha256, max_minutes=max_minutes, progress=progress,
+                                  iso=iso, lock=lock, quick=quick)
     created_lock = False
     if lock:
         try:
@@ -563,6 +569,52 @@ def run_entry(entry: Entry | str, out: Path, *, plan: str, client_kind: str = "o
     finally:
         if created_lock:
             os.rmdir(lock)
+
+
+def _run_entry_guarded(entry: Entry, out: Path, *, plan, base_url, device_id, weights_sha256, max_minutes,
+                       progress, iso, lock, quick) -> dict:
+    """One entry with the engine, through the run guard as run-all does: the lock (required), the engine state
+    saved fresh and put back on every way out, Harbor checked, this model the one chat model loaded. The
+    entry's state gets `outcome`, `exit_code` and `engine_restored` (and `restore_with` when it failed)."""
+    if not weights_sha256:
+        raise RuntimeError("a real run needs --weights-sha256 (preflight --weights prints it)")
+    from edat.runtime.run_guard import Engine, RunGuard, read_engine_key
+    engine = Engine(base_url, api_key=read_engine_key())
+    try:
+        guard = RunGuard(out, lock=lock, engine=engine, max_minutes=max_minutes, save_path=engine_save_path(),
+                         report_name="run-guard-entry.json", harbor=lambda: harbor_running(),
+                         free_pct=lambda: memory_free_pct())
+    except BaseException:
+        engine.close()
+        raise
+    st: dict = {}
+    try:
+        with guard:
+            try:
+                if not guard.should_stop():
+                    guard.prepare(entry.model.engine_id)
+                    st = _run_entry(entry, out, plan=plan, client_kind="omlx", base_url=engine.base_url,
+                                    device_id=device_id, weights_sha256=weights_sha256, max_minutes=max_minutes,
+                                    progress=progress, iso=iso, quick=quick, guard=guard)
+                    if not guard.stop_reason:
+                        why = st.get("skipped") or nothing_graded([{"result": "done", "sitting": st.get("sitting")}])
+                        if why:
+                            guard.stop(why)
+            except SandboxUnavailable:
+                raise
+            except Exception as exc:  # noqa: BLE001 - an engine or guard error once started: a failed run
+                st["failed_because"] = f"{type(exc).__name__}: {exc}"[:500]
+                guard.stop(st["failed_because"])
+    except Exception as exc:  # noqa: BLE001
+        if guard.outcome is None or isinstance(exc, SandboxUnavailable):
+            raise
+        st["restore_failed"] = f"{type(exc).__name__}: {exc}"[:500]
+    finally:
+        engine.close()
+        if guard.outcome is not None:
+            st.update(outcome=guard.outcome, exit_code=guard.exit_code, engine_restored=guard.report.get("engine"),
+                      restore_with=guard.report.get("restore_with"))
+    return st
 
 
 def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
@@ -602,7 +654,7 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
     key = e.key
     t_start = time.monotonic()
     state = {"entry": key, "label": e.label, "plan": plan, "started_at": utc_now(), "selftest_passed": selftest.passed,
-             "stopped": None, "skipped": None, "written": 0, "sitting": {"ok": 0, "excluded": 0, "error": 0},
+             "stopped": None, "skipped": None, "written": 0, "sitting": {"ok": 0, "excluded": 0, "other": 0},
              "sampling_sent": dict(profile.sampling),
              "sampling_basis": profile.basis, "quant": dict(model.quant), "bits_per_weight": model.bits_per_weight,
              "engine_context_window": None if scripted else engine_context(model.engine_id)[0],
@@ -610,6 +662,10 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
              "seeds": seeds, "toolchain": _toolchain_key(),
              "quick": quick.to_dict() if plan == "quick" else None}
     first_ok: list[dict] = []          # the first answer-only results: is thinking really on, does the engine run it?
+    # The entry's first trials reach the run guard's fault count only once the entry is known to be servable:
+    # a model the engine cannot run is skipped by itself (its own faults are not the run's), not counted
+    # against the healthy models after it.
+    held: list[str] | None = [] if guard is not None else None
     first_status: list[str] = []
     phases = ["A", "B"] if plan == "first-pass" else ["all"]
     with ExitStack() as stack:
@@ -681,16 +737,26 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
                     with open(store / "restraint-events.jsonl", "a") as fh:
                         fh.write("".join(json.dumps(e, sort_keys=True) + "\n" for e in ev))
                 state["written"] += 1
-                kind = status if status in ("ok", "excluded") else "error"   # this sitting's trials, by outcome
+                kind = status if status in ("ok", "excluded") else "other"   # this sitting's trials, by outcome
                 state["sitting"][kind] += 1
-                if guard is not None:
-                    guard.note(kind)
+                note = "excluded" if status == "excluded" else "ok"        # recorded: never the guard's "raised"
+                if held is not None:
+                    held.append(note)
+                elif guard is not None:
+                    guard.note(note)
                 first_status.append(status)
                 if status == "ok" and u.suite in ("answer_only", "ladder"):
                     first_ok.append(metrics)
                 why = _entry_problem(thinking, first_status, first_ok)
                 if why:
                     state["stopped"] = state["skipped"] = why
+                if held is not None and (len(first_status) >= 3 or why):
+                    if why and why.startswith("the engine could not run"):
+                        state["faults_not_counted"] = len(held)   # this model's own: it is skipped instead
+                    else:
+                        for k in held:
+                            guard.note(k)
+                    held = None
                 if progress:
                     progress(f"{slug} R{u.case.rung.n} {u.case.id} t{u.trial}: "
                              f"{'PASS' if metrics.get('pass') else (metrics.get('failure_mode') or status)}"
@@ -700,6 +766,9 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
                     break
             if state["stopped"]:
                 break
+    if held:                                          # an entry with fewer than three trials
+        for k in held:
+            guard.note(k)
     from edat.sidekick.ceiling.report import entry_summary
     state["summary"] = entry_summary(_records(store))
     state["finished_at"] = utc_now()
@@ -715,6 +784,16 @@ def _run_entry(e: Entry, out: Path, *, plan, client_kind, base_url, device_id,
 # not one entry: the STOP file, the time limit, free memory, engine faults and trial folders cleanup could
 # not remove (the run sheet's section 5, with the guard's Harbor stop). A test checks each one is listed here.
 HOST_STOPS = ("the STOP file", "minute limit", "free memory", "engine or transport faults", "could not be removed")
+
+
+ENGINE_SAVE: str | None = None     # None: the shared lock's save, `<run_guard.LOCK>.engine-save.json`
+
+
+def engine_save_path() -> Path:
+    """Where the run guard saves the engine's state: one host-wide path whatever `--lock` is given, so a
+    save an earlier run (of any harness on the shared lock) never restored is always seen."""
+    from edat.runtime.run_guard import LOCK as GUARD_LOCK
+    return Path(ENGINE_SAVE or f"{GUARD_LOCK}.engine-save.json")
 
 
 def harbor_running() -> str | None:
@@ -755,6 +834,8 @@ def run_all(out: Path, *, plan: str, tiers: tuple[int, ...] = (0,), only: tuple[
     out = Path(out).expanduser().resolve()
     if inside_repo(out):
         raise RuntimeError("results go to a private folder outside the repository")
+    if lock and inside_repo(Path(lock)):
+        raise RuntimeError("the heavy-job lock goes outside the repository")
     mdir = model_dir_from_settings()
     if models is None:
         if not mdir:
@@ -777,7 +858,7 @@ def run_all(out: Path, *, plan: str, tiers: tuple[int, ...] = (0,), only: tuple[
     guard = None
     if engine is not None or lock:
         try:                                            # this module's host checks, so a test can stand them in
-            guard = RunGuard(out, lock=lock, engine=engine, max_minutes=max_minutes,
+            guard = RunGuard(out, lock=lock, engine=engine, max_minutes=max_minutes, save_path=engine_save_path(),
                              report_name=f"run-guard-{plan}.json", harbor=lambda: harbor_running(),
                              free_pct=lambda: memory_free_pct())
         except BaseException:
@@ -828,14 +909,30 @@ def run_all(out: Path, *, plan: str, tiers: tuple[int, ...] = (0,), only: tuple[
             log["failed"] = guard.outcome == "failed"
             write_log()
     if guard is None:
-        # this sitting's trials only: failed when there were some and none was graded
-        sitting = [r.get("sitting") or {} for r in log["entries"]]
-        n = sum(sum(x.values()) for x in sitting)
-        graded = sum(x.get("ok", 0) for x in sitting)
-        log["failed"] = n > 0 and graded == 0
+        why = nothing_graded(log["entries"])
+        log["failed"] = why is not None
+        if why:
+            log["why_failed"] = why
         log["outcome"] = "failed" if log["failed"] else "finished"
         write_log()
     return log
+
+
+def nothing_graded(rows: list[dict]) -> str | None:
+    """Why this sitting is a failed run, judged by its own trials only: there were trials and none was graded,
+    or every entry was skipped or not started (or there was none). A resume whose every trial was already
+    recorded (entries done, no trials this sitting) is not a failure."""
+    if not rows:
+        return "no entry to run"
+    sitting = [r.get("sitting") or {} for r in rows]
+    n, graded = sum(sum(x.values()) for x in sitting), sum(x.get("ok", 0) for x in sitting)
+    if graded:
+        return None
+    if n:
+        return f"none of this sitting's {n} trials was graded"
+    if all(r.get("result") in ("skipped", "not started") for r in rows):
+        return "every entry was skipped or not started"
+    return None
 
 
 def _run_all_entries(entries, every, log, log_file, out, *, plan, client_kind, base_url, device_id, max_minutes,
@@ -889,6 +986,11 @@ def _run_all_entries(entries, every, log, log_file, out, *, plan, client_kind, b
         else:
             row.update(result="done", ceiling=st["summary"]["ceiling"], solid=st["summary"]["solid"])
         _write_progress_file(log_file, log)
+    if guard is not None and not guard.stop_reason:
+        why = nothing_graded(log["entries"])
+        if why:
+            log["why_failed"] = why
+            guard.stop(why)                           # not resumable: the run ends failed
 
 
 def _write_progress_file(path: Path, data: dict) -> None:
@@ -966,13 +1068,41 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--lock", help="a lock directory to take (mkdir) for the run and remove only if taken here")
     a = ap.parse_args(argv)
     try:
-        run_entry(a.entry, Path(a.out), plan=a.plan, client_kind=a.client, base_url=a.base_url, device_id=a.device_id,
-                  weights_sha256=a.weights_sha256, max_minutes=a.max_minutes, lock=a.lock,
-                  quick=quick_from_args(a) if a.plan == "quick" else None)
+        st = run_entry(a.entry, Path(a.out), plan=a.plan, client_kind=a.client, base_url=a.base_url,
+                       device_id=a.device_id, weights_sha256=a.weights_sha256, max_minutes=a.max_minutes, lock=a.lock,
+                       quick=quick_from_args(a) if a.plan == "quick" else None)
     except (RuntimeError, ValueError) as exc:
         print(f"not started: {exc}", file=sys.stderr)
         return 2
-    return 0
+    except BaseException as exc:                        # a signal: say what the restore did
+        from edat.runtime.run_guard import RunInterrupted
+        if isinstance(exc, (RunInterrupted, KeyboardInterrupt)):
+            return _print_interrupted(exc, Path(a.out).expanduser().resolve() / "run-guard-entry.json")
+        raise
+    if "outcome" not in st:                             # a scripted client: no guard, no engine
+        return 0
+    print(f"engine: {st.get('engine_restored')}")
+    if st.get("restore_with"):
+        print(f"restore the engine with: {st['restore_with']}", file=sys.stderr)
+    for k in ("failed_because", "restore_failed"):
+        if st.get(k):
+            print(f"FAILED: {st[k]}", file=sys.stderr)
+    print(f"outcome: {st['outcome']}")
+    return st["exit_code"]
+
+
+def _print_interrupted(exc: BaseException, report: Path) -> int:
+    """After a signal: what the restore actually did, from the guard's report, and how to restore if it failed."""
+    try:
+        rep = json.loads(report.read_text())
+    except (OSError, ValueError):
+        rep = {}
+    print(f"stopped by {type(exc).__name__}: {exc}", file=sys.stderr)
+    print(f"engine: {rep.get('engine') or 'unknown (no guard report at ' + str(report) + ')'}", file=sys.stderr)
+    if rep.get("restore_with") or not rep.get("engine"):
+        print(f"restore the engine with: {rep.get('restore_with') or 'python -m edat.runtime.run_guard restore'}",
+              file=sys.stderr)
+    return 1
 
 
 def weights_for(out: Path, mdir: Path, m: LocalModel) -> str:
@@ -1089,7 +1219,7 @@ def preflight(out: Path, *, engine: bool = False, weights: bool = False, base_ur
     from edat.runtime.run_guard import LOCK as GUARD_LOCK
     if lock:
         add("heavy-job lock free", not Path(lock).exists(), lock)
-    save = Path(f"{lock or GUARD_LOCK}.engine-save.json")
+    save = engine_save_path()
     add("no unrestored engine state from an earlier run", not save.exists(),
         f"{save} exists: python -m edat.runtime.run_guard restore --save {save} --lock {lock or GUARD_LOCK}"
         if save.exists() else "")
@@ -1100,11 +1230,15 @@ def preflight(out: Path, *, engine: bool = False, weights: bool = False, base_ur
         try:
             with eng.client(base_url, timeout=30) as c:
                 ids = eng.listed(c)
-                loaded = eng.state_of(eng.status(c))["loaded"]
+                now = eng.state_of(eng.status(c))
             for m in models:
                 add(f"engine lists {m.engine_id}", True,
                     "yes" if m.engine_id in ids else "NO: its entries will be skipped and reported (not servable)")
-            add("engine: models loaded now", True, ", ".join(loaded) or "none")
+            chat = [m for m in now["loaded"] if not eng.is_aux(m)]
+            add("engine: models loaded now", True, ", ".join(now["loaded"]) or "none")
+            add("engine: the run will unload (and load back when it ends)", True, ", ".join(chat) or "none")
+            add("engine: pinned (unloaded too, so one model is resident; loaded back, and the pinned set is "
+                "checked: any difference is a failed restore)", True, ", ".join(now["pinned"]) or "none")
         except Exception as exc:  # noqa: BLE001
             add("engine answers on loopback", False, exc.__class__.__name__)
     return rows
@@ -1151,11 +1285,10 @@ def run_all_main(argv: list[str] | None = None) -> int:
     except (RuntimeError, ValueError) as exc:          # refused before anything was done
         print(f"not started: {exc}", file=sys.stderr)
         return 2
-    except BaseException as exc:                        # a signal (the engine was put back first) or a crash
+    except BaseException as exc:                        # a signal or a crash: say what the restore did
         from edat.runtime.run_guard import RunInterrupted
         if isinstance(exc, (RunInterrupted, KeyboardInterrupt)):
-            print(f"stopped by {exc}; the engine was put back (see run-guard-{a.plan}.json)", file=sys.stderr)
-            return 1
+            return _print_interrupted(exc, Path(a.out).expanduser().resolve() / f"run-guard-{a.plan}.json")
         raise
     for r in log["entries"]:
         print(f"{r.get('result', '?'):<22} {r['label']}" + (f": {r['why']}" if r.get("why") else ""))

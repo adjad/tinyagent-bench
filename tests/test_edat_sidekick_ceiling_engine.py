@@ -210,8 +210,10 @@ def _entry_stub(calls, then=None):
 
 
 @pytest.fixture
-def quiet(monkeypatch):
-    """Harbor closed and memory free, as this module's checks see them (the guard is given these)."""
+def quiet(monkeypatch, tmp_path):
+    """Harbor closed and memory free, as this module's checks see them (the guard is given these), and the
+    host-wide engine save in the test's own folder."""
+    monkeypatch.setattr(run_mod, "ENGINE_SAVE", str(tmp_path / "lock.engine-save.json"))
     monkeypatch.setattr(run_mod, "harbor_running", lambda: None)
     monkeypatch.setattr(run_mod, "memory_free_pct", lambda: 90)
     monkeypatch.setattr(run_mod, "weights_for", lambda out, mdir, m: "0" * 64)
@@ -223,7 +225,7 @@ def _guarded(tmp_path, f, models=None):
 
 
 def _save(tmp_path) -> Path:
-    return tmp_path / "lock.engine-save.json"           # the guard's host-wide save, next to the lock
+    return tmp_path / "lock.engine-save.json"           # the guard's host-wide save (ENGINE_SAVE, set by quiet)
 
 
 def _posts(f, since=0):
@@ -389,21 +391,21 @@ def test_p8_a_failed_restore_or_a_changed_pin_fails_the_run_and_keeps_the_save(t
         f.close()
 
 
-def _sitting_stub(ok, excluded, error):
+def _sitting_stub(ok, excluded, other):
     def run_entry(e, out, **kw):
         g = kw.get("guard")
-        for kind, n in (("ok", ok), ("excluded", excluded), ("error", error)):
+        for note, n in (("ok", ok), ("excluded", excluded), ("ok", other)):     # as _run_entry notes them
             for _ in range(n):
                 if g is not None:
-                    g.note(kind)
-        return {"skipped": None, "stopped": None, "written": ok + excluded + error,
-                "sitting": {"ok": ok, "excluded": excluded, "error": error},
+                    g.note(note)
+        return {"skipped": None, "stopped": None, "written": ok + excluded + other,
+                "sitting": {"ok": ok, "excluded": excluded, "other": other},
                 "summary": {"ceiling": 1, "solid": 1, "excluded": 7}}   # old records' faults: not this sitting's
     return run_entry
 
 
 @pytest.mark.parametrize("with_lock", [False, True])
-@pytest.mark.parametrize("ok, excluded, error, failed", [
+@pytest.mark.parametrize("ok, excluded, other, failed", [
     (0, 0, 0, False),        # a resume with every trial already recorded
     (2, 0, 0, False),        # a resume: two new graded trials (the old faults are not this sitting's)
     (1, 2, 0, False),
@@ -411,11 +413,43 @@ def _sitting_stub(ok, excluded, error):
     (0, 0, 3, True),         # trials that were not graded
 ])
 def test_p9_a_failed_run_is_judged_by_this_sittings_trials(tmp_path, quiet, monkeypatch, with_lock, ok, excluded,
-                                                             error, failed):
-    monkeypatch.setattr(run_mod, "_run_entry", _sitting_stub(ok, excluded, error))
+                                                             other, failed):
+    monkeypatch.setattr(run_mod, "_run_entry", _sitting_stub(ok, excluded, other))
     log = run_all(tmp_path / "out", plan="quick", client_kind="oracle", progress=None, models=[_model()],
                   lock=str(tmp_path / "lock") if with_lock else None)
     assert log["failed"] is failed and log["outcome"] == ("failed" if failed else "finished")
+
+
+def _skipped(e, out, **kw):
+    return {"skipped": "the engine does not list it", "stopped": None, "written": 0,
+            "sitting": {"ok": 0, "excluded": 0, "other": 0}, "summary": {"ceiling": 0, "solid": 0, "excluded": 0}}
+
+
+@pytest.mark.parametrize("how", ["no lock", "lock", "engine"])
+def test_b_a_sitting_in_which_every_entry_was_skipped_fails(tmp_path, fake, key, quiet, monkeypatch, how):
+    monkeypatch.setattr(run_mod, "_run_entry", _skipped)
+    kw = {"client_kind": "omlx", "base_url": fake.url} if how == "engine" else {"client_kind": "oracle"}
+    log = run_all(tmp_path / "out", plan="quick", progress=None, models=[_model(), _model("model-b")],
+                  lock=None if how == "no lock" else str(tmp_path / "lock"), **kw)
+    assert [r["result"] for r in log["entries"]] == ["skipped", "skipped"]
+    assert log["failed"] is True and log["outcome"] == "failed" and "skipped" in log["why_failed"]
+    if how == "engine":
+        assert log["exit_code"] == 1 and fake.loaded == BEFORE
+
+
+def test_f_the_save_is_one_host_wide_path_whatever_the_lock(tmp_path, fake, key, quiet, monkeypatch):
+    """A save left by a sitting on another lock path is still seen; a lock inside the repository is refused."""
+    monkeypatch.setattr(run_mod, "_run_entry", _entry_stub([]))
+    _save(tmp_path).write_text(json.dumps({"token": "an-earlier-sitting", "base_url": fake.url, "loaded": []}))
+    with pytest.raises(rg.GuardError, match="never restored"):
+        run_all(tmp_path / "out", plan="quick", client_kind="omlx", progress=None, models=[_model()],
+                base_url=fake.url, lock=str(tmp_path / "another.lock"))
+    assert fake.requests == [] and not (tmp_path / "another.lock").exists()
+    repo = Path(run_mod.__file__).resolve().parents[3]
+    with pytest.raises(RuntimeError, match="lock goes outside the repository"):
+        run_all(tmp_path / "out", plan="quick", client_kind="oracle", progress=None, models=[_model()],
+                lock=str(repo / "a-lock-test"))
+    assert not (repo / "a-lock-test").exists()
 
 
 def test_p10_a_run_off_the_main_thread_fails_and_leaves_no_lock(tmp_path, quiet, monkeypatch):
@@ -460,6 +494,58 @@ def test_run_all_main_exit_codes(tmp_path, monkeypatch):
     assert run_mod.run_all_main(["--plan", "smoke", "--out", str(tmp_path)]) == 1
     monkeypatch.setattr(run_mod, "run_all", raises(rg.GuardError("a lock exists")))
     assert run_mod.run_all_main(["--plan", "smoke", "--out", str(tmp_path)]) == 2
+
+
+def test_c_one_entry_with_the_engine_goes_through_the_guard(tmp_path, fake, key, quiet, monkeypatch):
+    seen = []
+    monkeypatch.setattr(run_mod, "_run_entry", _entry_stub([], lambda: seen.append(set(fake.loaded))))
+    entry = _model().entries()[0]
+
+    def one(**kw):
+        return run_mod.run_entry(entry, tmp_path / "out", plan="quick", base_url=fake.url, weights_sha256="0" * 64,
+                                 progress=None, **kw)
+    with pytest.raises(rg.GuardError, match="lock"):
+        one()
+    monkeypatch.setattr(run_mod, "harbor_running", lambda: "process matching 'Harbor'")
+    with pytest.raises(rg.GuardError, match="Harbor"):
+        one(lock=str(tmp_path / "lock"))
+    assert fake.requests == [] and seen == []
+    monkeypatch.setattr(run_mod, "harbor_running", lambda: None)
+    st = one(lock=str(tmp_path / "lock"))
+    assert seen == [{"model-c", "helper-embed"}] and fake.loaded == BEFORE and fake.pinned == {"model-a"}
+    assert st["outcome"] == "finished" and st["exit_code"] == 0 and st["engine_restored"].startswith("engine restored")
+    assert not _save(tmp_path).exists() and not (tmp_path / "lock").exists()
+    assert (tmp_path / "out" / "run-guard-entry.json").exists()
+
+
+def test_preflight_says_which_models_the_run_unloads_and_which_are_pinned(tmp_path, fake, key, quiet, monkeypatch):
+    monkeypatch.setattr(run_mod, "require_sandbox", lambda: type("R", (), {"passed": True, "probes": []})())
+    monkeypatch.setattr(run_mod, "model_dir_from_settings", lambda: None)
+    rows = {n: d for n, _, d in run_mod.preflight(tmp_path / "out", engine=True, base_url=fake.url)}
+    assert rows["engine: the run will unload (and load back when it ends)"] == "model-a, model-b"
+    pinned = next(n for n in rows if n.startswith("engine: pinned"))
+    assert rows[pinned] == "model-a" and "failed restore" in pinned
+    assert _posts(fake) == []                           # preflight only reads
+
+
+def test_e_after_a_signal_the_message_says_what_the_restore_did(tmp_path, monkeypatch, capsys):
+    report = tmp_path / "run-guard-smoke.json"
+
+    def interrupted(report_body):
+        def run_all(*a, **k):
+            report.write_text(json.dumps(report_body))
+            raise rg.RunInterrupted(signal.SIGTERM)
+        return run_all
+    monkeypatch.setattr(run_mod, "run_all", interrupted({
+        "engine": "restore FAILED: GuardError: Harbor appears to be running (process matching 'Harbor')",
+        "restore_with": "close Harbor, then: python -m edat.runtime.run_guard restore --save S --lock L"}))
+    assert run_mod.run_all_main(["--plan", "smoke", "--out", str(tmp_path)]) == 1
+    err = capsys.readouterr().err
+    assert "put back" not in err and "restore FAILED" in err and "run_guard restore --save S" in err
+    monkeypatch.setattr(run_mod, "run_all", interrupted({"engine": "engine restored (model-a)"}))
+    assert run_mod.run_all_main(["--plan", "smoke", "--out", str(tmp_path)]) == 1
+    err = capsys.readouterr().err
+    assert "engine: engine restored (model-a)" in err and "restore the engine with" not in err
 
 
 def test_a_failure_creating_the_results_store_still_frees_the_lock(tmp_path, quiet, monkeypatch):

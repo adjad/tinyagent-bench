@@ -339,7 +339,8 @@ def test_results_must_stay_outside_the_repository():
 
 def test_real_run_needs_weights(tmp_path):
     with pytest.raises(RuntimeError, match="weights"):
-        run_entry(_entry(), tmp_path / "x-ceiling", plan="smoke", client_kind="omlx")
+        run_entry(_entry(), tmp_path / "x-ceiling", plan="smoke", client_kind="omlx", lock=str(tmp_path / "lock"))
+    assert not (tmp_path / "x-ceiling").exists() and not (tmp_path / "lock").exists()
 
 
 def test_lock_is_refused_when_held(tmp_path):
@@ -522,6 +523,12 @@ def test_run_all_skips_a_model_the_engine_cannot_serve_and_goes_on(tmp_path, iso
     recs = [json.loads(l) for f in (tmp_path / "out" / "quick").glob(f"{bad}.*/runs/*/records.jsonl")
             for l in f.read_text().splitlines() if l.strip()]
     assert len(recs) == 3 and all(r["status"] == "excluded" for r in recs)   # 3 faults, then it is skipped
+    # Its own faults are not the run's: the run guard never counts them, so a healthy model after an
+    # unservable one is not stopped by the run-wide fault share, and the run finishes.
+    guard = json.loads((tmp_path / "out" / "run-guard-quick.json").read_text())
+    assert guard["excluded"] == 0 and guard["outcome"] == "finished" and log["failed"] is False
+    pg = json.loads(next((tmp_path / "out" / "quick").glob(f"{bad}.*/progress.json")).read_text())
+    assert pg["faults_not_counted"] == 3 and pg["sitting"] == {"ok": 0, "excluded": 3, "other": 0}
     md, _ = build_report(tmp_path / "out" / "quick")
     assert "## Not run" in md and "engine could not run this model" in md.split("## Not run")[1]
 

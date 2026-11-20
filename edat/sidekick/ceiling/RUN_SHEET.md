@@ -162,12 +162,15 @@ It only reads. It checks:
 - the sealed sandbox self-test passes (the run refuses to start otherwise);
 - every model folder has its weights and template;
 - free memory is at least 30%, and there are 5 GB of free disk;
-- the heavy-job lock is free;
+- the heavy-job lock is free, and no engine state from an earlier run is waiting to be restored
+  (the save, below);
 - Harbor is not running;
 - the model folder scan: every model with its quantisation, bits per weight, size, thinking modes,
   whether it is the standard entry and whether it would fit a 16 GB Mac, and every folder left out
   with its reason (also written to `$OUT/roster.json`);
-- the engine (GET only) lists each engine id; one it does not list is shown as "will be skipped".
+- the engine (GET only) lists each engine id; one it does not list is shown as "will be skipped";
+- the engine's loaded models: the chat models the run will unload (and load back when it ends), and
+  which models are pinned (unloaded too, loaded back, and the pinned set checked).
 
 **Which Python and Node run the model's code here.** Python: the repository's `.venv` interpreter, a
 uv-managed CPython 3.13 with pytest. Node: the official nodejs.org build in `/usr/local/bin` (v24). Both
@@ -363,18 +366,44 @@ does not start; a model the engine cannot serve only means that model is skipped
 
 | what | during the run | put back by |
 |---|---|---|
-| Harbor | stays closed (it is closed now); the run never opens or quits it. `run-all` refuses to start while it is open, and stops before the next unload if it is opened during the run | nothing |
+| Harbor | stays closed (it is closed now); the run never opens or quits it. `run-all` refuses to start while it is open, checks again before every unload, load and restore and every 10 trials, and stops if it opens. A check that fails counts as open | nothing |
 | oMLX | used as it is; never started, stopped or restarted | nothing |
-| resident model | `run-all` calls `engine_prep keep <engine id> --save $OUT/resident-before.json` whenever the model changes; it unloads the other chat models (the first call saves what was loaded and never overwrites it); the engine loads the model under test on its first request | at the end: `engine_prep restore $OUT/resident-before.json` |
+| resident model | through the shared run guard (`edat/runtime/run_guard.py`). At the start it saves the engine's state (chat models and helpers loaded or still loading, pinned models, the default model) to `<shared lock>.engine-save.json`, one host-wide path next to the shared heavy-job lock (`run_guard.LOCK`) whatever `--lock` is given, so an earlier run's save is always seen. A save still there from an earlier run that was never restored refuses the start and prints how to restore it. Whenever the model changes it waits for the engine to settle, unloads every other chat model (pinned ones too, so one model is resident) and waits for each unload to finish, then loads the model under test | the guard, on every way out (done, a stop, an error, Ctrl-C, SIGTERM, SIGHUP such as a closed terminal, SIGQUIT; a second signal while it restores is ignored). It puts back what was loaded, then compares chat models, helpers, pinned models and the default model, and prints `engine: engine restored ...`. On any difference, or if Harbor is open, it keeps the save and prints the restore command (Put things back, below) |
+| engine address | `--base-url` is accepted only as `http://127.0.0.1:<port>` or `http://[::1]:<port>` (no name, not even `localhost`; no user, path or query), checked before oMLX's key is read; redirects and proxy settings are not followed. The guard's unloads and loads, the checks and the chats all use that one address | nothing |
 | oMLX settings | read; changed only by the approved step 0 (eight new models' sampling fields); each request sends the entry's sampling and thinking flag itself | step 0's backup, if ever needed |
-| heavy-job lock | each command takes `$LOCK` once (`mkdir`) and removes it only if it created it; it refuses to start if the lock exists | automatic |
+| heavy-job lock | each command takes `$LOCK` once (`mkdir`) and removes it only if it created it; it refuses to start if the lock exists. `run-all` with the engine needs `--lock` | automatic |
 | keep awake | `caffeinate -i` around each command | ends with the command |
 
 ## 3. Commands, in order
 
-One model resident at a time: `run-all` unloads the other chat models (`engine_prep keep`, saving what
-was loaded to `$OUT/resident-before.json` once) whenever the model changes, and finishes all of a
-model's entries in a tier before the next model. It takes `$LOCK` once for the whole run.
+One model resident at a time: `run-all` unloads the other chat models whenever the model changes (the
+engine's state is saved once, at the start, to `<shared lock>.engine-save.json`), finishes all of a model's
+entries in a tier before the next model, and puts the engine back when it ends, however it ends. It
+takes `$LOCK` once for the whole run and removes it on every way out. It prints `outcome:` and exits 0
+when finished, 3 when stopped by the STOP file or the time limit (run it again to resume), and 1 when
+failed: any other stop, an error, a restore that did not match, or a sitting that graded nothing (it
+had trials and none was graded, or every entry was skipped or not started). A resume whose every trial
+was already recorded is not a failure. A model the engine cannot run (its first 3 trials all engine
+faults) is skipped by itself: its faults count neither toward the run's 2% fault stop nor toward
+"graded nothing" (a resume tries it again), unless every entry is one. After each such skip the run
+checks the engine before going on: its status must answer, and when the entry before was served or this
+is the second unservable entry in a row, the engine must still serve (a one-token request to the last
+model that served, or, if none has yet, the engine settling with models listed). If that fails, the
+run ends failed with "the engine stopped serving", the remaining entries are recorded as not run, and
+the engine is restored. A refusal before
+anything started exits 2. The guard's own record is `$OUT/run-guard-<plan>.json`. `--lock` must be
+outside the repository. `run --entry` (one entry) with the engine goes through the same guard, with
+its record in `$OUT/run-guard-entry.json` and the same exit codes.
+
+**Pinned models are unloaded too.** One model is resident at a time on this Mac, so for the run the
+guard unloads every loaded chat model, pinned ones included. When the run ends it loads them back and
+checks that the pinned set is what it was; any difference is a failed restore (the save is kept and
+the restore command printed). The run never changes oMLX's pin settings. Preflight with `--engine`
+lists, before anything is touched, the models the run will unload and which of them are pinned.
+
+**Start the run from an ordinary terminal, not a sandboxed shell.** A sandbox can hide other processes
+from `pgrep` and `lsof` without an error, so the Harbor check would read "not running" while Harbor is
+open.
 
 **Smoke, about 5-10 minutes** (before any of the passes below, the quick look included): base Gemma, thinking off, two cases from every rung, one trial.
 
@@ -436,8 +465,11 @@ trial is also reused only for the same ladder split (public or private seed).
 (`report $OUT/quick` for a quick look, `report $OUT/full` for the full plan, `report $OUT/smoke` for the
 smoke step.)
 
-**Put things back:** `engine_prep restore $OUT/resident-before.json`. Harbor stays closed unless the
-person running it says otherwise.
+**Put things back:** `run-all` does it itself and prints `engine: engine restored ...`. Only if that
+line says `restore FAILED`, close Harbor if it is open and run the command it prints,
+`python -m edat.runtime.run_guard restore --save <shared lock>.engine-save.json --url <base url> --lock $LOCK`
+(it takes the lock while it restores and removes the save once the engine matches). Harbor stays closed
+unless the person running it says otherwise.
 
 ## 4. Duration, and its basis
 
@@ -495,15 +527,18 @@ passes, model by model, once the first-pass report has been read.
 ## 5. Stop conditions and resuming
 
 The run checks between trials and stops cleanly by itself when:
-- free memory is under 15% (`memory_pressure -Q`);
+- free memory is under 15% (`memory_pressure -Q`), or cannot be read twice running;
 - over 2% of the trials so far were lost to engine or transport faults (from 50 trials on);
+- Harbor appears to be running (checked every 10 trials and before every unload and load);
 - more than 10 trial folders, or over 256 MB in them, could not be removed (see Cleanup above);
 - the file `$OUT/STOP` exists (the way to stop it from another terminal);
 - `--max-minutes` has passed.
 
 `$OUT/<entry>/progress.json` says why an entry stopped, and `$OUT/run-all.json` lists every entry
-with its result: done (with its ceiling), skipped (and why), or stopped. Ctrl-C also stops it. The trial in progress is then
-lost and redone on resume.
+with its result: done (with its ceiling), skipped (and why), stopped, or not started. Ctrl-C, SIGTERM,
+SIGHUP (a closed terminal) and SIGQUIT also stop it, through the same ending: the engine is put back and
+the lock removed. The trial in progress is then lost and redone on resume. Only the STOP file and the
+time limit end the run `stopped`; every other stop ends it `failed`.
 
 **Resume** by running the same command again. Trials already recorded are skipped; first-pass pass B
 picks its rungs from pass A's records. A results folder is bound to the seeds it was made with

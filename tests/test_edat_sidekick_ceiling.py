@@ -12,6 +12,17 @@ from edat.sidekick.ceiling.run import Quick, _entry_problem, parse_rungs, plan_u
 from edat.sidekick.sandbox.run import SandboxUnavailable, SeatbeltIsolation
 
 
+@pytest.fixture(autouse=True)
+def host_checks(monkeypatch, tmp_path):
+    """Harbor closed and memory free, as the ceiling's checks (and the run guard given them) see them, and the
+    engine save in the test's own folder (never the host's); the guard's own Harbor and memory behaviour is
+    tested in test_edat_sidekick_ceiling_engine and its own tests."""
+    from edat.sidekick.ceiling import run as run_mod
+    monkeypatch.setattr(run_mod, "ENGINE_SAVE", str(tmp_path / "test-engine-save.json"))
+    monkeypatch.setattr(run_mod, "harbor_running", lambda: None)
+    monkeypatch.setattr(run_mod, "memory_free_pct", lambda: 90)
+
+
 @pytest.fixture(scope="module")
 def iso():
     i = SeatbeltIsolation()
@@ -330,7 +341,8 @@ def test_results_must_stay_outside_the_repository():
 
 def test_real_run_needs_weights(tmp_path):
     with pytest.raises(RuntimeError, match="weights"):
-        run_entry(_entry(), tmp_path / "x-ceiling", plan="smoke", client_kind="omlx")
+        run_entry(_entry(), tmp_path / "x-ceiling", plan="smoke", client_kind="omlx", lock=str(tmp_path / "lock"))
+    assert not (tmp_path / "x-ceiling").exists() and not (tmp_path / "lock").exists()
 
 
 def test_lock_is_refused_when_held(tmp_path):
@@ -503,7 +515,7 @@ def test_run_all_skips_a_model_the_engine_cannot_serve_and_goes_on(tmp_path, iso
                         lambda kind, model, base_url, thinking: _Unservable() if model.engine_id == bad
                         else real(kind, model, base_url, thinking))
     sense = _model(bad, "sensenova", thinking=(False,), label="SenseNova-Loop 9B", role="candidate")
-    q = Quick(per_rung=1, rungs=(1, 2, 3), thinking="shipped")
+    q = Quick(per_rung=2, rungs=(1, 2, 3), thinking="shipped")     # 6 trials: a resume has 3 left to try
     log = run_all(tmp_path / "out", plan="quick", quick=q, client_kind="oracle", progress=None, iso=iso,
                   models=[sense, _model()], lock=str(tmp_path / "lock"))
     rows = {r["entry"].split("|")[0]: r for r in log["entries"]}
@@ -513,6 +525,23 @@ def test_run_all_skips_a_model_the_engine_cannot_serve_and_goes_on(tmp_path, iso
     recs = [json.loads(l) for f in (tmp_path / "out" / "quick").glob(f"{bad}.*/runs/*/records.jsonl")
             for l in f.read_text().splitlines() if l.strip()]
     assert len(recs) == 3 and all(r["status"] == "excluded" for r in recs)   # 3 faults, then it is skipped
+    # Its own faults are not the run's: the run guard never counts them, so a healthy model after an
+    # unservable one is not stopped by the run-wide fault share, and the run finishes.
+    guard = json.loads((tmp_path / "out" / "run-guard-quick.json").read_text())
+    assert guard["excluded"] == 0 and guard["outcome"] == "finished" and log["failed"] is False
+    pg = json.loads(next((tmp_path / "out" / "quick").glob(f"{bad}.*/progress.json")).read_text())
+    assert pg["faults_not_counted"] == 3 and pg["sitting"] == {"ok": 0, "excluded": 3, "other": 0}
+    # A resume tries the unservable model again (3 new faults) and finds the healthy one done: not a failure.
+    log = run_all(tmp_path / "out", plan="quick", quick=q, client_kind="oracle", progress=None, iso=iso,
+                  models=[sense, _model()], lock=str(tmp_path / "lock"))
+    rows = {r["entry"].split("|")[0]: r for r in log["entries"]}
+    assert rows[bad]["unservable"] and rows[bad]["sitting"] == {"ok": 0, "excluded": 3, "other": 0}
+    assert rows["gemma-4-E4B-it-oQ4e-mtp"]["sitting"] == {"ok": 0, "excluded": 0, "other": 0}
+    assert log["failed"] is False and log["outcome"] == "finished"
+    # Only unservable models: a failed run.
+    log = run_all(tmp_path / "out2", plan="quick", quick=q, client_kind="oracle", progress=None, iso=iso,
+                  models=[sense], lock=str(tmp_path / "lock"))
+    assert log["failed"] is True and "could not run any entry" in log["why_failed"]
     md, _ = build_report(tmp_path / "out" / "quick")
     assert "## Not run" in md and "engine could not run this model" in md.split("## Not run")[1]
 
@@ -562,6 +591,43 @@ def test_rung_9_grading_never_reads_through_a_planted_link(tmp_path, iso, monkey
     assert {(e.kind, e.rule) for e in g.events} == {("unsafe_action", "planted_link")}
 
 
+def test_every_stop_reason_ends_the_whole_run(tmp_path, monkeypatch):
+    """Each reason _should_stop can give (the run sheet's stop list) is a host stop for run-all."""
+    import time as _time
+    import edat.sidekick.sandbox.run as sr
+    from edat.sidekick.ceiling import run as run_mod
+    out, store = tmp_path / "out", tmp_path / "store"
+    out.mkdir(); store.mkdir()
+    monkeypatch.setattr(run_mod, "memory_free_pct", lambda: 90)
+    monkeypatch.setattr(run_mod, "_records", lambda s: [])
+    reasons = []
+    (out / "STOP").write_text("")
+    reasons.append(run_mod._should_stop(out, store, _time.monotonic(), None))
+    (out / "STOP").unlink()
+    reasons.append(run_mod._should_stop(out, store, _time.monotonic() - 3600, 1))
+    monkeypatch.setattr(run_mod, "memory_free_pct", lambda: 1)
+    reasons.append(run_mod._should_stop(out, store, _time.monotonic(), None))
+    monkeypatch.setattr(run_mod, "memory_free_pct", lambda: 90)
+    monkeypatch.setattr(run_mod, "_records", lambda s: [{"status": "excluded"}] * run_mod.EXCLUDED_FROM)
+    reasons.append(run_mod._should_stop(out, store, _time.monotonic(), None))
+    monkeypatch.setattr(run_mod, "_records", lambda s: [])
+    monkeypatch.setattr(sr, "LEFTOVERS", [{"area": "t", "entries": 1, "bytes": 1}] * (sr.LEFTOVER_MAX_AREAS + 1))
+    reasons.append(run_mod._should_stop(out, store, _time.monotonic(), None))
+    assert all(reasons) and len(set(reasons)) == 5, reasons
+    for why in reasons:
+        assert any(h in why for h in run_mod.HOST_STOPS), why
+
+
+def test_run_all_stops_the_whole_run_once_leftover_folders_pass_the_cap(tmp_path, iso, private, monkeypatch):
+    import edat.sidekick.sandbox.run as sr
+    monkeypatch.setattr(sr, "LEFTOVERS", [{"area": "t", "entries": 1, "bytes": 1}] * (sr.LEFTOVER_MAX_AREAS + 1))
+    two = [_model(), _model("gemma-4-E2B-it-oQ4e-mtp", label="Gemma 4 E2B", role="candidate", gb=3.9)]
+    log = run_all(tmp_path / "out", plan="quick", quick=Quick(per_rung=1, rungs=(1,), thinking="shipped"),
+                  client_kind="oracle", progress=None, iso=iso, models=two, lock=str(tmp_path / "lock"))
+    assert [r["result"] for r in log["entries"]] == ["stopped"], log["entries"]
+    assert "could not be removed" in log["entries"][0]["why"] and not (tmp_path / "lock").exists()
+
+
 def test_a_broken_grader_git_stops_the_whole_run_and_frees_the_lock(tmp_path, monkeypatch):
     """The host's git (or sandbox) failing is never one model's skip: run-all ends at the first entry."""
     from edat.sidekick.ceiling import run as run_mod
@@ -576,29 +642,6 @@ def test_a_broken_grader_git_stops_the_whole_run_and_frees_the_lock(tmp_path, mo
         run_all(tmp_path / "out", plan="quick", client_kind="oracle", progress=None, models=two,
                 lock=str(tmp_path / "lock"))
     assert len(calls) == 1 and not (tmp_path / "lock").exists()
-
-
-def test_run_all_never_unloads_while_harbor_is_open(tmp_path, monkeypatch):
-    from edat.sidekick.ceiling import run as run_mod
-    from scripts.productbench import engine_prep
-    keeps = []
-    monkeypatch.setattr(engine_prep, "main", lambda argv: keeps.append(argv[1]) or 0)
-    monkeypatch.setattr(run_mod, "weights_for", lambda out, mdir, m: "0" * 64)
-    monkeypatch.setattr(run_mod, "_run_entry", lambda e, out, **kw: {"skipped": None, "stopped": None,
-                                                                      "summary": {"ceiling": 1, "solid": 1}})
-    two = [_model(), _model("gemma-4-E2B-it-oQ4e-mtp", label="Gemma 4 E2B", role="candidate", gb=3.9)]
-    monkeypatch.setattr(run_mod, "harbor_running", lambda: True)
-    with pytest.raises(SystemExit, match="Harbor is running"):
-        run_all(tmp_path / "out", plan="quick", client_kind="omlx", progress=None, models=two,
-                lock=str(tmp_path / "lock"))
-    assert keeps == [] and not (tmp_path / "lock").exists()
-    seen = iter([False, False, True])                      # closed at the start and for the first model only
-    monkeypatch.setattr(run_mod, "harbor_running", lambda: next(seen))
-    log = run_all(tmp_path / "out", plan="quick", client_kind="omlx", progress=None, models=two,
-                  lock=str(tmp_path / "lock"))
-    assert keeps == ["gemma-4-E4B-it-oQ4e-mtp"]
-    assert [r["result"] for r in log["entries"]] == ["done", "not started (stopped)"]
-    assert "Harbor is running" in log["entries"][1]["why"] and not (tmp_path / "lock").exists()
 
 
 def test_first_pass_repeats_stay_on_pass_a_rungs():

@@ -597,7 +597,8 @@ def _run_entry_guarded(entry: Entry, out: Path, *, plan, base_url, device_id, we
                                     device_id=device_id, weights_sha256=weights_sha256, max_minutes=max_minutes,
                                     progress=progress, iso=iso, quick=quick, guard=guard)
                     if not guard.stop_reason:
-                        why = st.get("skipped") or nothing_graded([{"result": "done", "sitting": st.get("sitting")}])
+                        why = st.get("skipped") or nothing_graded([{"result": "done", "sitting": st.get("sitting"),
+                                                                    "unservable": "faults_not_counted" in st}])
                         if why:
                             guard.stop(why)
             except SandboxUnavailable:
@@ -606,6 +607,8 @@ def _run_entry_guarded(entry: Entry, out: Path, *, plan, base_url, device_id, we
                 st["failed_because"] = f"{type(exc).__name__}: {exc}"[:500]
                 guard.stop(st["failed_because"])
     except Exception as exc:  # noqa: BLE001
+        if guard.outcome is not None and isinstance(exc, SandboxUnavailable):
+            exc.run_log = st                            # started: the CLI reports a failed run, not "not started"
         if guard.outcome is None or isinstance(exc, SandboxUnavailable):
             raise
         st["restore_failed"] = f"{type(exc).__name__}: {exc}"[:500]
@@ -896,6 +899,8 @@ def run_all(out: Path, *, plan: str, tiers: tuple[int, ...] = (0,), only: tuple[
             finally:
                 write_log()
     except Exception as exc:  # noqa: BLE001
+        if guard is not None and guard.outcome is not None and isinstance(exc, SandboxUnavailable):
+            exc.run_log = log                           # started: the CLI reports a failed run, not "not started"
         if guard is None or guard.outcome is None or isinstance(exc, SandboxUnavailable):
             raise                                       # refused at the start, no guard, or the host's sandbox
         # the restore failed: the guard kept its save and recorded how to restore it (restore_with)
@@ -920,10 +925,15 @@ def run_all(out: Path, *, plan: str, tiers: tuple[int, ...] = (0,), only: tuple[
 
 def nothing_graded(rows: list[dict]) -> str | None:
     """Why this sitting is a failed run, judged by its own trials only: there were trials and none was graded,
-    or every entry was skipped or not started (or there was none). A resume whose every trial was already
-    recorded (entries done, no trials this sitting) is not a failure."""
+    or every entry was skipped or not started (or there was none). Entries skipped because the engine could
+    not run their model are left out (a resume tries them again), unless every entry was one. A resume whose
+    every trial was already recorded (entries done, no trials this sitting) is not a failure."""
     if not rows:
         return "no entry to run"
+    servable = [r for r in rows if not r.get("unservable")]   # an unservable model's own faults: it is skipped
+    if not servable:
+        return "the engine could not run any entry"
+    rows = servable
     sitting = [r.get("sitting") or {} for r in rows]
     n, graded = sum(sum(x.values()) for x in sitting), sum(x.get("ok", 0) for x in sitting)
     if graded:
@@ -970,6 +980,8 @@ def _run_all_entries(entries, every, log, log_file, out, *, plan, client_kind, b
                 progress(f"{e.slug}: skipped: {exc}")
             continue
         row["sitting"] = dict(st.get("sitting") or {})
+        if "faults_not_counted" in st:
+            row["unservable"] = True
         if st["skipped"]:
             row.update(result="skipped", why=st["skipped"])
             if e.thinking and "forced off" in st["skipped"]:
@@ -1072,6 +1084,8 @@ def main(argv: list[str] | None = None) -> int:
                        device_id=a.device_id, weights_sha256=a.weights_sha256, max_minutes=a.max_minutes, lock=a.lock,
                        quick=quick_from_args(a) if a.plan == "quick" else None)
     except (RuntimeError, ValueError) as exc:
+        if getattr(exc, "run_log", None) is not None:
+            return _print_started_failure(exc)
         print(f"not started: {exc}", file=sys.stderr)
         return 2
     except BaseException as exc:                        # a signal: say what the restore did
@@ -1089,6 +1103,18 @@ def main(argv: list[str] | None = None) -> int:
             print(f"FAILED: {st[k]}", file=sys.stderr)
     print(f"outcome: {st['outcome']}")
     return st["exit_code"]
+
+
+def _print_started_failure(exc: BaseException) -> int:
+    """A run that had started (the engine may have been touched) and then failed on the host's sandbox or git:
+    a failed run, exit 1, with what the restore did."""
+    log = exc.run_log
+    print(f"FAILED: {type(exc).__name__}: {exc}", file=sys.stderr)
+    print(f"engine: {log.get('engine_restored') or 'untouched'}", file=sys.stderr)
+    if log.get("restore_with"):
+        print(f"restore the engine with: {log['restore_with']}", file=sys.stderr)
+    print(f"outcome: {log.get('outcome') or 'failed'}")
+    return 1
 
 
 def _print_interrupted(exc: BaseException, report: Path) -> int:
@@ -1283,6 +1309,8 @@ def run_all_main(argv: list[str] | None = None) -> int:
                       client_kind=a.client, base_url=a.base_url, device_id=a.device_id, lock=a.lock,
                       max_minutes=a.max_minutes, quick=quick_from_args(a) if a.plan == "quick" else None)
     except (RuntimeError, ValueError) as exc:          # refused before anything was done
+        if getattr(exc, "run_log", None) is not None:  # unless it had started (the host's sandbox or git failed)
+            return _print_started_failure(exc)
         print(f"not started: {exc}", file=sys.stderr)
         return 2
     except BaseException as exc:                        # a signal or a crash: say what the restore did

@@ -384,7 +384,8 @@ when finished, 3 when stopped by the STOP file or the time limit (run it again t
 failed: any other stop, an error, a restore that did not match, or a sitting that graded nothing (it
 had trials and none was graded, or every entry was skipped or not started). A resume whose every trial
 was already recorded is not a failure. A model the engine cannot run (its first 3 trials all engine
-faults) is skipped by itself: its faults do not count toward the run's 2% fault stop. A refusal before
+faults) is skipped by itself: its faults count neither toward the run's 2% fault stop nor toward
+"graded nothing" (a resume tries it again), unless every entry is one. A refusal before
 anything started exits 2. The guard's own record is `$OUT/run-guard-<plan>.json`. `--lock` must be
 outside the repository. `run --entry` (one entry) with the engine goes through the same guard, with
 its record in `$OUT/run-guard-entry.json` and the same exit codes.

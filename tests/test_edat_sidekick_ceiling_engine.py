@@ -209,11 +209,15 @@ def _entry_stub(calls, then=None):
     return run_entry
 
 
-@pytest.fixture
-def quiet(monkeypatch, tmp_path):
-    """Harbor closed and memory free, as this module's checks see them (the guard is given these), and the
-    host-wide engine save in the test's own folder."""
+@pytest.fixture(autouse=True)
+def own_save(monkeypatch, tmp_path):
+    """The host-wide engine save in the test's own folder: no test writes the host's."""
     monkeypatch.setattr(run_mod, "ENGINE_SAVE", str(tmp_path / "lock.engine-save.json"))
+
+
+@pytest.fixture
+def quiet(monkeypatch):
+    """Harbor closed and memory free, as this module's checks see them (the guard is given these)."""
     monkeypatch.setattr(run_mod, "harbor_running", lambda: None)
     monkeypatch.setattr(run_mod, "memory_free_pct", lambda: 90)
     monkeypatch.setattr(run_mod, "weights_for", lambda out, mdir, m: "0" * 64)
@@ -450,6 +454,27 @@ def test_f_the_save_is_one_host_wide_path_whatever_the_lock(tmp_path, fake, key,
         run_all(tmp_path / "out", plan="quick", client_kind="oracle", progress=None, models=[_model()],
                 lock=str(repo / "a-lock-test"))
     assert not (repo / "a-lock-test").exists()
+
+
+def test_a_sandbox_failure_after_the_start_is_a_failed_run_not_a_refusal(tmp_path, fake, key, quiet, monkeypatch,
+                                                                         capsys):
+    from edat.sidekick.sandbox.run import SandboxUnavailable
+
+    def broken(e, out, **kw):
+        raise SandboxUnavailable("the sealed sandbox failed its self-test")
+    monkeypatch.setattr(run_mod, "_run_entry", broken)
+    monkeypatch.setattr(run_mod, "model_dir_from_settings", lambda: tmp_path)
+    monkeypatch.setattr(run_mod, "scan", lambda mdir: ([_model()], []))
+    code = run_mod.run_all_main(["--plan", "quick", "--out", str(tmp_path / "out"), "--base-url", fake.url,
+                                 "--lock", str(tmp_path / "lock")])
+    err = capsys.readouterr().err
+    assert code == 1 and "not started" not in err and "FAILED: SandboxUnavailable" in err
+    assert "engine: engine restored" in err and fake.loaded == BEFORE and _posts(fake)
+    entry = _model().entries()[0]
+    with pytest.raises(SandboxUnavailable) as exc:
+        run_mod.run_entry(entry, tmp_path / "one", plan="quick", base_url=fake.url, weights_sha256="0" * 64,
+                          progress=None, lock=str(tmp_path / "lock"))
+    assert exc.value.run_log["outcome"] == "failed" and fake.loaded == BEFORE
 
 
 def test_p10_a_run_off_the_main_thread_fails_and_leaves_no_lock(tmp_path, quiet, monkeypatch):

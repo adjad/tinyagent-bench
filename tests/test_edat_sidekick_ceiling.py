@@ -13,10 +13,12 @@ from edat.sidekick.sandbox.run import SandboxUnavailable, SeatbeltIsolation
 
 
 @pytest.fixture(autouse=True)
-def host_checks(monkeypatch):
-    """Harbor closed and memory free, as the ceiling's checks (and the run guard given them) see them; the
-    guard's own Harbor and memory behaviour is tested in test_edat_sidekick_ceiling_engine and its own tests."""
+def host_checks(monkeypatch, tmp_path):
+    """Harbor closed and memory free, as the ceiling's checks (and the run guard given them) see them, and the
+    engine save in the test's own folder (never the host's); the guard's own Harbor and memory behaviour is
+    tested in test_edat_sidekick_ceiling_engine and its own tests."""
     from edat.sidekick.ceiling import run as run_mod
+    monkeypatch.setattr(run_mod, "ENGINE_SAVE", str(tmp_path / "test-engine-save.json"))
     monkeypatch.setattr(run_mod, "harbor_running", lambda: None)
     monkeypatch.setattr(run_mod, "memory_free_pct", lambda: 90)
 
@@ -513,7 +515,7 @@ def test_run_all_skips_a_model_the_engine_cannot_serve_and_goes_on(tmp_path, iso
                         lambda kind, model, base_url, thinking: _Unservable() if model.engine_id == bad
                         else real(kind, model, base_url, thinking))
     sense = _model(bad, "sensenova", thinking=(False,), label="SenseNova-Loop 9B", role="candidate")
-    q = Quick(per_rung=1, rungs=(1, 2, 3), thinking="shipped")
+    q = Quick(per_rung=2, rungs=(1, 2, 3), thinking="shipped")     # 6 trials: a resume has 3 left to try
     log = run_all(tmp_path / "out", plan="quick", quick=q, client_kind="oracle", progress=None, iso=iso,
                   models=[sense, _model()], lock=str(tmp_path / "lock"))
     rows = {r["entry"].split("|")[0]: r for r in log["entries"]}
@@ -529,6 +531,17 @@ def test_run_all_skips_a_model_the_engine_cannot_serve_and_goes_on(tmp_path, iso
     assert guard["excluded"] == 0 and guard["outcome"] == "finished" and log["failed"] is False
     pg = json.loads(next((tmp_path / "out" / "quick").glob(f"{bad}.*/progress.json")).read_text())
     assert pg["faults_not_counted"] == 3 and pg["sitting"] == {"ok": 0, "excluded": 3, "other": 0}
+    # A resume tries the unservable model again (3 new faults) and finds the healthy one done: not a failure.
+    log = run_all(tmp_path / "out", plan="quick", quick=q, client_kind="oracle", progress=None, iso=iso,
+                  models=[sense, _model()], lock=str(tmp_path / "lock"))
+    rows = {r["entry"].split("|")[0]: r for r in log["entries"]}
+    assert rows[bad]["unservable"] and rows[bad]["sitting"] == {"ok": 0, "excluded": 3, "other": 0}
+    assert rows["gemma-4-E4B-it-oQ4e-mtp"]["sitting"] == {"ok": 0, "excluded": 0, "other": 0}
+    assert log["failed"] is False and log["outcome"] == "finished"
+    # Only unservable models: a failed run.
+    log = run_all(tmp_path / "out2", plan="quick", quick=q, client_kind="oracle", progress=None, iso=iso,
+                  models=[sense], lock=str(tmp_path / "lock"))
+    assert log["failed"] is True and "could not run any entry" in log["why_failed"]
     md, _ = build_report(tmp_path / "out" / "quick")
     assert "## Not run" in md and "engine could not run this model" in md.split("## Not run")[1]
 

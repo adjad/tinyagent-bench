@@ -32,13 +32,16 @@ class FakeEngine:
     is_loading first, as oMLX does; `fail_loads` answers 500 to loads; `hook(method, path)` runs before each
     request is answered."""
 
-    def __init__(self, loaded=(), pinned=(), ids=("model-a", "model-b", "model-c", "helper-embed"), redirect_to=None,
+    def __init__(self, loaded=(), pinned=(), ids=("model-a", "model-b", "model-c", "model-d", "helper-embed"),
+                 redirect_to=None,
                  unload_lag=0.0, load_lag=0.0, hook=None):
         self.loaded, self.pinned, self.ids = set(loaded), set(pinned), list(ids)
         self.loading: set[str] = set()
+        self.chats: list[str] = []
         self.requests: list[tuple[str, str, str | None]] = []
         self.redirect_to = redirect_to
         self.unload_lag, self.load_lag, self.hook, self.fail_loads = unload_lag, load_lag, hook, False
+        self.dead = False                     # every request answers 503: the engine stopped serving
         fake = self
 
         class H(BaseHTTPRequestHandler):
@@ -58,6 +61,15 @@ class FakeEngine:
                 fake.requests.append((method, self.path, self.headers.get("Authorization")))
                 if fake.hook:
                     fake.hook(method, self.path)
+                if fake.dead:
+                    return self._send(503)
+                if method == "POST" and self.path == "/v1/chat/completions":
+                    n = int(self.headers.get("Content-Length") or 0)
+                    mid = json.loads(self.rfile.read(n) or b"{}").get("model")
+                    fake.chats.append(mid)
+                    if mid in fake.loaded:
+                        return self._send(200, {"choices": [{"message": {"role": "assistant", "content": "O"}}]})
+                    return self._send(404)
                 if fake.redirect_to:
                     return self._send(307, {}, [("Location", fake.redirect_to + self.path)])
                 if method == "GET" and self.path == "/v1/models":
@@ -475,6 +487,65 @@ def test_a_sandbox_failure_after_the_start_is_a_failed_run_not_a_refusal(tmp_pat
         run_mod.run_entry(entry, tmp_path / "one", plan="quick", base_url=fake.url, weights_sha256="0" * 64,
                           progress=None, lock=str(tmp_path / "lock"))
     assert exc.value.run_log["outcome"] == "failed" and fake.loaded == BEFORE
+
+
+def _some_unservable(bad, then=None):
+    """A model in `bad` is skipped the way _run_entry skips a model the engine cannot run; the others serve."""
+    def run_entry(e, out, **kw):
+        if e.model.engine_id in bad:
+            if then:
+                then(e.model.engine_id)
+            return {"skipped": "the engine could not run this model (its first 3 trials all failed on engine faults)",
+                    "stopped": None, "written": 3, "faults_not_counted": 3,
+                    "sitting": {"ok": 0, "excluded": 3, "other": 0}, "summary": {"ceiling": 0, "solid": 0, "excluded": 3}}
+        kw["guard"].note("ok")
+        return {"skipped": None, "stopped": None, "written": 1, "sitting": {"ok": 1, "excluded": 0, "other": 0},
+                "summary": {"ceiling": 1, "solid": 1, "excluded": 0}}
+    return run_entry
+
+
+def test_d3_one_unservable_model_among_healthy_ones_is_skipped_and_the_run_finishes(tmp_path, fake, key, quiet,
+                                                                                      monkeypatch):
+    monkeypatch.setattr(run_mod, "_run_entry", _some_unservable({"model-b"}))
+    log = _guarded(tmp_path, fake, models=[_model("model-a"), _model("model-b"), _model()])   # run in id order
+    assert [r["result"] for r in log["entries"]] == ["done", "skipped", "done"]
+    assert log["entries"][1]["engine_health"] == "model-a served" and fake.chats == ["model-a"]   # the last that served
+    assert log["outcome"] == "finished" and log["exit_code"] == 0 and fake.loaded == BEFORE
+
+
+def test_d3_the_engine_dying_between_models_fails_the_run_and_the_rest_is_not_run(tmp_path, fake, key, quiet,
+                                                                                   monkeypatch):
+    monkeypatch.setattr(run_mod, "_run_entry", _some_unservable({"model-b", "model-d"},
+                                                                lambda mid: setattr(fake, "dead", True)))
+    log = _guarded(tmp_path, fake, models=[_model(), _model("model-b"), _model("model-d"), _model("model-a")])
+    assert [r["result"] for r in log["entries"]] == ["done", "skipped", "not run", "not run"]
+    assert log["entries"][1]["engine_health"].startswith("failed")
+    assert not any(r.get("unservable") for r in log["entries"][2:])
+    assert "the engine stopped serving" in log["failed_because"]
+    assert log["outcome"] == "failed" and log["exit_code"] == 1 and _save(tmp_path).exists()   # restore refused
+    assert not (tmp_path / "lock").exists()
+
+
+def test_d3_two_unservable_models_before_any_served_check_the_engine_settles(tmp_path, fake, key, quiet, monkeypatch):
+    monkeypatch.setattr(run_mod, "_run_entry", _some_unservable({"model-c", "model-b"}))
+    log = _guarded(tmp_path, fake, models=[_model(), _model("model-b"), _model("model-d")])
+    assert [r["result"] for r in log["entries"]] == ["skipped", "skipped", "done"]
+    assert [r.get("engine_health") for r in log["entries"]] == ["status answers", "settles", None]
+    assert fake.chats == [] and log["outcome"] == "finished"
+
+
+def test_d3_a_resume_after_a_sitting_that_skipped_an_unservable_model_finishes(tmp_path, fake, key, quiet,
+                                                                                monkeypatch):
+    """The healthy model's trials are all recorded (none this sitting); the unservable one is tried again."""
+    def resumed(e, out, **kw):
+        if e.model.engine_id == "model-b":
+            return _some_unservable({"model-b"})(e, out, **kw)
+        return {"skipped": None, "stopped": None, "written": 0, "sitting": {"ok": 0, "excluded": 0, "other": 0},
+                "summary": {"ceiling": 1, "solid": 1, "excluded": 0}}
+    monkeypatch.setattr(run_mod, "_run_entry", resumed)
+    log = _guarded(tmp_path, fake, models=[_model("model-a"), _model("model-b")])
+    assert [r["result"] for r in log["entries"]] == ["done", "skipped"]
+    assert log["outcome"] == "finished" and log["failed"] is False and log["exit_code"] == 0
 
 
 def test_p10_a_run_off_the_main_thread_fails_and_leaves_no_lock(tmp_path, quiet, monkeypatch):

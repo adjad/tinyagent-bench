@@ -923,6 +923,46 @@ def run_all(out: Path, *, plan: str, tiers: tuple[int, ...] = (0,), only: tuple[
     return log
 
 
+def engine_health(engine, guard, last_served: str | None, strict: bool, current: str | None) -> tuple[str | None, str | None]:
+    """After an entry the engine could not run: (why the engine is not healthy, or None; the model now loaded).
+    The status endpoint must answer. When `strict` (the entry before was served, or this is the second
+    unservable entry in a row), the engine must also still serve: a one-token request to the last model that
+    served (made the one model loaded first, through the guard), or, if none has served this sitting, the
+    engine settles (no load stuck) and lists models in its status."""
+    from edat.runtime.run_guard import GuardError
+    try:
+        rows = engine.status()
+    except Exception as exc:  # noqa: BLE001
+        return f"its status endpoint did not answer ({type(exc).__name__}: {str(exc)[:120]})", current
+    if not strict:
+        return None, current
+    if last_served is None:
+        try:
+            engine.settle()
+        except GuardError as exc:
+            return f"a load is stuck ({exc})", current
+        except Exception as exc:  # noqa: BLE001
+            return f"its status endpoint stopped answering ({type(exc).__name__})", current
+        return (None if rows else "it lists no models"), current
+    try:
+        guard.prepare(last_served)                  # Harbor checked; one model resident (GuardError goes up)
+    except GuardError:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        return f"it could not load {last_served} again ({type(exc).__name__}: {str(exc)[:120]})", current
+    from edat.sidekick.ceiling import engine as eng
+    try:
+        with eng.client(engine.base_url, timeout=120) as c:
+            r = eng._ok(c.post("/v1/chat/completions", json={
+                "model": last_served, "messages": [{"role": "user", "content": "Reply with OK."}],
+                "max_tokens": 1, "stream": False}))
+            ok = bool(r.json().get("choices"))
+    except Exception as exc:  # noqa: BLE001
+        return f"{last_served}, which served before, did not answer ({type(exc).__name__}: {str(exc)[:120]})", \
+            last_served
+    return (None if ok else f"{last_served} answered with no choice"), last_served
+
+
 def nothing_graded(rows: list[dict]) -> str | None:
     """Why this sitting is a failed run, judged by its own trials only: there were trials and none was graded,
     or every entry was skipped or not started (or there was none). Entries skipped because the engine could
@@ -951,6 +991,9 @@ def _run_all_entries(entries, every, log, log_file, out, *, plan, client_kind, b
     log_file.parent.mkdir(parents=True, exist_ok=True)
     started = time.monotonic()
     current = None
+    last_served = None          # the last model that graded a trial this sitting
+    prev_served = False         # the entry just before was served
+    streak = 0                  # unservable entries in a row
     for e in entries:
         row = {"entry": e.key, "label": e.label, "tier": e.tier}
         log["entries"].append(row)
@@ -978,6 +1021,7 @@ def _run_all_entries(entries, every, log, log_file, out, *, plan, client_kind, b
             row.update(result="skipped", why=str(exc))
             if progress:
                 progress(f"{e.slug}: skipped: {exc}")
+            prev_served = False
             continue
         row["sitting"] = dict(st.get("sitting") or {})
         if "faults_not_counted" in st:
@@ -997,6 +1041,28 @@ def _run_all_entries(entries, every, log, log_file, out, *, plan, client_kind, b
                 break
         else:
             row.update(result="done", ceiling=st["summary"]["ceiling"], solid=st["summary"]["solid"])
+        if row.get("unservable") and engine is not None:
+            # Is it the model, or did the engine stop serving? A dead engine makes every later model look
+            # unservable, with no fault counted: check the engine before going on.
+            strict = prev_served or streak >= 1
+            streak += 1
+            sick, current = engine_health(engine, guard, last_served if strict else None, strict, current)
+            row["engine_health"] = (f"failed: {sick}" if sick else "status answers" if not strict
+                                    else f"{last_served} served" if last_served else "settles")
+            if sick:
+                why = f"the engine stopped serving: {sick}"
+                log["failed_because"] = why
+                guard.stop(why)                       # not resumable: the run ends failed, the guard restores
+                for later in entries[entries.index(e) + 1:]:
+                    log["entries"].append({"entry": later.key, "label": later.label, "tier": later.tier,
+                                           "result": "not run", "why": "the engine stopped serving"})
+                _write_progress_file(log_file, log)
+                break
+        elif not row.get("unservable"):
+            streak = 0
+        prev_served = (row.get("sitting") or {}).get("ok", 0) > 0
+        if prev_served:
+            last_served = e.model.engine_id
         _write_progress_file(log_file, log)
     if guard is not None and not guard.stop_reason:
         why = nothing_graded(log["entries"])

@@ -385,7 +385,12 @@ failed: any other stop, an error, a restore that did not match, or a sitting tha
 had trials and none was graded, or every entry was skipped or not started). A resume whose every trial
 was already recorded is not a failure. A model the engine cannot run (its first 3 trials all engine
 faults) is skipped by itself: its faults count neither toward the run's 2% fault stop nor toward
-"graded nothing" (a resume tries it again), unless every entry is one. A refusal before
+"graded nothing" (a resume tries it again), unless every entry is one. After each such skip the run
+checks the engine before going on: its status must answer, and when the entry before was served or this
+is the second unservable entry in a row, the engine must still serve (a one-token request to the last
+model that served, or, if none has yet, the engine settling with models listed). If that fails, the
+run ends failed with "the engine stopped serving", the remaining entries are recorded as not run, and
+the engine is restored. A refusal before
 anything started exits 2. The guard's own record is `$OUT/run-guard-<plan>.json`. `--lock` must be
 outside the repository. `run --entry` (one entry) with the engine goes through the same guard, with
 its record in `$OUT/run-guard-entry.json` and the same exit codes.
